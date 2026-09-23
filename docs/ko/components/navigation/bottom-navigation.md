@@ -84,6 +84,20 @@ PlBottomNavigation<String>(
 
 창의 가장자리를 가로지르는 바에는 모서리 뒤에 아무것도 없습니다. 그래서 흐름 안에 있는 것만이 모서리가 붙은 시트입니다.
 
+`fixed` 바는 흐름 밖에 있어서 페이지의 끝이 언제나 그 아래에 깔리고, 거기까지 <kbd>Tab</kbd>으로 내려간 링크도 그 아래에 숨습니다. 바는 마운트되어 있는 동안 홈 인디케이터까지 포함한 자기 높이를 루트 요소의 `--plass-bottom-navigation-height`에 쓰고, 언마운트되면 다시 지웁니다. 바가 없으면 이 토큰은 `0px`이라서, 페이지는 조건 없이 자리를 비워 둘 수 있습니다.
+
+```css
+main {
+  padding-bottom: var(--plass-bottom-navigation-height);
+}
+
+html {
+  scroll-padding-bottom: var(--plass-bottom-navigation-height);
+}
+```
+
+`padding-bottom`은 페이지의 마지막 부분이 바 위로 올라오게 하고, `scroll-padding-bottom`은 <kbd>Tab</kbd>으로 닿은 링크가 바 아래에서 멈추지 않게 합니다. `sticky`와 `static` 바는 흐름 안에 있어서 페이지 끝을 가리지 않고, 아무것도 쓰지 않습니다.
+
 :::
 
 ::: fw flutter
@@ -91,6 +105,8 @@ PlBottomNavigation<String>(
 `position`은 없습니다. Flutter 화면에는 위젯이 빠져나올 페이지 스크롤이 없기 때문입니다. 바는 앱의 스캐폴드가 하단 슬롯이라 부르는 자리에, 또는 `Stack`의 바닥에 놓입니다. 어느 쪽이든 정하는 것은 바가 아니라 앱입니다.
 
 모서리는 React 빌드와 같은 이유로 각져 있습니다. 화면 가장자리를 가로지르는 바에는 깎을 모서리가 뒤에 없습니다.
+
+바를 스크롤 뷰 아래에 두면, 곧 `Column` 안에서 스크롤 뷰를 `Expanded`로 그 위에 두면 바는 아무것도 가리지 않습니다. 스캐폴드의 하단 슬롯이 그것입니다. `Stack`으로 내용 위에 얹으면 웹의 `fixed` 바처럼 내용의 끝을 가리므로, 스크롤 뷰의 마지막 항목이 바 위로 올라오려면 바의 높이만큼 아래쪽 `padding`을 주어야 합니다.
 
 :::
 

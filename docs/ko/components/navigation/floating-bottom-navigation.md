@@ -178,6 +178,30 @@ PlFloatingBottomNavigation<String>(
 
 </Demo>
 
+### 놓이는 자리
+
+::: fw react
+
+`fixed` 바는 [`PlBottomNavigation`](./bottom-navigation)처럼 자기 높이를 루트 요소의 `--plass-bottom-navigation-height`에 쓰고, 바가 없으면 `0px`입니다. 높이는 캡슐 아래의 틈과 홈 인디케이터까지 포함한 띠 전체입니다. 그 전부가 페이지 위에 있기 때문입니다. 같은 두 선언으로 자리를 비워 둡니다. 하나는 페이지의 마지막 부분을, 하나는 <kbd>Tab</kbd>으로 닿은 링크를 위한 것입니다.
+
+```css
+main {
+  padding-bottom: var(--plass-bottom-navigation-height);
+}
+
+html {
+  scroll-padding-bottom: var(--plass-bottom-navigation-height);
+}
+```
+
+:::
+
+::: fw flutter
+
+캡슐은 `Stack` 안에서 내용 위에 떠 있으므로, 그 아래 스크롤 뷰의 마지막 항목이 바 위로 올라오려면 틈과 `MediaQuery.paddingOf(context).bottom`까지 포함한 바의 높이만큼 아래쪽 `padding`을 주어야 합니다.
+
+:::
+
 ## Accessibility
 
 - 바는 <Fw react="&lt;nav&gt; 랜드마크" flutter="시맨틱 컨테이너" />이고, `label`을 주기 전에는 이름이 없습니다. "Main"처럼 이름을 붙이세요.

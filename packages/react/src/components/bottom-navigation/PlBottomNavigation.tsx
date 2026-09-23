@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
+import { useBottomBarHeight } from '../../internal/bottom-bar.js';
 import {
   cx,
   focusRingInsetClasses,
@@ -246,6 +247,12 @@ export const PlBottomNavigation = /* @__PURE__ */ React.forwardRef<
     [value, change, size, density, labels, disabled]
   );
 
+  // A fixed bar covers the end of the page, so it says by how much, as
+  // `--plass-bottom-navigation-height` on the root. See `internal/bottom-bar.ts`.
+  const barRef = React.useRef<HTMLElement | null>(null);
+
+  useBottomBarHeight(barRef, position === 'fixed');
+
   const classNames = cx(
     'w-full min-w-0',
     // A bar spanning an edge of the window has nothing behind its corners, so
@@ -269,7 +276,7 @@ export const PlBottomNavigation = /* @__PURE__ */ React.forwardRef<
 
   return useRender({
     render: render ?? <nav />,
-    ref,
+    ref: [ref, barRef],
     props: {
       'aria-label': label,
       className: classNames,

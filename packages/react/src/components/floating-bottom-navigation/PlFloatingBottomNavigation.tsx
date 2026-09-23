@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
+import { useBottomBarHeight } from '../../internal/bottom-bar.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -403,6 +404,13 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
     [value, change, size, disabled]
   );
 
+  // The whole strip, the gap under the capsule and the home indicator
+  // included: all of it is over the end of the page. See
+  // `internal/bottom-bar.ts`.
+  const barRef = React.useRef<HTMLElement | null>(null);
+
+  useBottomBarHeight(barRef, position === 'fixed');
+
   const classNames = cx(
     'flex w-full justify-center px-4',
     // The strip the capsule is centred in spans the window, and a transparent
@@ -416,7 +424,7 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
 
   return useRender({
     render: render ?? <nav />,
-    ref,
+    ref: [ref, barRef],
     props: {
       'aria-label': label,
       className: classNames,

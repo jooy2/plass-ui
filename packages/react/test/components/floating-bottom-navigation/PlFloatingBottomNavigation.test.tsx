@@ -64,6 +64,29 @@ describe('PlFloatingBottomNavigation', () => {
     });
   });
 
+  describe('the room it takes', () => {
+    const published = () =>
+      document.documentElement.style.getPropertyValue('--plass-bottom-navigation-height');
+
+    it('publishes the height of the whole strip on the root while it is fixed', async () => {
+      const screen = await render(<PlFloatingBottomNavigation className="bar-under-test" />);
+      const bar = document.querySelector<HTMLElement>('.bar-under-test')!;
+
+      // The strip and not the capsule: the gap under it is over the page too.
+      expect(published()).toBe(`${bar.getBoundingClientRect().height}px`);
+
+      await screen.unmount();
+
+      expect(published()).toBe('');
+    });
+
+    it('publishes nothing while it is in the flow', async () => {
+      await render(<PlFloatingBottomNavigation position="static" />);
+
+      expect(published()).toBe('');
+    });
+  });
+
   describe('a destination', () => {
     it('is a disc', async () => {
       const screen = await render(

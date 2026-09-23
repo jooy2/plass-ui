@@ -173,6 +173,29 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The room a fixed bottom bar takes
+ *
+ * A `PlBottomNavigation` or a `PlFloatingBottomNavigation` is `fixed` by
+ * default: held against the bottom of the window and out of the flow, so the
+ * end of the page is always under it, and so is a link a reader tabs to down
+ * there. Only the page can make room, and only if it knows how much, so a fixed
+ * bar measures itself — size, density, names and the home indicator included —
+ * and writes the answer here, on the root element, for as long as it is
+ * mounted. With no bar it is `0px`, so a page can reserve it unconditionally:
+ *
+ *   main { padding-bottom: var(--plass-bottom-navigation-height); }
+ *   html { scroll-padding-bottom: var(--plass-bottom-navigation-height); }
+ *
+ * On a bare `:root`, for the reason `--plass-z-portal` is. It is a reading
+ * rather than a setting: a bar replaces whatever is written here the moment it
+ * has measured itself.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --plass-bottom-navigation-height: 0px;
+}
+
+/* ---------------------------------------------------------------------------
  * Light theme (default)
  *
  * `.light` and `[data-theme='light']` carry the same block rather than only

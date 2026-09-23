@@ -178,6 +178,30 @@ That space is `MediaQuery.paddingOf(context).bottom`, which is the home indicato
 
 </Demo>
 
+### Placement
+
+::: fw react
+
+A `fixed` bar publishes its height as `--plass-bottom-navigation-height` on the root element, the way a [`PlBottomNavigation`](./bottom-navigation) does, and `0px` stands for no bar. The height is the whole strip, the gap under the capsule and the home indicator included, because all of it is over the page. The same two declarations reserve the room, one for the last of the page and one for a link reached with <kbd>Tab</kbd>:
+
+```css
+main {
+  padding-bottom: var(--plass-bottom-navigation-height);
+}
+
+html {
+  scroll-padding-bottom: var(--plass-bottom-navigation-height);
+}
+```
+
+:::
+
+::: fw flutter
+
+The capsule floats over the content in a `Stack`, so the scroll view under it needs a bottom `padding` of the bar's height, the gap and `MediaQuery.paddingOf(context).bottom` included, for its last items to scroll clear of it.
+
+:::
+
 ## Accessibility
 
 - The bar is <Fw react="a &lt;nav&gt; landmark" flutter="a semantics container" />, and it has no name until `label` gives it one. Pass one, such as "Main".

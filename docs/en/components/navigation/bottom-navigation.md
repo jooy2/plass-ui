@@ -84,6 +84,20 @@ What is claimed instead is `aria-current`, which is the honest statement. This i
 
 A bar spanning an edge of the window has nothing behind its corners, so only one sitting in the flow is a sheet with corners at all.
 
+A `fixed` bar is out of the flow, so the end of the page is always under it, and so is a link a reader tabs to down there. While it is mounted, the bar writes its own height, the home indicator included, to `--plass-bottom-navigation-height` on the root element, and takes it off again when it unmounts. With no bar the token is `0px`, so a page can reserve the room unconditionally:
+
+```css
+main {
+  padding-bottom: var(--plass-bottom-navigation-height);
+}
+
+html {
+  scroll-padding-bottom: var(--plass-bottom-navigation-height);
+}
+```
+
+`padding-bottom` lets the last of the page scroll clear of the bar, and `scroll-padding-bottom` keeps a link reached with <kbd>Tab</kbd> from stopping underneath it. A `sticky` or `static` bar is in the flow, covers nothing at the end of the page, and publishes nothing.
+
 :::
 
 ::: fw flutter
@@ -91,6 +105,8 @@ A bar spanning an edge of the window has nothing behind its corners, so only one
 There is no `position`, because a Flutter screen has no page scroll for a widget to opt out of. A bar goes in whatever the app's scaffold calls its bottom slot, or at the bottom of a `Stack`, and either way it is the app that decides, not the bar.
 
 Its corners are square for the reason the React build's are: a bar spanning an edge of the screen has nothing behind them to cut.
+
+Below the scroll view, in a `Column` with the scroll view `Expanded` above it, the bar covers nothing, and that is what a scaffold's bottom slot is. Laid over the content in a `Stack`, it covers the end of it the way a `fixed` bar does on the web, and the scroll view needs a bottom `padding` of the bar's height for its last items to scroll clear.
 
 :::
 

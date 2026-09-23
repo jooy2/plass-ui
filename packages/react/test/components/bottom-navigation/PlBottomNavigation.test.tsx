@@ -54,6 +54,42 @@ describe('PlBottomNavigation', () => {
     });
   });
 
+  describe('the room it takes', () => {
+    const published = () =>
+      document.documentElement.style.getPropertyValue('--plass-bottom-navigation-height');
+
+    it('publishes its height on the root while it is fixed', async () => {
+      await render(
+        <PlBottomNavigation className="bar-under-test">
+          <PlBottomNavigationItem value="home">Home</PlBottomNavigationItem>
+        </PlBottomNavigation>
+      );
+
+      const bar = document.querySelector<HTMLElement>('.bar-under-test')!;
+
+      // The end of the page is under a fixed bar, and only the page can make
+      // room for it — so the bar says how much, measured rather than guessed.
+      expect(bar.getBoundingClientRect().height).toBeGreaterThan(0);
+      expect(published()).toBe(`${bar.getBoundingClientRect().height}px`);
+    });
+
+    it('takes it away again when it goes', async () => {
+      const screen = await render(<PlBottomNavigation />);
+
+      expect(published()).not.toBe('');
+
+      await screen.unmount();
+
+      expect(published()).toBe('');
+    });
+
+    it('publishes nothing while it is in the flow', async () => {
+      await render(<PlBottomNavigation position="static" />);
+
+      expect(published()).toBe('');
+    });
+  });
+
   describe('choosing', () => {
     it('reports the destination that was pressed', async () => {
       const change = vi.fn();

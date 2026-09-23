@@ -402,6 +402,7 @@ export type PlassToken =
   | '--plass-bg-to'
   | '--plass-blur'
   | '--plass-border'
+  | '--plass-bottom-navigation-height'
   | '--plass-breakpoint-sm'
   | '--plass-breakpoint-md'
   | '--plass-breakpoint-lg'

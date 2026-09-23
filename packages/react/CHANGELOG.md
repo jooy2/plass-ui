@@ -6,6 +6,8 @@
 
 ### Added
 
+- **A `fixed` `PlBottomNavigation` or `PlFloatingBottomNavigation` publishes its height as `--plass-bottom-navigation-height`.** The end of the page was always under the bar, and so was a link reached with Tab, with no way to know how much room to leave. The bar now writes its measured height, the home indicator included, on the root element while it is mounted, and the token is `0px` without one, so `padding-bottom` and `scroll-padding-bottom` on the page reserve exactly the room it covers.
+
 - **`PlAnimateMarquee` takes `label`, which names the strip.** Under `prefers-reduced-motion` the box becomes a tab stop while there is anything to scroll, and that stop had no name unless the caller added `role="group"` and an `aria-label` themselves. `label` makes the box a group with that name, the way `PlScrollZone`'s `label` names its region.
 
 - **A chart's tooltip takes `mode: 'nearest'`, which answers for the mark the pointer is nearest rather than for the column it is over.** It is what a `PlScatterChart` has always done, and on a line or an area it is the answer when two series cross and the reader is pointing at one of them rather than at the month they share. There is no crosshair with it — a crosshair says "these numbers all belong to this column", and there is no column — and the arrow keys walk mark by mark instead of column by column. It measures to the mark, which on a bar is the bar's data end, and it reads a stacked series where the band was actually drawn rather than at its bare value.
