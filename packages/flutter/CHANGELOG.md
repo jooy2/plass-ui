@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **A `PlBackTop` left without a `controller` on desktop says so in a debug build.** A scroll view takes the `PrimaryScrollController` by itself only on Android, iOS and Fuchsia, so on desktop and the desktop web the button watched a controller nothing was attached to and never appeared. A debug build now asserts, naming `controller`; a release build behaves as before.
+
 - **A `PlTabs` bar opens with its chosen tab clear of the edge fade.** The tab was brought into view flush against the edge, under the 24px fade that end takes on once the strip has moved. It now stops the fade's length short of it.
 
 - **`PlMenubar` is one tab stop, and the arrow keys move along it.** It claimed the `menuBar` role and then gave every word a tab stop of its own, with Left and Right only closing an open menu. Tab now reaches the bar once, on the word last used; the arrow keys step along it, wrapping at the ends, Home and End go to the first and last word, and a disabled word is stepped over. An open menu keeps its own keys, and closing it hands the focus back to its word.

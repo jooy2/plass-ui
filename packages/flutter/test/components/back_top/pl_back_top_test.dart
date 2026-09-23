@@ -142,6 +142,72 @@ void main() {
       });
     });
 
+    group('without a controller', () {
+      /// A list with no controller of its own and the button beside it, both
+      /// under the primary controller a route would put above them.
+      Widget primary(ScrollController controller) {
+        return PrimaryScrollController(
+          controller: controller,
+          child: Stack(
+            children: <Widget>[
+              ListView(
+                children: <Widget>[
+                  for (int i = 0; i < 60; i += 1) SizedBox(height: 50, child: Text('$i')),
+                ],
+              ),
+              const Positioned(right: 8, bottom: 8, child: PlBackTop()),
+            ],
+          ),
+        );
+      }
+
+      testWidgets(
+        'watches the primary controller on a phone',
+        (WidgetTester tester) async {
+          final ScrollController controller = ScrollController();
+          addTearDown(controller.dispose);
+
+          await _pump(tester, primary(controller));
+
+          expect(tester.takeException(), isNull);
+
+          controller.jumpTo(500);
+          await tester.pumpAndSettle();
+
+          expect(_opacity(tester), equals(1));
+        },
+        variant: TargetPlatformVariant.only(TargetPlatform.android),
+      );
+
+      testWidgets(
+        'says so on desktop, where nothing takes that controller by itself',
+        (WidgetTester tester) async {
+          final ScrollController controller = ScrollController();
+          addTearDown(controller.dispose);
+
+          await tester.pumpWidget(host(primary(controller), width: 300, height: 400));
+
+          // Silent, the list scrolls and the button never appears, because the
+          // list is not attached to the controller the button is watching.
+          final Object? error = tester.takeException();
+
+          expect(error, isA<AssertionError>());
+          expect(error.toString(), contains('`controller`'));
+        },
+        variant: TargetPlatformVariant.only(TargetPlatform.macOS),
+      );
+
+      testWidgets(
+        'is quiet on desktop once it is given one',
+        (WidgetTester tester) async {
+          await _pump(tester, const _Screen());
+
+          expect(tester.takeException(), isNull);
+        },
+        variant: TargetPlatformVariant.only(TargetPlatform.macOS),
+      );
+    });
+
     group('the name', () {
       testWidgets('says what pressing it does', (WidgetTester tester) async {
         await _pump(tester, const _Screen(visibilityHeight: 100));

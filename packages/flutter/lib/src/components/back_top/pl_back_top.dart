@@ -60,6 +60,11 @@ class PlBackTop extends StatefulWidget {
   /// Left out, it is the [PrimaryScrollController] — which is what a `ListView`
   /// with no controller of its own is attached to, and is therefore the Flutter
   /// equivalent of "the window".
+  ///
+  /// **Required on desktop and on the desktop web.** A scroll view takes the
+  /// primary controller on its own only on Android, iOS and Fuchsia, so
+  /// anywhere else nothing is attached to it and the button would never
+  /// appear. A debug build asserts when it is left out there.
   final ScrollController? controller;
 
   /// How far down the reader has to be before it appears, in logical pixels.
@@ -106,6 +111,7 @@ class _PlBackTopState extends State<PlBackTop> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _debugCheckController();
     _attach(widget.controller ?? PrimaryScrollController.maybeOf(context));
   }
 
@@ -114,8 +120,27 @@ class _PlBackTopState extends State<PlBackTop> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.controller != widget.controller) {
+      _debugCheckController();
       _attach(widget.controller ?? PrimaryScrollController.maybeOf(context));
     }
+  }
+
+  /// Says so, in a debug build, when the button has nothing it could watch.
+  ///
+  /// Without a [PlBackTop.controller] it watches the [PrimaryScrollController],
+  /// and a scroll view attaches to that controller by itself only on the
+  /// platforms the controller names, which are the phones. On desktop and on
+  /// the desktop web the offset it reads stays at zero and the button never
+  /// appears, which fails silently. A release build behaves as it always has.
+  void _debugCheckController() {
+    assert(
+      widget.controller != null || PrimaryScrollController.shouldInherit(context, Axis.vertical),
+      'PlBackTop was given no `controller`, and no scroll view takes the '
+      'PrimaryScrollController here by itself: Flutter hands it on automatically only on '
+      'Android, iOS and Fuchsia, so on desktop and on the desktop web the button would never '
+      'appear. Pass the ScrollController of the scroll view it should watch as `controller` — '
+      'for a scroll view built with `primary: true`, that is PrimaryScrollController.of(context).',
+    );
   }
 
   @override

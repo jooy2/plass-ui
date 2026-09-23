@@ -2277,8 +2277,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'ScrollController?',
       default: 'PrimaryScrollController',
       description: {
-        ko: '무엇을 스크롤하고 무엇을 지켜볼지. 생략하면 PrimaryScrollController — 자체 controller가 없는 ListView가 붙는 곳이고, 따라서 "창"에 해당합니다',
-        en: 'What is scrolled, and what is watched. Left out, the PrimaryScrollController — which is what a ListView with no controller of its own is attached to, and is therefore the equivalent of "the window"'
+        ko: '무엇을 스크롤하고 무엇을 지켜볼지. 생략하면 PrimaryScrollController — 자체 controller가 없는 ListView가 붙는 곳이고, 따라서 "창"에 해당합니다. 데스크톱과 데스크톱 웹에서는 필요합니다',
+        en: 'What is scrolled, and what is watched. Left out, the PrimaryScrollController — which is what a ListView with no controller of its own is attached to, and is therefore the equivalent of "the window". Required on desktop and the desktop web'
       }
     }),
     from('PlBackTop', 'visibilityHeight', { type: 'double', default: '400' }),
