@@ -46,7 +46,7 @@ Every native `<button>` attribute passes straight through, and everything else i
 
 `controller` is the `ScrollController`, left out, the `PrimaryScrollController`, which is what a `ListView` with no controller of its own attaches to and is therefore this framework's "the window". `onPressed` runs **instead of** the scroll rather than before it, which is the shape a Dart caller wants: there is no event to `preventDefault`.
 
-**Desktop and the desktop web need `controller`.** A scroll view takes the `PrimaryScrollController` by itself only on Android, iOS and Fuchsia, so anywhere else nothing is attached to it and a button left without one never appears. A debug build asserts when that happens. For a scroll view built with `primary: true`, pass `PrimaryScrollController.of(context)`.
+**Desktop and the desktop web need `controller`.** A scroll view takes the `PrimaryScrollController` by itself only on Android, iOS and Fuchsia, so anywhere else nothing is attached to it and a button left without one never appears. A debug build asserts when nothing has attached to the primary controller by the end of the first frame. For a scroll view built with `primary: true`, pass `PrimaryScrollController.of(context)`.
 
 :::
 

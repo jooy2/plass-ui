@@ -46,7 +46,7 @@ Stack(
 
 `controller`가 `ScrollController`입니다. 생략하면 `PrimaryScrollController`인데, 자체 controller가 없는 `ListView`가 붙는 곳이고 따라서 이 프레임워크의 "창"입니다. `onPressed`는 스크롤 **앞이 아니라 대신** 돕니다. Dart 호출자가 원하는 모양이 그것입니다. `preventDefault`할 이벤트가 없습니다.
 
-**데스크톱과 데스크톱 웹에서는 `controller`가 필요합니다.** 스크롤 뷰가 `PrimaryScrollController`를 스스로 가져가는 것은 Android, iOS, Fuchsia에서뿐이라서, 그 밖의 플랫폼에서는 거기에 붙는 것이 없고 `controller` 없이 둔 버튼은 끝내 나타나지 않습니다. debug 빌드는 이 경우에 assert를 냅니다. `primary: true`로 만든 스크롤 뷰라면 `PrimaryScrollController.of(context)`를 넘깁니다.
+**데스크톱과 데스크톱 웹에서는 `controller`가 필요합니다.** 스크롤 뷰가 `PrimaryScrollController`를 스스로 가져가는 것은 Android, iOS, Fuchsia에서뿐이라서, 그 밖의 플랫폼에서는 거기에 붙는 것이 없고 `controller` 없이 둔 버튼은 끝내 나타나지 않습니다. debug 빌드는 첫 프레임이 끝날 때까지 primary controller에 붙은 것이 없으면 assert를 냅니다. `primary: true`로 만든 스크롤 뷰라면 `PrimaryScrollController.of(context)`를 넘깁니다.
 
 :::
 

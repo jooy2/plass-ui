@@ -198,6 +198,44 @@ void main() {
       );
 
       testWidgets(
+        'is quiet on desktop when a scroll view takes the primary controller itself',
+        (WidgetTester tester) async {
+          final ScrollController controller = ScrollController();
+          addTearDown(controller.dispose);
+
+          await tester.pumpWidget(
+            host(
+              PrimaryScrollController(
+                controller: controller,
+                child: Stack(
+                  children: <Widget>[
+                    ListView(
+                      primary: true,
+                      children: <Widget>[
+                        for (int i = 0; i < 60; i += 1) SizedBox(height: 50, child: Text('$i')),
+                      ],
+                    ),
+                    const Positioned(right: 8, bottom: 8, child: PlBackTop()),
+                  ],
+                ),
+              ),
+              width: 300,
+              height: 400,
+            ),
+          );
+          await tester.pump();
+
+          expect(tester.takeException(), isNull);
+
+          controller.jumpTo(500);
+          await tester.pumpAndSettle();
+
+          expect(_opacity(tester), equals(1));
+        },
+        variant: TargetPlatformVariant.only(TargetPlatform.macOS),
+      );
+
+      testWidgets(
         'is quiet on desktop once it is given one',
         (WidgetTester tester) async {
           await _pump(tester, const _Screen());
