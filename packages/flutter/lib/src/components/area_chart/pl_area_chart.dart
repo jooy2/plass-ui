@@ -223,6 +223,9 @@ class PlAreaChart extends StatelessWidget {
       empty: empty,
       size: size,
       stacked: _stacked,
+      // A band that is not stacked has a line along its top, and that line is
+      // what `dashed` cuts. A stacked band's fill is its mark, with no line.
+      stroked: !_stacked,
       inset: true,
       // Unlike a line, an area's *fill* is its magnitude, so the baseline has to
       // be zero or the band's thickness stops meaning anything.

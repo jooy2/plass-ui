@@ -141,7 +141,7 @@ A series marked `dashed` is drawn with a **6px dash and a 4px gap** instead of a
 
 </Demo>
 
-The pattern is fixed rather than scaled by the size ladder, so a dashed line reads as the same rhythm on an `sm` chart and an `lg` one. Only a line has a line to dash: it does nothing on a bar, and nothing on a stacked band either, whose fill is the mark and which has no stroke along its top. The legend swatch is the same square for both, so pair `dashed` with a name that says what the line is.
+The pattern is fixed rather than scaled by the size ladder, so a dashed line reads as the same rhythm on an `sm` chart and an `lg` one. Only a line has a line to dash: it does nothing on a bar, and nothing on a stacked band either, whose fill is the mark and which has no stroke along its top. Where the line is dashed, its legend entry is a short dashed rule in place of the square, so the key says what the plot says. Pair `dashed` with a name that says what the line is as well.
 
 ### Gaps
 

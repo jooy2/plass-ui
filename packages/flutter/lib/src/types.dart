@@ -743,7 +743,8 @@ class PlassChartSeries {
   ///
   /// Only a line has a line to dash, so it does nothing on a bar, and nothing
   /// on a stacked band either, where the fill *is* the mark and there is no
-  /// stroke along its top.
+  /// stroke along its top. Where the line is dashed, its legend entry is a
+  /// short dashed rule rather than a square.
   final bool dashed;
 
   /// Starts the series switched off in the legend.

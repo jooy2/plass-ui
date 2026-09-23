@@ -4,7 +4,7 @@
 // read it — a caller marking a forecast got a solid line and nothing to say it
 // was a forecast. A test of a *contract* rather than of a widget, which is why
 // it is here: line and area are two widgets over one painter, and `dashed` has
-// to mean the same thing in both.
+// to mean the same thing in both — on the plot, and in the legend's key for it.
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -135,5 +135,57 @@ void main() {
     for (final int count in strokedContours(draw(tester))) {
       expect(count, 1);
     }
+  });
+
+  group("a dashed series' legend entry", () {
+    /// How many dashes the key beside [name] draws, or `null` for a square,
+    /// which is a box rather than anything painted.
+    int? dashesOf(WidgetTester tester, String name) {
+      final Finder entry = find.ancestor(of: find.text(name), matching: find.byType(Row)).first;
+      final Finder painted = find.descendant(of: entry, matching: find.byType(CustomPaint));
+
+      if (painted.evaluate().isEmpty) {
+        return null;
+      }
+
+      final canvas = RecordingCanvas();
+
+      tester
+          .widget<CustomPaint>(painted.first)
+          .painter!
+          .paint(canvas, tester.getSize(painted.first));
+
+      return canvas.contours.single;
+    }
+
+    const List<PlassChartSeries> pair = <PlassChartSeries>[
+      PlassChartSeries(name: 'Actual', data: data),
+      PlassChartSeries(name: 'Forecast', data: data, dashed: true),
+    ];
+
+    testWidgets('is a dashed rule where the plot draws a dashed line, and a square beside it', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, const PlLineChart(series: pair));
+
+      expect(dashesOf(tester, 'Forecast'), 2);
+      expect(dashesOf(tester, 'Actual'), isNull);
+    });
+
+    testWidgets('is a dashed rule on an area chart that is not stacked', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, const PlAreaChart(series: pair));
+
+      expect(dashesOf(tester, 'Forecast'), 2);
+    });
+
+    testWidgets('stays a square where the plot draws no line to dash', (WidgetTester tester) async {
+      await pump(tester, const PlAreaChart(stacking: PlAreaStacking.total, series: pair));
+      expect(dashesOf(tester, 'Forecast'), isNull);
+
+      await pump(tester, const PlBarChart(series: pair));
+      expect(dashesOf(tester, 'Forecast'), isNull);
+    });
   });
 }

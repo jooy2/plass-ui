@@ -34,6 +34,7 @@ import {
   formatCategory,
   formatTimeTicks,
   lineDash,
+  lineWidths,
   logScale,
   markerRadii,
   plotHeights,
@@ -314,6 +315,52 @@ interface LegendProps {
   size: PlassSize;
   values?: readonly (string | undefined)[];
   swatch?: (index: number, color: string) => React.ReactNode;
+  /** Which entries are drawn on the plot as a dashed line, by index. */
+  dashed?: readonly boolean[];
+}
+
+/**
+ * How long a dashed series' key is: two dashes of `lineDash` and the gap
+ * between them, 6 + 4 + 6. The Flutter build measures the same run off its
+ * own two constants.
+ */
+const dashedRuleLength = 16;
+
+/**
+ * The legend's key for a `dashed` series: a short run of the line itself.
+ *
+ * A filled square says "this colour" and nothing else, which for a forecast
+ * drawn in the same hue as the measurement beside it is the one half of the key
+ * that does not tell them apart. So the entry draws what the plot draws — two
+ * dashes at the line's weight, in its rhythm and with its round ends — and the
+ * square stays on a solid series, where the colour is the whole difference.
+ */
+function DashedRule({ ink, size }: { ink: string; size: PlassSize }) {
+  const stroke = lineWidths[size];
+  // The round ends reach half a stroke past each end of the run, so the box is
+  // that much wider and the run starts that far in.
+  const width = dashedRuleLength + stroke;
+
+  return (
+    <svg
+      aria-hidden="true"
+      width={width}
+      height={10}
+      viewBox={`0 0 ${width} 10`}
+      className="block shrink-0"
+    >
+      <line
+        x1={stroke / 2}
+        x2={width - stroke / 2}
+        y1={5}
+        y2={5}
+        stroke={ink}
+        strokeWidth={stroke}
+        strokeDasharray={lineDash}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
 }
 
 /**
@@ -344,7 +391,8 @@ function ChartLegendBar({
   visibility,
   size,
   values,
-  swatch
+  swatch,
+  dashed
 }: LegendProps) {
   const interactive = options.interactive !== false;
   const vertical = options.side === 'left' || options.side === 'right';
@@ -395,6 +443,8 @@ function ChartLegendBar({
               >
                 {swatch(index, ink)}
               </span>
+            ) : dashed?.[index] ? (
+              <DashedRule ink={ink} size={size} />
             ) : (
               <span
                 aria-hidden="true"
@@ -952,6 +1002,16 @@ interface CartesianProps extends CartesianChartProps {
   /** The legend's swatch, for a chart whose marks are not all the same shape. */
   swatch?: (index: number, color: string) => React.ReactNode;
   /**
+   * The marks are a stroke along the categories — a line, or the edge of an
+   * area that is not stacked — so a `dashed` series is drawn dashed, and its
+   * legend entry is a dashed rule rather than a square.
+   *
+   * Said by the chart rather than read off the series, because `dashed` does
+   * nothing on a bar or a stacked band, and a legend that promised a dashed line
+   * the plot never drew would be the one part of the chart that lied.
+   */
+  stroked?: boolean;
+  /**
    * The value axis' scale, already worked out.
    *
    * For the axis that is not a count. `valueScale` rounds to 1-2-5, which is
@@ -1028,6 +1088,7 @@ export function CartesianChart({
   markRadius = 24,
   table,
   swatch,
+  stroked = false,
   scale: givenScale,
   markTooltip,
   height,
@@ -1699,6 +1760,7 @@ export function CartesianChart({
             visibility={visibility}
             size={size}
             swatch={swatch}
+            dashed={stroked ? dashed : undefined}
             values={
               legendOptions.showValue && activeIndex !== null
                 ? series.map((_, index) => {

@@ -556,6 +556,7 @@ class PlassCartesianChart extends StatefulWidget {
     this.markRadius = 24,
     this.markInset = 0,
     this.swatch,
+    this.stroked = false,
     this.markReadout,
     this.markHeading,
     this.markColor,
@@ -649,6 +650,15 @@ class PlassCartesianChart extends StatefulWidget {
 
   /// The legend's swatch, for a chart whose marks are not all the same shape.
   final Widget Function(int index, Color color)? swatch;
+
+  /// Whether the marks are a stroke along the categories — a line, or the edge
+  /// of an area that is not stacked — so a `dashed` series is drawn dashed, and
+  /// its legend entry is a dashed rule rather than a square.
+  ///
+  /// Said by the chart rather than read off the series, because `dashed` does
+  /// nothing on a bar or a stacked band, and a legend that promised a dashed
+  /// line the plot never drew would be the one part of the chart that lied.
+  final bool stroked;
 
   /// What the readout says about a mark, for a chart whose marks are not in a
   /// grid the frame can look an answer up in.
@@ -1450,6 +1460,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
               }
             }),
             swatch: widget.swatch,
+            dashed: widget.stroked ? dashed : null,
             onHover: (int? index) => setState(() => _hovered = index),
             maxEntries: widget.legend.maxEntries,
           );
@@ -1849,6 +1860,7 @@ class PlassChartLegendBar extends StatefulWidget {
     required this.onToggle,
     required this.onHover,
     this.swatch,
+    this.dashed,
     this.vertical = false,
     this.maxEntries,
     super.key,
@@ -1856,6 +1868,11 @@ class PlassChartLegendBar extends StatefulWidget {
 
   /// The entries, in the order their colours were handed out.
   final List<PlassChartSeries> series;
+
+  /// Which entries the plot draws as a dashed line, by index. Each of those is
+  /// keyed with a dashed rule rather than a square. See
+  /// [PlassCartesianChart.stroked].
+  final List<bool>? dashed;
 
   /// One colour per entry.
   final List<Color> colors;
@@ -1925,7 +1942,11 @@ class _PlassChartLegendBarState extends State<PlassChartLegendBar> {
           on: widget.visible[i],
           tokens: widget.tokens,
           size: widget.size,
-          swatch: widget.swatch == null ? null : widget.swatch!(i, widget.colors[i]),
+          swatch: widget.swatch != null
+              ? widget.swatch!(i, widget.colors[i])
+              : (widget.dashed?[i] ?? false)
+              ? _DashedRule(color: widget.colors[i], size: widget.size)
+              : null,
           onTap: widget.interactive ? () => widget.onToggle(i) : null,
           onHover: (bool over) => widget.onHover(over ? i : null),
         ),
@@ -2024,6 +2045,60 @@ class _LegendFold extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The legend's key for a `dashed` series: a short run of the line itself.
+///
+/// A filled square says "this colour" and nothing else, which for a forecast
+/// drawn in the same hue as the measurement beside it is the one half of the key
+/// that does not tell them apart. So the entry draws what the plot draws — two
+/// dashes at the line's weight, in its rhythm and with its round ends — and the
+/// square stays on a solid series, where the colour is the whole difference.
+class _DashedRule extends StatelessWidget {
+  const _DashedRule({required this.color, required this.size});
+
+  final Color color;
+  final PlassSize size;
+
+  @override
+  Widget build(BuildContext context) {
+    final double stroke = lineWidths[size]!;
+
+    // Two dashes and the gap between them, and the round ends reach half a
+    // stroke past each end of that run.
+    return CustomPaint(
+      size: Size(lineDash * 2 + lineDashGap + stroke, 9),
+      painter: _DashedRulePainter(color: color, stroke: stroke),
+    );
+  }
+}
+
+class _DashedRulePainter extends CustomPainter {
+  const _DashedRulePainter({required this.color, required this.stroke});
+
+  final Color color;
+  final double stroke;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double y = size.height / 2;
+
+    canvas.drawPath(
+      dashedPath(
+        Path()
+          ..moveTo(stroke / 2, y)
+          ..lineTo(size.width - stroke / 2, y),
+      ),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..strokeCap = StrokeCap.round
+        ..color = color,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_DashedRulePainter old) => old.color != color || old.stroke != stroke;
 }
 
 class _LegendEntry extends StatelessWidget {

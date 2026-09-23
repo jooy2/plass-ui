@@ -1893,8 +1893,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'bool',
       default: 'false',
       description: {
-        ko: '선을 점선으로 — 예측, 목표, 작년. 선이 있는 차트에서만 뜻이 있습니다',
-        en: 'Draws the line dashed — a forecast, a target, a last year. Only a chart with a line has one to dash'
+        ko: '선을 점선으로 — 예측, 목표, 작년. 선이 있는 차트에서만 뜻이 있고, 그때는 legend 항목도 짧은 점선으로 그려집니다',
+        en: 'Draws the line dashed — a forecast, a target, a last year. Only a chart with a line has one to dash, and there the legend entry is a short dashed rule too'
       }
     }
   ],

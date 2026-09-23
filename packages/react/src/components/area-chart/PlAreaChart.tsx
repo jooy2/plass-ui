@@ -137,6 +137,9 @@ export function PlAreaChart({
       locale={locale}
       yAxis={full ? { min: 0, max: 100, tickFormat: (value) => `${value}%`, ...yAxis } : yAxis}
       stacked={stacked !== false}
+      // A band that is not stacked has a line along its top, and that line is
+      // what `dashed` cuts. A stacked band's fill is its mark, with no line.
+      stroked={stacked === false}
       inset
       // Unlike a line, an area's *fill* is its magnitude, so the baseline has to
       // be zero or the band's thickness stops meaning anything.

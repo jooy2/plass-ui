@@ -194,6 +194,8 @@ class PlLineChart extends StatelessWidget {
       semanticLabel: semanticLabel,
       empty: empty,
       size: size,
+      // A line is a stroke, so a `dashed` series is drawn dashed and keyed so.
+      stroked: true,
       // A line sits *on* its category tick, not in the middle of a band — the
       // first point belongs against the axis, not a half-step off it.
       inset: true,

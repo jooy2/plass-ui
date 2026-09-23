@@ -34,6 +34,8 @@
 
 ### Changed
 
+- **A `dashed` series is keyed in the legend with a short dashed rule rather than the filled square.** A dashed line reads as a forecast or a target on the plot, and its legend entry was the same square as every other series', so the key did not carry the one distinction the plot did. The entry now draws two dashes at the line's weight and rhythm wherever the line is drawn dashed, on `PlLineChart` and on a `PlAreaChart` that is not stacked; a bar or a stacked band has no line to dash and keeps the square.
+
 - **`PlCommandPalette` draws the first 100 matching commands, with a line under the list saying how many more matched.** Every match was drawn, which made the first open and a short query slow at around two thousand commands. Typing narrows the list, so a command further down is a letter or two away, and the line is written with the label pack's `chartMore` ("150 more").
 
 - **`plass-ui/styles.css` no longer restyles the page's own images and SVGs.** Its reset made every `<img>`, `<svg>` and `<video>` on the page a block and gave every picture `max-width: 100%` and `height: auto`, so an icon set in a sentence dropped onto a line of its own and a picture with `width` and `height` written on it lost the height it was given. The components now lay out the glyphs and pictures they draw themselves, and a bare `<img>` handed to a `PlCarousel` slide, a `PlAvatar` or a `PlChatBubble`'s `media` still fits its box. A project that runs Tailwind is unaffected: Preflight still applies both rules.

@@ -746,7 +746,8 @@ export interface PlassChartSeries {
    *
    * Only a line has a line to dash, so it does nothing on a bar, and nothing on
    * a stacked area either, where the band's fill *is* the mark and there is no
-   * stroke along its top.
+   * stroke along its top. Where the line is dashed, its legend entry is a short
+   * dashed rule rather than a square.
    * @default false
    */
   dashed?: boolean;
