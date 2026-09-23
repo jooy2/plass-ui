@@ -72,6 +72,12 @@ Commands are drawn in the order they are given, and a heading appears each time 
 
 The filter folds case and combining marks, so `cafe` finds `Café`. Each command's searchable text is folded **once per list** rather than once per comparison. A `normalize` on every command for every character typed is exactly the cost that makes a palette feel slow.
 
+::: fw react
+
+The list draws the first 100 commands that match. Typing narrows it, so a command further down is a letter or two away, and while more matched than are drawn, a line under the list says how many: "150 more", in the words of the label pack's `chartMore`.
+
+:::
+
 <Demo src="command-palette/groups" :min-height="160">
 
 ::: fw react
@@ -137,6 +143,7 @@ The query is dropped on the way **out** rather than on the way in, so the sheet 
 | the fold strips case **and** combining marks | case only | Dart's core has no `String.normalize`, and this package has no dependencies. |
 | `width`, `maxHeight` as a number or a CSS length | `double` | There is no second unit to name. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
+| the first 100 matches, and a line saying how many more | every match | A long list is built as it scrolls, so the rows past the edge cost nothing until they are reached. |
 
 :::
 

@@ -182,6 +182,21 @@ const rowClasses = /* @__PURE__ */ [
 ].join(' ');
 
 /**
+ * The most rows the list draws at once.
+ *
+ * A palette is searched rather than browsed: nobody scrolls through two
+ * thousand commands, they type two letters of the one they want. Drawing every
+ * match anyway made the first open and a short query slow at around two
+ * thousand, all for rows no reader would scroll to. A hundred is more than
+ * anyone reads down, the rest are one more letter away, and a line under the
+ * list says how many more matched, so nothing is missing without saying so.
+ *
+ * A constant rather than a prop: the number is about what a reader will scan,
+ * which does not change with the application.
+ */
+const RESULT_LIMIT = 100;
+
+/**
  * Everything a command answers to, folded into one string.
  *
  * `searchHaystack` is the same fold a `PlTransfer`'s filter uses, which is the
@@ -282,6 +297,14 @@ export function PlCommandPalette({
     return needle === '' ? items : items.filter((_, index) => haystacks[index].includes(needle));
   }, [items, haystacks, query]);
 
+  // Cut after matching rather than before it, so every command can still be
+  // found and only the rows past the limit wait for a narrower query.
+  const shown = React.useMemo(
+    () => (filtered.length > RESULT_LIMIT ? filtered.slice(0, RESULT_LIMIT) : filtered),
+    [filtered]
+  );
+  const unshown = filtered.length - shown.length;
+
   const run = (item: PlCommandItem) => {
     if (item.disabled) return;
 
@@ -322,7 +345,7 @@ export function PlCommandPalette({
               mode="list"
               // Already filtered here, so that a group heading can be drawn from
               // the same array the rows come out of.
-              items={filtered}
+              items={shown}
               filter={null}
               value={query}
               onValueChange={(next) => setQuery(next)}
@@ -352,7 +375,7 @@ export function PlCommandPalette({
               >
                 {(item: PlCommandItem, index: number) => (
                   <React.Fragment key={item.value}>
-                    {item.group && item.group !== filtered[index - 1]?.group ? (
+                    {item.group && item.group !== shown[index - 1]?.group ? (
                       <div
                         role="presentation"
                         className={cx(
@@ -404,6 +427,18 @@ export function PlCommandPalette({
                   </React.Fragment>
                 )}
               </Autocomplete.List>
+
+              {unshown > 0 ? (
+                <div
+                  className={cx(
+                    insetX[size],
+                    'shrink-0 border-t py-2 text-(--plass-muted-fg) [border-color:var(--plass-glass-line)]',
+                    metaTextClasses[size]
+                  )}
+                >
+                  {labels.chartMore(unshown)}
+                </div>
+              ) : null}
 
               <Autocomplete.Empty
                 className={cx(

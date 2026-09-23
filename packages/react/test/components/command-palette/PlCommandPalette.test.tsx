@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { PlCommandPalette, type PlCommandItem } from 'plass-ui';
+import { PlCommandPalette, PlassProvider, type PlCommandItem } from 'plass-ui';
 
 const items: PlCommandItem[] = [
   { value: 'new', label: 'New document', group: 'File', shortcut: 'Mod+N' },
@@ -131,6 +131,59 @@ describe('PlCommandPalette', () => {
       await screen.getByRole('combobox').fill('CAFE');
 
       await expect.poll(() => screen.getByRole('option').elements().length).toBe(1);
+    });
+
+    describe('a large set', () => {
+      /** `count` commands, every one of which matches `Command`. */
+      const many = (count: number): PlCommandItem[] =>
+        Array.from({ length: count }, (_, index) => ({
+          value: `command-${index}`,
+          label: `Command ${index + 1}`
+        }));
+
+      it('draws the first hundred matches and says how many more there are', async () => {
+        const screen = await render(
+          <PlCommandPalette items={many(250)} shortcut={false} defaultOpen />
+        );
+
+        await expect.element(screen.getByText('150 more')).toBeVisible();
+
+        const rows = screen.getByRole('option').elements();
+
+        expect(rows).toHaveLength(100);
+        expect(rows[0].textContent).toBe('Command 1');
+        expect(rows[99].textContent).toBe('Command 100');
+      });
+
+      it('finds a command past the hundredth once the query narrows to it', async () => {
+        const screen = await render(
+          <PlCommandPalette items={many(250)} shortcut={false} defaultOpen />
+        );
+
+        await screen.getByRole('combobox').fill('command 249');
+
+        await expect.poll(() => screen.getByRole('option').elements().length).toBe(1);
+        expect(screen.getByText(/ more$/).query()).toBeNull();
+      });
+
+      it('says nothing at exactly a hundred', async () => {
+        const screen = await render(
+          <PlCommandPalette items={many(100)} shortcut={false} defaultOpen />
+        );
+
+        await expect.poll(() => screen.getByRole('option').elements().length).toBe(100);
+        expect(screen.getByText(/ more$/).query()).toBeNull();
+      });
+
+      it('says it in the words of the label pack', async () => {
+        const screen = await render(
+          <PlassProvider labels={{ chartMore: (count) => `${count}개 더` }}>
+            <PlCommandPalette items={many(101)} shortcut={false} defaultOpen />
+          </PlassProvider>
+        );
+
+        await expect.element(screen.getByText('1개 더')).toBeVisible();
+      });
     });
 
     it('says so when nothing matched', async () => {

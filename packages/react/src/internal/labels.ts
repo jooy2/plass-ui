@@ -103,7 +103,10 @@ export interface PlassLabels {
    * them — it is what is left once the ones worth drawing have been drawn.
    */
   chartOther: string;
-  /** The legend's own "and this many more", on a chart with more series than it shows. */
+  /**
+   * "And this many more": on a chart legend with more series than it shows, and
+   * under a command palette with more matches than it draws.
+   */
   chartMore: (count: number) => string;
   /** And the way back, once they are all showing. */
   chartFewer: string;
