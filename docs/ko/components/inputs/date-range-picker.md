@@ -166,6 +166,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `val
 ## Accessibility
 
 - 두 그리드 다 각자 roving tab stop을 하나씩 가지며, 키보드는 [`PlDatePicker`](./date-picker)의 것 그대로입니다.
+- `clearable`이면 ×는 trigger 다음에 오는 별도의 tab stop입니다. ×로 값을 지우면 포커스가 trigger로 돌아가므로, 방금 비운 field에 그대로 머뭅니다.
 
 ::: fw react
 

@@ -257,6 +257,7 @@ trigger의 기본 format도 따라가고, 푸터의 지름길도 마찬가지입
 ## Accessibility
 
 - 그리드에는 **roving tab stop이 하나** 라서, <kbd>Tab</kbd>은 칸 마흔둘을 걷는 대신 달력을 빠져나갑니다. ARIA date picker 관행이 설명하는 패턴입니다.
+- `clearable`이면 ×는 trigger 다음에 오는 별도의 tab stop입니다. ×로 값을 지우면 포커스가 trigger로 돌아가므로, 방금 비운 field에 그대로 머뭅니다.
 
 ::: fw react
 

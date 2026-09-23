@@ -612,6 +612,62 @@ void main() {
         expect(find.text('Today'), findsNothing);
       });
 
+      testWidgets('hands the focus back to the trigger once the × has gone', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode trigger = FocusNode(debugLabel: 'trigger');
+        final FocusNode after = FocusNode(debugLabel: 'after');
+        addTearDown(trigger.dispose);
+        addTearDown(after.dispose);
+        DateTime? chosen = july27;
+
+        await _pump(
+          tester,
+          Shortcuts(
+            shortcuts: WidgetsApp.defaultShortcuts,
+            child: Actions(
+              actions: WidgetsApp.defaultActions,
+              child: FocusScope(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) => PlDatePicker(
+                        value: chosen,
+                        clearable: true,
+                        focusNode: trigger,
+                        onChanged: (DateTime? next) => setState(() => chosen = next),
+                      ),
+                    ),
+                    Focus(focusNode: after, child: const SizedBox.square(dimension: 1)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+
+        // Back from the stop after the picker, which lands on the × without
+        // passing the trigger, as a reader moving backwards through a form does.
+        after.requestFocus();
+        await tester.pump();
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
+        await tester.pumpAndSettle();
+
+        expect(trigger.hasFocus, isTrue);
+        expect(trigger.hasPrimaryFocus, isFalse);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        // The × left with the value, and the reader is still on the field.
+        expect(chosen, isNull);
+        expect(find.bySemanticsLabel('Clear'), findsNothing);
+        expect(trigger.hasPrimaryFocus, isTrue);
+      });
+
       testWidgets(
         'takes a press from 24px square round the ×, and leaves the rest to the trigger',
         (WidgetTester tester) async {

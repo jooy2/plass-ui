@@ -185,6 +185,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 - 각 열은 자기가 담은 단위의 이름을 달고, 각 행은 자기가 골라진 행인지를 말합니다.
 - 막힌 행은 사라지지 않고 자기 열에 남아 사용할 수 없다고 읽힙니다.
 - 열마다 탭 정지는 하나이고, 골라진 행이나 고를 수 있는 첫 행에 있습니다. <kbd>↑</kbd>와 <kbd>↓</kbd>는 고를 수 있는 다음 행을 고르면서 focus도 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>는 열의 양 끝으로 갑니다.
+- `clearable`이면 ×는 trigger 다음에 오는 별도의 tab stop입니다. ×로 값을 지우면 포커스가 trigger로 돌아가므로, 방금 비운 field에 그대로 머뭅니다.
 
 ::: fw react
 

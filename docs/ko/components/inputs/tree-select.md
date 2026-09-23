@@ -195,3 +195,4 @@ node 자신의 `selectable`이 어느 쪽으로든 덮어쓰므로, 진짜 카�
 - <kbd>↓</kbd>와 <kbd>↑</kbd>는 실제로 보이는 행을 걷고, <kbd>→</kbd>는 가지를 연 뒤 안으로 들어가고, <kbd>←</kbd>는 닫거나 부모로 나가고, <kbd>Enter</kbd>나 <kbd>Space</kbd>가 고릅니다.
 - 가지라서 고를 수 없을 뿐인 node에는 `aria-disabled`를 붙이지 않습니다. 아래 있는 것을 여는 조작 가능한 행이기 때문입니다. `disabled` node는 표시되고, 화살표 키의 정거장도 아닙니다.
 - 거르는 field는 `searchLabel`로 스스로 이름을 붙이므로, 위에 보이는 label 없이도 읽힙니다.
+- `clearable`이면 ×는 trigger 다음에 오는 별도의 tab stop입니다. ×로 값을 지우면 포커스가 trigger로 돌아가므로, 방금 비운 field에 그대로 머뭅니다.

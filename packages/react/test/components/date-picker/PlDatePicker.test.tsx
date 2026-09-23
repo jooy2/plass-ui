@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlDatePicker } from 'plass-ui';
 import { fullDate, headerButtons, mediumDate, monthAndYear } from '../../support/dates';
@@ -497,6 +498,21 @@ describe('PlDatePicker', () => {
       await screen.getByRole('button', { name: 'Clear' }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith(null));
+    });
+
+    it('hands the focus back to the trigger when it is emptied from the keyboard', async () => {
+      const screen = await render(
+        <PlDatePicker label="Departure" defaultValue={JULY_27} clearable />
+      );
+      const clear = screen.getByRole('button', { name: 'Clear' });
+
+      clear.element().focus();
+      await expect.element(clear).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      // The × is gone with the value, and the reader is still on the field.
+      await expect.poll(() => clear.query()).toBeNull();
+      await expect.element(screen.getByRole('button', { name: /^Departure/ })).toHaveFocus();
     });
 
     it('takes the caller’s own words', async () => {

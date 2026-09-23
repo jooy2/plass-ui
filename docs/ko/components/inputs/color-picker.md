@@ -195,6 +195,7 @@ PlColorPicker(
 - 모든 스와치는 자기 색으로 이름 붙은 진짜 `<button>`이고, 선택된 것에 `aria-pressed`가 붙습니다.
 - `labels`는 글자가 없는 부분들의 이름을 하나씩 바꿉니다. 기본적으로 전부 영어로 이름이 붙어 있습니다.
 - 드래그는 요소에서 pointer capture를 가져가므로, 드래그 중 포인터가 패널을 벗어나도 색이 계속 바뀝니다.
+- `clearable`이면 ×는 trigger 다음에 오는 별도의 tab stop입니다. ×로 값을 지우면 포커스가 trigger로 돌아가므로, 방금 비운 field에 그대로 머뭅니다.
 
 ::: fw react
 

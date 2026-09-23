@@ -195,6 +195,7 @@ What it reads: hex in all four lengths, and `rgb()`/`rgba()`/`hsl()`/`hsla()` in
 - Every swatch is a real `<button>` named by its own colour, with `aria-pressed` on the chosen one.
 - `labels` renames any of the parts that have no text on them. They are all named by default, in English.
 - A drag takes pointer capture on the element, so a pointer that leaves the panel mid-drag keeps changing the colour rather than dropping it.
+- With `clearable`, the × is a tab stop of its own after the trigger. Clearing the value from it hands the focus back to the trigger, so the reader stays on the field they emptied.
 
 ::: fw react
 

@@ -185,6 +185,7 @@ Because the popup stays up while the columns are being read, there has to be som
 - Each column is named after the unit it holds, and each row says whether it is the chosen one.
 - A blocked row stays in its column and is announced as unavailable rather than being removed.
 - Each column is one tab stop, on its chosen row or on its first row that can be chosen. <kbd>↑</kbd> and <kbd>↓</kbd> choose the next row that can be chosen and take the focus with them, and <kbd>Home</kbd> and <kbd>End</kbd> go to the ends of the column.
+- With `clearable`, the × is a tab stop of its own after the trigger. Clearing the value from it hands the focus back to the trigger, so the reader stays on the field they emptied.
 
 ::: fw react
 

@@ -257,6 +257,7 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 ## Accessibility
 
 - The grid has **one roving tab stop**, so <kbd>Tab</kbd> leaves the calendar rather than walking forty-two cells. That is the pattern the ARIA date-picker practice describes.
+- With `clearable`, the × is a tab stop of its own after the trigger. Clearing the value from it hands the focus back to the trigger, so the reader stays on the field they emptied.
 
 ::: fw react
 

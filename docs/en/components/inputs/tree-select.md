@@ -195,3 +195,4 @@ Opening a folder is not choosing it, which is why the second pair exists at all.
 - <kbd>↓</kbd> and <kbd>↑</kbd> walk the rows that are visible, <kbd>→</kbd> opens a branch and steps into it, <kbd>←</kbd> closes it or steps out, and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses.
 - A node that cannot be chosen is not marked `aria-disabled` when it is only a branch: it is still an operable row, because pressing it opens what is under it. A `disabled` node is marked, and is not a stop for the arrow keys.
 - The filter field names itself with `searchLabel`, so it is announced without a visible label above it.
+- With `clearable`, the × is a tab stop of its own after the trigger. Clearing the value from it hands the focus back to the trigger, so the reader stays on the field they emptied.

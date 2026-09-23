@@ -472,7 +472,19 @@ export function PickerShell({
                 className={cx(chipRemoveClasses, 'text-(--plass-muted-fg)')}
                 onClick={(event) => {
                   event.stopPropagation();
+
+                  // The × leaves the page with the value it cleared. Holding the
+                  // focus as it goes, it would drop it on the document, and a
+                  // keyboard reader would start again from the top of the page
+                  // rather than on the field they just emptied.
+                  const clear = event.currentTarget;
+                  const held = clear.ownerDocument.activeElement === clear;
+
                   onClear();
+
+                  if (held) {
+                    clear.ownerDocument.getElementById(triggerId)?.focus();
+                  }
                 }}
               >
                 <CloseIcon />

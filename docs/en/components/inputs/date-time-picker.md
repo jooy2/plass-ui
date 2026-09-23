@@ -157,6 +157,7 @@ One `names` object carries the month and weekday names, the order of the header'
 - The calendar is [`PlDatePicker`](./date-picker)'s in full (one roving tab stop, full dates as accessible names), and the columns are [`PlTimePicker`](./time-picker)'s, including the live region that reads the time back as one sentence.
 - The trigger wears the **calendar glyph alone**, not both: a control cannot say two things at once, and the date is the part a reader scans for.
 - A day or a row of the clock blocked by a full-precision bound stays where it is and is announced as unavailable. The arrow keys still land on a blocked day, and pass over a blocked row to the next one that can be chosen.
+- With `clearable`, the × is a tab stop of its own after the trigger. Clearing the value from it hands the focus back to the trigger, so the reader stays on the field they emptied.
 
 ::: fw react
 

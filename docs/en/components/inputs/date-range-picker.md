@@ -166,6 +166,7 @@ Pass `value` with `onValueChange`. The callback is always given an object, so th
 ## Accessibility
 
 - Both grids have a roving tab stop each, and the keyboard is [`PlDatePicker`](./date-picker)'s in full.
+- With `clearable`, the × is a tab stop of its own after the trigger. Clearing the value from it hands the focus back to the trigger, so the reader stays on the field they emptied.
 
 ::: fw react
 

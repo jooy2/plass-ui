@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **Clearing a picker from its × hands the focus back to the trigger.** The × leaves the page with the value it cleared, and the focus it held fell to the document, so a keyboard reader who emptied a date started again from the top of the page. It now goes to the trigger of the field they just emptied, on `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.
+
 - **The clear × on a `PlCombobox` can be pressed anywhere in a 24px square around it.** It could be pressed only where it is drawn, which at the smaller sizes is under the minimum target size of WCAG 2.5.8. The × is drawn at the same size and nothing around it moves; the chevron beside it keeps its own size, and a press on the input opens the list as it always has.
 
 - **A `PlSelect` whose labels are elements no longer draws every one of them to hold its width.** A trigger that is not `fullWidth` laid out every option's label to find the widest, so a list of 250 countries with a flag in each asked for 250 flags before it was opened. Such a label, and a placeholder, is now measured by its text alone, so no picture in it is loaded for the measurement; the trigger can widen by the picture once that option is chosen.

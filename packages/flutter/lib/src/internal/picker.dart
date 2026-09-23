@@ -219,6 +219,24 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
   /// calendar whose every cell was inert would be a menu of nothing.
   bool get _usable => !widget.disabled && !widget.readOnly;
 
+  /// Empties the control, and keeps the focus on it.
+  ///
+  /// The × leaves the tree with the value it cleared. Holding the focus as it
+  /// goes, it would hand it to the scope round the picker, which gives it to
+  /// whatever it focused before — the next field, for a reader who reached the
+  /// × moving backwards — and take them off the field they had just emptied.
+  /// The trigger's node counts a focused descendant as focus, and the × is the
+  /// only one.
+  void _clear() {
+    final held = _focusNode.hasFocus && !_focusNode.hasPrimaryFocus;
+
+    widget.onClear();
+
+    if (held) {
+      _focusNode.requestFocus();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
@@ -326,7 +344,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
                       child: Center(
                         child: PlassDismissButton(
                           label: widget.clearLabel,
-                          onPressed: widget.onClear,
+                          onPressed: _clear,
                           size: scale.size * iconScale,
                           color: tokens.mutedFg,
                           ring: family.ring,

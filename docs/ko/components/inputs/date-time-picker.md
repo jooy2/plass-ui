@@ -157,6 +157,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 - 달력은 [`PlDatePicker`](./date-picker)의 것 전부입니다(roving tab stop 하나, 접근성 이름은 날짜 전체). 그리고 열들은 [`PlTimePicker`](./time-picker)의 것이며, 시각을 한 문장으로 읽어 주는 live region까지 포함합니다.
 - trigger는 둘이 아니라 **달력 글리프 하나만** 답니다. 컨트롤은 한 번에 두 가지를 말할 수 없고, 독자가 훑는 부분은 날짜입니다.
 - 전체 정밀도 경계에 막힌 날과 시계의 행은 제자리에 남아 사용할 수 없다고 읽힙니다. 화살표 키는 막힌 날에는 그대로 멈추고, 막힌 행은 건너뛰어 고를 수 있는 다음 행으로 갑니다.
+- `clearable`이면 ×는 trigger 다음에 오는 별도의 tab stop입니다. ×로 값을 지우면 포커스가 trigger로 돌아가므로, 방금 비운 field에 그대로 머뭅니다.
 
 ::: fw react
 
