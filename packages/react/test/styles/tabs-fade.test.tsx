@@ -83,7 +83,9 @@ describe('a PlTabs bar with more tabs than room', () => {
     const list = screen.getByRole('tablist').element() as HTMLElement;
     const fade = fadeOf(list);
 
-    await userEvent.keyboard('{Tab}');
+    // Focused directly rather than with Tab: Firefox does not hand the first Tab
+    // pressed in the runner's frame to the page.
+    (screen.getByRole('tab', { name: 'Overview' }).element() as HTMLElement).focus();
     await expect.element(screen.getByRole('tab', { name: 'Overview' })).toHaveFocus();
 
     for (let step = 0; step < 4; step += 1) {
