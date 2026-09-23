@@ -15,6 +15,14 @@ const List<PlSelectOption<String>> _cities = <PlSelectOption<String>>[
   PlSelectOption<String>(value: 'tw-01', label: Text('Taipei')),
 ];
 
+/// A picture in a label, standing for a flag that would have to be loaded.
+class _Flag extends StatelessWidget {
+  const _Flag();
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.square(dimension: 16);
+}
+
 /// A select wired to a variable, which is how every caller uses it.
 class _Harness extends StatefulWidget {
   const _Harness({this.value, this.readOnly = false, this.disabled = false, this.error});
@@ -110,6 +118,40 @@ void main() {
         await _pump(tester, const _Harness(value: 'sg-01'));
 
         expect(tester.getSize(find.byType(PlSelect<String>)).width, wide);
+      });
+
+      testWidgets('samples a label that is not a plain text by its words, and builds none of it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlSelect<String>(
+              options: const <PlSelectOption<String>>[
+                PlSelectOption<String>(
+                  value: 'kr',
+                  label: Row(children: <Widget>[_Flag(), Text('South Korea')]),
+                ),
+                PlSelectOption<String>(
+                  value: 'pt',
+                  label: Row(children: <Widget>[_Flag(), Text('Portugal')]),
+                ),
+              ],
+              value: null,
+              placeholder: const Padding(padding: EdgeInsets.zero, child: Text('Pick a country')),
+              onChanged: (String? _) {},
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+
+        // Nothing is chosen, so no flag is on screen, and none is built to hold
+        // the width either: a picture in a sample is a load for every option.
+        expect(find.byType(_Flag, skipOffstage: false), findsNothing);
+        expect(find.text('South Korea'), findsOneWidget);
+        expect(find.text('Portugal'), findsOneWidget);
+        // Once for real, and once as a sample.
+        expect(find.text('Pick a country'), findsNWidgets(2));
       });
     });
 

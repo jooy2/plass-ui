@@ -585,14 +585,13 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
   /// was taken would move out from under the pointer that took it.
   Widget _value(PlassTokens tokens, PlassTextScale scale, {required int chosen}) {
     // A `fullWidth` trigger takes its width from its container, so it lays out
-    // no samples: every label built there, and every picture in one, would be
-    // work for nothing.
+    // no samples: every label built there would be work for nothing.
     final samples = widget.fullWidth
         ? const <Widget>[]
-        : <Widget>[
-            for (final option in widget.options) _label(option),
-            if (widget.placeholder != null) widget.placeholder!,
-          ];
+        : <Widget?>[
+            for (final option in widget.options) _sample(_label(option)),
+            _sample(widget.placeholder),
+          ].nonNulls.toList();
 
     return DefaultTextStyle.merge(
       style: TextStyle(
@@ -624,6 +623,23 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
         ],
       ),
     );
+  }
+
+  /// A label as it is laid out to hold the width, or `null` when it has no
+  /// words to hold it with.
+  ///
+  /// A plain [Text] is itself. Anything else is the words in it, drawn as a
+  /// [Text], rather than built: a list of 250 countries with a flag in each
+  /// would otherwise load 250 flags to hold one trigger open, and the width
+  /// the words need is the width that matters.
+  Widget? _sample(Widget? label) {
+    if (label is Text && label.data != null) {
+      return label;
+    }
+
+    final words = plassTextWithin(label);
+
+    return words.isEmpty ? null : Text(words);
   }
 
   /// What a screen reader calls an option, when it can.

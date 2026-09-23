@@ -198,7 +198,7 @@ Drawn at 1.2× the value beside it, so it tracks the text. There is no `endIcon`
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Home</kbd> <kbd>End</kbd> move, typing jumps by prefix, <kbd>Enter</kbd> chooses and <kbd>Esc</kbd> closes.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
 - With `name`, Base UI renders the hidden input that makes the value part of a native form submission.
-- The trigger is held open at the width of the longest label it could show, so choosing a shorter option does not shrink the field out from under the pointer that chose it. Those samples are `aria-hidden` and drawn as generated content, so nothing extra is read out or found by find-in-page.
+- The trigger is held open at the width of the longest label it could show, so choosing a shorter option does not shrink the field out from under the pointer that chose it. Those samples are `aria-hidden` and drawn as generated content, so nothing extra is read out or found by find-in-page. A label that is an element is measured by its text alone, so a picture in it is not loaded for the measurement, and the trigger can widen by the picture once that option is chosen.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset can hang the same reset.
 
 :::
@@ -209,7 +209,7 @@ Drawn at 1.2× the value beside it, so it tracks the text. There is no `endIcon`
 - **The keys stay on the trigger**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Home</kbd> and <kbd>End</kbd> go to the ends, <kbd>Enter</kbd> takes the highlighted row and <kbd>Escape</kbd> closes without taking one. The list is the trigger's list, not a second place to be.
 - The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row.
 - A row that cannot be taken stays in the list and is announced as unavailable. An option that vanishes when it cannot be picked is an option the reader will look for.
-- The trigger is held open at the width of the longest label it could ever say. Those samples are laid out and not painted, and they are excluded from semantics, so nothing extra is read out.
+- The trigger is held open at the width of the longest label it could ever say. Those samples are laid out and not painted, and they are excluded from semantics, so nothing extra is read out. A label other than a plain `Text` is measured by the words in it alone, so a picture in it is not built for the measurement, and the trigger can widen by the picture once that option is chosen.
 - Opening the list takes focus to the trigger, because the list's keys are bound there: an open select nothing is focused on is a list the arrow keys cannot reach.
 
 :::

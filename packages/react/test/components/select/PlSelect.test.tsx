@@ -41,6 +41,39 @@ describe('PlSelect', () => {
       expect(wide.container.querySelectorAll('[data-sample]')).toHaveLength(0);
     });
 
+    it('samples a label that is an element by its words, and draws none of its pictures', async () => {
+      const flagged: PlSelectOption[] = [
+        {
+          value: 'kr',
+          label: (
+            <>
+              <img alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" /> South Korea
+            </>
+          )
+        },
+        {
+          value: 'pt',
+          label: (
+            <>
+              <img alt="" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" /> Portugal
+            </>
+          )
+        }
+      ];
+      const screen = await render(
+        <PlSelect items={flagged} placeholder={<em>Pick a country</em>} />
+      );
+
+      // Nothing is chosen, so the trigger shows the placeholder and no flag at
+      // all: a picture in a width sample would be a request for every option.
+      expect(screen.container.querySelectorAll('img')).toHaveLength(0);
+      expect(
+        [...screen.container.querySelectorAll('[data-sample]')].map((sample) =>
+          sample.getAttribute('data-sample')
+        )
+      ).toEqual([' South Korea', ' Portugal', 'Pick a country']);
+    });
+
     it('renders the label, the description and the error', async () => {
       const screen = await render(
         <PlSelect items={items} label="City" description="Where the team sits." error="Pick one." />

@@ -6,6 +6,7 @@ import { Select as BaseUISelect } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
 import { CheckIcon, ChevronIcon } from '../../internal/icons.js';
 import { WidthSizer } from '../../internal/sizer.js';
+import { textOf } from '../../internal/text.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
@@ -275,16 +276,20 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
     // Holds the trigger open at the width of the longest thing it could say, so
     // choosing a shorter option does not shrink the field out from under the
     // pointer that chose it. A `fullWidth` trigger takes its width from its
-    // container, so it renders no samples: every label drawn there, and every
-    // picture in one, would be work for nothing.
+    // container, so it renders no samples: every label drawn there would be
+    // work for nothing.
+    //
+    // A label that is an element is sampled by its text rather than drawn, and
+    // so is a placeholder. Drawn, a list of 250 countries with a flag in each
+    // would ask for 250 flags to hold one trigger open; read, it asks for none,
+    // and the width is held to the words, which are what is long.
     const sizerSamples = React.useMemo(
       () =>
         fullWidth
           ? []
-          : [
-              ...items.map((item) => item.label ?? String(item.value)),
-              ...(hasContent(placeholder) ? [placeholder] : [])
-            ],
+          : [...items.map((item) => item.label ?? String(item.value)), placeholder]
+              .map(textOf)
+              .filter((sample) => sample !== ''),
       [fullWidth, items, placeholder]
     );
 
