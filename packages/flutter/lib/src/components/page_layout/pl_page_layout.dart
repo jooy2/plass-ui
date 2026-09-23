@@ -26,7 +26,8 @@ export 'package:plass_ui/src/internal/page_layout.dart' show PlPageLayoutSpan, P
 /// undifferentiated region; the same screen built out of components that name
 /// what they are is a screen with a table of contents. Those names come from
 /// the components this one arranges — the layout itself draws no surface and
-/// claims nothing except [SemanticsRole.main] around what it was given.
+/// claims nothing except [SemanticsRole.main] around what it was given, and not
+/// even that inside another layout, whose screen has its main region already.
 ///
 /// It draws no gutter and no measure either. That is [PlContainer]'s job, and a
 /// layout that also did it would be a second spelling of one idea — put a
@@ -113,7 +114,8 @@ class PlPageLayout extends StatefulWidget {
   /// The name a screen reader gives the main region.
   ///
   /// Worth writing when a screen has more than one region worth naming. Left
-  /// out, the region is announced by what is in it.
+  /// out, the region is announced by what is in it. A layout inside another
+  /// claims no main region, so it gives this to nothing.
   final String? mainSemanticLabel;
 
   @override
@@ -150,9 +152,16 @@ class _PlPageLayoutState extends State<PlPageLayout> {
     final Widget? sidebar = widget.sidebar;
     final Widget? endSidebar = widget.endSidebar;
 
+    // Inside another layout this one is a region of that screen rather than a
+    // screen, and the screen has its main region already: a second one is two
+    // for a reader to choose between. So the role, and the name that goes with
+    // it, are left to the outer layout. Looked up without depending on it,
+    // because nothing the outer scope carries changes the answer.
+    final bool nested = context.getInheritedWidgetOfExactType<PlassPageLayoutScope>() != null;
+
     Widget main = Semantics(
-      role: SemanticsRole.main,
-      label: widget.mainSemanticLabel,
+      role: nested ? null : SemanticsRole.main,
+      label: nested ? null : widget.mainSemanticLabel,
       explicitChildNodes: true,
       child: widget.child ?? const SizedBox.shrink(),
     );

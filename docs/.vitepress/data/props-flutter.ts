@@ -4260,8 +4260,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'mainSemanticLabel',
       type: 'String?',
       description: {
-        ko: '스크린 리더가 main 영역을 부르는 이름. 없으면 안에 든 것으로 불립니다',
-        en: 'The name a screen reader gives the main region. Left out, it is announced by what is in it'
+        ko: '스크린 리더가 main 영역을 부르는 이름. 없으면 안에 든 것으로 불립니다. 다른 레이아웃 안에서는 main 영역이 없으므로 쓰이지 않습니다',
+        en: 'The name a screen reader gives the main region. Left out, it is announced by what is in it. Unused inside another layout, which claims no main region'
       }
     },
     from('PlPageLayout', 'children', { name: 'child', type: 'Widget?' })

@@ -54,6 +54,28 @@ describe('PlPageLayout', () => {
       expect(main).toHaveAttribute('aria-label', 'Report');
       expect(main).toHaveClass('p-6');
     });
+
+    it('leaves the landmark, the link and the id to a layout it is inside', async () => {
+      const screen = await render(
+        <PlPageLayout>
+          <PlPageLayout height="auto" mainProps={{ className: 'inner-under-test' }}>
+            <p>The pane</p>
+          </PlPageLayout>
+        </PlPageLayout>
+      );
+
+      // A page has one main landmark and one way to skip to it, and an inner
+      // layout is a region of that page rather than a second page.
+      expect(document.querySelectorAll('main')).toHaveLength(1);
+      expect(document.querySelectorAll('#main')).toHaveLength(1);
+      expect(screen.getByRole('link', { name: 'Skip to content' }).elements()).toHaveLength(1);
+
+      const inner = document.querySelector('.inner-under-test');
+
+      expect(inner?.tagName).toBe('DIV');
+      expect(inner).not.toHaveAttribute('id');
+      expect(inner).toHaveTextContent('The pane');
+    });
   });
 
   describe('the slots', () => {

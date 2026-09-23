@@ -173,7 +173,7 @@ A bar that never registered itself is left at zero: the measurement is a contrac
 
 ::: fw react
 
-- The children are inside a real `<main>`, which is the `main` landmark. There is exactly one per page, and the layout is what guarantees it.
+- The children are inside a real `<main>`, which is the `main` landmark. There is exactly one per page, and the layout is what guarantees it: a layout inside another puts its children in a `<div>` instead, and draws no skip link and no `id`.
 - The skip link is the first thing in the document and is clipped to a pixel rather than hidden, so the Tab key can find it. `hidden` would take it off the accessibility tree along with the screen and leave nothing to tab to.
 - The `<main>` is not given a `tabindex`. Jumping to it moves the reading position, which is the whole point; making it focusable would add a tab stop to every page.
 - `mainProps` is where an `aria-label` goes when a page has more than one region worth naming.
@@ -183,7 +183,7 @@ A bar that never registered itself is left at zero: the measurement is a contrac
 
 ::: fw flutter
 
-- The content is wrapped in `SemanticsRole.main`, which is the same claim the `<main>` element makes on the other side: this is the part of the screen that is not the chrome.
+- The content is wrapped in `SemanticsRole.main`, which is the same claim the `<main>` element makes on the other side: this is the part of the screen that is not the chrome. A layout inside another leaves the role, and `mainSemanticLabel` with it, to the outer one.
 - `mainSemanticLabel` names that region when a screen has more than one worth naming. Left out, it is announced by what is in it.
 - The layout claims nothing else. The rest of the names come from the components inside it.
 

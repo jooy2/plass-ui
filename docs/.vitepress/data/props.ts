@@ -8493,8 +8493,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'true',
       description: {
-        ko: '문서 맨 앞에 본문으로 건너뛰는 링크를 둡니다. focus를 받을 때만 그려집니다',
-        en: 'Puts a skip link first in the document, drawn only while it holds the focus'
+        ko: '문서 맨 앞에 본문으로 건너뛰는 링크를 둡니다. focus를 받을 때만 그려지고, 다른 레이아웃 안에서는 그려지지 않습니다',
+        en: 'Puts a skip link first in the document, drawn only while it holds the focus. Never drawn inside another layout'
       }
     },
     {
@@ -8508,16 +8508,16 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "'main'",
       description: {
-        ko: '건너뛰기 링크가 향하는 id. <main>에 붙습니다',
-        en: 'The id the skip link jumps to, put on the <main>'
+        ko: '건너뛰기 링크가 향하는 id. <main>에 붙으며, 다른 레이아웃 안에서는 어디에도 붙지 않습니다',
+        en: 'The id the skip link jumps to, put on the <main>. Put nowhere inside another layout'
       }
     },
     {
       name: 'mainProps',
       type: "Omit<ComponentPropsWithoutRef<'main'>, 'id' | 'children'>",
       description: {
-        ko: '<main>에 필요한 나머지 — className, aria-label',
-        en: 'Anything else the <main> needs — a className, an aria-label'
+        ko: '<main>에 필요한 나머지 — className, aria-label. 다른 레이아웃 안에서는 <main> 대신 놓이는 <div>에 붙습니다',
+        en: 'Anything else the <main> needs — a className, an aria-label. Inside another layout, it goes on the <div> in its place'
       }
     },
     {

@@ -172,6 +172,44 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('leaves the main role to a layout it is inside', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            const PlPageLayout(
+              mainSemanticLabel: 'Report',
+              child: PlPageLayout(mainSemanticLabel: 'Pane', child: Text('Body')),
+            ),
+            width: 900,
+            height: 600,
+          ),
+        );
+
+        // A screen has one main region, and an inner layout is a part of that
+        // screen rather than a second one. The name goes with the role.
+        final List<SemanticsNode> mains = <SemanticsNode>[];
+
+        bool visit(SemanticsNode node) {
+          if (node.getSemanticsData().role == SemanticsRole.main) {
+            mains.add(node);
+          }
+
+          node.visitChildren(visit);
+
+          return true;
+        }
+
+        tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+        expect(mains, hasLength(1));
+        expect(mains.single.label, 'Report');
+        expect(find.bySemanticsLabel('Pane'), findsNothing);
+        expect(find.bySemanticsLabel('Body'), findsOneWidget);
+
+        handle.dispose();
+      });
     });
 
     group('collapsing', () {

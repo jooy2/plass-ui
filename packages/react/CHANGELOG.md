@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **A `PlPageLayout` inside another no longer adds a second `<main>`.** The inner layout rendered its own `<main>`, skip link and `id="main"`, so the page had two of each. It now renders its content in a `<div>` and leaves the skip link and the `id` to the outer layout.
+
 - **A `PlTabs` tab brought into view stops clear of the edge fade.** The chosen tab as the bar was laid out, and the next one along as the arrow keys moved, ended flush against the edge, which is where the 24px fade is strongest. Both now stop the fade's length short of it.
 
 - **Every `PlNavigationMenu` panel's links are in the server HTML.** A panel was rendered only once it opened, so a crawler that never hovers found none of the links the component exists to hold. Every panel is now kept mounted, and a closed one is hidden: not drawn, not announced and not a focus stop.

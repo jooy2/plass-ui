@@ -114,17 +114,24 @@ export interface PlPageLayoutProps extends React.ComponentPropsWithoutRef<'div'>
    * to walk past all forty on every page before reaching the article, and this
    * is the one link that spares them. It costs a sighted reader nothing,
    * because it is invisible until it is tabbed to.
+   *
+   * Never drawn by a layout inside another `PlPageLayout`, whose content is a
+   * `<div>` rather than a second `<main>`: the page has one of each already.
    * @default true
    */
   skipLink?: boolean;
   /** What that link says. @default 'Skip to content' */
   skipLabel?: React.ReactNode;
   /**
-   * The `id` the skip link jumps to, put on the `<main>`.
+   * The `id` the skip link jumps to, put on the `<main>`. Not put anywhere by
+   * a layout inside another, which has neither.
    * @default 'main'
    */
   mainId?: string;
-  /** Anything else the `<main>` needs — a `className`, an `aria-label`. */
+  /**
+   * Anything else the `<main>` needs — a `className`, an `aria-label`. Inside
+   * another layout it goes on the `<div>` that takes the `<main>`'s place.
+   */
   mainProps?: Omit<React.ComponentPropsWithoutRef<'main'>, 'id' | 'children'>;
   /** The colour family the skip link lights up in. @default 'primary' */
   color?: PlassColor;
@@ -193,6 +200,14 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
     const labels = useLabels();
     const skipLabel = skipLabelProp ?? labels.skipToContent;
     const color = colorProp ?? defaults.color ?? 'primary';
+
+    // Inside another layout this one is a region of that page rather than a
+    // page: the page already has its `<main>`, its skip link and the `id` the
+    // link jumps to, and a second of each is a document with two main
+    // landmarks and two links that say the same thing. So the content goes in
+    // a `<div>` here, and all three are left to the outer layout.
+    const nested = React.useContext(PlPageLayoutContext).present;
+    const Region = nested ? 'div' : 'main';
 
     const [ownStart, setOwnStart] = React.useState(defaultSidebarOpen);
     const [ownEnd, setOwnEnd] = React.useState(defaultEndSidebarOpen);
@@ -362,7 +377,7 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
           }
           {...props}
         >
-          {skipLink ? (
+          {skipLink && !nested ? (
             <a
               href={`#${mainId}`}
               // Clipped to a pixel until it is tabbed to, and a real key from
@@ -404,9 +419,9 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
             >
               {headerSpan === 'content' ? headerSlot : null}
 
-              <main
+              <Region
                 {...mainProps}
-                id={mainId}
+                id={nested ? undefined : mainId}
                 className={cx(
                   'min-w-0 flex-1',
                   fills ? 'min-h-0 overflow-y-auto' : '',
@@ -420,7 +435,7 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
                 <PlPageLayoutContext.Provider value={mainContext}>
                   {children}
                 </PlPageLayoutContext.Provider>
-              </main>
+              </Region>
 
               {footerSpan === 'content' ? footerSlot : null}
             </div>

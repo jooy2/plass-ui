@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **A `PlPageLayout` inside another no longer claims a second main region.** Both layouts wrapped their content in `SemanticsRole.main`, so a screen had two. The inner one now leaves the role, and `mainSemanticLabel` with it, to the outer layout.
+
 - **A `PlBackTop` left without a `controller` on desktop says so in a debug build.** A scroll view takes the `PrimaryScrollController` by itself only on Android, iOS and Fuchsia, so on desktop and the desktop web the button watched a controller nothing was attached to and never appeared. A debug build now asserts, naming `controller`; a release build behaves as before.
 
 - **A `PlTabs` bar opens with its chosen tab clear of the edge fade.** The tab was brought into view flush against the edge, under the 24px fade that end takes on once the strip has moved. It now stops the fade's length short of it.
