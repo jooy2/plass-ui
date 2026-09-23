@@ -153,6 +153,12 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
       return -1;
     })();
 
+    /* Whether the end dot has a place in the strip. A value outside a pinned
+       `min` or `max` is cut away with the rest of the marks below, and a dot
+       left standing past the edge would be the one part of it still seen. */
+    const lastValue = lastIndex >= 0 ? values[lastIndex].value : null;
+    const endShown = lastValue !== null && lastValue >= low && lastValue <= high;
+
     const slot = width / Math.max(1, values.length);
     const barWidth = Math.min(barMaxThickness[size] / 2, Math.max(1, slot - markGap));
     // Where a bar grows from: zero, or the end of the scale nearest zero when the
@@ -188,64 +194,77 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
               aria-hidden={label ? undefined : true}
               className="block overflow-visible"
             >
-              {shape === 'area' ? (
-                <>
-                  <defs>
-                    <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="0%"
-                        stopColor={`color-mix(in oklab, ${fill} 32%, transparent)`}
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor={`color-mix(in oklab, ${fill} 2%, transparent)`}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <path d={areaPath(points, height, curve)} fill={`url(#${id}-fill)`} />
-                </>
-              ) : null}
-
-              {baseline !== undefined ? (
-                <line
-                  x1={0}
-                  x2={width}
-                  y1={y(baseline)}
-                  y2={y(baseline)}
-                  stroke="var(--plass-chart-baseline)"
-                  strokeWidth={1}
-                />
-              ) : null}
-
-              {shape === 'bar' ? (
-                values.map((value, index) =>
-                  value.value === null ? null : (
-                    <path
-                      key={index}
-                      d={barPath(
-                        index * slot + (slot - barWidth) / 2,
-                        barTop(value.value),
-                        barWidth,
-                        Math.max(1, Math.abs(y(value.value) - foot)),
-                        barRadius / 2,
-                        value.value >= 0 ? 'up' : 'down'
-                      )}
-                      fill={value.color ?? fill}
+              <defs>
+                {/* The strip's own height, and room to either side. A value
+                    outside a pinned `min` or `max` is cut at the edge rather
+                    than drawn past it — a bar for 2 under a `min` of 5 is not
+                    seen at all. Only the height is held: the round ends of the
+                    line are meant to reach past the two sides, and a range left
+                    to itself never reaches past the top or the bottom, so
+                    nothing inside it is cut. */}
+                <clipPath id={`${id}-strip`}>
+                  <rect x={-width} y={0} width={width * 3} height={height} />
+                </clipPath>
+                {shape === 'area' ? (
+                  <linearGradient id={`${id}-fill`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={`color-mix(in oklab, ${fill} 32%, transparent)`} />
+                    <stop
+                      offset="100%"
+                      stopColor={`color-mix(in oklab, ${fill} 2%, transparent)`}
                     />
-                  )
-                )
-              ) : (
-                <path
-                  d={linePath(points, curve)}
-                  fill="none"
-                  stroke={fill}
-                  strokeWidth={stroke}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              )}
+                  </linearGradient>
+                ) : null}
+              </defs>
 
-              {endDot && lastIndex >= 0 && shape !== 'bar' ? (
+              <g clipPath={`url(#${id}-strip)`}>
+                {shape === 'area' ? (
+                  <path d={areaPath(points, height, curve)} fill={`url(#${id}-fill)`} />
+                ) : null}
+
+                {baseline !== undefined ? (
+                  <line
+                    x1={0}
+                    x2={width}
+                    y1={y(baseline)}
+                    y2={y(baseline)}
+                    stroke="var(--plass-chart-baseline)"
+                    strokeWidth={1}
+                  />
+                ) : null}
+
+                {shape === 'bar' ? (
+                  values.map((value, index) =>
+                    value.value === null ? null : (
+                      <path
+                        key={index}
+                        d={barPath(
+                          index * slot + (slot - barWidth) / 2,
+                          barTop(value.value),
+                          barWidth,
+                          Math.max(1, Math.abs(y(value.value) - foot)),
+                          barRadius / 2,
+                          value.value >= 0 ? 'up' : 'down'
+                        )}
+                        fill={value.color ?? fill}
+                      />
+                    )
+                  )
+                ) : (
+                  <path
+                    d={linePath(points, curve)}
+                    fill="none"
+                    stroke={fill}
+                    strokeWidth={stroke}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )}
+              </g>
+
+              {/* Outside the cut, because its ring may reach a pixel past the
+                  strip at its extremes and that pixel is not a value; the value
+                  itself is held to the strip by `endShown`. */}
+              {endDot && endShown && shape !== 'bar' ? (
                 <circle
                   cx={points[lastIndex]!.x}
                   cy={points[lastIndex]!.y}

@@ -225,6 +225,57 @@ class _SparklinePainter extends CustomPainter {
         if (values[i].value == null) null else Offset(i * across, y(values[i].value!)),
     ];
 
+    /* The strip's own height, and room to either side. A value outside a
+       pinned `min` or `max` is cut at the edge rather than drawn past it — a
+       bar for 2 under a `min` of 5 is not seen at all. Only the height is held:
+       the round ends of the line are meant to reach past the two sides, and a
+       range left to itself never reaches past the top or the bottom, so nothing
+       inside it is cut. */
+    canvas
+      ..save()
+      ..clipRect(Rect.fromLTRB(-size.width, 0, size.width * 2, size.height));
+
+    _paintMarks(canvas, size, points, y, low, high, stroke);
+
+    canvas.restore();
+
+    if (!endDot || shape == PlSparklineShape.bar) {
+      return;
+    }
+
+    // Outside the cut, because its ring may reach a pixel past the strip at its
+    // extremes and that pixel is not a value; the value itself is held to the
+    // strip here. A last value outside a pinned end is cut away with the rest,
+    // and a dot left standing past the edge would be the one part of it seen.
+    for (int i = points.length - 1; i >= 0; i -= 1) {
+      final Offset? last = points[i];
+
+      if (last == null) {
+        continue;
+      }
+
+      final double value = values[i].value!;
+
+      if (value >= low && value <= high) {
+        canvas
+          ..drawCircle(last, radius + markGap, Paint()..color = gap)
+          ..drawCircle(last, radius, Paint()..color = ink);
+      }
+
+      return;
+    }
+  }
+
+  /// The area, the baseline and the line or the bars, inside the cut.
+  void _paintMarks(
+    Canvas canvas,
+    Size size,
+    List<Offset?> points,
+    double Function(double value) y,
+    double low,
+    double high,
+    double stroke,
+  ) {
     if (shape == PlSparklineShape.area) {
       canvas.drawPath(
         areaPath(points, <Offset?>[
@@ -298,24 +349,6 @@ class _SparklinePainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round,
     );
-
-    if (!endDot) {
-      return;
-    }
-
-    for (int i = points.length - 1; i >= 0; i -= 1) {
-      final Offset? last = points[i];
-
-      if (last == null) {
-        continue;
-      }
-
-      canvas
-        ..drawCircle(last, radius + markGap, Paint()..color = gap)
-        ..drawCircle(last, radius, Paint()..color = ink);
-
-      return;
-    }
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:ui' show ClipOp;
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -190,6 +192,70 @@ void main() {
       expect(bars.boxes[0].bottom, closeTo(bars.height, 0.01));
     });
 
+    testWidgets('cuts a value outside a pinned min or max at the edge of the strip', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[PlassChartDatum(2), PlassChartDatum(8)],
+          shape: PlSparklineShape.bar,
+          min: 5,
+          max: 10,
+        ),
+      );
+
+      final double height = tester.getSize(find.byType(PlSparkline)).height;
+      final _CutCanvas cut = _CutCanvas.of(tester);
+
+      expect(cut.seen, hasLength(2));
+      // The bar for 2 lies wholly below the strip, so none of it is left, and
+      // the bar for 8 stands on the bottom edge as it did.
+      expect(cut.seen[0].height, 0);
+      expect(cut.seen[1].height, greaterThan(0));
+      expect(cut.seen[1].bottom, closeTo(height, 0.5));
+
+      // Nothing at all is left past the top or the bottom.
+      for (final Rect box in cut.seen) {
+        expect(box.top, greaterThan(-0.5));
+        expect(box.bottom, lessThan(height + 0.5));
+      }
+    });
+
+    testWidgets('cuts a line that runs past a pinned max, and draws no end dot on it', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[PlassChartDatum(1), PlassChartDatum(5), PlassChartDatum(12)],
+          min: 0,
+          max: 10,
+          endDot: true,
+        ),
+      );
+
+      final double height = tester.getSize(find.byType(PlSparkline)).height;
+      final _CutCanvas over = _CutCanvas.of(tester);
+
+      expect(over.seen.single.top, greaterThan(-0.5));
+      expect(over.seen.single.bottom, lessThan(height + 0.5));
+      expect(over.dots, isEmpty);
+
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[PlassChartDatum(1), PlassChartDatum(5), PlassChartDatum(8)],
+          min: 0,
+          max: 10,
+          endDot: true,
+        ),
+      );
+
+      // Inside the range, the end is marked as it always was.
+      expect(_CutCanvas.of(tester).dots, isNotEmpty);
+    });
+
     testWidgets('takes a family or an exact colour', (WidgetTester tester) async {
       await _pump(tester, const PlSparkline(data: trend, color: PlassColor.danger));
       expect(find.byType(PlSparkline), findsOneWidget);
@@ -226,5 +292,57 @@ class _PathCanvas extends RecordingCanvas {
   void drawPath(Path path, Paint paint) {
     boxes.add(path.getBounds());
     super.drawPath(path, paint);
+  }
+}
+
+/// What a sparkline's painter leaves visible once its own clips are applied:
+/// the part of each path's box inside the clip in force when it was drawn, and
+/// every dot.
+class _CutCanvas extends RecordingCanvas {
+  _CutCanvas(this._clip);
+
+  /// The clip in force, starting from nothing clipped at all.
+  Rect _clip;
+  final List<Rect> _saved = <Rect>[];
+
+  /// The visible part of each path, empty where none of it is left.
+  final List<Rect> seen = <Rect>[];
+
+  /// Every dot drawn, by its centre.
+  final List<Offset> dots = <Offset>[];
+
+  @override
+  void save() => _saved.add(_clip);
+
+  @override
+  void restore() => _clip = _saved.removeLast();
+
+  @override
+  void clipRect(Rect rect, {ClipOp clipOp = ClipOp.intersect, bool doAntiAlias = true}) {
+    _clip = _clip.intersect(rect);
+  }
+
+  @override
+  void drawPath(Path path, Paint paint) {
+    final Rect box = path.getBounds().intersect(_clip);
+
+    seen.add(box.width < 0 || box.height < 0 ? Rect.zero : box);
+    super.drawPath(path, paint);
+  }
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) => dots.add(c);
+
+  /// Paints the sparkline under [tester] into a fresh one.
+  static _CutCanvas of(WidgetTester tester) {
+    final Finder strip = find.descendant(
+      of: find.byType(PlSparkline),
+      matching: find.byType(CustomPaint),
+    );
+    final canvas = _CutCanvas(Rect.largest);
+
+    tester.widget<CustomPaint>(strip).painter!.paint(canvas, tester.getSize(strip));
+
+    return canvas;
   }
 }

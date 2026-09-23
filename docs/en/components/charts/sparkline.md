@@ -79,7 +79,7 @@ The same three sentences the full charts say, at a size where nothing else is be
 
 </Demo>
 
-**A sparkline scales itself to its own range, so the strip is always full.** That is what makes it readable at twenty pixels tall, and it is also the trap: two of them side by side are drawn on two different scales, so a strip that climbs steeply may be the smaller number. Give a row of them the same `min` and `max` and they become a small-multiples chart instead.
+**A sparkline scales itself to its own range, so the strip is always full.** That is what makes it readable at twenty pixels tall, and it is also the trap: two of them side by side are drawn on two different scales, so a strip that climbs steeply may be the smaller number. Give a row of them the same `min` and `max` and they become a small-multiples chart instead. A value outside the two is cut at the edge of the strip rather than drawn past it, so nothing reaches outside the box.
 
 ### baseline
 

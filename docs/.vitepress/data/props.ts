@@ -10498,16 +10498,16 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'min',
       type: 'number',
       description: {
-        ko: '척도의 아래끝. 비우면 자기 범위로 띠를 채웁니다',
-        en: 'The bottom of the scale. Left out, the strip fills itself with its own range'
+        ko: '척도의 아래끝. 비우면 자기 범위로 띠를 채웁니다. 이보다 작은 값은 띠의 가장자리에서 잘립니다',
+        en: 'The bottom of the scale. Left out, the strip fills itself with its own range. A value below it is cut at the edge of the strip'
       }
     },
     {
       name: 'max',
       type: 'number',
       description: {
-        ko: '척도의 위끝. 한 줄에 같은 값을 주면 small multiples가 됩니다',
-        en: 'And the top of it. Give a row of strips the same pair and they become small multiples'
+        ko: '척도의 위끝. 한 줄에 같은 값을 주면 small multiples가 됩니다. 이보다 큰 값은 띠의 가장자리에서 잘립니다',
+        en: 'And the top of it. Give a row of strips the same pair and they become small multiples. A value above it is cut at the edge of the strip'
       }
     },
     {

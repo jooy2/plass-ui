@@ -197,6 +197,53 @@ describe('PlSparkline', () => {
       expect(boxes[0].height).toBeCloseTo(1, 1);
       expect(boxes[0].y + boxes[0].height).toBeCloseTo(height, 1);
     });
+
+    it('cuts a value outside a pinned min or max at the edge of the strip', async () => {
+      const screen = await render(
+        <PlSparkline label="Signups" shape="bar" data={[2, 8]} min={5} max={10} width={200} />
+      );
+
+      const strip = screen.getByRole('img', { name: 'Signups' });
+
+      await expect.element(strip).toBeInTheDocument();
+
+      const svg = strip.element();
+      const { height, boxes } = bars(svg);
+      const cut = svg.querySelector('clipPath');
+      const edge = cut?.querySelector('rect');
+
+      // The cut is the strip's own height, top to bottom.
+      expect(Number(edge?.getAttribute('y'))).toBe(0);
+      expect(Number(edge?.getAttribute('height'))).toBe(height);
+
+      // Every mark is drawn through it.
+      for (const mark of svg.querySelectorAll('path')) {
+        expect(mark.closest('g')?.getAttribute('clip-path')).toBe(`url(#${cut?.id})`);
+      }
+
+      // The bar for 2 lies wholly below the strip, so none of it is left, and
+      // the bar for 8 stands on the bottom edge as it did.
+      expect(boxes[0].y).toBeGreaterThan(height - 0.5);
+      expect(boxes[1].y + boxes[1].height).toBeCloseTo(height, 0);
+    });
+
+    it('draws no end dot for a last value outside a pinned max', async () => {
+      const screen = await render(
+        <>
+          <PlSparkline label="Over" endDot data={[1, 5, 12]} min={0} max={10} width={200} />
+          <PlSparkline label="Within" endDot data={[1, 5, 8]} min={0} max={10} width={200} />
+        </>
+      );
+
+      const over = screen.getByRole('img', { name: 'Over' });
+      const within = screen.getByRole('img', { name: 'Within' });
+
+      await expect.element(over).toBeInTheDocument();
+      await expect.element(within).toBeInTheDocument();
+
+      expect(over.element().querySelector('circle')).toBeNull();
+      expect(within.element().querySelector('circle')).not.toBeNull();
+    });
   });
 
   describe('endDot', () => {
