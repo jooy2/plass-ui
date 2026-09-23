@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A toast swiped away fades from where the finger left it.** Base UI drops a toast's drag offset the moment the finger lifts, so a toast flicked off jumped back to its place before it faded out. It now holds the offset for its exit. A toast closed any other way fades where it is, as before.
+
 - **A floating `PlFloatingActionButton` clears the safe area of an edge-to-edge screen.** It stood a fixed `offset` off the corner, so on a phone that draws under its home indicator or navigation bar it sat on top of them. `env(safe-area-inset-*)` on the two edges it is against is now added to `offset`, with the start and the end following the page's direction. A browser reports those insets only to a page whose viewport meta tag has `viewport-fit=cover`; an app that added them to `offset` itself should take them back out.
 
 - **The × on a `PlAlert`, a toast, a `PlModal`, a `PlDrawer`, a `PlPopover`, a `PlTour` and a `PlFilePicker` file can be pressed anywhere in a 24px square around it.** It could be pressed only where it is drawn, which at the smaller sizes is under the minimum target size of WCAG 2.5.8. The × is drawn at the same size and nothing around it moves. It is the square the × on a chip and on a picker trigger already had.
