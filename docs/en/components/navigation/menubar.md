@@ -116,7 +116,7 @@ The open menu is marked in colour and nothing else. The word does not move and t
 | --- | --- | --- |
 | composed `PlMenubarMenu` children | `menus: List<PlMenubarMenu>` as data | A menu on a bar is a word and a list of rows, and a list is what the strip can count. |
 | crossing the strip walks through the menus | pressing another word opens that one and puts the open one away | The words answer a press and not the pointer arriving. Only one is ever open either way. |
-| `modal`, `loopFocus` | — | There is no page to make inert and no arrow-key ring to wrap. |
+| `modal`, `loopFocus` | — | There is no page to make inert, and the bar always wraps at its ends, which is where `loopFocus` defaults. |
 | `aria-expanded` on the word | `SemanticsRole.menuItem` with `expanded` | The same state under the framework's own name. Once a menu is open it is the accessibility tree, so the strip says which one in colour as well. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
@@ -132,5 +132,12 @@ The open menu is marked in colour and nothing else. The word does not move and t
 
 - The arrow keys move along the bar and into an open menu; <kbd>Esc</kbd> closes it and returns focus to its word. `loopFocus` decides whether the bar wraps at its ends.
 - `modal` is on by default, so an open menu is what the pointer is talking to. The page behind it is inert until it closes.
+
+:::
+
+::: fw flutter
+
+- The bar is one tab stop, on the word last used. The arrow keys move along it, up and down on a `vertical` bar, and wrap at the ends; <kbd>Home</kbd> and <kbd>End</kbd> go to the first and last word, and a `disabled` word is stepped over.
+- An open menu keeps the arrow keys for its own rows. <kbd>Esc</kbd> closes it and returns focus to its word.
 
 :::

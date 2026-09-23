@@ -46,6 +46,10 @@
 
 ### Fixed
 
+- **`PlMenubar` is one tab stop, and the arrow keys move along it.** It claimed the `menuBar` role and then gave every word a tab stop of its own, with Left and Right only closing an open menu. Tab now reaches the bar once, on the word last used; the arrow keys step along it, wrapping at the ends, Home and End go to the first and last word, and a disabled word is stepped over. An open menu keeps its own keys, and closing it hands the focus back to its word.
+
+- **A `PlMenu` no longer puts an empty tab stop in front of its trigger.** The node the menu takes its keys on while it is open was in the tab order as well, so Tab stopped once on nothing before it reached the trigger.
+
 - **A `PlTransfer` list builds only the rows near what it shows, and a tick rebuilds only the row it changed.** Each list was a scroll view holding a column of every row, so a list of thousands built every row on the first frame and again on every tick. The lists are now built lazily, a focused row stays built when its list is scrolled away from it, and a move that sends a row below what its list shows scrolls to it before handing it the focus.
 
 - **A `PlTransfer` select-all tick is named in the order each language puts it.** "Select all" was put in front of the list's heading in every language, so Korean read "전체 선택 사용 가능". The name now comes from the label pack's new `transferSelectAll`, "Select all in Available" in English, which puts the list's name where its own grammar puts it. A `selectAllLabel` given to the component still goes in front of the heading, as before.

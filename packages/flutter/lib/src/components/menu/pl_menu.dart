@@ -376,7 +376,13 @@ class _PlMenuState extends State<PlMenu> {
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
-  final FocusNode _focusNode = FocusNode(debugLabel: 'PlMenu');
+  /// Where the keys go while the popup is up.
+  ///
+  /// Out of the traversal order, because it is not a stop: it wraps the
+  /// trigger, and a node of its own in the tab order would put a second stop
+  /// in front of the trigger with nothing drawn on it. It only ever takes focus
+  /// by being asked to, when the menu opens.
+  final FocusNode _focusNode = FocusNode(debugLabel: 'PlMenu', skipTraversal: true);
 
   bool _open = false;
 

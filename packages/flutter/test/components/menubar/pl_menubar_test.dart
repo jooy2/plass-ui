@@ -1,6 +1,7 @@
 import 'dart:ui' show Tristate;
 
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -107,6 +108,185 @@ void main() {
         tester.getTopLeft(find.text('File')).dy,
         lessThan(tester.getTopLeft(find.text('Edit')).dy),
       );
+    });
+
+    group('the keyboard', () {
+      /// Three words, so a step from the middle has somewhere to go both ways.
+      const List<PlMenubarMenu> three = <PlMenubarMenu>[
+        PlMenubarMenu(
+          label: 'File',
+          items: <PlMenuEntry>[PlMenuItem(label: 'New')],
+        ),
+        PlMenubarMenu(
+          label: 'Edit',
+          items: <PlMenuEntry>[PlMenuItem(label: 'Copy')],
+        ),
+        PlMenubarMenu(
+          label: 'View',
+          items: <PlMenuEntry>[PlMenuItem(label: 'Zoom')],
+        ),
+      ];
+
+      /// The word the focus is on, by its position on the bar.
+      String? focused() => FocusManager.instance.primaryFocus?.debugLabel;
+
+      Future<void> press(WidgetTester tester, LogicalKeyboardKey key) async {
+        await tester.sendKeyEvent(key);
+        await tester.pumpAndSettle();
+      }
+
+      /// Tabs onto the bar from a stop in front of it.
+      Future<void> reach(
+        WidgetTester tester,
+        PlMenubar menubar, {
+        TextDirection textDirection = TextDirection.ltr,
+      }) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(before, menubar),
+            width: 500,
+            height: 300,
+            overlay: true,
+            textDirection: textDirection,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await press(tester, LogicalKeyboardKey.tab);
+      }
+
+      testWidgets('is one tab stop', (WidgetTester tester) async {
+        await reach(tester, const PlMenubar(menus: three));
+
+        // The role promises a reader one stop and the arrows, so Tab lands on
+        // the first word and then leaves the bar — here, round to the stop in
+        // front of it, since there is nothing after it.
+        expect(focused(), 'PlMenubar 0');
+
+        await press(tester, LogicalKeyboardKey.tab);
+
+        expect(focused(), 'before');
+      });
+
+      testWidgets('moves along the strip with the arrows, wrapping at the ends', (
+        WidgetTester tester,
+      ) async {
+        await reach(tester, const PlMenubar(menus: three));
+
+        await press(tester, LogicalKeyboardKey.arrowRight);
+        expect(focused(), 'PlMenubar 1');
+
+        await press(tester, LogicalKeyboardKey.arrowRight);
+        await press(tester, LogicalKeyboardKey.arrowRight);
+        expect(focused(), 'PlMenubar 0');
+
+        await press(tester, LogicalKeyboardKey.arrowLeft);
+        expect(focused(), 'PlMenubar 2');
+      });
+
+      testWidgets('goes to either end with Home and End', (WidgetTester tester) async {
+        await reach(tester, const PlMenubar(menus: three));
+
+        await press(tester, LogicalKeyboardKey.end);
+        expect(focused(), 'PlMenubar 2');
+
+        await press(tester, LogicalKeyboardKey.home);
+        expect(focused(), 'PlMenubar 0');
+      });
+
+      testWidgets('steps over a disabled word', (WidgetTester tester) async {
+        await reach(
+          tester,
+          const PlMenubar(
+            menus: <PlMenubarMenu>[
+              PlMenubarMenu(
+                label: 'File',
+                items: <PlMenuEntry>[PlMenuItem(label: 'New')],
+              ),
+              PlMenubarMenu(
+                label: 'Edit',
+                disabled: true,
+                items: <PlMenuEntry>[PlMenuItem(label: 'Copy')],
+              ),
+              PlMenubarMenu(
+                label: 'View',
+                items: <PlMenuEntry>[PlMenuItem(label: 'Zoom')],
+              ),
+            ],
+          ),
+        );
+
+        await press(tester, LogicalKeyboardKey.arrowRight);
+
+        expect(focused(), 'PlMenubar 2');
+      });
+
+      testWidgets('runs the way the text does under RTL', (WidgetTester tester) async {
+        await reach(tester, const PlMenubar(menus: three), textDirection: TextDirection.rtl);
+
+        await press(tester, LogicalKeyboardKey.arrowLeft);
+
+        expect(focused(), 'PlMenubar 1');
+      });
+
+      testWidgets('moves with up and down when it runs down the page', (WidgetTester tester) async {
+        await reach(tester, const PlMenubar(orientation: PlassOrientation.vertical, menus: three));
+
+        await press(tester, LogicalKeyboardKey.arrowDown);
+        expect(focused(), 'PlMenubar 1');
+
+        await press(tester, LogicalKeyboardKey.arrowUp);
+        expect(focused(), 'PlMenubar 0');
+      });
+
+      testWidgets('keeps the stop on the word the reader left', (WidgetTester tester) async {
+        await reach(tester, const PlMenubar(menus: three));
+
+        await press(tester, LogicalKeyboardKey.arrowRight);
+        await press(tester, LogicalKeyboardKey.tab);
+        expect(focused(), 'before');
+
+        await press(tester, LogicalKeyboardKey.tab);
+
+        expect(focused(), 'PlMenubar 1');
+      });
+
+      testWidgets('leaves the arrows to a menu while it is open', (WidgetTester tester) async {
+        await reach(tester, const PlMenubar(menus: three));
+
+        await press(tester, LogicalKeyboardKey.enter);
+        expect(find.text('New'), findsOneWidget);
+
+        // Right has no submenu to open here, so the open menu keeps it and the
+        // bar does not move on underneath.
+        await press(tester, LogicalKeyboardKey.arrowRight);
+
+        expect(find.text('New'), findsOneWidget);
+        expect(find.text('Copy'), findsNothing);
+      });
+
+      testWidgets('hands the focus back to the word when its menu closes', (
+        WidgetTester tester,
+      ) async {
+        await reach(tester, const PlMenubar(menus: three));
+
+        await press(tester, LogicalKeyboardKey.arrowRight);
+        await press(tester, LogicalKeyboardKey.enter);
+        expect(find.text('Copy'), findsOneWidget);
+
+        await press(tester, LogicalKeyboardKey.escape);
+
+        expect(find.text('Copy'), findsNothing);
+        expect(focused(), 'PlMenubar 1');
+
+        // And the bar is still one stop from there.
+        await press(tester, LogicalKeyboardKey.tab);
+
+        expect(focused(), 'before');
+      });
     });
 
     group('a menu on it', () {

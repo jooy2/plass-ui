@@ -250,6 +250,32 @@ void main() {
     });
 
     group('the keyboard', () {
+      testWidgets('puts no stop of its own in front of the trigger', (WidgetTester tester) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(before, menu(const <PlMenuEntry>[PlMenuItem(label: 'Cut')])),
+            overlay: true,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        // The node the menu takes its keys on wraps the trigger. As a stop of
+        // its own it was a Tab with nothing drawn on it before the button.
+        bool onButton = false;
+        FocusManager.instance.primaryFocus!.context!.visitAncestorElements((Element element) {
+          onButton = element.widget is PlButton;
+          return !onButton;
+        });
+
+        expect(onButton, isTrue);
+      });
+
       testWidgets('walks the rows and picks one', (WidgetTester tester) async {
         final List<String> pressed = <String>[];
 
