@@ -293,8 +293,14 @@ export function PlNavigationMenuItem({
             </BaseUINavigationMenu.Icon>
           </BaseUINavigationMenu.Trigger>
 
+          {/* Kept mounted, so every panel's links are in the server HTML and a
+              crawler that never hovers still finds them — which is what the
+              `<a>`s are for. A closed panel carries `hidden`, and the
+              `[hidden]` rule is here because `grid` would otherwise outrank
+              the browser's own `display: none` for it and show the panel. */}
           <BaseUINavigationMenu.Content
-            className={cx('grid gap-1', panelPaddingClasses[size])}
+            keepMounted
+            className={cx('grid gap-1 [&[hidden]]:hidden', panelPaddingClasses[size])}
             style={
               columns > 1
                 ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }
@@ -377,7 +383,11 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
           {children}
         </BaseUINavigationMenu.List>
 
-        <BaseUINavigationMenu.Portal>
+        {/* Kept mounted with the panels: once one has opened, every panel
+            lives in the viewport, and a viewport that went away on close would
+            take all their links out of the document with it. A closed
+            positioner is `hidden` and inert, and stops tracking its anchor. */}
+        <BaseUINavigationMenu.Portal keepMounted>
           {/* `.plass-portal` is a hook, not a style: a portalled popup leaves
               the subtree a host may have scoped its CSS reset to. */}
           <BaseUINavigationMenu.Positioner

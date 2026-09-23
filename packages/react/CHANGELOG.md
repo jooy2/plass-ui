@@ -44,6 +44,8 @@
 
 ### Fixed
 
+- **Every `PlNavigationMenu` panel's links are in the server HTML.** A panel was rendered only once it opened, so a crawler that never hovers found none of the links the component exists to hold. Every panel is now kept mounted, and a closed one is hidden: not drawn, not announced and not a focus stop.
+
 - **One tick in a `PlTransfer` renders only the row it changed.** Every row of both lists rendered again for each tick, each one a `PlCheckbox`, so a list of thousands stalled on every press. A row now renders again only when its own label, tick or availability changes. The first render of a long list still draws every row.
 
 - **A `PlTransfer` move announcement names a list whose heading is an element by the words the heading draws.** It used the label pack's `transferAvailable` or `transferSelected`, a name the page did not show, while the list's select-all tick read the heading itself. Both now read it the same way.

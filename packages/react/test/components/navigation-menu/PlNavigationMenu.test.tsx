@@ -1,4 +1,6 @@
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlNavigationMenu, PlNavigationMenuItem, PlNavigationMenuLink } from 'plass-ui';
 
@@ -192,6 +194,67 @@ describe('PlNavigationMenu', () => {
 
       expect(onValueChange).toHaveBeenCalledWith('product');
       expect(screen.getByRole('link', { name: 'Analytics' }).query()).toBeNull();
+    });
+
+    it("puts a closed panel's links in the server HTML", () => {
+      // A crawler that never hovers reads what the server sent, and a link that
+      // only exists once a panel opens is one it never finds.
+      const html = renderToString(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink href="/a" title="Analytics" />
+          </PlNavigationMenuItem>
+          <PlNavigationMenuItem label="Company">
+            <PlNavigationMenuLink href="/about" title="About" />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      expect(html).toContain('href="/a"');
+      expect(html).toContain('href="/about"');
+    });
+
+    it("keeps a closed panel's links in the document and out of reach", async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink href="/a" title="Analytics" />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      const link = document.querySelector<HTMLAnchorElement>('a[href="/a"]');
+
+      expect(link).not.toBeNull();
+      // Hidden, so neither announced nor a focus stop until its panel opens.
+      expect(link!.closest('[hidden]')).not.toBeNull();
+      expect(screen.getByRole('link', { name: 'Analytics' }).query()).toBeNull();
+
+      link!.focus();
+
+      expect(document.activeElement).not.toBe(link);
+    });
+
+    it('still has them once a panel has opened and closed again', async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink href="/a" title="Analytics" />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      await screen.getByRole('button', { name: /Product/ }).click();
+      await expect.element(screen.getByRole('link', { name: 'Analytics' })).toBeVisible();
+
+      await userEvent.keyboard('{Escape}');
+      await expect
+        .element(screen.getByRole('button', { name: /Product/ }))
+        .toHaveAttribute('aria-expanded', 'false');
+
+      await expect
+        .poll(() => document.querySelector('a[href="/a"]')?.closest('[hidden]'))
+        .toBeTruthy();
     });
 
     it('opens the one it is told to', async () => {

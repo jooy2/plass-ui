@@ -178,3 +178,9 @@ Merged rather than replaced: the common reason to write a `rel` by hand is `nofo
 - A `disabled` item keeps its word in the row and opens nothing. It is dimmed rather than recoloured, which is what `disabled` looks like everywhere in the library.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset hangs the same reset.
 - The chevron turns rather than the panel sliding. Nothing here moves under the pointer.
+
+::: fw react
+
+- Every panel's links are in the page's HTML from the first render, open or not, so a crawler that never opens a panel still finds them. A closed panel is `hidden`: it is not drawn, not announced and not a focus stop.
+
+:::
