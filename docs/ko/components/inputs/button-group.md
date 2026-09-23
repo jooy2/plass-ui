@@ -55,7 +55,7 @@ PlButtonGroup(
 
 `children`이 하나의 `child`가 아니라 목록인 것은 Flutter의 관례이기도 하지만, 그것만은 아닙니다. 그룹은 어느 멤버가 양 끝에 있는지 알아야 어느 모서리를 깎을지 정할 수 있고, 불투명한 subtree 하나만 받은 widget은 그걸 알 수 없습니다.
 
-축들은 **`PlButton`과 `PlIconButton`에서도 nullable입니다**. `PlassVariant?`, `PlassSize?`, `int?`. Dart에는 기본값과 실제로 넘어온 값을 구분할 방법이 없기 때문입니다. 거기서 `null`은 _이 버튼은 말하지 않았다_ 는 뜻이고, 그래야 그룹이 대신 답할 수 있습니다.
+축들은 **`PlButton`과 `PlIconButton`에서도 nullable입니다**. `PlassVariant?`, `PlassSize?`, `int?`. Dart에는 기본값과 실제로 넘어온 값을 구분할 방법이 없기 때문입니다. 거기서 `null`은 *이 버튼은 말하지 않았다*는 뜻이고, 그래야 그룹이 대신 답할 수 있습니다.
 
 :::
 
@@ -65,7 +65,7 @@ PlButtonGroup(
 
 ## PlButtonGroup과 PlSegmentedButton
 
-버튼은 진짜 [`PlButton`](./button)으로 남고, 그 무엇도 대체되지 않습니다. 그룹이 하는 일은 모서리 넷을 깎고 prop 여섯 개를 물려주는 것뿐입니다. 선택 상태를 관리하지 않고, value도 없으며, 어느 버튼도 _고른 것_ 이 되지 않습니다.
+버튼은 진짜 [`PlButton`](./button)으로 남고, 그 무엇도 대체되지 않습니다. 그룹이 하는 일은 모서리 넷을 깎고 prop 여섯 개를 물려주는 것뿐입니다. 선택 상태를 관리하지 않고, value도 없으며, 어느 버튼도 *고른 것*이 되지 않습니다.
 
 여럿 중 하나를 고르는 컨트롤(뷰 전환, 모드 토글)은 [`PlSegmentedButton`](./segmented-button)입니다. 그쪽이 roving focus와 `radiogroup` semantics까지 갖춘 진짜 그 컨트롤입니다.
 
@@ -169,7 +169,7 @@ PlButtonGroup(
 | --- | --- | --- |
 | 임의의 `children` | `children: List<Widget>` | 어느 모서리를 깎을지 정하려면 그룹이 양 끝이 누구인지 알아야 합니다. |
 | glass 키를 1px 당겨 hairline 둘을 겹칩니다 | 이웃과 맞닿는 면을 아예 그리지 않습니다 | Flutter에는 음수 margin이 없고(`EdgeInsets`가 non-negative를 assert합니다), 대안은 `Transform`인데 이 라이브러리는 컨트롤에 transform을 걸지 않습니다. 둘 다 이음매마다 hairline 하나라는 같은 결과에 닿습니다. |
-| 축을 그냥 빼면 됩니다 | 같은 파라미터가 nullable입니다 | Dart는 기본값과 넘어온 값을 구분하지 못하므로, _말하지 않았다_ 를 타입이 담을 수 있는 값으로 만들어야 합니다. |
+| 축을 그냥 빼면 됩니다 | 같은 파라미터가 nullable입니다 | Dart는 기본값과 넘어온 값을 구분하지 못하므로, *말하지 않았다*를 타입이 담을 수 있는 값으로 만들어야 합니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::

@@ -160,7 +160,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 여기서는 `false`이고 [`PlDatePicker`](./date-picker)에서는 `true`입니다. 날은 답이 하나이고 시각은 둘입니다. 첫 답에 닫아 버리면 9:30을 고르는 데 팝업을 두 번 열어야 합니다.
 
-열들을 읽는 동안 팝업이 떠 있으므로, _그게 그거다_ 라는 뜻으로 누를 것이 있어야 합니다. 그래서 푸터에 **Done** 이 있습니다. `closeOnSelect`를 켜면 할 일이 없어지므로 사라집니다.
+열들을 읽는 동안 팝업이 떠 있으므로, *그게 그거다*라는 뜻으로 누를 것이 있어야 합니다. 그래서 푸터에 **Done** 이 있습니다. `closeOnSelect`를 켜면 할 일이 없어지므로 사라집니다.
 
 ### readOnly · disabled · error
 
