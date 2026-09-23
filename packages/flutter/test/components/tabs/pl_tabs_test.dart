@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 
 import '../../support/host.dart';
 
@@ -283,6 +284,44 @@ void main() {
         expect(tab.left, greaterThanOrEqualTo(bar.left));
         expect(tab.right, lessThanOrEqualTo(bar.right));
         expect(outer.offset, 0);
+      });
+
+      testWidgets('opens with the chosen tab clear of the fade', (WidgetTester tester) async {
+        // Flush with the edge, the tab would sit under the fade that end takes
+        // on once the strip has moved, and the bar would open on a tab it had
+        // half hidden. 'Notifications' has a tab after it, so that end fades,
+        // and the box has room for the tab and a fade either side of it.
+        await tester.pumpWidget(host(const PlTabs<String>(tabs: many, value: 'g'), width: 320));
+        await tester.pumpAndSettle();
+
+        final Rect bar = tester.getRect(find.byType(SingleChildScrollView));
+        final Rect tab = tester.getRect(
+          find.ancestor(of: find.text('Notifications'), matching: find.byType(PlassInteractive)),
+        );
+
+        expect(bar.right - tab.right, greaterThanOrEqualTo(24));
+        expect(tab.left, greaterThanOrEqualTo(bar.left));
+      });
+
+      testWidgets('keeps it clear of the fade at the start under RTL too', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTabs<String>(tabs: many, value: 'g'),
+            width: 320,
+            textDirection: TextDirection.rtl,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Rect bar = tester.getRect(find.byType(SingleChildScrollView));
+        final Rect tab = tester.getRect(
+          find.ancestor(of: find.text('Notifications'), matching: find.byType(PlassInteractive)),
+        );
+
+        expect(tab.left - bar.left, greaterThanOrEqualTo(24));
+        expect(tab.right, lessThanOrEqualTo(bar.right));
       });
 
       testWidgets('opens with the chosen tab in view under RTL', (WidgetTester tester) async {

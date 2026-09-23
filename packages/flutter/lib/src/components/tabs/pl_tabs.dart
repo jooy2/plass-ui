@@ -543,8 +543,10 @@ class _EdgeFadeState extends State<_EdgeFade> {
   /// tab is open. Only this strip moves: [Scrollable.ensureVisible] would move
   /// every scrollable around the bar as well, the page included. It jumps
   /// rather than animates, and moves the least it can, as the React bar does:
-  /// not at all while the tab already shows, and otherwise just far enough to
-  /// bring the tab's nearer edge to the edge of the strip.
+  /// not at all while the tab already shows clear of the fade, and otherwise
+  /// just far enough to bring the tab's nearer edge the fade's length short of
+  /// the edge of the strip. Flush with the edge, the tab would sit under the
+  /// fade that side takes on as soon as the strip has moved.
   void _reveal() {
     if (!mounted || !_controller.hasClients) {
       return;
@@ -558,10 +560,13 @@ class _EdgeFadeState extends State<_EdgeFade> {
 
     final ScrollPosition position = _controller.position;
     final RenderAbstractViewport viewport = RenderAbstractViewport.of(tab);
-    // The offsets that put the tab flush against the leading edge and flush
-    // against the trailing one. Anywhere between the two, all of it is in view.
-    final double leading = viewport.getOffsetToReveal(tab, 0).offset;
-    final double trailing = viewport.getOffsetToReveal(tab, 1).offset;
+    // The offsets that put the tab the fade's length in from the leading edge
+    // and from the trailing one. Anywhere between the two, all of it is in view
+    // and none of it is faded. At either end of the strip the clamp below wins,
+    // and there is no fade on that side to keep clear of. A tab too wide for a
+    // fade on both sides keeps its start clear, which is where its label begins.
+    final double leading = viewport.getOffsetToReveal(tab, 0).offset - _fadeLength;
+    final double trailing = viewport.getOffsetToReveal(tab, 1).offset + _fadeLength;
     final double target = position.pixels
         .clamp(trailing < leading ? trailing : leading, leading)
         .clamp(position.minScrollExtent, position.maxScrollExtent);

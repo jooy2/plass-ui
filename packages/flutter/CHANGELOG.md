@@ -46,6 +46,8 @@
 
 ### Fixed
 
+- **A `PlTabs` bar opens with its chosen tab clear of the edge fade.** The tab was brought into view flush against the edge, under the 24px fade that end takes on once the strip has moved. It now stops the fade's length short of it.
+
 - **`PlMenubar` is one tab stop, and the arrow keys move along it.** It claimed the `menuBar` role and then gave every word a tab stop of its own, with Left and Right only closing an open menu. Tab now reaches the bar once, on the word last used; the arrow keys step along it, wrapping at the ends, Home and End go to the first and last word, and a disabled word is stepped over. An open menu keeps its own keys, and closing it hands the focus back to its word.
 
 - **A `PlMenu` no longer puts an empty tab stop in front of its trigger.** The node the menu takes its keys on while it is open was in the tab order as well, so Tab stopped once on nothing before it reached the trigger.

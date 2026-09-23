@@ -44,6 +44,8 @@
 
 ### Fixed
 
+- **A `PlTabs` tab brought into view stops clear of the edge fade.** The chosen tab as the bar was laid out, and the next one along as the arrow keys moved, ended flush against the edge, which is where the 24px fade is strongest. Both now stop the fade's length short of it.
+
 - **Every `PlNavigationMenu` panel's links are in the server HTML.** A panel was rendered only once it opened, so a crawler that never hovers found none of the links the component exists to hold. Every panel is now kept mounted, and a closed one is hidden: not drawn, not announced and not a focus stop.
 
 - **One tick in a `PlTransfer` renders only the row it changed.** Every row of both lists rendered again for each tick, each one a `PlCheckbox`, so a list of thousands stalled on every press. A row now renders again only when its own label, tick or availability changes. The first render of a long list still draws every row.

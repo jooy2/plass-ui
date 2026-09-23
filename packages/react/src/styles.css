@@ -1111,18 +1111,25 @@
  * a writing direction, so the measurement is turned round once, here, rather
  * than in four places that could disagree.
  *
+ * A tab brought into view stops the fade's length short of the edge, through
+ * `scroll-padding-inline`. The reveal is not this sheet's — the browser does it
+ * for a focused tab and Base UI for the chosen one and the next one along — but
+ * both honour the padding, and without it the tab they brought into view would
+ * end flush with the edge, which is exactly where the fade is strongest.
+ *
  * The mask is dropped entirely while something inside holds a visible focus
- * ring. Focusing a tab scrolls it flush against the edge it came from, which is
- * exactly where the fade is strongest — so the one control whose outline has to
- * be legible would be the one drawn half transparent. `:focus-visible` and not
- * `:focus-within`: a tab that was clicked has the focus and no ring, and a bar
- * that stopped fading for the rest of the session because somebody pressed a
- * tab would have lost the signal at the first interaction.
+ * ring, as well: a reader walking the strip with the arrow keys is looking at
+ * the ring, and the one outline on the bar that has to be legible whole should
+ * not be one a fade can reach. `:focus-visible` and not `:focus-within`: a tab
+ * that was clicked has the focus and no ring, and a bar that stopped fading for
+ * the rest of the session because somebody pressed a tab would have lost the
+ * signal at the first interaction.
  * ------------------------------------------------------------------------- */
 
 .plass-fade-x {
   --p-fade: 1.5rem;
 
+  scroll-padding-inline: var(--p-fade);
   scrollbar-width: none;
   mask-image: linear-gradient(
     to right,

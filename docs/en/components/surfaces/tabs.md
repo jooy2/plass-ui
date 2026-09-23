@@ -212,7 +212,7 @@ A bar with more tabs than room **scrolls** rather than wrapping: a tab bar on tw
 
 Which is why the bar has to say it is scrolling, and a scrollbar does not. On a Mac it is an overlay that appears only while the strip is moving, and a reader decides whether there is more to look at the rest of the time. On Windows the same bar is fifteen pixels of permanent furniture under a row of labels. Both are taken away, and the end that still has tabs behind it is faded out instead. Only that end, so a faded edge always means there is more.
 
-The fade takes the pixels away rather than painting over them, so it is right whatever the bar is sitting on. A component cannot know whether it is on the page, on a `PlCard` or on a tinted section, and a gradient painted in the wrong colour would be worse than no signal at all. It is dropped while a tab inside is showing a focus ring, because focusing a tab scrolls it flush against the edge the fade is strongest at.
+The fade takes the pixels away rather than painting over them, so it is right whatever the bar is sitting on. A component cannot know whether it is on the page, on a `PlCard` or on a tinted section, and a gradient painted in the wrong colour would be worse than no signal at all. It is dropped while a tab inside is showing a focus ring, so the ring is never drawn half faded. A tab brought into view stops the fade's length short of the edge rather than flush against it, which is where the fade is strongest.
 
 Whether a bar overflows depends on the room it was given, so this is **measured** rather than declared. There is no prop for it.
 
