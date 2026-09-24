@@ -303,6 +303,45 @@ describe('PlTimelineChart', () => {
       expect(card()[0]).toBe('Design');
       expect(card()[1]).not.toContain('Design');
     });
+
+    it('hands a custom card the row a span is on and that row s index', async () => {
+      const screen = await render(
+        <PlTimelineChart
+          label="Plan"
+          series={PLAN}
+          tooltip={{
+            render: ({ index, category, items }) => (
+              <div data-testid="card">
+                {`${String(category)} ${index} ${items.map((one) => one.seriesIndex).join()}`}
+              </div>
+            )
+          }}
+        />
+      );
+      const plot = screen.getByRole('img', { name: 'Plan' });
+      const card = () => screen.container.querySelector('[data-testid="card"]')?.textContent;
+      const status = () => screen.getByRole('status').element().textContent ?? '';
+      const walk = () =>
+        plot
+          .element()
+          .dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+          );
+
+      await expect.element(plot).toBeInTheDocument();
+
+      // The two spans on the first row, then the one on the second: each is
+      // handed the row it sits in, never the row whose place matches its own
+      // place along its row.
+      walk();
+      await expect.poll(card).toBe('Design 0 0');
+      walk();
+      await expect.poll(status).toMatch(/^Visuals,/);
+      expect(card()).toBe('Design 0 0');
+      walk();
+      await expect.poll(status).toMatch(/^Implementation,/);
+      expect(card()).toBe('Build 1 1');
+    });
   });
 
   describe('lanes', () => {

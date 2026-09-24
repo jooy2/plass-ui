@@ -1048,10 +1048,16 @@ interface CartesianProps extends CartesianChartProps {
    * for anything whose marks sit in a grid the frame already understands. A
    * Gantt's rows are the frame's *categories* and its marks are spans within
    * them, so there is no cell for the frame to look the answer up in.
+   *
+   * `index` and `category` are what a caller's own `tooltip.render` is handed,
+   * when the mark's own place is not them. A span sits in its row, which is the
+   * category, and the mark's `index` is the span's place along that row.
    */
   markTooltip?: (mark: ChartMark) => {
     heading: React.ReactNode;
     items: readonly ChartTooltipItem[];
+    index?: number;
+    category?: PlassChartCategory;
   } | null;
   /** Bars, and only bars, run the other way. */
   horizontal?: boolean;
@@ -1953,8 +1959,8 @@ export function CartesianChart({
               }
             >
               {tooltipOptions.render({
-                index: activeIndex,
-                category: markCategory ?? labels[activeIndex],
+                index: supplied?.index ?? activeIndex,
+                category: supplied?.category ?? markCategory ?? labels[activeIndex],
                 items
               })}
             </div>

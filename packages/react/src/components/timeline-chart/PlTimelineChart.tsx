@@ -234,8 +234,15 @@ export function PlTimelineChart({
       ];
 
       // The span names itself when it can, and the row is then the second line
-      // rather than a repeat of the first.
-      return { heading: own ?? names[mark.series], items };
+      // rather than a repeat of the first. A caller's own `tooltip.render` is
+      // handed the row and its place, the category the span sits in, as a
+      // bar's is handed its column, rather than the span's place along it.
+      return {
+        heading: own ?? names[mark.series],
+        items,
+        index: mark.series,
+        category: names[mark.series]
+      };
     },
     [spans, names, colors, scale.unit, locale, withDate]
   );

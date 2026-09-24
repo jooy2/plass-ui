@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A `PlTimelineChart`'s own `tooltip.render` is handed the row a span sits on.** Its `category` was the name of whichever row had the same place as the span has along its own row, and its `index` was that place, so the second span on "Design" was handed "Build" and `1`. It is now handed the span's row as `category` and that row's place as `index`, as a bar is handed its column.
+
 - **Clicking an arrow or a dot of an `autoPlay` `PlCarousel` stops it in Safari too.** The carousel stopped only because the click brought the focus into it, and Safari does not focus a button it clicks, so there a reader who had steered to a slide saw it turn away at the next interval. A click on an arrow or a dot now stops it by itself, as a press does in the Flutter build, and the button reads "Start slide show" until it is pressed. A carousel the button has just started keeps playing through a click on an arrow or a dot until the focus next comes in or goes out, whether or not the start brought the focus in.
 
 - **`Escape` clears a `PlPieChart` readout.** The pie took only the arrow keys, so a slice being read stayed on the card and in the live region until the pointer or the focus left, where every other chart clears it on `Escape`. With a slice being read, the press now clears it and stops there; with none, it goes on to whatever the chart sits in.
