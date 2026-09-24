@@ -757,7 +757,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       // the input group out of the outside press: a press on the text moves the
       // caret, a chip's × takes the chip off, and the chevron closes the list.
       anchorInside: true,
-      popup: _list(tokens, family, scale),
+      // The list counts as the text's own as well. A press on a row that took
+      // the focus out of the text would close a `multiple` list after every
+      // row, and would put the text back before the press was taken, so the
+      // row it had landed on would be another one by then.
+      popup: TextFieldTapRegion(child: _list(tokens, family, scale)),
       // Everything on the field counts as the text's own too, so a press on a
       // chip or the chevron does not take the focus out of the text, which on
       // a desktop, and in a browser, a press outside it does.

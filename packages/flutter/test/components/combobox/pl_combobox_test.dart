@@ -49,6 +49,11 @@ List<String> _listed(WidgetTester tester) {
       .toList();
 }
 
+/// A row of the open list, by its text, and not the field's text or a chip.
+Finder _inList(String label) {
+  return find.descendant(of: find.byType(SingleChildScrollView), matching: find.text(label));
+}
+
 /// The row the keyboard is on, by its text, or `null` for none.
 String? _lit(WidgetTester tester) {
   final Finder lit = find.descendant(
@@ -331,6 +336,43 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(chosen, isNull);
+      });
+
+      testWidgets('takes the row a mouse presses on a desktop, after a query', (
+        WidgetTester tester,
+      ) async {
+        // Where a press outside the text takes the focus out of it, and puts the
+        // chosen label back in the field. Put back however the test ends.
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+        try {
+          String? chosen;
+
+          await tester.pumpWidget(
+            TapRegionSurface(
+              child: _host(
+                PlCombobox<String>(
+                  options: _cities,
+                  value: null,
+                  onChanged: (String? next) => chosen = next,
+                ),
+              ),
+            ),
+          );
+
+          await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+          await tester.pumpAndSettle();
+          tester.testTextInput.enterText('lis');
+          await tester.pumpAndSettle();
+
+          await tester.tap(_inList('Lisbon'), kind: PointerDeviceKind.mouse);
+          await tester.pumpAndSettle();
+
+          expect(chosen, 'lisbon');
+          expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
       });
 
       group('while read-only', () {
@@ -854,6 +896,58 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, isEmpty);
+      });
+
+      testWidgets('takes one row after another with a mouse on a desktop, and stays open', (
+        WidgetTester tester,
+      ) async {
+        // Where a press outside the text takes the focus out of it, and the list
+        // goes with the focus. Put back however the test ends.
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+        try {
+          List<String> values = <String>[];
+
+          await tester.pumpWidget(
+            TapRegionSurface(
+              child: _host(
+                StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) =>
+                      PlCombobox<String>.multiple(
+                        options: _cities,
+                        values: values,
+                        onChanged: (List<String> next) => setState(() => values = next),
+                      ),
+                ),
+              ),
+            ),
+          );
+
+          final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
+
+          await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+          await tester.pumpAndSettle();
+
+          await tester.tap(_inList('Seoul'), kind: PointerDeviceKind.mouse);
+          await tester.pumpAndSettle();
+
+          expect(values, <String>['seoul']);
+          expect(editor.focusNode.hasFocus, isTrue);
+          expect(_inList('Lisbon'), findsOneWidget);
+
+          // And after a query, the row pressed rather than the one that takes
+          // its place in the whole list.
+          tester.testTextInput.enterText('lis');
+          await tester.pumpAndSettle();
+          await tester.tap(_inList('Lisbon'), kind: PointerDeviceKind.mouse);
+          await tester.pumpAndSettle();
+
+          expect(values, <String>['seoul', 'lisbon']);
+          expect(editor.focusNode.hasFocus, isTrue);
+          expect(_inList('Quito'), findsOneWidget);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
       });
     });
 
