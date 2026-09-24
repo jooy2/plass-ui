@@ -266,6 +266,60 @@ describe('PlPieChart', () => {
       }
     });
 
+    it.each(['pie', 'donut', 'semi'] as const)(
+      'says and writes the name of the slice it is on once, on a %s',
+      async (shape) => {
+        const screen = await render(
+          <PlPieChart label="Traffic" shape={shape} categories={SOURCES} data={[40, 25, 20, 15]} />
+        );
+
+        const plot = screen.getByRole('img', { name: 'Traffic' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        const status = screen.container.querySelector('[role="status"]') as HTMLElement;
+
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => status.textContent).toBe('Search, 40 · 40%');
+
+        // The card's heading, then every word on its one row.
+        const card = screen.container.querySelector('[data-plass-tooltip]');
+
+        expect(card?.querySelector(':scope > div')?.textContent).toBe('Search');
+        expect(
+          [...(card?.querySelectorAll('li span') ?? [])]
+            .map((one) => one.textContent)
+            .filter(Boolean)
+        ).toEqual(['40 · 40%']);
+      }
+    );
+
+    it('still hands a custom card the slice with its name', async () => {
+      const screen = await render(
+        <PlPieChart
+          label="Traffic"
+          categories={SOURCES}
+          data={[40, 25, 20, 15]}
+          tooltip={{
+            render: ({ category, items }) => (
+              <div data-testid="card">
+                {`${String(category)} ${items.map((one) => one.name).join()}`}
+              </div>
+            )
+          }}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Traffic' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      arrow(plot.element(), 'ArrowRight');
+      await expect
+        .poll(() => screen.container.querySelector('[data-testid="card"]')?.textContent)
+        .toBe('Search Search');
+    });
+
     it('is a tab stop only while there is something on it', async () => {
       const screen = await render(<PlPieChart label="Traffic" data={[0, 0]} />);
 

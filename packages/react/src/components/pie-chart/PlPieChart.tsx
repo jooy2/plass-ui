@@ -278,6 +278,13 @@ export function PlPieChart({
           }
         ];
 
+  /* What the card writes and the live region reads. The slice's name heads
+     both, so the row beside the swatch is only what the slice is worth: under
+     its name as well, the name would be written twice and read twice, "Search,
+     Search: 40 · 40%". A caller's own `tooltip.render` is still handed the
+     slice with its name, and lays the two out itself. */
+  const said = items.map((item) => ({ ...item, name: undefined }));
+
   return (
     <ChartSurface
       {...box}
@@ -472,7 +479,7 @@ export function PlPieChart({
           ) : (
             <ChartTooltipPanel
               heading={slices[active]?.name}
-              items={items}
+              items={said}
               x={centreX}
               y={8}
               flip={false}
@@ -499,7 +506,7 @@ export function PlPieChart({
 
       {/* Only where there is a crosshair to report — see `ChartStatus`. */}
       {tooltipOff ? null : (
-        <ChartStatus heading={active === null ? undefined : slices[active]?.name} items={items} />
+        <ChartStatus heading={active === null ? undefined : slices[active]?.name} items={said} />
       )}
     </ChartSurface>
   );
