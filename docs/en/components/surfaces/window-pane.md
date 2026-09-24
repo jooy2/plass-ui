@@ -41,6 +41,12 @@ There is no desktop, no z-order and no dock. What there is is a title bar that d
 
 `minimize` rolls the window up to its title bar rather than sending it anywhere, because a page has nowhere to send it to. `maximize` fills whatever is holding the window.
 
+::: fw flutter
+
+There is no `position` on Flutter to name another box, so what holds the window is the box its parent lays it out in. Along an axis that box leaves open, such as down a scrolling column, a maximized window keeps its own size.
+
+:::
+
 **`size` scales the chrome and nothing else**, the bar, the buttons and the title. A window's content is the caller's and is laid out at its own scale, exactly as it would be on a real desktop where the title bar does not grow with the document. It is the third component after [`PlBox`](./box) and [`PlMockup`](../display/mockup) where the ladder means something other than a control height.
 
 ## Examples

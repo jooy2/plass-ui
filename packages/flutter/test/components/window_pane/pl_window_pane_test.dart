@@ -45,6 +45,13 @@ Future<void> _pumpFree(WidgetTester tester, Widget child) async {
   await tester.pumpAndSettle();
 }
 
+/// The window as it is drawn: its frame, after the offset has moved it.
+Rect _drawn(WidgetTester tester) {
+  return tester.getRect(
+    find.descendant(of: find.byType(PlWindowPane), matching: find.byType(Container)).first,
+  );
+}
+
 /// The middle of the handle on one side of the window.
 Offset _edge(WidgetTester tester, AxisDirection side) {
   final Rect rect = tester.getRect(find.byType(PlWindowPane));
@@ -166,6 +173,224 @@ void main() {
 
       expect(find.bySemanticsLabel('Restore'), findsOneWidget);
       expect(find.bySemanticsLabel('Maximize'), findsNothing);
+    });
+
+    testWidgets('fills the box it is laid out in while it is maximized', (
+      WidgetTester tester,
+    ) async {
+      const Key box = ValueKey<String>('box');
+
+      Widget window({required bool maximized}) {
+        return SizedBox(
+          key: box,
+          width: 500,
+          height: 400,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: PlWindowPane(
+              title: const Text('Notes'),
+              width: 300,
+              height: 200,
+              offset: const Offset(30, 20),
+              maximized: maximized,
+              child: const Text('Body'),
+            ),
+          ),
+        );
+      }
+
+      await _pumpFree(tester, window(maximized: false));
+
+      final Rect held = tester.getRect(find.byKey(box));
+
+      expect(_drawn(tester), (held.topLeft + const Offset(30, 20)) & const Size(300, 200));
+
+      await _pumpFree(tester, window(maximized: true));
+
+      // The whole box, from its corner: the offset and the size wait for the
+      // window to be restored.
+      expect(_drawn(tester), held);
+
+      await _pumpFree(tester, window(maximized: false));
+
+      expect(_drawn(tester), (held.topLeft + const Offset(30, 20)) & const Size(300, 200));
+    });
+
+    testWidgets('keeps its own height while maximized where the box has none to give', (
+      WidgetTester tester,
+    ) async {
+      await _pumpFree(
+        tester,
+        const SizedBox(
+          width: 500,
+          height: 400,
+          child: SingleChildScrollView(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: PlWindowPane(
+                title: Text('Notes'),
+                width: 300,
+                height: 200,
+                maximized: true,
+                child: Text('Body'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(_drawn(tester).size, const Size(500, 200));
+    });
+
+    testWidgets('neither drags nor offers its bar to the keyboard while it is maximized', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      Offset? moved;
+
+      await _pump(
+        tester,
+        PlWindowPane(
+          title: const Text('Notes'),
+          draggable: true,
+          maximized: true,
+          width: 300,
+          onOffsetChanged: (Offset value) => moved = value,
+        ),
+      );
+
+      await tester.drag(find.text('Notes'), const Offset(40, 20));
+      await tester.pumpAndSettle();
+
+      expect(moved, isNull);
+      expect(find.bySemanticsLabel('Move window'), findsNothing);
+
+      handle.dispose();
+    });
+
+    testWidgets('rolls up to its bar whatever height it was given, and comes back down', (
+      WidgetTester tester,
+    ) async {
+      final PlWindowMetrics metrics = windowMetrics(PlWindowOs.macos, PlassSize.md);
+
+      Widget window({required bool minimized}) {
+        return PlWindowPane(
+          title: const Text('Notes'),
+          width: 300,
+          height: 200,
+          minimized: minimized,
+          child: const Text('Body'),
+        );
+      }
+
+      await _pumpFree(tester, window(minimized: true));
+
+      expect(_drawn(tester).size, Size(300, metrics.bar + metrics.frame * 2));
+
+      await _pumpFree(tester, window(minimized: false));
+
+      expect(_drawn(tester).size, const Size(300, 200));
+    });
+
+    testWidgets('rolls up in a scrolling column with content that needs a height', (
+      WidgetTester tester,
+    ) async {
+      final PlWindowMetrics metrics = windowMetrics(PlWindowOs.macos, PlassSize.md);
+
+      await _pumpFree(
+        tester,
+        const SizedBox(
+          width: 500,
+          height: 400,
+          child: SingleChildScrollView(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: PlWindowPane(
+                title: Text('Notes'),
+                width: 300,
+                height: 200,
+                minimized: true,
+                child: Column(children: <Widget>[Expanded(child: Text('Body'))]),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Laid out off stage at the height it had, so the `Expanded` is not
+      // handed an unbounded one.
+      expect(tester.takeException(), isNull);
+      expect(_drawn(tester).height, metrics.bar + metrics.frame * 2);
+    });
+
+    testWidgets('keeps what it holds, and the focus, through a maximize and a roll-up', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      bool maximized = false;
+      bool minimized = false;
+
+      await _pumpFree(
+        tester,
+        afterFocusStop(
+          before,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlWindowPane(
+              title: const Text('Notes'),
+              width: 300,
+              height: 200,
+              draggable: true,
+              resizable: true,
+              maximized: maximized,
+              minimized: minimized,
+              onMaximizedChanged: (bool value) => setState(() => maximized = value),
+              onMinimizedChanged: (bool value) => setState(() => minimized = value),
+              child: const _Kept(),
+            ),
+          ),
+        ),
+      );
+
+      final _KeptState state = tester.state<_KeptState>(find.byType(_Kept));
+
+      before.requestFocus();
+      await tester.pump();
+
+      // Past the bar's own stop to the button, however the system orders them.
+      for (int i = 0; i < 5 && !_focusIsOn('Maximize'); i += 1) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      // The bar and the body are the ones they were, so the button that was
+      // pressed still holds the focus under its new name.
+      expect(maximized, isTrue);
+      expect(_focusIsOn('Restore'), isTrue);
+      expect(tester.state<_KeptState>(find.byType(_Kept)), same(state));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+
+      expect(maximized, isFalse);
+      expect(_focusIsOn('Maximize'), isTrue);
+      expect(tester.state<_KeptState>(find.byType(_Kept)), same(state));
+
+      await tester.tap(find.bySemanticsLabel('Minimize'));
+      await tester.pumpAndSettle();
+
+      expect(minimized, isTrue);
+      expect(tester.state<_KeptState>(find.byType(_Kept, skipOffstage: false)), same(state));
+
+      await tester.tap(find.bySemanticsLabel('Minimize'));
+      await tester.pumpAndSettle();
+
+      expect(minimized, isFalse);
+      expect(tester.state<_KeptState>(find.byType(_Kept)), same(state));
     });
 
     testWidgets('rolls up to its bar rather than sending itself anywhere', (

@@ -41,6 +41,12 @@ PlWindowPane(title: const Text('Notes'), child: MyApp());
 
 `minimize`는 창을 어디로 보내지 않고 제목 표시줄까지 말아 올립니다. 페이지에는 보낼 곳이 없기 때문입니다. `maximize`는 창을 담고 있는 것을 가득 채웁니다.
 
+::: fw flutter
+
+Flutter에는 다른 상자를 가리킬 `position`이 없어서, 창을 담고 있는 것은 부모가 창을 배치하는 상자입니다. 스크롤되는 열의 세로 방향처럼 그 상자가 길이를 정해 두지 않은 방향에서는 최대화한 창도 제 크기를 그대로 지킵니다.
+
+:::
+
 **`size`는 chrome만 키웁니다.** 표시줄, button, 제목입니다. 창의 내용은 caller의 것이고 자기 척도로 배치됩니다. 제목 표시줄이 문서를 따라 커지지 않는 진짜 바탕화면에서와 똑같습니다. [`PlBox`](./box), [`PlMockup`](../display/mockup)에 이어 사다리가 컨트롤 높이가 아닌 것을 뜻하는 세 번째 컴포넌트입니다.
 
 ## Examples

@@ -4,6 +4,7 @@ library;
 import 'dart:math' as math;
 import 'dart:ui' show FlutterView;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -35,7 +36,8 @@ export 'package:plass_ui/src/internal/window.dart' show PlWindowControl, PlWindo
 /// the house rule against transforming a surface exists to prevent.
 ///
 /// [minimized] rolls the window up to its title bar rather than sending it
-/// anywhere, because a page has nowhere to send it to.
+/// anywhere, because a page has nowhere to send it to. [maximized] fills the
+/// box the window's parent lays it out in.
 ///
 /// ```dart
 /// PlWindowPane(title: const Text('Notes'), child: MyEditor())
@@ -131,6 +133,9 @@ class PlWindowPane extends StatefulWidget {
 
   /// Lets the title bar be dragged. The bar also becomes a stop in the focus
   /// order, where the arrow keys move the window.
+  ///
+  /// Neither the drag nor the stop is there while the window is [maximized]:
+  /// a window that fills its box has nowhere to be moved to.
   final bool draggable;
 
   /// Lets the eight edges and corners be dragged.
@@ -173,6 +178,9 @@ class PlWindowPane extends StatefulWidget {
   final ValueChanged<bool>? onOpenChanged;
 
   /// Whether the window is rolled up to its title bar.
+  ///
+  /// It keeps its width and is as tall as the bar, whatever [height] says, and
+  /// comes back down to the height it had.
   final bool minimized;
 
   /// Called when the minimize button is pressed.
@@ -180,6 +188,12 @@ class PlWindowPane extends StatefulWidget {
 
   /// Whether the window fills whatever is holding it. Its corners go square
   /// while it does, as they do on every system.
+  ///
+  /// What holds it is the box its parent lays it out in, and the window sits at
+  /// the corner of that box whatever its [offset]. Along an axis the box leaves
+  /// open, such as down a scrolling column, the window keeps its own size. A
+  /// window that is also [minimized] fills the box across and is rolled up to
+  /// its bar.
   final bool maximized;
 
   /// Called when the maximize button is pressed.
@@ -287,14 +301,30 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     // form half filled in is still half filled in when the window comes back
     // down. That is what the React build's `inert` body does, and the wrappers
     // are there in both states so that rolling up rebuilds nothing.
+    //
+    // Off stage, the body is still laid out, and at the height it had rather
+    // than at whatever the rolled-up window leaves it: nothing inside moves,
+    // and content that needs a bounded height, such as an `Expanded`, still
+    // has one when the window rolled up sits in a scrolling column.
+    final double? tall = _sized?.height ?? widget.height;
     final Widget body = ExcludeFocus(
       excluding: widget.minimized,
       child: Offstage(
         offstage: widget.minimized,
-        child: Container(
-          margin: EdgeInsets.fromLTRB(metrics.band.side, 0, metrics.band.side, metrics.band.bottom),
-          color: paint.body,
-          child: widget.child ?? const SizedBox.shrink(),
+        child: SizedBox(
+          height: widget.minimized && tall != null
+              ? math.max(0, tall - metrics.bar - metrics.frame * 2)
+              : null,
+          child: Container(
+            margin: EdgeInsets.fromLTRB(
+              metrics.band.side,
+              0,
+              metrics.band.side,
+              metrics.band.bottom,
+            ),
+            color: paint.body,
+            child: widget.child ?? const SizedBox.shrink(),
+          ),
         ),
       ),
     );
@@ -302,9 +332,10 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     final Widget pane = Container(
       key: _paneKey,
       width: _sized?.width ?? widget.width,
-      // A rolled-up window is as tall as its title bar, whatever a drag left it
-      // at — the height belongs to the body, and the body is off stage.
-      height: widget.minimized ? widget.height : (_sized?.height ?? widget.height),
+      // A rolled-up window is as tall as its title bar, whatever it was told to
+      // be or a drag left it at — the height belongs to the body, and the body
+      // is off stage.
+      height: widget.minimized ? null : tall,
       decoration: BoxDecoration(
         color: paint.band,
         border: Border.all(color: paint.line, width: metrics.frame),
@@ -324,7 +355,17 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           bar,
-          if (widget.height == null) Flexible(child: body) else Expanded(child: body),
+          // The body fills what the bar leaves of a window with a height, and
+          // of a maximized one where its box has a height to fill. One
+          // `Flexible` in every state, so neither a maximize nor a roll-up
+          // builds the body again.
+          Flexible(
+            child: _Fill(
+              across: false,
+              down: !widget.minimized && (widget.maximized || widget.height != null),
+              child: body,
+            ),
+          ),
         ],
       ),
     );
@@ -364,11 +405,19 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     // the content merge into the node's own name, and a window called `Notes`
     // is announced as `Notes Minimize Maximize Close Body`. It is the Flutter
     // half of what `aria-labelledby` does in the React build.
+    //
+    // A maximized window fills the box it is laid out in from the box's corner,
+    // as the React one fills its container from `left: 0; top: 0`. The offset
+    // and the size are kept, for the window to go back to when it is restored.
     return Semantics(
       container: true,
       explicitChildNodes: true,
       label: _titleText(),
-      child: Transform.translate(offset: at, child: framed),
+      child: _Fill(
+        across: widget.maximized,
+        down: widget.maximized && !widget.minimized,
+        child: Transform.translate(offset: widget.maximized ? Offset.zero : at, child: framed),
+      ),
     );
   }
 
@@ -592,28 +641,37 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         ? math.max(0, metrics.radiusBottom - metrics.frame)
         : 0;
 
+    // A maximized window fills its box and has nowhere to be moved to, so the
+    // drag and the stop stand down while it does. They stay in the tree rather
+    // than being taken out of it, which would build the bar again under a
+    // maximize button that has just been pressed and take the focus off it.
+    final bool movable = !widget.maximized;
+
     return _MoveHandle(
+      enabled: movable,
       label: widget.moveLabel ?? labels.moveWindow,
       ring: colors.ring,
-      radius: widget.maximized
-          ? BorderRadius.zero
-          : BorderRadius.vertical(
-              top: Radius.circular(inside),
-              bottom: Radius.circular(insideBottom),
-            ),
+      radius: BorderRadius.vertical(
+        top: Radius.circular(inside),
+        bottom: Radius.circular(insideBottom),
+      ),
       onMove: (_MoveWindowIntent intent) => _step(intent, metrics.frame + metrics.bar),
       child: MouseRegion(
-        cursor: SystemMouseCursors.move,
+        cursor: movable ? SystemMouseCursors.move : MouseCursor.defer,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onPanStart: (DragStartDetails details) {
-            _grippedAt = _at;
-            _travel = Offset.zero;
-          },
-          onPanUpdate: (DragUpdateDetails details) {
-            _travel += details.delta;
-            _moveTo(_grippedAt + _travel);
-          },
+          onPanStart: movable
+              ? (DragStartDetails details) {
+                  _grippedAt = _at;
+                  _travel = Offset.zero;
+                }
+              : null,
+          onPanUpdate: movable
+              ? (DragUpdateDetails details) {
+                  _travel += details.delta;
+                  _moveTo(_grippedAt + _travel);
+                }
+              : null,
           child: bar,
         ),
       ),
@@ -946,12 +1004,16 @@ const Map<ShortcutActivator, Intent> _moveKeys = <ShortcutActivator, Intent>{
 /// reading order.
 class _MoveHandle extends StatefulWidget {
   const _MoveHandle({
+    required this.enabled,
     required this.label,
     required this.ring,
     required this.radius,
     required this.onMove,
     required this.child,
   });
+
+  /// Whether the stop is there at all. The bar is drawn either way.
+  final bool enabled;
 
   /// What the stop is called.
   final String label;
@@ -974,6 +1036,17 @@ class _MoveHandle extends StatefulWidget {
 
 class _MoveHandleState extends State<_MoveHandle> {
   bool _focusVisible = false;
+
+  @override
+  void didUpdateWidget(_MoveHandle oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // A stop taken away while it held the focus never hears that the focus
+    // left, and a ring it kept would be drawn again the moment it came back.
+    if (!widget.enabled) {
+      _focusVisible = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1013,14 +1086,103 @@ class _MoveHandleState extends State<_MoveHandle> {
       ),
     );
 
+    // The bar keeps its place in the stack whether or not the stop is there,
+    // so taking the stop away leaves the bar and its buttons as they were.
     return Stack(
       fit: StackFit.passthrough,
       children: <Widget>[
-        Positioned.fill(child: stop),
+        Positioned.fill(child: widget.enabled ? stop : const SizedBox.shrink()),
         widget.child,
-        if (_focusVisible) Positioned.fill(child: ring),
+        if (widget.enabled && _focusVisible) Positioned.fill(child: ring),
       ],
     );
+  }
+}
+
+/// Stretches its child over each axis it is told to fill where the parent
+/// bounds that axis, and leaves the child its own size along an axis the
+/// parent leaves open.
+///
+/// What CSS does with `width: 100%` and `height: 100%` against a box that has
+/// no height of its own, which is what lets a maximized window sit in a
+/// scrolling column. A `FractionallySizedBox` asks for an infinite length
+/// there instead, and a `LayoutBuilder` would give up the window's intrinsic
+/// size.
+class _Fill extends SingleChildRenderObjectWidget {
+  const _Fill({required this.across, required this.down, required super.child});
+
+  /// Whether the child is stretched across.
+  final bool across;
+
+  /// And down.
+  final bool down;
+
+  @override
+  _RenderFill createRenderObject(BuildContext context) {
+    return _RenderFill(across: across, down: down);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderFill renderObject) {
+    renderObject
+      ..across = across
+      ..down = down;
+  }
+}
+
+class _RenderFill extends RenderProxyBox {
+  _RenderFill({required bool across, required bool down}) : _across = across, _down = down;
+
+  bool _across;
+  set across(bool value) {
+    if (_across == value) return;
+    _across = value;
+    markNeedsLayout();
+  }
+
+  bool _down;
+  set down(bool value) {
+    if (_down == value) return;
+    _down = value;
+    markNeedsLayout();
+  }
+
+  BoxConstraints _inner(BoxConstraints constraints) {
+    return BoxConstraints(
+      minWidth: _across && constraints.hasBoundedWidth
+          ? constraints.maxWidth
+          : constraints.minWidth,
+      maxWidth: constraints.maxWidth,
+      minHeight: _down && constraints.hasBoundedHeight
+          ? constraints.maxHeight
+          : constraints.minHeight,
+      maxHeight: constraints.maxHeight,
+    );
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final RenderBox? child = this.child;
+
+    return child == null ? _inner(constraints).smallest : child.getDryLayout(_inner(constraints));
+  }
+
+  @override
+  double? computeDryBaseline(BoxConstraints constraints, TextBaseline baseline) {
+    return child?.getDryBaseline(_inner(constraints), baseline);
+  }
+
+  @override
+  void performLayout() {
+    final RenderBox? child = this.child;
+
+    if (child == null) {
+      size = _inner(constraints).smallest;
+      return;
+    }
+
+    child.layout(_inner(constraints), parentUsesSize: true);
+    size = child.size;
   }
 }
 
