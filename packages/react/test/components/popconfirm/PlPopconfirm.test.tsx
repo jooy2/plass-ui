@@ -161,6 +161,27 @@ describe('PlPopconfirm', () => {
       await expect.poll(popup).toBeNull();
     });
 
+    it('says the word `loadingLabel` gives it while it waits', async () => {
+      const screen = await render(
+        <PlPopconfirm
+          title="Revoke this key?"
+          confirmLabel="Revoke"
+          loadingLabel="Revoking"
+          // Never settles, so the button is still waiting when it is read.
+          onConfirm={() => new Promise<void>(() => {})}
+          trigger={<PlButton>Revoke key</PlButton>}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Revoke key' }).click();
+      pressInDialogWhenReady('Revoke');
+
+      const confirm = screen.getByRole('button', { name: 'Revoke', exact: true });
+
+      await expect.element(confirm).toHaveAttribute('aria-busy', 'true');
+      await expect.element(confirm).toHaveAccessibleDescription('Revoking');
+    });
+
     it('leaves the question up when the promise rejects', async () => {
       const screen = await render(
         <PlPopconfirm

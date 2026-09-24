@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlPopconfirm` takes `loadingLabel`, the word a screen reader hears while it waits on `onConfirm`.** Its confirming button was always described by the label set's `loading`, "Loading" in English, which does not say what is being waited for, and the popconfirm had no way to hand it another. `loadingLabel` reaches that button and puts the popconfirm's own word in its place, such as "Revoking", and the name stays what it was.
+
 - **`PlButton`, `PlIconButton` and `PlFloatingActionButton` take `loadingLabel`, the word a screen reader hears while `loading`.** A loading button was always described by the label set's `loading`, "Loading" in English, which does not say what is being waited for. `loadingLabel` puts the button's own word in its place, such as "Saving", and the name stays what it was.
 
 - **`PlTable` takes `label`, which names the box its grid scrolls in when there is no `caption`.** A table wider than its sheet, or taller than its `maxHeight`, is a tab stop while it scrolls, and without a caption that stop had no name. `label` makes it a group with that name, the way `PlScrollZone`'s `label` names its strip; a `caption` still names it when there is one.

@@ -6,6 +6,7 @@ export default function PopconfirmAsync() {
       title="Revoke this key?"
       description="Anything using it stops working."
       confirmLabel="Revoke"
+      loadingLabel="Revoking"
       trigger={<PlButton color="danger">Revoke key</PlButton>}
       onConfirm={() => new Promise((resolve) => setTimeout(resolve, 1200))}
     />

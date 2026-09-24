@@ -29,6 +29,13 @@ export interface PlPopconfirmProps {
    * the caller's, and `onConfirm` is where to report it from.
    */
   onConfirm?: () => void | Promise<unknown>;
+  /**
+   * The word a screen reader hears after the confirming button's name while it
+   * waits on `onConfirm` — "Deleting", "Revoking". It takes the place of the
+   * label set's `loading` for that button.
+   * @default 'Loading'
+   */
+  loadingLabel?: string;
   /** What cancelling does, beyond closing. */
   onCancel?: () => void;
   /** @default 'danger' */
@@ -74,6 +81,7 @@ export function PlPopconfirm({
   confirmLabel: confirmLabelProp,
   cancelLabel: cancelLabelProp,
   onConfirm,
+  loadingLabel,
   onCancel,
   color: colorProp,
   size: sizeProp,
@@ -176,6 +184,7 @@ export function PlPopconfirm({
           size={size}
           density="compact"
           loading={running}
+          loadingLabel={loadingLabel}
           // The focus lands here rather than on Cancel, which is the other way
           // round from `PlConfirmProvider` — and deliberately. A popconfirm is
           // opened *by* the button it is asking about, so the reader has

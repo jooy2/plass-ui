@@ -52,6 +52,7 @@ class PlPopconfirm extends StatefulWidget {
     this.confirmLabel,
     this.cancelLabel,
     this.onConfirm,
+    this.loadingLabel,
     this.onCancel,
     this.color,
     this.size,
@@ -94,6 +95,11 @@ class PlPopconfirm extends StatefulWidget {
   /// whole of what this widget owes a failure; what the failure *means* is the
   /// caller's, and `onConfirm` is where to report it from.
   final FutureOr<void> Function()? onConfirm;
+
+  /// The word a screen reader hears after the confirming button's name while
+  /// it waits on [onConfirm] — "Deleting", "Revoking". It takes the place of the
+  /// label set's `loading` for that button. See [PlButton.loadingLabel].
+  final String? loadingLabel;
 
   /// What cancelling does, beyond closing.
   final VoidCallback? onCancel;
@@ -203,6 +209,7 @@ class _PlPopconfirmState extends State<PlPopconfirm> {
               size: _size,
               density: PlassDensity.compact,
               loading: _running,
+              loadingLabel: widget.loadingLabel,
               // The focus lands here rather than on Cancel, which is the other
               // way round from `PlConfirmProvider` — and deliberately. A
               // popconfirm is opened *by* the button it is asking about, so the

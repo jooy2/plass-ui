@@ -20,6 +20,7 @@ class _PopconfirmAsyncState extends State<PopconfirmAsync> {
       description: const Text('Anything using it stops working.'),
       confirmLabel: const Text('Revoke'),
       onConfirm: () => Future<void>.delayed(const Duration(milliseconds: 1200)),
+      loadingLabel: 'Revoking',
       trigger: PlButton(
         color: PlassColor.danger,
         onPressed: () => setState(() => _open = true),

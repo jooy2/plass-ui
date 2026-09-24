@@ -109,3 +109,4 @@ It opens above the trigger by default, which is where it is least likely to cove
 - **The focus lands on the confirming button**, which is the other way round from `PlConfirmProvider` and is deliberate: a popconfirm is opened _by_ the button it is asking about, so the reader has already said what they want once. The modal is for the question that has to be argued with.
 - There is no close button. The two answers are the two buttons, and a third way out that means neither would be a third answer to a question with two.
 - Name the buttons for what they **do**. "Delete" and "Cancel", not "Yes" and "No".
+- While it waits on `onConfirm`, a screen reader hears the `loading` word from [the label set](../../guide/locales), "Loading" in English, after the confirming button's name. `loadingLabel` puts a word of your own in its place, such as "Revoking".

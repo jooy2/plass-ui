@@ -15123,6 +15123,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'loadingLabel',
+      type: 'string',
+      default: "'Loading'",
+      description: {
+        ko: 'onConfirm을 기다리는 동안 스크린 리더가 확인 버튼의 이름 뒤에 듣는 말 — "Deleting", "Revoking". 그 버튼에서는 어휘 묶음의 loading 대신 쓰입니다',
+        en: 'The word a screen reader hears after the confirming button\'s name while it waits on onConfirm — "Deleting", "Revoking". It takes the place of the label set\'s loading for that button'
+      }
+    },
+    {
       name: 'onCancel',
       type: '() => void',
       description: { ko: '취소가 닫는 것 말고 하는 일', en: 'What cancelling does, beyond closing' }

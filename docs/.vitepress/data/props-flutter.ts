@@ -2375,6 +2375,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlPopconfirm', 'confirmLabel', { type: 'Widget?', default: "Text('Confirm')" }),
     from('PlPopconfirm', 'cancelLabel', { type: 'Widget?', default: "Text('Cancel')" }),
     from('PlPopconfirm', 'onConfirm', { type: 'FutureOr<void> Function()?' }),
+    from('PlPopconfirm', 'loadingLabel', { type: 'String?', default: 'labels.loading' }),
     from('PlPopconfirm', 'onCancel', { type: 'VoidCallback?' }),
     from('PlPopconfirm', 'color', { type: `${COLOR}?`, default: 'PlassColor.danger' }),
     from('PlPopconfirm', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),

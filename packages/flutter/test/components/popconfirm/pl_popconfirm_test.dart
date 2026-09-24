@@ -9,10 +9,11 @@ import '../../support/host.dart';
 
 /// A popconfirm that keeps its own open state, which is what a caller writes.
 class _Host extends StatefulWidget {
-  const _Host({this.onConfirm, this.onCancel});
+  const _Host({this.onConfirm, this.onCancel, this.loadingLabel});
 
   final FutureOr<void> Function()? onConfirm;
   final VoidCallback? onCancel;
+  final String? loadingLabel;
 
   @override
   State<_Host> createState() => _HostState();
@@ -31,6 +32,7 @@ class _HostState extends State<_Host> {
       confirmLabel: const Text('Delete it'),
       cancelLabel: const Text('Keep it'),
       onConfirm: widget.onConfirm,
+      loadingLabel: widget.loadingLabel,
       onCancel: widget.onCancel,
       trigger: PlButton(
         color: PlassColor.danger,
@@ -129,6 +131,30 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Delete this row?'), findsNothing);
+      });
+
+      testWidgets('says the word loadingLabel gives it while it waits', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final Completer<void> work = Completer<void>();
+
+        await _pump(tester, _Host(onConfirm: () => work.future, loadingLabel: 'Deleting'));
+        await _press(tester, 'Delete');
+
+        await tester.tap(find.text('Delete it'));
+        // Pumped rather than settled: a spinner turns for as long as it waits.
+        await tester.pump();
+
+        expect(
+          tester.getSemantics(find.widgetWithText(PlButton, 'Delete it')),
+          isSemantics(label: 'Delete it', hint: 'Deleting'),
+        );
+
+        work.complete();
+        await tester.pumpAndSettle();
+
+        handle.dispose();
       });
 
       testWidgets('leaves the question up when the future fails', (WidgetTester tester) async {
