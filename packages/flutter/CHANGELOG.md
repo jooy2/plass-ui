@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A `PlWindowPane` with no `height` fills its body down to the frame once a drag has made it taller.** The body stretched only when `height` was given, so a window resized by its edges was left with a body as tall as its content and the band colour under it, which on a system with no band, such as `macos`, left the page behind the window showing through. It now fills whatever height the window has, given or dragged, as the React body does.
+
 - **A `PlChip`, `PlToggle`, `PlTextField`, `PlSelect`, `PlCombobox`, `PlNumberField` and `PlFilePicker` keep what they hold as `readOnly` and `disabled` change.** The gloss of a `glass` surface and the pointer light came and went with the state, which changed the shape of the tree above the content, so a slot and anything stateful in it were built again from scratch, and a field came back with a new editor. A pressable chip was also wrapped in its focus, pointer and semantics only while it was available, and a `split` number field's editor moved as `readOnly` put the stepper in front of it away. They now stay in the tree with only their settings changing, and a disabled chip still takes no focus, lets a press through and is not announced as a button. The same holds for the trigger of every picker, from `PlDatePicker` to `PlTreeSelect`.
 
 - **The clear × on an open picker empties it.** A press on the × while the popup was up was taken as a press outside the popup, which closed it and went no further, so the value stayed. The press now reaches the ×, which clears the value and closes the popup, as it does in the React build. This covers `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.

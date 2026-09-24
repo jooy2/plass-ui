@@ -632,6 +632,35 @@ void main() {
       expect(tester.getSize(find.byType(PlWindowPane)).width, closeTo(360, 0.5));
     });
 
+    testWidgets('fills the height a drag gives a window that was given none', (
+      WidgetTester tester,
+    ) async {
+      final PlWindowMetrics metrics = windowMetrics(PlWindowOs.windows7, PlassSize.md);
+
+      await _pumpFree(
+        tester,
+        const PlWindowPane(
+          os: PlWindowOs.windows7,
+          title: Text('Notes'),
+          width: 300,
+          resizable: true,
+          child: Text('Body'),
+        ),
+      );
+
+      /// The body, band margin included, which is what has to reach the frame.
+      Rect body() =>
+          tester.getRect(find.ancestor(of: find.text('Body'), matching: find.byType(Offstage)));
+
+      await tester.dragFrom(_edge(tester, AxisDirection.down), const Offset(0, 120));
+      await tester.pumpAndSettle();
+
+      // Down to the frame, as the React body is, rather than at the height of
+      // what is in it with the band showing underneath.
+      expect(body().bottom, closeTo(_drawn(tester).bottom - metrics.frame, 0.5));
+      expect(body().top, closeTo(_drawn(tester).top + metrics.frame + metrics.bar, 0.5));
+    });
+
     testWidgets('moves as it widens from its leading edge', (WidgetTester tester) async {
       Size? sized;
       Offset? moved;

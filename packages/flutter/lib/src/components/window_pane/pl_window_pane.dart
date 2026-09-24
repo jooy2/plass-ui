@@ -437,14 +437,14 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           bar,
-          // The body fills what the bar leaves of a window with a height, and
-          // of a maximized one where its box has a height to fill. One
-          // `Flexible` in every state, so neither a maximize nor a roll-up
-          // builds the body again.
+          // The body fills what the bar leaves of a window with a height, given
+          // or dragged, and of a maximized one where its box has a height to
+          // fill. One `Flexible` in every state, so neither a maximize nor a
+          // roll-up builds the body again.
           Flexible(
             child: _Fill(
               across: false,
-              down: !widget.minimized && (widget.maximized || widget.height != null),
+              down: !widget.minimized && (widget.maximized || tall != null),
               child: body,
             ),
           ),
