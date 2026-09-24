@@ -416,7 +416,10 @@ describe('a PlNavigationMenu moving between panels', () => {
 
       expect(watch.kinds()).toEqual([]);
     } finally {
-      await emulateMedia({ reducedMotion: null });
+      // Back to the context's own default rather than to none at all: `null`
+      // hands the question to the runner's system, which answers `reduce` on
+      // some CI images and leaves every file after this one without motion.
+      await emulateMedia({ reducedMotion: 'no-preference' });
     }
   });
 });
