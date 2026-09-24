@@ -44,19 +44,19 @@ PlFieldset(
 
 네이티브 `<fieldset>` 속성은 모두 그대로 전달됩니다. `color`는 fieldset에 색을 칠할 표면이 없어서 제외됩니다.
 
+브라우저가 `<fieldset>`에 주는 border, padding, margin은 되돌리고 `min-width: min-content`도 되돌립니다. 그래서 넓은 표를 담은 fieldset도 flex row 안에서 다른 상자처럼 줄어듭니다.
+
 :::
 
-공용 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+이 컴포넌트가 쥐는 것은 셋뿐입니다.
 
-## 이 컴포넌트가 쥐는 세 가지
-
-셋뿐입니다.
-
-- **legend.** 안에 든 모든 컨트롤의 접근 가능한 이름에 들어갑니다. 각각 앞에 놓아도 말이 되는 구절이어야 하는 이유가 그것입니다. "받는 주소"이지 "어디로 보낼까요?"가 아닙니다.
+- **legend.** 묶음에 이름을 줍니다.
 - **간격.** 컨트롤이 서는 거리이고, 시트 사다리를 씁니다.
-- **`disabled`.** 진짜 `<fieldset>`만 할 수 있는 그 하나입니다. 안의 모든 컨트롤에 닿습니다: 세 단계 아래의 컴포넌트가 그리고 이쪽이 존재조차 모르는 것까지.
+- **`disabled`.** 안의 모든 컨트롤에 닿습니다. 세 단계 아래의 컴포넌트가 그리고 이쪽이 존재조차 모르는 것까지 닿습니다.
 
-표면을 그리지 않고 `color`, `variant`, `elevation`도 받지 않습니다. 필드의 묶음은 묶음입니다. 시트가 필요하면 [`PlCard`](../surfaces/card)나 [`PlBox`](../surfaces/box) 안에 넣으세요.
+표면을 그리지 않고 `color`, `variant`, `elevation`도 받지 않습니다. 시트가 필요하면 [`PlCard`](../surfaces/card)나 [`PlBox`](../surfaces/box) 안에 넣으세요.
+
+공용 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
 ## Examples
 
@@ -120,11 +120,13 @@ legend의 타입 스케일과 컨트롤 사이의 간격이고, 시트 사다리
 
 </Demo>
 
-## 되돌린 브라우저 기본값 둘
+## Accessibility
 
-`<fieldset>`은 자기만의 border, padding, margin을 갖고 도착하는데, 셋 다 이 라이브러리의 것이 아닙니다. 전부 되돌립니다.
-
-`min-width: min-content`도 마찬가지입니다. 모든 브라우저가 fieldset에만 주는 값이고, 넓은 표를 담은 fieldset이 flex row 안에서 줄어들기를 거부하는 이유가 그것입니다. `min-w-0`이 그것을 되돌립니다.
+- 진짜 `<fieldset>`이고, 그것이 `group`이며, legend가 이름을 냅니다.
+- legend는 안의 컨트롤과 함께 읽히므로, 각각 앞에 놓아도 말이 되는 구절로 쓰세요. "받는 주소"이지 "어디로 보낼까요?"가 아닙니다.
+- legend는 그려진 `<legend>`가 아니라 `aria-labelledby`가 가리키는 `<div>`입니다. Base UI의 결정이고, 그 덕에 묶음이 평범한 flex 컨테이너가 됩니다. 진짜 `<legend>`는 모든 브라우저가 fieldset의 content box 밖으로 들어 올리므로, `gap`이 그 아래에 아무 공간도 만들지 못합니다.
+- fieldset의 `disabled`는 네이티브 속성이라 플랫폼이 하는 방식으로 자손을 비활성화합니다. context도, prop을 꿰는 일도, 나중에 추가된 컨트롤에서 잊을 것도 없습니다.
+- `legend`도 `description`도 없는 fieldset은 heading 블록을 아예 그리지 않습니다. 빈 이름은 없는 것보다 나쁩니다. 모든 컨트롤 이름 앞에 공백을 붙이기 때문입니다.
 
 ::: fw flutter
 
@@ -139,10 +141,3 @@ legend의 타입 스케일과 컨트롤 사이의 간격이고, 시트 사다리
 | `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::
-
-## Accessibility
-
-- 진짜 `<fieldset>`이고, 그것이 `group`이며, legend가 이름을 냅니다.
-- legend는 그려진 `<legend>`가 아니라 `aria-labelledby`가 가리키는 `<div>`입니다. Base UI의 결정이고, 그 덕에 묶음이 평범한 flex 컨테이너가 됩니다. 진짜 `<legend>`는 모든 브라우저가 fieldset의 content box 밖으로 들어 올리므로, `gap`이 그 아래에 아무 공간도 만들지 못합니다.
-- fieldset의 `disabled`는 네이티브 속성이라 플랫폼이 하는 방식으로 자손을 비활성화합니다. context도, prop을 꿰는 일도, 나중에 추가된 컨트롤에서 잊을 것도 없습니다.
-- `legend`도 `description`도 없는 fieldset은 heading 블록을 아예 그리지 않습니다. 빈 이름은 없는 것보다 나쁩니다. 모든 컨트롤 이름 앞에 공백을 붙이기 때문입니다.

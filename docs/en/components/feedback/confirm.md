@@ -59,23 +59,25 @@ The provider goes inside the app rather than around it, because around the app t
 
 The provider's props are defaults for every question asked under it. A single call can override any of them, see `PlConfirmOptions` below.
 
+- The provider goes once near the root, and <Fw react="`usePlConfirm`" flutter="`PlConfirmProvider.of(context)`" /> reaches it from any handler under it, the arrangement [`PlToastProvider`](./toast) has.
+- **Questions asked while one is open are queued**, in the order they were asked. The dialog's content changes rather than the sheet closing and reopening, and each question places the focus by its own `initialFocus`.
+- A provider that unmounts with questions outstanding **answers them all with `false`**.
+- Outside a provider, <Fw react="`usePlConfirm` throws" flutter="`PlConfirmProvider.of` asserts" /> rather than answering `false`.
+- Escape and a press outside answer **no**, never yes. An `alert`, which has no Cancel, closes on either of them too and completes as its button would.
+
+[Prop conventions](../../design/prop-conventions#asking-from-a-handler) has the reasons for these rules.
+
 ### PlConfirmOptions
 
 <PropsTable name="PlConfirmOptions" />
 
 ::: fw flutter
 
-`PlConfirmProvider.of(context)` rather than a hook, the same lookup `PlToastProvider` offers, and the framework's own shape for this. It **asserts** outside a provider rather than returning `null`, for the reason the React build throws.
+`PlConfirmProvider.of(context)` rather than a hook, the same lookup `PlToastProvider` offers, and the framework's own shape for this.
 
-`initialFocus` takes a `PlConfirmFocus` rather than a string. `dismissible` is on by default, as in React: a press outside and Escape answer **no**, and an `alert`, which has no Cancel, closes on either of them too and completes as its button would. The sheet draws no ×.
+`initialFocus` takes a `PlConfirmFocus` rather than a string. The sheet draws no ×.
 
 :::
-
-## The hook form
-
-The thing a caller has at the moment a question is warranted is a **click handler**, not a place in the tree. Without this, the same delete button needs a piece of state, a `<PlModal>` kept mounted beside it, and the work after the answer torn in half across a callback, three edits to add a confirmation to one button, repeated at every button that needs one.
-
-It is [`PlToastProvider`](./toast)'s arrangement for the same reason and with the same trade: one component near the root, and a hook everywhere else.
 
 ## Examples
 
@@ -121,7 +123,11 @@ Move it for a question whose yes is the harmless answer, "Save before closing?",
 
 </Demo>
 
-### One vocabulary for the application
+### confirmLabel · cancelLabel · acknowledgeLabel
+
+The words on the buttons, set once on the provider for the whole application and overridden by a single question when it needs its own.
+
+::: fw react
 
 ```tsx
 <PlConfirmProvider confirmLabel="확인" cancelLabel="취소" acknowledgeLabel="확인">
@@ -129,7 +135,26 @@ Move it for a question whose yes is the harmless answer, "Save before closing?",
 </PlConfirmProvider>
 ```
 
-### A question that has to be answered
+:::
+
+::: fw flutter
+
+```dart
+PlConfirmProvider(
+  confirmLabel: const Text('확인'),
+  cancelLabel: const Text('취소'),
+  acknowledgeLabel: const Text('확인'),
+  child: child!,
+);
+```
+
+:::
+
+### dismissible
+
+On by default, so Escape and a press outside answer no. Turn it off for the one question that genuinely has to be answered, and give its buttons words that say what each of them does.
+
+::: fw react
 
 ```tsx
 await confirm({
@@ -140,14 +165,22 @@ await confirm({
 });
 ```
 
-`dismissible` is on by default, because Escape is the universal "no" and a question that cannot be escaped is a trap. Turn it off for the one that genuinely has to be answered, and mean it.
+:::
 
-## Notes
+::: fw flutter
 
-- **Questions asked while one is open are queued**, in the order they were asked, and the dialog's content changes rather than the sheet closing and reopening. Each question places the focus by its own `initialFocus`, so the focus does not stay on the button that answered the one before. The alternative is a promise nobody ever resolves, which is a hung button rather than a visible bug.
-- A provider that unmounts with questions outstanding **resolves them all with `false`**. A promise that is never settled is a handler that never runs its `finally`, so a route change would otherwise leave a button spinning for the rest of the session.
-- `usePlConfirm` **throws** outside a provider rather than resolving `false`. A silent `false` is a delete button that quietly does nothing, which is worse than a missing provider, since that fails on the first press.
-- Escape and a click outside answer **no**, never yes.
+```dart
+await PlConfirmProvider.of(context).confirm(
+  const PlConfirmOptions(
+    title: Text('Your changes have not been saved.'),
+    confirmLabel: Text('Discard'),
+    cancelLabel: Text('Go back'),
+    dismissible: false,
+  ),
+);
+```
+
+:::
 
 ## Accessibility
 

@@ -35,45 +35,95 @@ const PlAnimateSplit(text: 'One design language, two libraries');
 
 <PropsTable name="PlAnimateSplit" />
 
-## `character`는 모든 문자 체계에서 안전하지 않습니다
+공백은 공백으로 남습니다. 두 단어 사이의 틈은 자기 등장을 받지 않고 stagger의 한 칸도 가져가지 않으므로, 두 번째 단어는 첫 번째보다 한 칸 뒤에 시작합니다.
 
-쓰기 전에 알아야 할 한 가지입니다.
+줄은 같은 글이 넘어갈 자리에서 넘어갑니다. 글자 단위로 잘라도 한 단어의 글자는 함께 묶여 있어서 줄이 단어 사이에서 넘어가고, 줄 전체보다 긴 단어는 그 안에서 줄을 바꾸며, 중국어, 일본어, 태국어처럼 단어 사이를 띄우지 않는 문자는 여전히 글자 사이에서 줄이 넘어갑니다. 단어 단위로 자르면 공백이 없는 줄은 한 조각이 되고, 그 조각은 자리가 모자라면 다음 줄에서 시작해 글자 사이에서 줄을 바꿉니다.
 
-글자 단위로 자르면 글자 사이의 shaping이 끊깁니다. **아랍 문자가 이어지지 않아서** 한 단어였던 것이 서로 무관한 글리프의 나열이 됩니다.
+## Examples
 
-독자가 한 글자로 세는 단위인 grapheme으로 자르므로 데바나가리 결합자, 국기, 여러 코드 포인트로 만들어진 이모지는 각각 한 조각에 그대로 남습니다.
+### by
 
-`word`에는 그런 문제가 없고, 기본값이며, 어차피 제목이 원하는 것입니다. 도착하는 단어는 눈으로 따라갈 수 있고, 도착하는 글자는 장식입니다.
+기본값인 `word`가 제목에 맞습니다. 도착하는 단어는 눈으로 따라갈 수 있습니다. `character`는 독자가 한 글자로 세는 단위인 grapheme으로 자르므로 데바나가리 결합자, 국기, 여러 코드 포인트로 만들어진 이모지는 각각 한 조각에 그대로 남습니다.
 
-## 틈과 조각
+**`character`는 모든 문자 체계에서 안전하지는 않습니다.** 글자 단위로 자르면 글자 사이의 shaping이 끊겨서 **아랍 문자가 이어지지 않고**, 한 단어였던 것이 서로 무관한 글리프의 나열이 됩니다.
 
-공백은 공백으로 남고 자기 등장을 받지 않습니다. 두 단어 사이의 공간을 움직이는 것은 아무것도 도착하지 않는 것입니다. 그리고 stagger의 한 칸도 가져가지 않습니다. 두 번째 단어는 첫 번째보다 두 칸이 아니라 한 칸 뒤에 시작합니다.
-
-글자 단위로 잘라도 한 단어의 글자는 함께 묶여 있어서, 줄은 단어 중간이 아니라 단어 사이에서 넘어갑니다. 줄 전체보다 긴 단어는 상자 밖으로 넘치지 않고 그 안에서 줄을 바꾸고, 중국어, 일본어, 태국어처럼 단어 사이를 띄우지 않는 문자는 여전히 글자 사이에서 줄이 넘어갑니다.
-
-조각 자체도 안에서 줄을 바꿉니다. 공백이 없는 줄에 필요한 것이 이것입니다. 중국어나 일본어 문장에는 자를 틈이 없어서 단어 단위로 자르면 줄 전체가 한 조각이 되는데, 그 조각은 자리가 모자라면 다음 줄에서 시작하고 상자 밖으로 나가는 대신 글자 사이에서 줄을 바꿉니다.
+<Demo src="animate-split/by" :min-height="200">
 
 ::: fw react
 
-각 조각은 `inline-block`입니다. transform은 대체되지 않은 인라인 요소에 적용되지 않으므로, 그것이 없으면 slide가 사라졌다 나타나기만 하고 움직이지는 않습니다. 줄은 inline-block마다 앞뒤에서 넘어갈 수 있으므로, 한 단어의 글자는 inline-block 하나에 다시 묶입니다. 이 상자는 단어만큼, 단어가 더 길면 줄만큼 넓어서, 단어는 통째로 다음 줄로 가고 꼭 필요할 때만 안에서 줄을 바꿉니다.
-
-:::
-
-## 등장을 적는 방법
-
-::: fw react
-
-`effect`가 일곱 등장 중 하나를 고르고, 각 조각은 같은 이름의 컴포넌트에 아무것도 주지 않았을 때와 같은 자리에서 출발합니다. `slide` 조각은 자기 높이만큼 아래에서 올라오고, `zoom` 조각은 크기의 0.4에서, `grow` 조각은 0.8에서 커집니다. `stagger`와 `durationStep`과 `reverse`는 `<li>` 목록을 감싼 [`PlAnimateFade`](./animate-fade)에서와 정확히 같은 뜻입니다. 이 컴포넌트는 **자르는 일**이고 그 이상이 아닙니다.
+<<< @/.vitepress/demos/animate-split/by.tsx
 
 :::
 
 ::: fw flutter
 
-등장은 방향과 거리와 fade로 적습니다. 이미 자식들에 걸쳐 하나의 등장을 나눠 재생하는 위젯인 `PlAnimateAppear`가 적는 방식 그대로입니다.
-
-React 쪽은 대신 CSS keyframe의 이름을 적는데, 그 차이는 일관성의 문제가 아닙니다. 저쪽에서는 효과가 스타일시트가 아는 **이름 붙은 것**이고, 여기서는 모든 효과가 위젯으로 만들어집니다. split은 옆에 있는 위젯이 받는 것을 받습니다.
+<<< @/../packages/flutter/example/lib/demos/animate_split/by.dart
 
 :::
+
+</Demo>
+
+### <Fw react="effect" flutter="from · distance · fade" />
+
+::: fw react
+
+`effect`가 일곱 등장 중 하나를 고르고, 각 조각은 같은 이름의 컴포넌트에 아무것도 주지 않았을 때와 같은 자리에서 출발합니다. `slide` 조각은 자기 높이만큼 아래에서 올라오고, `zoom` 조각은 크기의 0.4에서, `grow` 조각은 0.8에서 커집니다.
+
+:::
+
+::: fw flutter
+
+등장은 방향과 거리와 fade로 적습니다. [`PlAnimateAppear`](./animate-appear)가 적는 방식 그대로입니다. React 쪽은 등장의 이름을 적는데, 저쪽에서는 효과가 스타일시트가 이름으로 아는 keyframe이고 여기서는 모든 효과가 위젯으로 만들어지기 때문입니다.
+
+:::
+
+<Demo src="animate-split/effect" :min-height="320">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-split/effect.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_split/effect.dart
+
+:::
+
+</Demo>
+
+### stagger
+
+한 조각 다음에 다음 조각이 얼마 뒤에 시작하는지입니다. 이 컴포넌트는 **자르는 일**을 할 뿐입니다.
+
+::: fw react
+
+`stagger`와 `durationStep`과 `reverse`는 `<li>` 목록을 감싼 [`PlAnimateFade`](./animate-fade)에서와 정확히 같은 뜻입니다.
+
+:::
+
+::: fw flutter
+
+`stagger`와 `reverse`는 [`PlAnimateAppear`](./animate-appear)에서와 정확히 같은 뜻입니다.
+
+:::
+
+<Demo src="animate-split/stagger" :min-height="240">
+
+::: fw react
+
+<<< @/.vitepress/demos/animate-split/stagger.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/animate_split/stagger.dart
+
+:::
+
+</Demo>
 
 ## Accessibility
 

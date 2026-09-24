@@ -44,19 +44,19 @@ PlFieldset(
 
 Every native `<fieldset>` attribute passes straight through. `color` is excluded because a fieldset has no surface to colour.
 
+The border, the padding and the margin a browser gives a `<fieldset>` are undone, and so is its `min-width: min-content`, so a fieldset holding a wide table shrinks inside a flex row as any other box does.
+
 :::
 
-What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+It owns three things, and nothing else:
 
-## The three things it owns
-
-Three things, and nothing else:
-
-- **The legend**, which becomes part of the accessible name of every control inside. That is why it has to be a phrase that still reads correctly in front of each of them, "Billing address", not "Where should we send it?".
+- **The legend**, which names the group.
 - **The gap** the controls stand at, on the sheet ladder.
-- **`disabled`**, which is the one thing only a real `<fieldset>` can do: it reaches every control inside, including one a component three levels down rendered and never heard of.
+- **`disabled`**, which reaches every control inside, including one a component three levels down rendered and never heard of.
 
-It draws no surface and takes no `color`, `variant` or `elevation`. A group of fields is a grouping; put it inside a [`PlCard`](../surfaces/card) or a [`PlBox`](../surfaces/box) when a sheet is wanted.
+It draws no surface and takes no `color`, `variant` or `elevation`. Put it inside a [`PlCard`](../surfaces/card) or a [`PlBox`](../surfaces/box) when a sheet is wanted.
+
+What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Examples
 
@@ -120,11 +120,13 @@ Two fieldsets on one card is the usual arrangement, and it is what makes the no-
 
 </Demo>
 
-## Two browser defaults undone
+## Accessibility
 
-A `<fieldset>` arrives with a border, padding and a margin of its own, and none of the three is the library's. They are undone.
-
-So is `min-width: min-content`, which every browser gives a fieldset and nothing else. It is the reason a fieldset holding a wide table refuses to shrink inside a flex row, and `min-w-0` is what puts it back.
+- It is a real `<fieldset>`, which is a `group`, and the legend names it.
+- The legend is read out with the controls inside, so write a phrase that still reads correctly in front of each of them: "Billing address", not "Where should we send it?".
+- The legend is a `<div>` pointed at by `aria-labelledby` rather than a rendered `<legend>`. That is Base UI's decision, and it is what makes the group an ordinary flex container: a real `<legend>` is lifted out of its fieldset's content box by every browser, so a `gap` would put no space under it at all.
+- `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does, no context, no prop threading, and nothing to forget on a control that was added later.
+- A fieldset with neither `legend` nor `description` draws no heading block at all. An empty name is worse than none: it puts a blank in front of every control's own.
 
 ::: fw flutter
 
@@ -139,10 +141,3 @@ So is `min-width: min-content`, which every browser gives a fieldset and nothing
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::
-
-## Accessibility
-
-- It is a real `<fieldset>`, which is a `group`, and the legend names it.
-- The legend is a `<div>` pointed at by `aria-labelledby` rather than a rendered `<legend>`. That is Base UI's decision, and it is what makes the group an ordinary flex container: a real `<legend>` is lifted out of its fieldset's content box by every browser, so a `gap` would put no space under it at all.
-- `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does, no context, no prop threading, and nothing to forget on a control that was added later.
-- A fieldset with neither `legend` nor `description` draws no heading block at all. An empty name is worse than none: it puts a blank in front of every control's own.

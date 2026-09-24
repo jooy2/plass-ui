@@ -25,6 +25,8 @@ They live in `src/types.ts` and every styled component draws from them.
 
 The one place the same word means two things is `solid` on something typed into: there it is the **well**, not a tinted pane. See [PlTextField](../components/inputs/text-field#variant).
 
+A component with two presentations of one thing names them with an axis of its own rather than borrowing `variant`. A [`PlDrawer`](../components/feedback/drawer)'s `mode` is `overlay` or `inline`, because `variant` already means the material across the whole library and would be a second spelling of nothing.
+
 ### `size` is one decision
 
 Height and type scale move together, always. There is no `size="md" textSize="lg"`, because two controls of the same `size` that are not the same height are two controls that will never line up in a row.
@@ -52,6 +54,7 @@ These are the rules a new component is checked against.
 - **Durations and delays are numbers in milliseconds**, never CSS strings. A prop typed `string` invites `'0.4s'`, and then two components on one screen are written in two units.
 - **`render` is the escape hatch**, spelled the same way everywhere, Base UI's own prop, passed through. It replaces the element without changing the surface.
 - **Native attributes pass through.** A component that wraps an `<input>` takes every `<input>` attribute, minus the ones that collide with an axis above (`color`, `size`).
+- **A control whose only content is a glyph requires its name.** `label` on [`PlIconButton`](../components/inputs/icon-button) and [`PlFloatingActionButton`](../components/inputs/floating-action-button) is required, and it is always the accessible name, drawn or not. An icon-only button with no name is the most common accessibility defect the pattern ships with, and a required prop is the one fix that survives review.
 
 ## Binding a key
 
@@ -147,6 +150,16 @@ Two ways out, both reliable:
 Base UI's own prop, passed through where it makes sense, `<PlButton render={<a href="/pricing" />}>`. It replaces the element without changing the surface, which is the thing no amount of CSS can do.
 
 :::
+
+## Asking from a handler
+
+[`PlToastProvider`](../components/feedback/toast) and [`PlConfirmProvider`](../components/feedback/confirm) share one arrangement: a provider once near the root, and <Fw react="a hook" flutter="an `of(context)` lookup" /> everywhere under it. What a caller has at the moment a message or a question is warranted is a **handler**, not a place in the tree. Without the lookup, adding a confirmation to one delete button takes a piece of state, a `PlModal` kept mounted beside the button, and the work after the answer torn in half across a callback, and the same three edits again at every other button that needs one.
+
+A question has an answer to wait for, so `confirm` returns <Fw react="a promise" flutter="a future" />, and three rules keep it from hanging:
+
+- **Questions asked while one is open are queued** in the order they were asked, rather than dropped. A question nobody answers is a button that hangs, and that is worse than a visible bug.
+- **A provider that unmounts answers what it still holds with `false`.** An unsettled question is a handler that never runs its `finally`, so a route change would otherwise leave a button spinning for the rest of the session.
+- **Outside a provider, the lookup fails.** <Fw react="`usePlConfirm` throws" flutter="`PlConfirmProvider.of` asserts" /> rather than answering `false`: a silent `false` is a delete button that quietly does nothing, and a missing provider that fails on the first press is found at once.
 
 ## Rules for a state prop
 

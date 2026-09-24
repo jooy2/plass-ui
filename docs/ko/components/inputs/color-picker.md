@@ -43,15 +43,11 @@ PlColorPicker(
 
 :::
 
+패널은 색상·채도·명도를 쥐고 있고, 돌려주는 문자열은 거기서 파생됩니다. 들어온 `value`가 패널이 이미 쥔 색을 가리키면(`#ff0000`에 대한 `#FF0000`처럼) 패널은 그대로 있습니다. 그래서 모든 색이 검정인 사각형 바닥을 지나도 색상 레일이 제자리를 지킵니다.
+
+네 가지 길이의 hex, 그리고 콤마와 공백 문법 양쪽의 `rgb()`, `rgba()`, `hsl()`, `hsla()`를 읽습니다. 이름 있는 색과 `color()`는 읽지 않고, 색 라이브러리에도 의존하지 않습니다. 두 가지의 이유는 [디자인 언어](../../design/design-language#플랫폼이-이미-아는-것에는-라이브러리를-쓰지-않습니다)에 있습니다.
+
 공용 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
-
-## HSV가 모델이고, 거기서 나가지 않습니다
-
-패널의 상태는 색상·채도·명도입니다. 문자열은 거기서 파생되고, 반대는 결코 아닙니다.
-
-취향의 문제가 아닙니다. RGB를 거치면 **검정의 모든 음영이 같은 색**입니다(`#000000`에는 되읽을 색상이 없습니다). 그래서 자기 출력을 다시 파싱하는 피커는 포인터가 사각형 바닥에 닿는 순간 색상 레일을 빨강으로 튕겨 버립니다. 모델을 쥐고 있는 것이 레일을 가만히 있게 합니다.
-
-들어오는 `value`는 모델이 이미 뜻하는 것과 다를 때만 모델을 다시 심습니다. 그리고 "다름"은 문자열이 아니라 *색*으로 비교합니다. `#FF0000`과 `#ff0000`은 두 번 쓰인 같은 색이고, 문자열 비교라면 방금 자기가 만들어 낸 값으로 매 렌더마다 영원히 모델을 다시 심게 됩니다.
 
 ## Examples
 
@@ -163,28 +159,6 @@ PlColorPicker(
 
 </Demo>
 
-### 아래에 색 라이브러리가 없습니다
-
-변환은 `internal/color.ts`입니다. HSV, RGB, HSL과 파서 하나, 포매터 하나. 삼각함수 없는 산수 백 줄 남짓입니다. 색을 _계산하는_ 컴포넌트가 그걸 해 주는 의존성 없이 배포되는 이유가 전부 그것입니다.
-
-읽는 것: 네 가지 길이의 hex, 그리고 콤마와 공백 문법 양쪽의 `rgb()`/`rgba()`/`hsl()`/`hsla()`. 일부러 읽지 않는 것: 이름 있는 색과 `color()`. 피커는 읽을 수 있는 모든 값을 쓸 수도 있어야 하는데, `rebeccapurple`에서 패널 위의 한 점으로 정직하게 돌아올 길이 없습니다.
-
-::: fw flutter
-
-## React 빌드와 다른 점
-
-| React | Flutter | 이유 |
-| --- | --- | --- |
-| `value` / `defaultValue` | nullable인 `value` | `null`은 "피커 자신의 파랑"입니다. 첫 변경 이후로는 문자열이 호출자의 것이고, 이 패키지의 다른 모든 필드가 그렇습니다. |
-| `swatches: false` | `swatches: []` | 빈 리스트가 두 번째 타입 없이 같은 말을 합니다. |
-| `open` / `defaultOpen` / `onOpenChange` | — | 팝업은 피커 자신의 것이고, 그것을 붙들어야 하는 route guard 같은 모양이 여기에는 없습니다. |
-| `name`과 hidden input | — | 참여할 네이티브 폼 제출이 없습니다. |
-| linear 그러데이션 넷으로 만든 체커 | painter | `CustomPainter`에는 피할 이음매도, 싸울 타일링도 없습니다. |
-| partial인 `labels` | 기본값이 붙은 클래스 `PlColorPickerLabels` | Dart는 선택적 필드에 이름을 붙입니다. 레코드의 partial 같은 것은 없습니다. |
-| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
-
-:::
-
 ## Accessibility
 
 - 사각형과 각 레일은 `aria-valuenow`를 지닌 진짜 `slider`이고 화살표 키로 움직입니다. 한 단계, <kbd>Shift</kbd>와 함께면 열 단계. 라이브러리의 모든 슬라이더가 쓰는 같은 한 쌍입니다.
@@ -206,5 +180,21 @@ PlColorPicker(
 ::: fw flutter
 
 - `inline` picker는 `label`, `description`, `error`를 묶는 semantics 노드 하나이고, 사각형과 레일은 그 안에 있습니다. 그래서 한 화면의 picker 두 개가 "Hue"라는 같은 슬라이더 두 벌이 되지 않습니다. `error`는 사각형과 레일을 invalid로도 표시합니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `value` / `defaultValue` | nullable인 `value` | `null`은 "피커 자신의 파랑"입니다. 첫 변경 이후로는 문자열이 호출자의 것이고, 이 패키지의 다른 모든 필드가 그렇습니다. |
+| `swatches: false` | `swatches: []` | 빈 리스트가 두 번째 타입 없이 같은 말을 합니다. |
+| `open` / `defaultOpen` / `onOpenChange` | — | 팝업은 피커 자신의 것이고, 그것을 붙들어야 하는 route guard 같은 모양이 여기에는 없습니다. |
+| `name`과 hidden input | — | 참여할 네이티브 폼 제출이 없습니다. |
+| linear 그러데이션 넷으로 만든 체커 | painter | `CustomPainter`에는 피할 이음매도, 싸울 타일링도 없습니다. |
+| partial인 `labels` | 기본값이 붙은 클래스 `PlColorPickerLabels` | Dart는 선택적 필드에 이름을 붙입니다. 레코드의 partial 같은 것은 없습니다. |
+| `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::

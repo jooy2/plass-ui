@@ -43,15 +43,11 @@ Every native `<div>` attribute passes straight through to the wrapper. `color` i
 
 :::
 
+The panel holds a hue, a saturation and a value, and the string it hands back is derived from them. An incoming `value` that names the colour the panel already holds, such as `#FF0000` for `#ff0000`, leaves the panel where it is, so the hue rail stays put across the bottom of the square, where every colour is black.
+
+It reads hex in all four lengths, and `rgb()`, `rgba()`, `hsl()` and `hsla()` in both the comma and the space syntax. It does not read named colours or `color()`, and it depends on no colour library. [Design language](../../design/design-language#no-library-for-what-the-platform-already-knows) has the reasons for both.
+
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
-
-## HSV is the model, and it never leaves
-
-The panel's state is a hue, a saturation and a value. The string is derived from it, and never the other way round.
-
-That is not a preference. Through RGB, **every shade of black is the same colour** (`#000000` has no hue to read back), so a picker that re-parsed its own output would snap the hue rail to red the moment the pointer reached the bottom of the square. Keeping the model is what keeps the rail still.
-
-An incoming `value` re-seeds the model only when it means something different, and "different" is compared as a _colour_ rather than as a string: `#FF0000` and `#ff0000` are the same colour written twice, and a string comparison would re-seed the model from a value it had just produced, on every render, forever.
 
 ## Examples
 
@@ -163,28 +159,6 @@ A `readOnly` picker shows its colour and takes nothing: the rails keep their val
 
 </Demo>
 
-### There is no colour library under this
-
-The conversions are `internal/color.ts`, HSV, RGB and HSL, one parser and one formatter, about a hundred lines of arithmetic with no trigonometry in it. That is the whole reason a component that _computes_ colours ships without a dependency that does.
-
-What it reads: hex in all four lengths, and `rgb()`/`rgba()`/`hsl()`/`hsla()` in both the comma and the space syntax. What it deliberately does not: named colours and `color()`. A picker has to be able to write every value it can read, and there is no honest way back from `rebeccapurple` to a point on the panel.
-
-::: fw flutter
-
-## Differences from the React build
-
-| React | Flutter | Why |
-| --- | --- | --- |
-| `value` / `defaultValue` | `value`, nullable | `null` is "the picker's own blue"; the caller owns the string from the first change onwards, as it does for every other field in this package. |
-| `swatches: false` | `swatches: []` | An empty list is the same statement without a second type. |
-| `open` / `defaultOpen` / `onOpenChange` | — | The popup is the picker's own; there is no route guard shape here that needs to hold it. |
-| `name`, the hidden input | — | There is no native form submission to be part of. |
-| a chequer of four linear gradients | a painter | A `CustomPainter` has no seam to avoid and no tiling to fight. |
-| `labels` as a partial | `PlColorPickerLabels`, a class with defaults | Dart names its optional fields; a partial of a record is not a thing it has. |
-| `className`, `style` | — | There is no class list and no style attribute to pass through. |
-
-:::
-
 ## Accessibility
 
 - The square and each rail are real `slider`s with `aria-valuenow`, moved by the arrow keys, one step, or ten with <kbd>Shift</kbd>, which is the same pair every slider in the library uses.
@@ -206,5 +180,21 @@ What it reads: hex in all four lengths, and `rgb()`/`rgba()`/`hsl()`/`hsla()` in
 ::: fw flutter
 
 - An `inline` picker is one semantics node over its `label`, `description` and `error`, with the square and the rails inside it, so two of them on one screen are not two sets of sliders called "Hue". An `error` also marks the square and the rails invalid.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `value` / `defaultValue` | `value`, nullable | `null` is "the picker's own blue"; the caller owns the string from the first change onwards, as it does for every other field in this package. |
+| `swatches: false` | `swatches: []` | An empty list is the same statement without a second type. |
+| `open` / `defaultOpen` / `onOpenChange` | — | The popup is the picker's own; there is no route guard shape here that needs to hold it. |
+| `name`, the hidden input | — | There is no native form submission to be part of. |
+| a chequer of four linear gradients | a painter | A `CustomPainter` has no seam to avoid and no tiling to fight. |
+| `labels` as a partial | `PlColorPickerLabels`, a class with defaults | Dart names its optional fields; a partial of a record is not a thing it has. |
+| `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

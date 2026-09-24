@@ -51,13 +51,31 @@ It takes the parts of a [`PlButton`](./button) a floating button uses: the three
 
 `density` changes the padding only while `extended`. The disc has no horizontal padding to change.
 
-What the shared axes mean is in [prop conventions](../../design/prop-conventions).
+- `label` is required and is always the accessible name. `extended` decides whether the words are also drawn, never whether they exist.
+- The icon-only form is a **disc**. The extended form takes the house fillet rather than becoming a pill.
+- `elevation` defaults to **3**, the top of the ladder, and `size` to `lg`, one step up from a `PlButton`'s, because a floating button is a target for a thumb.
+- Put one on a screen, for the action that has nowhere else to live. A screen whose main action is already a button in the content does not want a second copy of it in the corner.
 
-## label is not optional
+::: fw react
 
-A floating button is a disc with a mark in it nine times out of ten. `extended` decides whether the **words are also drawn**, never whether they exist.
+- It is `position: fixed` with **logical** insets written inline, so `offset` wins over any utility class.
+- It sits at `z-30`, the same level a [`PlBackTop`](../navigation/back-top) does, above the page and below anything portalled.
 
-That is why `label` is required and is always the accessible name. An icon-only button with no name is the single most common accessibility defect this pattern ships with, and making the prop required is the only fix that survives review.
+:::
+
+::: fw flutter
+
+- While `floating` it is a `PositionedDirectional`, so it belongs in a `Stack`, which is what a screen's body usually already is once anything floats over it.
+
+:::
+
+[Design language](../../design/design-language#the-radius-is-a-fillet) has the reasons for the shape and the elevation, and [prop conventions](../../design/prop-conventions) has what the shared axes mean.
+
+## Examples
+
+### extended
+
+Draws the label beside the glyph. Turn it on for an action a first-time reader would not guess from a glyph, and off again once they would.
 
 <Demo src="floating-action-button/extended" :min-height="180">
 
@@ -75,23 +93,7 @@ That is why `label` is required and is always the accessible name. An icon-only 
 
 </Demo>
 
-Turn `extended` on for an action a first-time reader would not guess from a glyph, and off again once they would.
-
-## The two shapes
-
-The icon-only form is a **disc**. That is [`PlIconButton`](./icon-button)'s deliberate exception to the radius rule: the flat run along a control's edge is there for a line of text to sit on, and a glyph has no line of text.
-
-The extended form is **not a pill**, for exactly that reason. It has words along its edge, so it takes the house fillet like every other labelled control.
-
-## One per screen
-
-Two floating buttons in one corner is two primary actions, which is none.
-
-And a screen whose main action is already a button in the content does not want a second copy of it in the corner. The floating one is for the action that has nowhere else to live, on a screen that is a list of things you are about to add to.
-
-## Examples
-
-### Somewhere other than the bottom trailing corner
+### corner · offset
 
 `corner` is one of the four, spelled `start`/`end` rather than left/right so the button crosses the screen under RTL with everything else. `offset` is how far it stands off the two edges it is against.
 
@@ -135,7 +137,7 @@ That space is `MediaQuery.paddingOf`, which a `SafeArea` above the button has al
 
 :::
 
-### In the flow instead
+### floating
 
 <Fw react="floating={false}" flutter="floating: false" code /> keeps the shape and the shadow and drops the positioning, for the same button at the end of a card or in a toolbar.
 
@@ -158,24 +160,6 @@ PlFloatingActionButton(
   onPressed: create,
 );
 ```
-
-:::
-
-## Notes
-
-- `elevation` defaults to **3**, the top of the ladder, and unlike every other default in the library it is not a compromise: this is the one control that genuinely floats over the content rather than resting on it.
-- `size` defaults to `lg`, one step up from a `PlButton`'s. A floating button is a target for a thumb.
-
-::: fw react
-
-- It is `position: fixed` with **logical** insets, written inline: a caller's `offset` is a value rather than a class, and an inline declaration is the one form that wins over a utility deterministically.
-- It sits at `z-30`, the same level a [`PlBackTop`](../navigation/back-top) does, above the page and below anything portalled.
-
-:::
-
-::: fw flutter
-
-- While `floating` it is a `PositionedDirectional`, so it belongs in a `Stack`, which is what a screen's body usually already is once anything floats over it.
 
 :::
 

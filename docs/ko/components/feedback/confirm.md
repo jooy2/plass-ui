@@ -59,23 +59,25 @@ provider는 앱을 감싸지 말고 앱 안에 두세요. 앱 바깥에는 아�
 
 provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니다. 호출 하나가 무엇이든 덮어쓸 수 있습니다. 아래 `PlConfirmOptions`를 보세요.
 
+- provider는 루트 근처에 한 번 두고, 그 아래 어느 핸들러에서든 <Fw react="`usePlConfirm`" flutter="`PlConfirmProvider.of(context)`" /> 호출 하나로 닿습니다. [`PlToastProvider`](./toast)와 같은 배치입니다.
+- **하나가 열려 있는 동안 던진 질문은 큐에 쌓입니다.** 던진 순서대로이고, 시트가 닫혔다 다시 열리는 대신 dialog의 내용이 바뀌며, focus는 질문마다 그 질문의 `initialFocus`에 따라 놓입니다.
+- 답을 기다리는 질문이 남은 채 provider가 unmount되면 **전부 `false`로 답합니다**.
+- provider 밖에서는 <Fw react="`usePlConfirm`이 throw합니다" flutter="`PlConfirmProvider.of`가 assert합니다" />. `false`로 답하지 않습니다.
+- Escape와 바깥 누름은 **아니오**로 답하고, 절대 예로 답하지 않습니다. Cancel이 없는 `alert`도 둘 중 어느 쪽으로든 닫히며 버튼을 눌렀을 때처럼 완료됩니다.
+
+이 규칙들의 이유는 [prop 규약](../../design/prop-conventions#핸들러에서-묻기)에 있습니다.
+
 ### PlConfirmOptions
 
 <PropsTable name="PlConfirmOptions" />
 
 ::: fw flutter
 
-hook이 아니라 `PlConfirmProvider.of(context)`입니다. `PlToastProvider`가 내주는 그 조회이고, 프레임워크 자신의 모양입니다. provider 밖에서는 `null`을 돌려주는 대신 **assert합니다.** React 빌드가 throw하는 그 이유입니다.
+hook이 아니라 `PlConfirmProvider.of(context)`입니다. `PlToastProvider`가 내주는 그 조회이고, 프레임워크 자신의 모양입니다.
 
-`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. `dismissible`은 React처럼 기본으로 켜져 있습니다. 바깥 누름과 Escape는 **아니오**로 답하고, Cancel이 없는 `alert`도 둘 중 어느 쪽으로든 닫히며 버튼을 눌렀을 때처럼 완료됩니다. 시트에 ×는 그려지지 않습니다.
+`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. 시트에 ×는 그려지지 않습니다.
 
 :::
-
-## hook 형태
-
-질문이 필요해진 순간에 호출자가 쥐고 있는 것은 트리 안의 자리가 아니라 **클릭 핸들러**입니다. 이것이 없으면 같은 삭제 버튼 하나에 state 하나, 옆에 마운트해 둔 `<PlModal>` 하나, 그리고 답 다음에 할 일이 콜백을 가로질러 반토막 난 코드가 필요합니다. 버튼 하나에 확인을 붙이는 데 편집 세 군데이고, 확인이 필요한 버튼마다 되풀이됩니다.
-
-[`PlToastProvider`](./toast)와 같은 배치이고 같은 이유이며 같은 거래입니다. 루트 근처에 컴포넌트 하나, 나머지 전부에서는 hook.
 
 ## Examples
 
@@ -121,7 +123,11 @@ yes 쪽이 무해한 질문("닫기 전에 저장할까요?") 에서는 옮기�
 
 </Demo>
 
-### 애플리케이션 전체의 어휘 하나
+### confirmLabel · cancelLabel · acknowledgeLabel
+
+버튼의 말입니다. provider에 한 번 정해 애플리케이션 전체에 쓰고, 자기 말이 필요한 질문 하나가 그것을 덮어씁니다.
+
+::: fw react
 
 ```tsx
 <PlConfirmProvider confirmLabel="확인" cancelLabel="취소" acknowledgeLabel="확인">
@@ -129,7 +135,26 @@ yes 쪽이 무해한 질문("닫기 전에 저장할까요?") 에서는 옮기�
 </PlConfirmProvider>
 ```
 
-### 반드시 답해야 하는 질문
+:::
+
+::: fw flutter
+
+```dart
+PlConfirmProvider(
+  confirmLabel: const Text('확인'),
+  cancelLabel: const Text('취소'),
+  acknowledgeLabel: const Text('확인'),
+  child: child!,
+);
+```
+
+:::
+
+### dismissible
+
+기본으로 켜져 있어서 Escape와 바깥 누름이 아니오로 답합니다. 정말로 답해야만 하는 질문 하나에서만 끄고, 그 버튼들에는 각자 무엇을 하는지 말하는 이름을 주세요.
+
+::: fw react
 
 ```tsx
 await confirm({
@@ -140,14 +165,22 @@ await confirm({
 });
 ```
 
-`dismissible`은 기본이 켜짐입니다. Escape는 보편적인 "아니오"이고, 빠져나갈 수 없는 질문은 덫이기 때문입니다. 정말로 답해야만 하는 질문에서만 끄세요: 그리고 정말로 그럴 때만.
+:::
 
-## Notes
+::: fw flutter
 
-- **하나가 열려 있는 동안 던진 질문은 큐에 쌓입니다.** 던진 순서대로이고, 시트가 닫혔다 다시 열리는 대신 dialog의 내용이 바뀝니다. focus는 질문마다 그 질문의 `initialFocus`에 따라 놓이므로, 앞 질문에 답한 버튼에 남지 않습니다. 그러지 않으면 아무도 resolve하지 않는 promise가 남는데, 그것은 보이는 버그가 아니라 멈춰 버린 버튼입니다.
-- 답을 기다리는 질문이 남은 채 provider가 unmount되면 **전부 `false`로 resolve합니다.** settle되지 않는 promise는 `finally`가 영영 돌지 않는 핸들러이고, 그러면 라우트 전환 하나가 남은 세션 내내 도는 버튼을 남깁니다.
-- provider 밖에서 `usePlConfirm`은 `false`를 돌려주는 대신 **throw합니다.** 조용한 `false`는 아무것도 하지 않는 삭제 버튼이고, 그것은 첫 클릭에서 사실을 말해 주는 없는 provider보다 나쁩니다.
-- Escape와 바깥 클릭은 **아니오**입니다. 절대 예가 아닙니다.
+```dart
+await PlConfirmProvider.of(context).confirm(
+  const PlConfirmOptions(
+    title: Text('변경 사항이 저장되지 않았습니다.'),
+    confirmLabel: Text('버리기'),
+    cancelLabel: Text('돌아가기'),
+    dismissible: false,
+  ),
+);
+```
+
+:::
 
 ## Accessibility
 

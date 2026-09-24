@@ -198,6 +198,9 @@ import 'package:plass_ui_example/demos/animate_shake/hero.dart';
 import 'package:plass_ui_example/demos/animate_counter/hero.dart';
 import 'package:plass_ui_example/demos/animate_scramble/hero.dart';
 import 'package:plass_ui_example/demos/animate_split/hero.dart';
+import 'package:plass_ui_example/demos/animate_split/by.dart';
+import 'package:plass_ui_example/demos/animate_split/effect.dart';
+import 'package:plass_ui_example/demos/animate_split/stagger.dart';
 import 'package:plass_ui_example/demos/how_to_steps/hero.dart';
 import 'package:plass_ui_example/demos/how_to_steps/plain.dart';
 import 'package:plass_ui_example/demos/floating_action_button/hero.dart';
@@ -627,6 +630,9 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'animate-counter/hero': _animateCounterHero,
   'animate-scramble/hero': _animateScrambleHero,
   'animate-split/hero': _animateSplitHero,
+  'animate-split/by': _animateSplitBy,
+  'animate-split/effect': _animateSplitEffect,
+  'animate-split/stagger': _animateSplitStagger,
   'how-to-steps/hero': _howToStepsHero,
   'how-to-steps/plain': _howToStepsPlain,
   'floating-action-button/hero': _fabHero,
@@ -1251,6 +1257,9 @@ Widget _animateCounterHero(BuildContext context) => const AnimateCounterHero();
 Widget _animateScrambleHero(BuildContext context) => const AnimateScrambleHero();
 
 Widget _animateSplitHero(BuildContext context) => const AnimateSplitHero();
+Widget _animateSplitBy(BuildContext context) => const AnimateSplitBy();
+Widget _animateSplitEffect(BuildContext context) => const AnimateSplitEffect();
+Widget _animateSplitStagger(BuildContext context) => const AnimateSplitStagger();
 
 Widget _howToStepsHero(BuildContext context) => const HowToStepsHero();
 

@@ -47,18 +47,28 @@ Every other `<div>` attribute passes through to the panel, and so does a `classN
 
 :::
 
+`mode` decides what the panel is, and everything else about it is the same in both:
+
+- **`overlay`** is opened, floats over the page on a scrim, holds the focus and is dismissed: the navigation drawer behind a menu button, the filter panel beside a table.
+- **`inline`** is part of the layout, and the page is laid out around it. It has no scrim, no focus trap and nothing to dismiss: the sidebar that is simply there.
+
+A sidebar that turns into a menu button at a breakpoint therefore changes `mode` rather than the component.
+
+::: fw react
+
+`defaultOpen` follows `mode`: `false` in `overlay` and `true` in `inline`.
+
+:::
+
+There is no `variant` and no `elevation`. An `overlay` drawer carries the shadow at the top of the ladder and an `inline` one carries none. The panel fades in and out and never slides. [Design language](../../design/design-language) has the reasons for both.
+
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
-## Two modes, one panel
+## Examples
 
-`mode` is what separates them, and it is a separate axis from `variant`, which already means the weight of a surface across the whole library and would be a second spelling of nothing.
+### mode
 
-- **`overlay`**. It is opened, it floats over the page on a scrim, it holds the focus, and it is dismissed. The navigation drawer behind a hamburger, the filter panel beside a table.
-- **`inline`**. It is part of the layout and the page is laid out around it. No scrim, no focus trap, nothing to dismiss. The sidebar that is simply there.
-
-Everything else about them is identical, which is exactly why they are not two components a caller has to switch between when a sidebar becomes a hamburger at a breakpoint.
-
-`defaultOpen` follows: `false` in `overlay`, `true` in `inline`, because a fixed sidebar that had to be opened before it appeared would not be a fixed sidebar.
+`inline` puts the panel in the layout, with the page laid out beside it.
 
 <Demo src="drawer/inline" :min-height="300">
 
@@ -76,17 +86,11 @@ Everything else about them is identical, which is exactly why they are not two c
 
 </Demo>
 
-## No variant and no elevation
-
-The three materials answer "how much does this surface assert itself against the page", and a panel that has taken an **edge of the window** has answered it. An `overlay` drawer floats and carries a shadow at the top of the ladder; an `inline` one is part of the layout and carries none. Neither is a decision worth offering.
-
-## Examples
-
 ### side
 
 Physical rather than logical, the way `PlassSide` is everywhere: a drawer along the top of the window is along the top in every writing direction.
 
-The panel is **square against the window and cut on the free side**, the corners that face the page take the house fillet, the two against the edge do not, because a corner cut off something with no visible end is a corner cut off nothing. The hairline follows the same rule and is drawn on the free edge only.
+The panel is **square against the window and rounded on the free side**: the corners that face the page take the house fillet, and the two against the edge do not. The hairline follows the same rule and is drawn on the free edge only.
 
 A `left` or `right` panel takes the width its `size` implies; a `top` or `bottom` one is as tall as what is in it, up to 85% of the window. A bottom sheet holding three rows should be three rows tall. `extent` overrides either.
 
@@ -105,12 +109,6 @@ A `left` or `right` panel takes the width its `size` implies; a `top` or `bottom
 :::
 
 </Demo>
-
-### Nothing slides
-
-The panel fades, and only fades. A drawer that slid in would be dragging its own text across the screen for the length of the transition, and a panel is nothing _but_ text and controls, so this is the case the [no-transform rule](../../design/design-language) was written for rather than the exception to it.
-
-What says the panel came from an edge is that it is **attached** to one.
 
 ### dividers
 

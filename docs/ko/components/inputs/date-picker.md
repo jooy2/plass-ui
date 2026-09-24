@@ -53,31 +53,21 @@ PlDatePicker(
 
 picker는 패키지의 다른 모든 입력과 마찬가지로 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `null`은 아무것도 고르지 않은 picker입니다.
 
-React에 대응하는 것이 없는 유일한 파라미터가 `names`이고, 그 이유는 다음 절에 있습니다.
-
-### PlDateNames
-
-<PropsTable name="PlDateNames" />
+React에 대응하는 것이 없는 유일한 파라미터가 `names`입니다. 프레임워크에는 월 이름과 요일 이름을 대 줄 `Intl`이 없어서 이것이 그 이름들을 담습니다.
 
 :::
 
-공유 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
-
-## 날짜 라이브러리도, 번역 파일도 없습니다
-
-picker들은 의존성 트리에 **아무것도** 더하지 않습니다. 하는 일은 열두 줄짜리 `Date` 연산이거나, 플랫폼이 이미 싣고 있고 어떤 번들 테이블보다 더 많은 언어의 월 이름을 아는 `Intl`입니다. `date-fns`를 조용히 끌어오는(더 나쁘게는 dayjs / luxon / Temporal 논쟁에서 소비자 대신 편을 드는) 컴포넌트 라이브러리라면 자기 것이 아닌 결정을 내린 셈입니다.
+picker들은 **날짜 라이브러리에 의존하지 않고**, import할 번역 파일도 없습니다.
 
 ::: fw react
 
-로캘 이야기도 그것이 전부입니다. import하고 등록할 언어별 모듈이 없습니다. `locale`은 BCP 47 태그이고, 거기서부터 `Intl`이 월 이름, 요일 이름, 오전/오후, 한 주가 시작하는 요일, 헤더 두 버튼의 순서, trigger가 날짜를 쓰는 방식을 전부 제공합니다. **열두 언어로 출시하는 프로젝트가 열한 개에 대해 내는 비용이 0입니다.**
+`locale`은 BCP 47 태그이고, 거기서부터 `Intl`이 월 이름, 요일 이름, 오전/오후, 한 주가 시작하는 요일, 헤더 두 버튼의 순서, trigger가 날짜를 쓰는 방식을 전부 제공합니다. 열두 언어로 출시하는 프로젝트가 열한 개에 대해 내는 비용이 0입니다.
 
 :::
 
 ::: fw flutter
 
-두 패키지가 진짜로 갈라지는 유일한 지점이기도 합니다. 브라우저는 React에게 7월을 모든 언어로 뭐라 부르는지 이미 아는 `Intl`을 건네주므로 BCP 47 태그 하나면 충분합니다. Flutter 프레임워크는 그런 것을 싣고 있지 않고, 그 공백을 메우려고 `package:intl`을 끌어오는 패키지는 소비자 대신 의존성을 정하는 것입니다. `PlProgressLinear`의 `formatValue`가 이미 거절한 것과 같은 거래입니다.
-
-그래서 단어들은 `PlDateNames`로 옵니다. 기본값이 영어라 아무 설정 없이도 picker가 작동하고, 이미 `package:intl`에 의존하는 앱이라면 세 줄이면 됩니다.
+단어들은 `PlDateNames`로 옵니다. 기본값이 영어라 아무 설정 없이도 picker가 작동하고, 이미 `package:intl`에 의존하는 앱이라면 `DateFormat` 세 줄이면 됩니다.
 
 ```dart
 PlDateNames(
@@ -102,11 +92,19 @@ PlDateNames(
 
 :::
 
-남는 문자열은 picker 자신의 버튼에 적히는 것들("Today", "Previous month", "Choose a year") 뿐입니다. 어느 플랫폼도 그것들에 대해서는 의견이 없기 때문입니다. 영어 기본값이 붙은 `labels` 객체 하나입니다.
+picker 자신의 버튼에 적히는 말("Today", "Previous month", "Choose a year")은 영어 기본값이 붙은 `labels` 객체 하나입니다.
 
-## 직접 입력할 수 없습니다
+**직접 입력할 수 없습니다.** trigger는 [`PlSelect`](./select)의 것과 똑같이 버튼이고, 날짜는 달력에서 나옵니다. 두 가지의 이유는 [디자인 언어](../../design/design-language#플랫폼이-이미-아는-것에는-라이브러리를-쓰지-않습니다)에 있습니다.
 
-의도한 것입니다. 자유 텍스트에서 날짜를 파싱하는 일은 날짜 라이브러리 없이는 정직하게 할 수 없을 만큼 로캘에 의존하고, 어떤 브라우저에서는 `27/7/26`을 알아듣고 다음 브라우저에서는 못 알아듣는 field는 애초에 그런 척하지 않은 field보다 나쁩니다. trigger는 [`PlSelect`](./select)의 것과 똑같이 버튼이고, 답은 달력에서 나옵니다.
+공유 축(`variant` `size` `color` `density` `elevation`)이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+
+::: fw flutter
+
+### PlDateNames
+
+<PropsTable name="PlDateNames" />
+
+:::
 
 ## Examples
 
@@ -204,7 +202,7 @@ trigger의 기본 format도 따라가고, 푸터의 지름길도 마찬가지입
 
 ::: fw flutter
 
-`formatValue`는 위의 이유로 콜백입니다. 주지 않으면 `names`의 medium 형식으로 씁니다. 칸들이 이미 쓰고 있는 긴 형식은 `PlDateNames.spell`입니다.
+`formatValue`는 `names`가 있는 것과 같은 이유로 형식 설명이 아니라 콜백입니다. 주지 않으면 `names`의 medium 형식으로 씁니다. 칸들이 이미 쓰고 있는 긴 형식은 `PlDateNames.spell`입니다.
 
 :::
 

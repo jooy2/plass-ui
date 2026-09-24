@@ -149,6 +149,8 @@ The ladder is a flat 8px per step and it starts higher than a dense desktop tool
 
 It grows far more slowly than the height does, 33% of an `xs` control, 30% at `md`, 29% at `xl`. That near-constant radius is what makes two controls of different sizes read as two pieces cast in the same mould. A radius pinned to a percentage of the height gives you a small pill and a large rectangle instead.
 
+Three surfaces take it differently, each for the reason the fillet exists. A control with no line of text on it, an icon-only button, is a **disc**: the flat run along a control's edge is there for a line of text to sit on, and a glyph has none. An extended floating button has words along its edge again, so it takes the fillet rather than becoming a pill. A panel attached to an edge of the window, a drawer, is square against that edge and rounded only on the side that faces the page, because a corner cut off something with no visible end is a corner cut off nothing.
+
 ### `density`: padding, and only padding
 
 ```
@@ -170,6 +172,8 @@ type PlassElevation = 0 | 1 | 2 | 3;
 
 The ladder climbs by **blur far more than by offset**. A surface that moves 20px down the page when it is raised has left the sheet, and everything in this library is still sitting on one.
 
+Where a surface sits can answer the question for it. The three materials say how much a surface asserts itself against the page, and a drawer that has taken an edge of the window has already said it: an `overlay` drawer carries the shadow at the top of the ladder, an `inline` one carries none, and neither `variant` nor `elevation` is a choice worth offering on it. A floating action button defaults to `3`, the top of the ladder, because it is the one control that floats over the content rather than resting on the sheet.
+
 ### Shadows are tinted, and this is where Plass parts company with restraint
 
 `--plass-{color}-tint` is the drop shadow a control casts in its own colour, and it is the single loudest thing in the design language. It is the difference between a button that is blue and a button that is _made of_ blue.
@@ -187,6 +191,8 @@ Only `solid` gets one. A sheet of clear glass casts a neutral shadow, because it
 **Do not use `transform` on a control.** Scaling a key resamples its label, and text that shimmers under the cursor undoes the restraint everything else is spending effort on. State changes are expressed in **light and depth** only.
 
 A surface that _holds_ content rather than being pressed (a Card, a row) may lift, and should. The rule is about the thing under the finger.
+
+A panel of text does not travel either. A drawer fades in and out rather than sliding from its edge: one that slid in would drag its own text across the screen for the length of the transition, and a drawer is nothing but text and controls. What says it came from an edge is that it is **attached** to one.
 
 Turning or mirroring a photograph with [`PlImage`](../components/display/image)'s `rotate` and `flip` is not motion either. The caller sets them once, they do not answer the pointer, and neither a quarter turn nor a mirror resamples anything. They are drawn with the CSS `rotate` and `scale` properties rather than `transform`, which leaves `transform` free for anything else that acts on the picture.
 
@@ -323,3 +329,17 @@ The one exception is a control that something else clips, a tab on a rail, a seg
 ### The ring is an `outline`
 
 Tailwind's `ring-*` is a `box-shadow`, and every Plass surface already spends its `box-shadow` on the elevation, the tint and the glass hairline. A ring would have to be spliced into that chain in each of the three variants, and the first one that forgot would silently lose its focus ring.
+
+### No library for what the platform already knows
+
+The pickers add nothing to a consumer's dependency tree. A component library that brought in a date library, or picked a side between the date libraries on its consumer's behalf, would have made a decision that was not its to make.
+
+- **Dates** are `Date` arithmetic, which is a dozen lines, and `Intl`, which the browser already ships and which knows more month names in more languages than any bundled table will. The Flutter framework ships nothing of the kind, and pulling `package:intl` in to fill the gap would be the same decision, made on the consumer's behalf again. So the words arrive as a `PlDateNames`, in English by default, and an app that already depends on `package:intl` fills it in three lines.
+- **Colours** are about a hundred lines of arithmetic: HSV, RGB and HSL, one parser and one formatter. A picker has to be able to write every value it can read, so named colours and `color()` are not read at all. There is no honest way back from `rebeccapurple` to a point on the panel.
+- **A date cannot be typed.** Parsing a date out of free text depends on the locale in a way that cannot be done honestly without a date library, and a field that understands `27/7/26` in one browser and not the next is worse than one that never claimed to. A date picker's trigger is a button, as a select's is, and the calendar is where the answer comes from.
+
+### A picker keeps its own model
+
+A colour picker's state is a hue, a saturation and a value, and the string it hands back is derived from them, never the other way round. Through RGB **every shade of black is the same colour**: `#000000` has no hue to read back, so a picker that re-parsed its own output would snap the hue rail to red the moment the pointer reached the bottom of the square.
+
+An incoming `value` re-seeds the model only when it means a different colour, and it is compared as a colour rather than as a string. `#FF0000` and `#ff0000` are one colour written twice, and a string comparison would re-seed the model from a value it had just produced, on every render.

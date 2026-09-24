@@ -53,31 +53,21 @@ A `className` lands on the stack that holds the label, the control and the two l
 
 The picker is **controlled**, like every other input in the package: `value` with `onChanged`, and `null` is a picker with nothing chosen.
 
-`names` is the one parameter with no React counterpart, and the next section says why.
-
-### PlDateNames
-
-<PropsTable name="PlDateNames" />
+`names` is the one parameter with no React counterpart. It carries the month and weekday names, which the framework has no `Intl` to supply.
 
 :::
 
-What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
-
-## No date library, and no translation files
-
-The pickers add **nothing** to your dependency tree. Everything they do is either `Date` arithmetic, which is a dozen lines, or `Intl`, which the platform already ships and which knows more about month names in more languages than any bundled table ever will. A component library that quietly added `date-fns`, or worse, picked a side in the dayjs / luxon / Temporal argument on its consumer's behalf, would have made a decision that was not its to make.
+The pickers depend on **no date library**, and there are no translation files to import.
 
 ::: fw react
 
-That is also the whole of the localisation story. There is no per-language module to import and register: `locale` is a BCP 47 tag, and from it `Intl` supplies the month names, the weekday names, AM and PM, which day the week starts on, the order of the header's two buttons, and how the trigger writes the date. **A project that ships in twelve languages pays nothing for eleven of them.**
+`locale` is a BCP 47 tag, and from it `Intl` supplies the month names, the weekday names, AM and PM, which day the week starts on, the order of the header's two buttons, and how the trigger writes the date. A project that ships in twelve languages pays nothing for eleven of them.
 
 :::
 
 ::: fw flutter
 
-This is also the one place the two packages genuinely part company. The browser hands React an `Intl` that already knows what July is called in every language, so a BCP 47 tag is enough. The Flutter framework ships nothing of the kind, and a package that pulled `package:intl` in to fill the gap would be making a dependency decision on its consumer's behalf, the same trade `PlProgressLinear`'s `formatValue` already refuses.
-
-So the words arrive as a `PlDateNames`: English by default, so a picker works with no setup at all, and three lines of `DateFormat` for an app that already depends on `package:intl`.
+The words arrive as a `PlDateNames`: English by default, so a picker works with no setup at all, and three lines of `DateFormat` for an app that already depends on `package:intl`.
 
 ```dart
 PlDateNames(
@@ -102,11 +92,19 @@ PlDateNames(
 
 :::
 
-The only strings left over are the ones on the picker's own buttons ("Today", "Previous month", "Choose a year"), because neither platform has an opinion about those. They are one `labels` object with English defaults.
+The words on the picker's own buttons ("Today", "Previous month", "Choose a year") are one `labels` object with English defaults.
 
-## You cannot type into it
+**It cannot be typed into.** The trigger is a button, as a [`PlSelect`](./select)'s is, and a date comes from the calendar. [Design language](../../design/design-language#no-library-for-what-the-platform-already-knows) has the reasons for both.
 
-This is deliberate. Parsing a date out of free text is locale-dependent in a way that cannot be done honestly without a date library, and a field that understands `27/7/26` in one browser and not the next is worse than one that never claimed to. The trigger is a button, exactly as a [`PlSelect`](./select)'s is, and the calendar is where the answer comes from.
+What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).
+
+::: fw flutter
+
+### PlDateNames
+
+<PropsTable name="PlDateNames" />
+
+:::
 
 ## Examples
 
@@ -204,7 +202,7 @@ A blocked day stays in the grid rather than vanishing, and it is not a `disabled
 
 ::: fw flutter
 
-`formatValue` is a callback, for the reason above. Without it the day is written out of `names` in its medium form; `PlDateNames.spell` is the long one the cells already use.
+`formatValue` is a callback rather than a format description, for the reason `names` exists. Without it the day is written out of `names` in its medium form; `PlDateNames.spell` is the long one the cells already use.
 
 :::
 

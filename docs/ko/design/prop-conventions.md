@@ -25,6 +25,8 @@ order: 3
 
 같은 단어가 두 가지를 뜻하는 곳은 입력하는 것에 붙은 `solid` 하나뿐입니다. 거기서는 색 유리판이 아니라 **우물**입니다. [PlTextField](../components/inputs/text-field#variant)를 보세요.
 
+하나를 두 방식으로 보여 주는 컴포넌트는 `variant`를 빌리지 않고 자기 축으로 이름을 붙입니다. [`PlDrawer`](../components/feedback/drawer)의 `mode`가 `overlay`나 `inline`인 이유가 그것입니다. `variant`는 이미 라이브러리 전체에서 재질을 뜻하므로, 여기 쓰면 아무것도 아닌 것에 이름을 두 번 붙이는 셈이 됩니다.
+
 ### `size`는 하나의 결정입니다
 
 높이와 타입 스케일은 언제나 함께 움직입니다. `size="md" textSize="lg"` 같은 것은 없습니다. 같은 `size`인데 높이가 다른 두 컨트롤은 한 줄에서 영원히 맞지 않을 두 컨트롤이기 때문입니다.
@@ -52,6 +54,7 @@ order: 3
 - **duration과 delay는 CSS 문자열이 아니라 밀리초 숫자입니다.** 타입이 `string`인 prop은 `'0.4s'`를 부르고, 그러면 한 화면의 두 컴포넌트가 두 단위로 쓰이게 됩니다.
 - **`render`가 탈출구이고** 어디서나 같은 이름입니다. Base UI 자신의 prop을 그대로 전달합니다. 표면을 바꾸지 않고 요소만 바꿉니다.
 - **네이티브 속성은 그대로 전달됩니다.** `<input>`을 감싸는 컴포넌트는 위 축과 이름이 겹치는 것(`color`, `size`)을 뺀 모든 `<input>` 속성을 받습니다.
+- **글리프만 담은 컨트롤은 이름을 필수로 받습니다.** [`PlIconButton`](../components/inputs/icon-button)과 [`PlFloatingActionButton`](../components/inputs/floating-action-button)의 `label`은 필수이고, 그려지든 않든 언제나 접근성 이름입니다. 이름 없는 아이콘 버튼은 이 패턴이 가장 흔하게 싣고 나가는 접근성 결함이고, prop을 필수로 만드는 것만이 리뷰를 통과해 살아남는 해법입니다.
 
 ## 키를 묶기
 
@@ -147,6 +150,16 @@ class 속성 안에서의 순서는 아무 의미가 없습니다. 결정하는 
 Base UI 자신의 prop이고, 의미가 있는 곳에서 그대로 전달됩니다. `<PlButton render={<a href="/pricing" />}>`이 그 예입니다. 표면을 바꾸지 않고 요소만 바꾸는데, 이건 CSS로는 아무리 해도 못 하는 일입니다.
 
 :::
+
+## 핸들러에서 묻기
+
+[`PlToastProvider`](../components/feedback/toast)와 [`PlConfirmProvider`](../components/feedback/confirm)는 같은 배치를 씁니다. 루트 근처에 provider 하나를 두고, 그 아래 어디서든 <Fw react="hook" flutter="`of(context)` 조회" /> 하나로 닿습니다. 메시지나 질문이 필요해진 순간에 호출자가 쥐고 있는 것은 트리 안의 자리가 아니라 **핸들러**입니다. 이 조회가 없으면 삭제 버튼 하나에 확인을 붙이는 데 state 하나, 버튼 옆에 마운트해 둔 `PlModal` 하나, 그리고 답 다음에 할 일이 콜백을 가로질러 반토막 난 코드가 필요하고, 확인이 필요한 버튼마다 같은 편집 세 군데가 되풀이됩니다.
+
+질문에는 기다릴 답이 있으므로 `confirm`은 <Fw react="promise" flutter="future" />를 돌려주고, 규칙 세 가지가 그것이 멈춰 버리지 않게 합니다.
+
+- **하나가 열려 있는 동안 던진 질문은 버리지 않고 던진 순서대로 큐에 쌓습니다.** 아무도 답하지 않는 질문은 멈춰 버린 버튼이고, 그것은 보이는 버그보다 나쁩니다.
+- **provider가 unmount되면 쥐고 있던 질문에 전부 `false`로 답합니다.** 답이 나지 않은 질문은 `finally`가 영영 돌지 않는 핸들러이고, 그러면 라우트 전환 하나가 남은 세션 내내 도는 버튼을 남깁니다.
+- **provider 밖에서는 조회가 실패합니다.** <Fw react="`usePlConfirm`이 throw합니다" flutter="`PlConfirmProvider.of`가 assert합니다" />. `false`로 답하지 않는 이유는, 조용한 `false`는 아무것도 하지 않는 삭제 버튼이고 첫 클릭에서 실패하는 없는 provider는 바로 드러나기 때문입니다.
 
 ## 상태 prop의 규칙
 
