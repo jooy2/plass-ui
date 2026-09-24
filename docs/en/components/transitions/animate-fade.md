@@ -189,17 +189,17 @@ A staggered set is [`PlAnimateAppear`](./animate-appear). The React build can wr
 
 ::: fw react
 
-- Under `prefers-reduced-motion` the animation is dropped entirely and the content is simply there. That is the opposite of what the loading indicators do, and the difference is what each of them is saying: a spinner that stops is lying about whether anything is happening, while an entrance that never plays has still delivered everything it was carrying.
+- Under `prefers-reduced-motion` nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `mode="out"` element has left. `animationend` still fires. That is the opposite of what the loading indicators do, and the difference is what each of them is saying: a spinner that stops is lying about whether anything is happening, while an effect that does not move has still delivered what it was carrying.
 - The wrapper adds no role and no label. It is a `<div>` around content that already says what it is.
 - Nothing here is a way to hide content. A `mode="out"` element is still in the document and still read out; if it should be gone, unmount it.
 - `trigger="hover"` also starts on focus, so an effect on something keyboard-reachable runs for a reader who is not holding a mouse.
-- `timeline="view"` is dropped under `prefers-reduced-motion` for the same reason and with the same result, and it falls back to one clock-driven run in a browser that has no `animation-timeline`. Neither leaves anything blank.
+- `timeline="view"` goes back to the clock under `prefers-reduced-motion`, so it shows its last frame as above rather than following the scroll, and it falls back to one clock-driven run in a browser that has no `animation-timeline`. Neither leaves anything blank.
 
 :::
 
 ::: fw flutter
 
-- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there. That is the opposite of what the loading indicators do, and the difference is what each of them is saying: a spinner that stops is lying about whether anything is happening, while an entrance that never played has still delivered everything it was carrying.
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `PlassAnimateMode.exit` widget has left. That is the opposite of what the loading indicators do, and the difference is what each of them is saying: a spinner that stops is lying about whether anything is happening, while an effect that does not move has still delivered what it was carrying.
 - The widget adds no semantics of its own. It is an `Opacity` around content that already says what it is.
 - Nothing here is a way to hide content. A `PlassAnimateMode.exit` widget is still in the tree and still in the semantics; if it should be gone, take it out.
 - `PlassAnimateTrigger.hover` also starts when the focus lands on something inside it, so an effect on something keyboard-reachable runs for a reader who is not holding a mouse. The widget takes no focus of its own, so a hover effect on a picture adds no stop to the tab order and no node to the semantics tree.

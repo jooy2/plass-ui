@@ -418,6 +418,10 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// an effect is `Opacity(opacity: lerpDouble(from, 1, t))` and nothing more.
 /// `t` is `0` while the run is waiting to be triggered — the held first frame —
 /// and it stays wherever the last pass left it once the count runs out.
+///
+/// Under reduced motion nothing moves in between. `t` is `1` until the moment
+/// the run would have started, its delay included, and then wherever the last
+/// pass would have left it, so an exit has gone and a turn has turned.
 class PlassAnimateRun extends StatefulWidget {
   /// Creates a run.
   const PlassAnimateRun({
@@ -478,6 +482,15 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// would measure nothing while it did.
   Duration _waitingFrom = Duration.zero;
 
+  /// Whether the platform has asked for less movement, as of the last build.
+  ///
+  /// Kept rather than looked up, because what reads it runs after the frame.
+  bool _still = false;
+
+  /// With [_still], whether the run has reached the moment it would have
+  /// started and so stands on its last frame. Until then nothing has changed.
+  bool _landed = false;
+
   @override
   void initState() {
     super.initState();
@@ -516,7 +529,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   void _onStatus(AnimationStatus status) {
     final int? repeat = widget.settings.repeat;
 
-    if (repeat != null && _pass >= repeat) {
+    // Nothing is run pass by pass under reduced motion; the run lands on its
+    // last frame in one step.
+    if (_still || (repeat != null && _pass >= repeat)) {
       return;
     }
 
@@ -554,6 +569,10 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     }
 
     if (_startedRuns == runs) {
+      if (_still && _landed) {
+        return;
+      }
+
       if (!_controller.isAnimating && !_controller.isCompleted) {
         // A pause during the wait held the wait too, so what is let go is
         // whatever was left of it. Nothing was left of it once the pass had
@@ -567,6 +586,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _startedRuns = runs;
     _pass = 1;
     _controller.value = 0;
+    _setLanded(false);
     _startAfter(widget.settings.delay);
   }
 
@@ -579,7 +599,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _delayLeft = wait > Duration.zero ? wait : Duration.zero;
 
     if (_delayLeft == Duration.zero) {
-      _controller.forward();
+      _go();
 
       return;
     }
@@ -590,9 +610,35 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       _delayLeft = Duration.zero;
 
       if (mounted && _startedRuns == runs) {
-        _controller.forward();
+        _go();
       }
     });
+  }
+
+  /// The moment the run starts: the first pass, or under reduced motion the
+  /// last frame at once.
+  void _go() {
+    if (_still) {
+      _setLanded(true);
+    } else {
+      _controller.forward();
+    }
+  }
+
+  void _setLanded(bool value) {
+    if (_landed != value && mounted) {
+      setState(() => _landed = value);
+    }
+  }
+
+  /// Where the controller stops at the end of the run: a forward pass ends at
+  /// `1`, and an alternating run with an even number of passes ends on one that
+  /// ran back to `0`. An endless run is one pass, which has a last frame where
+  /// the run itself has none.
+  double get _end {
+    final int passes = widget.settings.repeat ?? 1;
+
+    return widget.settings.alternate && passes > 1 && passes.isEven ? 0 : 1;
   }
 
   /// Holds a wait that is still running, keeping what is left of it.
@@ -614,19 +660,28 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     final Curve curve = widget.settings.curve ?? PlassTheme.of(context).motionEase;
     final bool still = prefersReducedMotion(context);
 
+    if (still != _still) {
+      if (still) {
+        // Asked for while a run was going, or after one had finished: from
+        // here it stands on its last frame, unless it is still waiting out its
+        // delay, which lands it when the wait is over.
+        _controller.stop();
+        _landed = _startedRuns >= 0 && _waiting == null;
+      } else if (_landed) {
+        // And given back after a run had landed: the controller is put where
+        // the run left the screen, so nothing jumps back to where it began.
+        // Nothing is listening to it yet — the builder that does is only in the
+        // tree while the platform allows movement.
+        _controller.value = _end;
+      }
+
+      _still = still;
+    }
+
     return PlassAnimateGate(
       settings: widget.settings,
       child: widget.child,
       builder: (BuildContext context, bool running, int runs, Widget? child) {
-        // The reduced-motion answer is the *opposite* of the loading
-        // indicators': a spinner that stops is lying about whether anything is
-        // happening, while an entrance that never played has already delivered
-        // everything it was carrying. So the effect is dropped and the content
-        // is simply there.
-        if (still) {
-          return widget.builder(context, 1, child);
-        }
-
         // After the frame rather than during it, because starting a controller
         // inside a build is a build that schedules a build.
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -634,6 +689,25 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
             _drive(running, runs);
           }
         });
+
+        // The reduced-motion answer is the *opposite* of the loading
+        // indicators': a spinner that stops is lying about whether anything is
+        // happening, while an effect that does not move has still delivered
+        // what it was carrying — for an entrance the content, and for an exit
+        // its absence. So the run is kept and the movement is taken out of it.
+        // Nothing changes until the moment it would have started, its delay
+        // included, and then it stands on its last frame. Until that moment
+        // the content is simply there, which is `1` whichever way the effect
+        // runs: the end of an entrance, and the start of an exit.
+        if (still) {
+          final double end = _landed ? _end : 1;
+
+          return widget.builder(
+            context,
+            _landed && widget.mode == PlassAnimateMode.exit ? 1 - end : end,
+            child,
+          );
+        }
 
         return AnimatedBuilder(
           animation: _controller,

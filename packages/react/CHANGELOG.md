@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **Under reduced motion, a `PlAnimate*` effect ends on its last frame rather than on the element as it stands.** The effect was switched off, so `<PlAnimateRotate from={0} to={90}>` stood at 0°, a `mode="out"` element never left, and a caller waiting on `animationend` waited for ever. The effect now runs in no time: nothing changes until the moment it would have started, `delay` included, and then it is on its last frame, so the turn stands at 90°, an exit has left and `animationend` fires. An alternating run ends where it would have, an endless one on the last frame of one pass, and a `timeline="view"` effect goes back to the clock. Content waiting for its trigger is still shown as it is.
+
 - **A `PlCarousel` given a `defaultValue` or `value` other than 0 opens on that slide.** The strip was placed only when the slide changed after the first render, so the dots marked the chosen slide while the first one was showing. The strip is now on the chosen slide before the first paint, without travelling there.
 
 - **`Escape` on a chart is taken only while there is a readout to clear.** The plot answered it whatever it held and marked it handled, so a chart with nothing being read kept the key from a `usePlHotKeys` binding around it, and a chart with a readout let the same press go on and close the sheet it sat in as well. With a readout, the press now clears it and stops there; with none, it goes on to whatever the chart sits in, as in the Flutter build.

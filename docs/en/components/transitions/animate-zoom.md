@@ -105,7 +105,7 @@ What the effect is for. One thing on the screen, once, at the moment it becomes 
 
 ::: fw react
 
-- Under `prefers-reduced-motion` the animation is dropped entirely and the content is simply there.
+- Under `prefers-reduced-motion` nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `mode="out"` element has left. `animationend` still fires.
 - The wrapper adds no role and no label. A result that has to be announced needs a live region of its own — the effect is what a reader sees, not what a screen reader is told.
 - The travel is long enough to resample text noticeably. Keep it for a figure, a glyph or a small card; a paragraph wants [PlAnimateFade](./animate-fade).
 - Nothing repeats by default, and this is the effect to leave that way. Something that zooms twice is something that failed to arrive the first time.
@@ -114,7 +114,7 @@ What the effect is for. One thing on the screen, once, at the moment it becomes 
 
 ::: fw flutter
 
-- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there.
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `PlassAnimateMode.exit` widget has left.
 - The widget adds no semantics of its own. A result that has to be announced needs a `Semantics(liveRegion: true)` of its own — the effect is what a reader sees, not what a screen reader is told.
 - The travel is long enough to resample text noticeably. Keep it for a figure, a glyph or a small card; a paragraph wants [PlAnimateFade](./animate-fade).
 - Nothing repeats by default, and this is the effect to leave that way.

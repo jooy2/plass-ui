@@ -2790,16 +2790,41 @@
   /*
    * The `PlAnimate*` components go the other way from the indicators above, and
    * the difference is what each of them is saying. A spinner that stops is
-   * lying about whether anything is happening; an entrance that does not play
-   * has still delivered its content, which is the only thing it was ever
-   * carrying.
+   * lying about whether anything is happening; an effect that does not move has
+   * still delivered what it was carrying — which for an entrance is the content
+   * and for an exit is its absence.
    *
-   * `animation: none` rather than a zero duration, because the shorthand also
-   * clears `fill-mode` — and the fill is what was holding an untriggered
-   * element on its own first frame at `opacity: 0`. Left in place, respecting a
-   * reader's preference would blank the page.
+   * So an effect is not switched off but run in no time at all. Nothing changes
+   * until the moment it would have started, its `delay` included, and then it
+   * is on its last frame: an exit has gone, a turn has turned, and
+   * `animationend` arrives for a caller waiting on it. Until that moment the
+   * element is as it is, because the fill runs forwards only — an effect
+   * waiting for its trigger is held at the start of its delay, which with no
+   * backwards fill draws nothing, rather than on a first frame at `opacity: 0`
+   * that would blank the page. The delay is a millisecond at the least, which
+   * is what keeps a waiting effect there: with no delay and no duration, a run
+   * held at its very start has already finished.
+   *
+   * A count of `infinite` is one pass here, which `--p-anim-still-repeat`
+   * says: an endless run has no last frame of its own. And a scroll-linked
+   * effect goes back to the clock, because a zero duration spread over a scroll
+   * range is an effect that snaps at one point of the scroll.
    */
-  .plass-anim,
+  .plass-anim {
+    animation-duration: 0s;
+    animation-delay: max(1ms, var(--p-anim-delay, 0ms));
+    animation-iteration-count: var(--p-anim-still-repeat, var(--p-anim-repeat, 1));
+    animation-fill-mode: forwards;
+    animation-timeline: auto;
+  }
+
+  /* The one effect whose last frame is not the element's own: before it has
+     run, a turn stands at the angle it turns to, which is what it is waiting to
+     deliver. The keyframe outranks this once the run has begun. */
+  .plass-anim-rotate {
+    rotate: var(--p-anim-angle-to, 0deg);
+  }
+
   .plass-marquee-track,
   .plass-headline-item,
   .plass-caret {

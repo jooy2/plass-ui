@@ -124,7 +124,7 @@ const PlAnimateGrow(
 
 ::: fw react
 
-- `prefers-reduced-motion`에서는 애니메이션이 통째로 없어지고 내용은 그냥 거기 있습니다.
+- `prefers-reduced-motion`에서는 아무것도 움직이지 않습니다. 효과가 원래 시작했을 시점까지는(`delay` 포함) 내용이 그냥 거기 있고, 그 시점부터 마지막 프레임을 보여 줍니다. 그래서 등장은 그대로 있고 `mode="out"`인 요소는 이미 떠나 있습니다. `animationend`도 그대로 발생합니다.
 - wrapper는 role도 label도 붙이지 않습니다. 이미 자기가 무엇인지 알리는 내용을 감싼 `<div>`일 뿐입니다.
 - 배율 변화는 안에 있는 것을 다시 샘플링하므로, 본문 위에서는 이동 거리를 짧게 두세요. `from`의 기본값이 `0.8`인 이유입니다. 긴 이동은 도형이나 아이콘, 사진의 몫입니다.
 - 이것은 wrapper이지 disclosure가 아닙니다. 내용을 mount하고 unmount하는 것은 caller의 몫이고, 그 일을 한 컨트롤에 붙을 `aria-expanded`도 마찬가지입니다.
@@ -133,7 +133,7 @@ const PlAnimateGrow(
 
 ::: fw flutter
 
-- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 통째로 없어지고 내용은 그냥 거기 있습니다.
+- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 아무것도 움직이지 않습니다. 효과가 원래 시작했을 시점까지는(`delay` 포함) 내용이 그냥 거기 있고, 그 시점부터 마지막 프레임을 보여 줍니다. 그래서 등장은 그대로 있고 `PlassAnimateMode.exit`인 widget은 이미 떠나 있습니다.
 - widget은 자기 semantics를 붙이지 않습니다. 이미 자기가 무엇인지 알리는 내용을 감싼 `Transform`일 뿐입니다.
 - 배율 변화는 안에 있는 것을 다시 샘플링하므로, 본문 위에서는 이동 거리를 짧게 두세요. `from`의 기본값이 `0.8`인 이유입니다. 긴 이동은 도형이나 아이콘, 사진의 몫입니다.
 - 이것은 wrapper이지 disclosure가 아닙니다. 내용을 넣고 빼는 것은 caller의 몫이고, 그것에 대해 스크린리더에게 무엇을 말할지도 마찬가지입니다.

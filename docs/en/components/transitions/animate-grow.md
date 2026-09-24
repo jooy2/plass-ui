@@ -124,7 +124,7 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 
 ::: fw react
 
-- Under `prefers-reduced-motion` the animation is dropped entirely and the content is simply there.
+- Under `prefers-reduced-motion` nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `mode="out"` element has left. `animationend` still fires.
 - The wrapper adds no role and no label. It is a `<div>` around content that already says what it is.
 - Scaling resamples whatever is inside, so keep the travel short over text — that is what `from` defaults to `0.8` for. Long travel belongs on a shape, an icon or a picture.
 - This is a wrapper, not a disclosure. Mounting and unmounting the content is the caller's job, and so is whatever `aria-expanded` belongs on the control that did it.
@@ -133,7 +133,7 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 
 ::: fw flutter
 
-- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there.
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `PlassAnimateMode.exit` widget has left.
 - The widget adds no semantics of its own. It is a `Transform` around content that already says what it is.
 - Scaling resamples whatever is inside, so keep the travel short over text — that is what `from` defaults to `0.8` for. Long travel belongs on a shape, an icon or a picture.
 - This is a wrapper, not a disclosure. Adding and removing the content is the caller's job, and so is whatever a screen reader should be told about it.

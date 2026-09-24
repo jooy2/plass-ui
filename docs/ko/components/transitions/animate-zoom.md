@@ -105,7 +105,7 @@ const PlAnimateZoom(
 
 ::: fw react
 
-- `prefers-reduced-motion`에서는 애니메이션이 통째로 없어지고 내용은 그냥 거기 있습니다.
+- `prefers-reduced-motion`에서는 아무것도 움직이지 않습니다. 효과가 원래 시작했을 시점까지는(`delay` 포함) 내용이 그냥 거기 있고, 그 시점부터 마지막 프레임을 보여 줍니다. 그래서 등장은 그대로 있고 `mode="out"`인 요소는 이미 떠나 있습니다. `animationend`도 그대로 발생합니다.
 - wrapper는 role도 label도 붙이지 않습니다. 알려야 하는 결과라면 자체 live region이 필요합니다. 효과는 보는 사람이 보는 것이지, 스크린리더가 듣는 것이 아닙니다.
 - 이동 거리가 길어서 글자가 눈에 띄게 다시 샘플링됩니다. 숫자나 글리프, 작은 카드에 두세요. 문단에는 [PlAnimateFade](./animate-fade)가 맞습니다.
 - 기본적으로 반복하지 않고, 이 효과는 그대로 두는 편이 좋습니다. 두 번 zoom하는 것은 첫 번째에 도착하지 못한 것입니다.
@@ -114,7 +114,7 @@ const PlAnimateZoom(
 
 ::: fw flutter
 
-- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 효과가 통째로 없어지고 내용은 그냥 거기 있습니다.
+- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 아무것도 움직이지 않습니다. 효과가 원래 시작했을 시점까지는(`delay` 포함) 내용이 그냥 거기 있고, 그 시점부터 마지막 프레임을 보여 줍니다. 그래서 등장은 그대로 있고 `PlassAnimateMode.exit`인 widget은 이미 떠나 있습니다.
 - widget은 자기 semantics를 붙이지 않습니다. 알려야 하는 결과라면 자체 `Semantics(liveRegion: true)`가 필요합니다. 효과는 보는 사람이 보는 것이지, 스크린리더가 듣는 것이 아닙니다.
 - 이동 거리가 길어서 글자가 눈에 띄게 다시 샘플링됩니다. 숫자나 글리프, 작은 카드에 두세요. 문단에는 [PlAnimateFade](./animate-fade)가 맞습니다.
 - 기본적으로 반복하지 않고, 이 효과는 그대로 두는 편이 좋습니다.

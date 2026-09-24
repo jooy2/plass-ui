@@ -110,7 +110,7 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 
 ::: fw react
 
-- Under `prefers-reduced-motion` the animation is dropped entirely and the content is simply there.
+- Under `prefers-reduced-motion` nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `mode="out"` element has left. `animationend` still fires.
 - Nothing on the page reflows while it runs. This is a `translate` rather than a change of layout, so what is _around_ the element does not move.
 - A slide that starts out of frame will overflow whatever is holding it unless that box clips. Clip it, or the page grows a scrollbar for the length of the animation.
 - For a much shorter travel across a list of things, one after another, use [PlAnimateAppear](./animate-appear) — the stagger is what makes that effect, and a slide per child would leave you writing the delays yourself.
@@ -119,7 +119,7 @@ A number is pixels, a string is any CSS length. `'100%'` is the element's own wi
 
 ::: fw flutter
 
-- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there.
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `PlassAnimateMode.exit` widget has left.
 - Nothing around it is laid out again while it runs. This moves the widget rather than changing the layout.
 - A slide that starts out of frame will overflow whatever is holding it unless that box clips. Wrap it in a `ClipRect`.
 - For a much shorter travel across a list of things, one after another, use [PlAnimateAppear](./animate-appear).

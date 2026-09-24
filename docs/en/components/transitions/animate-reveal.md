@@ -107,7 +107,7 @@ Four edges, and `mode="out"` closes from whichever one it opened towards.
 
 ::: fw react
 
-- Under `prefers-reduced-motion` the animation is dropped entirely and the content is simply there, including the clip, so nothing is left half drawn.
+- Under `prefers-reduced-motion` nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there, clip and all; from then on it shows its last frame, so an entrance is uncovered in full and a `mode="out"` element has been wiped away. `animationend` still fires, and nothing is left half drawn.
 - Nothing reflows while it runs, and nothing is resampled. That makes it as safe on a block of text as a fade, and safer than anything that scales.
 - The clipped part of the element is still in the document and still read out. This is an entrance, not a way to hide something: if it should be gone, unmount it.
 - A caller's own `clip-path` on the same element is overwritten while the effect runs. Put one of them on a wrapper.
@@ -116,7 +116,7 @@ Four edges, and `mode="out"` closes from whichever one it opened towards.
 
 ::: fw flutter
 
-- When the platform has animations turned off (`MediaQuery.disableAnimations`) the effect is dropped entirely and the content is simply there.
+- When the platform has animations turned off (`MediaQuery.disableAnimations`) nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is uncovered in full and a `PlassAnimateMode.exit` widget has been wiped away.
 - Nothing is laid out again while it runs. The clip happens at paint time, so neither the widget nor anything beside it changes size.
 - The clipped part of the widget is still in the tree and still in the semantics. This is an entrance, not a way to hide something.
 

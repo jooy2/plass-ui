@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
@@ -292,6 +293,169 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(opacityOf(tester), 1);
+    });
+  });
+
+  group('under reduced motion', () {
+    /// The turn the rotation under test is carrying, in degrees.
+    double degreesOf(WidgetTester tester) {
+      final Matrix4 m = tester
+          .widget<Transform>(
+            find.descendant(of: find.byType(PlAnimateRotate), matching: find.byType(Transform)),
+          )
+          .transform;
+
+      return math.atan2(m.storage[1], m.storage[0]) * 180 / math.pi;
+    }
+
+    /// Whether anything under [of] is drawn: nothing over it is faded away and
+    /// nothing is clipped away. A reveal leaves by its clip and keeps its ink.
+    bool drawn(WidgetTester tester, Finder of) {
+      final bool faded = tester
+          .widgetList<Opacity>(find.descendant(of: of, matching: find.byType(Opacity)))
+          .any((Opacity opacity) => opacity.opacity == 0);
+      final bool clipped = tester
+          .widgetList<ClipRect>(find.descendant(of: of, matching: find.byType(ClipRect)))
+          .any((ClipRect clip) => clip.clipper?.getClip(const Size(100, 100)).isEmpty ?? false);
+
+      return !faded && !clipped;
+    }
+
+    testWidgets('turns to the angle it was asked to end at', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(
+          const PlAnimateRotate(from: 0, to: 90, fade: false, child: Text('Turning')),
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+
+      expect(degreesOf(tester), closeTo(90, 0.001));
+    });
+
+    testWidgets('ends one pass of an endless turn', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(
+          const PlAnimateRotate(from: 0, to: 90, fade: false, repeat: null, child: Text('Turning')),
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+
+      expect(degreesOf(tester), closeTo(90, 0.001));
+    });
+
+    testWidgets('shows an entrance that is waiting for its trigger', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(
+          const PlAnimateFade(trigger: PlassAnimateTrigger.manual, child: Text('Arriving')),
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+
+      expect(opacityOf(tester), 1);
+    });
+
+    for (final (String name, Widget exit) in <(String, Widget)>[
+      ('PlAnimateFade', const PlAnimateFade(mode: PlassAnimateMode.exit, child: Text('Leaving'))),
+      ('PlAnimateGrow', const PlAnimateGrow(mode: PlassAnimateMode.exit, child: Text('Leaving'))),
+      ('PlAnimateZoom', const PlAnimateZoom(mode: PlassAnimateMode.exit, child: Text('Leaving'))),
+      ('PlAnimateSlide', const PlAnimateSlide(mode: PlassAnimateMode.exit, child: Text('Leaving'))),
+      (
+        'PlAnimateRotate',
+        const PlAnimateRotate(mode: PlassAnimateMode.exit, child: Text('Leaving')),
+      ),
+      (
+        'PlAnimateReveal',
+        const PlAnimateReveal(mode: PlassAnimateMode.exit, child: Text('Leaving')),
+      ),
+    ]) {
+      testWidgets('hides a $name that leaves', (WidgetTester tester) async {
+        await tester.pumpWidget(host(exit, disableAnimations: true));
+        await tester.pump();
+
+        expect(drawn(tester, find.byWidget(exit)), isFalse);
+      });
+    }
+
+    testWidgets('leaves an exit in place until it is let go', (WidgetTester tester) async {
+      Widget fade({required bool play}) {
+        return host(
+          PlAnimateFade(
+            mode: PlassAnimateMode.exit,
+            trigger: PlassAnimateTrigger.manual,
+            play: play,
+            child: const Text('Leaving'),
+          ),
+          disableAnimations: true,
+        );
+      }
+
+      await tester.pumpWidget(fade(play: false));
+      await tester.pump();
+
+      expect(opacityOf(tester), 1);
+
+      await tester.pumpWidget(fade(play: true));
+      await tester.pump();
+
+      expect(opacityOf(tester), 0);
+    });
+
+    testWidgets('keeps an exit on screen for its delay', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(
+          const PlAnimateFade(
+            mode: PlassAnimateMode.exit,
+            delay: Duration(milliseconds: 400),
+            child: Text('Leaving'),
+          ),
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(opacityOf(tester), 1);
+
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(opacityOf(tester), 0);
+    });
+
+    testWidgets('ends where an alternating run ends', (WidgetTester tester) async {
+      // Out and back: the second pass runs backwards, so it finishes faded out.
+      await tester.pumpWidget(
+        host(
+          const PlAnimateFade(alternate: true, repeat: 2, child: Text('Blinking once')),
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+
+      expect(opacityOf(tester), 0);
+    });
+
+    testWidgets('stays gone when the setting arrives after an exit has run', (
+      WidgetTester tester,
+    ) async {
+      const Widget exit = PlAnimateFade(mode: PlassAnimateMode.exit, child: Text('Leaving'));
+
+      await tester.pumpWidget(host(exit));
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 0);
+
+      await tester.pumpWidget(host(exit, disableAnimations: true));
+      await tester.pump();
+
+      expect(opacityOf(tester), 0);
+
+      // And when it is taken away again, nothing comes back.
+      await tester.pumpWidget(host(exit));
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 0);
     });
   });
 }

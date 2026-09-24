@@ -153,6 +153,14 @@ export function animationSlots(options: AnimationSlotOptions): React.CSSProperti
     '--p-anim-direction': directionValue(options.mode ?? 'in', options.alternate)
   };
 
+  // Read only under reduced motion, where an effect is run in no time and
+  // shown on its last frame. An endless one has no last frame, so it is shown
+  // on the last frame of one pass — which also gives an alternating one the
+  // direction its first pass runs in.
+  if (isInfinite(options.repeat)) {
+    slots['--p-anim-still-repeat'] = '1';
+  }
+
   if (options.easing) {
     slots['--p-anim-ease'] = options.easing;
   }
