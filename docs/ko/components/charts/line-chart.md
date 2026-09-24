@@ -232,7 +232,7 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 ## Accessibility
 
 - 그림 전체에 이름이 있습니다.
-- 그림은 tab 정거장입니다. <kbd>←</kbd>와 <kbd>→</kbd>로 category를 하나씩 옮겨 다니고, <kbd>Home</kbd>과 <kbd>End</kbd>로 첫 category와 마지막 category로 갑니다. <kbd>Escape</kbd>로 읽던 값을 지우고, 닿는 category마다 거기서 보이는 series의 값과 함께 live region으로 읽힙니다. tooltip을 끄면 키는 아무것도 하지 않고 읽히는 것도 없습니다.
+- 그림은 tab 정거장입니다. <kbd>←</kbd>와 <kbd>→</kbd>로 category를 하나씩 옮겨 다니고, <kbd>Home</kbd>과 <kbd>End</kbd>로 첫 category와 마지막 category로 갑니다. <kbd>Escape</kbd>로 읽던 값을 지우는데, 읽고 있는 값이 있을 때만 차트가 이 키를 가져갑니다. 그 밖에는 차트를 담은 쪽으로 넘어가므로, 차트를 품은 sheet도 그대로 닫힙니다. 닿는 category마다 거기서 보이는 series의 값과 함께 live region으로 읽힙니다. tooltip을 끄면 키는 아무것도 하지 않고 읽히는 것도 없습니다.
 - 범례는 진짜 컨트롤의 줄입니다. 각 항목이 자기 series가 켜져 있는지 보여 주고, 누르면 바뀝니다.
 - 포인터가 올라간 범례 항목은 자기를 밝히는 대신 **나머지를** 흐립니다. 포인터가 올라갔다고 색이 바뀌는 차트는 그동안 범례가 거짓말을 하는 차트입니다.
 
@@ -244,7 +244,7 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 
 ::: fw flutter
 
-- tab 정거장은 차트 자신의 semantics 노드이므로, Tab으로 들어온 사람은 이름과 아래의 글을 듣습니다. <kbd>Escape</kbd>는 읽고 있는 값이 있을 때만 차트가 가져갑니다. 그 밖에는 차트를 담은 쪽으로 넘어가므로, 차트를 품은 sheet도 그대로 닫힙니다.
+- tab 정거장은 차트 자신의 semantics 노드이므로, Tab으로 들어온 사람은 이름과 아래의 글을 듣습니다.
 - 그림은 값으로 **안에 있는 숫자 전부**를 답니다. 보이는 series마다 값이 있는 카테고리와 그 자리의 값을 잇습니다. "Revenue: Jan 12; Feb 19; Mar 15. Cost: Jan 8; Feb 11; Mar 9" 같은 모양입니다. 이쪽에는 React와 달리 숨은 표가 없어서, 이 글이 숫자에 닿는 유일한 길입니다. 빈 칸은 카테고리만 읽히지 않도록 빼고, `categories`를 받지 않은 차트는 자리 번호도 뺍니다. 읽는 순서가 이미 그 자리를 담고 있기 때문입니다.
 - `semanticValue`는 그 글을 갈아끼웁니다. 요약이 "각 series와 그 값들"이 아닌 차트를 위한 것이고, 어느 series가 켜져 있는지를 받습니다.
 - 탭하면 툴팁이 **남아 있고**, 같은 열을 한 번 더 탭하면 내려갑니다. 뗄 때 지우면 포인터 없는 사람은 끝내 읽지 못하는 툴팁이 됩니다. 터치 화면에서 누름과 뗌은 0.1초 차이입니다. 드래그하면 축을 따라 훑습니다.

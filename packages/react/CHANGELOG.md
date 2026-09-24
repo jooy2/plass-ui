@@ -56,6 +56,8 @@
 
 ### Fixed
 
+- **`Escape` on a chart is taken only while there is a readout to clear.** The plot answered it whatever it held and marked it handled, so a chart with nothing being read kept the key from a `usePlHotKeys` binding around it, and a chart with a readout let the same press go on and close the sheet it sat in as well. With a readout, the press now clears it and stops there; with none, it goes on to whatever the chart sits in, as in the Flutter build.
+
 - **A `PlCollapsible` leaves space between its header and its body.** Under the default header the body began at the open header's tinted edge, so its first line read as part of the title; only a `trigger` of the caller's own had the space. Both now have the space a `PlAccordion` section leaves.
 
 - **A `PlPill` that starts `expanded` is open on its first frame.** It rendered its panel at a height of 0 and measured it afterwards, so it animated open as it arrived. An open panel is now at its natural height until it has been measured, in the server's HTML as well, and opening and closing afterwards animate as before.

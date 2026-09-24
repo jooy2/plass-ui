@@ -1642,8 +1642,14 @@ export function CartesianChart({
       goTo(0);
     } else if (event.key === 'End') {
       goTo(walkLength - 1);
-    } else if (event.key === 'Escape') {
+    } else if (event.key === 'Escape' && (columnIndex !== null || markIndex !== null)) {
+      // Only while something is being read. With nothing to clear, the key
+      // belongs to whatever the chart sits in — a sheet, a dialog — and
+      // swallowing it would leave that unable to close. With something to
+      // clear, it stops here, so the first press closes the readout and not
+      // the sheet around it as well.
       clearActive();
+      event.stopPropagation();
     } else {
       return;
     }

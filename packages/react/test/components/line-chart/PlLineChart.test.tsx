@@ -551,6 +551,66 @@ describe('PlLineChart', () => {
       expect(other.defaultPrevented).toBe(false);
     });
 
+    it('keeps an Escape that clears a reading from what it sits in, and lets it through otherwise', async () => {
+      // Both ways a sheet hears the key: a handler on an element around the
+      // chart, and a listener on the document, which is where Base UI's
+      // dismissal listens.
+      const around = vi.fn();
+      const onDocument = vi.fn();
+      const listener = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          onDocument();
+        }
+      };
+
+      document.addEventListener('keydown', listener);
+
+      try {
+        const screen = await render(
+          <div
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                around();
+              }
+            }}
+          >
+            <PlLineChart
+              label="Sessions"
+              categories={MONTHS}
+              series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+            />
+          </div>
+        );
+
+        const plot = screen.getByRole('img', { name: 'Sessions' });
+        const status = () => screen.getByRole('status').element().textContent;
+
+        await expect.element(plot).toBeInTheDocument();
+        press(plot.element(), 'ArrowRight');
+        await expect.poll(status).toBe('Jan, Web: 10');
+
+        press(plot.element(), 'Escape');
+
+        await expect.poll(status).toBe('');
+        expect(around).not.toHaveBeenCalled();
+        expect(onDocument).not.toHaveBeenCalled();
+
+        const escape = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true
+        });
+
+        plot.element().dispatchEvent(escape);
+
+        expect(escape.defaultPrevented).toBe(false);
+        expect(around).toHaveBeenCalledTimes(1);
+        expect(onDocument).toHaveBeenCalledTimes(1);
+      } finally {
+        document.removeEventListener('keydown', listener);
+      }
+    });
+
     it('narrows to the nearest series with mode="item"', async () => {
       const screen = await render(
         <PlLineChart
