@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlTable` takes `label`, which names the box its grid scrolls in when there is no `caption`.** A table wider than its sheet, or taller than its `maxHeight`, is a tab stop while it scrolls, and without a caption that stop had no name. `label` makes it a group with that name, the way `PlScrollZone`'s `label` names its strip; a `caption` still names it when there is one.
+
 - **The title bar of a `draggable` `PlWindowPane` is a tab stop, and the arrow keys move the window.** A window moved only by dragging, so a keyboard could resize one and never move it. The bar is now a stop ahead of the window's buttons, named from the new `moveWindow` key in all seven label packs or from `moveLabel`, with a ring while the keyboard holds it. Each arrow key moves the window 16px, and 64px with Shift, the way the arrow points in either writing direction, and a key never takes the bar off the screen. Every move goes through `offset`, so a window given `offset` and `onOffsetChange` reports where it should go, which is also how an app adds buttons that move it without a drag.
 
 - **`PlAccordion` takes `headingLevel`, so its headers sit at the level the page's outline needs.** Every header was an `<h3>`, so an FAQ straight under the page's title skipped a level. It takes `1` to `6` and defaults to `3`; only the element changes, never the type scale.

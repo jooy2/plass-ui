@@ -77,6 +77,15 @@ export interface PlTableProps<Row>
   /** Shown above the grid, and read out as the table's accessible name. */
   caption?: React.ReactNode;
   /**
+   * What the box the grid scrolls in is called when there is no `caption` —
+   * "Invoices", "Exchange rates".
+   *
+   * A grid wider than its sheet, or taller than `maxHeight`, is a tab stop
+   * while it scrolls, and a stop is announced by its name. A caption is that
+   * name when there is one, and this is not read then.
+   */
+  label?: string;
+  /**
    * What to show instead of rows when `rows` is empty.
    * @default 'No data'
    */
@@ -141,6 +150,7 @@ export function PlTable<Row>({
   rows,
   getRowKey,
   caption,
+  label,
   empty = 'No data',
   striped = false,
   hoverable = false,
@@ -255,9 +265,9 @@ export function PlTable<Row>({
       {/*
         The box the grid scrolls in is the one client module under this table:
         it measures whether there is anything to scroll, and while there is it
-        is a tab stop named by the caption, so a grid of plain values past the
-        edge of the sheet can be scrolled from the keyboard. Everything it
-        holds is rendered here and handed down.
+        is a tab stop named by the caption, or by `label` without one, so a grid
+        of plain values past the edge of the sheet can be scrolled from the
+        keyboard. Everything it holds is rendered here and handed down.
       */}
       <PlassTableScroll
         className={[
@@ -273,6 +283,7 @@ export function PlTable<Row>({
         tableClassName={`text-start ${controlTextLeadingClasses[size]} text-(--plass-fg)`}
         tableStyle={tableStyle}
         caption={caption}
+        label={label}
       >
         {/* Widths belong on a `<col>`, not on the first row's cells: a width set
             on a `<th>` is a width the browser is free to renegotiate against

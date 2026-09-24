@@ -298,6 +298,59 @@ describe('PlTable', () => {
       expect(scrollerOf().querySelector('table')).not.toHaveAttribute('aria-labelledby');
     });
 
+    it('is named by `label` when there is no caption', async () => {
+      await render(
+        <PlTable
+          className="table-under-test"
+          style={{ width: 200 }}
+          columns={wide}
+          rows={rows}
+          label="Invoices"
+        />
+      );
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+      expect(scrollerOf()).toHaveAttribute('role', 'group');
+      expect(scrollerOf()).toHaveAccessibleName('Invoices');
+      // The sheet is a `<div>`, which has no `label` attribute to be handed.
+      expect(document.querySelector('.table-under-test')).not.toHaveAttribute('label');
+    });
+
+    it('is named by the caption rather than by `label` when it has both', async () => {
+      await render(
+        <PlTable
+          className="table-under-test"
+          style={{ width: 200 }}
+          columns={wide}
+          rows={rows}
+          caption="Invoices"
+          label="Something else"
+        />
+      );
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+      expect(scrollerOf()).toHaveAccessibleName('Invoices');
+      expect(scrollerOf()).not.toHaveAttribute('aria-label');
+    });
+
+    it('is not named by `label` while everything fits', async () => {
+      await render(
+        <PlTable
+          className="table-under-test"
+          style={{ width: 1200 }}
+          columns={wide}
+          rows={rows}
+          label="Invoices"
+        />
+      );
+
+      // Nothing overflows, so there is no stop to wait for; the measurement
+      // runs in an effect, which has run once the render has resolved.
+      expect(scrollerOf()).not.toHaveAttribute('tabindex');
+      expect(scrollerOf()).not.toHaveAttribute('role');
+      expect(scrollerOf()).not.toHaveAttribute('aria-label');
+    });
+
     it('stops being one once everything fits', async () => {
       const table = (width: number) => (
         <PlTable

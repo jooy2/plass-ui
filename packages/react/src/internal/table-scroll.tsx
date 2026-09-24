@@ -10,9 +10,9 @@
  * without a pointer. So while the box scrolls it is a tab stop, which hands the
  * arrow keys to the browser's own scrolling of a focused scroll container, and
  * a group named by the table's caption, so the stop is announced as the table
- * it scrolls. A box that fits has nothing to scroll, and a stop on it would be
- * one more press on the way past. It is the arrangement `PlScrollZone` makes
- * for its strip.
+ * it scrolls. A table with no caption names it with `label` instead. A box that
+ * fits has nothing to scroll, and a stop on it would be one more press on the
+ * way past. It is the arrangement `PlScrollZone` makes for its strip.
  *
  * Whether the box scrolls is a measurement, and a measurement is a hook, which
  * is the one thing `PlTable` must not call: a server component renders it with
@@ -36,6 +36,8 @@ export interface PlassTableScrollProps {
   tableStyle: React.CSSProperties;
   /** The table's name, written into its `<caption>`. */
   caption?: React.ReactNode;
+  /** The stop's name when there is no caption to name it. */
+  label?: string;
   /** Everything in the `<table>` after the caption. */
   children: React.ReactNode;
 }
@@ -46,6 +48,7 @@ export function PlassTableScroll({
   tableClassName,
   tableStyle,
   caption,
+  label,
   children
 }: PlassTableScrollProps) {
   const boxRef = React.useRef<HTMLDivElement>(null);
@@ -84,7 +87,10 @@ export function PlassTableScroll({
     return () => observer.disconnect();
   }, []);
 
-  const named = scrolls && Boolean(caption);
+  // The caption first, because it is the table's own name and the stop is the
+  // table. `label` is for the table that has none.
+  const byCaption = scrolls && Boolean(caption);
+  const byLabel = scrolls && !caption && Boolean(label);
 
   return (
     <div
@@ -93,8 +99,9 @@ export function PlassTableScroll({
       className={cx(className, focusRingInsetClasses)}
       style={style}
       tabIndex={scrolls ? 0 : undefined}
-      role={named ? 'group' : undefined}
-      aria-labelledby={named ? captionId : undefined}
+      role={byCaption || byLabel ? 'group' : undefined}
+      aria-labelledby={byCaption ? captionId : undefined}
+      aria-label={byLabel ? label : undefined}
     >
       <table className={tableClassName} style={tableStyle}>
         {/* The accessible name, and nothing a sighted reader meets: the same
