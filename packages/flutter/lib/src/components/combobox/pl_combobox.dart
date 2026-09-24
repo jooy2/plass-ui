@@ -406,12 +406,19 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// Which row the keyboard is on. `-1` is none.
   int _highlighted = -1;
 
+  /// Whether the reader has changed the text since the list last opened.
+  ///
+  /// Until they do, the text of a single-value field is the chosen row's label,
+  /// which is not a query, and the list shows every row, as Base UI's does.
+  bool _queryEdited = false;
+
   /// The rows, and the query they were worked out for.
   ///
   /// Kept between the combobox's own rebuilds: every arrow key, every row the
   /// pointer lights and every step of finding the next row would otherwise
   /// filter the whole list again. A rebuild from the parent throws it away,
-  /// because that is where the options and the value can change.
+  /// because that is where the options and the value can change, and so does
+  /// the list opening, where text that was a query can stop being one.
   List<_Row<T>>? _rowsCache;
   String? _rowsQuery;
 
@@ -522,9 +529,16 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final query = _text.text.trim();
     final folded = query.toLowerCase();
 
+    // The chosen row's label, standing in the field as the list opens, filters
+    // nothing: the list is there to be looked through until the reader types.
+    final filter =
+        !widget.multiple && !_queryEdited && folded == _labelOfValue().trim().toLowerCase()
+        ? ''
+        : folded;
+
     final matched = <_Row<T>>[
       for (final option in widget.options)
-        if (folded.isEmpty || option.label.toLowerCase().contains(folded)) _Row<T>.option(option),
+        if (filter.isEmpty || option.label.toLowerCase().contains(filter)) _Row<T>.option(option),
     ];
 
     final capped = widget.limit != null && widget.limit! >= 0 && matched.length > widget.limit!
@@ -552,9 +566,29 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     _focusNode.requestFocus();
     setState(() {
       _open = true;
-      _highlighted = _next(-1, 1);
+      _queryEdited = false;
+      _rowsCache = null;
+      _highlighted = _start();
     });
     _reveal.reveal(_scroll, _highlighted, _rows.length);
+  }
+
+  /// Where the keyboard starts as the list opens: on the chosen row, as Base UI
+  /// starts, or on the first row that can be taken when none is chosen.
+  int _start() {
+    if (!widget.multiple && widget.value != null) {
+      final rows = _rows;
+
+      for (var index = 0; index < rows.length; index += 1) {
+        final option = rows[index].option;
+
+        if (option != null && !option.disabled && option.value == widget.value) {
+          return index;
+        }
+      }
+    }
+
+    return _next(-1, 1);
   }
 
   /// Focuses the field, and opens the list whenever it can be picked from.
@@ -634,6 +668,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     widget.onQueryChanged?.call(query);
 
     setState(() {
+      _queryEdited = true;
       _open = _usable;
       // The first match lights up as the query changes, so Enter commits without
       // an arrow key first — which is also what makes the create row reachable

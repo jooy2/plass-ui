@@ -72,6 +72,8 @@
 
 ### Fixed
 
+- **An open single-value `PlCombobox` lists every row, with the chosen one lit, until the text changes.** The list was filtered by the field's text, which is the chosen row's label, so a combobox holding a value opened on that row alone, and a `readOnly` one could not be looked through. It now lists every row until the reader types, as Base UI does in the React build, with the keyboard starting on the chosen row; once the text has changed it filters again, even back to the label.
+
 - **A `PlGallery` grid laid out narrower than its gaps no longer fails in a debug build.** Its columns came out less than zero wide, which a debug build stops on. They are now held at zero, as a masonry's lanes already were, and a quilt's are held the same way.
 
 - **The focus ring of a `PlScrollZone` strip is drawn in the zone's `color`, as its buttons are.** A strip the keyboard scrolls drew its ring in the theme's colour whatever `color` the zone was given, where the React strip's ring takes it.

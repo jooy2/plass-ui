@@ -37,6 +37,28 @@ List<String> _rows(WidgetTester tester) {
       .toList();
 }
 
+/// The rows the open list shows, by their text, in order.
+///
+/// Read from the list alone: the field's own text would be counted otherwise.
+List<String> _listed(WidgetTester tester) {
+  return tester
+      .widgetList<Text>(
+        find.descendant(of: find.byType(SingleChildScrollView), matching: find.byType(Text)),
+      )
+      .map((Text text) => text.data ?? '')
+      .toList();
+}
+
+/// The row the keyboard is on, by its text, or `null` for none.
+String? _lit(WidgetTester tester) {
+  final Finder lit = find.descendant(
+    of: find.byWidgetPredicate((Widget widget) => widget is PlassContentsGroup && widget.paints),
+    matching: find.byType(Text),
+  );
+
+  return lit.evaluate().isEmpty ? null : tester.widget<Text>(lit).data;
+}
+
 /// Puts a combobox on screen with an overlay for its list to go into.
 Widget _host(Widget child) => host(SizedBox(width: 320, child: child), overlay: true, width: 420);
 
@@ -352,6 +374,25 @@ void main() {
           expect(find.text('Lisbon'), findsOneWidget);
         });
 
+        testWidgets('lists every row with one of them chosen', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            _host(
+              PlCombobox<String>(
+                options: _cities,
+                value: 'seoul',
+                onChanged: (String? _) {},
+                readOnly: true,
+              ),
+            ),
+          );
+
+          await tester.tap(find.byType(EditableText));
+          await tester.pumpAndSettle();
+
+          expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito']);
+          expect(_lit(tester), 'Seoul');
+        });
+
         testWidgets('opens with the arrow keys and takes nothing on Enter', (
           WidgetTester tester,
         ) async {
@@ -516,6 +557,45 @@ void main() {
 
         expect(find.text('Lisbon'), findsOneWidget);
         expect(find.text('Seoul'), findsNothing);
+      });
+
+      testWidgets('lists every row as it opens on a chosen one, until the text changes', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: 'lisbon', onChanged: (String? _) {})),
+        );
+
+        // The chosen row's label is in the field, and it is not a query.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito']);
+        expect(_lit(tester), 'Lisbon');
+
+        // Down from the chosen row, past the one that cannot be taken.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(_lit(tester), 'Seoul');
+
+        // Typed, even back to the chosen label, the text filters.
+        tester.testTextInput.enterText('Lis');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Lisbon']);
+
+        tester.testTextInput.enterText('Lisbon');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Lisbon']);
+
+        // Until the list opens again on the label it holds.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        expect(_listed(tester), isEmpty);
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito']);
+        expect(_lit(tester), 'Lisbon');
       });
 
       testWidgets('reports what is typed as it changes', (WidgetTester tester) async {
