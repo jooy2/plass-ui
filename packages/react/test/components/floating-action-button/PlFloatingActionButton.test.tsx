@@ -145,6 +145,29 @@ describe('PlFloatingActionButton', () => {
   });
 
   describe('it is a button', () => {
+    it('says the word `loadingLabel` gives it while loading, in either form', async () => {
+      const screen = await render(
+        <>
+          <PlFloatingActionButton icon={<Plus />} label="Send" loading loadingLabel="Sending" />
+          <PlFloatingActionButton
+            extended
+            icon={<Plus />}
+            label="Send"
+            loading
+            loadingLabel="Sending"
+          />
+        </>
+      );
+
+      const buttons = screen.getByRole('button', { name: 'Send' }).all();
+
+      expect(buttons).toHaveLength(2);
+
+      for (const button of buttons) {
+        await expect.element(button).toHaveAccessibleDescription('Sending');
+      }
+    });
+
     it('does what it was given to do', async () => {
       const onClick = vi.fn();
 

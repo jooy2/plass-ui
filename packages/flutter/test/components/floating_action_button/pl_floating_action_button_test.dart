@@ -309,6 +309,40 @@ void main() {
         expect(pressed, 0);
       });
 
+      testWidgets('says the word loadingLabel gives it while loading, in both forms', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        for (final bool extended in <bool>[false, true]) {
+          // Pumped once rather than settled: a spinner turns for as long as the
+          // button is loading.
+          await tester.pumpWidget(
+            host(
+              Stack(
+                children: <Widget>[
+                  PlFloatingActionButton(
+                    extended: extended,
+                    loading: true,
+                    loadingLabel: 'Sending',
+                    icon: const _Glyph(),
+                    label: 'Send',
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          );
+
+          expect(
+            tester.getSemantics(find.byType(PlButton)),
+            isSemantics(label: 'Send', hint: 'Sending'),
+          );
+        }
+
+        handle.dispose();
+      });
+
       testWidgets('changes its padding with density once it is extended', (
         WidgetTester tester,
       ) async {

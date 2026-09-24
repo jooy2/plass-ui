@@ -58,6 +58,7 @@ class PlFloatingActionButton extends StatelessWidget {
     this.density,
     this.elevation = 3,
     this.loading = false,
+    this.loadingLabel,
     this.readOnly = false,
     this.disabled,
     this.focusNode,
@@ -127,6 +128,10 @@ class PlFloatingActionButton extends StatelessWidget {
   /// Swaps the glyph for a spinner and stops the press.
   final bool loading;
 
+  /// The word a screen reader hears after [label] while [loading], in place of
+  /// the label set's `loading`. See [PlButton.loadingLabel].
+  final String? loadingLabel;
+
   /// Inert but not dimmed — the action exists, it just is not available here.
   /// Unlike [disabled] it stays in the focus order.
   final bool readOnly;
@@ -154,6 +159,7 @@ class PlFloatingActionButton extends StatelessWidget {
             density: density,
             elevation: elevation,
             loading: loading,
+            loadingLabel: loadingLabel,
             readOnly: readOnly,
             disabled: disabled,
             focusNode: focusNode,
@@ -173,6 +179,7 @@ class PlFloatingActionButton extends StatelessWidget {
             color: color,
             elevation: elevation,
             loading: loading,
+            loadingLabel: loadingLabel,
             readOnly: readOnly,
             disabled: disabled,
             focusNode: focusNode,

@@ -385,6 +385,29 @@ describe('PlButton', () => {
       await expect.element(screen.getByRole('button')).toHaveAccessibleDescription('로딩 중');
     });
 
+    it('says a word of its own over the label set with `loadingLabel`', async () => {
+      const screen = await render(
+        <PlassProvider labels={ko}>
+          <PlButton loading loadingLabel="저장 중">
+            저장
+          </PlButton>
+        </PlassProvider>
+      );
+      const button = screen.getByRole('button');
+
+      await expect.element(button).toHaveAccessibleDescription('저장 중');
+      await expect.element(button).toHaveAccessibleName('저장');
+    });
+
+    it('says nothing of `loadingLabel` while it is not loading', async () => {
+      const screen = await render(<PlButton loadingLabel="Saving">Save</PlButton>);
+      const button = screen.getByRole('button');
+
+      await expect.element(button).not.toHaveAttribute('aria-describedby');
+      // A prop of the button's own, and not an attribute handed to the element.
+      await expect.element(button).not.toHaveAttribute('loadinglabel');
+    });
+
     it('stays focusable but does not fire onClick while loading', async () => {
       const onClick = vi.fn();
       const screen = await render(

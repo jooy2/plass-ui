@@ -89,6 +89,16 @@ describe('PlIconButton', () => {
       await expect.element(button).toHaveAccessibleDescription('Loading');
     });
 
+    it('says the word `loadingLabel` gives it', async () => {
+      const screen = await render(
+        <PlIconButton icon={glyph} label="Add" loading loadingLabel="Adding" />
+      );
+      const button = screen.getByRole('button');
+
+      await expect.element(button).toHaveAccessibleName('Add');
+      await expect.element(button).toHaveAccessibleDescription('Adding');
+    });
+
     it('is unavailable when it is disabled', async () => {
       const screen = await render(<PlIconButton icon={glyph} label="Add" disabled />);
 

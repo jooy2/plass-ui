@@ -276,7 +276,7 @@ PlButton(onPressed: save, child: const Text('Save'));
 - 아이콘만 있는 버튼에는 `aria-label`을 주세요.
 - focus ring은 `:focus-visible`에서만 나타나므로 마우스 클릭으로는 그려지지 않습니다.
 - `loading`과 `readOnly`는 focus를 유지합니다. tab 순서에서 빠지면 키보드 사용자는 페이지에서 자기 위치를 잃습니다.
-- `loading`인 동안 버튼은 `aria-busy`이고, [어휘 묶음](../../guide/locales)의 `loading`(영어로는 "Loading")이 설명으로 붙습니다. 이름이 아니라 설명이므로 `aria-label`을 포함한 이름은 그대로이고, 직접 준 `aria-describedby`가 먼저 읽힙니다.
+- `loading`인 동안 버튼은 `aria-busy`이고, [어휘 묶음](../../guide/locales)의 `loading`(영어로는 "Loading")이 설명으로 붙습니다. 이름이 아니라 설명이므로 `aria-label`을 포함한 이름은 그대로이고, 직접 준 `aria-describedby`가 먼저 읽힙니다. `loadingLabel`을 주면 그 자리에 "Saving" 같은 버튼만의 말이 들어갑니다.
 - 그러데이션의 두 끝이 모두 그 위의 라벨에 대해 4.5:1을 만족합니다.
 - interaction light는 장식입니다. 어떤 상태도 담지 않으며, 무엇에 대해서도 유일한 신호가 아닙니다. `prefers-reduced-motion`에서는 easing이 멈춥니다.
 
@@ -289,7 +289,7 @@ PlButton(onPressed: save, child: const Text('Save'));
 - focus ring은 CSS가 `:focus-visible`이라 부르는 경우에만 나타납니다. 키보드로 도달했을 때만이고, 포인터로 클릭했을 때는 그려지지 않습니다. Flutter에서 같은 구분을 하는 것이 `FocusableActionDetector`의 focus highlight입니다.
 - <kbd>Enter</kbd>, <kbd>Space</kbd>, 그리고 숫자패드 <kbd>Enter</kbd>로 활성화됩니다. 버튼 자신에 바인딩되어 있어서 위에 앱 위젯이 있든 없든 동작이 같습니다.
 - `loading`과 `readOnly`는 focus를 유지합니다. 포커스 순서에서 빠지면 키보드 사용자는 페이지에서 자기 위치를 잃습니다.
-- `loading`인 동안 [어휘 묶음](../../guide/locales)의 `loading`(영어로는 "Loading")이 버튼의 semantics hint가 됩니다. 스크린 리더는 이름 뒤에 이것을 읽고, 이름은 바뀌지 않습니다.
+- `loading`인 동안 [어휘 묶음](../../guide/locales)의 `loading`(영어로는 "Loading")이 버튼의 semantics hint가 됩니다. 스크린 리더는 이름 뒤에 이것을 읽고, 이름은 바뀌지 않습니다. `loadingLabel`을 주면 그 자리에 "Saving" 같은 버튼만의 말이 들어갑니다.
 - 그러데이션의 두 끝이 모두 그 위의 라벨에 대해 4.5:1을 만족합니다.
 - interaction light는 장식입니다. 어떤 상태도 담지 않으며, 무엇에 대해서도 유일한 신호가 아닙니다. 애니메이션을 끈 플랫폼(`MediaQuery.disableAnimations`)에서는 easing이 멈춥니다.
 

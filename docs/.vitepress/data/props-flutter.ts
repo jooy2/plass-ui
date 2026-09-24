@@ -3385,6 +3385,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlFloatingActionButton', 'elevation', { type: 'int', default: '3' }),
     from('PlFloatingActionButton', 'loading', { type: 'bool', default: 'false' }),
+    from('PlFloatingActionButton', 'loadingLabel', { type: 'String?', default: 'labels.loading' }),
     from('PlButton', 'readOnly', { type: 'bool', default: 'false' }),
     from('PlFloatingActionButton', 'disabled', { type: 'bool?', default: 'false' }),
     {
@@ -3600,6 +3601,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlIconButton', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
     from('PlIconButton', 'elevation', { type: 'int?', default: '1' }),
     from('PlIconButton', 'loading', { type: 'bool', default: 'false' }),
+    from('PlIconButton', 'loadingLabel', { type: 'String?', default: 'labels.loading' }),
     from('PlIconButton', 'readOnly', { type: 'bool', default: 'false' }),
     from('PlIconButton', 'disabled', { type: 'bool?', default: 'false' }),
     {
@@ -6264,6 +6266,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlButton', 'startIcon', { type: 'Widget?' }),
     from('PlButton', 'endIcon', { type: 'Widget?' }),
     from('PlButton', 'loading', { type: 'bool', default: 'false' }),
+    from('PlButton', 'loadingLabel', { type: 'String?', default: 'labels.loading' }),
     from('PlButton', 'readOnly', { type: 'bool', default: 'false' }),
     from('PlButton', 'disabled', { type: 'bool?', default: 'false' }),
     from('PlButton', 'fullWidth', { type: 'bool', default: 'false' }),

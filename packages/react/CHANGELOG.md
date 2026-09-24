@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlButton`, `PlIconButton` and `PlFloatingActionButton` take `loadingLabel`, the word a screen reader hears while `loading`.** A loading button was always described by the label set's `loading`, "Loading" in English, which does not say what is being waited for. `loadingLabel` puts the button's own word in its place, such as "Saving", and the name stays what it was.
+
 - **`PlTable` takes `label`, which names the box its grid scrolls in when there is no `caption`.** A table wider than its sheet, or taller than its `maxHeight`, is a tab stop while it scrolls, and without a caption that stop had no name. `label` makes it a group with that name, the way `PlScrollZone`'s `label` names its strip; a `caption` still names it when there is one.
 
 - **The title bar of a `draggable` `PlWindowPane` is a tab stop, and the arrow keys move the window.** A window moved only by dragging, so a keyboard could resize one and never move it. The bar is now a stop ahead of the window's buttons, named from the new `moveWindow` key in all seven label packs or from `moveLabel`, with a ring while the keyboard holds it. Each arrow key moves the window 16px, and 64px with Shift, the way the arrow points in either writing direction, and a key never takes the bar off the screen. Every move goes through `offset`, so a window given `offset` and `onOffsetChange` reports where it should go, which is also how an app adds buttons that move it without a drag.

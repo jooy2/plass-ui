@@ -276,7 +276,7 @@ The surface, the sizes and the press signature are unchanged. An `<a>` has no `d
 - Give icon-only buttons an `aria-label`.
 - The focus ring only appears on `:focus-visible`, so a mouse click never draws one.
 - `loading` and `readOnly` keep focus: dropping out of the tab order costs keyboard users their sense of the page.
-- While `loading`, the button is `aria-busy` and is described by the `loading` word from [the label set](../../guide/locales), "Loading" in English. It is a description, so the name, including an `aria-label`, stays as it is, and an `aria-describedby` of your own is read first.
+- While `loading`, the button is `aria-busy` and is described by the `loading` word from [the label set](../../guide/locales), "Loading" in English. It is a description, so the name, including an `aria-label`, stays as it is, and an `aria-describedby` of your own is read first. `loadingLabel` puts a word of the button's own in its place, such as "Saving".
 - Both ends of every gradient meet 4.5:1 against the label on them.
 - The interaction light is decorative: it carries no state, and it is not the only signal for anything. `prefers-reduced-motion` stops it easing.
 
@@ -289,7 +289,7 @@ The surface, the sizes and the press signature are unchanged. An `<a>` has no `d
 - The focus ring only appears on what CSS calls `:focus-visible`, a keyboard reaching the control, never a pointer clicking it. Flutter's name for the same distinction is `FocusableActionDetector`'s focus highlight.
 - <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> activate the button. They are bound on the button itself, so it behaves the same with or without an app widget above it.
 - `loading` and `readOnly` keep focus: dropping out of the focus order costs keyboard users their sense of the page.
-- While `loading`, the `loading` word from [the label set](../../guide/locales), "Loading" in English, is the button's semantic hint. A screen reader says it after the name, which stays as it is.
+- While `loading`, the `loading` word from [the label set](../../guide/locales), "Loading" in English, is the button's semantic hint. A screen reader says it after the name, which stays as it is. `loadingLabel` puts a word of the button's own in its place, such as "Saving".
 - Both ends of every gradient meet 4.5:1 against the label on them.
 - The interaction light is decorative: it carries no state, and it is not the only signal for anything. A platform with animations turned off (`MediaQuery.disableAnimations`) stops it easing.
 

@@ -48,6 +48,12 @@ export interface PlButtonProps
    * A screen reader hears the label set's `loading` word after its name.
    */
   loading?: boolean;
+  /**
+   * The word a screen reader hears after the name while `loading` — "Saving",
+   * "Sending". It takes the place of the label set's `loading` for this button.
+   * @default 'Loading'
+   */
+  loadingLabel?: string;
   /** Inert but not dimmed — the action exists, it just is not available here. */
   readOnly?: boolean;
   /**
@@ -192,6 +198,7 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
       startIcon,
       endIcon,
       loading = false,
+      loadingLabel: loadingLabelProp,
       readOnly = false,
       fullWidth = false,
       disabled: disabledProp,
@@ -310,7 +317,7 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
                 as a second half of the name. */}
             {loading ? (
               <span id={loadingId} hidden>
-                {defaults.labels?.loading ?? loadingLabel}
+                {loadingLabelProp ?? defaults.labels?.loading ?? loadingLabel}
               </span>
             ) : null}
           </>

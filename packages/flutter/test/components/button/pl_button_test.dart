@@ -546,6 +546,37 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says a word of its own over the label set with loadingLabel', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        Widget button({required bool loading}) {
+          return host(
+            PlassTheme.merge(
+              defaults: const PlassDefaults(labels: ko),
+              child: PlButton(
+                loading: loading,
+                loadingLabel: '저장 중',
+                onPressed: () {},
+                child: const Text('저장'),
+              ),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(button(loading: true));
+
+        expect(tester.getSemantics(find.byType(PlButton)), isSemantics(label: '저장', hint: '저장 중'));
+
+        // Only while the work is going on.
+        await tester.pumpWidget(button(loading: false));
+
+        expect(tester.getSemantics(find.byType(PlButton)), isSemantics(label: '저장', hint: ''));
+
+        handle.dispose();
+      });
+
       testWidgets('does not fire onPressed when read-only', (WidgetTester tester) async {
         var taps = 0;
         await tester.pumpWidget(

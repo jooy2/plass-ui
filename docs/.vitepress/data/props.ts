@@ -2699,6 +2699,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'loadingLabel',
+      type: 'string',
+      default: "'Loading'",
+      description: {
+        ko: 'loading 동안 스크린 리더가 이름 뒤에 듣는 말 — "Saving", "Sending". 이 버튼에서는 어휘 묶음의 loading 대신 쓰입니다',
+        en: 'The word a screen reader hears after the name while loading — "Saving", "Sending". It takes the place of the label set\'s loading for this button'
+      }
+    },
+    {
       name: 'readOnly',
       type: 'boolean',
       default: 'false',
@@ -5736,6 +5745,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'loadingLabel',
+      type: 'string',
+      default: "'Loading'",
+      description: {
+        ko: 'loading 동안 스크린 리더가 이름 뒤에 듣는 말 — "Saving", "Sending". 이 버튼에서는 어휘 묶음의 loading 대신 쓰입니다',
+        en: 'The word a screen reader hears after the name while loading — "Saving", "Sending". It takes the place of the label set\'s loading for this button'
+      }
+    },
+    {
       name: 'disabled',
       type: 'boolean',
       default: 'false',
@@ -6507,6 +6525,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '글리프 자리에 스피너를 놓고 실행을 막습니다. 포커스는 유지합니다',
         en: 'Shows a spinner in place of the glyph and stops the button activating, while keeping it focusable'
+      }
+    },
+    {
+      name: 'loadingLabel',
+      type: 'string',
+      default: "'Loading'",
+      description: {
+        ko: 'loading 동안 스크린 리더가 이름 뒤에 듣는 말 — "Saving", "Sending". 이 버튼에서는 어휘 묶음의 loading 대신 쓰입니다',
+        en: 'The word a screen reader hears after the name while loading — "Saving", "Sending". It takes the place of the label set\'s loading for this button'
       }
     },
     {

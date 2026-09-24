@@ -49,6 +49,7 @@ class PlIconButton extends StatelessWidget {
     this.color,
     this.elevation,
     this.loading = false,
+    this.loadingLabel,
     this.readOnly = false,
     this.disabled,
     this.focusNode,
@@ -103,6 +104,10 @@ class PlIconButton extends StatelessWidget {
   /// while keeping it focusable.
   final bool loading;
 
+  /// The word a screen reader hears after [label] while [loading], in place of
+  /// the label set's `loading`. See [PlButton.loadingLabel].
+  final String? loadingLabel;
+
   /// Inert but not dimmed. Keeps its colour, goes flat, drains most of its
   /// saturation, and stays in the focus order.
   final bool readOnly;
@@ -144,6 +149,7 @@ class PlIconButton extends StatelessWidget {
       color: color,
       elevation: elevation,
       loading: loading,
+      loadingLabel: loadingLabel,
       readOnly: readOnly,
       disabled: disabled,
       focusNode: focusNode,

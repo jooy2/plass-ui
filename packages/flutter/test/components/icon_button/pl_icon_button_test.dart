@@ -107,6 +107,29 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says the word loadingLabel gives it', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlIconButton(
+              icon: _glyph,
+              label: 'Add',
+              loading: true,
+              loadingLabel: 'Adding',
+              onPressed: () {},
+            ),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.byType(PlIconButton)),
+          isSemantics(label: 'Add', hint: 'Adding', isButton: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is unavailable with no callback at all', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlIconButton(icon: _glyph, label: 'Add')));
 
