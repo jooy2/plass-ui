@@ -491,7 +491,9 @@ class _PlCarouselState extends State<PlCarousel> {
                       accent: family.accent,
                       quiet: tokens.border,
                       ring: family.ring,
-                      duration: _travel,
+                      // A control's duration rather than the strip's, as the
+                      // React dot's width and colour run on `--plass-duration`.
+                      duration: _reduceMotion ? Duration.zero : tokens.motionDuration,
                       onPressed: widget.onChanged == null ? null : () => _steer(index),
                     ),
                 ],
@@ -616,7 +618,10 @@ class _Dot extends StatelessWidget {
                     width: current ? grown : rest,
                     height: height,
                     decoration: BoxDecoration(
-                      color: current ? accent : quiet,
+                      // A resting dot takes the accent under the pointer, the
+                      // colour of the dot it would become. Not while frozen:
+                      // the state reports no hover on a dot nothing answers.
+                      color: current || state.hovered ? accent : quiet,
                       borderRadius: BorderRadius.circular(height / 2),
                     ),
                   ),

@@ -680,6 +680,48 @@ void main() {
         expect(_rings(tester), 1);
       });
 
+      testWidgets('turns a resting dot the accent colour under the pointer', (
+        WidgetTester tester,
+      ) async {
+        final PlassTokens tokens = PlassTokens.light();
+        final Color accent = tokens.family(PlassColor.primary).accent;
+
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        final Finder third = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is Semantics &&
+              widget.properties.button == true &&
+              widget.properties.label == 'Slide 3 of 3',
+        );
+        // The box the dot is painted with, which is where its colour has got
+        // to rather than where it is going.
+        Color? painted() {
+          final DecoratedBox box = tester.widget<DecoratedBox>(
+            find.descendant(of: third, matching: find.byType(DecoratedBox)),
+          );
+
+          return (box.decoration as BoxDecoration).color;
+        }
+
+        expect(painted(), tokens.border);
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(third));
+        await tester.pumpAndSettle();
+
+        expect(painted(), accent);
+
+        await mouse.moveTo(Offset.zero);
+        await tester.pumpAndSettle();
+
+        expect(painted(), tokens.border);
+
+        await mouse.removePointer();
+      });
+
       testWidgets('leaves the tab order while the carousel is frozen', (WidgetTester tester) async {
         final FocusNode before = FocusNode(debugLabel: 'before');
         addTearDown(before.dispose);
