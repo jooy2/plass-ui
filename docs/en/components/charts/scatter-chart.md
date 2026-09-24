@@ -97,7 +97,18 @@ A series that carries a `color` of its own does not count against that ceiling. 
 
 ## Accessibility
 
+::: fw react
+
+- The picture is a `role="img"`. Focusing it reads its name and then a one-line summary: each visible series and the `y` of its last point, or that point's `label`, such as "Web 40, App 8". Every point is in a table under the chart, clipped from view but never hidden from the accessibility tree.
+
+:::
+
+::: fw flutter
+
 - The drawing carries the chart's name, and every point is handed over as text: each series, then its points as `x, y` pairs with the `z` in brackets where there is one.
+
+:::
+
 - The picture is a tab stop, and the arrow keys walk the marks **in the order the data was given**, not the order they are painted in, which is largest-first and would be an order the reader cannot anticipate. Each mark is announced in a live region as it is reached, as its card writes it: its `x`, then its series and its `y`, with a bubble's `z` after the `y` in brackets.
-- On React the same numbers are written into a table under the chart: a row per point rather than the grid every other chart uses, because two points that are both the fifth of their series have nothing to do with each other and a shared row would invent a relationship. Its columns are named from the axis labels, falling back to `x`, `y` and `z`.
+- On React the table under the chart has a row per point rather than the grid every other chart uses, because two points that are both the fifth of their series have nothing to do with each other and a shared row would invent a relationship. Its columns are named from the axis labels, falling back to `x`, `y` and `z`.
 - Past three series the marks differ in **shape** as well as in hue, and the legend's swatches show the shapes.
