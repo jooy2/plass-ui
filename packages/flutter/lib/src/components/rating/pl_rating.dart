@@ -8,6 +8,7 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -263,67 +264,86 @@ class _PlRatingState extends State<PlRating> {
       child: row,
     );
 
-    if (widget.disabled) {
-      // The house treatment, not a grey token: the light goes out of the row
-      // and the screen shows through it.
-      row = Opacity(opacity: disabledOpacity, child: row);
-    }
+    // The house treatment, not a grey token: the light goes out of the row and
+    // the screen shows through it. In the tree whether the row is disabled or
+    // not, for the reason given below, and painted straight onto the canvas
+    // while it is available, rather than through an `Opacity` at 1, which is a
+    // layer all the same.
+    row = PlassFiltered(
+      colorFilter: null,
+      opacity: widget.disabled ? disabledOpacity : 1,
+      child: row,
+    );
 
-    if (widget.readOnly) {
-      return Semantics(
-        image: true,
-        label: _valueName(widget.value.clamp(0, _stars.toDouble())),
-        child: ExcludeSemantics(child: row),
-      );
-    }
+    // Everything from here out is in the tree whether the row can be used or
+    // only read, with only its settings switching, for the reason
+    // `plassStateFilter` gives: swapped for other wrappers as `readOnly`
+    // changed, it would build every star again from scratch, and whatever the
+    // caller drew them with.
+    //
+    // Read only, the row is one image carrying the score as a sentence, with
+    // nothing under it to reach and nothing more to read out.
+    final bool readOnly = widget.readOnly;
+
+    row = FocusableActionDetector(
+      enabled: _interactive,
+      focusNode: widget.focusNode,
+      autofocus: widget.autofocus,
+      includeFocusSemantics: false,
+      mouseCursor: readOnly
+          ? MouseCursor.defer
+          : widget.disabled
+          ? SystemMouseCursors.forbidden
+          : SystemMouseCursors.click,
+      onShowFocusHighlight: (bool value) {
+        if (_focusVisible != value) {
+          setState(() => _focusVisible = value);
+        }
+      },
+      // Declared rather than inherited, so the row works the same in a bare
+      // `WidgetsApp` or with no app widget above it at all. The arrows are
+      // what a radio group gives the React build for free.
+      shortcuts: const <ShortcutActivator, Intent>{
+        SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1, across: true),
+        SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(1),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1, across: true),
+        SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(-1),
+        SingleActivator(LogicalKeyboardKey.home): _SetIntent(0),
+        SingleActivator(LogicalKeyboardKey.end): _SetIntent(double.infinity),
+      },
+      actions: <Type, Action<Intent>>{
+        _NudgeIntent: CallbackAction<_NudgeIntent>(
+          onInvoke: (_NudgeIntent intent) {
+            // The left and right arrows follow the writing direction, because
+            // the row does. Up is more and down is less in every direction.
+            final bool rtl = Directionality.of(context) == TextDirection.rtl;
+            _nudge(rtl && intent.across ? -intent.steps : intent.steps);
+            return null;
+          },
+        ),
+        _SetIntent: CallbackAction<_SetIntent>(
+          onInvoke: (_SetIntent intent) {
+            _jump(intent.score);
+            return null;
+          },
+        ),
+      },
+      child: MouseRegion(
+        onExit: (PointerExitEvent event) => setState(() => _hovered = null),
+        child: row,
+      ),
+    );
 
     return Semantics(
-      container: true,
-      label: widget.label ?? PlassTheme.labelsOf(context).rating,
-      enabled: _interactive,
-      child: FocusableActionDetector(
-        enabled: _interactive,
-        focusNode: widget.focusNode,
-        autofocus: widget.autofocus,
-        includeFocusSemantics: false,
-        mouseCursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
-        onShowFocusHighlight: (bool value) {
-          if (_focusVisible != value) {
-            setState(() => _focusVisible = value);
-          }
-        },
-        // Declared rather than inherited, so the row works the same in a bare
-        // `WidgetsApp` or with no app widget above it at all. The arrows are
-        // what a radio group gives the React build for free.
-        shortcuts: const <ShortcutActivator, Intent>{
-          SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1, across: true),
-          SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1, across: true),
-          SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(-1),
-          SingleActivator(LogicalKeyboardKey.home): _SetIntent(0),
-          SingleActivator(LogicalKeyboardKey.end): _SetIntent(double.infinity),
-        },
-        actions: <Type, Action<Intent>>{
-          _NudgeIntent: CallbackAction<_NudgeIntent>(
-            onInvoke: (_NudgeIntent intent) {
-              // The left and right arrows follow the writing direction, because
-              // the row does. Up is more and down is less in every direction.
-              final bool rtl = Directionality.of(context) == TextDirection.rtl;
-              _nudge(rtl && intent.across ? -intent.steps : intent.steps);
-              return null;
-            },
-          ),
-          _SetIntent: CallbackAction<_SetIntent>(
-            onInvoke: (_SetIntent intent) {
-              _jump(intent.score);
-              return null;
-            },
-          ),
-        },
-        child: MouseRegion(
-          onExit: (PointerExitEvent event) => setState(() => _hovered = null),
-          child: row,
-        ),
+      container: !readOnly,
+      image: readOnly ? true : null,
+      label: readOnly
+          ? _valueName(widget.value.clamp(0, _stars.toDouble()))
+          : widget.label ?? PlassTheme.labelsOf(context).rating,
+      enabled: readOnly ? null : _interactive,
+      child: ExcludeSemantics(
+        excluding: readOnly,
+        child: ExcludeFocus(excluding: readOnly, child: row),
       ),
     );
   }

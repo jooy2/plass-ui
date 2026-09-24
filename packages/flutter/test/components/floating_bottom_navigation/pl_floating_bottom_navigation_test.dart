@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -264,8 +265,52 @@ void main() {
         await tester.pump();
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 'home');
-        expect(tester.widget<Opacity>(find.byType(Opacity).first).opacity, 0.5);
+        // The bar is dimmed as one, outside everything in it.
+        expect(tester.widget<PlassFiltered>(find.byType(PlassFiltered).first).opacity, 0.5);
       });
+
+      testWidgets('adds no layer to an available bar for its opacity', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+      });
+
+      for (final PlassVariant variant in PlassVariant.values) {
+        testWidgets('keeps the key of a ${variant.name} bar as the whole bar is disabled', (
+          WidgetTester tester,
+        ) async {
+          Widget bar({bool disabled = false}) {
+            return host(
+              PlFloatingBottomNavigation<String>(
+                items: _items,
+                value: 'home',
+                variant: variant,
+                disabled: disabled,
+                onChanged: (String next) {},
+              ),
+              width: 360,
+            );
+          }
+
+          await tester.pumpWidget(bar());
+          await tester.pumpAndSettle();
+
+          // What the key slides with. Built again from scratch, a key on its
+          // way to a destination would jump there.
+          final State held = tester.state(find.byType(AnimatedPositioned));
+
+          for (final (String reason, Widget next) in <(String, Widget)>[
+            ('disabled', bar(disabled: true)),
+            ('enabled again', bar()),
+          ]) {
+            await tester.pumpWidget(next);
+            await tester.pumpAndSettle();
+
+            expect(tester.state(find.byType(AnimatedPositioned)), same(held), reason: reason);
+          }
+        });
+      }
     });
 
     group('the capsule', () {

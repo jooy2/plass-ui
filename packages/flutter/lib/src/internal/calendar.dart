@@ -25,6 +25,7 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -273,14 +274,21 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
       ),
     );
 
-    if (widget.current) {
-      // Today's mark. A dot rather than a ring, because the ring belongs to the
-      // focus indicator and two rings in one cell is a cell saying nothing. It
-      // takes the cell's own ink, so it turns white the moment the cell fills.
-      cell = Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          cell,
+    // Today's mark. A dot rather than a ring, because the ring belongs to the
+    // focus indicator and two rings in one cell is a cell saying nothing. It
+    // takes the cell's own ink, so it turns white the moment the cell fills.
+    //
+    // The stack and the opacity below are in the tree whatever the cell is,
+    // with only the dot and the opacity's value changing. Wrapped round the
+    // cell only while it is current or blocked, they would move it to a new
+    // parent each time that changed, and it would be built again from scratch,
+    // with what it holds and the fill it was easing towards. Choosing today is
+    // one of those changes, because a chosen day is not marked as today.
+    cell = Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        cell,
+        if (widget.current)
           PositionedDirectional(
             bottom: side * 0.14,
             child: SizedBox.square(
@@ -290,13 +298,16 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
               ),
             ),
           ),
-        ],
-      );
-    }
+      ],
+    );
 
-    if (widget.disabled) {
-      cell = Opacity(opacity: disabledOpacity, child: cell);
-    }
+    // Painted straight onto the canvas while the cell can be taken, rather
+    // than through an `Opacity` at 1, which is a layer all the same.
+    cell = PlassFiltered(
+      colorFilter: null,
+      opacity: widget.disabled ? disabledOpacity : 1,
+      child: cell,
+    );
 
     cell = CustomPaint(
       // Turned inward: a ring drawn outside a cell in a gapless grid is a ring

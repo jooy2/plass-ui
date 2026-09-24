@@ -336,9 +336,17 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
             child: row,
           );
 
-    if (widget.disabled) {
-      bar = Opacity(opacity: disabledOpacity, child: bar);
-    }
+    // In the tree whether the bar is disabled or not, with only its opacity
+    // changing, for the reason `plassStateFilter` gives: wrapped round the bar
+    // only while it is disabled, it would build the capsule and the key again
+    // from scratch, and a key on its way to a destination would jump there.
+    // Painted straight onto the canvas while the bar is available, rather than
+    // through an `Opacity` at 1, which is a layer all the same.
+    bar = PlassFiltered(
+      colorFilter: null,
+      opacity: widget.disabled ? disabledOpacity : 1,
+      child: bar,
+    );
 
     bar = Semantics(container: true, explicitChildNodes: true, label: widget.label, child: bar);
 

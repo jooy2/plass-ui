@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,6 +53,20 @@ class _HarnessState extends State<_Harness> {
             }),
     );
   }
+}
+
+/// A glyph with a `State` of its own: built again from scratch, it is a
+/// different object.
+class _Probe extends StatefulWidget {
+  const _Probe();
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => const SizedBox.expand();
 }
 
 /// How much of each star is filled, star by star.
@@ -270,7 +285,36 @@ void main() {
       testWidgets('has no choices at all', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlRating(value: 4, readOnly: true)));
 
-        expect(find.byType(MouseRegion), findsNothing);
+        expect(find.byType(GestureDetector), findsNothing);
+      });
+
+      testWidgets('is passed by Tab, even where every control can be reached', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        final FocusNode rating = FocusNode();
+        addTearDown(before.dispose);
+        addTearDown(rating.dispose);
+
+        // Directional navigation is where a disabled control is still a stop,
+        // so a reader can find it. A read-only row has nothing to find.
+        await tester.pumpWidget(
+          host(
+            MediaQuery(
+              data: const MediaQueryData(navigationMode: NavigationMode.directional),
+              child: afterFocusStop(
+                before,
+                PlRating(value: 4, readOnly: true, focusNode: rating, onChanged: (double _) {}),
+              ),
+            ),
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(rating.hasFocus, isFalse);
       });
 
       testWidgets('is one image carrying the score as a sentence', (WidgetTester tester) async {
@@ -305,9 +349,19 @@ void main() {
 
     group('disabled', () {
       testWidgets('takes the light out of the row', (WidgetTester tester) async {
+        Iterable<int> alphas() {
+          return tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha!);
+        }
+
         await tester.pumpWidget(host(const PlRating(value: 3, disabled: true)));
 
-        expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.5);
+        expect(alphas(), <int>[Color.getAlphaFromOpacity(0.5)]);
+
+        await tester.pumpWidget(host(const PlRating(value: 3)));
+
+        // And an available row is not painted through an opacity of 1, which
+        // would be one more layer for nothing.
+        expect(alphas(), isEmpty);
       });
 
       testWidgets('does not answer a tap', (WidgetTester tester) async {
@@ -317,6 +371,37 @@ void main() {
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 1);
       });
+    });
+
+    testWidgets('keeps what its stars are drawn with as it is made read-only and disabled', (
+      WidgetTester tester,
+    ) async {
+      Widget rating({bool readOnly = false, bool disabled = false}) {
+        return host(
+          PlRating(
+            value: 3,
+            emptyIcon: const _Probe(),
+            readOnly: readOnly,
+            disabled: disabled,
+            onChanged: (double next) {},
+          ),
+        );
+      }
+
+      await tester.pumpWidget(rating());
+      final State<_Probe> held = tester.state(find.byType(_Probe).first);
+
+      for (final (String reason, Widget next) in <(String, Widget)>[
+        ('read-only', rating(readOnly: true)),
+        ('writable again', rating()),
+        ('disabled', rating(disabled: true)),
+        ('enabled again', rating()),
+      ]) {
+        await tester.pumpWidget(next);
+        await tester.pumpAndSettle();
+
+        expect(tester.state(find.byType(_Probe).first), same(held), reason: reason);
+      }
     });
 
     group('the label', () {
