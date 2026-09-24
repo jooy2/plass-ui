@@ -221,6 +221,13 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     // the scroll events thrown on the way from slide 0 to slide 2 would each be
     // read as the reader landing on slide 1.
     const settling = React.useRef(false);
+    // Raised while the track has no width, inside a hidden tab or a closed
+    // disclosure, until the placement below has put the strip on the current
+    // slide. A browser showing the track again puts back the offset it had when
+    // it was hidden, and a scroll event that arrives before the placement,
+    // which Firefox throws for that, reads the old slide rather than the reader
+    // landing on one.
+    const hidden = React.useRef(false);
 
     // Two different things hold the strip still, and they are kept apart on
     // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
@@ -280,7 +287,8 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     // carousel handed slide 3 marks its third dot over the first picture. Done
     // before the first paint, so the first picture is never seen, and
     // `instant`, so the strip does not travel to where it was always meant to
-    // be. Slide 0 is where the browser already has it.
+    // be. Slide 0 is where the browser already has a strip it has only just
+    // laid out.
     React.useLayoutEffect(() => {
       const track = trackRef.current;
 
@@ -291,24 +299,35 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       const place = () => {
         const slide = slideRefs.current[indexRef.current];
 
-        if (indexRef.current > 0 && slide) {
+        if (slide) {
           scrollTrackTo(track, slide, 'instant');
         }
       };
 
-      if (track.clientWidth > 0 || typeof ResizeObserver === 'undefined') {
-        place();
+      if (typeof ResizeObserver === 'undefined') {
+        if (indexRef.current > 0) {
+          place();
+        }
 
         return;
       }
 
-      // Mounted with no width, inside a hidden tab or a closed disclosure,
-      // there is nothing to scroll yet, and the strip would show the first
-      // slide when it appears. It is placed the first time it has a width,
-      // before that frame is painted.
-      const observer = new ResizeObserver(() => {
-        if (track.clientWidth > 0) {
-          observer.disconnect();
+      hidden.current = track.clientWidth === 0;
+
+      if (!hidden.current && indexRef.current > 0) {
+        place();
+      }
+
+      // With no width, inside a hidden tab or a closed disclosure, there is
+      // nothing to scroll, and a slide change in the meantime moves nothing:
+      // the strip would appear on the first slide, or on the one it was hidden
+      // on, under the current slide's dot. It is placed on the current slide
+      // every time the width comes back, before that frame is painted.
+      const observer = new ResizeObserver((entries) => {
+        if (entries[entries.length - 1].contentRect.width === 0) {
+          hidden.current = true;
+        } else if (hidden.current) {
+          hidden.current = false;
           place();
         }
       });
@@ -363,7 +382,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       // point: a smooth scroll of our own throws events for most of a second,
       // and those are exactly the ones with nothing to answer. Reading
       // `clientWidth` first would force a layout on every one of them.
-      if (settling.current || !track || track.clientWidth === 0) {
+      if (settling.current || hidden.current || !track || track.clientWidth === 0) {
         return;
       }
 
