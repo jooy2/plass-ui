@@ -25,7 +25,8 @@ import 'package:plass_ui/src/theme/tokens.dart';
 /// The fade is opacity and nothing else. A sheet that scales or slides drags
 /// whatever is written on it across the screen, which is the one thing the house
 /// style is against — and unlike a control, a sheet is usually carrying a
-/// sentence.
+/// sentence. It eases on [PlassTokens.motionEase], which is the curve the
+/// React build's fade reads from `--plass-ease`.
 ///
 /// It runs at [PlassTokens.motionDurationSlow] rather than the control
 /// duration, and that is the line between this and [PlassAnchoredPortal]: 150ms
@@ -98,6 +99,11 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   // waits for the frame, and `_hide` only follows an update.
   late final AnimationController _fade = AnimationController(vsync: this);
 
+  /// The fade as it is drawn, on the theme's curve. A stand-in curve here for
+  /// the reason the duration has none: `build` hands it the theme's, and again
+  /// whenever the theme changes, as a fold does.
+  late final CurvedAnimation _opacity = CurvedAnimation(parent: _fade, curve: Curves.linear);
+
   /// Where focus was before the layer went up, so it can be put back.
   FocusNode? _restore;
 
@@ -123,6 +129,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   @override
   void dispose() {
     _fade.removeStatusListener(_onFade);
+    _opacity.dispose();
     _fade.dispose();
     _scope.dispose();
     super.dispose();
@@ -189,8 +196,10 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final tokens = PlassTheme.of(context);
 
-    _fade.duration = reduceMotion ? Duration.zero : PlassTheme.of(context).motionDurationSlow;
+    _fade.duration = reduceMotion ? Duration.zero : tokens.motionDurationSlow;
+    _opacity.curve = tokens.motionEase;
 
     return OverlayPortal(
       controller: _portal,
@@ -233,7 +242,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
       ],
     );
 
-    layer = FadeTransition(opacity: _fade, child: layer);
+    layer = FadeTransition(opacity: _opacity, child: layer);
 
     // `Shortcuts` outside the scope and `Actions` between them: a shortcut is
     // answered by an ancestor of whatever holds focus, and the action it looks

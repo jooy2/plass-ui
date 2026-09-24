@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A popup and a layer over the page fade on the theme's `motionEase`.** The fades of `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, the lists of `PlSelect` and `PlCombobox`, `PlModal`, `PlDrawer`, `PlOverlay` and the others ran linearly, where the React build's run on `--plass-ease`. They now ease on the curve of the set in scope, and take a new one when the theme changes.
+
 - **A glass control on a solid or tinted surface blurs that surface, whatever `BackdropGroup` the app puts round them.** Only a glass surface put what it held in a group of its own, so a glass badge on a `solid` `PlButton` or a glass button on a `solid` `PlAlert` was handed the app's read of the backdrop, taken before the fill under it was drawn, and showed the page through it. Every surface that paints glass, a gradient or a flat fill now opens that group, and a `ghost` surface leaves what it holds in the group around it until its wash appears.
 
 - **A `PlGallery` masonry tile keeps its picture and its focus when the number of lanes changes, and a quilt is read in the order it was given.** Each lane was a column of its own, so a tile dealt into another lane when the breakpoint changed was built again from nothing, loading its picture again and dropping the focus. The tiles are now one list drawn down their lanes. A dense quilt lets a later, narrower tile fill a gap an earlier one left, and a screen reader and Tab followed the order it was drawn in; they now follow the order the pictures were given, as a masonry already did.

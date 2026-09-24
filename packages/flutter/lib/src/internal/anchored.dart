@@ -127,6 +127,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   // the theme, and the fade never runs before a build has.
   late final AnimationController _fade = AnimationController(vsync: this);
 
+  /// The fade as it is drawn, on the theme's curve, which `build` hands it with
+  /// the duration.
+  late final CurvedAnimation _opacity = CurvedAnimation(parent: _fade, curve: Curves.linear);
+
   /// The side the popup is on, which is the one asked for until there is no room
   /// for it there.
   late PlassSide _side = widget.side;
@@ -164,6 +168,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   @override
   void dispose() {
     _fade.removeStatusListener(_onFade);
+    _opacity.dispose();
     _fade.dispose();
     super.dispose();
   }
@@ -268,8 +273,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final tokens = PlassTheme.of(context);
 
-    _fade.duration = reduceMotion ? Duration.zero : PlassTheme.of(context).motionDuration;
+    _fade.duration = reduceMotion ? Duration.zero : tokens.motionDuration;
+    _opacity.curve = tokens.motionEase;
 
     // Around the portal rather than inside the popup: the popup's element sits
     // under the portal's, so one binding reaches a focus on the anchor and a
@@ -299,7 +306,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     final (targetAnchor, followerAnchor, standoff) = _anchors;
 
     Widget popup = FadeTransition(
-      opacity: _fade,
+      opacity: _opacity,
       child: ConstrainedBox(
         constraints: switch (widget.anchorWidth) {
           PlassAnchorWidth.free => const BoxConstraints(),

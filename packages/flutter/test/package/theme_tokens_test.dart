@@ -408,6 +408,57 @@ void main() {
 
       expect(_opacityOver(tester, find.text('Settings')), closeTo(0.5, 0.02));
     });
+
+    testWidgets("fade a popover in on the theme's curve", (WidgetTester tester) async {
+      Widget popover({required bool open}) {
+        return host(
+          PlassTheme.tokens(
+            tokens: _slowSteep,
+            child: PlPopover(
+              open: open,
+              trigger: PlButton(onPressed: () {}, child: const Text('Explain')),
+              child: const Text('The base rate'),
+            ),
+          ),
+          overlay: true,
+        );
+      }
+
+      await tester.pumpWidget(popover(open: false));
+      await tester.pumpWidget(popover(open: true));
+      await tester.pump();
+      await tester.pump(_fast ~/ 2);
+
+      // Half the time on the steep curve is an eighth of the way in. A fade
+      // that ignored the curve would be half the way in.
+      expect(
+        _opacityOver(tester, find.text('The base rate')),
+        closeTo(_steep.transform(0.5), 0.02),
+      );
+    });
+
+    testWidgets("fade a modal in on a theme's curve that changes as it opens", (
+      WidgetTester tester,
+    ) async {
+      // The theme and `open` change in one frame, so the layer's fade has to be
+      // handed the new curve by the build that opens it, not by one before.
+      Widget modal(PlassTokens tokens, {required bool open}) {
+        return host(
+          PlassTheme.tokens(
+            tokens: tokens,
+            child: PlModal(open: open, title: const Text('Settings')),
+          ),
+          overlay: true,
+        );
+      }
+
+      await tester.pumpWidget(modal(_slowSquare, open: false));
+      await tester.pumpWidget(modal(_slowSteep, open: true));
+      await tester.pump();
+      await tester.pump(_slow ~/ 2);
+
+      expect(_opacityOver(tester, find.text('Settings')), closeTo(_steep.transform(0.5), 0.02));
+    });
   });
 
   group('every component reads the scales off the set', () {
@@ -472,6 +523,13 @@ final PlassTokens _slowSquare = PlassTokens.light().copyWith(
   motionDurationSlow: _slow,
   motionEase: Curves.linear,
 );
+
+/// A curve that is far from both the linear one and the house one half way
+/// through, so a fade measured there can only have run on it.
+const Curve _steep = Curves.easeInCubic;
+
+/// [_slowSquare] on [_steep].
+final PlassTokens _slowSteep = _slowSquare.copyWith(motionEase: _steep);
 
 const List<PlAccordionItem<String>> _sections = <PlAccordionItem<String>>[
   PlAccordionItem<String>(value: 'billing', title: Text('Billing'), child: Text('Card on file')),
