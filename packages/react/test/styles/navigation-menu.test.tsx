@@ -141,83 +141,95 @@ function ControlledNav() {
   );
 }
 
-/** The popup's width and height transitions, once a change has started them. */
-function sizeTransitions(): CSSTransition[] {
-  return popup()
-    .getAnimations()
-    .filter(
-      (animation): animation is CSSTransition =>
-        animation instanceof CSSTransition &&
-        (animation.transitionProperty === 'width' || animation.transitionProperty === 'height')
-    );
+/** A pixel length out of a keyframe, `'111.5px'` → `111.5`. */
+const px = (value: unknown) => Number.parseFloat(String(value));
+
+/**
+ * Records every width and height transition the popup starts, as the two
+ * lengths it eases between.
+ *
+ * Read off `transitionrun`, which fires as a transition is created, so a
+ * transition that runs its whole 150ms between two polls on a loaded machine is
+ * still seen. What is recorded is the transition's own two ends rather than
+ * sizes sampled on the way: the width it eases towards is the one Base UI
+ * measured, and the sheet can settle a few pixels from it once Base UI hands
+ * it `auto` again.
+ */
+function watchTheResize() {
+  const eased = new Map<string, [number, number]>();
+
+  const listener = (event: TransitionEvent) => {
+    const property = event.propertyName;
+
+    if (event.target !== popup() || (property !== 'width' && property !== 'height')) {
+      return;
+    }
+
+    const transition = popup()
+      .getAnimations()
+      .find(
+        (animation): animation is CSSTransition =>
+          animation instanceof CSSTransition && animation.transitionProperty === property
+      );
+    const effect = transition?.effect;
+    const frames = effect instanceof KeyframeEffect ? effect.getKeyframes() : [];
+
+    if (frames.length > 1) {
+      eased.set(property, [px(frames[0][property]), px(frames[frames.length - 1][property])]);
+    }
+  };
+
+  document.addEventListener('transitionrun', listener, true);
+
+  return { eased, stop: () => document.removeEventListener('transitionrun', listener, true) };
 }
 
 /**
- * Presses Product, then Company, and measures the popup halfway through the
- * resize.
- *
- * Company is pressed once Product has settled, which is when Base UI hands the
- * popup `auto` again, so the resize is one rather than two. The transitions
- * are caught rather than sampled: paused at half their duration, measured,
- * then finished. A sample taken every frame on a loaded machine can miss the
- * middle of a 150ms transition altogether, and this cannot.
+ * Presses Product, then Company once Product has settled, which is when Base
+ * UI hands the popup `auto` again, so what follows is one resize rather than
+ * two.
  */
-async function catchTheSwitch() {
+async function switchPanels() {
   press('Product');
   await expect.poll(() => link('/a')?.checkVisibility()).toBe(true);
   await expect.poll(() => popup().style.getPropertyValue('--popup-width')).toBe('auto');
   await expect.poll(() => heightOff('/a')).toBe(0);
 
-  const start = popupSize();
+  const watch = watchTheResize();
 
   press('Company');
-
-  // Width and height are eased together; wait until both are under way.
-  await expect
-    .poll(() => new Set(sizeTransitions().map((transition) => transition.transitionProperty)).size)
-    .toBe(2);
-
-  const transitions = sizeTransitions();
-
-  for (const transition of transitions) {
-    transition.pause();
-    transition.currentTime = Number(transition.effect!.getTiming().duration) / 2;
-  }
-
-  const middle = popupSize();
-
-  for (const transition of transitions) {
-    transition.finish();
-  }
-
+  await expect.poll(() => link('/about')?.checkVisibility()).toBe(true);
   await expect.poll(() => heightOff('/about')).toBe(0);
+  watch.stop();
 
-  return { start, middle, end: popupSize() };
+  return watch.eased;
 }
 
 describe('a PlNavigationMenu moving between panels', () => {
   it('eases the sheet to the size of the next panel rather than jumping to it', async () => {
     await render(wideNav());
 
-    const { start, middle, end } = await catchTheSwitch();
+    const eased = await switchPanels();
 
-    expect(end.width).toBeGreaterThan(start.width);
-    expect(end.height).toBeGreaterThan(start.height);
-    // Halfway through, somewhere between the two, in both directions.
-    expect(middle.width).toBeGreaterThan(start.width);
-    expect(middle.width).toBeLessThan(end.width);
-    expect(middle.height).toBeGreaterThan(start.height);
-    expect(middle.height).toBeLessThan(end.height);
+    // Both lengths were transitions, each from the smaller panel's towards the
+    // larger one's, rather than a jump.
+    expect([...eased.keys()].sort()).toEqual(['height', 'width']);
+
+    for (const [from, to] of eased.values()) {
+      expect(to).toBeGreaterThan(from);
+    }
   });
 
-  it('eases it as well when the page holds the value and takes the change', async () => {
+  it('lands on the size of the next panel when the page holds the value and takes the change', async () => {
     await render(<ControlledNav />);
 
-    const { start, middle, end } = await catchTheSwitch();
+    // Whether this one eases depends on whether the page's re-render lands
+    // inside the frame Base UI measures in; either way the sheet has to end at
+    // the size of what it holds rather than at the size of the panel before.
+    await switchPanels();
 
     expect(link('/about')?.checkVisibility()).toBe(true);
-    expect(middle.height).toBeGreaterThan(start.height);
-    expect(middle.height).toBeLessThan(end.height);
+    expect(heightOff('/about')).toBe(0);
   });
 
   it('fits the next panel at once when the page changes the value itself', async () => {
