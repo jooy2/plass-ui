@@ -101,8 +101,6 @@ function wideNav(value?: string | null) {
   );
 }
 
-const frame = () => new Promise<number>((resolve) => requestAnimationFrame(resolve));
-
 const popup = () => document.querySelector<HTMLElement>('.plass-portal > nav')!;
 
 /** The popup's size, rounded to the pixel. */
@@ -143,15 +141,28 @@ function ControlledNav() {
   );
 }
 
+/** The popup's width and height transitions, once a change has started them. */
+function sizeTransitions(): CSSTransition[] {
+  return popup()
+    .getAnimations()
+    .filter(
+      (animation): animation is CSSTransition =>
+        animation instanceof CSSTransition &&
+        (animation.transitionProperty === 'width' || animation.transitionProperty === 'height')
+    );
+}
+
 /**
- * Presses Product, then Company, and reads the popup's size every frame for
- * about half a second after the second press, which is more than the
- * transition takes.
+ * Presses Product, then Company, and measures the popup halfway through the
+ * resize.
  *
  * Company is pressed once Product has settled, which is when Base UI hands the
- * popup `auto` again, so the samples are of one resize rather than two.
+ * popup `auto` again, so the resize is one rather than two. The transitions
+ * are caught rather than sampled: paused at half their duration, measured,
+ * then finished. A sample taken every frame on a loaded machine can miss the
+ * middle of a 150ms transition altogether, and this cannot.
  */
-async function sampleTheSwitch() {
+async function catchTheSwitch() {
   press('Product');
   await expect.poll(() => link('/a')?.checkVisibility()).toBe(true);
   await expect.poll(() => popup().style.getPropertyValue('--popup-width')).toBe('auto');
@@ -161,45 +172,52 @@ async function sampleTheSwitch() {
 
   press('Company');
 
-  const samples: Array<{ width: number; height: number }> = [];
+  // Width and height are eased together; wait until both are under way.
+  await expect
+    .poll(() => new Set(sizeTransitions().map((transition) => transition.transitionProperty)).size)
+    .toBe(2);
 
-  for (let index = 0; index < 30; index += 1) {
-    await frame();
-    samples.push(popupSize());
+  const transitions = sizeTransitions();
+
+  for (const transition of transitions) {
+    transition.pause();
+    transition.currentTime = Number(transition.effect!.getTiming().duration) / 2;
   }
 
-  return { start, samples, end: samples[samples.length - 1] };
+  const middle = popupSize();
+
+  for (const transition of transitions) {
+    transition.finish();
+  }
+
+  await expect.poll(() => heightOff('/about')).toBe(0);
+
+  return { start, middle, end: popupSize() };
 }
 
 describe('a PlNavigationMenu moving between panels', () => {
   it('eases the sheet to the size of the next panel rather than jumping to it', async () => {
     await render(wideNav());
 
-    const { start, samples, end } = await sampleTheSwitch();
+    const { start, middle, end } = await catchTheSwitch();
 
     expect(end.width).toBeGreaterThan(start.width);
     expect(end.height).toBeGreaterThan(start.height);
-    // Not there on the first frame, and somewhere between the two on the way.
-    expect(samples[0]).not.toEqual(end);
-    expect(samples.some((size) => size.width > start.width && size.width < end.width)).toBe(true);
-    expect(samples.some((size) => size.height > start.height && size.height < end.height)).toBe(
-      true
-    );
-    // And it lands on the size of the panel, not on a size it was held at.
-    expect(heightOff('/about')).toBe(0);
+    // Halfway through, somewhere between the two, in both directions.
+    expect(middle.width).toBeGreaterThan(start.width);
+    expect(middle.width).toBeLessThan(end.width);
+    expect(middle.height).toBeGreaterThan(start.height);
+    expect(middle.height).toBeLessThan(end.height);
   });
 
   it('eases it as well when the page holds the value and takes the change', async () => {
     await render(<ControlledNav />);
 
-    const { start, samples, end } = await sampleTheSwitch();
+    const { start, middle, end } = await catchTheSwitch();
 
     expect(link('/about')?.checkVisibility()).toBe(true);
-    expect(samples[0]).not.toEqual(end);
-    expect(samples.some((size) => size.height > start.height && size.height < end.height)).toBe(
-      true
-    );
-    expect(heightOff('/about')).toBe(0);
+    expect(middle.height).toBeGreaterThan(start.height);
+    expect(middle.height).toBeLessThan(end.height);
   });
 
   it('fits the next panel at once when the page changes the value itself', async () => {
