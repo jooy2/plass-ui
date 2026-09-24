@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -100,6 +101,19 @@ void main() {
         );
 
         expect(find.semantics.byLabel('Start').evaluate().single.value, '09:30');
+
+        handle.dispose();
+      });
+
+      testWidgets('says the whole time in a live region', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await _pump(tester, PlTimePicker(value: nineThirty, onChanged: (DateTime? _) {}));
+        await _open(tester);
+
+        // The columns are three lists of numbers to a screen reader, and this
+        // is the one sentence that says what they add up to. A node with no
+        // size is taken off the tree, which would leave nothing to say it.
+        expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label, '9:30');
 
         handle.dispose();
       });

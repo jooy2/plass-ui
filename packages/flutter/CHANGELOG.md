@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlTimePicker` or a `PlDateTimePicker` says the whole time to a screen reader.** The live region that reads the columns as one time, such as "9:30", sat in a box with no size, and a node with no size is taken off the semantics tree, so it was never heard. It now has a pixel square, as a chart's readout does.
+
 - **A `PlTransfer` list whose `sourceLabel` or `targetLabel` is empty is headed by the theme's name for it.** An empty string drew an empty heading, and moving rows there said "1 item moved to ". It now falls back to the pack's `transferAvailable` or `transferSelected`, as `null` does and as the React build does with an empty label.
 
 - **A `PlMenu` hands the focus back to its trigger when it closes.** The focus stayed on the node the menu took its keys on, which draws no ring, so a `PlButton` that opened a menu from the keyboard lost its focus ring once the menu closed. It now goes back to the trigger, unless a row's own handler sent it somewhere else. A trigger pressed with a pointer never held the focus and is not given it.

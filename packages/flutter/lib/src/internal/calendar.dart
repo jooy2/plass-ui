@@ -1311,7 +1311,6 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = PlassTheme.of(context);
     String pad(int value) => value.toString().padLeft(2, '0');
 
     return Row(
@@ -1350,12 +1349,14 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
           ),
         // Three unlabelled lists of numbers, to anyone reading the screen rather
         // than looking at it. This is the sentence that says what they add up to.
+        // A pixel square rather than nothing at all, as a chart's readout is: a
+        // node with no size is taken off the tree, and the sentence with it.
         ExcludeSemantics(
           excluding: widget.value == null,
           child: Semantics(
             liveRegion: true,
             label: widget.value == null ? '' : _spokenTime(),
-            child: SizedBox(width: 0, height: 0, child: Container(color: tokens.surface)),
+            child: const SizedBox.square(dimension: 1),
           ),
         ),
       ],
