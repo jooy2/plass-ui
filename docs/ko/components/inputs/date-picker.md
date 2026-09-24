@@ -255,13 +255,13 @@ trigger의 기본 format도 따라가고, 푸터의 지름길도 마찬가지입
 ## Accessibility
 
 - 그리드에는 **roving tab stop이 하나**라서, <kbd>Tab</kbd>은 칸 마흔둘을 걷는 대신 달력을 빠져나갑니다. ARIA date picker 관행이 설명하는 패턴입니다.
+- <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>는 하루와 한 주씩, <kbd>Home</kbd>과 <kbd>End</kbd>는 그 주의 양 끝으로, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>은 한 달씩(<kbd>Shift</kbd>와 함께면 한 해씩) 움직입니다. 가장자리를 벗어나면 멈추는 대신 달력이 넘어갑니다.
 - `clearable`이면 ×는 trigger 다음에 오는 별도의 tab stop입니다. ×로 값을 지우면 포커스가 trigger로 돌아가므로, 방금 비운 field에 그대로 머뭅니다.
 
 ::: fw react
 
 - 그리드는 `gridcell`들로 이루어진 `role="grid"`이고, 이름은 위의 머리글에서 옵니다. 날짜 위에서는 `2026년 7월`, 월 위에서는 `2026`, 연도 위에서는 그 쪽의 연도 범위입니다.
 - 월과 연도 버튼의 이름은 버튼에 보이는 글자이고, 하는 일은 설명으로 붙습니다. 그래서 스크린 리더는 "월 선택"보다 `7월`을 먼저 읽고, `7월`이라고 말하는 음성 명령도 버튼을 찾습니다.
-- <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>는 하루와 한 주씩, <kbd>Home</kbd>과 <kbd>End</kbd>는 그 주의 양 끝으로, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>은 한 달씩(<kbd>Shift</kbd>와 함께면 한 해씩) 움직입니다. 가장자리를 벗어나면 멈추는 대신 달력이 넘어갑니다.
 - 막힌 날은 `disabled` 속성이 아니라 `aria-disabled`를 답니다. 그래서 화살표 경로에 남고, 사용할 수 없다고 읽힙니다.
 - trigger의 이름은 label과 그 뒤의 값입니다(`Departure 27 Jul 2026`). 네이티브 select와 같은 방식으로 읽힙니다.
 

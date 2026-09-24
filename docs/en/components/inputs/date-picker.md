@@ -255,13 +255,13 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 ## Accessibility
 
 - The grid has **one roving tab stop**, so <kbd>Tab</kbd> leaves the calendar rather than walking forty-two cells. That is the pattern the ARIA date-picker practice describes.
+- <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move by a day and a week, <kbd>Home</kbd> and <kbd>End</kbd> go to the ends of the week, and <kbd>PageUp</kbd> / <kbd>PageDown</kbd> move by a month, a year with <kbd>Shift</kbd>. Running off an edge steps the calendar rather than stopping.
 - With `clearable`, the × is a tab stop of its own after the trigger. Clearing the value from it hands the focus back to the trigger, so the reader stays on the field they emptied.
 
 ::: fw react
 
 - The grid is a `role="grid"` of `gridcell`s, named by the header above it: `July 2026`, `2026` over the months, or the page of years.
 - The month and year buttons are named by the words they show and described by what they do, so a screen reader hears `July` before "Choose a month", and a voice command that says `July` finds the button.
-- <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move by a day and a week, <kbd>Home</kbd> and <kbd>End</kbd> go to the ends of the week, and <kbd>PageUp</kbd> / <kbd>PageDown</kbd> move by a month, a year with <kbd>Shift</kbd>. Running off an edge steps the calendar rather than stopping.
 - A blocked day carries `aria-disabled` rather than the `disabled` attribute, so it stays in the arrow-key path and is still announced, as unavailable.
 - The trigger is named by the label and then by what it holds, `Departure 27 Jul 2026`, as a native select is read.
 
