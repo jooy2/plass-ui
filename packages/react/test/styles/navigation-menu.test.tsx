@@ -118,6 +118,31 @@ function wideNav(value?: string | null, more = false) {
   );
 }
 
+/**
+ * Two panels of one link each, the same size. At 600px they are too wide to
+ * hang centred under either trigger, so both are held against the same edge,
+ * and moving from one to the other changes neither the sheet's size nor its
+ * place; narrower, each hangs under its own trigger and only the place
+ * changes. In a box that scrolls, which moves the row under a sheet that stays
+ * where it is, as a row stuck to the top of a scrolling page does.
+ */
+function twinNav(width = 600) {
+  return (
+    <div data-scroller style={{ height: 300, overflow: 'auto' }}>
+      <div style={{ height: 900, paddingTop: 100 }}>
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Guides" value="guides">
+            <PlNavigationMenuLink href="/guides" title="Read" style={{ width }} />
+          </PlNavigationMenuItem>
+          <PlNavigationMenuItem label="Tools" value="tools">
+            <PlNavigationMenuLink href="/tools" title="Read" style={{ width }} />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      </div>
+    </div>
+  );
+}
+
 /** A menu whose page holds the value and takes every change a trigger asks for. */
 function ControlledNav() {
   const [value, setValue] = React.useState<string | null>(null);
@@ -138,6 +163,13 @@ function sizeOf(element: Element): [number, number] {
   const box = element.getBoundingClientRect();
 
   return [Math.round(box.width), Math.round(box.height)];
+}
+
+/** How far apart the middles of two boxes are across the page, to the pixel. */
+function apart(one: Element, other: Element): number {
+  const [a, b] = [one, other].map((element) => element.getBoundingClientRect());
+
+  return Math.round(Math.abs(a.left + a.width / 2 - (b.left + b.width / 2)));
 }
 
 /**
@@ -233,13 +265,16 @@ function watchTheSheet() {
   };
 }
 
+const trigger = (label: string) =>
+  [...document.querySelectorAll('button')].find((button) => button.textContent === label)!;
+
 /**
  * Presses a trigger. A DOM click rather than the runner's, which moves a
  * pointer across the frame first, and a pointer over the row opens panels of
  * its own.
  */
 function press(label: string) {
-  [...document.querySelectorAll('button')].find((button) => button.textContent === label)!.click();
+  trigger(label).click();
 }
 
 describe('a PlNavigationMenu moving between panels', () => {
@@ -333,6 +368,64 @@ describe('a PlNavigationMenu moving between panels', () => {
     // And stops easing once it has arrived, so a later move, such as the row
     // scrolling with the page, is followed at once rather than trailed.
     await expect.poll(() => getComputedStyle(positioner()).transitionProperty).toBe('none');
+  });
+
+  it('moves the sheet under the next item when only its place changes', async () => {
+    await render(twinNav(120));
+
+    press('Guides');
+    await settleOn('/guides');
+
+    const from = positioner().getBoundingClientRect().left;
+    const watch = watchTheSheet();
+
+    press('Tools');
+    await settleOn('/tools');
+    // Floating UI sends the box under the next item a few microtasks after the
+    // panel changes, which can be after a sheet of the same size has come to
+    // rest round it.
+    await expect.poll(() => apart(positioner(), trigger('Tools'))).toBe(0);
+    await expect.poll(() => easing().length).toBe(0);
+    watch.stop();
+
+    const to = positioner().getBoundingClientRect().left;
+    const moves = watch.eased.filter((run) => run.on === 'box' && run.property === 'left');
+
+    // Nothing but the box's place to ease, which the easing has to wait for.
+    expect(watch.kinds()).toEqual(['box:left']);
+    expect(Math.abs(to - from)).toBeGreaterThan(20);
+    expect(Math.round(moves[0].from)).toBe(Math.round(from));
+    expect(Math.round(moves[moves.length - 1].to)).toBe(Math.round(to));
+  });
+
+  it('stops easing when the next panel is the same size in the same place', async () => {
+    await render(twinNav());
+
+    press('Guides');
+    await settleOn('/guides');
+
+    const watch = watchTheSheet();
+
+    press('Tools');
+    await settleOn('/tools');
+
+    // Nothing to ease, so no transition to end the easing either.
+    await expect.poll(() => getComputedStyle(positioner()).transitionProperty).toBe('none');
+    await expect.poll(() => getComputedStyle(popup()).transitionProperty).toBe('opacity');
+
+    // So the row scrolling out from under the sheet is followed at once
+    // rather than trailed.
+    document.querySelector('[data-scroller]')!.scrollTop = 40;
+
+    const gap = () =>
+      Math.round(
+        positioner().getBoundingClientRect().top - trigger('Tools').getBoundingClientRect().bottom
+      );
+
+    await expect.poll(gap).toBe(8);
+    watch.stop();
+
+    expect(watch.kinds()).toEqual([]);
   });
 
   it('opens at the size and the place of its panel, easing neither', async () => {

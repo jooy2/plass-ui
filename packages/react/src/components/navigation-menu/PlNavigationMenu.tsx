@@ -508,24 +508,32 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
     };
   }, [viewport, fit]);
 
-  // Ends the easing once nothing is easing.
+  /*
+   * Ends the easing at the first frame after the change of panel at which
+   * neither the sheet nor its box is easing. Waiting for their transitions to
+   * end is not enough: a panel the same size as the last, in the same place,
+   * starts none, and the box would then ease whatever moved it next, such as
+   * the row scrolling with the page, until the menu closed.
+   *
+   * Not before that first frame, because the box has not been sent anywhere
+   * until Floating UI places it under the next item. It does that a few
+   * microtasks after the commit that changes the panel, in the same task, so
+   * a frame always comes after it.
+   */
   React.useEffect(() => {
-    if (!positioner) {
+    const popup = popupRef.current;
+
+    if (!moving || !positioner || !popup) {
       return undefined;
     }
 
-    const settle = (event: TransitionEvent) => {
-      const popup = popupRef.current;
+    const elements = [positioner, popup];
+    let frame = 0;
 
-      if (!easedProperties.has(event.propertyName) || !popup) {
-        return;
-      }
-
-      const elements = [positioner, popup];
-
+    const settle = () => {
       // Reading a computed value brings the styles up to date, which starts
-      // the transitions of a change of panel that has not reached a frame
-      // yet, so that change counts as easing rather than being cut short.
+      // the transitions of a change that has not reached a frame yet, so that
+      // change counts as easing rather than being cut short.
       for (const element of elements) {
         getComputedStyle(element).getPropertyValue('width');
       }
@@ -541,19 +549,19 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
           )
       );
 
-      if (!easing) {
+      if (easing) {
+        frame = requestAnimationFrame(settle);
+      } else {
         setMoving(false);
       }
     };
 
-    positioner.addEventListener('transitionend', settle);
-    positioner.addEventListener('transitioncancel', settle);
+    frame = requestAnimationFrame(settle);
 
     return () => {
-      positioner.removeEventListener('transitionend', settle);
-      positioner.removeEventListener('transitioncancel', settle);
+      cancelAnimationFrame(frame);
     };
-  }, [positioner]);
+  }, [moving, positioner]);
 
   return (
     <NavigationMenuContext.Provider value={context}>
