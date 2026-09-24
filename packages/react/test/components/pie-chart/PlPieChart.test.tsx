@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
 import { PlPieChart } from 'plass-ui';
@@ -206,6 +206,64 @@ describe('PlPieChart', () => {
 
       arrow(plot.element(), 'ArrowLeft');
       await expect.poll(() => status.textContent).toContain('Referral');
+    });
+
+    it('keeps an Escape that clears a reading from what it sits in, and lets it through otherwise', async () => {
+      // Both ways a sheet hears the key: a handler on an element around the
+      // chart, and a listener on the document, which is where Base UI's
+      // dismissal listens.
+      const around = vi.fn();
+      const onDocument = vi.fn();
+      const listener = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          onDocument();
+        }
+      };
+
+      document.addEventListener('keydown', listener);
+
+      try {
+        const screen = await render(
+          <div
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                around();
+              }
+            }}
+          >
+            <PlPieChart label="Traffic" categories={SOURCES} data={[40, 25, 20, 15]} />
+          </div>
+        );
+
+        const plot = screen.getByRole('img', { name: 'Traffic' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        const status = screen.container.querySelector('[role="status"]') as HTMLElement;
+
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => status.textContent).toContain('Search');
+
+        arrow(plot.element(), 'Escape');
+
+        await expect.poll(() => status.textContent).toBe('');
+        expect(around).not.toHaveBeenCalled();
+        expect(onDocument).not.toHaveBeenCalled();
+
+        const escape = new KeyboardEvent('keydown', {
+          key: 'Escape',
+          bubbles: true,
+          cancelable: true
+        });
+
+        plot.element().dispatchEvent(escape);
+
+        expect(escape.defaultPrevented).toBe(false);
+        expect(around).toHaveBeenCalledTimes(1);
+        expect(onDocument).toHaveBeenCalledTimes(1);
+      } finally {
+        document.removeEventListener('keydown', listener);
+      }
     });
 
     it('is a tab stop only while there is something on it', async () => {

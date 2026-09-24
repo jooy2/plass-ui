@@ -331,6 +331,18 @@ export function PlPieChart({
         onPointerLeave={() => setActive(null)}
         onBlur={() => setActive(null)}
         onKeyDown={(event) => {
+          if (event.key === 'Escape' && active !== null) {
+            // Only while a slice is being read, as on every other chart: with
+            // nothing to clear, the key belongs to the sheet the chart sits in,
+            // and with something to clear, the first press closes the readout
+            // and not that sheet as well.
+            setActive(null);
+            event.stopPropagation();
+            event.preventDefault();
+
+            return;
+          }
+
           if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') {
             return;
           }

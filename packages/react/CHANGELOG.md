@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **`Escape` clears a `PlPieChart` readout.** The pie took only the arrow keys, so a slice being read stayed on the card and in the live region until the pointer or the focus left, where every other chart clears it on `Escape`. With a slice being read, the press now clears it and stops there; with none, it goes on to whatever the chart sits in.
+
 - **A `PlScatterChart`'s table writes a point's own `label` in place of its y.** The table wrote the bare y beside a point the card called by its label; it now writes the label, as the card and every other chart's table do.
 
 - **A `PlTimelineChart` span with no name is read with its row once.** Its card was headed by its row and named the row again beside the swatch, and the live region read "Design, Design: Jan 1, 2026 – Jan 9, 2026". The row now heads the card alone and is read once, "Design, Jan 1, 2026 – Jan 9, 2026"; a span that names itself still has its row beside the swatch. A custom `tooltip.render` is handed no `name` for such a span.
