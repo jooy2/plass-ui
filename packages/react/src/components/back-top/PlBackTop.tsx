@@ -7,7 +7,7 @@ import { resolveScrollTarget, type PlassScrollTarget } from '../../internal/scro
 import { useLabels } from '../../internal/labels.js';
 import { focusablesIn } from '../../internal/focusable.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
-import { cx, transitionClasses } from '../../internal/styles.js';
+import { cx, safeInlineClasses, transitionClasses } from '../../internal/styles.js';
 import type { PlassColor, PlassElevation, PlassSize, PlassVariant } from '../../types.js';
 
 /** How far a floating button sits off the corner, the same 24px the FAB uses. */
@@ -41,11 +41,11 @@ export interface PlBackTopProps extends Omit<React.ComponentPropsWithoutRef<'but
    * the button somewhere of your own — the end of an article, a toolbar — and
    * keep the appearing and the scrolling.
    *
-   * A pinned button sits 24px off the bottom end corner, and
-   * `env(safe-area-inset-bottom)` on top of that, so it clears the home
-   * indicator or the navigation bar of an edge-to-edge screen. The pinning is
-   * an inline `position: fixed` with logical insets, so a `style` of your own
-   * replaces it and a class of your own cannot.
+   * A pinned button sits 24px off the bottom end corner, and the safe area on
+   * both of those edges on top of that, so it clears the home indicator, the
+   * navigation bar or a landscape camera cutout of an edge-to-edge screen. The
+   * pinning is an inline `position: fixed` with logical insets, so a `style` of
+   * your own replaces it and a class of your own cannot.
    * @default true
    */
   floating?: boolean;
@@ -175,13 +175,15 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
     // Inline, as `PlFloatingActionButton` pins itself: `PlButton`'s own
     // `relative` comes after `fixed` in the stylesheet and wins, so a utility
     // never pinned this button at all. Logical insets, because an end is an end
-    // in both directions, and the safe area on top of the 24px, so the button
-    // clears the home indicator or the navigation bar of an edge-to-edge
-    // screen rather than sitting under it.
+    // in both directions, and the safe area on top of the 24px on both edges,
+    // so the button clears the home indicator or the navigation bar of an
+    // edge-to-edge screen, and a camera cutout of one held on its side, rather
+    // than sitting under them. The inline side is read from `--p-safe-inline`,
+    // which a class sets, because only a class can ask which side the end is.
     const pinned: React.CSSProperties = floating
       ? {
           position: 'fixed',
-          insetInlineEnd: OFFSET,
+          insetInlineEnd: `calc(${OFFSET} + var(--p-safe-inline, 0px))`,
           insetBlockEnd: `calc(${OFFSET} + env(safe-area-inset-bottom, 0px))`
         }
       : {};
@@ -203,6 +205,7 @@ export const PlBackTop = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlB
         tabIndex={shown ? undefined : -1}
         className={cx(
           floating ? 'z-30' : '',
+          floating && safeInlineClasses.End,
           transitionClasses,
           shown ? 'opacity-100' : 'pointer-events-none opacity-0',
           className

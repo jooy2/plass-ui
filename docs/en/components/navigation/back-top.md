@@ -81,7 +81,7 @@ On by default, because that is what this component is. Turn it off to put the bu
 
 ::: fw react
 
-A pinned button sits 24px off the bottom end corner, and `env(safe-area-inset-bottom)` on top of that, so it clears the home indicator or the navigation bar of an edge-to-edge screen. The pinning is an inline `position: fixed` with logical insets rather than a utility class, so a `style` of your own replaces it and a class of your own cannot.
+A pinned button sits 24px off the bottom end corner, and the safe area on both of those edges on top of that, so it clears the home indicator, the navigation bar and a camera cutout of an edge-to-edge screen. That space is `env(safe-area-inset-*)`, which a browser gives a page only when its viewport meta tag has `viewport-fit=cover`. The pinning is an inline `position: fixed` with logical insets rather than a utility class, so a `style` of your own replaces it and a class of your own cannot.
 
 :::
 

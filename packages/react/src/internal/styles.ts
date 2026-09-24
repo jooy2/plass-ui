@@ -460,6 +460,23 @@ export const focusRingInsetClasses =
 export const targetClasses = 'relative before:absolute before:inset-[calc(50%-12px)]';
 
 /**
+ * The safe area on the inline edge a pinned control is against, as
+ * `--p-safe-inline`.
+ *
+ * `env()` has only physical names, so which of `left` and `right` is the start
+ * is the direction's question, and a style attribute cannot ask it. The `rtl:`
+ * variant can, so the class picks the side and the inline inset reads it, with
+ * `0px` behind the slot for a class that was never generated. A floating action
+ * button and a floating back-to-top button both stand off it, and a landscape
+ * cutout would cover either one otherwise.
+ */
+export const safeInlineClasses: Record<'Start' | 'End', string> = {
+  Start:
+    '[--p-safe-inline:env(safe-area-inset-left,0px)] rtl:[--p-safe-inline:env(safe-area-inset-right,0px)]',
+  End: '[--p-safe-inline:env(safe-area-inset-right,0px)] rtl:[--p-safe-inline:env(safe-area-inset-left,0px)]'
+};
+
+/**
  * The × that takes something off a chip.
  *
  * Here rather than in `PlChip` because a `PlCombobox` draws the same affordance

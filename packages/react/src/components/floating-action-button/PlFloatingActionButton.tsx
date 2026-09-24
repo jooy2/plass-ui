@@ -4,7 +4,7 @@ import * as React from 'react';
 import { PlButton, type PlButtonProps } from '../button/PlButton.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { useDefaults } from '../../internal/defaults.js';
-import { cx, toLength } from '../../internal/styles.js';
+import { cx, safeInlineClasses, toLength } from '../../internal/styles.js';
 import type { PlassCorner, PlassElevation, PlassSize, PlassVariant } from '../../types.js';
 
 export interface PlFloatingActionButtonProps extends Omit<
@@ -84,19 +84,6 @@ const blockSafeArea: Record<'Start' | 'End', string> = {
   End: 'env(safe-area-inset-bottom, 0px)'
 };
 
-/**
- * The safe area on the inline edge the corner is against, as `--p-safe-inline`.
- *
- * `env()` has only physical names, so which of `left` and `right` is the start
- * is the direction's question, and a style attribute cannot ask it. The `rtl:`
- * variant can, so the class picks the side and the inline inset reads it.
- */
-const inlineSafeArea: Record<'Start' | 'End', string> = {
-  Start:
-    '[--p-safe-inline:env(safe-area-inset-left,0px)] rtl:[--p-safe-inline:env(safe-area-inset-right,0px)]',
-  End: '[--p-safe-inline:env(safe-area-inset-right,0px)] rtl:[--p-safe-inline:env(safe-area-inset-left,0px)]'
-};
-
 const DEFAULT_OFFSET = '1.5rem';
 
 /**
@@ -168,7 +155,7 @@ export const PlFloatingActionButton = /* @__PURE__ */ React.forwardRef<
     variant,
     size,
     elevation,
-    className: cx(floating && 'z-30', floating && inlineSafeArea[inline], className),
+    className: cx(floating && 'z-30', floating && safeInlineClasses[inline], className),
     style: { ...pinned, ...style },
     ...props
   };
