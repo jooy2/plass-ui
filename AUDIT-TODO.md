@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**362 of 388 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**389 of 409 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -16,7 +16,7 @@ When the Prompter asks to continue the audit, run a batch as written here, witho
 1. **One item, one commit.** For each item:
    - Fix every package the item names, following `CLAUDE.md` and the code around the change.
    - Add a test that fails without the fix, and prove it: commit first, then check the sources out of the parent commit with `git checkout HEAD~1 -- <paths>`, run the test, and check them back with `git checkout HEAD -- <paths>`. Never `git stash`; every worktree of a repository shares one stash, and a batch worked in several worktrees at once loses another agent's entry that way. When a test cannot show the difference, say so in the report.
-   - Add a user-facing entry under `## vNext` in `packages/react/CHANGELOG.md`, `packages/flutter/CHANGELOG.md` or both, at the top of `Fixed`, `Changed` or `Breaking changes`. A change no user can notice gets no entry. The site copies the React changelog, so write `{{` there inside `<code v-pre>`.
+   - Add a user-facing entry under `## vNext` in `packages/react/CHANGELOG.md`, `packages/flutter/CHANGELOG.md` or both, at the top of `Fixed`, `Changed` or `Breaking changes`. A change no user can notice gets no entry. The site copies both changelogs, so write `{{` in either inside `<code v-pre>`.
    - Update the documentation pages, `docs/en` and `docs/ko` together, and the props tables when documented behaviour changes.
    - Commit with the tags in `CONTRIBUTING.md`: `[javascript]` or `[dart]` for one package and no prefix for both. No `Co-Authored-By` trailer.
 1. **Stay inside the item.** A problem found in passing is not fixed; note it for the report. The exception is a problem the item's own change caused, such as a test exemption the change made unnecessary.
@@ -63,6 +63,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 14    | `c1bff556..609ae6f9` | Answers first: the fourteen recommended answers, among them items 217 and 372 together. Then 271, 272, 283, 284, 285, 286, 289, 296, 299, 300, 301, 303, 309, 310, 318, 319, 320, 322, 323, 325                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | 15    | `b65c5bf7..ca8154bb` | Answers first: the four recommended answers. Then 326, 327, 328, 329, 330, 332, 340, 341, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 352, 353                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | 16    | `1bb27381..60c9e871` | Every question asked through the prompt first. Answers first: the Flutter radius and motion tokens, a `BackdropGroup` per glass sheet and overlay, keyboard-walkable Flutter charts, the dashed legend key, one dash loop, Flutter number grouping, sparkline clipping, `Infinity` progress, per-thumb slider values, the gallery reading order, manual-paging row keys, stable card and pill trees, the README counts, a marquee `label`, the code block alias table and `auto` theme, the combobox clear target, focus after clearing a picker, the transfer select-all sentence and announcement, the calendar year step and disabled wrappers, the FAB parameters, the expanded pill, repeated accordion values, the tab reveal offset, the `PlShow` Flutter demo, the `plass-lang` rename, the reset media rules, the field description helper and the Korean emphases. Then 354, 58, 107, 118, 130, 134, 168, 170, 187, 195, 201, 216, 223, 228, 229, 233, 238, 247, 248, 256, with 308 closed as no longer reproducing |
+| 17    | `ec4bc112..d04e5ce5` | Answers first: 253, 270, 282, 297, 333, 334, 336 and 337, glass on opaque surfaces, the confirm ×, opening a Flutter `PlCombobox` on a press, a `PlTable` `label`, `loadingLabel`, the `PlNavigationMenu` size transition as item 391, `Escape` on a React chart, the Flutter token section, `fieldGlowStrength` and eased Flutter overlay fades. Then 373 to 390, every item left                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -86,28 +87,18 @@ Batch 15 took the four recommended answers to the batch 14 questions first. Its 
 
 Batch 16 asked every question through the prompt, sixty-four at the start and twenty-two at the end, each with the fix, what every option costs and a recommendation, and every one was answered with its recommendation. Items 39 and 180 stay dropped. Item 308 no longer reproduces and half of item 336 does not either: both were fixed on another machine, which checking the code before writing the recommendations showed. The work ran in nine worktrees at once, and the Flutter tokens in a tenth once the rest were on `main`, brought over one commit at a time with the changelog entries added there. Three worker changes were adjusted on `main`: `PlTransfer`'s `selectAllLabel` stays a string, because turning it into a function was a breaking change nobody had asked for; `PlBackTop`'s new desktop assert waits for the first frame, because it went off for a scroll view built with `primary: true`; and the English "Loading" moved to a module of its own, because the size check splits code and the whole label set had come into every bundle with a button. The label counts had drifted by three keys since the chart options commit and now say 107 and 106. The eighteen bugs the second round chose to fix are items 373 to 390. After the push, CI failed in two places the local run could not see, and three commits fixed them: a new tabs test pressed Tab, which Firefox does not deliver to the page from the runner's frame, and a new `PlBackTop` test passed `variant:` after its closure, which the newest Flutter formatter lays out differently from the one on this machine. Every CI job was green at `60c9e871`.
 
+Batch 17 had no questions to ask at its start: every entry under Waiting for an answer had been answered in batch 16. It worked those eighteen answers first, eight of them items, and then the eighteen items left, 373 to 390, in eight worktrees at once, brought onto `main` one commit at a time with the changelog entries added there. The `PlNavigationMenu` size transition reproduced when it was checked, so it became item 391 and was fixed in the same commit. Item 383 left the sparkline alone, because the React sparkline turned out not to go through the shared writer either; that is answered below. `moveWindow` joined the label set, which now counts 108 entries in React and 107 in Dart, and `llms.txt` became a short list beside `llms-full.txt`, which now holds the long descriptions and the counts. Eleven questions were asked at the end, and the twenty bugs they chose to fix are items 392 to 411.
+
 ## Waiting for an answer
 
-Asked through the prompt in batch 16. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
+Asked through the prompt at the end of batch 17. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
 
-1. **Item 253.** Match `PlCollapsible` to `PlAccordion`: the same `truncate` prop with the same default, and the space above the body.
-1. **Item 270.** A focusable move handle on a draggable `PlWindowPane` that answers the arrow keys, and a note in the docs on moving it through a controlled offset.
-1. **Item 282.** Under reduced motion, apply an animation's end frame statically in both packages, so `mode="out"` really hides.
-1. **Item 297.** Keep `PlAnimateHeadline.repeat` and say in the props table that `loop` decides whether the lines start again, and that `repeat` only changes how the headline stops.
-1. **Item 333.** Split `llms.txt` into a short list of one line per link and an `llms-full.txt` holding what is there now, and add the second file to the component checklist.
-1. **Item 334.** Move the design rationale sections into the design documents, keep the facts under Props, and turn the `animate-split` prose into Examples with a demo each.
-1. **Item 336.** The Flutter changelog is already on the page. Point the Korean copy's canonical at the English page, take it out of the `hreflang` pair, and correct the `.gitignore` comment that names only the React changelog.
-1. **Item 337.** Write the shared SEO rules' table into the generated `robots.txt`: disallow `GPTBot`, `ClaudeBot` and `Google-Extended`, allow `ChatGPT-User`, `Claude-User`, `OAI-SearchBot` and `Claude-SearchBot`, and keep `User-agent: *` allowed.
-1. **Glass on an opaque surface.** Open a `BackdropGroup` on every Flutter surface that paints a fill, not only on glass, so a glass control on a solid container blurs the container.
-1. **The confirm ×.** Give the React confirm `showClose={false}`, as Flutter has, and correct the Flutter `PlConfirmOptions.dismissible` dartdoc and the `onOpenChanged` comment that mention a ×.
-1. **Opening a Flutter `PlCombobox`.** Open the list when the field is tapped, as Base UI's `openOnInputClick` does on React, so the chevron's equivalent-control exception holds in both builds.
-1. **Naming a `PlTable` scroll stop.** A `label` prop that names the stop when the table has no caption, as `PlScrollZone`'s does.
-1. **`loadingLabel` on `PlButton`.** The component's own word over the pack's `loading`, in both packages.
-1. **The `PlNavigationMenu` size transition.** Check in a real browser whether the popup's width and height jump in one frame when the panel changes; if they do, add it as an item and fix it.
-1. **`Escape` on a React chart.** Take it only while there is a readout to clear, as Flutter now does, so a chart in a sheet does not stop the sheet closing.
-1. **The Flutter token section.** Move the radius and motion tokens on the colour page into a Flutter section of their own, paired with "Setting a token from React".
-1. **`glowFieldStrength`.** Make it an instance token on `PlassTokens`, as `radii` and the motion became, with the static kept as its default.
-1. **Flutter overlay fades.** Run the popup and modal fades on `motionEase`, as React's run on `--plass-ease`.
+1. **The sparkline's numbers.** Write them through the shared writers in both packages, `writeChartValue` in React and `compactNumber` in Flutter, as every other chart now does.
+1. **The resting brightness filter.** Replace the identity `ColorFiltered` item 379 left in the tree with a small render object that paints its child directly at a brightness of 1 and pushes the filter layer only otherwise, so the tree keeps its shape and a control at rest carries no extra layer.
+1. **Reversing a Flutter curve.** Give the folds and the fades `reverseCurve: curve.flipped`, so a close eases the way a CSS transition does.
+1. **The focus after a `PlMenu` a pointer opened.** Hand it back to the trigger as Base UI does, and draw the ring only while Flutter's focus highlight mode is the keyboard's; make `PlMenubar` do the same.
+1. **Naming a caption-less `PlTable`.** Put `label` on the `<table>` as its `aria-label` too, as Flutter's `semanticLabel` names the table.
+1. **A press on a Flutter carousel's dots and arrows.** Stop the autoplay, as a click does in React, where it brings the focus into the carousel.
 
 ## Passed over and not yet asked
 
@@ -721,7 +712,7 @@ None. Every flagged item passed over so far is asked above.
   - Problem: `action` is attached at the end, outside the trigger, so it sits after the chevron.
   - Proposal: Change the description to "after the chevron, at the end of the header".
 - [x] **252.** Flutter `PlCollapsible` loses the panel State on every close, even with `keepMounted` (Bug · Flutter · Medium)
-- [ ] **253.** `PlCollapsible` lacks `PlAccordion`'s title wrap option and the space above the body (Bug · Both · Low)
+- [x] **253.** `PlCollapsible` lacks `PlAccordion`'s title wrap option and the space above the body (Bug · Both · Low)
   - Location: `PlCollapsible.tsx:223`, `:278`, `pl_collapsible.dart:281`, `:381`
   - Problem: The title is always cut to one line, and with the default header there is no space above the body. A comment in the same file (line 97) says the space is needed.
   - Proposal: Match the accordion, or leave a comment explaining why the two differ.
@@ -761,7 +752,7 @@ None. Every flagged item passed over so far is asked above.
   - Proposal: Make the comment match the actual behaviour.
 - [x] **268.** When a controlled Flutter `PlWindowPane` passes `offset` back, the window runs away faster than the pointer (Bug · Flutter · High)
 - [x] **269.** The React props table for `PlWindowPane` is missing the state callbacks and label props (Docs · Docs · Medium)
-- [ ] **270.** Moving a `PlWindowPane` has no keyboard or single-pointer alternative (Accessibility · Both · Low)
+- [x] **270.** Moving a `PlWindowPane` has no keyboard or single-pointer alternative (Accessibility · Both · Low)
   - Location: `PlWindowPane.tsx:679`, `pl_window_pane.dart:513`
   - Problem: Resizing works with the arrow keys, but a `draggable` pane moves only by dragging (WCAG 2.5.7).
   - Proposal: Add a focusable move handle, or document how to build an alternative with `offset` control.
@@ -780,7 +771,7 @@ None. Every flagged item passed over so far is asked above.
 - [x] **279.** The `PlAnimateHeadline` timer is reset on every parent render, so the line may never advance (Bug · Both · Medium)
 - [x] **280.** No guidance that an effect moving for more than 5 seconds needs a way to stop it (Accessibility · Docs · Medium)
 - [x] **281.** 20 files in the transitions docs have unpaired code fences that render empty code blocks (Docs · Docs · Medium)
-- [ ] **282.** Under reduced motion, an animation falls to its start state instead of its end state (Bug · Both · Low)
+- [x] **282.** Under reduced motion, an animation falls to its start state instead of its end state (Bug · Both · Low)
   - Location: `packages/react/src/styles.css:2424-2429`, `internal/animate.dart:527-529`
   - Problem: React `<PlAnimateRotate from={0} to={90}>` shows 0deg, and Flutter shows 90°. With `mode="out"`, the element does not disappear in either package. In React, `animationend` never fires, so a caller that unmounts on that event gets stuck.
   - Proposal: Decide whether to apply the end frame statically under reduced motion or to keep the current behaviour.
@@ -799,7 +790,7 @@ None. Every flagged item passed over so far is asked above.
 - [x] **294.** `PlAnimateTyping` grows while typing and pushes the content around it, but the docs say there is no reflow (Bug · React · Medium)
 - [x] **295.** Flutter `PlAnimateTyping` throws a debug exception when it disposes the caret under reduced motion (Bug · Flutter · Medium)
 - [x] **296.** `PlAnimateTyping` does not retype a new string that has the same number of characters (Bug · React · Low)
-- [ ] **297.** `PlAnimateHeadline`'s `repeat` has no effect but is documented as a setting shared by both packages (Optimisation · Both · Low)
+- [x] **297.** `PlAnimateHeadline`'s `repeat` has no effect but is documented as a setting shared by both packages (Optimisation · Both · Low)
   - Location: `PlAnimateHeadline.tsx:71`, `:96`, `docs/.vitepress/data/props.ts:1241`
   - Problem: Only `loop` decides whether the animation repeats.
   - Proposal: Remove `repeat` with `Omit` and drop it from the table.
@@ -861,23 +852,23 @@ None. Every flagged item passed over so far is asked above.
 - [x] **330.** "훑기" on the ko colour page does not make sense, and colour names are spelled inconsistently (Docs · Docs · Low)
 - [x] **331.** The group structure of `llms.txt` is wrong (Docs · Site · Medium)
 - [x] **332.** `llms.txt` has no links to Breakpoints or the changelog, and the description on line 21 does not match the actual layout (Docs · Site · Low)
-- [ ] **333.** At 190KB, `llms.txt` is closer to the full documentation than to a summary list (Optimisation · Site · Low)
+- [x] **333.** At 190KB, `llms.txt` is closer to the full documentation than to a summary list (Optimisation · Site · Low)
   - Location: `docs/public/llms.txt`
   - Problem: The description on a single link line has a median length of about 1,100 characters and a maximum of about 4,500. The `llms.txt` format is a short summary and a list of links.
   - Proposal: Split it into a short `llms.txt` and an `llms-full.txt` that holds the current content.
   - Flag: Decision needed
-- [ ] **334.** Several component pages have design rationale sections that are not part of the page skeleton (Docs · Docs · Low)
+- [x] **334.** Several component pages have design rationale sections that are not part of the page skeleton (Docs · Docs · Low)
   - Location: `docs/en/components/feedback/drawer.md:79`, `:109`, `confirm.md:68`, `inputs/date-picker.md:66`, `:107`, `inputs/color-picker.md:48`, `inputs/floating-action-button.md:42`, `:66`, `:72`, `:96`, `inputs/fieldset.md:123`, `transitions/animate-split.md` (no Examples) (same in ko)
   - Problem: The page rules in `CLAUDE.md` set the order as Props → Examples → Accessibility and say that design rationale does not belong on the page. animate-split has only prose sections and one hero demo instead of `## Examples`.
   - Proposal: Keep only the necessary facts under Props, and move the rationale to the design documents or delete it. For animate-split, move the `by`, `effect` and `stagger` examples into Examples, each with a demo.
   - Flag: Decision needed — decide whether to move the rationale or delete it.
 - [x] **335.** The changelog page's description is an unrelated paragraph from the middle of the body (SEO · Site · Medium)
-- [ ] **336.** The site changelog covers only React, and `/ko/changelog` carries the English original marked as `ko-KR` (SEO · Site · Low)
+- [x] **336.** The site changelog covers only React, and `/ko/changelog` carries the English original marked as `ko-KR` (SEO · Site · Low)
   - Location: `docs/scripts/copy-changelog.mjs:27`
   - Problem: The site covers both frameworks but publishes only the React changelog, and the same English text is indexed under two languages.
   - Proposal: Publish the Flutter changelog as well, or limit the title to React. For the ko copy, point its canonical at the English page, or do not generate it.
   - Flag: Decision needed
-- [ ] **337.** The generated `robots.txt` does not treat AI training crawlers separately (SEO · Site · Low)
+- [x] **337.** The generated `robots.txt` does not treat AI training crawlers separately (SEO · Site · Low)
   - Location: `docs/.vitepress/config.ts:506-511`
   - Problem: It writes only `User-agent: *` and `Allow: /`. The shared SEO rules say to block `GPTBot`, `ClaudeBot` and `Google-Extended` by default.
   - Proposal: Add blocks for those crawlers.
@@ -978,92 +969,197 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Proposal: Add `final Key? key` to `PlTimelineItem` and key each step with it.
 - [x] **372.** A floating React `PlBackTop` does not float (Bug · React · Medium)
 
-- [ ] **373.** A React `PlCarousel` given a `defaultValue` or `value` other than 0 shows the first slide (Bug · React · Medium)
+- [x] **373.** A React `PlCarousel` given a `defaultValue` or `value` other than 0 shows the first slide (Bug · React · Medium)
   - Location: `packages/react/src/components/carousel/PlCarousel.tsx` (the effect that scrolls to the current slide)
   - Problem: The effect skips its first run, so the dots mark the chosen slide while the strip still shows slide 1.
   - Proposal: Place the strip at the current slide on mount, without an animation.
 
-- [ ] **374.** Flutter `PlTabs` does not bring the tab the arrow keys move to into view (Accessibility · Flutter · Medium)
+- [x] **374.** Flutter `PlTabs` does not bring the tab the arrow keys move to into view (Accessibility · Flutter · Medium)
   - Location: `packages/flutter/lib/src/components/tabs/pl_tabs.dart`
   - Problem: On a 320px bar, six presses of → leave the chosen and focused tab at about x 1148 while the bar ends at 560. React's Base UI scrolls it into view.
   - Proposal: Reveal the tab the keys move to, with the edge-fade offset batch 16 added.
 
-- [ ] **375.** Flutter `PlMenu` does not hand the focus back to its trigger when it closes (Accessibility · Flutter · Low)
+- [x] **375.** Flutter `PlMenu` does not hand the focus back to its trigger when it closes (Accessibility · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/menu/pl_menu.dart`
   - Problem: The focus stays on the menu's own node, so a `PlButton` trigger loses its focus ring. `PlMenubar` now does it for its own words.
   - Proposal: Return the focus to the trigger on close, as Base UI does.
 
-- [ ] **376.** Four Flutter folds never dispose their `CurvedAnimation` (Bug · Flutter · Low)
+- [x] **376.** Four Flutter folds never dispose their `CurvedAnimation` (Bug · Flutter · Low)
   - Location: `pl_accordion.dart`, `pl_collapsible.dart`, `pl_pill.dart`, `pl_tree.dart`
   - Problem: The `CurvedAnimation` each builds over its controller is not disposed, so its listener outlives the state.
   - Proposal: Dispose it in `dispose`.
 
-- [ ] **377.** A Flutter `PlPill` that cannot be pressed still takes taps (Bug · Flutter · Low)
+- [x] **377.** A Flutter `PlPill` that cannot be pressed still takes taps (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/pill/pl_pill.dart`
   - Problem: The tap recogniser stays when the pill is not interactive, so a tap on it never reaches what is around it.
   - Proposal: Use `PlassInteractive`'s `pressable` switch, as `PlCard` does since batch 16.
 
-- [ ] **378.** Flutter carousel dots take no keyboard focus (Accessibility · Flutter · Low)
+- [x] **378.** Flutter carousel dots take no keyboard focus (Accessibility · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/carousel/pl_carousel.dart`
   - Problem: The dots can be pressed but not reached with Tab.
   - Proposal: Make each dot a focusable control named after its slide, as the React dots are.
 
-- [ ] **379.** Flutter brightness filters build their content again when a hover or a press starts or ends (Performance · Flutter · Low)
+- [x] **379.** Flutter brightness filters build their content again when a hover or a press starts or ends (Performance · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/surface.dart` (`plassStateFilter`), `packages/flutter/lib/src/components/button/pl_button.dart`
   - Problem: They return the child at a brightness of 1 and a `ColorFiltered` around it otherwise, so the tree above the content changes shape.
   - Proposal: Keep the `ColorFiltered` in the tree, with an identity matrix at rest.
 
-- [ ] **380.** A Flutter gallery builds a tile again when it moves to another lane, and a quilted board reads out of order (Bug · Flutter · Low)
+- [x] **380.** A Flutter gallery builds a tile again when it moves to another lane, and a quilted board reads out of order (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/gallery/pl_gallery.dart`, `packages/flutter/lib/src/internal/gallery.dart`
   - Problem: With one `Column` per lane, a tile that changes lanes when the number of lanes changes is built again and loses its picture's state and its focus. A dense quilted layout lets a later tile fill an earlier gap, so it is read in the order it is drawn.
   - Proposal: Lay the tiles out in one list, as React did in item 93, and give quilted tiles their place in the list as a sort key.
 
-- [ ] **381.** The `PlDataTable` scroll box cannot be scrolled from the keyboard (Accessibility · React · Low)
+- [x] **381.** The `PlDataTable` scroll box cannot be scrolled from the keyboard (Accessibility · React · Low)
   - Location: `packages/react/src/components/data-table/PlDataTable.tsx` (about line 657)
   - Problem: It is `PlTable`'s problem before item 118.
   - Proposal: Make the box a tab stop while it overflows, as item 118 did.
 
-- [ ] **382.** React `PlBackTop` clears only the bottom safe area (Accessibility · React · Low)
+- [x] **382.** React `PlBackTop` clears only the bottom safe area (Accessibility · React · Low)
   - Location: `packages/react/src/components/back-top/PlBackTop.tsx`
   - Problem: It adds `env(safe-area-inset-bottom)` but not the inline end, so a landscape cutout can cover it. The floating action button adds both since item 168.
   - Proposal: Add the inline-end inset as the floating action button does.
 
-- [ ] **383.** Several Flutter chart numbers skip the shared number writer (Bug · Flutter · Low)
+- [x] **383.** Several Flutter chart numbers skip the shared number writer (Bug · Flutter · Low)
   - Location: `PlLineChart`'s value labels (`_write`), the scatter, pie, heatmap, gauge and sparkline in `packages/flutter/lib/src/components/`
   - Problem: They neither compact nor group, where React writes them through `writeChartValue`, and a compact mantissa of five digits or more is `1,500,000T` in React and `1500000T` here.
   - Proposal: Write them all through `compactNumber`, and group the mantissa.
 
-- [ ] **384.** A Flutter `nearest` card has no category and a timeline card has no row (Bug · Flutter · Low)
+- [x] **384.** A Flutter `nearest` card has no category and a timeline card has no row (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/chart_frame.dart`
   - Problem: The `nearest` card's title is the series name alone, while the live region reads the category; the timeline card has no row name, though the docs say it has.
   - Proposal: Write both cards as React does.
 
-- [ ] **385.** Flutter `PlTransfer` draws an empty heading for `sourceLabel: ''` (Bug · Flutter · Low)
+- [x] **385.** Flutter `PlTransfer` draws an empty heading for `sourceLabel: ''` (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/transfer/pl_transfer.dart`
   - Problem: React falls back to the pack's name for the list; Flutter draws nothing.
   - Proposal: Fall back as React does.
 
-- [ ] **386.** The Flutter time grid's live region may be dropped from the semantics tree (Accessibility · Flutter · Low)
+- [x] **386.** The Flutter time grid's live region may be dropped from the semantics tree (Accessibility · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/calendar.dart` (about line 1350)
   - Problem: It is a 0×0 box, and batch 16 found a zero-sized semantics node dropped in the charts. Not confirmed for the calendar.
   - Proposal: Check it, and give it a 1px box as the charts' readout has.
 
-- [ ] **387.** Toasts share the page's backdrop key under an app's `BackdropGroup` (Bug · Flutter · Low)
+- [x] **387.** Toasts share the page's backdrop key under an app's `BackdropGroup` (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/toast/pl_toast.dart`
   - Problem: The toast stack opens no group of its own, as the other overlays do since batch 16, so a toast reads the backdrop where the app's group began.
   - Proposal: Open a group for the stack, as the portals do.
 
-- [ ] **388.** `PlColorPicker`'s description spells out the shared classes (Optimisation · React · Low)
+- [x] **388.** `PlColorPicker`'s description spells out the shared classes (Optimisation · React · Low)
   - Location: `packages/react/src/components/color-picker/PlColorPicker.tsx` (about line 841)
   - Problem: It writes the list `fieldDescriptionClasses` holds, less `m-0`.
   - Proposal: Use `fieldDescriptionClasses`.
 
-- [ ] **389.** Korean bold that does not render, and particles a space away from it (Docs · Docs · Low)
+- [x] **389.** Korean bold that does not render, and particles a space away from it (Docs · Docs · Low)
   - Location: `docs/ko`: `components/display/tree.md:60`, `components/inputs/form.md:73`, `components/inputs/radio-group.md:87`, `components/inputs/segmented-button.md:71`, `components/inputs/tree-select.md:75` and `:77`, `components/surfaces/carousel.md:69`, `components/transitions/animate-rotate.md:54`, `design/rtl.md:84`, `:88` and `:104`; bold followed by a spaced particle on the progress box, time picker, date picker, date range picker, date time picker, segmented button and breakpoints pages; `components/inputs/combobox.md:86` (`_검색_ 하는`)
   - Problem: A closing `**` after punctuation or a backtick with a particle straight after it is printed rather than read, and a particle a space away reads as a word of its own.
   - Proposal: Rewrite each so the marker closes, as item 329 and batch 16 did for `_`; `segmented-button`'s `**"…"** 입니다` needs a different shape.
 
-- [ ] **390.** The date picker's keyboard list is in the React block only (Docs · Docs · Low)
+- [x] **390.** The date picker's keyboard list is in the React block only (Docs · Docs · Low)
   - Location: `docs/en/components/inputs/date-picker.md` and the Korean twin
   - Problem: The arrows, Home and End, and PageUp and PageDown work the same in both builds now.
   - Proposal: Move the list into the shared text.
+
+- [x] **391.** A `PlNavigationMenu` popup jumps to its new size in one frame (Bug · React · Low)
+  - Location: `packages/react/src/components/navigation-menu/PlNavigationMenu.tsx`
+  - Problem: The popup never read the `--popup-width` and `--popup-height` Base UI sets while the panel changes, so the size it transitions went from `auto` to `auto`.
+  - Proposal: Read them, and set them back to `auto` when a controlled `value` changes inside Base UI's sizing frame.
+
+- [ ] **392.** A Flutter `PlButton` builds its content again when the focus ring, `loading`, `readOnly` or `disabled` changes (Performance · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/button/pl_button.dart` (the focus ring's `CustomPaint`, the two glow layers, the `Opacity`), `packages/flutter/lib/src/internal/surface.dart` (`plassStateFilter`)
+  - Problem: Each of these wrappers comes and goes with its state, so the tree above the content changes shape and the label and anything stateful in it is built again.
+  - Proposal: Keep the wrappers in the tree and switch their settings, as item 379 did for the brightness.
+
+- [ ] **393.** A Flutter gallery's grid and justified tiles, and a tile's or a step's focus ring, build their content again (Performance · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/gallery/pl_gallery.dart`, `packages/flutter/lib/src/components/stepper/pl_stepper.dart`
+  - Problem: A grid lays out one `Row` per row and a justified board breaks its rows again when the width changes, so a tile that moves rows is built again; a tile's and a step's focus ring wrap the content only while focused, which builds it again and reloads a tile's picture.
+  - Proposal: Keep the tiles in one list, as item 380 did for the masonry, and keep the ring's `CustomPaint` in the tree.
+
+- [ ] **394.** The Flutter toast stack builds toasts again when one above leaves, fades linearly and repeats a comment (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/toast/pl_toast.dart`
+  - Problem: The `ValueKey` is on `_Toast`, one level below the `Column`'s own children, so the toasts below a leaving one are built again; a toast's fade is linear while the overlays ease on `motionEase` since batch 17; the "Newest nearest the edge" comment is written twice.
+  - Proposal: Key the `Column`'s children, run the fade on `motionEase`, and drop the second comment.
+
+- [ ] **395.** Flutter surfaces painted with a plain `DecoratedBox` open no `BackdropGroup` (Bug · Flutter · Low)
+  - Location: components that paint a fill without `PlassSurfaceBox`
+  - Problem: Batch 17's rule that every surface painting a fill opens a group covers `PlassSurfaceBox` and `PlButton` only, so a glass control on another filled surface still blurs the page behind it under an app's group.
+  - Proposal: Find those surfaces and give them the same rule, or draw them through `PlassSurfaceBox`.
+
+- [ ] **396.** A Flutter anchored popup swallows presses on its anchor while it is open (Bug · Flutter · Medium)
+  - Location: `packages/flutter/lib/src/internal/anchored.dart` (`_PressShield`), `packages/flutter/lib/src/components/combobox/pl_combobox.dart`
+  - Problem: While the list is open, a press on the anchor is taken and closes it, so the × on a `multiple` combobox's chip does not remove the chip and a press to move the caret closes the list; a read-only combobox cannot be opened to look through. Base UI leaves the input group out of the outside press and opens a read-only combobox.
+  - Proposal: Let presses on the anchor reach it, and let a read-only combobox open its list.
+
+- [ ] **397.** A Flutter `PlWindowPane` neither fills its box when maximized nor rolls up when minimized (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/window_pane/pl_window_pane.dart`
+  - Problem: `maximized` only squares the corners and relabels the button, and the bar can still be dragged; a minimized pane keeps its `height`.
+  - Proposal: Fill the container and stop the drag while maximized, as React does, and roll a minimized pane up to its title bar.
+
+- [ ] **398.** A Flutter table cannot be scrolled from the keyboard (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/table.dart` (`PlassGrid`, about line 418)
+  - Problem: `PlTable` and `PlDataTable` scroll in a plain `SingleChildScrollView`, so a table held by `maxHeight`, or wider than its box, has no stop a keyboard can scroll.
+  - Proposal: Scroll it through `PlassKeyboardScroll`, a stop while it overflows, named as the React one is.
+
+- [ ] **399.** React `PlHeatmapChart` takes `Escape` whatever it holds (Bug · React · Low)
+  - Location: `packages/react/src/components/heatmap-chart/PlHeatmapChart.tsx` (about line 509)
+  - Problem: Its own `onKeyDown` answers `Escape` unconditionally, outside the chart frame batch 17 changed.
+  - Proposal: Take it only while there is a readout to clear, as the frame does.
+
+- [ ] **400.** A React carousel mounted at no width opens on the first slide (Bug · React · Low)
+  - Location: `packages/react/src/components/carousel/PlCarousel.tsx`
+  - Problem: Inside a hidden tab the track has no width when item 373's placement runs, so the first slide shows when it appears, whatever `defaultValue` says.
+  - Proposal: Place the strip when the track first has a width.
+
+- [ ] **401.** Flutter carousel dots have no hover colour (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/carousel/pl_carousel.dart`
+  - Problem: A resting React dot turns the accent colour under the pointer; a Flutter dot does not change.
+  - Proposal: Colour it under the pointer as React does.
+
+- [ ] **402.** A `PlNavigationMenu` popup jumps between triggers and wraps its content again while it resizes (Bug · React · Low)
+  - Location: `packages/react/src/components/navigation-menu/PlNavigationMenu.tsx`
+  - Problem: When the panel changes, the popup moves under the new trigger in one frame, and its content wraps again as the size eases.
+  - Proposal: Ease the positioner as Base UI's example does, minding the stale `--positioner-width` after a controlled change and long descriptions on a narrow screen.
+
+- [ ] **403.** `PlPopconfirm` does not pass `loadingLabel` on (Bug · Both · Low)
+  - Location: the popconfirm in both packages
+  - Problem: It hands `loading` to its confirm button but takes no `loadingLabel`, so the word said while it waits cannot be changed there.
+  - Proposal: Take `loadingLabel` and pass it on.
+
+- [ ] **404.** The scatter chart's card and table differ between the builds (Bug · Both · Low)
+  - Location: the scatter charts and `internal/chart-frame.tsx`, `internal/chart_frame.dart`
+  - Problem: React heads the card with x and writes the series and y below it, and its table writes y and z uncompacted; Flutter heads it with the series and writes `x, y (z)`.
+  - Proposal: One shape in both, written through the shared writers.
+
+- [ ] **405.** A Flutter timeline's live region leaves out the row (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/chart_frame.dart`
+  - Problem: React reads "Wireframes, Design: …"; Flutter leaves the row name out, and a test holds that wording.
+  - Proposal: Read the row as React does, and change the test.
+
+- [ ] **406.** Flutter's `compactNumber` writes infinity as `InfinityT` (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/chart.dart`
+  - Problem: A non-finite value goes through the compacting and comes out with a unit.
+  - Proposal: Write it as React's writer does.
+
+- [ ] **407.** Flutter `PlAnimateSplit` has no `mode` (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/animate_split/`
+  - Problem: The React split takes `mode`, so a split exit exists on the web only.
+  - Proposal: Add `mode`, as the other animate widgets have.
+
+- [ ] **408.** `PlAnimateHeadline.repeat` is still described as it was before item 297, and a Korean sentence on its page has no verb (Docs · Docs · Low)
+  - Location: the Flutter dartdoc, the React JSDoc inherited from `PlassAnimateProps`, `docs/ko/components/transitions/animate-headline.md`
+  - Problem: Both comments say `repeat` is how many times it runs; the Korean page reads "컴포넌트가 자기 그리드를 있고".
+  - Proposal: Word both as the props tables now do, and finish the sentence.
+
+- [ ] **409.** The fieldset page's shared Accessibility list states React-only facts (Docs · Docs · Low)
+  - Location: `docs/{en,ko}/components/inputs/fieldset.md`
+  - Problem: The list is shared but speaks of `<fieldset>` and Base UI.
+  - Proposal: Put what differs in `::: fw` blocks.
+
+- [ ] **410.** The colour picker's `alpha` example explains how the chequer is drawn (Docs · Docs · Low)
+  - Location: `docs/{en,ko}/components/inputs/color-picker.md`
+  - Problem: Four linear stops rather than conic gradients is an internal detail the page rules keep off component pages.
+  - Proposal: Move it to the source or the design documents.
+
+- [ ] **411.** The Flutter `PlWindowPane` props table misses three rows, and a window-pane style test presses Tab from the runner (Docs · Docs · Low)
+  - Location: `docs/.vitepress/data/props-flutter.ts`, `packages/react/test/styles/window-pane.test.tsx`
+  - Problem: `maximizeLabel`, `restoreLabel` and `closeLabel` have no rows; the traffic-light test presses `{Tab}` from the runner's frame, which Firefox does not hand to the page.
+  - Proposal: Add the rows, and focus the element directly in the test.
