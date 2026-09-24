@@ -73,6 +73,15 @@ Color? _glyphInk(WidgetTester tester) => tester
     .data
     .color;
 
+/// The key under an unavailable destination: whatever the disabled treatment
+/// dims.
+Finder _dimmedKey() => find.descendant(
+  of: find.byType(AnimatedPositioned),
+  matching: find.byWidgetPredicate(
+    (Widget widget) => widget is PlassFiltered && widget.opacity < 1,
+  ),
+);
+
 void main() {
   group('PlFloatingBottomNavigation', () {
     group('the bar', () {
@@ -222,10 +231,7 @@ void main() {
         // the glyph on it keeps the ink that reads against the gradient,
         // instead of turning muted over a dimmed key.
         expect(_glyphInk(tester), ink);
-        expect(
-          find.descendant(of: find.byType(AnimatedPositioned), matching: find.byType(Opacity)),
-          findsNothing,
-        );
+        expect(_dimmedKey(), findsNothing);
       });
 
       testWidgets('does not answer an unavailable destination', (WidgetTester tester) async {
@@ -410,10 +416,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(
-          find.descendant(of: find.byType(AnimatedPositioned), matching: find.byType(Opacity)),
-          findsOneWidget,
-        );
+        expect(_dimmedKey(), findsOneWidget);
       });
     });
   });

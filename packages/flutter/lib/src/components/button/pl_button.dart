@@ -436,30 +436,41 @@ class _PlButtonState extends State<PlButton> {
             ),
           ),
         ),
-        if (gloss != null)
+        // Every layer from here down keeps its place whatever the state, and
+        // only what is in it changes. A layer that came and went with
+        // `disabled`, `readOnly` or `loading` would move the label to another
+        // place in the stack, which Flutter builds again from scratch.
+        //
+        // The gloss is the glass's, so it goes with the variant, and a disabled
+        // key paints none.
+        if (glass)
           Positioned.fill(
             child: CustomPaint(
-              painter: PlassInsetShadowPainter(
-                shadows: <PlassInsetShadow>[gloss],
-                borderRadius: radius,
-              ),
+              painter: gloss == null
+                  ? null
+                  : PlassInsetShadowPainter(
+                      shadows: <PlassInsetShadow>[gloss],
+                      borderRadius: radius,
+                    ),
             ),
           ),
         // The bloom sits under the label and the flash sits over it, which is
-        // where `::before` and `::after` sit in the stylesheet.
-        if (_interactive)
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: PlassGlowLayer(
-                pointer: _pointer,
-                visible: hovered,
-                color: tokens.glow(family, _variant),
-                radius: glowRadius,
-                duration: PlassTokens.glowDuration,
-                reduceMotion: reduceMotion,
-              ),
-            ),
-          ),
+        // where `::before` and `::after` sit in the stylesheet. An unavailable
+        // key has neither, and loses a light that was on at once.
+        Positioned.fill(
+          child: _interactive
+              ? RepaintBoundary(
+                  child: PlassGlowLayer(
+                    pointer: _pointer,
+                    visible: hovered,
+                    color: tokens.glow(family, _variant),
+                    radius: glowRadius,
+                    duration: PlassTokens.glowDuration,
+                    reduceMotion: reduceMotion,
+                  ),
+                )
+              : const SizedBox(),
+        ),
         // In the tree whatever the variant, with only its key changing, so a
         // ghost key that takes a wash under the pointer keeps what it holds.
         BackdropGroup(
@@ -470,21 +481,22 @@ class _PlButtonState extends State<PlButton> {
           ),
           child: content,
         ),
-        if (_interactive)
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: PlassGlowLayer(
-                pointer: _pointer,
-                visible: pressed,
-                color: tokens.flash(family, _variant),
-                radius: flashRadius,
-                duration: PlassTokens.flashDuration,
-                curve: PlassTokens.flashEase,
-                instant: true,
-                reduceMotion: reduceMotion,
-              ),
-            ),
-          ),
+        Positioned.fill(
+          child: _interactive
+              ? RepaintBoundary(
+                  child: PlassGlowLayer(
+                    pointer: _pointer,
+                    visible: pressed,
+                    color: tokens.flash(family, _variant),
+                    radius: flashRadius,
+                    duration: PlassTokens.flashDuration,
+                    curve: PlassTokens.flashEase,
+                    instant: true,
+                    reduceMotion: reduceMotion,
+                  ),
+                )
+              : const SizedBox(),
+        ),
       ],
     );
 
@@ -522,49 +534,23 @@ class _PlButtonState extends State<PlButton> {
      * response to the pointer, saturation is what read-only and disabled drain.
      * -------------------------------------------------------------------- */
 
-    final saturation = _disabled
-        ? disabledSaturation
-        : widget.readOnly
-        ? readOnlySaturation
-        : null;
+    surface = plassStateFilter(
+      child: surface,
+      disabled: _disabled,
+      readOnly: widget.readOnly,
+      hovered: hovered,
+      pressed: pressed,
+      reduceMotion: reduceMotion,
+    );
 
-    if (saturation != null) {
-      surface = ColorFiltered(colorFilter: saturationFilter(saturation), child: surface);
-    } else {
-      final brightness = pressed
-          ? pressBrightness
-          : hovered
-          ? hoverBrightness
-          : 1.0;
-
-      surface = TweenAnimationBuilder<double>(
-        tween: Tween<double>(end: brightness),
-        duration: reduceMotion ? Duration.zero : tokens.motionDuration,
-        curve: tokens.motionEase,
-        child: surface,
-        // In the tree at rest too, with no filter to apply, for the reason
-        // `plassStateFilter` gives: a filter that came and went with the
-        // pointer would build the label and the icons again on every hover and
-        // every press.
-        builder: (BuildContext context, double value, Widget? child) {
-          return PlassFiltered(
-            colorFilter: value == 1 ? null : brightnessFilter(value),
-            child: child,
-          );
-        },
-      );
-    }
-
-    if (_disabled) {
-      surface = Opacity(opacity: disabledOpacity, child: surface);
-    }
-
-    if (_focusVisible) {
-      surface = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-        child: surface,
-      );
-    }
+    // In the tree with or without a ring to draw, for the reason
+    // `plassStateFilter` gives.
+    surface = CustomPaint(
+      foregroundPainter: _focusVisible
+          ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+          : null,
+      child: surface,
+    );
 
     /* -----------------------------------------------------------------------
      * The behaviour

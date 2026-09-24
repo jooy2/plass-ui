@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -151,7 +153,12 @@ void main() {
         );
 
         expect(
-          find.descendant(of: find.byType(PlFieldset), matching: find.byType(Opacity)),
+          find.descendant(
+            of: find.byType(PlFieldset),
+            matching: find.byWidgetPredicate(
+              (Widget widget) => widget is PlassFiltered && widget.opacity == disabledOpacity,
+            ),
+          ),
           findsWidgets,
         );
       });

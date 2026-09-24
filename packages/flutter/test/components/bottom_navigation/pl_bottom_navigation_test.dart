@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -236,15 +237,16 @@ void main() {
         // Dimmed and drained of colour, as the React item is and as the
         // floating bar dims its own, rather than only carrying the muted ink a
         // resting destination already has.
-        expect(
-          tester
-              .widgetList<Opacity>(
-                find.ancestor(of: find.text('Search'), matching: find.byType(Opacity)),
+        Iterable<double> dims(String label) {
+          return tester
+              .widgetList<PlassFiltered>(
+                find.ancestor(of: find.text(label), matching: find.byType(PlassFiltered)),
               )
-              .map((Opacity dim) => dim.opacity),
-          contains(disabledOpacity),
-        );
-        expect(find.ancestor(of: find.text('Home'), matching: find.byType(Opacity)), findsNothing);
+              .map((PlassFiltered filter) => filter.opacity);
+        }
+
+        expect(dims('Search'), contains(disabledOpacity));
+        expect(dims('Home'), everyElement(1));
       });
 
       testWidgets('goes unavailable with the whole bar', (WidgetTester tester) async {

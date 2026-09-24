@@ -669,7 +669,15 @@ PlassSurface fieldSurface(
 /// for.
 ///
 /// [lit] is `false` for a surface that does not answer the pointer with light —
-/// a field, a sheet — and leaves the brightness alone.
+/// a field, a sheet — and leaves the brightness alone. It says what the surface
+/// is rather than what state it is in, so a caller passes the same value on
+/// every build.
+///
+/// The tree this returns has one shape whatever the state, and only its
+/// settings change. A filter or an opacity that came and went with `disabled`,
+/// `readOnly`, a hover or a press would change the shape of the tree above the
+/// content, and Flutter builds a changed shape from scratch: what the surface
+/// holds would be built again, and a field in it would lose what was typed.
 Widget plassStateFilter({
   required Widget child,
   bool disabled = false,
@@ -679,43 +687,56 @@ Widget plassStateFilter({
   bool reduceMotion = false,
   bool lit = true,
 }) {
-  Widget surface = child;
-
   final saturation = disabled
       ? disabledSaturation
       : readOnly
       ? readOnlySaturation
       : null;
+  final drained = saturation == null ? null : saturationFilter(saturation);
+  final opacity = disabled ? disabledOpacity : 1.0;
 
-  if (saturation != null) {
-    surface = ColorFiltered(colorFilter: saturationFilter(saturation), child: surface);
-  } else if (lit) {
-    final brightness = pressed
-        ? pressBrightness
-        : hovered
-        ? hoverBrightness
-        : 1.0;
-
-    surface = _Lit(brightness: brightness, reduceMotion: reduceMotion, child: surface);
+  if (!lit) {
+    return PlassFiltered(colorFilter: drained, opacity: opacity, child: child);
   }
 
-  if (disabled) {
-    surface = Opacity(opacity: disabledOpacity, child: surface);
-  }
+  // A drained surface does not answer the pointer, so its brightness settles
+  // back to 1 underneath the saturation, ready for when it is available again.
+  final brightness = drained != null
+      ? 1.0
+      : pressed
+      ? pressBrightness
+      : hovered
+      ? hoverBrightness
+      : 1.0;
 
-  return surface;
+  return _Lit(
+    brightness: brightness,
+    drained: drained,
+    opacity: opacity,
+    reduceMotion: reduceMotion,
+    child: child,
+  );
 }
 
 /// The brightness a lit surface answers the pointer with, eased over the
-/// theme's duration and curve.
+/// theme's duration and curve, or [drained] in its place while the surface is
+/// unavailable.
 ///
 /// A widget of its own rather than a builder in [plassStateFilter], because
 /// that is a function with no context to read the theme from, and a widget in
 /// its place reads it where it is built.
 class _Lit extends StatelessWidget {
-  const _Lit({required this.brightness, required this.reduceMotion, required this.child});
+  const _Lit({
+    required this.brightness,
+    required this.drained,
+    required this.opacity,
+    required this.reduceMotion,
+    required this.child,
+  });
 
   final double brightness;
+  final ColorFilter? drained;
+  final double opacity;
   final bool reduceMotion;
   final Widget child;
 
@@ -728,14 +749,12 @@ class _Lit extends StatelessWidget {
       duration: reduceMotion ? Duration.zero : tokens.motionDuration,
       curve: tokens.motionEase,
       child: child,
-      // In the tree at rest too, with no filter to apply. A filter that came
-      // and went with the pointer would change the shape of the tree above the
-      // content, and Flutter builds a changed shape from scratch: every hover
-      // and every press would build what the surface holds again, and a field
-      // in it would lose what was typed.
+      // In the tree at rest and while drained too, with only its settings
+      // changing, for the reason `plassStateFilter` gives.
       builder: (BuildContext context, double value, Widget? child) {
         return PlassFiltered(
-          colorFilter: value == 1 ? null : brightnessFilter(value),
+          colorFilter: drained ?? (value == 1 ? null : brightnessFilter(value)),
+          opacity: opacity,
           child: child,
         );
       },
@@ -743,51 +762,78 @@ class _Lit extends StatelessWidget {
   }
 }
 
-/// Paints [child] through [colorFilter], or straight onto the canvas when there
-/// is none.
+/// Paints [child] through [colorFilter] and at [opacity], and straight onto the
+/// canvas when there is neither to apply.
 ///
 /// A [ColorFiltered] adds a layer whatever its filter is, the identity
-/// included, so a control that kept one in the tree at rest would carry a layer
-/// for nothing. Taking it out at rest is worse, because that changes the shape
-/// of the tree above what the control holds, which Flutter builds again from
-/// scratch. This keeps the shape and adds the layer only while there is a
-/// filter to apply.
+/// included, and an [Opacity] adds one at an opacity of 1, so a control that
+/// kept either in the tree while available would carry a layer for nothing.
+/// Taking them out is worse, because that changes the shape of the tree above
+/// what the control holds, which Flutter builds again from scratch. This keeps
+/// the shape and adds a layer only for what there is to apply.
 class PlassFiltered extends SingleChildRenderObjectWidget {
-  /// Paints [child] through [colorFilter].
-  const PlassFiltered({required this.colorFilter, super.child, super.key});
+  /// Paints [child] through [colorFilter] and at [opacity].
+  const PlassFiltered({required this.colorFilter, this.opacity = 1, super.child, super.key})
+    : assert(opacity >= 0 && opacity <= 1);
 
-  /// The filter, or `null` to paint [child] as it is.
+  /// The filter, or `null` to paint [child] in its own colours.
   final ColorFilter? colorFilter;
 
+  /// How opaque [child] is, from 0 to 1. Applied after [colorFilter], as CSS
+  /// applies `opacity` after `filter`.
+  final double opacity;
+
   @override
-  RenderObject createRenderObject(BuildContext context) => _RenderFiltered(colorFilter);
+  RenderObject createRenderObject(BuildContext context) {
+    return _RenderFiltered(colorFilter: colorFilter, opacity: opacity);
+  }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
-    (renderObject as _RenderFiltered).colorFilter = colorFilter;
+    (renderObject as _RenderFiltered)
+      ..colorFilter = colorFilter
+      ..opacity = opacity;
   }
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(
-      DiagnosticsProperty<ColorFilter>('colorFilter', colorFilter, defaultValue: null),
-    );
+    properties
+      ..add(DiagnosticsProperty<ColorFilter>('colorFilter', colorFilter, defaultValue: null))
+      ..add(DoubleProperty('opacity', opacity, defaultValue: 1.0));
   }
 }
 
 class _RenderFiltered extends RenderProxyBox {
-  _RenderFiltered(this._colorFilter);
+  _RenderFiltered({required ColorFilter? colorFilter, required double opacity})
+    : _colorFilter = colorFilter,
+      _alpha = ui.Color.getAlphaFromOpacity(opacity);
 
   ColorFilter? _colorFilter;
 
-  set colorFilter(ColorFilter? value) {
-    if (value == _colorFilter) {
-      return;
-    }
+  int _alpha;
 
+  /// The filter's layer while it sits inside the opacity's, which is then the
+  /// one in [layer].
+  final LayerHandle<ColorFilterLayer> _filterLayer = LayerHandle<ColorFilterLayer>();
+
+  set colorFilter(ColorFilter? value) {
+    if (value != _colorFilter) {
+      _change(() => _colorFilter = value);
+    }
+  }
+
+  set opacity(double value) {
+    final alpha = ui.Color.getAlphaFromOpacity(value);
+
+    if (alpha != _alpha) {
+      _change(() => _alpha = alpha);
+    }
+  }
+
+  void _change(VoidCallback change) {
     final bool composited = alwaysNeedsCompositing;
-    _colorFilter = value;
+    change();
 
     if (composited != alwaysNeedsCompositing) {
       markNeedsCompositingBitsUpdate();
@@ -797,24 +843,53 @@ class _RenderFiltered extends RenderProxyBox {
   }
 
   @override
-  bool get alwaysNeedsCompositing => child != null && _colorFilter != null;
+  bool get alwaysNeedsCompositing => child != null && (_colorFilter != null || _alpha != 255);
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final ColorFilter? filter = _colorFilter;
+    final ContainerLayer? old = layer;
 
-    if (filter == null) {
+    if (child == null) {
       layer = null;
-      super.paint(context, offset);
+      _filterLayer.layer = null;
 
       return;
     }
 
-    layer = context.pushColorFilter(
-      offset,
-      filter,
-      super.paint,
-      oldLayer: layer as ColorFilterLayer?,
-    );
+    if (_alpha == 255) {
+      _filterLayer.layer = null;
+      layer = _paintFiltered(context, offset, old is ColorFilterLayer ? old : null);
+
+      return;
+    }
+
+    layer = context.pushOpacity(offset, _alpha, (PaintingContext context, Offset offset) {
+      _filterLayer.layer = _paintFiltered(context, offset, _filterLayer.layer);
+    }, oldLayer: old is OpacityLayer ? old : null);
+  }
+
+  /// Paints the child through the filter, and returns the layer that took, or
+  /// `null` when there is no filter and the child went straight onto the
+  /// canvas.
+  ColorFilterLayer? _paintFiltered(
+    PaintingContext context,
+    Offset offset,
+    ColorFilterLayer? oldLayer,
+  ) {
+    final ColorFilter? filter = _colorFilter;
+
+    if (filter == null) {
+      super.paint(context, offset);
+
+      return null;
+    }
+
+    return context.pushColorFilter(offset, filter, super.paint, oldLayer: oldLayer);
+  }
+
+  @override
+  void dispose() {
+    _filterLayer.layer = null;
+    super.dispose();
   }
 }

@@ -8,6 +8,7 @@ import 'package:plass_ui/plass_ui.dart';
 // Reached directly rather than through the barrel: these are the library
 // talking to itself, and the tests are the one caller allowed to listen in.
 import 'package:plass_ui/src/internal/css.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 
 /// The same suite the React package runs, asked the way Flutter asks it.
@@ -473,16 +474,25 @@ void main() {
       testWidgets('lets the page through a disabled key rather than greying it', (
         WidgetTester tester,
       ) async {
+        Iterable<int> alphas() {
+          return tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha!);
+        }
+
         await tester.pumpWidget(
           host(PlButton(disabled: true, onPressed: () {}, child: const Text('Save'))),
         );
 
-        final opacity = tester.widget<Opacity>(find.byType(Opacity));
-
-        expect(opacity.opacity, 0.5);
+        expect(alphas(), <int>[128]);
         // It keeps its shape and its colour; what it loses is the light.
         expect(surfaceOf(tester).gradient, isNotNull);
         expect(shellOf(tester).boxShadow ?? const <BoxShadow>[], isEmpty);
+
+        await tester.pumpWidget(host(PlButton(onPressed: () {}, child: const Text('Save'))));
+        await tester.pumpAndSettle();
+
+        // And an available key is not painted through an opacity of 1, which
+        // would be one more layer on every button on the screen for nothing.
+        expect(alphas(), isEmpty);
       });
 
       testWidgets('swaps in a spinner while loading', (WidgetTester tester) async {
@@ -610,6 +620,75 @@ void main() {
 
         handle.dispose();
       });
+
+      for (final PlassVariant variant in PlassVariant.values) {
+        testWidgets('keeps what a ${variant.name} key holds as its focus ring and state change', (
+          WidgetTester tester,
+        ) async {
+          // The ring, `loading`, `readOnly` and `disabled` change how the key
+          // looks and what it does, and the tree above the label must not
+          // change with them: a wrapper that came and went would build the
+          // label again, and a stateful one would start over.
+          FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+          addTearDown(() {
+            FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic;
+          });
+          final FocusNode node = FocusNode();
+          addTearDown(node.dispose);
+
+          int rings() {
+            return tester
+                .widgetList<CustomPaint>(find.byType(CustomPaint))
+                .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+                .length;
+          }
+
+          Widget button({bool loading = false, bool readOnly = false, bool disabled = false}) {
+            return host(
+              PlButton(
+                onPressed: () {},
+                focusNode: node,
+                variant: variant,
+                loading: loading,
+                readOnly: readOnly,
+                disabled: disabled,
+                child: const _Probe(),
+              ),
+            );
+          }
+
+          await tester.pumpWidget(button());
+          final State<_Probe> resting = tester.state(find.byType(_Probe));
+
+          node.requestFocus();
+          await tester.pumpAndSettle();
+
+          expect(rings(), 1, reason: 'the ring is drawn');
+          expect(tester.state(find.byType(_Probe)), same(resting), reason: 'focused');
+
+          node.unfocus();
+          await tester.pumpAndSettle();
+
+          expect(rings(), 0, reason: 'the ring is gone');
+          expect(tester.state(find.byType(_Probe)), same(resting), reason: 'unfocused');
+
+          for (final (String reason, Widget next) in <(String, Widget)>[
+            ('loading', button(loading: true)),
+            ('loaded', button()),
+            ('read-only', button(readOnly: true)),
+            ('writable again', button()),
+            ('disabled', button(disabled: true)),
+            ('enabled again', button()),
+          ]) {
+            await tester.pumpWidget(next);
+            // Past every transition, rather than until nothing moves: the
+            // spinner turns for as long as the key is loading.
+            await tester.pump(const Duration(seconds: 1));
+
+            expect(tester.state(find.byType(_Probe)), same(resting), reason: reason);
+          }
+        });
+      }
 
       testWidgets('does not fire onPressed when read-only', (WidgetTester tester) async {
         var taps = 0;

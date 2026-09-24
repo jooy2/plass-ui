@@ -1,14 +1,17 @@
 /// That the filters a surface wears for its state leave what it holds alone.
 ///
-/// A hover and a press change how bright a lit surface is, and nothing else
-/// about it. A filter that came and went with them would change the shape of
-/// the tree above the content, and Flutter builds a changed shape from scratch,
-/// so what is checked here is the content's own state, kept across both.
+/// A hover and a press change how bright a lit surface is, and `readOnly` and
+/// `disabled` how drained and how faint, and nothing else about it. A filter
+/// that came and went with them would change the shape of the tree above the
+/// content, and Flutter builds a changed shape from scratch, so what is checked
+/// here is the content's own state, kept across all four.
 library;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plass_ui/src/internal/css.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
 import '../support/host.dart';
@@ -78,5 +81,75 @@ void main() {
 
       expect(filters(), isEmpty, reason: 'at rest again');
     });
+
+    for (final bool isLit in <bool>[true, false]) {
+      final String name = isLit ? 'a lit' : 'an unlit';
+
+      Widget surface({bool disabled = false, bool readOnly = false, bool hovered = false}) {
+        return host(
+          plassStateFilter(
+            disabled: disabled,
+            readOnly: readOnly,
+            hovered: hovered,
+            lit: isLit,
+            child: const _Probe(),
+          ),
+        );
+      }
+
+      testWidgets('keeps what $name surface holds as it is made read-only and disabled', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(surface(hovered: true));
+        final State<_Probe> resting = tester.state(find.byType(_Probe));
+
+        for (final (String reason, Widget next) in <(String, Widget)>[
+          ('read-only', surface(readOnly: true, hovered: true)),
+          ('writable again', surface(hovered: true)),
+          ('disabled', surface(disabled: true, hovered: true)),
+          ('enabled again', surface(hovered: true)),
+          ('at rest', surface()),
+        ]) {
+          await tester.pumpWidget(next);
+          await tester.pumpAndSettle();
+
+          expect(tester.state(find.byType(_Probe)), same(resting), reason: reason);
+        }
+      });
+
+      testWidgets('adds a layer to $name surface only for what its state applies', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(surface(disabled: true));
+
+        // Dimmed over its drained colours, as CSS applies `opacity` after
+        // `filter`.
+        final OpacityLayer dim = tester.layers.whereType<OpacityLayer>().single;
+
+        expect(dim.alpha, Color.getAlphaFromOpacity(disabledOpacity));
+        expect(
+          (dim.firstChild! as ColorFilterLayer).colorFilter,
+          saturationFilter(disabledSaturation),
+        );
+        expect(tester.layers.whereType<ColorFilterLayer>(), hasLength(1));
+
+        await tester.pumpWidget(surface(readOnly: true));
+        await tester.pumpAndSettle();
+
+        expect(tester.layers.whereType<OpacityLayer>(), isEmpty, reason: 'read-only');
+        expect(
+          tester.layers.whereType<ColorFilterLayer>().single.colorFilter,
+          saturationFilter(readOnlySaturation),
+        );
+
+        await tester.pumpWidget(surface());
+        await tester.pumpAndSettle();
+
+        // An opacity of 1 and no filter are nothing to apply, and a layer
+        // applying them would be one more on every control for nothing.
+        expect(tester.layers.whereType<OpacityLayer>(), isEmpty, reason: 'available');
+        expect(tester.layers.whereType<ColorFilterLayer>(), isEmpty, reason: 'available');
+      });
+    }
   });
 }
