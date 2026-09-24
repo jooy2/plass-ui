@@ -6,7 +6,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
@@ -457,6 +459,7 @@ class _PlCarouselState extends State<PlCarousel> {
                       height: dot.height,
                       accent: family.accent,
                       quiet: tokens.border,
+                      ring: family.ring,
                       duration: _travel,
                       onPressed: widget.onChanged == null ? null : () => _go(index),
                     ),
@@ -516,7 +519,10 @@ class _PlCarouselState extends State<PlCarousel> {
 /// One position dot.
 ///
 /// A real button named after the slide it goes to, so the row is a way to
-/// navigate rather than a read-out.
+/// navigate rather than a read-out: a stop of its own in the tab order, pressed
+/// with <kbd>Enter</kbd> or <kbd>Space</kbd>, as a `<button>` is on the web.
+/// Frozen with the rest of the carousel, it leaves the tab order as the arrows
+/// do.
 class _Dot extends StatelessWidget {
   const _Dot({
     required this.current,
@@ -526,6 +532,7 @@ class _Dot extends StatelessWidget {
     required this.height,
     required this.accent,
     required this.quiet,
+    required this.ring,
     required this.duration,
     required this.onPressed,
   });
@@ -537,6 +544,7 @@ class _Dot extends StatelessWidget {
   final double height;
   final Color accent;
   final Color quiet;
+  final Color ring;
   final Duration duration;
   final VoidCallback? onPressed;
 
@@ -548,31 +556,43 @@ class _Dot extends StatelessWidget {
       label: label,
       onTap: onPressed,
       child: ExcludeSemantics(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        child: PlassInteractive(
           onTap: onPressed,
-          child: MouseRegion(
-            cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
-            // The row's height never changes and the dots either side of the
-            // current one do not move: only the width and the colour travel,
-            // inside a target that is the same size for every dot.
-            child: SizedBox(
-              width: grown > _dotTarget ? grown : _dotTarget,
-              height: _dotTarget,
-              child: Center(
-                child: AnimatedContainer(
-                  duration: duration,
-                  curve: PlassTheme.of(context).motionEase,
-                  width: current ? grown : rest,
-                  height: height,
-                  decoration: BoxDecoration(
-                    color: current ? accent : quiet,
-                    borderRadius: BorderRadius.circular(height / 2),
+          enabled: onPressed != null,
+          interactive: onPressed != null,
+          cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
+          builder: (BuildContext context, PlassInteraction state) {
+            // The ring goes round the whole press target rather than the dot,
+            // and the painter stays in the tree when there is no ring to draw,
+            // so the focus arriving does not build the dot again.
+            return CustomPaint(
+              foregroundPainter: state.focusVisible
+                  ? PlassFocusRingPainter(
+                      color: ring,
+                      borderRadius: BorderRadius.circular(_dotTarget / 2),
+                    )
+                  : null,
+              // The row's height never changes and the dots either side of the
+              // current one do not move: only the width and the colour travel,
+              // inside a target that is the same size for every dot.
+              child: SizedBox(
+                width: grown > _dotTarget ? grown : _dotTarget,
+                height: _dotTarget,
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: duration,
+                    curve: PlassTheme.of(context).motionEase,
+                    width: current ? grown : rest,
+                    height: height,
+                    decoration: BoxDecoration(
+                      color: current ? accent : quiet,
+                      borderRadius: BorderRadius.circular(height / 2),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );

@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **Each `PlCarousel` dot can be reached with Tab.** The dots could be pressed but not reached from the keyboard. Each is now a focus stop of its own, named after its slide, pressed with Enter or Space and drawn with the focus ring while the keyboard holds it, as the React dots are. A frozen carousel's dots leave the tab order, as its arrows do.
+
 - **A `nearest` tooltip card is headed by its category, and a `PlTimelineChart` card names the span's row.** The `nearest` card was headed by the series alone, with the category nowhere on it though the live region read it; it is now the column's card narrowed to the one mark, the category over the series and its value. A timeline card named a span that names itself and left its row out; the row is now written beside the swatch, under the span's name, as in the React build.
 
 - **A line chart's value labels, a scatter, a pie, a heatmap and a gauge write their numbers compactly and grouped.** They wrote the bare number, so a slice worth 48,300 read `48300` and 1,234.5 read `1234.50`, where every other chart and the React build write `48.3K` and `1,234.5`. They now go through the writer the axes and the tooltips use, and a caller's `format` still wins. A compact figure of five digits or more in front of the last unit is grouped too, `1,500,000T` rather than `1500000T`, as `Intl` writes it.

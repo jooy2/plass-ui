@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
 
@@ -533,6 +534,95 @@ void main() {
         expect(dots, hasLength(3));
         expect(dots.map((BoxConstraints box) => box.maxWidth).toList(), <double>[16, 6, 6]);
       });
+
+      testWidgets('is a tab stop each, named after its slide, pressed with Enter or Space', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(afterFocusStop(before, const _Harness(arrows: false)), width: 360),
+        );
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(_focusedDot(), 'Slide 1 of 3');
+        expect(_rings(tester), 1);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(_focusedDot(), 'Slide 3 of 3');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(_valueOf(tester), 2);
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        await tester.pumpAndSettle();
+
+        // Still on the dot it was pressed from, with the ring still round it.
+        expect(_focusedDot(), 'Slide 2 of 3');
+        expect(_valueOf(tester), 1);
+        expect(_rings(tester), 1);
+      });
+
+      testWidgets('leaves the tab order while the carousel is frozen', (WidgetTester tester) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(afterFocusStop(before, const _Harness(arrows: false, frozen: true)), width: 360),
+        );
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(_focusedDot(), isNull);
+      });
     });
   });
+}
+
+/// The name of the dot holding the focus, read off the button `Semantics` it is
+/// wrapped in, or `null` when the focus is on something else.
+String? _focusedDot() {
+  String? name;
+
+  FocusManager.instance.primaryFocus?.context?.visitAncestorElements((Element element) {
+    final Widget widget = element.widget;
+
+    if (widget is Semantics && widget.properties.button == true) {
+      name = widget.properties.label;
+
+      return false;
+    }
+
+    return widget is! PlCarousel;
+  });
+
+  return name;
+}
+
+/// How many focus rings are drawn.
+int _rings(WidgetTester tester) {
+  return tester
+      .widgetList<CustomPaint>(find.byType(CustomPaint))
+      .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+      .length;
 }
