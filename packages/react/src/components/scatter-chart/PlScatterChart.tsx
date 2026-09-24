@@ -424,12 +424,17 @@ function ScatterTable({
               <tr key={`${index}-${at}`}>
                 <th scope="row">{one.name ?? index + 1}</th>
                 <td>{writeX(x, at, xFormat, locale)}</td>
-                {/* A `null` is a gap and prints as an empty cell, exactly as it
-                    does on every other chart's table. A zero written here would
-                    be the one place the library reported missing data as a
-                    number. */}
+                {/* A point's own label in place of its y, as on the card and on
+                    every other chart's table. A `null` is a gap and prints as
+                    an empty cell, exactly as it does there too. A zero written
+                    here would be the one place the library reported missing
+                    data as a number. */}
                 <td>
-                  {y === null || !Number.isFinite(y) ? '' : writeChartValue(y, format, locale)}
+                  {point?.label !== undefined
+                    ? point.label
+                    : y === null || !Number.isFinite(y)
+                      ? ''
+                      : writeChartValue(y, format, locale)}
                 </td>
                 {sized ? (
                   <td>{point?.z === undefined ? '' : writeChartValue(point.z, format, locale)}</td>

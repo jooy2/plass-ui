@@ -394,6 +394,30 @@ describe('PlScatterChart', () => {
       expect(cells).toEqual(['1', '', '2', '5']);
     });
 
+    it("writes a point's own label in place of its y, as the card does", async () => {
+      const screen = await render(
+        <PlScatterChart
+          label="Spend"
+          series={[
+            {
+              name: 'Q1',
+              data: [
+                { x: 1, y: 2, label: 'Two' },
+                { x: 3, y: 4 }
+              ]
+            }
+          ]}
+        />
+      );
+
+      const table = screen.getByRole('table', { name: 'Spend' });
+
+      await expect.element(table).toBeInTheDocument();
+      expect(
+        [...table.element().querySelectorAll('tbody td')].map((one) => one.textContent?.trim())
+      ).toEqual(['1', 'Two', '3', '4']);
+    });
+
     it('writes y and z as every chart writes a value, and x as the axis writes it', async () => {
       const cellsOf = (element: Element) =>
         [...element.querySelectorAll('tbody td')].map((one) => one.textContent?.trim());

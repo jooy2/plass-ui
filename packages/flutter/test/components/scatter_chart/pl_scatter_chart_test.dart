@@ -345,6 +345,67 @@ void main() {
       expect(find.text('Q1'), findsWidgets);
     });
 
+    testWidgets('reads a point\'s own label in place of its y', (WidgetTester tester) async {
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: <PlassChartSeries>[
+            PlassChartSeries(
+              name: 'Q1',
+              data: <PlassChartDatum>[
+                const PlassChartDatum.point(
+                  PlassChartPoint(x: PlassChartCategory.number(1), y: 2, label: 'Two'),
+                ),
+                _at(3, 4),
+              ],
+            ),
+          ],
+        ),
+      );
+
+      // As the card and the React table write it.
+      expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, 'Q1: 1, Two; 3, 4');
+    });
+
+    testWidgets('names nothing beside the swatch of a series with no name, in the point colour', (
+      WidgetTester tester,
+    ) async {
+      const Color own = Color(0xFF123456);
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(
+          before,
+          const PlScatterChart(
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                data: <PlassChartDatum>[
+                  PlassChartDatum.point(
+                    PlassChartPoint(x: PlassChartCategory.number(10), y: 22, color: own),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+
+      // As the React card is: the swatch says which series it is, and its
+      // colour is the one the mark is painted in rather than the series'.
+      expect(_cardLines(tester), <String>['10', '22']);
+      expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label, '10, 22');
+      expect(_cardSwatch(tester), own);
+    });
+
     testWidgets('writes the x as its axis does, and never in the y\'s format', (
       WidgetTester tester,
     ) async {
@@ -468,6 +529,20 @@ Future<(String, String, String)> _readingOf(WidgetTester tester, PlScatterChart 
     find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label,
   );
 }
+
+/// The colour of the swatch on the tooltip card, the one small square on it.
+Color? _cardSwatch(WidgetTester tester) =>
+    (tester
+                .widgetList<Container>(
+                  find.descendant(
+                    of: find.byType(PlassChartTooltipCard),
+                    matching: find.byType(Container),
+                  ),
+                )
+                .singleWhere((Container box) => box.constraints?.maxWidth == 8)
+                .decoration!
+            as BoxDecoration)
+        .color;
 
 /// Every line of text on the tooltip card, top to bottom.
 List<String> _cardLines(WidgetTester tester) => tester

@@ -670,9 +670,11 @@ class PlassCartesianChart extends StatefulWidget {
   final String Function(PlassChartMark mark)? markHeading;
 
   /// And what the card names beside its swatch, for a chart whose marks belong
-  /// to something other than the frame's series. A Gantt's belong to its rows,
-  /// and a span that names itself is headed by that name with its row under it.
-  final String Function(PlassChartMark mark)? markName;
+  /// to something other than the frame's series, or `null` for nothing. A
+  /// Gantt's belong to its rows, and a span that names itself is headed by that
+  /// name with its row under it; one that does not is headed by its row, which
+  /// is then not written a second time.
+  final String? Function(PlassChartMark mark)? markName;
 
   /// And what colour its swatch is, for a chart whose marks are not coloured
   /// by the frame's series.
@@ -1370,8 +1372,12 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                         }
 
                         if (active != null) {
+                          // A point's own colour over its series', as it is
+                          // painted, and as the React build's card takes it.
                           final Color color =
-                              widget.markColor?.call(active) ?? layout.colors[active.series];
+                              widget.markColor?.call(active) ??
+                              layout.values[active.series][active.index].color ??
+                              layout.colors[active.series];
 
                           if (widget.markReadout != null) {
                             return _MarkTooltip(
@@ -1400,7 +1406,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                             mark: active,
                             color: color,
                             heading: categoryText(layout.categories[active.index], names),
-                            name: widget.series[active.series].name ?? '${active.series + 1}',
+                            name: widget.series[active.series].name,
                             readout: entry.label ?? _write(entry.value ?? 0),
                             tokens: tokens,
                             size: size,
@@ -2279,9 +2285,8 @@ List<int> _spokenAt(
 /// One series' part of a spoken readout: its name, then what it is worth.
 ///
 /// A series with no name is read by its value alone, as the React build reads
-/// it. The card writes the series' number beside its swatch, where the swatch
-/// says which line it is; said aloud with nothing beside it, "1: 12" is a
-/// number the reader has to work out is not data.
+/// it and as the card writes it beside the swatch: "1: 12" is a number the
+/// reader has to work out is not data.
 String _itemReading(String? name, ChartValue entry, String Function(double) write) {
   // A point's own label wins, exactly as it does on the card.
   final String said = entry.label ?? write(entry.value!);
@@ -2358,8 +2363,11 @@ class _Tooltip extends StatelessWidget {
 
       rows.add(
         _TooltipRow(
-          color: layout.colors[i],
-          name: series[i].name ?? '${i + 1}',
+          // A point's own colour over its series', as the mark is painted.
+          color: entry.color ?? layout.colors[i],
+          // A series with no name has nothing beside its swatch, as in the
+          // React build: the swatch says which it is.
+          name: series[i].name,
           // A point's own label wins, as it does in the React build's tooltip
           // and table. On a chart stacked to full that label is the caller's
           // number, and the value drawn is only its share.

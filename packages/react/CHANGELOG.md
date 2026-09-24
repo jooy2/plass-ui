@@ -68,6 +68,10 @@
 
 ### Fixed
 
+- **A `PlScatterChart`'s table writes a point's own `label` in place of its y.** The table wrote the bare y beside a point the card called by its label; it now writes the label, as the card and every other chart's table do.
+
+- **A `PlTimelineChart` span with no name is read with its row once.** Its card was headed by its row and named the row again beside the swatch, and the live region read "Design, Design: Jan 1, 2026 – Jan 9, 2026". The row now heads the card alone and is read once, "Design, Jan 1, 2026 – Jan 9, 2026"; a span that names itself still has its row beside the swatch. A custom `tooltip.render` is handed no `name` for such a span.
+
 - **A `PlScatterChart` point's x is written on its card, in its live region and in its table as the x axis writes it.** It was written as the raw figure, `12345`, where the axis under it wrote `12.3K`. It now goes through the axis' `tickFormat` when it has one and compactly when it has not; the chart's `format` stays the y's, and a date is still written as a date.
 
 - **A `PlWindowPane` that is both `maximized` and `minimized` is rolled up to its title bar across the whole of what holds it.** The maximized window stayed `100%` tall whatever `minimized` said, so the minimize button left it filling its container with an empty, inert body and seemed to do nothing. It now keeps the full width and is only as tall as its bar, easing there as any roll-up does, as the Flutter build does. A window rolled up while maximized and restored before it came back down also comes down to its own height rather than growing to the height of the box it filled.

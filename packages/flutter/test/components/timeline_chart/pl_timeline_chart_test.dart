@@ -342,5 +342,51 @@ void main() {
       await tester.pump();
       expect(lines(), <String>['Implementation', 'Build', 'Jan 8, 2026 – Jan 26, 2026']);
     });
+
+    testWidgets('heads the card with the row of a span that has no name, and reads the row once', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(
+          before,
+          PlTimelineChart(
+            series: <PlassTimelineSeries>[
+              PlassTimelineSeries(
+                name: 'Design',
+                data: <PlassTimelinePoint>[PlassTimelinePoint(start: _at(1), end: _at(9))],
+              ),
+            ],
+            semanticLabel: 'Plan',
+          ),
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+
+      // As the React build writes and reads it: the row heads the card and is
+      // not written again beside the swatch.
+      expect(
+        tester
+            .widgetList<Text>(
+              find.descendant(of: find.byType(PlassChartTooltipCard), matching: find.byType(Text)),
+            )
+            .map((Text text) => text.data!)
+            .toList(),
+        <String>['Design', 'Jan 1, 2026 – Jan 9, 2026'],
+      );
+      expect(
+        find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label,
+        'Design, Jan 1, 2026 – Jan 9, 2026',
+      );
+    });
   });
 }

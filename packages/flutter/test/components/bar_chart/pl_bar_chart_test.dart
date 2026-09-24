@@ -356,6 +356,66 @@ void main() {
       expect(said(), 'Europe, This year: 42, Last year: 35');
       expect(find.byType(PlassChartTooltipCard), findsOneWidget);
     });
+
+    testWidgets('writes a bar of a series with no name on its card by its colour and value', (
+      WidgetTester tester,
+    ) async {
+      const Color own = Color(0xFF123456);
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(
+          before,
+          const PlBarChart(
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                data: <PlassChartDatum>[
+                  PlassChartDatum(42),
+                  PlassChartDatum.point(PlassChartPoint(y: 58, color: own)),
+                ],
+              ),
+            ],
+            categories: <PlassChartCategory>[
+              PlassChartCategory.text('Europe'),
+              PlassChartCategory.text('Asia'),
+            ],
+          ),
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+
+      // As the React card is: nothing beside the swatch, which says which
+      // series it is, in the colour the bar is painted in.
+      final Finder card = find.byType(PlassChartTooltipCard);
+
+      expect(
+        tester
+            .widgetList<Text>(find.descendant(of: card, matching: find.byType(Text)))
+            .map((Text text) => text.data!)
+            .toList(),
+        <String>['Asia', '58'],
+      );
+      expect(
+        (tester
+                    .widgetList<Container>(
+                      find.descendant(of: card, matching: find.byType(Container)),
+                    )
+                    .singleWhere((Container box) => box.constraints?.maxWidth == 8)
+                    .decoration!
+                as BoxDecoration)
+            .color,
+        own,
+      );
+    });
   });
 }
 

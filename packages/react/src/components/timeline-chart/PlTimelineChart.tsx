@@ -213,10 +213,13 @@ export function PlTimelineChart({
         return null;
       }
 
+      const own = one.span.label;
       const items: ChartTooltipItem[] = [
         {
           seriesIndex: mark.series,
-          name: names[mark.series],
+          // Only under the span's own name. Under the row's, the row would be
+          // written twice and read twice, "Design, Design: …".
+          name: own === undefined || own === null ? undefined : names[mark.series],
           color: one.color ?? colors[mark.series],
           // A duration, which is the one number a span has. It is what a
           // caller's own `tooltip.render` gets handed.
@@ -232,7 +235,7 @@ export function PlTimelineChart({
 
       // The span names itself when it can, and the row is then the second line
       // rather than a repeat of the first.
-      return { heading: one.span.label ?? names[mark.series], items };
+      return { heading: own ?? names[mark.series], items };
     },
     [spans, names, colors, scale.unit, locale, withDate]
   );

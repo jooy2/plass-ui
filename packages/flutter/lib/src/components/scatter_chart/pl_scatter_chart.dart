@@ -313,7 +313,9 @@ class PlScatterChart extends StatelessWidget {
       // the point is.
       markHeading: (PlassChartMark mark) =>
           _writeX(_xOf(values[mark.series][mark.index], mark.index), names),
-      markName: (PlassChartMark mark) => series[mark.series].name ?? '${mark.series + 1}',
+      // A series with no name has nothing beside its swatch, as on the React
+      // card.
+      markName: (PlassChartMark mark) => series[mark.series].name,
       markReadout: (PlassChartMark mark) {
         final ChartValue value = values[mark.series][mark.index];
         final double? z = value.z;
@@ -332,11 +334,12 @@ class PlScatterChart extends StatelessWidget {
 
   /// What one point is worth in the text handed over in place of the drawing.
   ///
-  /// Its x as the card heads it, and nothing for an x that is not on the plot.
+  /// Its x as the card heads it, and nothing for an x that is not on the plot,
+  /// then its y, or its own label in place of the y as on the card.
   String _readout(ChartValue value, int index, PlDateNames names) {
     final bool placed = pointX(value, index, categories) != null;
     final String x = placed ? '${_writeX(_xOf(value, index), names)}, ' : '';
-    final String pair = '$x${_write(value.value ?? 0)}';
+    final String pair = '$x${value.label ?? _write(value.value ?? 0)}';
 
     return value.z == null ? pair : '$pair (${_write(value.z!)})';
   }

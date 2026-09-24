@@ -253,6 +253,58 @@ describe('PlTimelineChart', () => {
     });
   });
 
+  describe('the readout', () => {
+    it('heads a span with no name by its row, and reads that row once', async () => {
+      const screen = await render(
+        <PlTimelineChart
+          label="Plan"
+          series={[
+            {
+              name: 'Design',
+              data: [
+                { start: at(1), end: at(9), label: 'Wireframes' },
+                { start: at(11), end: at(18) }
+              ]
+            }
+          ]}
+        />
+      );
+      const plot = screen.getByRole('img', { name: 'Plan' });
+      const status = () => screen.getByRole('status').element().textContent ?? '';
+      // The card's heading, then every word on its one row.
+      const card = () => {
+        const panel = screen.container.querySelector('[data-plass-tooltip]');
+
+        return [
+          panel?.querySelector(':scope > div')?.textContent,
+          ...[...(panel?.querySelectorAll('li span') ?? [])]
+            .map((one) => one.textContent)
+            .filter(Boolean)
+        ];
+      };
+      const walk = () =>
+        plot
+          .element()
+          .dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true })
+          );
+
+      await expect.element(plot).toBeInTheDocument();
+
+      // A span that names itself has its row beside the swatch.
+      walk();
+      await expect.poll(status).toMatch(/^Wireframes, Design: /);
+      expect(card().slice(0, 2)).toEqual(['Wireframes', 'Design']);
+
+      // One that does not is headed by its row, which is not written again.
+      walk();
+      await expect.poll(status).toMatch(/^Design, [^:]+$/);
+      expect(card()).toHaveLength(2);
+      expect(card()[0]).toBe('Design');
+      expect(card()[1]).not.toContain('Design');
+    });
+  });
+
   describe('lanes', () => {
     it('moves an overlapping span onto a lane of its own', async () => {
       const overlapping = [

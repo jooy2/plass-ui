@@ -74,6 +74,12 @@
 
 ### Fixed
 
+- **The text a `PlScatterChart` hands a screen reader writes each point as its card does.** The x went through the chart's `format`, which is the y's, so a currency on the y put a dollar sign on every x, a date was written as its milliseconds, and a point's own `label` was passed over for its bare y. The x now goes through `xAxis.format` or `compactNumber`, a date reads as the card writes it, `Mar 1`, and a label stands in for the y.
+
+- **A chart card's swatch is the colour of the mark it describes.** A card took its series' colour for the swatch, so a bar or a scatter point given a `color` of its own sat beside a swatch of another colour. It now takes the point's own colour, as the React build does.
+
+- **A chart card writes nothing beside the swatch of a series with no name.** It wrote the series' number, "1", which reads as a figure, where the React card leaves the swatch to say which series it is. The live region already read such a series by its value alone.
+
 - **A `PlWindowPane` with no `height` fills its body down to the frame once a drag has made it taller.** The body stretched only when `height` was given, so a window resized by its edges was left with a body as tall as its content and the band colour under it, which on a system with no band, such as `macos`, left the page behind the window showing through. It now fills whatever height the window has, given or dragged, as the React body does.
 
 - **A `PlChip`, `PlToggle`, `PlTextField`, `PlSelect`, `PlCombobox`, `PlNumberField` and `PlFilePicker` keep what they hold as `readOnly` and `disabled` change.** The gloss of a `glass` surface and the pointer light came and went with the state, which changed the shape of the tree above the content, so a slot and anything stateful in it were built again from scratch, and a field came back with a new editor. A pressable chip was also wrapped in its focus, pointer and semantics only while it was available, and a `split` number field's editor moved as `readOnly` put the stepper in front of it away. They now stay in the tree with only their settings changing, and a disabled chip still takes no focus, lets a press through and is not announced as a button. The same holds for the trigger of every picker, from `PlDatePicker` to `PlTreeSelect`.
@@ -96,7 +102,7 @@
 
 - **A `PlScatterChart` card is headed by the point's x, with its series and its y under it.** The card was headed by the series and wrote `x, y (z)` on one line, where the React card and every other card in both builds are headed by where the reading is. It is now written as the React card is: the x through `xAxis.format` or `compactNumber`, then the swatch, the series and the y through `format` or `compactNumber`, with a point's own `label` in place of the y when it has one and a bubble's `z` after it in brackets. The live region reads it the same way, "10, Q1: 22 (5)".
 
-- **A `PlTimelineChart` span is read with its row.** The live region read a span as its name and its dates, "Wireframes, Jan 1, 2026 – Jan 9, 2026", and left out the row the card shows beside the swatch. It now reads "Wireframes, Design: Jan 1, 2026 – Jan 9, 2026", as the React build does.
+- **A `PlTimelineChart` span that names itself is read with its row.** The live region read a span as its name and its dates, "Wireframes, Jan 1, 2026 – Jan 9, 2026", and left out the row the card shows beside the swatch. It now reads "Wireframes, Design: Jan 1, 2026 – Jan 9, 2026", as the React build does.
 
 - **A labelled `PlSparkline` reads its numbers the way a chart writes them.** Its semantic value wrote each number whole or with two fixed decimals, `48300` and `1234.57`, where every other chart writes it through `compactNumber`. It now does too, "1,234.57, 48.3K", as in the React build.
 
