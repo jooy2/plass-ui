@@ -99,7 +99,13 @@ class PlAnimateHeadline extends StatelessWidget {
   /// The easing curve. The house curve when nothing says otherwise.
   final Curve? curve;
 
-  /// How many times it runs. `null` never stops.
+  /// How the headline stops, and nothing else.
+  ///
+  /// It counts neither lines nor cycles: [loop] decides whether the lines start
+  /// again after the last one. With [PlassAnimateTrigger.hover], `null`, the
+  /// default, stops the reel where it is when the pointer and the focus leave,
+  /// and a count leaves it turning after they have gone. Under any other
+  /// [trigger] it changes nothing.
   final int? repeat;
 
   /// Holds the reel where it is.

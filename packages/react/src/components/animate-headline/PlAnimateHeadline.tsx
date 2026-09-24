@@ -5,7 +5,7 @@ import { mergeProps } from '@base-ui/react/merge-props';
 import { isInfinite, lengthValue, useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { cx } from '../../internal/styles.js';
-import type { PlassAnimateProps } from '../../types.js';
+import type { PlassAnimateProps, PlassAnimateRepeat } from '../../types.js';
 
 export interface PlAnimateHeadlineProps
   extends Omit<PlassAnimateProps, 'alternate'>, React.ComponentPropsWithoutRef<'div'> {
@@ -31,6 +31,15 @@ export interface PlAnimateHeadlineProps
    * @default true
    */
   loop?: boolean;
+  /**
+   * How the headline stops, and nothing else. It counts neither lines nor
+   * cycles: `loop` decides whether the lines start again after the last one.
+   * With `trigger="hover"`, `'infinite'` stops the reel where it is when the
+   * pointer and the focus leave, and a count leaves it turning after they have
+   * gone. Under any other `trigger` it changes nothing.
+   * @default 'infinite'
+   */
+  repeat?: PlassAnimateRepeat;
   /**
    * How far a line travels as it comes up or leaves — a CSS length, or a number
    * in pixels. `'100%'` is one line's own height.

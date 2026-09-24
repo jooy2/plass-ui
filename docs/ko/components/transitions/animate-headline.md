@@ -46,7 +46,7 @@ const PlAnimateHeadline(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 그대로 통과합니다. `render`도 `alternate`도 없습니다. 컴포넌트가 자기 그리드를 있고, 릴에는 돌아갈 다른 방향이 없습니다.
+네이티브 `<div>` 속성은 그대로 통과합니다. `render`도 `alternate`도 없습니다. 그리드는 컴포넌트가 직접 관리하고, 릴에는 돌아갈 다른 방향이 없습니다.
 
 :::
 
