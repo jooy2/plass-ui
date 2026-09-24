@@ -64,6 +64,7 @@ The provider's props are defaults for every question asked under it. A single ca
 - A provider that unmounts with questions outstanding **answers them all with `false`**.
 - Outside a provider, <Fw react="`usePlConfirm` throws" flutter="`PlConfirmProvider.of` asserts" /> rather than answering `false`.
 - Escape and a press outside answer **no**, never yes. An `alert`, which has no Cancel, closes on either of them too and completes as its button would.
+- The sheet draws no ×. A question is answered by its own buttons, and while it is `dismissible` by Escape and a press outside as well.
 
 [Prop conventions](../../design/prop-conventions#asking-from-a-handler) has the reasons for these rules.
 
@@ -75,7 +76,7 @@ The provider's props are defaults for every question asked under it. A single ca
 
 `PlConfirmProvider.of(context)` rather than a hook, the same lookup `PlToastProvider` offers, and the framework's own shape for this.
 
-`initialFocus` takes a `PlConfirmFocus` rather than a string. The sheet draws no ×.
+`initialFocus` takes a `PlConfirmFocus` rather than a string.
 
 :::
 

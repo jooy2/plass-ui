@@ -84,6 +84,24 @@ describe('PlConfirmProvider', () => {
       await expect.element(screen.getByRole('button', { name: 'Keep it' })).toBeInTheDocument();
     });
 
+    it('draws no close button beside its own two', async () => {
+      const screen = await render(
+        <PlConfirmProvider>
+          <Asker answer={() => {}} confirmLabel="Delete it" cancelLabel="Keep it" />
+        </PlConfirmProvider>
+      );
+
+      await screen.getByRole('button', { name: 'Delete' }).click();
+      await expect.element(screen.getByRole('button', { name: 'Delete it' })).toBeInTheDocument();
+
+      expect(screen.getByRole('button', { name: 'Close' }).query()).toBeNull();
+      expect(
+        Array.from(document.querySelectorAll('[role="dialog"] button'), (button) =>
+          button.textContent?.trim()
+        )
+      ).toEqual(['Keep it', 'Delete it']);
+    });
+
     it('falls back to the provider’s labels', async () => {
       const screen = await render(
         <PlConfirmProvider confirmLabel="삭제" cancelLabel="취소">

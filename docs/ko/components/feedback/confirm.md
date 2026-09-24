@@ -64,6 +64,7 @@ provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니�
 - 답을 기다리는 질문이 남은 채 provider가 unmount되면 **전부 `false`로 답합니다**.
 - provider 밖에서는 <Fw react="`usePlConfirm`이 throw합니다" flutter="`PlConfirmProvider.of`가 assert합니다" />. `false`로 답하지 않습니다.
 - Escape와 바깥 누름은 **아니오**로 답하고, 절대 예로 답하지 않습니다. Cancel이 없는 `alert`도 둘 중 어느 쪽으로든 닫히며 버튼을 눌렀을 때처럼 완료됩니다.
+- 시트에 ×는 그려지지 않습니다. 질문에는 자기 버튼으로 답하고, `dismissible`인 동안에는 Escape와 바깥 누름으로도 답합니다.
 
 이 규칙들의 이유는 [prop 규약](../../design/prop-conventions#핸들러에서-묻기)에 있습니다.
 
@@ -75,7 +76,7 @@ provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니�
 
 hook이 아니라 `PlConfirmProvider.of(context)`입니다. `PlToastProvider`가 내주는 그 조회이고, 프레임워크 자신의 모양입니다.
 
-`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다. 시트에 ×는 그려지지 않습니다.
+`initialFocus`는 문자열이 아니라 `PlConfirmFocus`를 받습니다.
 
 :::
 

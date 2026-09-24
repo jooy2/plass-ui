@@ -38,6 +38,8 @@
 
 ### Changed
 
+- **A `PlConfirmProvider` sheet draws no × any more, as the Flutter one never has.** A question is answered by its own buttons, which say what each answer does, and while it is `dismissible`, Escape and a press outside still answer no.
+
 - **A `PlCollapsible`'s title and subtitle wrap, as a `PlAccordionItem`'s do.** They were each held to one line and ellipsed, so a heading that ran past the header lost its end with nothing to press for the rest. `truncate` puts both back on one line, for a name out of a database beside a control.
 
 - **A carousel stops once the focus comes into it, and stays stopped until its button starts it again.** Hover and focus shared one pause, so a pointer passing over the frame started it again while a keyboard reader's focus was still inside. The pointer now pauses it only while it is over the frame. A reader who asked for reduced motion starts stopped rather than never starting, and the live region announces the slide once the carousel has stopped.

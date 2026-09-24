@@ -199,14 +199,18 @@ export function PlConfirmProvider({
 
       <PlModal
         open={open}
-        // The only path that reaches here is Escape, a click outside or the
-        // close button — the buttons below settle and close it themselves, and
-        // a controlled `open` does not call this back for that.
+        // The only path that reaches here is Escape or a click outside — the
+        // buttons below settle and close it themselves, and a controlled `open`
+        // does not call this back for that.
         onOpenChange={(next) => {
           if (!next) {
             settle(false);
           }
         }}
+        // No ×, as in the Flutter build. A question is answered by its own
+        // buttons, which say what each answer does; a × beside them would be a
+        // third answer that means the same as Cancel without saying so.
+        showClose={false}
         size={options?.size ?? size}
         color={options?.color ?? color}
         width={options?.width ?? width}
