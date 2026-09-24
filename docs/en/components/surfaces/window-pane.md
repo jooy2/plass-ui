@@ -39,7 +39,7 @@ There is no desktop, no z-order and no dock. What there is is a title bar that d
 
 <PropsTable name="PlWindowPane" />
 
-`minimize` rolls the window up to its title bar rather than sending it anywhere, because a page has nowhere to send it to. `maximize` fills whatever is holding the window.
+`minimize` rolls the window up to its title bar rather than sending it anywhere, because a page has nowhere to send it to. `maximize` fills whatever is holding the window; a window that is minimized as well fills it across and is rolled up to its bar.
 
 ::: fw flutter
 

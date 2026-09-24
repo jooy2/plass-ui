@@ -1,6 +1,6 @@
 /**
- * What a macOS traffic light shows, and where the move handle lies, which the
- * stylesheet decides.
+ * What a macOS traffic light shows, where the move handle lies and how tall a
+ * window rolled up in its box is, which the stylesheet decides.
  *
  * The mark is held back with `opacity` and brought out by a hover on the set and
  * by the focus on one light, so nothing about it can be read off the markup —
@@ -15,6 +15,7 @@ import { commands, server, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlWindowPane } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { emulateMedia } from '../support/media';
 
 let sheet: HTMLStyleElement;
 
@@ -61,6 +62,68 @@ describe('the move handle', () => {
     expect(
       close.contains(document.elementFromPoint(at.x + at.width / 2, at.y + at.height / 2))
     ).toBe(true);
+  });
+});
+
+describe('a window both maximized and minimized', () => {
+  /** A box for the window to fill, and the window in it, already maximized. */
+  async function maximizedIn() {
+    const screen = await render(
+      <div style={{ position: 'relative', width: 480, height: 360 }}>
+        <PlWindowPane os="windows11" title="Notes" position="absolute" defaultMaximized>
+          <p>Body</p>
+        </PlWindowPane>
+      </div>
+    );
+
+    const pane = screen.container.querySelector<HTMLElement>('.plass-window')!;
+    const bar = pane.firstElementChild as HTMLElement;
+
+    return { screen, pane, bar };
+  }
+
+  it('fills its box across and rolls up to its bar, travelling there', async () => {
+    // A transition is part of what is being asserted, so motion is asked for
+    // rather than left to the runner's system.
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    const { screen, pane, bar } = await maximizedIn();
+    const travelled: string[] = [];
+
+    pane.addEventListener('transitionrun', (event) => travelled.push(event.propertyName));
+
+    await screen.getByRole('button', { name: 'Minimize' }).click();
+
+    // As tall as the bar and the frame round it, and no taller.
+    const rolled = () => {
+      const frame = parseFloat(getComputedStyle(pane).borderBottomWidth);
+
+      return bar.getBoundingClientRect().bottom + frame - pane.getBoundingClientRect().top;
+    };
+
+    await expect.poll(() => pane.getBoundingClientRect().height - rolled()).toBeCloseTo(0, 0);
+    expect(pane.getBoundingClientRect().width).toBeCloseTo(480, 0);
+    expect(travelled).toContain('height');
+  });
+
+  it('comes back down to its own height once it is restored, not to the height of its box', async () => {
+    const { screen, pane } = await maximizedIn();
+    const heights: string[] = [];
+    const watch = new MutationObserver(() => heights.push(pane.style.height));
+
+    await screen.getByRole('button', { name: 'Minimize' }).click();
+    await screen.getByRole('button', { name: 'Restore' }).click();
+
+    watch.observe(pane, { attributes: true, attributeFilter: ['style'] });
+
+    try {
+      await screen.getByRole('button', { name: 'Minimize' }).click();
+
+      await expect.poll(() => pane.getBoundingClientRect().height).toBeLessThan(200);
+      expect(heights).not.toContain('360px');
+    } finally {
+      watch.disconnect();
+    }
   });
 });
 

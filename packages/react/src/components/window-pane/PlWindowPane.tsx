@@ -159,7 +159,8 @@ export interface PlWindowPaneProps extends Omit<
   onMinimizedChange?: (minimized: boolean) => void;
   /**
    * Whether the window fills whatever is holding it. Its corners go square
-   * while it does, as they do on every system.
+   * while it does, as they do on every system. A window that is also
+   * `minimized` fills it across and is rolled up to its bar.
    */
   maximized?: boolean;
   /** @default false */
@@ -777,7 +778,9 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
         setRolled(bar.offsetHeight + (root.offsetHeight - root.clientHeight));
       }
 
-      const auto = (sized?.height ?? height) === undefined;
+      // A maximized window is `100%` tall, which is a length already. Pinned, it
+      // would come back down to the height of its box once it was restored.
+      const auto = (sized?.height ?? height) === undefined && !maximized;
 
       if (next && auto && root) {
         setPinned(root.getBoundingClientRect().height);
@@ -946,20 +949,21 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       </div>
     );
 
+    // Rolled up to its title bar whatever it was told to be, maximized or not —
+    // the height belongs to the body, and the body has gone.
+    const rolledHeight = rolled ?? metrics.bar;
+
     const geometry: React.CSSProperties = maximized
       ? // `100%` rather than `inset: 0`, and on every `position`: both ends of a
         // maximize have to be lengths for the window to travel between them, and
-        // `auto` is not one.
-        { left: 0, top: 0, width: '100%', height: '100%' }
+        // `auto` is not one. A window minimized as well keeps the whole width
+        // and is only as tall as its bar.
+        { left: 0, top: 0, width: '100%', height: minimized ? rolledHeight : '100%' }
       : {
           left: offset.x,
           top: offset.y,
           width: sized?.width ?? width,
-          // A rolled-up window is as tall as its title bar, whatever it was told
-          // to be — the height belongs to the body, and the body has gone.
-          height: minimized
-            ? (rolled ?? metrics.bar)
-            : (sized?.height ?? height ?? pinned ?? undefined)
+          height: minimized ? rolledHeight : (sized?.height ?? height ?? pinned ?? undefined)
         };
 
     const pane = useRender({

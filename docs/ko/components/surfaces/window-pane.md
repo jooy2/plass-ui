@@ -39,7 +39,7 @@ PlWindowPane(title: const Text('Notes'), child: MyApp());
 
 <PropsTable name="PlWindowPane" />
 
-`minimize`는 창을 어디로 보내지 않고 제목 표시줄까지 말아 올립니다. 페이지에는 보낼 곳이 없기 때문입니다. `maximize`는 창을 담고 있는 것을 가득 채웁니다.
+`minimize`는 창을 어디로 보내지 않고 제목 표시줄까지 말아 올립니다. 페이지에는 보낼 곳이 없기 때문입니다. `maximize`는 창을 담고 있는 것을 가득 채웁니다. 최소화까지 된 창은 담고 있는 것의 너비를 채운 채 제목 표시줄까지 말려 올라갑니다.
 
 ::: fw flutter
 
