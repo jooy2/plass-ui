@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlSelect, type PlSelectOption } from 'plass-ui';
@@ -190,9 +191,9 @@ describe('PlSelect', () => {
 
       // The click the lock swallowed must not be remembered: unlocking the
       // field is not the reader asking for the list. Settled before the lock
-      // lifts and again after it, because WebKit hands Base UI the click a tick
-      // late — without the first wait the request would arrive unlocked, which
-      // is a different test passing for the wrong reason.
+      // lifts and again after it, so the request is refused while the field is
+      // still locked. A request that arrives after the lock lifts is the next
+      // test.
       await screen.getByRole('combobox').click();
       await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -202,6 +203,35 @@ describe('PlSelect', () => {
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(screen.getByRole('option', { name: 'Seoul' }).query()).toBeNull();
+    });
+
+    it('does not open for a locked press when the lock lifts before its request lands', async () => {
+      // Base UI asks to open on the frame after a press, so a press made while
+      // the field is locked can ask after the lock has lifted. Lifting it on
+      // the press itself puts the request there in every browser, rather than
+      // only when the test happens to resume before the next frame.
+      function UnlockedByThePress() {
+        const [locked, setLocked] = useState(true);
+
+        return (
+          <div onMouseDown={() => setLocked(false)}>
+            <PlSelect items={items} readOnly={locked} defaultValue="seoul" />
+          </div>
+        );
+      }
+
+      const screen = await render(<UnlockedByThePress />);
+
+      await screen.getByRole('combobox').click();
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
+
+      expect(screen.getByRole('combobox').element()).not.toHaveAttribute('aria-readonly');
+      expect(screen.getByRole('option', { name: 'Seoul' }).query()).toBeNull();
+
+      // Unlocked now, so the next press is a request like any other.
+      await screen.getByRole('combobox').click();
+
+      await expect.element(screen.getByRole('option', { name: 'Seoul' })).toBeInTheDocument();
     });
 
     it('opens again once the read-only is lifted', async () => {

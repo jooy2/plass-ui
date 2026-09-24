@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A press on a read-only `PlSelect` does not open it, even when the lock lifts before the press is answered.** Base UI answers a pointer press on the next frame, and `PlSelect` checked `readOnly` at that frame rather than at the press, so a lock lifted in between, such as by a form that unlocks the field on the same press, let the press open the list anyway. The press is now judged by whether the field was locked when it was made.
+
 - **A vertical `PlNavigationMenu` opens its panels beside the rail, at the end of the line.** `orientation="vertical"` was documented as a nav rail whose panels open beside it, but every panel hung under its item, over the items below it. A panel now opens at the rail's inline end, which is its left under RTL with `PlassProvider`, and every item spans the rail, so each panel opens against the rail's edge and the sheet moves down the rail from one item to the next. The rail's labels now sit in its middle, as they do in the Flutter build and in a vertical `PlMenubar`.
 
 - **A `PlWindowPane` that starts minimized is as tall as its title bar and the frame round it, the same as one rolled up by its button.** A window that started rolled up through `defaultMinimized` or a controlled `minimized` was only as tall as its bar, so the frame cut the bottom off the bar: 2px on most systems, and 4px on `windows8`.

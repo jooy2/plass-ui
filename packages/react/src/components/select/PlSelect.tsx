@@ -274,6 +274,12 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       }
     }, [readOnly]);
 
+    // Base UI answers a pointer press on the frame after it, not on the press
+    // itself, so the request from a press on a locked field can arrive after the
+    // lock has lifted. The press decides, not the frame its request lands in:
+    // the `mousedown` it came from is held here and refused whenever it arrives.
+    const lockedPress = React.useRef<Event | null>(null);
+
     // Holds the trigger open at the width of the longest thing it could say, so
     // choosing a shorter option does not shrink the field out from under the
     // pointer that chose it. A `fullWidth` trigger takes its width from its
@@ -341,7 +347,9 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
           // it would spring the popup open the moment the read-only lifted, and
           // a form that unlocks a section would drop a menu over it at nobody's
           // asking.
-          onOpenChange={(next) => setOpen(next && !readOnly)}
+          onOpenChange={(next, details) =>
+            setOpen(next && !readOnly && details.event !== lockedPress.current)
+          }
         >
           <FieldNotch
             notched={notched}
@@ -358,6 +366,9 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
               // is answered by the thing that has the focus, and a wrapper would
               // fire for a key pressed on the label beside it.
               onKeyDown={hotKeyHandler(hotKeys, undefined)}
+              onMouseDown={(event) => {
+                lockedPress.current = readOnly ? event.nativeEvent : null;
+              }}
               onPointerMove={glowPointerMove(lit)}
               style={notched ? notchShellStyle : undefined}
               className={[
