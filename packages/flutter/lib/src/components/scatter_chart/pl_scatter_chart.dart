@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
+import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -151,10 +152,22 @@ class PlScatterChart extends StatelessWidget {
   /// without one.
   String _write(double value) => format?.call(value) ?? compactNumber(value);
 
+  /// A point's own x as a category: the one it carries, or the one at its
+  /// place in [categories], or its place itself.
+  PlassChartCategory _xOf(ChartValue value, int index) {
+    final List<PlassChartCategory>? given = categories;
+
+    return value.x ??
+        (given != null && index < given.length
+            ? given[index]
+            : PlassChartCategory.number(index.toDouble()));
+  }
+
   @override
   Widget build(BuildContext context) {
     final PlassSize step = size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
     final double dot = pointRadius ?? markerRadii[step]!;
+    final PlDateNames names = PlassTheme.defaultsOf(context).names ?? PlDateNames.english;
 
     // Unpacked once and closed over. The readout runs on every frame the
     // pointer moves, and unpacking the whole chart to answer "what is this one
@@ -276,13 +289,25 @@ class PlScatterChart extends StatelessWidget {
         height: 10,
         child: CustomPaint(painter: _SwatchPainter(shapeOf(index), color)),
       ),
-      markReadout: (PlassChartMark mark) => _readout(values[mark.series][mark.index], mark.index),
+      // A card headed by the point's own x, over its series and its y, as the
+      // React card is and as every other card is shaped: on a plot with two
+      // value axes the x is data rather than a heading the marks were filed
+      // under, but it is still where the point is.
+      markHeading: (PlassChartMark mark) =>
+          categoryText(_xOf(values[mark.series][mark.index], mark.index), names),
+      markName: (PlassChartMark mark) => series[mark.series].name ?? '${mark.series + 1}',
+      markReadout: (PlassChartMark mark) {
+        final ChartValue value = values[mark.series][mark.index];
+
+        // A point's own label wins, as it does on every other card.
+        return value.label ?? _write(value.value ?? 0);
+      },
       semanticValue: (List<bool> visible) => _summary(values, visible),
       paint: (Canvas canvas, PlassChartLayout layout) => _paint(canvas, layout, shapeOf),
     );
   }
 
-  /// What one point is worth, as the tooltip and the reader both hear it.
+  /// What one point is worth in the text handed over in place of the drawing.
   String _readout(ChartValue value, int index) {
     final double? x = pointX(value, index, categories);
     final String pair = '${x == null ? '' : '${_write(x)}, '}${_write(value.value ?? 0)}';

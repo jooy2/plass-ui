@@ -342,6 +342,25 @@ describe('PlScatterChart', () => {
 
       expect(cells).toEqual(['1', '', '2', '5']);
     });
+
+    it('writes y and z as every chart writes a value, and x as the card heads a point', async () => {
+      const cellsOf = (element: Element) =>
+        [...element.querySelectorAll('tbody td')].map((one) => one.textContent?.trim());
+      const series = [{ name: 'Q1', data: [{ x: 12345, y: 1234.5, z: 1500000 }] }];
+
+      const screen = await render(<PlScatterChart label="Spend" series={series} />);
+      const table = screen.getByRole('table', { name: 'Spend' });
+
+      await expect.element(table).toBeInTheDocument();
+      expect(cellsOf(table.element())).toEqual(['12345', '1,234.5', '1.5M']);
+
+      // With a `format`, both are written in it, as the card writes the y.
+      await screen.rerender(
+        <PlScatterChart label="Spend" series={series} format={{ maximumFractionDigits: 0 }} />
+      );
+
+      await expect.poll(() => cellsOf(table.element())).toEqual(['12345', '1,235', '1,500,000']);
+    });
   });
 
   describe('shape', () => {

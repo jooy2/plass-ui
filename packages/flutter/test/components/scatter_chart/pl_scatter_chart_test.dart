@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/chart.dart';
+import 'package:plass_ui/src/internal/chart_frame.dart';
 
 import '../../support/canvas.dart';
 import '../../support/host.dart';
@@ -292,10 +293,13 @@ void main() {
         await tester.tapAt(Offset(plot.left + plot.width * t, plot.top + plot.height * 0.5));
         await tester.pumpAndSettle();
 
-        if (find.textContaining(', ').evaluate().isNotEmpty) {
-          // The heading names the series it belongs to, which is what says the
-          // readout is about a mark rather than about a column.
-          expect(find.text('Q1').hitTestable(), findsWidgets);
+        if (find.byType(PlassChartTooltipCard).evaluate().isNotEmpty) {
+          // The point's own x over its series and its y, which is what says
+          // the readout is about a mark rather than about a column.
+          final List<String> lines = _cardLines(tester);
+
+          expect(lines, hasLength(3));
+          expect(<String>['Q1', 'Q2'], contains(lines[1]));
 
           return;
         }
@@ -321,15 +325,16 @@ void main() {
 
       expect(said(), isEmpty);
 
-      // Each point is read the way its card is: the series, then the pair.
+      // Each point is read the way its card is, and the way the React build
+      // reads it: its own x, then its series and its y.
       for (final (LogicalKeyboardKey key, String reading) in <(LogicalKeyboardKey, String)>[
-        (LogicalKeyboardKey.arrowRight, 'Q1, 10, 22'),
-        (LogicalKeyboardKey.arrowRight, 'Q1, 20, 31'),
-        (LogicalKeyboardKey.arrowRight, 'Q1, 30, 28'),
-        (LogicalKeyboardKey.arrowRight, 'Q2, 12, 40'),
-        (LogicalKeyboardKey.end, 'Q2, 26, 35'),
-        (LogicalKeyboardKey.arrowLeft, 'Q2, 12, 40'),
-        (LogicalKeyboardKey.home, 'Q1, 10, 22'),
+        (LogicalKeyboardKey.arrowRight, '10, Q1: 22'),
+        (LogicalKeyboardKey.arrowRight, '20, Q1: 31'),
+        (LogicalKeyboardKey.arrowRight, '30, Q1: 28'),
+        (LogicalKeyboardKey.arrowRight, '12, Q2: 40'),
+        (LogicalKeyboardKey.end, '26, Q2: 35'),
+        (LogicalKeyboardKey.arrowLeft, '12, Q2: 40'),
+        (LogicalKeyboardKey.home, '10, Q1: 22'),
       ]) {
         await tester.sendKeyEvent(key);
         await tester.pump();
@@ -339,5 +344,47 @@ void main() {
 
       expect(find.text('Q1'), findsWidgets);
     });
+
+    testWidgets('heads the card with the point\'s x over its series and its y, as React does', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(
+          before,
+          PlScatterChart(
+            series: <PlassChartSeries>[
+              PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[_at(12345, 1234.5, z: 1500000)]),
+            ],
+          ),
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+
+      // The x as a category is written, the y through the chart's number
+      // writer, and the size is left to the bubble, as on the React card.
+      expect(_cardLines(tester), <String>['12345', 'Q1', '1,234.5']);
+      expect(
+        find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label,
+        '12345, Q1: 1,234.5',
+      );
+    });
   });
 }
+
+/// Every line of text on the tooltip card, top to bottom.
+List<String> _cardLines(WidgetTester tester) => tester
+    .widgetList<Text>(
+      find.descendant(of: find.byType(PlassChartTooltipCard), matching: find.byType(Text)),
+    )
+    .map((Text text) => text.data!)
+    .toList();

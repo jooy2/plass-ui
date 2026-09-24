@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A `PlScatterChart`'s table writes y and z as every chart writes a value.** They were written with at most two decimals and never compacted, so a z the card and the legend never showed was `1,500,000` and a y the card wrote as `48.3K` was `48,300`. They now go through the chart's `format`, or compactly without one.
+
 - **`Escape` on a `PlHeatmapChart` is taken only while a cell is being read.** The heatmap answered the key whatever it held and marked it handled, so a heatmap with nothing being read kept the key from a `usePlHotKeys` binding around it, and one with a readout let the same press go on and close the sheet it sat in as well. With a readout, the press now clears it and stops there; with none, it goes on to whatever the chart sits in, as on every other chart.
 
 - **A labelled `PlSparkline` reads its numbers the way a chart writes them.** The values written out for a screen reader were the raw figures, `48300` and `1234.567`, where every other chart writes a value it has no `format` for compactly and grouped in the reader's locale. They now go through the same writer, in the provider's `locale`: "1,234.57, 48.3K".

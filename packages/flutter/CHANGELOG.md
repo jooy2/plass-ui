@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlScatterChart` card is headed by the point's x, with its series and its y under it.** The card was headed by the series and wrote `x, y (z)` on one line, where the React card and every other card in both builds are headed by where the reading is. It is now written as the React card is: the x, then the swatch, the series and the y through `format` or `compactNumber`, with a point's own `label` in place of the y when it has one. The live region reads it the same way, "10, Q1: 22". A bubble's `z` is no longer on the card; it stays in the text the chart hands a screen reader.
+
 - **A `PlTimelineChart` span is read with its row.** The live region read a span as its name and its dates, "Wireframes, Jan 1, 2026 – Jan 9, 2026", and left out the row the card shows beside the swatch. It now reads "Wireframes, Design: Jan 1, 2026 – Jan 9, 2026", as the React build does.
 
 - **A labelled `PlSparkline` reads its numbers the way a chart writes them.** Its semantic value wrote each number whole or with two fixed decimals, `48300` and `1234.57`, where every other chart writes it through `compactNumber`. It now does too, "1,234.57, 48.3K", as in the React build.
