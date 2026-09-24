@@ -11,7 +11,7 @@
  * is not and a box that matches another, never a shade or a size.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { commands, server, userEvent } from 'vitest/browser';
+import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlWindowPane } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -144,30 +144,22 @@ describe('the macOS traffic lights', () => {
 
   it('shows the mark of the light the keyboard has reached, and only that one', async () => {
     const screen = await render(
-      <>
-        <button type="button">Before</button>
-        <PlWindowPane os="macos" title="Notes">
-          Body
-        </PlWindowPane>
-      </>
+      <PlWindowPane os="macos" title="Notes">
+        Body
+      </PlWindowPane>
     );
 
     await commands.parkPointer();
 
-    const before = screen.getByRole('button', { name: 'Before' }).element() as HTMLElement;
     const close = screen.getByRole('button', { name: 'Close' }).element() as HTMLElement;
     const minimize = screen.getByRole('button', { name: 'Minimize' }).element() as HTMLElement;
 
-    // Tabbed into rather than focused from script: `:focus-visible` is the
-    // browser's judgement about how the focus arrived, and only a real key press
-    // makes that judgement the keyboard's. WebKit on macOS passes over buttons on
-    // Tab unless the system's keyboard navigation setting is on, and Option-Tab
-    // reaches them either way, so that is the key a Safari user presses. Firefox
-    // does nothing with Option-Tab, so everywhere else it is plain Tab.
-    before.focus();
-    await userEvent.keyboard(
-      server.browser === 'webkit' && server.platform === 'darwin' ? '{Alt>}{Tab}{/Alt}' : '{Tab}'
-    );
+    // Focused directly rather than with Tab: Firefox does not hand the first Tab
+    // pressed in the runner's frame to the page. `focusVisible` makes it the
+    // keyboard's focus, which is what the mark is drawn for; left to judge a
+    // focus moved by script, a browser goes by the last press on the page, and
+    // the tests above press with the pointer.
+    close.focus({ focusVisible: true });
 
     await expect.poll(() => document.activeElement).toBe(close);
     // Polled, because the mark fades in over `--plass-duration` rather than

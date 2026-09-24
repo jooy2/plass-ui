@@ -6393,6 +6393,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     from('PlWindowPane', 'minimizeLabel', { type: 'String?' }),
+    from('PlWindowPane', 'maximizeLabel', { type: 'String?' }),
+    from('PlWindowPane', 'restoreLabel', { type: 'String?' }),
+    from('PlWindowPane', 'closeLabel', { type: 'String?' }),
     from('PlWindowPane', 'resizeLabel', { type: 'String?' }),
     from('PlWindowPane', 'moveLabel', { type: 'String?' }),
     from('PlWindowPane', 'children', { name: 'child', type: 'Widget?' }),
