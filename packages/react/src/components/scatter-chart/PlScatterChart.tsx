@@ -12,6 +12,7 @@ import {
 } from '../../internal/chart-frame.js';
 import {
   bubbleRadius,
+  compactNumber,
   dimmedByHover,
   formatCategory,
   markerRadii,
@@ -27,7 +28,8 @@ import {
 } from '../../internal/chart.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
-import type { PlassChartCategory, PlassChartSeries } from '../../types.js';
+import { textOf } from '../../internal/text.js';
+import type { PlassChartAxis, PlassChartCategory, PlassChartSeries } from '../../types.js';
 
 /**
  * How many series the palette can tell apart on a plot where any two marks may
@@ -48,6 +50,29 @@ const separableSeries = 3;
 
 /** Nothing smaller than this, or a small-but-real value disappears. */
 const minBubble = 2;
+
+/**
+ * A point's x as the x axis writes it, for the card and the table.
+ *
+ * A number goes through the axis' own `tickFormat` when it has one and is
+ * written compactly when it has not, as the ticks under it are, so `12345` is
+ * `12.3K` on the card, in the table and along the axis alike. Never through
+ * `format`, which belongs to the y: a currency applied to an axis of years
+ * prints `$2,019`. A moment keeps the date every card writes, and anything else
+ * is not on the plot at all and is written as it was given.
+ */
+function writeX(
+  x: PlassChartCategory,
+  index: number,
+  tickFormat: PlassChartAxis['tickFormat'],
+  locale: string | undefined
+): string {
+  if (typeof x !== 'number') {
+    return formatCategory(x, locale);
+  }
+
+  return tickFormat ? textOf(tickFormat(x, index)) : compactNumber(x, locale);
+}
 
 export interface PlScatterChartProps extends CartesianChartProps {
   /**
@@ -203,9 +228,9 @@ export function PlScatterChart({
   );
 
   /**
-   * What the card and the live region say about a mark: its x over its series
-   * and its y, as the frame writes a mark, and on a bubble the z after the y in
-   * brackets. A point's own `label` stands in for its y and for nothing else,
+   * What the card and the live region say about a mark: its x, written as the
+   * axis writes it, over its series and its y, as the frame writes a mark, and
+   * on a bubble the z after the y in brackets. A point's own `label` stands in for its y and for nothing else,
    * so a labelled bubble is its label with the z after it.
    */
   const markTooltip = React.useCallback(
@@ -229,11 +254,16 @@ export function PlScatterChart({
       ];
 
       return {
-        heading: formatCategory(value.x ?? categories?.[mark.index] ?? mark.index, locale),
+        heading: writeX(
+          value.x ?? categories?.[mark.index] ?? mark.index,
+          mark.index,
+          xAxis?.tickFormat,
+          locale
+        ),
         items
       };
     },
-    [values, series, colors, categories, format, locale]
+    [values, series, colors, categories, xAxis?.tickFormat, format, locale]
   );
 
   return (
@@ -265,6 +295,7 @@ export function PlScatterChart({
           label={props.label}
           xLabel={xAxis?.label}
           yLabel={props.yAxis?.label}
+          xFormat={xAxis?.tickFormat}
           locale={locale}
           format={format}
         />
@@ -338,6 +369,7 @@ interface TableProps {
   label?: string;
   xLabel?: React.ReactNode;
   yLabel?: React.ReactNode;
+  xFormat?: PlassChartAxis['tickFormat'];
   locale?: string;
   format?: Intl.NumberFormatOptions;
 }
@@ -353,7 +385,7 @@ interface TableProps {
  * The columns are named from the axis labels when there are any, and `x`, `y`
  * and `z` when there are not — the names the data model itself uses, which is
  * the honest fallback for a heading nobody supplied. The `x` is written as the
- * card heads a point with it, and `y` and `z` as every chart writes a value.
+ * axis and the card write it, and `y` and `z` as every chart writes a value.
  */
 function ScatterTable({
   id,
@@ -362,6 +394,7 @@ function ScatterTable({
   label,
   xLabel,
   yLabel,
+  xFormat,
   locale,
   format
 }: TableProps) {
@@ -390,7 +423,7 @@ function ScatterTable({
             return (
               <tr key={`${index}-${at}`}>
                 <th scope="row">{one.name ?? index + 1}</th>
-                <td>{formatCategory(x, locale)}</td>
+                <td>{writeX(x, at, xFormat, locale)}</td>
                 {/* A `null` is a gap and prints as an empty cell, exactly as it
                     does on every other chart's table. A zero written here would
                     be the one place the library reported missing data as a

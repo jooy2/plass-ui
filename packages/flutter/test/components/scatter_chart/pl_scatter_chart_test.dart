@@ -345,6 +345,57 @@ void main() {
       expect(find.text('Q1'), findsWidgets);
     });
 
+    testWidgets('writes the x as its axis does, and never in the y\'s format', (
+      WidgetTester tester,
+    ) async {
+      final List<PlassChartSeries> one = <PlassChartSeries>[
+        PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[_at(12345, 22)]),
+      ];
+
+      // Compactly, as the React axis writes its ticks, where `format` is the
+      // y's alone.
+      expect(
+        await _readingOf(
+          tester,
+          PlScatterChart(series: one, format: (double value) => '\$${value.toStringAsFixed(2)}'),
+        ),
+        ('Q1: 12.3K, \$22.00', '12.3K', '12.3K, Q1: \$22.00'),
+      );
+
+      // Through the x axis' own format when it has one.
+      expect(
+        await _readingOf(
+          tester,
+          PlScatterChart(
+            series: one,
+            xAxis: PlChartAxis(format: (double value) => '${value.round()} km'),
+          ),
+        ),
+        ('Q1: 12345 km, 22', '12345 km', '12345 km, Q1: 22'),
+      );
+
+      // And a moment as the date every card writes, rather than as the
+      // milliseconds it is placed by.
+      expect(
+        await _readingOf(
+          tester,
+          PlScatterChart(
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                name: 'Q1',
+                data: <PlassChartDatum>[
+                  PlassChartDatum.point(
+                    PlassChartPoint(x: PlassChartCategory.date(DateTime(2026, 3)), y: 22),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        ('Q1: Mar 1, 22', 'Mar 1', 'Mar 1, Q1: 22'),
+      );
+    });
+
     testWidgets('heads the card with a point\'s x over its series, y and z, as React does', (
       WidgetTester tester,
     ) async {
@@ -377,11 +428,11 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();
 
-      // The x as a category is written, the y through the chart's number
-      // writer and a bubble's z after it in brackets, as on the React card. A
-      // point's own label stands in for its y alone, so the z still follows it.
+      // The x as the axis writes it, the y through the chart's number writer
+      // and a bubble's z after it in brackets, as on the React card. A point's
+      // own label stands in for its y alone, so the z still follows it.
       for (final (List<String> lines, String reading) in <(List<String>, String)>[
-        (<String>['12345', 'Q1', '1,234.5 (1.5M)'], '12345, Q1: 1,234.5 (1.5M)'),
+        (<String>['12.3K', 'Q1', '1,234.5 (1.5M)'], '12.3K, Q1: 1,234.5 (1.5M)'),
         (<String>['2', 'Q1', 'Two (5)'], '2, Q1: Two (5)'),
         (<String>['3', 'Q1', '3'], '3, Q1: 3'),
       ]) {
@@ -393,6 +444,29 @@ void main() {
       }
     });
   });
+}
+
+/// What a chart of one point says about it: the text handed over for the
+/// drawing, the card's heading and what the live region reads, once the arrow
+/// keys have reached it.
+Future<(String, String, String)> _readingOf(WidgetTester tester, PlScatterChart chart) async {
+  final FocusNode before = FocusNode();
+
+  addTearDown(before.dispose);
+  await _pump(tester, afterFocusStop(before, chart));
+
+  before.requestFocus();
+  await tester.pump();
+  await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+  await tester.pump();
+  await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+  await tester.pump();
+
+  return (
+    tester.getSemantics(find.bySemanticsLabel('Chart')).value,
+    _cardLines(tester).first,
+    find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label,
+  );
 }
 
 /// Every line of text on the tooltip card, top to bottom.

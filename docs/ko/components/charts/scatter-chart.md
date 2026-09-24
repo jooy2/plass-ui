@@ -37,6 +37,8 @@ PlScatterChart(series: stores);
 
 각 점의 `x`는 숫자나 날짜여야 합니다. 글자는 수직선 위에 놓일 자리가 없고, 이름 붙은 것들을 한 척도에 대고 재는 차트는 [막대 차트](./bar-chart)입니다. `xAxis`, `yAxis`, `legend`, `tooltip`이 받는 옵션은 [line chart 페이지](./line-chart#props)에 있습니다.
 
+차트가 점의 `x`를 적는 자리에서는 x축에 <Fw react="tickFormat" flutter="format" code />이 있으면 그것을 거치고, 없으면 축약형으로 적습니다. 그래서 `12345`는 `12.3K`가 됩니다. 날짜는 날짜로 적습니다. 차트의 `format`은 `y`의 것이라 `x`에는 쓰이지 않습니다.
+
 어느 축도 0으로 끌려가지 않습니다. 위치가 담는 것은 자리이므로, 축을 잘라도 모든 점이 같은 만큼 밀릴 뿐 구름의 모양은 살아남습니다. 길이가 곧 값인 막대에서는 그렇지 않습니다.
 
 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.

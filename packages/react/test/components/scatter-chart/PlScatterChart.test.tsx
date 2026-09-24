@@ -271,6 +271,57 @@ describe('PlScatterChart', () => {
     });
   });
 
+  describe('the x', () => {
+    const readingOf = async (props: Partial<React.ComponentProps<typeof PlScatterChart>>) => {
+      const screen = await render(
+        <PlScatterChart
+          label="Spend"
+          locale="en-US"
+          series={[{ name: 'Q1', data: [{ x: 12345, y: 22 }] }]}
+          {...props}
+        />
+      );
+      const plot = screen.getByRole('img', { name: 'Spend' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      plot
+        .element()
+        .dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+        );
+
+      await expect.poll(() => screen.getByRole('status').element().textContent).not.toBe('');
+
+      return {
+        said: screen.getByRole('status').element().textContent,
+        heading: screen.container.querySelector('[data-plass-tooltip] > div')?.textContent,
+        cell: screen.container.querySelector('tbody td')?.textContent
+      };
+    };
+
+    it('is written compactly on the card, in the live region and in the table', async () => {
+      // As the ticks under it are, and not in the y's `format`.
+      expect(await readingOf({ format: { style: 'currency', currency: 'USD' } })).toEqual({
+        said: '12.3K, Q1: $22.00',
+        heading: '12.3K',
+        cell: '12.3K'
+      });
+    });
+
+    it('goes through the x axis tickFormat when it has one', async () => {
+      expect(
+        await readingOf({ xAxis: { tickFormat: (value) => <b>{`${String(value)} km`}</b> } })
+      ).toEqual({ said: '12345 km, Q1: 22', heading: '12345 km', cell: '12345 km' });
+    });
+
+    it('keeps a date written as a date', async () => {
+      expect(
+        await readingOf({ series: [{ name: 'Q1', data: [{ x: new Date(2026, 2, 1), y: 22 }] }] })
+      ).toEqual({ said: 'Mar 1, Q1: 22', heading: 'Mar 1', cell: 'Mar 1' });
+    });
+  });
+
   describe('the table', () => {
     it('writes a row per point rather than a grid', async () => {
       const screen = await render(<PlScatterChart label="Spend" series={SPEND} />);
@@ -343,7 +394,7 @@ describe('PlScatterChart', () => {
       expect(cells).toEqual(['1', '', '2', '5']);
     });
 
-    it('writes y and z as every chart writes a value, and x as the card heads a point', async () => {
+    it('writes y and z as every chart writes a value, and x as the axis writes it', async () => {
       const cellsOf = (element: Element) =>
         [...element.querySelectorAll('tbody td')].map((one) => one.textContent?.trim());
       const series = [{ name: 'Q1', data: [{ x: 12345, y: 1234.5, z: 1500000 }] }];
@@ -352,14 +403,15 @@ describe('PlScatterChart', () => {
       const table = screen.getByRole('table', { name: 'Spend' });
 
       await expect.element(table).toBeInTheDocument();
-      expect(cellsOf(table.element())).toEqual(['12345', '1,234.5', '1.5M']);
+      expect(cellsOf(table.element())).toEqual(['12.3K', '1,234.5', '1.5M']);
 
-      // With a `format`, both are written in it, as the card writes the y.
+      // With a `format`, y and z are written in it, as the card writes the y.
+      // The x is not: `format` belongs to the y, as it does along the axes.
       await screen.rerender(
         <PlScatterChart label="Spend" series={series} format={{ maximumFractionDigits: 0 }} />
       );
 
-      await expect.poll(() => cellsOf(table.element())).toEqual(['12345', '1,235', '1,500,000']);
+      await expect.poll(() => cellsOf(table.element())).toEqual(['12.3K', '1,235', '1,500,000']);
     });
   });
 

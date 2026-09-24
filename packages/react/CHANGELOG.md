@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A `PlScatterChart` point's x is written on its card, in its live region and in its table as the x axis writes it.** It was written as the raw figure, `12345`, where the axis under it wrote `12.3K`. It now goes through the axis' `tickFormat` when it has one and compactly when it has not; the chart's `format` stays the y's, and a date is still written as a date.
+
 - **A `PlWindowPane` that is both `maximized` and `minimized` is rolled up to its title bar across the whole of what holds it.** The maximized window stayed `100%` tall whatever `minimized` said, so the minimize button left it filling its container with an empty, inert body and seemed to do nothing. It now keeps the full width and is only as tall as its bar, easing there as any roll-up does, as the Flutter build does. A window rolled up while maximized and restored before it came back down also comes down to its own height rather than growing to the height of the box it filled.
 
 - **A `PlNavigationMenu` sheet eases from one panel to the next, and follows the item it hangs from.** Moving between items, the sheet took the next panel's size in one frame and jumped to its place under the next item, and closing collapsed it to its edges before it could fade. It now eases to the size of the panel coming in and to its place under the new item, whether a trigger or the page changed the panel, and lands on that size however slow the frames are; a panel keeps its own lines while the sheet is between two sizes, and the sheet keeps the size of what it held while it fades out. Opening, and every change under `prefers-reduced-motion`, arrives at once.

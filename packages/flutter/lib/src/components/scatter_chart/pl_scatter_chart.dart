@@ -163,6 +163,23 @@ class PlScatterChart extends StatelessWidget {
             : PlassChartCategory.number(index.toDouble()));
   }
 
+  /// A point's x as the x axis writes it, for the card and the reading.
+  ///
+  /// A number goes through the axis' own `format` when it has one and is
+  /// written compactly when it has not, as the ticks under it are, so `12345`
+  /// is `12.3K` on the card and in the reading alike. Never through [format],
+  /// which belongs to the y: a currency applied to an axis of years prints
+  /// `$2,019`. A moment keeps the date every card writes.
+  String _writeX(PlassChartCategory x, PlDateNames names) {
+    final double? number = x.number;
+
+    if (number == null) {
+      return categoryText(x, names);
+    }
+
+    return xAxis.format?.call(number) ?? compactNumber(number);
+  }
+
   @override
   Widget build(BuildContext context) {
     final PlassSize step = size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
@@ -295,7 +312,7 @@ class PlScatterChart extends StatelessWidget {
       // rather than a heading the marks were filed under, but it is still where
       // the point is.
       markHeading: (PlassChartMark mark) =>
-          categoryText(_xOf(values[mark.series][mark.index], mark.index), names),
+          _writeX(_xOf(values[mark.series][mark.index], mark.index), names),
       markName: (PlassChartMark mark) => series[mark.series].name ?? '${mark.series + 1}',
       markReadout: (PlassChartMark mark) {
         final ChartValue value = values[mark.series][mark.index];
@@ -308,21 +325,24 @@ class PlScatterChart extends StatelessWidget {
 
         return z == null ? said : '$said (${_write(z)})';
       },
-      semanticValue: (List<bool> visible) => _summary(values, visible),
+      semanticValue: (List<bool> visible) => _summary(values, visible, names),
       paint: (Canvas canvas, PlassChartLayout layout) => _paint(canvas, layout, shapeOf),
     );
   }
 
   /// What one point is worth in the text handed over in place of the drawing.
-  String _readout(ChartValue value, int index) {
-    final double? x = pointX(value, index, categories);
-    final String pair = '${x == null ? '' : '${_write(x)}, '}${_write(value.value ?? 0)}';
+  ///
+  /// Its x as the card heads it, and nothing for an x that is not on the plot.
+  String _readout(ChartValue value, int index, PlDateNames names) {
+    final bool placed = pointX(value, index, categories) != null;
+    final String x = placed ? '${_writeX(_xOf(value, index), names)}, ' : '';
+    final String pair = '$x${_write(value.value ?? 0)}';
 
     return value.z == null ? pair : '$pair (${_write(value.z!)})';
   }
 
   /// Every point, because a cloud has no "where it ended up".
-  String _summary(List<List<ChartValue>> values, List<bool> visible) {
+  String _summary(List<List<ChartValue>> values, List<bool> visible, PlDateNames names) {
     final parts = <String>[];
 
     for (int i = 0; i < values.length; i += 1) {
@@ -338,7 +358,7 @@ class PlScatterChart extends StatelessWidget {
           continue;
         }
 
-        points.add(_readout(values[i][at], at));
+        points.add(_readout(values[i][at], at, names));
       }
 
       parts.add('$name: ${points.join('; ')}');
