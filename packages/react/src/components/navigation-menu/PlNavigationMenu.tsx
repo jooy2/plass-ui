@@ -156,13 +156,6 @@ const popupClasses = /* @__PURE__ */ [
   '[border-color:var(--plass-glass-line)]',
   '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]',
   '[outline:none] overflow-hidden',
-  // The size Base UI hands the popup while the panel changes: the old panel's
-  // size first, the new one's a frame later, and `auto` once the transition
-  // below has run. A popup that never read them sized itself to its content,
-  // and `auto` to `auto` is not something a transition can ease, so the sheet
-  // jumped to the next panel's size in one frame. Before a panel has ever
-  // opened the two are unset, which leaves the width and the height `auto`.
-  'w-(--popup-width) h-(--popup-height)',
   // Opacity and the viewport's own size only. A panel that slid in would drag a
   // page's worth of links across the screen.
   '[transition:opacity_var(--plass-duration)_var(--plass-ease),width_var(--plass-duration)_var(--plass-ease),height_var(--plass-duration)_var(--plass-ease)]',
@@ -366,31 +359,6 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
 
   const context = React.useMemo(() => ({ size, density }), [size, density]);
 
-  const popupRef = React.useRef<HTMLElement>(null);
-
-  /*
-   * Base UI moves the popup to the next panel's size in two steps a frame
-   * apart, and only a trigger starts them. A `value` the page changes by itself
-   * starts neither, and one that lands inside that frame cancels the second
-   * step, which leaves the popup held at the last panel's size: a sheet too
-   * small for the panel now in it, since the popup reads those sizes. So every
-   * change of a controlled value lets the popup go back to its own size first.
-   *
-   * A trigger's change is not undone by it. The trigger commits the value
-   * before it sets the sizes, so this runs first and the two steps come after.
-   * A close is left alone: the sheet keeps its size while it fades.
-   */
-  React.useLayoutEffect(() => {
-    const popup = popupRef.current;
-
-    if (value === undefined || value === null || !popup) {
-      return;
-    }
-
-    popup.style.setProperty('--popup-width', 'auto');
-    popup.style.setProperty('--popup-height', 'auto');
-  }, [value]);
-
   return (
     <NavigationMenuContext.Provider value={context}>
       <BaseUINavigationMenu.Root
@@ -427,10 +395,7 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
             sideOffset={sideOffset}
             collisionPadding={12}
           >
-            <BaseUINavigationMenu.Popup
-              ref={popupRef}
-              className={cx(popupClasses, radiusClasses[size])}
-            >
+            <BaseUINavigationMenu.Popup className={cx(popupClasses, radiusClasses[size])}>
               <BaseUINavigationMenu.Viewport />
             </BaseUINavigationMenu.Popup>
           </BaseUINavigationMenu.Positioner>

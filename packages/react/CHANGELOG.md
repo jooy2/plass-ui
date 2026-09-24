@@ -64,8 +64,6 @@
 
 ### Fixed
 
-- **A `PlNavigationMenu` popup eases from one panel's size to the next.** It jumped to the new size in one frame, because the popup never read the sizes Base UI sets while the panel changes, so the width and height it transitions had nothing to ease between. A panel the page opens by changing `value` takes its own size at once.
-
 - **A floating `PlBackTop` clears the safe area at its inline end as well as at the bottom.** It added only `env(safe-area-inset-bottom)`, so the camera cutout of a phone held on its side could cover it. It now stands off the side it is against as well, the right or the left under RTL, as `PlFloatingActionButton` does.
 
 - **A `PlDataTable` wider than its sheet, or taller than its `maxHeight`, can be scrolled from the keyboard.** A table with no sortable heading and no tick column had nothing in it to take the focus, which left whatever was past the edge out of reach without a pointer. While the grid scrolls, the box it scrolls in is a tab stop, named by `caption` or, without one, by the new `label`, as a `PlTable`'s is.
