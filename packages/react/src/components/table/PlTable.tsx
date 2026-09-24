@@ -77,12 +77,13 @@ export interface PlTableProps<Row>
   /** Shown above the grid, and read out as the table's accessible name. */
   caption?: React.ReactNode;
   /**
-   * What the box the grid scrolls in is called when there is no `caption` —
-   * "Invoices", "Exchange rates".
+   * The table's accessible name when there is no `caption` — "Invoices",
+   * "Exchange rates".
    *
-   * A grid wider than its sheet, or taller than `maxHeight`, is a tab stop
-   * while it scrolls, and a stop is announced by its name. A caption is that
-   * name when there is one, and this is not read then.
+   * It names the `<table>`, and the box the grid scrolls in too: a grid wider
+   * than its sheet, or taller than `maxHeight`, is a tab stop while it
+   * scrolls, and a stop is announced by its name. A caption is that name when
+   * there is one, and this is not read then.
    */
   label?: string;
   /**

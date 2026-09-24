@@ -647,8 +647,8 @@ describe('PlDataTable', () => {
       expect(scrollerOf()).toHaveAccessibleName('Open invoices');
     });
 
-    it('is named by `label` when there is no caption', async () => {
-      await render(
+    it('is named by `label` when there is no caption, and so is the table', async () => {
+      const screen = await render(
         <PlDataTable
           className="table-under-test"
           style={{ width: 200 }}
@@ -661,7 +661,47 @@ describe('PlDataTable', () => {
 
       await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
       expect(scrollerOf()).toHaveAccessibleName('Open invoices');
+      await expect
+        .element(screen.getByRole('table', { name: 'Open invoices' }))
+        .toBeInTheDocument();
       expect(document.querySelector('.table-under-test')).not.toHaveAttribute('label');
+    });
+
+    it('names the table by `label` while everything fits', async () => {
+      const screen = await render(
+        <PlDataTable
+          className="table-under-test"
+          style={{ width: 1200 }}
+          columns={wide}
+          rows={rows}
+          getRowKey={key}
+          label="Open invoices"
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('table', { name: 'Open invoices' }))
+        .toBeInTheDocument();
+      expect(scrollerOf()).not.toHaveAttribute('tabindex');
+      expect(scrollerOf()).not.toHaveAttribute('aria-label');
+    });
+
+    it('keeps the caption as the name of a table that has a `label` too', async () => {
+      const screen = await render(
+        <PlDataTable
+          className="table-under-test"
+          columns={wide}
+          rows={rows}
+          getRowKey={key}
+          caption="Open invoices"
+          label="Something else"
+        />
+      );
+
+      const table = screen.getByRole('table', { name: 'Open invoices' });
+
+      await expect.element(table).toBeInTheDocument();
+      expect(table.element()).not.toHaveAttribute('aria-label');
     });
 
     it('stops being one once everything fits', async () => {

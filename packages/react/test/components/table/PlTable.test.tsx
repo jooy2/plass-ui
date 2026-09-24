@@ -298,8 +298,8 @@ describe('PlTable', () => {
       expect(scrollerOf().querySelector('table')).not.toHaveAttribute('aria-labelledby');
     });
 
-    it('is named by `label` when there is no caption', async () => {
-      await render(
+    it('is named by `label` when there is no caption, and so is the table', async () => {
+      const screen = await render(
         <PlTable
           className="table-under-test"
           style={{ width: 200 }}
@@ -312,12 +312,13 @@ describe('PlTable', () => {
       await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
       expect(scrollerOf()).toHaveAttribute('role', 'group');
       expect(scrollerOf()).toHaveAccessibleName('Invoices');
+      await expect.element(screen.getByRole('table', { name: 'Invoices' })).toBeInTheDocument();
       // The sheet is a `<div>`, which has no `label` attribute to be handed.
       expect(document.querySelector('.table-under-test')).not.toHaveAttribute('label');
     });
 
-    it('is named by the caption rather than by `label` when it has both', async () => {
-      await render(
+    it('is named by the caption rather than by `label` when it has both, and so is the table', async () => {
+      const screen = await render(
         <PlTable
           className="table-under-test"
           style={{ width: 200 }}
@@ -331,10 +332,13 @@ describe('PlTable', () => {
       await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
       expect(scrollerOf()).toHaveAccessibleName('Invoices');
       expect(scrollerOf()).not.toHaveAttribute('aria-label');
+      expect(screen.getByRole('table', { name: 'Invoices' }).element()).not.toHaveAttribute(
+        'aria-label'
+      );
     });
 
-    it('is not named by `label` while everything fits', async () => {
-      await render(
+    it('names only the table by `label` while everything fits', async () => {
+      const screen = await render(
         <PlTable
           className="table-under-test"
           style={{ width: 1200 }}
@@ -349,6 +353,8 @@ describe('PlTable', () => {
       expect(scrollerOf()).not.toHaveAttribute('tabindex');
       expect(scrollerOf()).not.toHaveAttribute('role');
       expect(scrollerOf()).not.toHaveAttribute('aria-label');
+      // A table is named whether or not it scrolls, as a caption names it.
+      await expect.element(screen.getByRole('table', { name: 'Invoices' })).toBeInTheDocument();
     });
 
     it('stops being one once everything fits', async () => {
@@ -378,6 +384,16 @@ describe('PlTable', () => {
       );
 
       expect(html).toContain('<caption');
+      expect(html).not.toContain('tabindex');
+    });
+
+    it('names the table by `label` on the server too', () => {
+      const html = renderToString(
+        <PlTable columns={wide} rows={rows} label="Invoices" style={{ width: 200 }} />
+      );
+
+      // The table's name, which needs no measurement; the box is not a stop yet.
+      expect(html).toMatch(/<table[^>]* aria-label="Invoices"/);
       expect(html).not.toContain('tabindex');
     });
   });

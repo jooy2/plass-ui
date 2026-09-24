@@ -311,7 +311,7 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 ::: fw react
 
 - Renders a real `<table>` with `<thead>`, `<tbody>`, `<th scope="col">` and `<td>`. A screen reader announces the column header with each cell, the row's position, and the row count.
-- `caption` becomes a `<caption>`, which is the table's accessible name. A table on a page with more than one deserves it.
+- `caption` becomes a `<caption>`, which is the table's accessible name. A table on a page with more than one deserves it. Without one, `label` names the table as its `aria-label`.
 - A clickable row stays a `<tr>`. `role="button"` on a row reads well in isolation and takes the row semantics off it, which orphans every cell inside from the table it belongs to.
 - Clickable rows carry `tabIndex={0}` and answer <kbd>Enter</kbd> and <kbd>Space</kbd>; <kbd>Space</kbd> is prevented from scrolling the page.
 - The focus ring on a row is drawn inset, because the sheet clips at its own rounded edge and an outline outside the first or last row would lose its top or bottom.
@@ -343,7 +343,7 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 | `getRowKey` | `rowKey` | Same job, Flutter's spelling, and it hands back a `LocalKey` rather than a `React.Key`. |
 | `onRowClick` | `onRowPressed` | The package's name for the thing a press calls. |
 | `maxHeight: number \| string` | `maxHeight: double` | Pixels stay pixels. There is no CSS length to accept. |
-| `<caption>` as the accessible name | a drawn line, plus `semanticLabel` | Flutter names a node with a string, and a caption is a widget. The words are still read first. |
+| `<caption>` as the accessible name, `label` without one | a drawn line, plus `semanticLabel` | Flutter names a node with a string, and a caption is a widget. The words are still read first. |
 | the inline-style workaround | — | There is no host stylesheet reaching in to restyle `table`, `td` and `th`, so there is nothing to work around. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 

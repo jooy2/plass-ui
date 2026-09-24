@@ -311,7 +311,7 @@ column이 가리키는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐
 ::: fw react
 
 - `<thead>`, `<tbody>`, `<th scope="col">`, `<td>`를 갖춘 진짜 `<table>`을 렌더링합니다. 스크린리더가 각 셀과 함께 열 제목, 행의 위치, 전체 행 수를 읽어 줍니다.
-- `caption`은 `<caption>`이 되고, 이것이 표의 접근 가능한 이름입니다. 한 페이지에 표가 둘 이상이라면 붙일 만합니다.
+- `caption`은 `<caption>`이 되고, 이것이 표의 접근 가능한 이름입니다. 한 페이지에 표가 둘 이상이라면 붙일 만합니다. caption이 없으면 `label`이 `aria-label`로 표에 이름을 붙입니다.
 - 누를 수 있는 행도 `<tr>`로 남습니다. 행에 붙인 `role="button"`은 따로 떼어 놓고 보면 그럴듯하지만 행이라는 의미를 지워 버려서, 그 안의 모든 셀이 자기가 속한 표에서 떨어져 나갑니다.
 - 누를 수 있는 행은 `tabIndex={0}`을 갖고 <kbd>Enter</kbd>와 <kbd>Space</kbd>에 반응합니다. <kbd>Space</kbd>가 페이지를 스크롤하지 않도록 막습니다.
 - 행의 focus ring은 안쪽으로 그려집니다. 시트가 자기 둥근 모서리에서 잘리기 때문에, 첫 행이나 마지막 행 바깥으로 그린 outline은 위나 아래가 잘려 나갑니다.
@@ -343,7 +343,7 @@ column이 가리키는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐
 | `getRowKey` | `rowKey` | 같은 일, Flutter의 철자. 돌려주는 것은 `React.Key`가 아니라 `LocalKey`입니다. |
 | `onRowClick` | `onRowPressed` | 누름이 부르는 것에 대한 이 패키지의 이름입니다. |
 | `maxHeight: number \| string` | `maxHeight: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
-| 접근 가능한 이름인 `<caption>` | 그려지는 한 줄과 `semanticLabel` | Flutter는 노드에 문자열로 이름을 붙이고, caption은 위젯입니다. 그 문구는 여전히 먼저 읽힙니다. |
+| 접근 가능한 이름인 `<caption>`, 없으면 `label` | 그려지는 한 줄과 `semanticLabel` | Flutter는 노드에 문자열로 이름을 붙이고, caption은 위젯입니다. 그 문구는 여전히 먼저 읽힙니다. |
 | inline style 우회 | — | `table`, `td`, `th`를 다시 스타일링하려 드는 호스트 스타일시트가 없으니, 우회할 것도 없습니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 

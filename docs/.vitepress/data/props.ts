@@ -4408,8 +4408,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'label',
       type: 'string',
       description: {
-        ko: 'caption이 없을 때 격자가 스크롤되는 상자의 이름 — "Invoices", "Exchange rates". 시트보다 넓거나 maxHeight보다 높은 격자는 스크롤되는 동안 탭 정지점이 되고, 이 값이 그 정지점의 이름이 됩니다. caption이 있으면 caption이 이름이 됩니다',
-        en: 'What the box the grid scrolls in is called when there is no caption — "Invoices", "Exchange rates". A grid wider than its sheet or taller than maxHeight is a tab stop while it scrolls, and this names the stop. A caption names it instead when there is one'
+        ko: 'caption이 없을 때 표의 접근 가능한 이름 — "Invoices", "Exchange rates". <table>의 aria-label이 되고, 격자가 스크롤되는 상자의 이름도 됩니다. 시트보다 넓거나 maxHeight보다 높은 격자는 스크롤되는 동안 탭 정지점이 되기 때문입니다. caption이 있으면 caption이 둘 다의 이름이 됩니다',
+        en: 'The table\'s accessible name when there is no caption — "Invoices", "Exchange rates". It is the <table>\'s aria-label, and it names the box the grid scrolls in too, because a grid wider than its sheet or taller than maxHeight is a tab stop while it scrolls. A caption names both instead when there is one'
       }
     },
     {
@@ -10880,8 +10880,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'label',
       type: 'string',
       description: {
-        ko: 'caption이 없을 때 격자가 스크롤되는 상자의 이름 — "Invoices", "Exchange rates". 시트보다 넓거나 maxHeight보다 높은 격자는 스크롤되는 동안 탭 정지점이 되고, 이 값이 그 정지점의 이름이 됩니다. caption이 있으면 caption이 이름이 됩니다',
-        en: 'What the box the grid scrolls in is called when there is no caption — "Invoices", "Exchange rates". A grid wider than its sheet or taller than maxHeight is a tab stop while it scrolls, and this names the stop. A caption names it instead when there is one'
+        ko: 'caption이 없을 때 표의 접근 가능한 이름 — "Invoices", "Exchange rates". <table>의 aria-label이 되고, 격자가 스크롤되는 상자의 이름도 됩니다. 시트보다 넓거나 maxHeight보다 높은 격자는 스크롤되는 동안 탭 정지점이 되기 때문입니다. caption이 있으면 caption이 둘 다의 이름이 됩니다',
+        en: 'The table\'s accessible name when there is no caption — "Invoices", "Exchange rates". It is the <table>\'s aria-label, and it names the box the grid scrolls in too, because a grid wider than its sheet or taller than maxHeight is a tab stop while it scrolls. A caption names both instead when there is one'
       }
     },
     {
