@@ -14,6 +14,7 @@ import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -184,9 +185,9 @@ class _PlButtonState extends State<PlButton> {
   bool _focusVisible = false;
   Offset? _pointer;
 
-  /// The group a `glass` button's own contents read the backdrop in, for the
-  /// reason `PlassSurfaceBox` gives: anything glass the key holds, such as a
-  /// badge, has to blur the key rather than the page behind it.
+  /// The group the button's own contents read the backdrop in while it paints
+  /// something, for the reason `PlassSurfaceBox` gives: anything glass the key
+  /// holds, such as a badge, has to blur the key rather than the page behind it.
   final BackdropKey _contents = BackdropKey();
 
   /// The run this button is in, or `null`. Read here rather than in `build`
@@ -451,7 +452,16 @@ class _PlButtonState extends State<PlButton> {
               ),
             ),
           ),
-        if (glass) BackdropGroup(backdropKey: _contents, child: content) else content,
+        // In the tree whatever the variant, with only its key changing, so a
+        // ghost key that takes a wash under the pointer keeps what it holds.
+        BackdropGroup(
+          backdropKey: plassContentsBackdrop(
+            context,
+            paints: glass || fill != null || gradient != null,
+            own: _contents,
+          ),
+          child: content,
+        ),
         if (_interactive)
           Positioned.fill(
             child: RepaintBoundary(

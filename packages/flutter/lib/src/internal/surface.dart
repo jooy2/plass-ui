@@ -65,6 +65,10 @@ class PlassSurface {
   /// Shadows that fall outside it: the elevation ladder and the tinted lift.
   final List<BoxShadow> shadows;
 
+  /// Whether anything is painted behind what the surface holds: the glass, a
+  /// gradient or a flat fill. An edge alone does not count.
+  bool get paints => blur || fill != null || gradient != null;
+
   /// The same surface with no border at all — for a control whose edge is being
   /// drawn by something else.
   ///
@@ -128,14 +132,16 @@ class PlassSurface {
 /// the pointer bloom under the content and the press flash over it — which is
 /// exactly where `::before` and `::after` sit in the CSS.
 ///
-/// A glass box reads the backdrop in the [BackdropGroup] above it and puts what
-/// it holds in a group of its own. Filters that share a backdrop key share one
-/// read of the backdrop, taken where the first of them is painted, so a glass
-/// field on a glass card that shared the card's key would blur what was behind
-/// the *card*, read before the card was drawn, and show the page through it.
-/// With a group of its own the field reads the card it sits on, the fields on
-/// one card still share that one read, and the card itself still joins
-/// whatever group the app put above it.
+/// A glass box reads the backdrop in the [BackdropGroup] above it, and any box
+/// that paints something, glass or a fill, puts what it holds in a group of its
+/// own. Filters that share a backdrop key share one read of the backdrop, taken
+/// where the first of them is painted, so a glass field on a card that shared
+/// the card's key would blur what was behind the *card*, read before the card
+/// was drawn, and show the page through it. The same goes for a glass control
+/// on a solid key or a tinted wash, whose fill is just as missing from a read
+/// taken before it. With a group of its own the field reads the card it sits
+/// on, the fields on one card still share that one read, and the card itself
+/// still joins whatever group the app put above it.
 class PlassSurfaceBox extends StatefulWidget {
   /// Creates a painted surface around [child].
   const PlassSurfaceBox({
@@ -194,7 +200,8 @@ class PlassSurfaceBox extends StatefulWidget {
 }
 
 class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
-  /// The group this box's contents read the backdrop in.
+  /// The group this box's contents read the backdrop in while it paints
+  /// something. See [plassContentsBackdrop].
   ///
   /// Held for the life of the box rather than made in `build`: a group whose
   /// key changes tells every filter under it to rebuild, and hands the engine a
@@ -268,10 +275,10 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
               ),
             ),
           ),
-        if (surface.blur)
-          BackdropGroup(backdropKey: _contents, child: widget.child)
-        else
-          widget.child,
+        BackdropGroup(
+          backdropKey: plassContentsBackdrop(context, paints: surface.paints, own: _contents),
+          child: widget.child,
+        ),
         if (flash != null)
           Positioned.fill(
             child: RepaintBoundary(
@@ -301,6 +308,33 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
       child: box,
     );
   }
+}
+
+/// The backdrop key what a surface holds reads the backdrop in.
+///
+/// A surface that [PlassSurface.paints] anything hands what it holds [own], a
+/// group of its own. A surface that paints nothing passes the group above it
+/// straight through, so a ghost container changes nothing about what its
+/// contents share with the rest of the page.
+///
+/// The caller keeps a [BackdropGroup] in the tree either way and changes only
+/// its key. A ghost control paints a wash only while it is hovered, pressed or
+/// focused, and a group that came and went with the wash would change the
+/// shape of the tree above what the control holds, which Flutter builds again
+/// from scratch: a ghost field would lose its editor, and the focus with it, the
+/// moment it was focused. With no group above to pass through, [own] stands in,
+/// so what an unpainted surface holds on a page with no group shares one read,
+/// as it does on a painted one.
+BackdropKey plassContentsBackdrop(
+  BuildContext context, {
+  required bool paints,
+  required BackdropKey own,
+}) {
+  if (paints) {
+    return own;
+  }
+
+  return BackdropGroup.of(context)?.backdropKey ?? own;
 }
 
 /* ---------------------------------------------------------------------------

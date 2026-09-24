@@ -9,10 +9,12 @@
 // Where that group goes is the app's decision, because two sheets that overlap
 // must not share a key and only the app knows its own layout. What is asserted
 // here is that the library opts in, so an app's `BackdropGroup` reaches its
-// sheets; that what a glass surface holds reads the backdrop in a group of its
-// own, so a field on a card blurs the card rather than the page; that a layer
-// lifted over the page does too; and that the two full-screen barriers stay
-// out of every group, because they overlap everything under them by definition.
+// sheets; that what a surface holds reads the backdrop in a group of its own
+// whenever the surface paints something, glass or a fill, so a field on a card
+// blurs the card rather than the page; that a layer lifted over the page does
+// too; and that the two full-screen barriers stay out of every group, because
+// they overlap everything under them by definition.
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -155,6 +157,133 @@ void main() {
 
       expect(badge, isNotNull);
       expect(badge, isNot(shared));
+    });
+  });
+
+  group('what a filled surface holds', () {
+    testWidgets('reads the backdrop in a group of its own on a solid container', (
+      WidgetTester tester,
+    ) async {
+      // A solid alert paints a gradient and no glass. A glass button on it that
+      // shared the page's key would be handed a read taken before the gradient
+      // was drawn, and blur the page through the alert.
+      final BackdropKey shared = BackdropKey();
+
+      await tester.pumpWidget(
+        host(
+          BackdropGroup(
+            backdropKey: shared,
+            child: PlAlert(
+              variant: PlassVariant.solid,
+              title: const Text('Saved'),
+              action: PlButton(
+                onPressed: () {},
+                variant: PlassVariant.glass,
+                child: const Text('Undo'),
+              ),
+            ),
+          ),
+          width: 480,
+        ),
+      );
+
+      final BackdropKey? button = keyOf(tester, find.byType(PlButton));
+
+      expect(button, isNotNull);
+      expect(button, isNot(shared));
+    });
+
+    testWidgets('reads the backdrop in a group of its own on a solid button', (
+      WidgetTester tester,
+    ) async {
+      final BackdropKey shared = BackdropKey();
+
+      await tester.pumpWidget(
+        host(
+          BackdropGroup(
+            backdropKey: shared,
+            child: PlButton(
+              onPressed: () {},
+              endIcon: const PlBadge(variant: PlassVariant.glass, content: Text('3')),
+              child: const Text('Inbox'),
+            ),
+          ),
+        ),
+      );
+
+      final BackdropKey? badge = keyOf(tester, find.byType(PlBadge));
+
+      expect(badge, isNotNull);
+      expect(badge, isNot(shared));
+    });
+
+    testWidgets('passes the group through on a ghost key until its wash arrives', (
+      WidgetTester tester,
+    ) async {
+      // A ghost key paints nothing at rest, so what it holds reads where the
+      // rest of the page does. Under the pointer it paints a wash, and from
+      // then on what it holds has to read the wash.
+      final BackdropKey shared = BackdropKey();
+
+      await tester.pumpWidget(
+        host(
+          BackdropGroup(
+            backdropKey: shared,
+            child: PlButton(
+              onPressed: () {},
+              variant: PlassVariant.ghost,
+              endIcon: const PlBadge(variant: PlassVariant.glass, content: Text('3')),
+              child: const Text('Inbox'),
+            ),
+          ),
+        ),
+      );
+
+      expect(keyOf(tester, find.byType(PlBadge)), shared);
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: tester.getCenter(find.byType(PlButton)));
+      addTearDown(mouse.removePointer);
+      await tester.pumpAndSettle();
+
+      final BackdropKey? hovered = keyOf(tester, find.byType(PlBadge));
+
+      expect(hovered, isNotNull);
+      expect(hovered, isNot(shared));
+    });
+
+    testWidgets('keeps the editor of a ghost field when the focus brings its wash', (
+      WidgetTester tester,
+    ) async {
+      // The group stays in the tree and only its key changes. One that came and
+      // went with the wash would build the editor again from scratch the moment
+      // the field was focused, and drop the focus with it.
+      final TextEditingController controller = TextEditingController();
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(
+        host(
+          PlTextField(
+            label: const Text('Name'),
+            variant: PlassVariant.ghost,
+            controller: controller,
+          ),
+          width: 320,
+        ),
+      );
+
+      final EditableTextState before = tester.state(find.byType(EditableText));
+
+      await tester.tap(find.byType(EditableText));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(EditableText), 'Ada');
+      await tester.pumpAndSettle();
+
+      final EditableTextState after = tester.state(find.byType(EditableText));
+
+      expect(after, same(before));
+      expect(after.widget.focusNode.hasFocus, isTrue);
+      expect(controller.text, 'Ada');
     });
   });
 
