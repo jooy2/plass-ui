@@ -533,10 +533,10 @@ class _PlassGridState extends State<PlassGrid> {
     // inside the box, because the sheet clips at its rounded corner.
     //
     // The table's name is on the stop, which holds the table: a stop is
-    // announced by its name. A caption is a widget and cannot be that name,
-    // and it is read just before the grid either way. The stop's own focus
-    // merges into this node, which is the point; the scroll view under it is a
-    // node of its own, so nothing else does.
+    // announced by its name. The table hands down its `semanticLabel`, or the
+    // words of a caption that is only words. The stop's own focus merges into
+    // this node, which is the point; the scroll view under it is a node of its
+    // own, so nothing else does.
     scrolling = Semantics(
       container: true,
       label: widget.semanticLabel,

@@ -887,7 +887,12 @@ void main() {
         for (var index = 0; index < 24; index += 1) Invoice('INV-${10 + index}', 'Acme', index),
       ];
 
-      Future<void> tabInto(WidgetTester tester, List<Invoice> data) async {
+      Future<void> tabInto(
+        WidgetTester tester,
+        List<Invoice> data, {
+        Widget? caption,
+        String? semanticLabel = 'Open invoices',
+      }) async {
         final FocusNode before = FocusNode();
         addTearDown(before.dispose);
 
@@ -900,7 +905,8 @@ void main() {
                 rows: data,
                 rowKey: (Invoice row, int _) => row.id,
                 maxHeight: 200,
-                semanticLabel: 'Open invoices',
+                caption: caption,
+                semanticLabel: semanticLabel,
               ),
             ),
             width: 640,
@@ -937,6 +943,22 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.end);
         await tester.pumpAndSettle();
         expect(controller.offset, controller.position.maxScrollExtent);
+
+        handle.dispose();
+      });
+
+      testWidgets('names the stop with the words of a caption, and reads them only there', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tabInto(tester, many, caption: const Text('Unpaid'), semanticLabel: null);
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Unpaid')),
+          isSemantics(label: 'Unpaid', isFocusable: true, isFocused: true),
+        );
+        expect(semanticsLabels(tester).where((String label) => label == 'Unpaid'), hasLength(1));
 
         handle.dispose();
       });

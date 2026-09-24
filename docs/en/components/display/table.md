@@ -324,8 +324,8 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 
 - The grid is a real `Table`, so it is announced as a table with rows and cells in it, and a screen reader can move through it a cell at a time.
 - A heading is announced as the column's header, which is what puts the name of the column in front of every number under it.
-- `caption` is drawn at the top of the sheet and read as the line above the grid. `semanticLabel` is there for the case where the table's name has to differ from what is drawn.
-- A grid taller than `maxHeight`, or than the box it is in, scrolls inside the sheet. While it does, the grid is a tab stop, so the arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> reach the rows past the edge of a table whose cells take no focus. `semanticLabel` names the stop. A caption is a widget rather than a string, so it cannot be the name, and it is read just before the stop instead.
+- `caption` is drawn at the top of the sheet. A caption that is a `Text` names the table, and its words are read once, as that name. A caption built of other widgets is read as the line above the grid instead. `semanticLabel` names the table over either, for a caption with no words of its own or a name that has to differ from what is drawn.
+- A grid taller than `maxHeight`, or than the box it is in, scrolls inside the sheet. While it does, the grid is a tab stop, so the arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> reach the rows past the edge of a table whose cells take no focus. The stop is announced by the table's name: `semanticLabel`, or the words of a `Text` caption.
 - A row that answers a press keeps its row semantics: the tap action is on the cells, and nothing calls a row a button. A row announced as a button is a row whose cells have been orphaned from the table they belong to.
 - The row's focus stop is in its first cell, and the ring is painted by the row itself. Inset, because the sheet clips at its rounded corner and a ring outside the first or last row would come back with its top or bottom sliced off.
 - Every cell is as tall as the tallest one in its row, so a row answers a press on all of itself rather than only on the line of text that happens to be longest.
@@ -344,7 +344,7 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 | `getRowKey` | `rowKey` | Same job, Flutter's spelling, and it hands back a `LocalKey` rather than a `React.Key`. |
 | `onRowClick` | `onRowPressed` | The package's name for the thing a press calls. |
 | `maxHeight: number \| string` | `maxHeight: double` | Pixels stay pixels. There is no CSS length to accept. |
-| `<caption>` as the accessible name, `label` without one | a drawn line, plus `semanticLabel` | Flutter names a node with a string, and a caption is a widget. The words are still read first. |
+| `<caption>` as the accessible name, `label` without one | a `Text` caption as the name, `semanticLabel` over it | Flutter names a node with a string, and a caption is a widget. Only a `Text` has words to take out of it; any other caption is read as the line above the grid. |
 | the inline-style workaround | — | There is no host stylesheet reaching in to restyle `table`, `td` and `th`, so there is nothing to work around. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 

@@ -466,6 +466,58 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('names the stop with the words of a caption, and reads them only there', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tabInto(
+          tester,
+          PlTable<_Build>(
+            rows: _many,
+            columns: _columns(),
+            maxHeight: 200,
+            caption: const Text('Recent builds'),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Recent builds')),
+          isSemantics(label: 'Recent builds', isFocusable: true, isFocused: true),
+        );
+        expect(
+          semanticsLabels(tester).where((String label) => label == 'Recent builds'),
+          hasLength(1),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('reads a caption as a line of its own when `semanticLabel` names the stop', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tabInto(
+          tester,
+          PlTable<_Build>(
+            rows: _many,
+            columns: _columns(),
+            maxHeight: 200,
+            caption: const Text('Recent builds'),
+            semanticLabel: 'Builds on main',
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Builds on main')),
+          isSemantics(label: 'Builds on main', isFocusable: true, isFocused: true),
+        );
+        expect(semanticsLabels(tester).take(2), <String>['Recent builds', 'Builds on main']);
+
+        handle.dispose();
+      });
+
       testWidgets('is a stop in a box that bounds its height, with no cap of its own', (
         WidgetTester tester,
       ) async {

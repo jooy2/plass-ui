@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/table.dart';
+import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -205,12 +206,15 @@ class PlTable<T> extends StatelessWidget {
 
   /// The name a screen reader gives the table.
   ///
-  /// [caption] is drawn *and* read, so a captioned table usually needs no name
-  /// of its own. This is for the case where the two have to differ.
+  /// A [caption] that is a [Text] names the table with its words when this is
+  /// left out, so a captioned table usually needs no name of its own. This is
+  /// for a caption built of other widgets, and for the case where the name
+  /// has to differ from what is drawn; the caption is then read as a line of
+  /// its own above the grid.
   ///
-  /// It also names the stop the grid is while its rows scroll, past
+  /// The same name is on the stop the grid is while its rows scroll, past
   /// [maxHeight] or in a box too small for them, where the keyboard scrolls
-  /// them from. A caption is read just before that stop, and is not its name.
+  /// them from.
   final String? semanticLabel;
 
   @override
@@ -220,6 +224,10 @@ class PlTable<T> extends StatelessWidget {
     final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
     final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
     final text = controlTextLeading[size]!;
+    // A caption of plain words names the table when nothing else does, as a
+    // `<caption>` names the React one, and is then left out of the tree where
+    // it is drawn: read once, as the name, and not a second time as a line.
+    final String? captionName = semanticLabel == null ? plassTextOf(caption) : null;
 
     final grid = PlassGrid(
       columns: <PlassGridColumn>[
@@ -243,7 +251,7 @@ class PlTable<T> extends StatelessWidget {
       onRowPressed: onRowPressed == null ? null : (int index) => onRowPressed!(rows[index], index),
       stickyHeader: stickyHeader,
       maxHeight: maxHeight,
-      semanticLabel: semanticLabel,
+      semanticLabel: semanticLabel ?? captionName,
     );
 
     return PlassSurfaceBox(
@@ -266,17 +274,20 @@ class PlTable<T> extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 if (caption != null)
-                  PlassTableBand(
-                    size: size,
-                    density: density,
-                    child: DefaultTextStyle.merge(
-                      style: TextStyle(
-                        color: tokens.mutedFg,
-                        fontSize: metaText[size]!,
-                        fontWeight: FontWeight.w600,
-                        height: 1.4,
+                  ExcludeSemantics(
+                    excluding: captionName != null,
+                    child: PlassTableBand(
+                      size: size,
+                      density: density,
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(
+                          color: tokens.mutedFg,
+                          fontSize: metaText[size]!,
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
+                        ),
+                        child: caption!,
                       ),
-                      child: caption!,
                     ),
                   ),
                 if (bounded) Flexible(child: grid) else grid,

@@ -324,8 +324,8 @@ column이 가리키는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐
 
 - 격자는 진짜 `Table`이라, 행과 셀이 든 표로 읽히고 스크린리더가 셀 단위로 옮겨 다닐 수 있습니다.
 - 제목 칸은 그 열의 header로 읽힙니다. 아래의 모든 숫자 앞에 열 이름이 붙는 것이 이것 덕분입니다.
-- `caption`은 시트 맨 위에 그려지고 격자 위의 한 줄로 읽힙니다. 표의 이름이 그려진 것과 달라야 할 때를 위해 `semanticLabel`이 따로 있습니다.
-- `maxHeight`보다, 또는 담긴 상자보다 높은 격자는 시트 안에서 스크롤됩니다. 그동안 격자는 Tab 정지점이 되므로, focus를 받는 셀이 없는 표에서도 화살표 키와 <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd>, <kbd>End</kbd>로 가장자리 너머의 행에 닿습니다. 정지점의 이름은 `semanticLabel`입니다. caption은 문자열이 아니라 위젯이라 이름이 될 수 없고, 대신 정지점 바로 앞에서 읽힙니다.
+- `caption`은 시트 맨 위에 그려집니다. `Text`인 caption은 표에 이름을 붙이고, 그 문구는 이름으로 한 번만 읽힙니다. 다른 위젯으로 짠 caption은 격자 위의 한 줄로 읽힙니다. `semanticLabel`은 어느 쪽이든 caption보다 앞서 표의 이름이 되므로, 읽을 문구가 없는 caption이나 그려진 것과 달라야 하는 이름에 씁니다.
+- `maxHeight`보다, 또는 담긴 상자보다 높은 격자는 시트 안에서 스크롤됩니다. 그동안 격자는 Tab 정지점이 되므로, focus를 받는 셀이 없는 표에서도 화살표 키와 <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd>, <kbd>End</kbd>로 가장자리 너머의 행에 닿습니다. 정지점은 표의 이름으로 읽히는데, 그 이름은 `semanticLabel`이고 없으면 `Text`인 caption의 문구입니다.
 - 누를 수 있는 행도 행이라는 의미를 그대로 지킵니다. tap 액션은 셀에 있고, 행을 버튼이라고 부르는 것은 아무것도 없습니다. 버튼으로 읽히는 행은 그 안의 셀들이 자기가 속한 표에서 떨어져 나간 행입니다.
 - 행의 focus stop은 첫 번째 셀에 있고, ring은 행이 안쪽으로 직접 칠합니다. 시트가 자기 둥근 모서리에서 잘리기 때문에, 첫 행이나 마지막 행 바깥에 그린 ring은 위나 아래가 잘려 돌아옵니다.
 - 모든 셀은 그 행에서 가장 큰 셀만큼 높습니다. 그래서 행은 가장 긴 글자 줄에서만이 아니라 자기 전부에서 눌립니다.
@@ -344,7 +344,7 @@ column이 가리키는 것은 행에서 셀을 어떻게 꺼내는지, 그것뿐
 | `getRowKey` | `rowKey` | 같은 일, Flutter의 철자. 돌려주는 것은 `React.Key`가 아니라 `LocalKey`입니다. |
 | `onRowClick` | `onRowPressed` | 누름이 부르는 것에 대한 이 패키지의 이름입니다. |
 | `maxHeight: number \| string` | `maxHeight: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
-| 접근 가능한 이름인 `<caption>`, 없으면 `label` | 그려지는 한 줄과 `semanticLabel` | Flutter는 노드에 문자열로 이름을 붙이고, caption은 위젯입니다. 그 문구는 여전히 먼저 읽힙니다. |
+| 접근 가능한 이름인 `<caption>`, 없으면 `label` | 이름이 되는 `Text` caption, 그보다 앞서는 `semanticLabel` | Flutter는 노드에 문자열로 이름을 붙이고, caption은 위젯입니다. 문구를 꺼낼 수 있는 것은 `Text`뿐이고, 다른 caption은 격자 위의 한 줄로 읽힙니다. |
 | inline style 우회 | — | `table`, `td`, `th`를 다시 스타일링하려 드는 호스트 스타일시트가 없으니, 우회할 것도 없습니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 

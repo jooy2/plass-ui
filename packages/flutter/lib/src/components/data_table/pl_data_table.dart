@@ -18,6 +18,7 @@ import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/search.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/table.dart';
+import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -355,9 +356,14 @@ class PlDataTable<T> extends StatefulWidget {
 
   /// The name a screen reader gives the table.
   ///
-  /// It also names the stop the grid is while its rows scroll, past
+  /// A [caption] that is a [Text] names the table with its words when this is
+  /// left out. This is for a caption built of other widgets, and for the case
+  /// where the name has to differ from what is drawn; the caption is then read
+  /// as a line of its own above the grid.
+  ///
+  /// The same name is on the stop the grid is while its rows scroll, past
   /// [maxHeight] or in a box too small for them, where the keyboard scrolls
-  /// them from. A caption is read just before that stop, and is not its name.
+  /// them from.
   final String? semanticLabel;
 
   /// Names the box at the top of the tick column.
@@ -716,6 +722,11 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
         ),
     ];
 
+    // A caption of plain words names the table when nothing else does, as a
+    // `<caption>` names the React one, and is then left out of the tree where
+    // it is drawn: read once, as the name, and not a second time as a line.
+    final String? captionName = widget.semanticLabel == null ? plassTextOf(widget.caption) : null;
+
     final grid = PlassGrid(
       columns: columns,
       rowCount: rowsDrawn,
@@ -737,7 +748,7 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
           : (int index) => widget.onRowPressed!(shown[index].row, shown[index].index),
       stickyHeader: widget.stickyHeader,
       maxHeight: widget.maxHeight,
-      semanticLabel: widget.semanticLabel,
+      semanticLabel: widget.semanticLabel ?? captionName,
     );
 
     final total = _total(ordered.length);
@@ -762,17 +773,20 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 if (widget.caption != null)
-                  PlassTableBand(
-                    size: size,
-                    density: density,
-                    child: DefaultTextStyle.merge(
-                      style: TextStyle(
-                        color: tokens.mutedFg,
-                        fontSize: metaText[size]!,
-                        fontWeight: FontWeight.w600,
-                        height: 1.4,
+                  ExcludeSemantics(
+                    excluding: captionName != null,
+                    child: PlassTableBand(
+                      size: size,
+                      density: density,
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(
+                          color: tokens.mutedFg,
+                          fontSize: metaText[size]!,
+                          fontWeight: FontWeight.w600,
+                          height: 1.4,
+                        ),
+                        child: widget.caption!,
                       ),
-                      child: widget.caption!,
                     ),
                   ),
                 if (widget.searchable || widget.toolbar != null)

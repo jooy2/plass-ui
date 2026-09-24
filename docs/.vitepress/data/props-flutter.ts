@@ -2492,8 +2492,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDataTable', 'caption', {
       type: 'Widget?',
       description: {
-        ko: '격자 위, 시트 안에 그려집니다',
-        en: 'Drawn above the grid, inside the sheet'
+        ko: '격자 위, 시트 안에 그려집니다. semanticLabel이 없으면 Text인 caption의 문구가 표의 이름이 되고, 한 번만 읽힙니다',
+        en: 'Drawn above the grid, inside the sheet. Without a semanticLabel, a Text caption names the table and is read once, as that name'
       }
     }),
     from('PlDataTable', 'empty', { type: 'Widget?', default: 'Text(labels.empty)' }),
@@ -2580,8 +2580,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '표를 스크린 리더가 부를 이름. 격자가 maxHeight나 담긴 상자보다 높아 스크롤되는 동안에는 Tab 정지점이 되는데, 그 정지점의 이름이기도 합니다. caption은 위젯이라 그 이름이 될 수 없습니다',
-        en: 'The name a screen reader gives the table. A grid taller than maxHeight or its box is a tab stop while it scrolls, and this names the stop too; a caption is a widget and cannot'
+        ko: '표를 스크린 리더가 부를 이름. 비워 두면 Text인 caption의 문구가 이름이 되므로, 다른 위젯으로 짠 caption이나 그려진 것과 달라야 하는 이름에 씁니다. 격자가 maxHeight나 담긴 상자보다 높아 스크롤되는 동안에는 Tab 정지점이 되는데, 그 정지점도 같은 이름으로 읽힙니다',
+        en: 'The name a screen reader gives the table. Left out, a Text caption is the name, so this is for a caption built of other widgets or a name that has to differ from what is drawn. A grid taller than maxHeight or its box is a tab stop while it scrolls, and the stop takes the same name'
       }
     },
     {
@@ -5357,8 +5357,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTable', 'caption', {
       type: 'Widget?',
       description: {
-        ko: '격자 위, 시트 안에 그려집니다',
-        en: 'Drawn above the grid, inside the sheet'
+        ko: '격자 위, 시트 안에 그려집니다. semanticLabel이 없으면 Text인 caption의 문구가 표의 이름이 되고, 한 번만 읽힙니다',
+        en: 'Drawn above the grid, inside the sheet. Without a semanticLabel, a Text caption names the table and is read once, as that name'
       }
     }),
     from('PlTable', 'empty', { type: 'Widget?', default: "Text('No data')" }),
@@ -5399,8 +5399,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '표를 스크린 리더가 부를 이름. caption은 그려지면서 읽히므로, 둘이 달라야 할 때 씁니다. 격자가 maxHeight나 담긴 상자보다 높아 스크롤되는 동안에는 Tab 정지점이 되는데, 그 정지점의 이름이기도 합니다. caption은 위젯이라 그 이름이 될 수 없습니다',
-        en: 'The name a screen reader gives the table. caption is drawn and read, so this is for when the two have to differ. A grid taller than maxHeight or its box is a tab stop while it scrolls, and this names the stop too; a caption is a widget and cannot'
+        ko: '표를 스크린 리더가 부를 이름. 비워 두면 Text인 caption의 문구가 이름이 되므로, 다른 위젯으로 짠 caption이나 그려진 것과 달라야 하는 이름에 씁니다. 격자가 maxHeight나 담긴 상자보다 높아 스크롤되는 동안에는 Tab 정지점이 되는데, 그 정지점도 같은 이름으로 읽힙니다',
+        en: 'The name a screen reader gives the table. Left out, a Text caption is the name, so this is for a caption built of other widgets or a name that has to differ from what is drawn. A grid taller than maxHeight or its box is a tab stop while it scrolls, and the stop takes the same name'
       }
     }
   ],
