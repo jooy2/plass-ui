@@ -92,7 +92,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 아직 날을 고르지 않았다면 시계는 오늘 위에 쓰이고, 나중에 날을 고르면 설정된 시각이 유지됩니다.
 
-`closeOnSelect`가 여기서 `false`인 것도 같은 이유입니다. 순간은 답 둘이라, 푸터에 **Done** 이 있습니다.
+`closeOnSelect`가 여기서 `false`인 것도 같은 이유입니다. 순간은 답 둘이라, 푸터에 **Done**이 있습니다.
 
 ### step 간격
 

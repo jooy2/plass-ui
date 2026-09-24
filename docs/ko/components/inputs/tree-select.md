@@ -72,9 +72,9 @@ native `<div>` 속성은 field 래퍼로 그대로 전달됩니다. `color`는 �
 
 ::: fw flutter
 
-`value`는 **`Set<String>`**이고 controlled입니다. uncontrolled 형태는 없으며, 이 패키지의 모든 입력이 그렇습니다. `expanded`와 `open`만 예외로, 넘기지 않으면 picker가 직접 쥡니다.
+`value`는 **`Set<String>`** 타입이고 controlled입니다. uncontrolled 형태는 없으며, 이 패키지의 모든 입력이 그렇습니다. `expanded`와 `open`만 예외로, 넘기지 않으면 picker가 직접 쥡니다.
 
-node의 `label`은 여기서 **`String`**이고 React에서는 `ReactNode`입니다. `PlTransferItem`이 이미 지고 있는 차이이고 이유도 같습니다. 필터가 label을 읽고, trigger가 그것을 쓰고, 스크린 리더가 그것을 받습니다. 텍스트라야 모든 node가 만들어질 때부터 검색 가능합니다. 이쪽에 `searchLabel`이 없는 것도 같은 이유입니다. label이 이미 그 말입니다.
+node의 `label`은 여기서 **`String`** 타입이고 React에서는 `ReactNode`입니다. `PlTransferItem`이 이미 지고 있는 차이이고 이유도 같습니다. 필터가 label을 읽고, trigger가 그것을 쓰고, 스크린 리더가 그것을 받습니다. 텍스트라야 모든 node가 만들어질 때부터 검색 가능합니다. 이쪽에 `searchLabel`이 없는 것도 같은 이유입니다. label이 이미 그 말입니다.
 
 :::
 

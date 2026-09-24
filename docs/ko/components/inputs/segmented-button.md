@@ -68,7 +68,7 @@ PlSegmentedButton<String>(
 
 ::: fw flutter
 
-세그먼트는 **위젯이 아니라 설명인 `PlSegment`**입니다. [radio 옵션](./radio-group)이 그런 것과 같은 이유로, 묶음이 roving focus와 화살표 키, 그리고 세그먼트 사이를 미끄러지는 타일을 소유하므로 어느 것이 선택되었고 각각이 어디 있는지를 알아야 합니다.
+세그먼트는 **위젯이 아니라 설명**인 `PlSegment`입니다. [radio 옵션](./radio-group)이 그런 것과 같은 이유로, 묶음이 roving focus와 화살표 키, 그리고 세그먼트 사이를 미끄러지는 타일을 소유하므로 어느 것이 선택되었고 각각이 어디 있는지를 알아야 합니다.
 
 `variant`도 `size`도 `density`도 가지지 않으며, 가질 수도 없습니다. 세 번째 세그먼트만 크기가 다른 segmented button은 segmented button이 아닙니다.
 
@@ -188,7 +188,7 @@ PlSegmentedButton<String>(
 
 ::: fw react
 
-- 묶음은 `role="radiogroup"`이고 각 세그먼트는 진짜 radio입니다. 접근성 논거는 이것이 전부입니다. segmented button은 **"이 중 정확히 하나"** 입니다. `aria-pressed` 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
+- 묶음은 `role="radiogroup"`이고 각 세그먼트는 진짜 radio입니다. 접근성 논거는 이것이 전부입니다. segmented button은 "**이 중 정확히 하나**"입니다. `aria-pressed` 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
 - 묶음 전체가 tab stop 하나를 차지하고, <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>로 그 안에서 움직입니다. roving tab index는 Base UI의 것입니다.
 - 묶음에 `aria-label`을 주세요. 눈에 보이는 자기 라벨이 없고, 이름 없는 그룹은 스크린리더가 "radio group"이라고만 읽습니다.
 - focus ring은 **안쪽으로** 그려집니다. 홈 안의 세그먼트에 바깥쪽 ring을 그리면 이웃 위에 덧칠됩니다.
@@ -199,7 +199,7 @@ PlSegmentedButton<String>(
 
 ::: fw flutter
 
-- 각 세그먼트는 서로 배타적인 묶음의 하나로, 선택 여부와 함께 알려집니다. segmented button은 **"이 중 정확히 하나"** 입니다. 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
+- 각 세그먼트는 서로 배타적인 묶음의 하나로, 선택 여부와 함께 알려집니다. segmented button은 "**이 중 정확히 하나**"입니다. 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
 - 묶음 전체가 focus stop **하나**를 차지합니다. 정확히 한 세그먼트만 tab 순서에 있고 나머지는 `ExcludeFocus`로 감싸여 있습니다. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>가 선택을 옮기고, 양 끝에서 순환합니다.
 - focus ring은 **안쪽으로** 그려집니다. 홈 안의 세그먼트에 바깥쪽 ring을 그리면 이웃 위에 덧칠됩니다.
 - 타일은 측정된 사각형을 애니메이션합니다. 빈 상자라서 이동하는 동안 다시 샘플링되는 글자가 없습니다.

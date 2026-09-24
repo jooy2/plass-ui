@@ -84,7 +84,7 @@ Base UI `RadioGroup`의 나머지 prop은 그대로 전달됩니다. `className`
 
 ::: fw flutter
 
-옵션은 **위젯이 아니라 설명인 `PlRadioOption`**이고, 여기서의 이유는 [breadcrumb](../display/breadcrumb)의 이유보다 더 분명합니다. 그룹이 roving focus와 화살표 키를 소유하므로, 어느 옵션이 선택되었는지, 어느 것을 고를 수 있는지, 각각의 다음이 무엇인지를 알아야 합니다. 그중 어느 것도 `Widget`에는 물어볼 수 없습니다.
+옵션은 **위젯이 아니라 설명**인 `PlRadioOption`이고, 여기서의 이유는 [breadcrumb](../display/breadcrumb)의 이유보다 더 분명합니다. 그룹이 roving focus와 화살표 키를 소유하므로, 어느 옵션이 선택되었는지, 어느 것을 고를 수 있는지, 각각의 다음이 무엇인지를 알아야 합니다. 그중 어느 것도 `Widget`에는 물어볼 수 없습니다.
 
 `size`도 `color`도 가지지 않으며, 가질 수도 없습니다. radio button은 혼자서는 아무 말도 하지 않으므로, 어떻게 보이는지는 묶음의 몫입니다.
 

@@ -141,7 +141,7 @@ CSS가 내릴 수 없는 결정을 위한 훅 셋입니다: 항목을 몇 개 fe
 - [`usePlBreakpointValue(value)`](../hooks/use-breakpoint): 반응형 값을 푼 결과. 반응형 prop과 같은 모양, 같은 규칙.
 - [`usePlMediaQuery(query)`](../hooks/use-media-query): 아무 쿼리나.
 
-셋 다 서버에서 **`false` / `xs`** 로 답하고, 이는 우회해야 할 버그가 아닙니다. 서버가 보내는 마크업을 결정적으로 만드는 장치입니다. 첫 프레임에 맞아야 하는 것은 CSS에 있어야 합니다. Tailwind 변형이든 `PlShow`든. 이 훅들은 그다음을 위한 것입니다.
+셋 다 서버에서 **`false` / `xs`로** 답하고, 이는 우회해야 할 버그가 아닙니다. 서버가 보내는 마크업을 결정적으로 만드는 장치입니다. 첫 프레임에 맞아야 하는 것은 CSS에 있어야 합니다. Tailwind 변형이든 `PlShow`든. 이 훅들은 그다음을 위한 것입니다.
 
 :::
 

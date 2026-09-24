@@ -51,7 +51,7 @@ const PlAnimateRotate(
 
 ::: fw flutter
 
-`from`과 `to`는 radian이 아니라 **도(degree)**입니다. 프레임워크는 radian으로 세고 디자인 언어는 도로 셉니다(패키지의 모든 그러데이션이 135°입니다). 그래서 변환은 호출하는 자리마다가 아니라 widget 안에서 한 번 일어납니다. `origin`은 `Alignment`입니다.
+`from`과 `to`는 radian이 아니라 **도**(degree)입니다. 프레임워크는 radian으로 세고 디자인 언어는 도로 셉니다(패키지의 모든 그러데이션이 135°입니다). 그래서 변환은 호출하는 자리마다가 아니라 widget 안에서 한 번 일어납니다. `origin`은 `Alignment`입니다.
 
 :::
 

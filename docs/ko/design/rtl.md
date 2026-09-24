@@ -81,11 +81,11 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 네 컴포넌트가 짐작하는 대신 `getComputedStyle(…).direction`을 읽습니다.
 
 - 포인터로 끌거나 화살표 키로 미는 **`PlPanes`** 핸들. 포인터의 `clientX`는 어느 방향에서든 오른쪽으로 커지므로 delta를 뒤집어야 합니다.
-- 같은 이유로 **`PlSidebar`**의 리사이즈 드래그와 화살표 키, 그리고 접힌 사이드바가 `PlDrawer`가 될 때 붙는 가장자리. 이 가장자리는 가장 가까운 `PlassProvider`의 `direction`을 먼저 따르고, 그것을 정한 provider가 없을 때만 문서에 묻습니다. drawer는 provider가 가리키는 subtree 바깥으로 portal되기 때문입니다.
+- 같은 이유로 **`PlSidebar`의** 리사이즈 드래그와 화살표 키, 그리고 접힌 사이드바가 `PlDrawer`가 될 때 붙는 가장자리. 이 가장자리는 가장 가까운 `PlassProvider`의 `direction`을 먼저 따르고, 그것을 정한 provider가 없을 때만 문서에 묻습니다. drawer는 provider가 가리키는 subtree 바깥으로 portal되기 때문입니다.
 - **`PlScrollZone`**. 버튼이 스크롤하는 거리, 각 child를 재는 기준 가장자리, 그리고 가로 스크롤로 바꾸는 세로 휠에서 읽습니다.
 - 가로 **`PlTabs`** 목록. 같은 휠, 그리고 목록이 더 이어지는 끝에 드리우는 fade에서 읽습니다. fade는 물리적인 쪽에 그리는 그러데이션입니다.
 
-**`PlTabs`** · **`PlSegmentedButton`** · **`PlFloatingBottomNavigation`**의 움직이는 표시자는 아무것도 읽지 않습니다. 왼쪽 가장자리로부터 잰 거리로 놓이고, 그 거리는 어느 방향에서든 왼쪽에서 잰 값이므로 일부러 물리 속성 `left`를 씁니다.
+**`PlTabs`**, **`PlSegmentedButton`**, **`PlFloatingBottomNavigation`**, 이 셋의 움직이는 표시자는 아무것도 읽지 않습니다. 왼쪽 가장자리로부터 잰 거리로 놓이고, 그 거리는 어느 방향에서든 왼쪽에서 잰 값이므로 일부러 물리 속성 `left`를 씁니다.
 
 Base UI 자신의 primitive들은 대신 **React context**에서 방향을 읽고, 페이지가 손을 대야 하는 것은 그 하나뿐입니다. provider가 없으면 `useDirection()`은 문서가 무엇이라고 적혀 있든 `ltr`이라고 답합니다. `PlassProvider`가 그 context를 자기 `direction`으로, 그것이 없으면 문서의 방향으로 렌더링하는 이유이고, `dir`만 적고 만 페이지가 보기에는 맞고 동작은 반대인 이유입니다.
 
@@ -101,7 +101,7 @@ CSS가 JavaScript 대신 답하는 자리가 한 곳 있고, 그것이 규칙을
 - **풀린 채로 넘겨야 하는 모서리.** `PlButtonGroup`의 각진 가장자리, `PlChatBubble`의 꼬리, 날짜 range의 시작과 끝은 `BorderRadiusDirectional`이 아니라 `BorderRadius`로 적혀 있습니다. 같은 값이 `ClipRRect`와 `BoxDecoration`, 그리고 painter에 닿는데 painter는 풀린 것을 받기 때문입니다.
 - **읽는 사람에 맞춰 고르는 `PlassSide`.** `PlassSide`는 화면의 가장자리를 가리키므로, `PlNavigationMenu`는 패널이 날아갈 가장자리를 늘 오른쪽으로 두는 대신 그때그때 고릅니다.
 
-**`PlSlider`**는 따로 짚을 만합니다. 여백 하나보다 많은 것이 함께 돌아가기 때문입니다. 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 뒤집히고, 그중 일부만 뒤집히는 컨트롤은 자기 자신과 어긋나 있는 컨트롤입니다.
+**`PlSlider`는** 따로 짚을 만합니다. 여백 하나보다 많은 것이 함께 돌아가기 때문입니다. 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 뒤집히고, 그중 일부만 뒤집히는 컨트롤은 자기 자신과 어긋나 있는 컨트롤입니다.
 
 나머지는 전부 `*Directional` widget이고, 아래의 패키지 테스트가 그 상태를 유지시킵니다.
 

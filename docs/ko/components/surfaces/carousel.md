@@ -66,7 +66,7 @@ PlCarousel(
 
 ::: fw flutter
 
-밑에 있는 것은 스냅 지점이 붙은 Flutter 자신의 스크롤, [`PageView`](https://api.flutter.dev/flutter/widgets/PageView-class.html)입니다. 그와 함께 React 빌드에는 필요 없는 파라미터 **`aspectRatio`**가 딸려 옵니다. 브라우저의 띠는 안에 든 것만큼 높지만, `PageView`는 모든 페이지를 뷰포트 크기로 배치하므로 높이를 받아야 합니다. `aspectRatio`를 비워 두면 캐러셀은 바깥 레이아웃이 내려 주는 높이를 씁니다.
+밑에 있는 것은 스냅 지점이 붙은 Flutter 자신의 스크롤, [`PageView`](https://api.flutter.dev/flutter/widgets/PageView-class.html)입니다. 그와 함께 React 빌드에는 필요 없는 파라미터 **`aspectRatio`** 하나가 딸려 옵니다. 브라우저의 띠는 안에 든 것만큼 높지만, `PageView`는 모든 페이지를 뷰포트 크기로 배치하므로 높이를 받아야 합니다. `aspectRatio`를 비워 두면 캐러셀은 바깥 레이아웃이 내려 주는 높이를 씁니다.
 
 :::
 

@@ -57,7 +57,7 @@ PlTree(
 
 ::: fw flutter
 
-`expanded`와 `selected`는 **`Set<String>`**이고 둘 다 controlled입니다. uncontrolled 형태가 없고, 그것이 이 패키지의 모든 입력에 대한 규칙입니다. 각 콜백은 바뀐 id 하나가 아니라 집합 전체를 돌려주므로, 호출자는 그것을 대입하면 끝입니다.
+`expanded`와 `selected`는 **`Set<String>`** 타입이고 둘 다 controlled입니다. uncontrolled 형태가 없고, 그것이 이 패키지의 모든 입력에 대한 규칙입니다. 각 콜백은 바뀐 id 하나가 아니라 집합 전체를 돌려주므로, 호출자는 그것을 대입하면 끝입니다.
 
 :::
 

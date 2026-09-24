@@ -74,7 +74,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 ## 경계
 
-작동하는 시간 picker와 짜증나는 시간 picker를 가르는 지점입니다. 경계는 한 행이 대표하는 **구간** 에 대고 검사하지, 그 안의 한 순간에 대고 검사하지 않습니다.
+작동하는 시간 picker와 짜증나는 시간 picker를 가르는 지점입니다. 경계는 한 행이 대표하는 **구간**에 대고 검사하지, 그 안의 한 순간에 대고 검사하지 않습니다.
 
 `minTime`이 09:30이면 시각 `9`는 09:00:00–09:59:59를 덮고 그것은 허용 범위와 겹치므로 그대로 남습니다. 그리고 `00`부터 `25`가 흐려지는 곳은 분 열입니다. 후보 전체를 비교하면 9가 통째로 사라지고 9시 반은 닿을 수 없게 됩니다.
 
@@ -160,7 +160,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 여기서는 `false`이고 [`PlDatePicker`](./date-picker)에서는 `true`입니다. 날은 답이 하나이고 시각은 둘입니다. 첫 답에 닫아 버리면 9:30을 고르는 데 팝업을 두 번 열어야 합니다.
 
-열들을 읽는 동안 팝업이 떠 있으므로, *그게 그거다*라는 뜻으로 누를 것이 있어야 합니다. 그래서 푸터에 **Done** 이 있습니다. `closeOnSelect`를 켜면 할 일이 없어지므로 사라집니다.
+열들을 읽는 동안 팝업이 떠 있으므로, *그게 그거다*라는 뜻으로 누를 것이 있어야 합니다. 그래서 푸터에 **Done**이 있습니다. `closeOnSelect`를 켜면 할 일이 없어지므로 사라집니다.
 
 ### readOnly · disabled · error
 
@@ -200,7 +200,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 ::: fw flutter
 
 - 각 열은 자기 단위의 이름을 단 semantics container이고, 각 행은 자기가 뜻하는 것 전체로 읽힙니다: `14`가 아니라 `14 Hour`.
-- trigger는 시각을 label에 접어 넣는 대신 semantics **value** 로 지닙니다.
+- trigger는 시각을 label에 접어 넣는 대신 semantics **value**로 지닙니다.
 - 열들 옆의 live region이 값이 바뀔 때마다 전체 시각을 읽어 줍니다.
 
 :::
