@@ -620,6 +620,25 @@ function transformHead({ pageData, siteData, title, description }: TransformCont
   return head;
 }
 
+/**
+ * The AI crawlers `robots.txt` names, and whether each may read the site.
+ *
+ * Told apart by what their vendors say they do. One that collects content to
+ * train a model is refused. One that loads a page because somebody asked an
+ * assistant about it, or indexes the site so an assistant can find it, is let
+ * in. Every other crawler, the search engines among them, falls to `*` and is
+ * let in too.
+ */
+const crawlers: readonly (readonly [agent: string, allowed: boolean])[] = [
+  ['GPTBot', false],
+  ['ClaudeBot', false],
+  ['Google-Extended', false],
+  ['ChatGPT-User', true],
+  ['Claude-User', true],
+  ['OAI-SearchBot', true],
+  ['Claude-SearchBot', true]
+];
+
 // Ref: https://vitepress.dev/reference/site-config
 const vitePressConfig: UserConfig = {
   title: 'Plass UI',
@@ -673,14 +692,19 @@ const vitePressConfig: UserConfig = {
   /**
    * `robots.txt`, written rather than committed.
    *
-   * It exists to name the sitemap, and the sitemap's own URL is already derived
-   * from `package.json`. A copy of that host sitting in `public/` would be one
-   * more place to forget when the site moves.
+   * It names the sitemap, and the sitemap's own URL is already derived from
+   * `package.json`. A copy of that host sitting in `public/` would be one more
+   * place to forget when the site moves. It also tells the AI crawlers apart,
+   * from `crawlers` above.
    */
   async buildEnd({ outDir }) {
+    const groups = [...crawlers, ['*', true] as const].map(
+      ([agent, allowed]) => `User-agent: ${agent}\n${allowed ? 'Allow' : 'Disallow'}: /`
+    );
+
     await writeFile(
       resolve(outDir, 'robots.txt'),
-      `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`
+      `${groups.join('\n\n')}\n\nSitemap: ${siteUrl}/sitemap.xml\n`
     );
   },
   /**
