@@ -312,6 +312,13 @@ class _PlToastProviderState extends State<PlToastProvider>
   final List<_Entry> _entries = <_Entry>[];
   int _sequence = 0;
 
+  /// The group the stack's toasts read the backdrop in, which is theirs alone,
+  /// for the reason `PlassPortal` gives: the stack is painted over the app, and
+  /// a key it shared with a sheet in the app, through a `BackdropGroup` round
+  /// this provider, would hand a toast the backdrop as it was when that sheet
+  /// was drawn.
+  final BackdropKey _layer = BackdropKey();
+
   /// Whether the pointer is resting on the stack, which is a reader reading it.
   bool _hovered = false;
 
@@ -581,57 +588,60 @@ class _PlToastProviderState extends State<PlToastProvider>
               // Clear of the system's bars, the notch and a soft keyboard, so a
               // top stack is not under the status bar and a bottom one is not
               // under the home indicator.
-              child: Padding(
-                padding:
-                    const EdgeInsets.all(_stackInset) +
-                    MediaQuery.paddingOf(context) +
-                    EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-                child: Align(
-                  alignment: _alignment,
-                  child: MouseRegion(
-                    opaque: false,
-                    onEnter: (_) => _hold(over: true),
-                    onExit: (_) => _hold(over: false),
-                    child: Listener(
-                      onPointerDown: _press,
-                      onPointerUp: _release,
-                      onPointerCancel: _release,
-                      child: Focus(
-                        canRequestFocus: false,
-                        skipTraversal: true,
-                        includeSemantics: false,
-                        onFocusChange: (bool focused) => _hold(focused: focused),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: _across,
-                          spacing: _stackGap,
-                          children: <Widget>[
-                            // Newest nearest the edge the stack is pinned to, so a
-                            // message that has just arrived is never the one that
-                            // moved.
-                            // Newest nearest the edge the stack is pinned to, so a
-                            // message that has just arrived is never the one that
-                            // moved. The list is oldest-first, so a top stack reads
-                            // it backwards and a bottom one does not.
-                            for (final entry in _atTop ? visible.reversed : visible)
-                              ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: widget.width),
-                                child: FadeTransition(
-                                  opacity: entry.fade,
-                                  child: _Toast(
-                                    key: ValueKey<String>(entry.toast.id!),
-                                    toast: entry.toast,
-                                    variant: entry.toast.variant ?? widget.variant,
-                                    color: entry.toast.color ?? _color,
-                                    size: _size,
-                                    density: _density,
-                                    closeLabel:
-                                        widget.closeLabel ?? PlassTheme.labelsOf(context).close,
-                                    onClose: () => _dismiss(entry),
+              child: BackdropGroup(
+                backdropKey: _layer,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.all(_stackInset) +
+                      MediaQuery.paddingOf(context) +
+                      EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+                  child: Align(
+                    alignment: _alignment,
+                    child: MouseRegion(
+                      opaque: false,
+                      onEnter: (_) => _hold(over: true),
+                      onExit: (_) => _hold(over: false),
+                      child: Listener(
+                        onPointerDown: _press,
+                        onPointerUp: _release,
+                        onPointerCancel: _release,
+                        child: Focus(
+                          canRequestFocus: false,
+                          skipTraversal: true,
+                          includeSemantics: false,
+                          onFocusChange: (bool focused) => _hold(focused: focused),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: _across,
+                            spacing: _stackGap,
+                            children: <Widget>[
+                              // Newest nearest the edge the stack is pinned to, so a
+                              // message that has just arrived is never the one that
+                              // moved.
+                              // Newest nearest the edge the stack is pinned to, so a
+                              // message that has just arrived is never the one that
+                              // moved. The list is oldest-first, so a top stack reads
+                              // it backwards and a bottom one does not.
+                              for (final entry in _atTop ? visible.reversed : visible)
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(maxWidth: widget.width),
+                                  child: FadeTransition(
+                                    opacity: entry.fade,
+                                    child: _Toast(
+                                      key: ValueKey<String>(entry.toast.id!),
+                                      toast: entry.toast,
+                                      variant: entry.toast.variant ?? widget.variant,
+                                      color: entry.toast.color ?? _color,
+                                      size: _size,
+                                      density: _density,
+                                      closeLabel:
+                                          widget.closeLabel ?? PlassTheme.labelsOf(context).close,
+                                      onClose: () => _dismiss(entry),
+                                    ),
                                   ),
                                 ),
-                              ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -328,6 +328,50 @@ void main() {
     expect(keys, isNot(contains(null)));
   });
 
+  testWidgets("a toast reads the backdrop in a group of its own, not in the app's", (
+    WidgetTester tester,
+  ) async {
+    // The stack is laid over the app beside it rather than lifted into an
+    // overlay, so a `BackdropGroup` round the provider reaches the stack just
+    // as it reaches the app.
+    final BackdropKey shared = BackdropKey();
+    late PlToastController toasts;
+
+    await tester.pumpWidget(
+      host(
+        BackdropGroup(
+          backdropKey: shared,
+          child: PlToastProvider(
+            timeout: Duration.zero,
+            child: Builder(
+              builder: (BuildContext context) {
+                toasts = PlToastProvider.of(context);
+
+                return const PlCard(child: Text('Inbox'));
+              },
+            ),
+          ),
+        ),
+        width: 600,
+        height: 400,
+      ),
+    );
+
+    toasts.show(const PlToast(title: Text('Saved')));
+    await tester.pumpAndSettle();
+
+    final Set<BackdropKey?> keys = tester
+        .renderObjectList<RenderBackdropFilter>(find.byType(BackdropFilter))
+        .map((RenderBackdropFilter filter) => filter.backdropKey)
+        .toSet();
+
+    // The card in the app's group, and the toast in one that is neither the
+    // app's nor nothing.
+    expect(keys, hasLength(2));
+    expect(keys, contains(shared));
+    expect(keys, isNot(contains(null)));
+  });
+
   testWidgets("a tour's dimming and its card stay out of the page's group", (
     WidgetTester tester,
   ) async {

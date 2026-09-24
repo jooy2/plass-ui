@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A toast under an app's `BackdropGroup` blurs what is behind it.** The toast stack opened no group of its own, so a toast shared the app's read of the backdrop, taken where that group began. The stack now reads the backdrop in a group of its own, as a modal or a popover does.
+
 - **A popup and a layer over the page fade on the theme's `motionEase`.** The fades of `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, the lists of `PlSelect` and `PlCombobox`, `PlModal`, `PlDrawer`, `PlOverlay` and the others ran linearly, where the React build's run on `--plass-ease`. They now ease on the curve of the set in scope, and take a new one when the theme changes.
 
 - **A glass control on a solid or tinted surface blurs that surface, whatever `BackdropGroup` the app puts round them.** Only a glass surface put what it held in a group of its own, so a glass badge on a `solid` `PlButton` or a glass button on a `solid` `PlAlert` was handed the app's read of the backdrop, taken before the fill under it was drawn, and showed the page through it. Every surface that paints glass, a gradient or a flat fill now opens that group, and a `ghost` surface leaves what it holds in the group around it until its wash appears.
