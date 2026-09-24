@@ -355,11 +355,56 @@ function summaryOf(filePath: string): string | undefined {
   return undefined;
 }
 
-/** The locales that actually have this page — a mirror is not a guarantee. */
+/**
+ * Pages whose body is the same English text in every locale.
+ *
+ * The changelog is written in English and copied into each locale's folder, so
+ * the Korean copy is the English history under a Korean title. Declared as a
+ * translation, it would be the same text indexed twice under two languages. So
+ * every copy points its canonical at the default locale's page, and none of
+ * them is offered as an alternate, in the head or in the sitemap.
+ */
+const untranslatedPages = new Set(['changelog.md']);
+
+/**
+ * The locales that have this page as a translation — a mirror is not a
+ * guarantee, and a copy of an untranslated page is not a translation.
+ */
 function localesWith(filePath: string): string[] {
   const page = pageOf(filePath);
 
+  if (untranslatedPages.has(page)) {
+    return [];
+  }
+
   return supportLocales.filter((lang) => existsSync(resolve(srcDir, lang, page)));
+}
+
+/** One entry of the sitemap, as `sitemap.transformItems` is handed it. Not exported by VitePress. */
+type SitemapItem = Parameters<
+  NonNullable<NonNullable<UserConfig['sitemap']>['transformItems']>
+>[0][number];
+
+/**
+ * The sitemap as VitePress writes it, less the copies of an untranslated page.
+ *
+ * A sitemap lists canonical URLs, and a copy's canonical is the default
+ * locale's page. VitePress also pairs the copies up as alternates of each other,
+ * which is the claim `untranslatedPages` exists to take back.
+ */
+function sitemapItems(items: SitemapItem[]): SitemapItem[] {
+  const canonical = new Set<string>();
+  const copies = new Set<string>();
+
+  for (const page of untranslatedPages) {
+    for (const lang of supportLocales) {
+      (lang === defaultLocale ? canonical : copies).add(pathOf(`${lang}/${page}`).slice(1));
+    }
+  }
+
+  return items
+    .filter((item) => !copies.has(item.url))
+    .map((item) => (canonical.has(item.url) ? { url: item.url, lastmod: item.lastmod } : item));
 }
 
 /* ---------------------------------------------------------------------------
@@ -518,7 +563,9 @@ function transformHead({ pageData, siteData, title, description }: TransformCont
   }
 
   const lang = filePath.split('/')[0];
-  const url = `${siteUrl}${pathOf(filePath)}`;
+  const url = untranslatedPages.has(pageOf(filePath))
+    ? `${siteUrl}${pathOf(`${defaultLocale}/${pageOf(filePath)}`)}`
+    : `${siteUrl}${pathOf(filePath)}`;
   const translations = localesWith(filePath);
 
   // Open Graph writes a BCP-47 tag with an underscore in it, and nothing else.
@@ -620,7 +667,8 @@ const vitePressConfig: UserConfig = {
     ['script', {}, FRAMEWORK_HEAD_SCRIPT]
   ],
   sitemap: {
-    hostname: packageJson.homepage
+    hostname: packageJson.homepage,
+    transformItems: sitemapItems
   },
   /**
    * `robots.txt`, written rather than committed.
