@@ -386,6 +386,10 @@ class _PlMenuState extends State<PlMenu> {
 
   bool _open = false;
 
+  /// The node inside the trigger that held the focus when the menu opened, and
+  /// takes it back when it closes.
+  FocusNode? _returnTo;
+
   /// Which row of the deepest open menu is lit.
   int _highlighted = -1;
 
@@ -450,6 +454,9 @@ class _PlMenuState extends State<PlMenu> {
       return;
     }
 
+    final FocusNode? primary = FocusManager.instance.primaryFocus;
+    _returnTo = primary != null && primary.ancestors.contains(_focusNode) ? primary : null;
+
     setState(() {
       _open = true;
       _path.clear();
@@ -469,7 +476,37 @@ class _PlMenuState extends State<PlMenu> {
       _path.clear();
       _highlighted = -1;
     });
+    _giveBack();
     widget.onOpenChange?.call(false);
+  }
+
+  /// Hands the focus back to the trigger once the menu has closed, which is
+  /// where the React menu puts it.
+  ///
+  /// The menu held the focus on its own node wrapped round the trigger, which
+  /// draws no ring; left there, a button that opened it from the keyboard would
+  /// lose its ring and the reader their place. Only to the node that held the
+  /// focus when the menu opened: a trigger pressed with a pointer never had it,
+  /// and a ring arriving on it after a click would say the keyboard was in use.
+  ///
+  /// Checked after the frame rather than at once, because a row's own handler
+  /// runs before the menu closes and may have sent the focus somewhere of its
+  /// own, and a request made now would win over that one.
+  void _giveBack() {
+    final FocusNode? node = _returnTo;
+    _returnTo = null;
+
+    if (node == null) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      // Still inside the trigger, which a trigger rebuilt round a new node, or
+      // a node its owner has disposed of, is not.
+      if (mounted && _focusNode.hasPrimaryFocus && node.ancestors.contains(_focusNode)) {
+        node.requestFocus();
+      }
+    });
   }
 
   void _move(int by) {

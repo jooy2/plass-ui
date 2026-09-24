@@ -60,6 +60,8 @@
 
 ### Fixed
 
+- **A `PlMenu` hands the focus back to its trigger when it closes.** The focus stayed on the node the menu took its keys on, which draws no ring, so a `PlButton` that opened a menu from the keyboard lost its focus ring once the menu closed. It now goes back to the trigger, unless a row's own handler sent it somewhere else. A trigger pressed with a pointer never held the focus and is not given it.
+
 - **A `PlTabs` bar brings the tab the arrow keys move to into view.** The keys moved the choice and the focus along a bar with more tabs than room, but not the strip, so six presses of → on a narrow bar left the chosen tab out of sight past its end. The tab is now brought in, clear of the edge fade, as it is when the bar opens. A value set from outside the bar leaves the strip where it is, as in the React build.
 
 - **A `PlButton` and every other control that brightens under the pointer keep what they hold through a hover and a press.** The brightness filter came and went with the pointer, which changed the shape of the tree above the content, so the label, the icons and anything stateful in them were built again from scratch each time the pointer arrived, pressed or left. The filter now stays, as the identity, at rest.

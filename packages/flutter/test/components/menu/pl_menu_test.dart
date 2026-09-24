@@ -276,6 +276,95 @@ void main() {
         expect(onButton, isTrue);
       });
 
+      group('hands the focus back to the trigger', () {
+        /// A menu whose trigger holds the focus, opened from the keyboard, with
+        /// [elsewhere] beside it when a row needs somewhere else to send it.
+        Future<FocusNode> openFromTrigger(
+          WidgetTester tester,
+          List<PlMenuEntry> items, {
+          FocusNode? elsewhere,
+        }) async {
+          final FocusNode before = FocusNode(debugLabel: 'before');
+          final FocusNode button = FocusNode(debugLabel: 'trigger');
+          addTearDown(before.dispose);
+          addTearDown(button.dispose);
+
+          await tester.pumpWidget(
+            host(
+              afterFocusStop(
+                before,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    PlMenu(
+                      items: items,
+                      trigger: (BuildContext context, VoidCallback open, bool isOpen) =>
+                          PlButton(onPressed: open, focusNode: button, child: const Text('Open')),
+                    ),
+                    if (elsewhere != null)
+                      Focus(focusNode: elsewhere, child: const SizedBox.square(dimension: 1)),
+                  ],
+                ),
+              ),
+              overlay: true,
+            ),
+          );
+          button.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(find.text('Cut'), findsOneWidget);
+
+          return button;
+        }
+
+        testWidgets('when it is closed with escape', (WidgetTester tester) async {
+          final FocusNode button = await openFromTrigger(tester, const <PlMenuEntry>[
+            PlMenuItem(label: 'Cut'),
+          ]);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+
+          // Left on the node the menu took its keys on, which draws no ring,
+          // the reader could no longer see where they were.
+          expect(find.text('Cut'), findsNothing);
+          expect(button.hasPrimaryFocus, isTrue);
+        });
+
+        testWidgets('when a row is picked', (WidgetTester tester) async {
+          final FocusNode button = await openFromTrigger(tester, const <PlMenuEntry>[
+            PlMenuItem(label: 'Cut'),
+          ]);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(find.text('Cut'), findsNothing);
+          expect(button.hasPrimaryFocus, isTrue);
+        });
+
+        testWidgets('unless the row sent it somewhere of its own', (WidgetTester tester) async {
+          final FocusNode field = FocusNode(debugLabel: 'field');
+          addTearDown(field.dispose);
+
+          final FocusNode button = await openFromTrigger(tester, <PlMenuEntry>[
+            PlMenuItem(label: 'Cut', onPressed: field.requestFocus),
+          ], elsewhere: field);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(field.hasPrimaryFocus, isTrue);
+          expect(button.hasFocus, isFalse);
+        });
+      });
+
       testWidgets('walks the rows and picks one', (WidgetTester tester) async {
         final List<String> pressed = <String>[];
 
