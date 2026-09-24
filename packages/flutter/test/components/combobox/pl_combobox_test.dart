@@ -55,9 +55,29 @@ Finder _inList(String label) {
 }
 
 /// The row the keyboard is on, by its text, or `null` for none.
+///
+/// A lit row is the one painting its wash, which it does in a group of its own.
+/// The list's sheet and the field's paint groups as well, round the rows and
+/// round the text, so the row's is the painting group inside the list with no
+/// painting group under it.
 String? _lit(WidgetTester tester) {
+  bool paints(Widget widget) => widget is PlassContentsGroup && widget.paints;
+
   final Finder lit = find.descendant(
-    of: find.byWidgetPredicate((Widget widget) => widget is PlassContentsGroup && widget.paints),
+    of: find.descendant(
+      of: find.byType(SingleChildScrollView),
+      matching: find.byElementPredicate(
+        (Element element) =>
+            paints(element.widget) &&
+            find
+                .descendant(
+                  of: find.byElementPredicate((Element other) => other == element),
+                  matching: find.byWidgetPredicate(paints),
+                )
+                .evaluate()
+                .isEmpty,
+      ),
+    ),
     matching: find.byType(Text),
   );
 
