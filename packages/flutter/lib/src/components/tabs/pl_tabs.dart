@@ -416,6 +416,7 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
         wheel: widget.wheel,
         overscroll: widget.overscroll,
         reveal: chosen >= 0 ? _keys[chosen] : null,
+        follow: stop.hasFocus,
         child: strip,
       );
     }
@@ -498,6 +499,7 @@ class _EdgeFade extends StatefulWidget {
     required this.wheel,
     required this.overscroll,
     required this.reveal,
+    required this.follow,
     required this.child,
   });
 
@@ -507,8 +509,17 @@ class _EdgeFade extends StatefulWidget {
   /// What the bar does with a wheel it has run out of tabs for.
   final PlassOverscroll overscroll;
 
-  /// The chosen tab, brought into view as the bar is first laid out.
+  /// The chosen tab, brought into view as the bar is first laid out and as
+  /// the reader moves to it.
   final GlobalKey? reveal;
+
+  /// Whether the bar holds the focus, so that a change of [reveal] is the
+  /// reader moving along it and the tab they moved to is brought into view.
+  ///
+  /// Only then, as in a browser, where it is the focus arriving on a tab that
+  /// scrolls the strip: a value set from outside the bar leaves the strip where
+  /// the reader put it.
+  final bool follow;
 
   final Widget child;
 
@@ -537,7 +548,8 @@ class _EdgeFadeState extends State<_EdgeFade> {
     });
   }
 
-  /// Brings the chosen tab into the strip as the bar is first laid out.
+  /// Brings the chosen tab into the strip as the bar is first laid out, and
+  /// again each time the reader moves the choice along it.
   ///
   /// A bar that opens on a tab it has scrolled out of sight does not say which
   /// tab is open. Only this strip moves: [Scrollable.ensureVisible] would move
@@ -579,9 +591,18 @@ class _EdgeFadeState extends State<_EdgeFade> {
   @override
   void didUpdateWidget(_EdgeFade oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // A tab added or renamed changes how far the strip runs without anybody
-    // scrolling and without the bar being resized.
-    WidgetsBinding.instance.addPostFrameCallback((Duration _) => _onScroll());
+    // An arrow key moves the choice and the focus with it, to a tab that may be
+    // anywhere along the strip, so it is brought into view once the frame has
+    // laid it out. A tab added or renamed changes how far the strip runs
+    // without anybody scrolling and without the bar being resized.
+    final bool moved = widget.follow && widget.reveal != oldWidget.reveal;
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (moved) {
+        _reveal();
+      }
+      _onScroll();
+    });
   }
 
   @override

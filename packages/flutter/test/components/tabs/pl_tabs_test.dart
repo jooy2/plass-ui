@@ -324,6 +324,55 @@ void main() {
         expect(tab.right, lessThanOrEqualTo(bar.right));
       });
 
+      testWidgets('brings the tab the arrow keys move to into view, clear of the fade', (
+        WidgetTester tester,
+      ) async {
+        String value = 'a';
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlTabs<String>(
+                tabs: many,
+                value: value,
+                autofocus: true,
+                onChanged: (String next) => setState(() => value = next),
+              ),
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        for (var press = 0; press < 6; press += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+          await tester.pumpAndSettle();
+        }
+
+        final Rect bar = tester.getRect(find.byType(SingleChildScrollView));
+        final Rect tab = tester.getRect(
+          find.ancestor(of: find.text('Notifications'), matching: find.byType(PlassInteractive)),
+        );
+
+        // 'Notifications' has a tab after it, so that end fades: the tab stops
+        // the fade's length short of it rather than sliding under it.
+        expect(value, 'g');
+        expect(tab.left, greaterThanOrEqualTo(bar.left));
+        expect(bar.right - tab.right, greaterThanOrEqualTo(24));
+      });
+
+      testWidgets('leaves the bar where it is when the value moves without the focus', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const PlTabs<String>(tabs: many, value: 'a'), width: 320));
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(host(const PlTabs<String>(tabs: many, value: 'g'), width: 320));
+        await tester.pumpAndSettle();
+
+        final ScrollableState scroller = tester.state(find.byType(Scrollable));
+
+        expect(scroller.position.pixels, 0);
+      });
+
       testWidgets('opens with the chosen tab in view under RTL', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
