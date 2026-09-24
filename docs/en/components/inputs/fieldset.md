@@ -122,11 +122,23 @@ Two fieldsets on one card is the usual arrangement, and it is what makes the no-
 
 ## Accessibility
 
-- It is a real `<fieldset>`, which is a `group`, and the legend names it.
 - The legend is read out with the controls inside, so write a phrase that still reads correctly in front of each of them: "Billing address", not "Where should we send it?".
+- A fieldset with neither `legend` nor `description` draws no heading block at all. An empty name is worse than none: it puts a blank in front of every control's own.
+
+::: fw react
+
+- It is a real `<fieldset>`, which is a `group`, and the legend names it.
 - The legend is a `<div>` pointed at by `aria-labelledby` rather than a rendered `<legend>`. That is Base UI's decision, and it is what makes the group an ordinary flex container: a real `<legend>` is lifted out of its fieldset's content box by every browser, so a `gap` would put no space under it at all.
 - `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does, no context, no prop threading, and nothing to forget on a control that was added later.
-- A fieldset with neither `legend` nor `description` draws no heading block at all. An empty name is worse than none: it puts a blank in front of every control's own.
+
+:::
+
+::: fw flutter
+
+- It is one semantics container, and the legend and the description are the first things in it, so a screen reader reads them before the controls. The container itself has no name: Flutter's semantics have no group role for a legend to name.
+- `disabled` takes the pointer and the focus away from everything inside, a control a widget three levels down drew included, and drains the group. A control inside still reports itself to a screen reader as enabled, because Flutter has no attribute that every widget below reads the way a browser applies `<fieldset disabled>`. Give a field that has to say it is unavailable its own `disabled`.
+
+:::
 
 ::: fw flutter
 
