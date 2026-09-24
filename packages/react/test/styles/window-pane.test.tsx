@@ -1,6 +1,7 @@
 /**
  * What a macOS traffic light shows, where the move handle lies and how tall a
- * window rolled up in its box is, which the stylesheet decides.
+ * window rolled up in its box or from its first render is, which the
+ * stylesheet decides.
  *
  * The mark is held back with `opacity` and brought out by a hover on the set and
  * by the focus on one light, so nothing about it can be read off the markup —
@@ -125,6 +126,63 @@ describe('a window both maximized and minimized', () => {
       watch.disconnect();
     }
   });
+});
+
+describe('a window that starts minimized', () => {
+  const systems = [
+    'macos',
+    'macosx',
+    'windows11',
+    'windows10',
+    'windows8',
+    'windows7',
+    'windowsxp',
+    'linux'
+  ] as const;
+
+  /** The bar and the frame round it: what a rolled-up window should measure. */
+  function rolled(pane: HTMLElement): number {
+    const bar = pane.firstElementChild as HTMLElement;
+    const frame = parseFloat(getComputedStyle(pane).borderBottomWidth);
+
+    return bar.getBoundingClientRect().bottom + frame - pane.getBoundingClientRect().top;
+  }
+
+  for (const os of systems) {
+    it(`is as tall as one rolled up by its button, on ${os}`, async () => {
+      const screen = await render(
+        <>
+          <PlWindowPane os={os} title="Started" defaultMinimized>
+            <p>Body</p>
+          </PlWindowPane>
+          <PlWindowPane os={os} title="Held" minimized height={240}>
+            <p>Body</p>
+          </PlWindowPane>
+          <PlWindowPane os={os} title="Filled" defaultMinimized defaultMaximized>
+            <p>Body</p>
+          </PlWindowPane>
+          <PlWindowPane os={os} title="Pressed">
+            <p>Body</p>
+          </PlWindowPane>
+        </>
+      );
+
+      const pane = (name: string) => screen.getByRole('group', { name }).element() as HTMLElement;
+      const height = (name: string) => pane(name).getBoundingClientRect().height;
+
+      await screen
+        .getByRole('group', { name: 'Pressed' })
+        .getByRole('button', { name: 'Minimize' })
+        .click();
+
+      await expect.poll(() => height('Pressed') - rolled(pane('Pressed'))).toBeCloseTo(0, 0);
+
+      for (const name of ['Started', 'Held', 'Filled']) {
+        expect(height(name) - rolled(pane(name))).toBeCloseTo(0, 0);
+        expect(height(name)).toBeCloseTo(height('Pressed'), 0);
+      }
+    });
+  }
 });
 
 describe('the macOS traffic lights', () => {

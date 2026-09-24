@@ -954,8 +954,10 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
     );
 
     // Rolled up to its title bar whatever it was told to be, maximized or not —
-    // the height belongs to the body, and the body has gone.
-    const rolledHeight = rolled ?? metrics.bar;
+    // the height belongs to the body, and the body has gone. A window that
+    // starts rolled up has not been measured yet, so it is the bar and the frame
+    // round it, which is what the measurement comes to.
+    const rolledHeight = rolled ?? metrics.bar + metrics.frame * 2;
 
     const geometry: React.CSSProperties = maximized
       ? // `100%` rather than `inset: 0`, and on every `position`: both ends of a

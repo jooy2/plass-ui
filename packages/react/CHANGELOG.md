@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A `PlWindowPane` that starts minimized is as tall as its title bar and the frame round it, the same as one rolled up by its button.** A window that started rolled up through `defaultMinimized` or a controlled `minimized` was only as tall as its bar, so the frame cut the bottom off the bar: 2px on most systems, and 4px on `windows8`.
+
 - **A double click on a `PlWindowPane`'s `actions` belongs to the action and leaves the window's size alone.** The `actions` kept a press from dragging the bar, but not a double click, so an action clicked twice also maximized or restored the window and called `onMaximizedChange`. The caption buttons already kept their double clicks, and a double tap on `actions` already stays theirs in the Flutter build.
 
 - **A `PlPieChart` slice's name is said and written once.** The live region read "Search, Search: 40 · 40%", and the card was headed by the name and wrote it again beside the swatch. The name now heads both with only what the slice is worth after it, "Search, 40 · 40%", as the Flutter card writes it. A custom `tooltip.render` is still handed the slice with its `name`.
