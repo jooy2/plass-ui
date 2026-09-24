@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/chart_frame.dart';
 
 import '../../support/host.dart';
 
@@ -306,6 +307,39 @@ void main() {
 
         expect(said(), reading, reason: '$key');
       }
+    });
+
+    testWidgets('heads the card with a span that names itself, with its row beside the swatch', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(before, PlTimelineChart(series: _plan(), semanticLabel: 'Plan')),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      List<String> lines() => tester
+          .widgetList<Text>(
+            find.descendant(of: find.byType(PlassChartTooltipCard), matching: find.byType(Text)),
+          )
+          .map((Text text) => text.data!)
+          .toList();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(lines(), <String>['Wireframes', 'Design', 'Jan 1, 2026 – Jan 9, 2026']);
+
+      // A row after the first, whose name is not the frame's one stand-in series.
+      await tester.sendKeyEvent(LogicalKeyboardKey.end);
+      await tester.pump();
+      expect(lines(), <String>['Implementation', 'Build', 'Jan 8, 2026 – Jan 26, 2026']);
     });
   });
 }

@@ -280,6 +280,7 @@ class PlTimelineChart extends StatelessWidget {
       // The span names itself when it can, and the row is then the second line
       // rather than a repeat of the first.
       markHeading: (PlassChartMark mark) => spanAt(mark)?.span.label ?? rowNames[mark.series],
+      markName: (PlassChartMark mark) => rowNames[mark.series],
       // The colour the bar is painted in, so the card's swatch matches it. A
       // mark's series is its row here, and the frame's own colours are for the
       // one stand-in series above rather than for the rows.

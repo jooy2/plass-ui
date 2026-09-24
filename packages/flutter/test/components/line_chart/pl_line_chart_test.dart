@@ -692,6 +692,32 @@ void main() {
         expect(said(tester), 'Apr, Cost: 13');
       });
 
+      testWidgets('heads a nearest card with the category, over the series and its value', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: months,
+            tooltip: const PlChartTooltip(mode: PlassChartTooltipMode.nearest),
+          ),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        // The column's card narrowed to one mark, which is what the live region
+        // reads: "Jan", then Revenue beside its swatch and what it is worth.
+        final Finder card = find.byType(PlassChartTooltipCard);
+        final List<String> lines = tester
+            .widgetList<Text>(find.descendant(of: card, matching: find.byType(Text)))
+            .map((Text text) => text.data!)
+            .toList();
+
+        expect(lines, <String>['Jan', 'Revenue', '12']);
+      });
+
       testWidgets('reads a series with no name by its value alone', (WidgetTester tester) async {
         await tabTo(
           tester,

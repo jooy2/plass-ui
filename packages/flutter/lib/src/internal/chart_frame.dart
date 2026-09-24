@@ -559,6 +559,7 @@ class PlassCartesianChart extends StatefulWidget {
     this.stroked = false,
     this.markReadout,
     this.markHeading,
+    this.markName,
     this.markColor,
     this.semanticValue,
     this.scale,
@@ -667,6 +668,11 @@ class PlassCartesianChart extends StatefulWidget {
   /// And what it is called, for a chart whose marks name themselves rather than
   /// taking their series' name. A Gantt's spans do.
   final String Function(PlassChartMark mark)? markHeading;
+
+  /// And what the card names beside its swatch, for a chart whose marks belong
+  /// to something other than the frame's series. A Gantt's belong to its rows,
+  /// and a span that names itself is headed by that name with its row under it.
+  final String Function(PlassChartMark mark)? markName;
 
   /// And what colour its swatch is, for a chart whose marks are not coloured
   /// by the frame's series.
@@ -1358,17 +1364,38 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                         }
 
                         if (active != null) {
+                          final Color color =
+                              widget.markColor?.call(active) ?? layout.colors[active.series];
+
+                          if (widget.markReadout != null) {
+                            return _MarkTooltip(
+                              layout: layout,
+                              mark: active,
+                              color: color,
+                              heading:
+                                  widget.markHeading?.call(active) ??
+                                  widget.series[active.series].name ??
+                                  '${active.series + 1}',
+                              name: widget.markName?.call(active),
+                              readout: widget.markReadout!(active),
+                              tokens: tokens,
+                              size: size,
+                            );
+                          }
+
+                          // A mark of a grid is one cell of a column, and its
+                          // card is that column's card narrowed to it: the
+                          // category it is in over its series and its value,
+                          // which is what the live region reads.
+                          final ChartValue entry = layout.values[active.series][active.index];
+
                           return _MarkTooltip(
                             layout: layout,
                             mark: active,
-                            color: widget.markColor?.call(active) ?? layout.colors[active.series],
-                            name:
-                                widget.markHeading?.call(active) ??
-                                widget.series[active.series].name ??
-                                '${active.series + 1}',
-                            readout:
-                                widget.markReadout?.call(active) ??
-                                _write(layout.values[active.series][active.index].value ?? 0),
+                            color: color,
+                            heading: categoryText(layout.categories[active.index], names),
+                            name: widget.series[active.series].name ?? '${active.series + 1}',
+                            readout: entry.label ?? _write(entry.value ?? 0),
                             tokens: tokens,
                             size: size,
                           );
@@ -2324,38 +2351,15 @@ class _Tooltip extends StatelessWidget {
       final double value = entry.value!;
 
       rows.add(
-        Padding(
-          padding: const EdgeInsets.only(top: 2),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: layout.colors[i],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                series[i].name ?? '${i + 1}',
-                style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
-              ),
-              const SizedBox(width: 10),
-              // A point's own label wins, as it does in the React build's
-              // tooltip and table. On a chart stacked to full that label is the
-              // caller's number, and the value drawn is only its share.
-              Text(
-                entry.label ?? write(value),
-                style: TextStyle(
-                  fontSize: metaText[size]!,
-                  fontWeight: FontWeight.w600,
-                  color: tokens.fg,
-                ),
-              ),
-            ],
-          ),
+        _TooltipRow(
+          color: layout.colors[i],
+          name: series[i].name ?? '${i + 1}',
+          // A point's own label wins, as it does in the React build's tooltip
+          // and table. On a chart stacked to full that label is the caller's
+          // number, and the value drawn is only its share.
+          value: entry.label ?? write(value),
+          tokens: tokens,
+          size: size,
         ),
       );
     }
@@ -2592,7 +2596,61 @@ class PlassChartTooltipCard extends StatelessWidget {
   }
 }
 
-/// The readout for one mark, on a plot whose marks are not in columns.
+/// One row of a card: a swatch, what it stands for, and what it is worth.
+class _TooltipRow extends StatelessWidget {
+  const _TooltipRow({
+    required this.color,
+    required this.name,
+    required this.value,
+    required this.tokens,
+    required this.size,
+  });
+
+  final Color color;
+
+  /// What the swatch stands for, or `null` for a row that is only a value.
+  final String? name;
+  final String value;
+  final PlassTokens tokens;
+  final PlassSize size;
+
+  @override
+  Widget build(BuildContext context) {
+    final String? name = this.name;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(width: 6),
+          if (name != null) ...<Widget>[
+            Text(
+              name,
+              style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
+            ),
+            const SizedBox(width: 10),
+          ],
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: metaText[size]!,
+              fontWeight: FontWeight.w600,
+              color: tokens.fg,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The readout for one mark, rather than for a column.
 ///
 /// A separate widget from [_Tooltip] rather than a mode of it, because the two
 /// answer different questions: a column's readout lists every series at that
@@ -2603,6 +2661,7 @@ class _MarkTooltip extends StatelessWidget {
     required this.layout,
     required this.mark,
     required this.color,
+    required this.heading,
     required this.name,
     required this.readout,
     required this.tokens,
@@ -2614,7 +2673,12 @@ class _MarkTooltip extends StatelessWidget {
 
   /// The swatch's colour: the mark's own, which is not always its series'.
   final Color color;
-  final String name;
+
+  /// The card's first line.
+  final String heading;
+
+  /// What the swatch stands for, or `null` for a card whose heading says it.
+  final String? name;
   final String readout;
   final PlassTokens tokens;
   final PlassSize size;
@@ -2633,30 +2697,9 @@ class _MarkTooltip extends StatelessWidget {
         child: PlassChartTooltipCard(
           tokens: tokens,
           size: size,
-          heading: name,
+          heading: heading,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2)),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    readout,
-                    style: TextStyle(
-                      fontSize: metaText[size]!,
-                      fontWeight: FontWeight.w600,
-                      color: tokens.fg,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _TooltipRow(color: color, name: name, value: readout, tokens: tokens, size: size),
           ],
         ),
       ),
