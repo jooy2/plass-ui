@@ -233,6 +233,7 @@ It takes the rows as `content` and the area as `children`, which is `PlTooltip`'
 ::: fw flutter
 
 - Focus stays on the **trigger** while the popup is up, which is what `PlSelect` does and for the same reason: the rows are painted in an overlay, and a focus scope lifted with them would take the keyboard away from the widget that knows what to do with it. The arrows, `Home`, `End`, `Esc`, `Enter` and typeahead are all bound there.
+- Once the menu closes, the focus goes back to the trigger, whether a key or a pointer opened it, unless a row's own handler sent it somewhere else. A `PlButton` trigger draws its ring there only while Flutter's focus highlight mode is the keyboard's, `traditional`, so a tap on a touch screen does not leave one behind.
 - The pointer moves the same highlight the arrow keys do, so the mouse and the keyboard light one row rather than two, and moving onto a row of an outer menu is what closes the submenu open beside it.
 - A row is a button node with its name and its action on it; a ticked row is marked **checked** and a chosen one **selected in a mutually exclusive group**. Everything drawn inside is excluded, so a glyph never becomes a second thing to read.
 - The arrow that opens a submenu follows the writing direction, so it runs the other way under RTL.

@@ -6,7 +6,19 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/focus_ring.dart';
+
 import '../../support/host.dart';
+
+/// How many words on the bar are drawing a focus ring.
+int _rings(WidgetTester tester) {
+  return tester
+      .widgetList<CustomPaint>(
+        find.descendant(of: find.byType(PlMenubar), matching: find.byType(CustomPaint)),
+      )
+      .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+      .length;
+}
 
 /// Lets the bar be as tall as it wants to be.
 ///
@@ -281,6 +293,7 @@ void main() {
 
         expect(find.text('Copy'), findsNothing);
         expect(focused(), 'PlMenubar 1');
+        expect(_rings(tester), 1);
 
         // And the bar is still one stop from there.
         await press(tester, LogicalKeyboardKey.tab);
@@ -375,6 +388,70 @@ void main() {
 
         expect(find.text('New'), findsNothing);
         expect(find.text('Copy'), findsOneWidget);
+      });
+
+      group('hands the focus back to a word a pointer pressed', () {
+        /// The bar with File opened by a tap, which leaves the focus highlight
+        /// mode the touch screen's.
+        Future<void> openWithTap(WidgetTester tester) async {
+          await tester.pumpWidget(
+            host(PlMenubar(menus: bar()), width: 500, height: 300, overlay: true),
+          );
+
+          await tester.tap(find.text('File'));
+          await tester.pumpAndSettle();
+
+          expect(find.text('New'), findsOneWidget);
+          expect(FocusManager.instance.highlightMode, FocusHighlightMode.touch);
+        }
+
+        String? focused() => FocusManager.instance.primaryFocus?.debugLabel;
+
+        testWidgets('when a row is picked, with no ring on it', (WidgetTester tester) async {
+          await openWithTap(tester);
+
+          await tester.tap(find.text('New'));
+          await tester.pumpAndSettle();
+
+          expect(find.text('New'), findsNothing);
+          expect(focused(), 'PlMenubar 0');
+          expect(_rings(tester), 0);
+        });
+
+        testWidgets('when a press outside closes it, with no ring on it', (
+          WidgetTester tester,
+        ) async {
+          await openWithTap(tester);
+
+          await tester.tapAt(const Offset(4, 4));
+          await tester.pumpAndSettle();
+
+          expect(find.text('New'), findsNothing);
+          expect(focused(), 'PlMenubar 0');
+          expect(_rings(tester), 0);
+        });
+
+        testWidgets('when it is closed with escape, with a ring only for the keyboard', (
+          WidgetTester tester,
+        ) async {
+          // Escape is a key, and a key makes the highlight mode the keyboard's
+          // on its own. Held to the touch screen's here, the word takes the
+          // focus back without a ring.
+          FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTouch;
+          await openWithTap(tester);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+
+          expect(find.text('New'), findsNothing);
+          expect(focused(), 'PlMenubar 0');
+          expect(_rings(tester), 0);
+
+          FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+          await tester.pump();
+
+          expect(_rings(tester), 1);
+        });
       });
 
       testWidgets('opens nothing while it is disabled', (WidgetTester tester) async {

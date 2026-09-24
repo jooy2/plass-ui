@@ -100,7 +100,7 @@
 
 - **A `PlTransfer` list whose `sourceLabel` or `targetLabel` is empty is headed by the theme's name for it.** An empty string drew an empty heading, and moving rows there said "1 item moved to ". It now falls back to the pack's `transferAvailable` or `transferSelected`, as `null` does and as the React build does with an empty label.
 
-- **A `PlMenu` hands the focus back to its trigger when it closes.** The focus stayed on the node the menu took its keys on, which draws no ring, so a `PlButton` that opened a menu from the keyboard lost its focus ring once the menu closed. It now goes back to the trigger, unless a row's own handler sent it somewhere else. A trigger pressed with a pointer never held the focus and is not given it.
+- **A `PlMenu` hands the focus back to its trigger when it closes, whichever way it was opened.** The focus stayed on the node the menu took its keys on, which draws no ring, so a `PlButton` that opened a menu from the keyboard lost its focus ring once the menu closed, and after a tap or a click the focus was left on a node where Enter did nothing. It now goes back to the trigger, as in the React build, unless a row's own handler sent it somewhere else. A `PlButton` trigger draws its ring there only in the keyboard's focus highlight mode, so a tap on a touch screen leaves no ring behind.
 
 - **A `PlTabs` bar brings the tab the arrow keys move to into view.** The keys moved the choice and the focus along a bar with more tabs than room, but not the strip, so six presses of → on a narrow bar left the chosen tab out of sight past its end. The tab is now brought in, clear of the edge fade, as it is when the bar opens. A value set from outside the bar leaves the strip where it is, as in the React build.
 

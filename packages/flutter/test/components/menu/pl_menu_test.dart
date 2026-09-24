@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 
 import '../../support/host.dart';
@@ -27,6 +28,15 @@ Widget menu(
 Future<void> openMenu(WidgetTester tester) async {
   await tester.tap(find.text('Open'));
   await tester.pumpAndSettle();
+}
+
+/// Whether the trigger is drawing its focus ring.
+bool _ringed(WidgetTester tester) {
+  return tester
+      .widgetList<CustomPaint>(
+        find.descendant(of: find.byType(PlButton), matching: find.byType(CustomPaint)),
+      )
+      .any((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter);
 }
 
 void main() {
@@ -331,6 +341,7 @@ void main() {
           // the reader could no longer see where they were.
           expect(find.text('Cut'), findsNothing);
           expect(button.hasPrimaryFocus, isTrue);
+          expect(_ringed(tester), isTrue);
         });
 
         testWidgets('when a row is picked', (WidgetTester tester) async {
@@ -362,6 +373,80 @@ void main() {
 
           expect(field.hasPrimaryFocus, isTrue);
           expect(button.hasFocus, isFalse);
+        });
+      });
+
+      group('hands the focus back to a trigger a pointer pressed', () {
+        /// A menu opened with a tap, which leaves the focus highlight mode the
+        /// touch screen's.
+        Future<FocusNode> openWithTap(WidgetTester tester) async {
+          final FocusNode button = FocusNode(debugLabel: 'trigger');
+          addTearDown(button.dispose);
+
+          await tester.pumpWidget(
+            host(
+              PlMenu(
+                items: const <PlMenuEntry>[PlMenuItem(label: 'Cut')],
+                trigger: (BuildContext context, VoidCallback open, bool isOpen) =>
+                    PlButton(onPressed: open, focusNode: button, child: const Text('Open')),
+              ),
+              overlay: true,
+            ),
+          );
+          await openMenu(tester);
+
+          expect(find.text('Cut'), findsOneWidget);
+          expect(FocusManager.instance.highlightMode, FocusHighlightMode.touch);
+
+          return button;
+        }
+
+        testWidgets('when a row is picked, with no ring on it', (WidgetTester tester) async {
+          final FocusNode button = await openWithTap(tester);
+
+          await tester.tap(find.text('Cut'));
+          await tester.pumpAndSettle();
+
+          // As the React menu does. Left on the menu's own node, the next Tab
+          // started from a stop the reader cannot see.
+          expect(find.text('Cut'), findsNothing);
+          expect(button.hasPrimaryFocus, isTrue);
+          expect(_ringed(tester), isFalse);
+        });
+
+        testWidgets('when a press outside closes it, with no ring on it', (
+          WidgetTester tester,
+        ) async {
+          final FocusNode button = await openWithTap(tester);
+
+          await tester.tapAt(const Offset(4, 4));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Cut'), findsNothing);
+          expect(button.hasPrimaryFocus, isTrue);
+          expect(_ringed(tester), isFalse);
+        });
+
+        testWidgets('when it is closed with escape, with a ring only for the keyboard', (
+          WidgetTester tester,
+        ) async {
+          // Escape is a key, and a key makes the highlight mode the keyboard's
+          // on its own. Held to the touch screen's here, the trigger takes the
+          // focus back without a ring.
+          FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTouch;
+          final FocusNode button = await openWithTap(tester);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+
+          expect(find.text('Cut'), findsNothing);
+          expect(button.hasPrimaryFocus, isTrue);
+          expect(_ringed(tester), isFalse);
+
+          FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+          await tester.pump();
+
+          expect(_ringed(tester), isTrue);
         });
       });
 

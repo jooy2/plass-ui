@@ -387,7 +387,8 @@ class _PlMenuState extends State<PlMenu> {
   bool _open = false;
 
   /// The node inside the trigger that held the focus when the menu opened, and
-  /// takes it back when it closes.
+  /// takes it back when it closes. `null` when a pointer opened it, and the
+  /// trigger's own node takes it back instead.
   FocusNode? _returnTo;
 
   /// Which row of the deepest open menu is lit.
@@ -480,33 +481,55 @@ class _PlMenuState extends State<PlMenu> {
     widget.onOpenChange?.call(false);
   }
 
-  /// Hands the focus back to the trigger once the menu has closed, which is
-  /// where the React menu puts it.
+  /// Hands the focus back to the trigger once the menu has closed, however it
+  /// was opened, which is where the React menu puts it.
   ///
   /// The menu held the focus on its own node wrapped round the trigger, which
   /// draws no ring; left there, a button that opened it from the keyboard would
-  /// lose its ring and the reader their place. Only to the node that held the
-  /// focus when the menu opened: a trigger pressed with a pointer never had it,
-  /// and a ring arriving on it after a click would say the keyboard was in use.
+  /// lose its ring and the reader their place. It goes to the node that held
+  /// the focus when the menu opened, or, when a pointer opened it, to the
+  /// trigger's own node. A trigger draws its ring there only while the focus
+  /// highlight mode is the keyboard's, so a ring does not arrive on it after a
+  /// tap.
   ///
   /// Checked after the frame rather than at once, because a row's own handler
   /// runs before the menu closes and may have sent the focus somewhere of its
   /// own, and a request made now would win over that one.
   void _giveBack() {
-    final FocusNode? node = _returnTo;
+    final FocusNode? held = _returnTo;
     _returnTo = null;
 
-    if (node == null) {
-      return;
-    }
-
     WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (!mounted || !_focusNode.hasPrimaryFocus) {
+        return;
+      }
+
       // Still inside the trigger, which a trigger rebuilt round a new node, or
       // a node its owner has disposed of, is not.
-      if (mounted && _focusNode.hasPrimaryFocus && node.ancestors.contains(_focusNode)) {
-        node.requestFocus();
-      }
+      final FocusNode? node = held != null && held.ancestors.contains(_focusNode)
+          ? held
+          : _triggerNode;
+
+      node?.requestFocus();
     });
+  }
+
+  /// The outermost node inside the trigger that can take the focus, or `null`
+  /// for a trigger that has none.
+  FocusNode? get _triggerNode {
+    Iterable<FocusNode> level = _focusNode.children;
+
+    while (level.isNotEmpty) {
+      for (final FocusNode node in level) {
+        if (node.canRequestFocus) {
+          return node;
+        }
+      }
+
+      level = level.expand((FocusNode node) => node.children);
+    }
+
+    return null;
   }
 
   void _move(int by) {
