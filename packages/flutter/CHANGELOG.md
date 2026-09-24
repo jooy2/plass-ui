@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlAnimateSplit` takes `mode`, so a line can leave one part at a time.** The React split had `mode="out"` and the Flutter one had no exit at all. `PlassAnimateMode.exit` runs each part's entrance backwards, in the order the parts would have arrived or the other way round with `reverse`, and holds them gone; with animations turned off, each part is there until its turn and gone from then on, as every other exit is.
+
 - **`PlPopconfirm` takes `loadingLabel`, the word a screen reader hears while it waits on `onConfirm`.** The confirming button's semantic hint was always the label set's `loading`, which does not say what is being waited for, and the popconfirm had no way to hand it another. `loadingLabel` reaches that button and puts the popconfirm's own word in its place, such as "Revoking", and the label stays what it was.
 
 - **`PlButton`, `PlIconButton` and `PlFloatingActionButton` take `loadingLabel`, the word a screen reader hears while `loading`.** A loading button's semantic hint was always the label set's `loading`, which does not say what is being waited for. `loadingLabel` puts the button's own word in its place, such as "Saving", and the label stays what it was.

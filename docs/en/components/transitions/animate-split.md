@@ -129,4 +129,4 @@ How long after one part the next one starts. This component is the **splitting**
 
 - **A screen reader is told the line, once.** The parts are hidden from the accessibility tree and the whole line sits beside them, which is what stops a split headline being read out one word, or one letter, at a time. That is the defect this pattern is known for everywhere it appears without it.
 - Text selection and copying still give you the line, gaps included, and give it once: the clipped copy a screen reader reads is left out of the selection.
-- Where a reader has asked for less motion nothing plays, and the line is simply there.
+- Where a reader has asked for less motion nothing moves. Each part is simply there until the moment it would have started, and from then on it shows its last frame, so an entrance is there and a line given <Fw react='mode="out"' flutter="PlassAnimateMode.exit" code /> has left.

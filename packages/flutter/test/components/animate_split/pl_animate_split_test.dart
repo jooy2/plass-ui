@@ -21,8 +21,17 @@ List<Rect> _rects(WidgetTester tester) {
   ];
 }
 
-Future<void> _pump(WidgetTester tester, Widget child) async {
-  await tester.pumpWidget(host(child, width: 320, height: 160));
+/// How much of [part] is drawn: the opacity of the fade around it.
+double _opacityOf(WidgetTester tester, String part) {
+  return tester
+      .widget<Opacity>(find.ancestor(of: find.text(part), matching: find.byType(Opacity)).first)
+      .opacity;
+}
+
+Future<void> _pump(WidgetTester tester, Widget child, {bool disableAnimations = false}) async {
+  await tester.pumpWidget(
+    host(child, width: 320, height: 160, disableAnimations: disableAnimations),
+  );
   await tester.pump();
 }
 
@@ -185,6 +194,77 @@ void main() {
         expect(last, greaterThan(first));
 
         await tester.pumpAndSettle();
+      });
+    });
+
+    group('the exit', () {
+      testWidgets('takes the parts away in the order they would have arrived', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlAnimateSplit(
+            text: _line,
+            mode: PlassAnimateMode.exit,
+            duration: Duration(milliseconds: 100),
+            stagger: Duration(milliseconds: 200),
+          ),
+        );
+
+        // Nothing has left before the run begins.
+        expect(_opacityOf(tester, 'Friday'), 1);
+
+        await tester.pump(const Duration(milliseconds: 120));
+
+        // The first word has gone and the last one has not started to go.
+        expect(_opacityOf(tester, 'Ship '), 0);
+        expect(_opacityOf(tester, 'Friday'), 1);
+
+        await tester.pumpAndSettle();
+
+        // And it is held there: every part stays gone.
+        for (final String part in _parts(tester)) {
+          expect(_opacityOf(tester, part), 0, reason: part);
+        }
+      });
+
+      testWidgets('takes the parts away on their last frame under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlAnimateSplit(
+            text: _line,
+            mode: PlassAnimateMode.exit,
+            stagger: Duration(milliseconds: 200),
+          ),
+          disableAnimations: true,
+        );
+
+        // Nothing moves: each part is there until the moment it would have
+        // started, and gone from then on.
+        expect(_opacityOf(tester, 'Ship '), 0);
+        expect(_opacityOf(tester, 'Friday'), 1);
+
+        await tester.pump(const Duration(milliseconds: 600));
+
+        for (final String part in _parts(tester)) {
+          expect(_opacityOf(tester, part), 0, reason: part);
+        }
+      });
+
+      testWidgets('still tells a screen reader the line once it has left', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, const PlAnimateSplit(text: _line, mode: PlassAnimateMode.exit));
+        await tester.pumpAndSettle();
+
+        // As an exit on any other effect is: it is not a way to hide content.
+        expect(find.bySemanticsLabel(_line), findsOneWidget);
+
+        handle.dispose();
       });
     });
 

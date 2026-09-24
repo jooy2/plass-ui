@@ -598,6 +598,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'The entrance, spelled as a side, a distance and a fade. React names a CSS keyframe instead, because there an effect is a named thing and here every effect is built out of widgets'
       }
     }),
+    from('PlAnimateSplit', 'mode', {
+      type: 'PlassAnimateMode',
+      default: 'PlassAnimateMode.enter',
+      description: {
+        ko: '각 조각이 들어오는지 나가는지. exit는 같은 등장을 거꾸로 돌린 것이고, 끝난 자리에 붙들려 있습니다. in이 Dart의 예약어라 enter/exit입니다',
+        en: 'Whether each part arrives or leaves. exit is the same entrance run backwards, and it is held where it ends. enter/exit rather than in/out, because in is a reserved word in Dart'
+      }
+    }),
     {
       name: 'stagger · reverse',
       type: 'Duration · bool',

@@ -25,7 +25,8 @@ enum PlAnimateSplitBy {
 ///
 /// A [PlAnimateAppear] tells one entrance off across a set of **children**,
 /// which a line of text does not have. This makes them: it cuts the string into
-/// words or characters and gives each part the same staggered entrance.
+/// words or characters and gives each part the same staggered entrance, or with
+/// [PlassAnimateMode.exit] the same run backwards.
 ///
 /// **`PlAnimateSplitBy.character` is not safe in every script**, and that is the
 /// one thing to know before reaching for it. Cutting between letters breaks the
@@ -54,6 +55,7 @@ class PlAnimateSplit extends StatelessWidget {
     this.from = PlassSide.bottom,
     this.distance = 12,
     this.fade = true,
+    this.mode = PlassAnimateMode.enter,
     this.stagger = const Duration(milliseconds: 40),
     this.reverse = false,
     this.duration = const Duration(milliseconds: 400),
@@ -87,6 +89,14 @@ class PlAnimateSplit extends StatelessWidget {
 
   /// Whether each part fades in as well as moving.
   final bool fade;
+
+  /// Whether each part arrives or leaves.
+  ///
+  /// [PlassAnimateMode.exit] is the same entrance run backwards, and it is
+  /// **held at the end**: a part that has left stays gone rather than snapping
+  /// back into place when the run finishes. The parts leave in the order they
+  /// would have arrived, and [reverse] turns that round as it does an entrance.
+  final PlassAnimateMode mode;
 
   /// How long after one part the next one starts.
   final Duration stagger;
@@ -187,6 +197,7 @@ class PlAnimateSplit extends StatelessWidget {
   /// One part, arriving [step] places into a line of [count].
   Widget _part(String part, {required int step, required int count, required bool running}) {
     return PlassAnimateRun(
+      mode: mode,
       settings: PlassAnimateSettings(
         duration: duration,
         delay: delay + stagger * (reverse ? count - 1 - step : step),
