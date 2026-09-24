@@ -95,7 +95,7 @@ PlColorPicker(
 
 ### alpha
 
-세 번째 레일을 더하고 값이 네 번째 채널을 갖게 합니다. 레일은 체커보드 위에 그려지고, 체커는 conic 그러데이션 둘이 아니라 45°의 linear stop 넷입니다. conic으로 그린 체커는 소수 device pixel ratio에서 모든 타일 한가운데에 이음매가 생깁니다.
+세 번째 레일을 더하고 값이 네 번째 채널을 갖게 합니다. 레일은 체커보드 위에 그려져서, 색이 투명해질수록 체커가 비쳐 보입니다.
 
 <Demo src="color-picker/alpha" :min-height="420">
 

@@ -95,7 +95,7 @@ All three drop their alpha when the colour is opaque, a caller who never turned 
 
 ### alpha
 
-Adds a third rail and lets the value carry a fourth channel. The rail is drawn over a chequerboard, and the chequer is four linear stops at 45° rather than two conic gradients: a conic chequer has a seam down the middle of every tile at a fractional device pixel ratio.
+Adds a third rail and lets the value carry a fourth channel. The rail is drawn over a chequerboard, which shows through as the colour grows more transparent.
 
 <Demo src="color-picker/alpha" :min-height="420">
 
