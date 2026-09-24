@@ -612,6 +612,26 @@ export interface ChartTooltipItem {
   value: number | null;
   formatted: string;
   label?: React.ReactNode;
+  /**
+   * A second figure, written after the reading in brackets: a bubble's size,
+   * as in `22 (5)`. Kept apart from `formatted` and `label` so that what a
+   * caller's own `tooltip.render` is handed is still the value and the point's
+   * own words.
+   */
+  aside?: string;
+}
+
+/** What a tooltip row says: the reading, then its second figure if it has one. */
+function itemText(item: ChartTooltipItem): React.ReactNode {
+  const said = item.label ?? item.formatted;
+
+  return item.aside === undefined ? (
+    said
+  ) : (
+    <>
+      {said} ({item.aside})
+    </>
+  );
 }
 
 interface TooltipProps {
@@ -675,7 +695,7 @@ function ChartTooltipPanel({ heading, items, x, y, flip, size }: TooltipProps) {
               <span className="min-w-0 flex-1 truncate text-(--plass-muted-fg)">{item.name}</span>
             ) : null}
             <span className="ms-auto shrink-0 font-medium tabular-nums text-(--plass-fg)">
-              {item.label ?? item.formatted}
+              {itemText(item)}
             </span>
           </li>
         ))}
@@ -713,7 +733,7 @@ function ChartStatus({
             <React.Fragment key={item.seriesIndex}>
               {index > 0 ? ', ' : null}
               {item.name ? `${item.name}: ` : null}
-              {item.label ?? item.formatted}
+              {itemText(item)}
             </React.Fragment>
           ))}
         </>

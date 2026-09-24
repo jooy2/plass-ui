@@ -7,7 +7,8 @@ import {
   type CartesianChartProps,
   type CartesianContext,
   type CartesianLayout,
-  type ChartMark
+  type ChartMark,
+  type ChartTooltipItem
 } from '../../internal/chart-frame.js';
 import {
   bubbleRadius,
@@ -19,6 +20,8 @@ import {
   markShapes,
   plotHeights,
   pointX,
+  seriesColor,
+  toValues,
   writeChartValue,
   type MarkShape
 } from '../../internal/chart.js';
@@ -101,8 +104,15 @@ export function PlScatterChart({
 }: PlScatterChartProps) {
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
+  const locale = props.locale ?? defaults.locale;
+  const format = props.format;
 
   const dot = pointRadius ?? markerRadii[size];
+
+  // The same unpacking and the same colours the frame works from, so the card
+  // below describes exactly the point the frame drew.
+  const values = React.useMemo(() => toValues(series), [series]);
+  const colors = React.useMemo(() => series.map((one, index) => seriesColor(one, index)), [series]);
 
   /**
    * How much room the biggest mark needs, which is also how big it is allowed
@@ -192,6 +202,40 @@ export function PlScatterChart({
     [categories, dot, reserve]
   );
 
+  /**
+   * What the card and the live region say about a mark: its x over its series
+   * and its y, as the frame writes a mark, and on a bubble the z after the y in
+   * brackets. A point's own `label` stands in for its y and for nothing else,
+   * so a labelled bubble is its label with the z after it.
+   */
+  const markTooltip = React.useCallback(
+    (mark: ChartMark) => {
+      const value = values[mark.series]?.[mark.index];
+
+      if (!value || value.value === null) {
+        return null;
+      }
+
+      const items: ChartTooltipItem[] = [
+        {
+          seriesIndex: mark.series,
+          name: series[mark.series]?.name,
+          color: value.color ?? colors[mark.series],
+          value: value.value,
+          formatted: writeChartValue(value.value, format, locale),
+          label: value.label,
+          aside: value.z === undefined ? undefined : writeChartValue(value.z, format, locale)
+        }
+      ];
+
+      return {
+        heading: formatCategory(value.x ?? categories?.[mark.index] ?? mark.index, locale),
+        items
+      };
+    },
+    [values, series, colors, categories, format, locale]
+  );
+
   return (
     <CartesianChart
       {...props}
@@ -201,6 +245,7 @@ export function PlScatterChart({
       xScale="value"
       xAxis={xAxis}
       marks={marks}
+      markTooltip={markTooltip}
       markInset={reserve}
       // Neither axis is forced to zero. What a position encodes is a *place*,
       // so cropping a scale slides every mark by the same amount and the shape
@@ -220,8 +265,8 @@ export function PlScatterChart({
           label={props.label}
           xLabel={xAxis?.label}
           yLabel={props.yAxis?.label}
-          locale={props.locale ?? defaults.locale}
-          format={props.format}
+          locale={locale}
+          format={format}
         />
       )}
     >

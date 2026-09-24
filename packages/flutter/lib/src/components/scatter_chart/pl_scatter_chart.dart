@@ -289,18 +289,24 @@ class PlScatterChart extends StatelessWidget {
         height: 10,
         child: CustomPaint(painter: _SwatchPainter(shapeOf(index), color)),
       ),
-      // A card headed by the point's own x, over its series and its y, as the
-      // React card is and as every other card is shaped: on a plot with two
-      // value axes the x is data rather than a heading the marks were filed
-      // under, but it is still where the point is.
+      // A card headed by the point's own x, over its series and its y, with a
+      // bubble's z after the y in brackets, as the React card is and as every
+      // other card is shaped: on a plot with two value axes the x is data
+      // rather than a heading the marks were filed under, but it is still where
+      // the point is.
       markHeading: (PlassChartMark mark) =>
           categoryText(_xOf(values[mark.series][mark.index], mark.index), names),
       markName: (PlassChartMark mark) => series[mark.series].name ?? '${mark.series + 1}',
       markReadout: (PlassChartMark mark) {
         final ChartValue value = values[mark.series][mark.index];
+        final double? z = value.z;
 
-        // A point's own label wins, as it does on every other card.
-        return value.label ?? _write(value.value ?? 0);
+        // A point's own label wins over its y, as it does on every other card,
+        // and stands in for the y alone: a bubble's z still follows it in
+        // brackets, as it follows a written y.
+        final String said = value.label ?? _write(value.value ?? 0);
+
+        return z == null ? said : '$said (${_write(z)})';
       },
       semanticValue: (List<bool> visible) => _summary(values, visible),
       paint: (Canvas canvas, PlassChartLayout layout) => _paint(canvas, layout, shapeOf),

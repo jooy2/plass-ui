@@ -96,6 +96,6 @@ A series that carries a `color` of its own does not count against that ceiling. 
 ## Accessibility
 
 - The drawing carries the chart's name, and every point is handed over as text: each series, then its points as `x, y` pairs with the `z` in brackets where there is one.
-- The picture is a tab stop, and the arrow keys walk the marks **in the order the data was given**, not the order they are painted in, which is largest-first and would be an order the reader cannot anticipate. Each mark is announced in a live region as it is reached.
+- The picture is a tab stop, and the arrow keys walk the marks **in the order the data was given**, not the order they are painted in, which is largest-first and would be an order the reader cannot anticipate. Each mark is announced in a live region as it is reached, as its card writes it: its `x`, then its series and its `y`, with a bubble's `z` after the `y` in brackets.
 - On React the same numbers are written into a table under the chart: a row per point rather than the grid every other chart uses, because two points that are both the fifth of their series have nothing to do with each other and a shared row would invent a relationship. Its columns are named from the axis labels, falling back to `x`, `y` and `z`.
 - Past three series the marks differ in **shape** as well as in hue, and the legend's swatches show the shapes.

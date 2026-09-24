@@ -46,6 +46,8 @@
 
 ### Changed
 
+- **A `PlScatterChart` card and its live region write a bubble's `z` after its y, in brackets.** The size was left to be read off the bubble, and was written only in the table under the chart. It now follows the y through the chart's `format`, or compactly without one, "10, Q1: 22 (5)", and follows a point's own `label` too, since a label stands in for the y alone.
+
 - **A `PlConfirmProvider` sheet draws no × any more, as the Flutter one never has.** A question is answered by its own buttons, which say what each answer does, and while it is `dismissible`, Escape and a press outside still answer no.
 
 - **A `PlCollapsible`'s title and subtitle wrap, as a `PlAccordionItem`'s do.** They were each held to one line and ellipsed, so a heading that ran past the header lost its end with nothing to press for the rest. `truncate` puts both back on one line, for a name out of a database beside a control.

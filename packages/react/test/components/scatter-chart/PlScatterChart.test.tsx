@@ -459,5 +459,48 @@ describe('PlScatterChart', () => {
 
       expect(widths[0] / widths[1]).toBeCloseTo(2, 1);
     });
+
+    it('writes a z after the y in brackets, on the card and in the live region', async () => {
+      const screen = await render(
+        <PlScatterChart
+          label="Spend"
+          series={[
+            {
+              name: 'Q1',
+              data: [
+                { x: 1, y: 1234.5, z: 1500000 },
+                { x: 2, y: 2, z: 5, label: 'Two' },
+                { x: 3, y: 3 }
+              ]
+            }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Spend' });
+      const status = () => screen.getByRole('status').element().textContent;
+      // What the card writes beside its swatch and its series.
+      const shown = () =>
+        screen.container.querySelector('[data-plass-tooltip] li > span:last-child')?.textContent;
+
+      await expect.element(plot).toBeInTheDocument();
+
+      // Through the chart's number writer, as the y is. A point's own label
+      // stands in for its y alone, so the z still follows it; a dot has none.
+      for (const [reading, value] of [
+        ['1, Q1: 1,234.5 (1.5M)', '1,234.5 (1.5M)'],
+        ['2, Q1: Two (5)', 'Two (5)'],
+        ['3, Q1: 3', '3']
+      ] as const) {
+        plot
+          .element()
+          .dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+          );
+
+        await expect.poll(status).toBe(reading);
+        expect(shown()).toBe(value);
+      }
+    });
   });
 });

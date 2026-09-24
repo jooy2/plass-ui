@@ -345,7 +345,7 @@ void main() {
       expect(find.text('Q1'), findsWidgets);
     });
 
-    testWidgets('heads the card with the point\'s x over its series and its y, as React does', (
+    testWidgets('heads the card with a point\'s x over its series, y and z, as React does', (
       WidgetTester tester,
     ) async {
       final FocusNode before = FocusNode();
@@ -357,7 +357,16 @@ void main() {
           before,
           PlScatterChart(
             series: <PlassChartSeries>[
-              PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[_at(12345, 1234.5, z: 1500000)]),
+              PlassChartSeries(
+                name: 'Q1',
+                data: <PlassChartDatum>[
+                  _at(12345, 1234.5, z: 1500000),
+                  const PlassChartDatum.point(
+                    PlassChartPoint(x: PlassChartCategory.number(2), y: 2, z: 5, label: 'Two'),
+                  ),
+                  _at(3, 3),
+                ],
+              ),
             ],
           ),
         ),
@@ -367,16 +376,21 @@ void main() {
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();
-      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
-      await tester.pump();
 
       // The x as a category is written, the y through the chart's number
-      // writer, and the size is left to the bubble, as on the React card.
-      expect(_cardLines(tester), <String>['12345', 'Q1', '1,234.5']);
-      expect(
-        find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label,
-        '12345, Q1: 1,234.5',
-      );
+      // writer and a bubble's z after it in brackets, as on the React card. A
+      // point's own label stands in for its y alone, so the z still follows it.
+      for (final (List<String> lines, String reading) in <(List<String>, String)>[
+        (<String>['12345', 'Q1', '1,234.5 (1.5M)'], '12345, Q1: 1,234.5 (1.5M)'),
+        (<String>['2', 'Q1', 'Two (5)'], '2, Q1: Two (5)'),
+        (<String>['3', 'Q1', '3'], '3, Q1: 3'),
+      ]) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(_cardLines(tester), lines);
+        expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label, reading);
+      }
     });
   });
 }
