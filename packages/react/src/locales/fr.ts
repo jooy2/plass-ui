@@ -45,6 +45,7 @@ export const fr: PlassLabels = {
   maximize: 'Agrandir',
   restore: 'Restaurer',
   resizeWindow: 'Redimensionner la fenêtre',
+  moveWindow: 'Déplacer la fenêtre',
   overlay: 'Voile',
   notifications: 'Notifications',
   pagination: 'Pagination',

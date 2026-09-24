@@ -2,6 +2,7 @@
 library;
 
 import 'dart:math' as math;
+import 'dart:ui' show FlutterView;
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -77,6 +78,7 @@ class PlWindowPane extends StatefulWidget {
     this.restoreLabel,
     this.closeLabel,
     this.resizeLabel,
+    this.moveLabel,
     this.child,
     super.key,
   });
@@ -127,7 +129,8 @@ class PlWindowPane extends StatefulWidget {
   /// definition not part of the page it is on.
   final int elevation;
 
-  /// Lets the title bar be dragged.
+  /// Lets the title bar be dragged. The bar also becomes a stop in the focus
+  /// order, where the arrow keys move the window.
   final bool draggable;
 
   /// Lets the eight edges and corners be dragged.
@@ -196,6 +199,10 @@ class PlWindowPane extends StatefulWidget {
 
   /// What the one reachable resize handle is called.
   final String? resizeLabel;
+
+  /// What the title bar of a [draggable] window is called where the keyboard
+  /// reaches it.
+  final String? moveLabel;
 
   /// What is in the window.
   final Widget? child;
@@ -447,6 +454,45 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     widget.onResize?.call(size);
   }
 
+  /// One arrow key on the title bar, which moves the window the way the arrow
+  /// points. Right is right under RTL as well: the offset is a distance on the
+  /// screen rather than along a line of text, exactly as a drag's is, so
+  /// nothing here flips.
+  ///
+  /// [top] is how far down the window its bar ends, frame included. That much
+  /// has to stay on the screen: the body may go past the bottom edge, as it can
+  /// on a desktop, but never the thing being held.
+  void _step(_MoveWindowIntent intent, double top) {
+    final RenderObject? box = _paneKey.currentContext?.findRenderObject();
+    if (box is! RenderBox || !box.hasSize) {
+      return;
+    }
+
+    final FlutterView view = View.of(context);
+    final Size screen = view.physicalSize / view.devicePixelRatio;
+    final Offset corner = box.localToGlobal(Offset.zero);
+    final double length = intent.far ? _keyboardLeap : _keyboardStep;
+
+    final Offset moved = Offset(
+      _stepWithin(
+        step: intent.direction.dx * length,
+        start: corner.dx,
+        end: corner.dx + box.size.width,
+        limit: screen.width,
+      ),
+      _stepWithin(
+        step: intent.direction.dy * length,
+        start: corner.dy,
+        end: corner.dy + top,
+        limit: screen.height,
+      ),
+    );
+
+    if (moved != Offset.zero) {
+      _moveTo(_at + moved);
+    }
+  }
+
   /// The window's own name, for the semantics node.
   ///
   /// Read off a `Text` title where there is one. A caller who put something
@@ -540,19 +586,36 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       return bar;
     }
 
-    return MouseRegion(
-      cursor: SystemMouseCursors.move,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onPanStart: (DragStartDetails details) {
-          _grippedAt = _at;
-          _travel = Offset.zero;
-        },
-        onPanUpdate: (DragUpdateDetails details) {
-          _travel += details.delta;
-          _moveTo(_grippedAt + _travel);
-        },
-        child: bar,
+    // The inside of the frame's corners, which is where the ring has to turn.
+    final double inside = math.max(0, metrics.radius - metrics.frame);
+    final double insideBottom = widget.minimized
+        ? math.max(0, metrics.radiusBottom - metrics.frame)
+        : 0;
+
+    return _MoveHandle(
+      label: widget.moveLabel ?? labels.moveWindow,
+      ring: colors.ring,
+      radius: widget.maximized
+          ? BorderRadius.zero
+          : BorderRadius.vertical(
+              top: Radius.circular(inside),
+              bottom: Radius.circular(insideBottom),
+            ),
+      onMove: (_MoveWindowIntent intent) => _step(intent, metrics.frame + metrics.bar),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.move,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onPanStart: (DragStartDetails details) {
+            _grippedAt = _at;
+            _travel = Offset.zero;
+          },
+          onPanUpdate: (DragUpdateDetails details) {
+            _travel += details.delta;
+            _moveTo(_grippedAt + _travel);
+          },
+          child: bar,
+        ),
       ),
     );
   }
@@ -807,8 +870,159 @@ class _WindowButton extends StatelessWidget {
   }
 }
 
-/// How far one arrow key press moves the corner. The same step `PlPanes` uses.
+/// How far one arrow key press moves the corner or the whole window. The same
+/// step `PlPanes` uses.
 const double _keyboardStep = 16;
+
+/// How far it moves the window with Shift held: four steps, so a window crosses
+/// a screen in a handful of presses rather than in dozens.
+const double _keyboardLeap = _keyboardStep * 4;
+
+/// How much of one key's step the title bar may take along one axis, given
+/// where the bar sits on the screen and where the screen ends.
+///
+/// A step stops at the edge of the screen rather than crossing it. The bar is
+/// what holds the focus, and a key that pushed it off the screen would leave a
+/// keyboard reader moving something nobody can see — a pointer cannot take it
+/// much further either, since the pointer has to stay on the screen to hold it.
+/// A bar a drag has already left past an edge is never carried further out,
+/// and a step back towards the screen is taken whole.
+double _stepWithin({
+  required double step,
+  required double start,
+  required double end,
+  required double limit,
+}) {
+  if (step > 0) {
+    return math.min(step, math.max(0.0, limit - end));
+  }
+
+  return -math.min(-step, math.max(0.0, start));
+}
+
+/// One arrow key press on the title bar.
+class _MoveWindowIntent extends Intent {
+  const _MoveWindowIntent(this.direction, {this.far = false});
+
+  /// A unit step on each axis.
+  final Offset direction;
+
+  /// Whether Shift was held.
+  final bool far;
+}
+
+/// The keys that move a window, and the same four with Shift.
+const Map<ShortcutActivator, Intent> _moveKeys = <ShortcutActivator, Intent>{
+  SingleActivator(LogicalKeyboardKey.arrowRight): _MoveWindowIntent(Offset(1, 0)),
+  SingleActivator(LogicalKeyboardKey.arrowLeft): _MoveWindowIntent(Offset(-1, 0)),
+  SingleActivator(LogicalKeyboardKey.arrowDown): _MoveWindowIntent(Offset(0, 1)),
+  SingleActivator(LogicalKeyboardKey.arrowUp): _MoveWindowIntent(Offset(0, -1)),
+  SingleActivator(LogicalKeyboardKey.arrowRight, shift: true): _MoveWindowIntent(
+    Offset(1, 0),
+    far: true,
+  ),
+  SingleActivator(LogicalKeyboardKey.arrowLeft, shift: true): _MoveWindowIntent(
+    Offset(-1, 0),
+    far: true,
+  ),
+  SingleActivator(LogicalKeyboardKey.arrowDown, shift: true): _MoveWindowIntent(
+    Offset(0, 1),
+    far: true,
+  ),
+  SingleActivator(LogicalKeyboardKey.arrowUp, shift: true): _MoveWindowIntent(
+    Offset(0, -1),
+    far: true,
+  ),
+};
+
+/// The keyboard's way to what a drag of the title bar does.
+///
+/// It is the whole bar rather than a grip drawn on it, because the bar is
+/// already what a pointer takes hold of, and it draws nothing until the
+/// keyboard reaches it. The stop sits *under* the bar, so a pointer lands on
+/// the bar and on its buttons as it always did and a screen reader's finger
+/// finds the buttons before the bar; only the ring is drawn over the top. Its
+/// box is the bar's, which is what puts it ahead of the bar's buttons in the
+/// reading order.
+class _MoveHandle extends StatefulWidget {
+  const _MoveHandle({
+    required this.label,
+    required this.ring,
+    required this.radius,
+    required this.onMove,
+    required this.child,
+  });
+
+  /// What the stop is called.
+  final String label;
+
+  /// The focus ring's colour.
+  final Color ring;
+
+  /// The inside of the frame's corners, where the ring turns.
+  final BorderRadius radius;
+
+  /// What an arrow key on it does.
+  final ValueChanged<_MoveWindowIntent> onMove;
+
+  /// The bar, with the drag already on it.
+  final Widget child;
+
+  @override
+  State<_MoveHandle> createState() => _MoveHandleState();
+}
+
+class _MoveHandleState extends State<_MoveHandle> {
+  bool _focusVisible = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget stop = Semantics(
+      button: true,
+      label: widget.label,
+      child: ExcludeSemantics(
+        child: FocusableActionDetector(
+          includeFocusSemantics: false,
+          onShowFocusHighlight: (bool value) {
+            if (_focusVisible != value) {
+              setState(() => _focusVisible = value);
+            }
+          },
+          shortcuts: _moveKeys,
+          actions: <Type, Action<Intent>>{
+            _MoveWindowIntent: CallbackAction<_MoveWindowIntent>(
+              onInvoke: (_MoveWindowIntent intent) {
+                widget.onMove(intent);
+                return null;
+              },
+            ),
+          },
+          child: const SizedBox.expand(),
+        ),
+      ),
+    );
+
+    final Widget ring = IgnorePointer(
+      child: CustomPaint(
+        foregroundPainter: PlassFocusRingPainter(
+          color: widget.ring,
+          borderRadius: widget.radius,
+          offset: -focusRingWidth,
+        ),
+        child: const SizedBox.expand(),
+      ),
+    );
+
+    return Stack(
+      fit: StackFit.passthrough,
+      children: <Widget>[
+        Positioned.fill(child: stop),
+        widget.child,
+        if (_focusVisible) Positioned.fill(child: ring),
+      ],
+    );
+  }
+}
 
 /// How thick an edge handle is, how large a corner one is, and how far along an
 /// edge the corners leave for it.

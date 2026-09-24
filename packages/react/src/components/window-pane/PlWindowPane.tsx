@@ -119,7 +119,11 @@ export interface PlWindowPaneProps extends Omit<
    * @default 'static'
    */
   position?: PlWindowPanePosition;
-  /** Lets the title bar be dragged. @default false */
+  /**
+   * Lets the title bar be dragged. The bar also becomes a stop in the tab
+   * order, where the arrow keys move the window.
+   * @default false
+   */
   draggable?: boolean;
   /** Lets the edges and corners be dragged. @default false */
   resizable?: boolean;
@@ -175,6 +179,8 @@ export interface PlWindowPaneProps extends Omit<
   restoreLabel?: string;
   closeLabel?: string;
   resizeLabel?: string;
+  /** What the title bar of a `draggable` window is called where the keyboard reaches it. */
+  moveLabel?: string;
   /** Renders something other than a `<div>`: `render={<section />}`. */
   render?: useRender.RenderProp;
   /** What is in the window. */
@@ -211,8 +217,54 @@ function useLatched<T>(
   return [value, set];
 }
 
-/** How far one arrow key press moves an edge. The same step `PlPanes` uses. */
+/**
+ * How far one arrow key press moves an edge or the whole window. The same step
+ * `PlPanes` uses.
+ */
 const KEYBOARD_STEP = 16;
+
+/**
+ * How far it moves the window with Shift held: four steps, so a window crosses
+ * a screen in a handful of presses rather than in dozens.
+ */
+const KEYBOARD_LEAP = KEYBOARD_STEP * 4;
+
+/** The four keys that move a window, as a unit step on each axis. */
+const moveKeys: Record<string, readonly [number, number]> = {
+  ArrowRight: [1, 0],
+  ArrowLeft: [-1, 0],
+  ArrowDown: [0, 1],
+  ArrowUp: [0, -1]
+};
+
+/**
+ * How much of one key's step the title bar may take along one axis, given where
+ * the bar sits in the view and where the view ends.
+ *
+ * A step stops at the edge of the view rather than crossing it. The bar is what
+ * holds the focus, and a key that pushed it off the screen would leave a
+ * keyboard reader moving something nobody can see — a pointer cannot take it
+ * much further either, since the pointer has to stay on the screen to hold it.
+ * A bar a drag has already left past an edge is never carried further out, and
+ * a step back towards the view is taken whole.
+ */
+function stepWithin({
+  step,
+  start,
+  end,
+  limit
+}: {
+  step: number;
+  start: number;
+  end: number;
+  limit: number;
+}): number {
+  if (step > 0) {
+    return Math.min(step, Math.max(0, limit - end));
+  }
+
+  return -Math.min(-step, Math.max(0, start));
+}
 
 /**
  * Where each resize handle sits, and what the pointer turns into over it.
@@ -295,6 +347,7 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       restoreLabel,
       closeLabel,
       resizeLabel,
+      moveLabel,
       render,
       className,
       style,
@@ -399,6 +452,9 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       },
       [ref]
     );
+
+    /** The title bar, whose bottom is as far down as a key step lets the window go. */
+    const barRef = React.useRef<HTMLDivElement | null>(null);
 
     /**
      * Where the focus was before it came into the window.
@@ -577,6 +633,61 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       beginGesture(event, (dx, dy) => setOffset({ x: from.x + dx, y: from.y + dy }));
     }
 
+    /**
+     * One arrow key on the title bar, which moves the window the way the arrow
+     * points. Right is right under RTL as well: `offset` is a distance on the
+     * page rather than along a line of text, exactly as a drag's is, so nothing
+     * here flips.
+     */
+    function step(event: React.KeyboardEvent<HTMLElement>) {
+      const unit = moveKeys[event.key];
+      const root = rootRef.current;
+      const bar = barRef.current;
+
+      if (!unit || !root || !bar || event.altKey || event.ctrlKey || event.metaKey) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const length = event.shiftKey ? KEYBOARD_LEAP : KEYBOARD_STEP;
+      // What has to stay on the screen is the top of the window down to the
+      // bottom of its bar, frame included: the body may go past the bottom
+      // edge, as it can on a desktop, but never the thing being held.
+      const box = root.getBoundingClientRect();
+      const barBottom = bar.getBoundingClientRect().bottom;
+      const view = document.documentElement;
+      const drawn = getComputedStyle(root);
+
+      // Where the window will be once it has arrived at `offset`, rather than
+      // where it is partway through the ease the last press started: measured
+      // mid-journey, a held key would stop short of the edge or run past it.
+      const lag = (now: string, target: number) => {
+        const at = parseFloat(now);
+
+        return Number.isNaN(at) ? 0 : target - at;
+      };
+      const lagX = lag(drawn.left, offset.x);
+      const lagY = lag(drawn.top, offset.y);
+
+      const dx = stepWithin({
+        step: unit[0] * length,
+        start: box.left + lagX,
+        end: box.right + lagX,
+        limit: view.clientWidth
+      });
+      const dy = stepWithin({
+        step: unit[1] * length,
+        start: box.top + lagY,
+        end: barBottom + lagY,
+        limit: view.clientHeight
+      });
+
+      if (dx !== 0 || dy !== 0) {
+        setOffset({ x: offset.x + dx, y: offset.y + dy });
+      }
+    }
+
     const floor = {
       width: Math.max(0, minWidth),
       height: Math.max(metrics.bar, minHeight ?? metrics.bar)
@@ -723,14 +834,41 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       <span className="flex shrink-0 items-center">{icon}</span>
     ) : null;
 
+    const movable = draggable && !maximized;
+
+    // The inside of the frame's corners, which is where the ring has to turn.
+    const ringRadius = Math.max(0, metrics.radius - metrics.frame);
+    const ringRadiusBottom = minimized ? Math.max(0, metrics.radiusBottom - metrics.frame) : 0;
+
+    /*
+     * The keyboard's way to what a drag does. It is the whole bar rather than a
+     * grip drawn on it, because the bar is already what a pointer takes hold of,
+     * and it draws nothing until the keyboard reaches it: a target laid over the
+     * bar, first in the window's tab order, that a pointer passes straight
+     * through to the bar and the buttons underneath.
+     */
+    const moveHandle = movable ? (
+      <span
+        role="button"
+        tabIndex={0}
+        aria-label={moveLabel ?? words.moveWindow}
+        className="pointer-events-none absolute inset-0 focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]"
+        style={{
+          borderRadius: `${ringRadius}px ${ringRadius}px ${ringRadiusBottom}px ${ringRadiusBottom}px`
+        }}
+        onKeyDown={step}
+      />
+    ) : null;
+
     const bar = (
       <div
+        ref={barRef}
         className={cx(
           'relative flex shrink-0 items-center select-none',
           iconClasses,
           // `touch-none` while it moves the window: a finger's drag is the
           // window's, not a pan the browser takes and ends with `pointercancel`.
-          draggable && !maximized ? 'cursor-grab touch-none active:cursor-grabbing' : ''
+          movable ? 'cursor-grab touch-none active:cursor-grabbing' : ''
         )}
         style={{
           height: metrics.bar,
@@ -763,6 +901,8 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
         // and the one gesture a caller would notice the absence of.
         onDoubleClick={canMaximize ? () => setMaximized(!maximized) : undefined}
       >
+        {moveHandle}
+
         {chrome.controlsSide === 'start' ? barControls : null}
 
         {chrome.titleAlign === 'center' ? (

@@ -1,11 +1,14 @@
 /**
- * What a macOS traffic light shows, which the stylesheet decides.
+ * What a macOS traffic light shows, and where the move handle lies, which the
+ * stylesheet decides.
  *
  * The mark is held back with `opacity` and brought out by a hover on the set and
  * by the focus on one light, so nothing about it can be read off the markup —
- * the component writes the same two class names either way. `src/standalone.css`
- * is loaded the way `marquee.test.tsx` loads it, and the assertion is a mark
- * that is there or is not, never a shade or a size.
+ * the component writes the same two class names either way. The handle is laid
+ * over the bar by utilities alone, and without them it is an empty inline box
+ * that no press could ever land on. `src/standalone.css` is loaded the way
+ * `marquee.test.tsx` loads it, and the assertions are a mark that is there or
+ * is not and a box that matches another, never a shade or a size.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { commands, server, userEvent } from 'vitest/browser';
@@ -31,6 +34,35 @@ function mark(button: HTMLElement): HTMLElement {
 }
 
 const shown = (button: HTMLElement) => getComputedStyle(mark(button)).opacity === '1';
+
+describe('the move handle', () => {
+  it('lies over the whole bar and lets the pointer through to what is on it', async () => {
+    const screen = await render(
+      <PlWindowPane os="windows11" title="Notes" draggable width={320}>
+        Body
+      </PlWindowPane>
+    );
+
+    const handle = screen.getByRole('button', { name: 'Move window' }).element() as HTMLElement;
+    const close = screen.getByRole('button', { name: 'Close' }).element() as HTMLElement;
+    const bar = handle.parentElement as HTMLElement;
+
+    const drawn = handle.getBoundingClientRect();
+    const held = bar.getBoundingClientRect();
+
+    // The keyboard's target is the bar a pointer takes hold of, not a grip
+    // somewhere on it.
+    expect(drawn.width).toBeCloseTo(held.width, 0);
+    expect(drawn.height).toBeCloseTo(held.height, 0);
+
+    // And it is not in the way: a press on a caption button reaches the button.
+    const at = close.getBoundingClientRect();
+
+    expect(
+      close.contains(document.elementFromPoint(at.x + at.width / 2, at.y + at.height / 2))
+    ).toBe(true);
+  });
+});
 
 describe('the macOS traffic lights', () => {
   it('hold their marks back until something is pointing at them', async () => {

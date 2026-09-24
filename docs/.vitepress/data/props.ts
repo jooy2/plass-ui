@@ -15518,7 +15518,10 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'draggable',
       type: 'boolean',
       default: 'false',
-      description: { ko: '제목 표시줄을 끌 수 있게 합니다', en: 'Lets the title bar be dragged' }
+      description: {
+        ko: '제목 표시줄을 끌 수 있게 합니다. 표시줄은 tab 정거장이 되어 화살표 키로도 창을 옮깁니다',
+        en: 'Lets the title bar be dragged. The bar also becomes a tab stop where the arrow keys move the window'
+      }
     },
     {
       name: 'resizable',
@@ -15713,6 +15716,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '키보드로 잡을 수 있는 모서리가 불리는 이름',
         en: 'What the one reachable resize handle is announced as'
+      }
+    },
+    {
+      name: 'moveLabel',
+      type: 'string',
+      default: "'Move window'",
+      description: {
+        ko: '`draggable` 창의 제목 표시줄이 키보드에 닿을 때 불리는 이름',
+        en: 'What the title bar of a `draggable` window is announced as where the keyboard reaches it'
       }
     },
     {

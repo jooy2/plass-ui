@@ -6,6 +6,8 @@
 
 ### Added
 
+- **The title bar of a `draggable` `PlWindowPane` is a stop in the focus order, and the arrow keys move the window.** A window moved only by dragging, so a keyboard could resize one and never move it. The bar is now a stop ahead of the window's buttons, named from the new `moveWindow` key in all seven label packs or from `moveLabel`, with a ring while the keyboard holds it. Each arrow key moves the window 16 logical pixels, and 64 with Shift, the way the arrow points in either writing direction, and a key never takes the bar off the screen. Every move goes through `offset`, so a window given `offset` and `onOffsetChanged` reports where it should go, which is also how an app adds buttons that move it without a drag.
+
 - **`PlassTokens` carries the strength of a field's pointer light as `fieldGlowStrength`, so `copyWith` moves it too.** It is the Dart name of `--plass-glow-field-strength`, and `fieldGlow` and `fieldFlash` read it off the set. `PlassTokens.glowFieldStrength` stays, at 55, as the default both shipped sets start from.
 
 - **`PlassTokens` carries the corner radii and the motion, so `copyWith` moves them too.** `radii`, `motionDuration`, `motionDurationSlow` and `motionEase` are the Dart names of `--plass-radius-*`, `--plass-duration`, `--plass-duration-slow` and `--plass-ease`, and every component reads them off the theme, including a fold or a fade that is already on screen when the theme changes. `PlassTokens.radius`, `duration`, `durationSlow` and `ease` stay, with the same values, as the defaults both shipped sets start from; a widget of your own that should match the library reads `PlassTheme.of(context).radii` rather than the static.

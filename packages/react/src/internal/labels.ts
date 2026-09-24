@@ -121,6 +121,8 @@ export interface PlassLabels {
   maximize: string;
   restore: string;
   resizeWindow: string;
+  /** The title bar of a window that can be dragged, as the keyboard reaches it. */
+  moveWindow: string;
   /** The palette's landmark and the placeholder in its field. */
   commandPalette: string;
   commandPalettePlaceholder: string;
@@ -312,6 +314,7 @@ export const defaultLabels: PlassLabels = {
   maximize: 'Maximize',
   restore: 'Restore',
   resizeWindow: 'Resize window',
+  moveWindow: 'Move window',
   overlay: 'Overlay',
   notifications: 'Notifications',
   pagination: 'Pagination',

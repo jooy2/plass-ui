@@ -45,6 +45,7 @@ export const de: PlassLabels = {
   maximize: 'Maximieren',
   restore: 'Wiederherstellen',
   resizeWindow: 'Fenstergröße ändern',
+  moveWindow: 'Fenster verschieben',
   overlay: 'Overlay',
   notifications: 'Benachrichtigungen',
   pagination: 'Seitennavigation',

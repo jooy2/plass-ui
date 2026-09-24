@@ -45,6 +45,7 @@ const PlassLabels es = PlassLabels(
   maximize: 'Maximizar',
   restore: 'Restaurar',
   resizeWindow: 'Redimensionar la ventana',
+  moveWindow: 'Mover la ventana',
   overlay: 'Capa',
   pagination: 'Paginación',
   paginationPrevious: 'Página anterior',

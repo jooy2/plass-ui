@@ -45,6 +45,7 @@ const PlassLabels ja = PlassLabels(
   maximize: '最大化',
   restore: '元に戻す',
   resizeWindow: 'ウィンドウのサイズを変更',
+  moveWindow: 'ウィンドウを移動',
   overlay: 'オーバーレイ',
   pagination: 'ページ送り',
   paginationPrevious: '前のページ',

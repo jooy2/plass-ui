@@ -45,6 +45,7 @@ const PlassLabels zhHans = PlassLabels(
   maximize: '最大化',
   restore: '还原',
   resizeWindow: '调整窗口大小',
+  moveWindow: '移动窗口',
   overlay: '遮罩',
   pagination: '分页',
   paginationPrevious: '上一页',

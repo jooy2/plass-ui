@@ -70,6 +70,7 @@ Map<String, String> words(PlassLabels labels) => <String, String>{
   'maximize': labels.maximize,
   'restore': labels.restore,
   'resizeWindow': labels.resizeWindow,
+  'moveWindow': labels.moveWindow,
   'overlay': labels.overlay,
   'pagination': labels.pagination,
   'paginationPrevious': labels.paginationPrevious,

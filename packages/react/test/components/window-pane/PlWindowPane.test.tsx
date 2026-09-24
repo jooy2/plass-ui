@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PlWindowPane } from 'plass-ui';
 import { render } from 'vitest-browser-react';
+import { press } from '../../support/keys';
 import { moveMouseOntoPage } from '../../support/pointer';
 
 describe('PlWindowPane', () => {
@@ -130,6 +131,210 @@ describe('PlWindowPane', () => {
       } finally {
         document.body.style.removeProperty('-webkit-user-select');
       }
+    });
+  });
+
+  describe('moving from the keyboard', () => {
+    /** The window itself, which is what `offset` moves. */
+    const pane = (screen: { container: HTMLElement }) =>
+      screen.container.querySelector<HTMLElement>('.plass-window')!;
+
+    /**
+     * One task, so the render a key press asked for has landed before the next
+     * press reads the window's offset. Two presses a reader makes are two tasks
+     * anyway; two dispatched back to back are not.
+     */
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    it('offers the bar to the keyboard only while the bar drags', async () => {
+      const screen = await render(<PlWindowPane title="Notes">Body</PlWindowPane>);
+
+      await expect.element(screen.getByRole('group', { name: 'Notes' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Move window' }).query()).toBeNull();
+
+      await screen.rerender(
+        <PlWindowPane title="Notes" draggable>
+          Body
+        </PlWindowPane>
+      );
+
+      const handle = screen.getByRole('button', { name: 'Move window' });
+
+      await expect.element(handle).toHaveAttribute('tabindex', '0');
+      // First in the window, ahead of the three buttons in the same bar.
+      expect(
+        handle
+          .element()
+          .compareDocumentPosition(screen.getByRole('button', { name: 'Close' }).element()) &
+          Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+
+      // A maximized window fills what holds it and has nowhere to go.
+      await screen.rerender(
+        <PlWindowPane title="Notes" draggable maximized>
+          Body
+        </PlWindowPane>
+      );
+
+      await expect
+        .poll(() => screen.getByRole('button', { name: 'Move window' }).query())
+        .toBeNull();
+    });
+
+    it('takes its name from moveLabel', async () => {
+      const screen = await render(<PlWindowPane title="Notes" draggable moveLabel="Drag Notes" />);
+
+      await expect.element(screen.getByRole('button', { name: 'Drag Notes' })).toBeInTheDocument();
+    });
+
+    it('moves a step for each arrow key, and four steps with Shift', async () => {
+      const onOffsetChange = vi.fn();
+      const screen = await render(
+        <PlWindowPane
+          title="Notes"
+          draggable
+          position="fixed"
+          width={200}
+          defaultOffset={{ x: 40, y: 40 }}
+          onOffsetChange={onOffsetChange}
+        >
+          Body
+        </PlWindowPane>
+      );
+
+      const handle = screen.getByRole('button', { name: 'Move window' }).element();
+
+      handle.focus();
+      press(handle, 'ArrowRight');
+
+      await expect.poll(() => pane(screen).style.left).toBe('56px');
+      expect(onOffsetChange).toHaveBeenLastCalledWith({ x: 56, y: 40 });
+
+      press(handle, 'ArrowDown', { shiftKey: true });
+
+      await expect.poll(() => pane(screen).style.top).toBe('104px');
+
+      press(handle, 'ArrowLeft');
+      await settle();
+      press(handle, 'ArrowUp');
+
+      await expect.poll(() => onOffsetChange.mock.lastCall?.[0]).toEqual({ x: 40, y: 88 });
+    });
+
+    it('leaves a key it does not move by to the page', async () => {
+      const onOffsetChange = vi.fn();
+      const screen = await render(
+        <PlWindowPane title="Notes" draggable position="fixed" onOffsetChange={onOffsetChange}>
+          Body
+        </PlWindowPane>
+      );
+
+      const handle = screen.getByRole('button', { name: 'Move window' }).element();
+      const event = new KeyboardEvent('keydown', {
+        key: 'ArrowRight',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true
+      });
+
+      handle.focus();
+      handle.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(onOffsetChange).not.toHaveBeenCalled();
+    });
+
+    it('stops where the title bar would leave the screen', async () => {
+      const onOffsetChange = vi.fn();
+      const view = document.documentElement.clientWidth;
+      const screen = await render(
+        <PlWindowPane
+          title="Notes"
+          draggable
+          position="fixed"
+          width={200}
+          defaultOffset={{ x: 0, y: 0 }}
+          onOffsetChange={onOffsetChange}
+        >
+          Body
+        </PlWindowPane>
+      );
+
+      const handle = screen.getByRole('button', { name: 'Move window' }).element();
+
+      handle.focus();
+
+      // Already against the top and the left edges, so these move nothing.
+      press(handle, 'ArrowLeft');
+      press(handle, 'ArrowUp', { shiftKey: true });
+
+      expect(onOffsetChange).not.toHaveBeenCalled();
+
+      // As far to the right as it can go, and then no further.
+      for (let presses = 0; presses < Math.ceil(view / 64) + 2; presses += 1) {
+        press(handle, 'ArrowRight', { shiftKey: true });
+        await settle();
+      }
+
+      await expect.poll(() => pane(screen).getBoundingClientRect().right).toBeCloseTo(view, 0);
+      expect(onOffsetChange.mock.lastCall?.[0].x).toBeCloseTo(
+        view - pane(screen).getBoundingClientRect().width,
+        0
+      );
+    });
+
+    it('moves the way the arrow points under RTL', async () => {
+      const screen = await render(
+        <div dir="rtl">
+          <PlWindowPane
+            title="Notes"
+            draggable
+            position="fixed"
+            width={200}
+            defaultOffset={{ x: 40, y: 40 }}
+          >
+            Body
+          </PlWindowPane>
+        </div>
+      );
+
+      const handle = screen.getByRole('button', { name: 'Move window' }).element();
+      const before = pane(screen).getBoundingClientRect().left;
+
+      handle.focus();
+      press(handle, 'ArrowRight');
+
+      await expect
+        .poll(() => pane(screen).getBoundingClientRect().left)
+        .toBeCloseTo(before + 16, 0);
+
+      press(handle, 'ArrowLeft');
+
+      await expect.poll(() => pane(screen).getBoundingClientRect().left).toBeCloseTo(before, 0);
+    });
+
+    it('reports rather than moves when the offset is controlled', async () => {
+      const onOffsetChange = vi.fn();
+      const screen = await render(
+        <PlWindowPane
+          title="Notes"
+          draggable
+          position="fixed"
+          offset={{ x: 40, y: 40 }}
+          onOffsetChange={onOffsetChange}
+        >
+          Body
+        </PlWindowPane>
+      );
+
+      const handle = screen.getByRole('button', { name: 'Move window' }).element();
+
+      handle.focus();
+      press(handle, 'ArrowRight');
+
+      expect(onOffsetChange).toHaveBeenCalledWith({ x: 56, y: 40 });
+      // Still where the caller put it, because the caller holds the offset.
+      expect(pane(screen).style.left).toBe('40px');
     });
   });
 

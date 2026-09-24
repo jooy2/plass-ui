@@ -335,6 +335,7 @@ class PlassLabels {
     this.maximize = 'Maximize',
     this.restore = 'Restore',
     this.resizeWindow = 'Resize window',
+    this.moveWindow = 'Move window',
     this.overlay = 'Overlay',
     this.pagination = 'Pagination',
     this.paginationPrevious = 'Previous page',
@@ -451,6 +452,7 @@ class PlassLabels {
     String? maximize,
     String? restore,
     String? resizeWindow,
+    String? moveWindow,
     String? overlay,
     String? pagination,
     String? paginationPrevious,
@@ -559,6 +561,7 @@ class PlassLabels {
       maximize: maximize ?? this.maximize,
       restore: restore ?? this.restore,
       resizeWindow: resizeWindow ?? this.resizeWindow,
+      moveWindow: moveWindow ?? this.moveWindow,
       overlay: overlay ?? this.overlay,
       pagination: pagination ?? this.pagination,
       paginationPrevious: paginationPrevious ?? this.paginationPrevious,
@@ -756,6 +759,9 @@ class PlassLabels {
 
   /// What a window's resize corner is called.
   final String resizeWindow;
+
+  /// And the title bar of one that can be dragged, as the keyboard reaches it.
+  final String moveWindow;
 
   /// What a sheet over the whole screen is called when it has no name.
   final String overlay;
@@ -1051,6 +1057,7 @@ class PlassLabels {
     maximize,
     restore,
     resizeWindow,
+    moveWindow,
     overlay,
     pagination,
     paginationPrevious,

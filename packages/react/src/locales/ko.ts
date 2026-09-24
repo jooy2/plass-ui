@@ -45,6 +45,7 @@ export const ko: PlassLabels = {
   maximize: '최대화',
   restore: '이전 크기로',
   resizeWindow: '창 크기 조절',
+  moveWindow: '창 이동',
   overlay: '오버레이',
   notifications: '알림',
   pagination: '페이지 이동',

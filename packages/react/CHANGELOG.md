@@ -6,6 +6,8 @@
 
 ### Added
 
+- **The title bar of a `draggable` `PlWindowPane` is a tab stop, and the arrow keys move the window.** A window moved only by dragging, so a keyboard could resize one and never move it. The bar is now a stop ahead of the window's buttons, named from the new `moveWindow` key in all seven label packs or from `moveLabel`, with a ring while the keyboard holds it. Each arrow key moves the window 16px, and 64px with Shift, the way the arrow points in either writing direction, and a key never takes the bar off the screen. Every move goes through `offset`, so a window given `offset` and `onOffsetChange` reports where it should go, which is also how an app adds buttons that move it without a drag.
+
 - **`PlAccordion` takes `headingLevel`, so its headers sit at the level the page's outline needs.** Every header was an `<h3>`, so an FAQ straight under the page's title skipped a level. It takes `1` to `6` and defaults to `3`; only the element changes, never the type scale.
 
 - **An `autoPlay` `PlCarousel` has a button that stops it and starts it again.** There was no way to stop a carousel that advanced on its own, which WCAG 2.2.2 asks of anything that moves for longer than five seconds. The button sits in the frame's top corner, comes first in the focus order, and is named "Stop slide show" or "Start slide show" from the new `carouselStop` and `carouselPlay` keys in all seven label packs, or from `playLabel` and `stopLabel`.

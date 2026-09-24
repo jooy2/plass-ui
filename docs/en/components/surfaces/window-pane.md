@@ -117,11 +117,16 @@ The title bar drags and the eight edges and corners resize. Both are off by defa
 
 A resize stops at `minWidth` and `minHeight`, and `onResize` reports the size it stopped at. Dragging a left or a top edge moves the window as well as resizing it, so `onOffsetChange` fires during those too.
 
+The title bar of a `draggable` window is also a stop in the tab order, ahead of the window's buttons, named **Move window** or whatever `moveLabel` says. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the window 16px a press and 64px with <kbd>Shift</kbd>, the way the arrow points in either writing direction, and stop where the title bar would leave the screen. The stop is there whenever the bar drags.
+
+Every move, by the pointer or by a key, goes through `offset`. Pass it with <Fw react="onOffsetChange" flutter="onOffsetChanged" code /> and the window is controlled: it reports where it should go and stays where it is drawn until the new offset comes back. That is also how to offer a move that needs no drag at all, such as a row of buttons that each add a step to the offset your app holds.
+
 ## Accessibility
 
 - The window is a named group, taking its name from the title. On React that is `role="group"` with `aria-labelledby`; on Flutter it is a semantics container with `explicitChildNodes`, which is what stops the title, the buttons and every word of the content merging into one long name.
 - The three buttons are real buttons and say what they do. `maximize` becomes **Restore** once the window is filling its container, which is what every system calls it.
 - A macOS traffic light keeps its mark back until something points at it, and the keyboard counts: a light that holds the focus draws its mark, so the focus ring is never around a blank dot.
 - One of the eight resize handles is reachable without a pointer, and it is the corner that changes both axes at once. Eight tab stops around every window would cost a keyboard reader more than the seven extra directions are worth; the arrow keys move that corner. The other seven are hidden from the accessibility tree rather than left in it unnamed.
+- A `draggable` window can be moved without a pointer: its title bar is a stop in the tab order, ahead of the buttons, and the arrow keys move the window from there. A way to move it with a single pointer and no drag is yours to add, through a controlled `offset`.
 - A minimized window's content is put **out of reach rather than taken away**. It is still in the tree, marked inert, so nothing under a rolled-up bar can be tabbed into.
 - On React, closing a window that holds the focus hands the focus back to where it came in from, such as the button that opened the window. When that element is gone or out of reach, the focus goes to the next focusable element after the window, or the last one before it.

@@ -567,6 +567,211 @@ void main() {
       expect(find.bySemanticsLabel('Resize window'), findsNothing);
     });
 
+    group('moving from the keyboard', () {
+      /// The window as it is drawn, after the offset has moved it.
+      Rect drawn(WidgetTester tester) {
+        return tester.getRect(
+          find.descendant(of: find.byType(PlWindowPane), matching: find.byType(Container)).first,
+        );
+      }
+
+      /// Gives the focus to the stop the bar offers the keyboard.
+      Future<void> focusBar(WidgetTester tester, {String name = 'Move window'}) async {
+        Focus.of(
+          tester.element(
+            find.descendant(of: find.bySemanticsLabel(name), matching: find.byType(SizedBox)).last,
+          ),
+        ).requestFocus();
+        await tester.pump();
+      }
+
+      /// Presses [key], with Shift held when [far] is.
+      Future<void> press(WidgetTester tester, LogicalKeyboardKey key, {bool far = false}) async {
+        if (far) {
+          await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
+        }
+
+        await tester.sendKeyEvent(key);
+
+        if (far) {
+          await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
+        }
+
+        await tester.pump();
+      }
+
+      testWidgets('offers the bar to the keyboard only while the bar drags', (
+        WidgetTester tester,
+      ) async {
+        await _pumpFree(tester, const PlWindowPane(title: Text('Notes'), width: 300));
+
+        expect(find.bySemanticsLabel('Move window'), findsNothing);
+
+        await _pumpFree(
+          tester,
+          const PlWindowPane(title: Text('Notes'), width: 300, draggable: true),
+        );
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Move window')),
+          isSemantics(label: 'Move window', isButton: true),
+        );
+      });
+
+      testWidgets('takes its name from moveLabel', (WidgetTester tester) async {
+        await _pumpFree(
+          tester,
+          const PlWindowPane(
+            title: Text('Notes'),
+            width: 300,
+            draggable: true,
+            moveLabel: 'Drag Notes',
+          ),
+        );
+
+        expect(find.bySemanticsLabel('Drag Notes'), findsOneWidget);
+      });
+
+      testWidgets('is reached by Tab ahead of the buttons, with a ring', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await _pump(
+          tester,
+          afterFocusStop(before, const PlWindowPane(title: Text('Notes'), draggable: true)),
+        );
+
+        before.requestFocus();
+        await tester.pump();
+
+        final Finder rings = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint && widget.foregroundPainter is PlassFocusRingPainter,
+        );
+
+        expect(rings, findsNothing);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+        expect(
+          find
+              .descendant(
+                of: find.bySemanticsLabel('Move window'),
+                matching: find.byElementPredicate((Element element) => element == focused),
+              )
+              .evaluate(),
+          isNotEmpty,
+        );
+        expect(rings, findsOneWidget);
+      });
+
+      testWidgets('moves a step for each arrow key, and four steps with Shift', (
+        WidgetTester tester,
+      ) async {
+        await _pumpFree(
+          tester,
+          const PlWindowPane(title: Text('Notes'), width: 300, draggable: true),
+        );
+
+        final Offset start = drawn(tester).topLeft;
+
+        await focusBar(tester);
+        await press(tester, LogicalKeyboardKey.arrowRight);
+
+        expect(drawn(tester).topLeft - start, const Offset(16, 0));
+
+        await press(tester, LogicalKeyboardKey.arrowDown, far: true);
+
+        expect(drawn(tester).topLeft - start, const Offset(16, 64));
+
+        await press(tester, LogicalKeyboardKey.arrowLeft);
+        await press(tester, LogicalKeyboardKey.arrowUp);
+
+        expect(drawn(tester).topLeft - start, const Offset(0, 48));
+      });
+
+      testWidgets('stops where the title bar would leave the screen', (WidgetTester tester) async {
+        final PlWindowMetrics metrics = windowMetrics(PlWindowOs.macos, PlassSize.md);
+
+        await _pumpFree(
+          tester,
+          const PlWindowPane(title: Text('Notes'), width: 300, height: 200, draggable: true),
+        );
+
+        await focusBar(tester);
+
+        for (int i = 0; i < 12; i += 1) {
+          await press(tester, LogicalKeyboardKey.arrowLeft, far: true);
+          await press(tester, LogicalKeyboardKey.arrowUp, far: true);
+        }
+
+        expect(drawn(tester).topLeft.dx, closeTo(0, 0.5));
+        expect(drawn(tester).topLeft.dy, closeTo(0, 0.5));
+
+        for (int i = 0; i < 20; i += 1) {
+          await press(tester, LogicalKeyboardKey.arrowRight, far: true);
+          await press(tester, LogicalKeyboardKey.arrowDown, far: true);
+        }
+
+        // The whole width stays on the screen, and of the height the bar does:
+        // the body may go past the bottom edge, but never what is being held.
+        expect(drawn(tester).right, closeTo(900, 0.5));
+        expect(drawn(tester).top + metrics.frame + metrics.bar, closeTo(900, 0.5));
+      });
+
+      testWidgets('moves the way the arrow points under RTL', (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(900, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          host(
+            const PlWindowPane(title: Text('Notes'), width: 300, draggable: true),
+            textDirection: TextDirection.rtl,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Offset start = drawn(tester).topLeft;
+
+        await focusBar(tester);
+        await press(tester, LogicalKeyboardKey.arrowRight);
+
+        expect(drawn(tester).topLeft - start, const Offset(16, 0));
+      });
+
+      testWidgets('reports rather than moves when the offset is controlled', (
+        WidgetTester tester,
+      ) async {
+        Offset? moved;
+
+        await _pumpFree(
+          tester,
+          PlWindowPane(
+            title: const Text('Notes'),
+            width: 300,
+            draggable: true,
+            offset: const Offset(10, 10),
+            onOffsetChanged: (Offset value) => moved = value,
+          ),
+        );
+
+        final Offset start = drawn(tester).topLeft;
+
+        await focusBar(tester);
+        await press(tester, LogicalKeyboardKey.arrowRight);
+
+        expect(moved, const Offset(26, 10));
+        // Still where the caller put it, because the caller holds the offset.
+        expect(drawn(tester).topLeft, start);
+      });
+    });
+
     group('caption buttons from the keyboard', () {
       const List<String> names = <String>['Minimize', 'Maximize', 'Close'];
 
