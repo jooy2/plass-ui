@@ -120,6 +120,25 @@ const dotClasses: Record<PlassSize, { rest: string; current: string }> = {
 const SETTLE_MS = 700;
 
 /**
+ * Scrolls the track, and nothing else, so that `slide` is the one in view.
+ *
+ * `scrollIntoView` would move every scrollable ancestor up to the window, so a
+ * carousel partly off screen dragged the page to itself on every slide — once
+ * per `interval` while it played. The offset is measured against the track
+ * rather than read off `offsetLeft`, which counts from whichever ancestor is
+ * positioned, and in physical pixels, which is also what `scrollLeft` counts in
+ * under RTL. Left without a `behavior`, the track's own `scroll-behavior`
+ * decides, which is smooth unless the reader has asked for reduced motion.
+ */
+function scrollTrackTo(track: HTMLElement, slide: HTMLElement, behavior?: ScrollBehavior) {
+  track.scrollTo({
+    left:
+      track.scrollLeft + slide.getBoundingClientRect().left - track.getBoundingClientRect().left,
+    behavior
+  });
+}
+
+/**
  * A strip of slides, one of which is in view.
  *
  * The mechanism is a scroll container with CSS scroll snapping, and everything
@@ -248,6 +267,22 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       [count, loop, value, index, onValueChange]
     );
 
+    // The strip opens on the current slide rather than on the first, or a
+    // carousel handed slide 3 marks its third dot over the first picture. Done
+    // before the first paint, so the first picture is never seen, and
+    // `instant`, so the strip does not travel to where it was always meant to
+    // be. Slide 0 is where the browser already has it.
+    React.useLayoutEffect(() => {
+      const track = trackRef.current;
+      const slide = slideRefs.current[index];
+
+      if (index > 0 && track && slide) {
+        scrollTrackTo(track, slide, 'instant');
+      }
+      // The mount only: every later change of slide is the effect below's.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     React.useEffect(() => {
       if (fromScroll.current) {
         fromScroll.current = false;
@@ -255,31 +290,19 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
         return;
       }
 
-      // The first pass would otherwise scroll the page down to a carousel
-      // nobody has looked at yet, just to put slide 0 where the browser already
-      // had it.
+      // The first pass has nothing to do: the layout effect above has already
+      // put the strip on the slide it opens on.
       if (!mounted.current) {
         mounted.current = true;
 
         return;
       }
 
-      // The track is scrolled and nothing else. `scrollIntoView` moves every
-      // scrollable ancestor up to the window, so a carousel partly off screen
-      // dragged the page to itself on every slide — once per `interval` while
-      // it played. Measured against the track rather than read off `offsetLeft`,
-      // which counts from whichever ancestor is positioned, and in physical
-      // pixels, which is also what `scrollLeft` counts in under RTL.
       const track = trackRef.current;
       const slide = slideRefs.current[index];
 
       if (track && slide) {
-        track.scrollTo({
-          left:
-            track.scrollLeft +
-            slide.getBoundingClientRect().left -
-            track.getBoundingClientRect().left
-        });
+        scrollTrackTo(track, slide);
       }
 
       settling.current = true;
