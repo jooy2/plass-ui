@@ -623,6 +623,60 @@ void main() {
 
       expect(_opacityOver(tester, find.text('Settings')), closeTo(1 - _steep.transform(0.5), 0.02));
     });
+
+    // The theme and `open` change in one frame, so the fade out has to be
+    // handed the new duration before it starts rather than by the build after
+    // it, which is too late for a fade already running.
+    testWidgets("fade a popover out on a theme's duration that changes as it closes", (
+      WidgetTester tester,
+    ) async {
+      Widget popover(PlassTokens tokens, {required bool open}) {
+        return host(
+          PlassTheme.tokens(
+            tokens: tokens,
+            child: PlPopover(
+              open: open,
+              trigger: PlButton(onPressed: () {}, child: const Text('Explain')),
+              child: const Text('The base rate'),
+            ),
+          ),
+          overlay: true,
+        );
+      }
+
+      await tester.pumpWidget(popover(PlassTokens.light(), open: false));
+      await tester.pumpWidget(popover(PlassTokens.light(), open: true));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(popover(_slowSquare, open: false));
+      await tester.pump(_fast ~/ 2);
+
+      // The house duration would have finished long before and taken it down.
+      expect(find.text('The base rate'), findsOneWidget);
+      expect(_opacityOver(tester, find.text('The base rate')), closeTo(0.5, 0.02));
+    });
+
+    testWidgets("fade a modal out on a theme's slow duration that changes as it closes", (
+      WidgetTester tester,
+    ) async {
+      Widget modal(PlassTokens tokens, {required bool open}) {
+        return host(
+          PlassTheme.tokens(
+            tokens: tokens,
+            child: PlModal(open: open, title: const Text('Settings')),
+          ),
+          overlay: true,
+        );
+      }
+
+      await tester.pumpWidget(modal(PlassTokens.light(), open: false));
+      await tester.pumpWidget(modal(PlassTokens.light(), open: true));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(modal(_slowSquare, open: false));
+      await tester.pump(_slow ~/ 2);
+
+      expect(find.text('Settings'), findsOneWidget);
+      expect(_opacityOver(tester, find.text('Settings')), closeTo(0.5, 0.02));
+    });
   });
 
   group('every component reads the scales off the set', () {

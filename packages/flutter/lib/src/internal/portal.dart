@@ -94,15 +94,13 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   /// page would hand it the backdrop as it was when that sheet was drawn.
   final BackdropKey _layer = BackdropKey();
 
-  // No duration here. `build` sets it, which is where the theme's duration and
-  // the reader's motion preference can both be read, and it sets it again
-  // whenever either changes. The fade never runs before a build has: `_show`
-  // waits for the frame, and `_hide` only follows an update.
+  // No duration here. `_syncMotion` gives it the theme's before the first
+  // frame, and again whenever the theme or the reader's motion preference
+  // changes, as a fold's is given.
   late final AnimationController _fade = AnimationController(vsync: this);
 
   /// The fade as it is drawn, on the theme's curve. A stand-in curve here for
-  /// the reason the duration has none: `build` hands it the theme's, and again
-  /// whenever the theme changes, as a fold does.
+  /// the reason the duration has none.
   late final CurvedAnimation _opacity = CurvedAnimation(parent: _fade, curve: Curves.linear);
 
   /// Where focus was before the layer went up, so it can be put back.
@@ -123,8 +121,29 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
     super.didUpdateWidget(oldWidget);
 
     if (widget.open != oldWidget.open) {
+      // Read here as well as below: an update runs before the dependencies
+      // are refreshed, and a theme that changed in the same frame as `open`
+      // would otherwise fade out on the old duration.
+      _syncMotion();
       widget.open ? _show() : _hide();
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  /// Hands the fade the theme's slow duration and curve, or no duration at all
+  /// for a reader who asked for less movement.
+  void _syncMotion() {
+    final tokens = PlassTheme.of(context);
+
+    _fade.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : tokens.motionDurationSlow;
+    easeBothWays(_opacity, tokens.motionEase);
   }
 
   @override
@@ -196,12 +215,6 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final tokens = PlassTheme.of(context);
-
-    _fade.duration = reduceMotion ? Duration.zero : tokens.motionDurationSlow;
-    easeBothWays(_opacity, tokens.motionEase);
-
     return OverlayPortal(
       controller: _portal,
       overlayChildBuilder: _buildLayer,

@@ -137,12 +137,12 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   /// was when that field was drawn.
   final BackdropKey _layer = BackdropKey();
 
-  // No duration here, for the reason `PlassPortal` gives: `build` sets it from
-  // the theme, and the fade never runs before a build has.
+  // No duration here, for the reason `PlassPortal` gives: `_syncMotion` sets
+  // it from the theme before the first frame and whenever the theme changes.
   late final AnimationController _fade = AnimationController(vsync: this);
 
-  /// The fade as it is drawn, on the theme's curve, which `build` hands it with
-  /// the duration.
+  /// The fade as it is drawn, on the theme's curve, which `_syncMotion` hands
+  /// it with the duration.
   late final CurvedAnimation _opacity = CurvedAnimation(parent: _fade, curve: Curves.linear);
 
   /// The side the popup is on, which is the one asked for until there is no room
@@ -175,8 +175,28 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     }
 
     if (widget.open != oldWidget.open) {
+      // Read here as well as below, for the reason `PlassPortal` gives: a theme
+      // that changed in the same frame as `open` reaches an update first.
+      _syncMotion();
       widget.open ? _show() : _fade.reverse();
     }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncMotion();
+  }
+
+  /// Hands the fade the theme's duration and curve, or no duration at all for
+  /// a reader who asked for less movement.
+  void _syncMotion() {
+    final tokens = PlassTheme.of(context);
+
+    _fade.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : tokens.motionDuration;
+    easeBothWays(_opacity, tokens.motionEase);
   }
 
   @override
@@ -297,12 +317,6 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final tokens = PlassTheme.of(context);
-
-    _fade.duration = reduceMotion ? Duration.zero : tokens.motionDuration;
-    easeBothWays(_opacity, tokens.motionEase);
-
     // Around the portal rather than inside the popup: the popup's element sits
     // under the portal's, so one binding reaches a focus on the anchor and a
     // focus inside the popup alike.
