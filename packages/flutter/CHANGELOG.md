@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A toast keeps its state when one above it leaves, and fades on the theme's `motionEase`.** The toasts drawn after a leaving one were built again from nothing once it had gone, so a title or description with state of its own lost it. A toast's fade also ran linearly, where the popups, the layers and the React build's toasts ease on `--plass-ease`; it now runs on the curve of the set in scope, the same way in and out.
+
 - **A fold closes and a fade goes out on the theme's `motionEase` the way they came in.** A `PlAccordion` section, a `PlCollapsible`, a `PlPill`'s details and a `PlTree` branch folded shut, and `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, `PlNavigationMenu`, the lists of `PlSelect` and `PlCombobox`, `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette` and the others faded out, on the curve read backwards, so the house ease-out opened briskly and closed slowly before snapping shut, where the React build's transitions ease the same way in both directions. A close now runs the curve forwards in time, and takes a new one when the theme changes.
 
 - **Under reduced motion, a `PlassAnimateMode.exit` effect leaves, and a delayed one waits.** With animations turned off an effect was drawn at the end of an entrance whatever it was, so an exit stayed on screen and a `delay` was ignored. It now lands on its last frame at the moment it would have started, `delay` included: an exit has left, and an alternating run ends where it would have. Until that moment the content is shown as it is, and a run that had already finished when the setting arrived stays where it ended.

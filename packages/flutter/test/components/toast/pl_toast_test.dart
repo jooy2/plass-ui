@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/disposal.dart';
 import '../../support/host.dart';
 
 /// A provider with a button under it that raises whatever it was handed.
@@ -49,6 +50,47 @@ void _focus(WidgetTester tester, String text) {
 Future<void> _raise(WidgetTester tester) async {
   await tester.tap(find.text('Raise'));
   await tester.pumpAndSettle();
+}
+
+/// Pumps a provider with nothing under it, under [tokens] when there are any,
+/// and hands back its controller.
+Future<PlToastController> _provider(WidgetTester tester, {PlassTokens? tokens}) async {
+  late PlToastController controller;
+  final Widget provider = PlToastProvider(
+    child: Builder(
+      builder: (BuildContext context) {
+        controller = PlToastProvider.of(context);
+
+        return const SizedBox.shrink();
+      },
+    ),
+  );
+
+  await tester.pumpWidget(
+    host(
+      tokens == null ? provider : PlassTheme.tokens(tokens: tokens, child: provider),
+      width: 600,
+      height: 500,
+    ),
+  );
+
+  return controller;
+}
+
+/// A title with a `State` of its own, so a test can tell a toast that was kept
+/// from one that was built again.
+class _Kept extends StatefulWidget {
+  const _Kept(this.label);
+
+  final String label;
+
+  @override
+  State<_Kept> createState() => _KeptState();
+}
+
+class _KeptState extends State<_Kept> {
+  @override
+  Widget build(BuildContext context) => Text(widget.label);
 }
 
 void main() {
@@ -245,6 +287,85 @@ void main() {
 
         expect(undone, 1);
         expect(find.text('Deleted'), findsNothing);
+      });
+
+      testWidgets('a toast keeps its state when the one above it leaves', (
+        WidgetTester tester,
+      ) async {
+        final PlToastController controller = await _provider(tester);
+
+        controller.show(const PlToast(id: 'a', title: _Kept('First'), timeout: Duration.zero));
+        controller.show(const PlToast(id: 'b', title: _Kept('Second'), timeout: Duration.zero));
+        await tester.pumpAndSettle();
+
+        // A bottom stack reads oldest first, so the first is drawn above.
+        expect(
+          tester.getTopLeft(find.text('First')).dy,
+          lessThan(tester.getTopLeft(find.text('Second')).dy),
+        );
+        final State second = tester.state(find.widgetWithText(_Kept, 'Second'));
+
+        controller.close('a');
+        await tester.pumpAndSettle();
+
+        expect(find.text('First'), findsNothing);
+        expect(tester.state(find.widgetWithText(_Kept, 'Second')), same(second));
+      });
+
+      testWidgets('lets go of the curve a toast fades on', (WidgetTester tester) async {
+        // One toast closed and one still up when the provider leaves, which are
+        // the two ways a toast's fade is let go of.
+        final curves = await disposalOf(tester, 'CurvedAnimation', () async {
+          final PlToastController controller = await _provider(tester);
+
+          controller.show(const PlToast(id: 'a', title: Text('Gone'), timeout: Duration.zero));
+          controller.show(const PlToast(id: 'b', title: Text('Kept'), timeout: Duration.zero));
+          await tester.pumpAndSettle();
+          controller.close('a');
+          await tester.pumpAndSettle();
+        });
+
+        expect(curves.made, greaterThan(0));
+        expect(curves.kept, 0);
+      });
+    });
+
+    group('fading', () {
+      testWidgets("runs in and out on the theme's curve", (WidgetTester tester) async {
+        const Duration duration = Duration(seconds: 1);
+        const Curve steep = Curves.easeInCubic;
+        final PlToastController controller = await _provider(
+          tester,
+          tokens: PlassTokens.light().copyWith(motionDuration: duration, motionEase: steep),
+        );
+
+        double opacity() {
+          return tester
+              .widgetList<FadeTransition>(
+                find.ancestor(of: find.text('Saved'), matching: find.byType(FadeTransition)),
+              )
+              .first
+              .opacity
+              .value;
+        }
+
+        controller.show(const PlToast(id: 'saved', title: Text('Saved'), timeout: Duration.zero));
+        // The fade starts on the first frame after the toast is raised.
+        await tester.pump();
+        await tester.pump(duration ~/ 2);
+
+        // Half the time on the steep curve is little of the way in, where a
+        // linear fade would be half the way.
+        expect(opacity(), closeTo(steep.transform(0.5), 0.02));
+
+        await tester.pumpAndSettle();
+        controller.close('saved');
+        await tester.pump();
+        await tester.pump(duration ~/ 2);
+
+        // And the way out runs the curve forwards in time, as the way in did,
+        // rather than reading it backwards.
+        expect(opacity(), closeTo(1 - steep.transform(0.5), 0.02));
       });
     });
 

@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/dismiss.dart';
+import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -286,10 +287,17 @@ class _PlToastScope extends InheritedWidget {
 
 /// One toast on the stack, and the two things it owns: its fade and its clock.
 class _Entry {
-  _Entry({required this.toast, required this.fade});
+  _Entry({required this.toast, required this.fade})
+    : opacity = CurvedAnimation(parent: fade, curve: Curves.linear);
 
   PlToast toast;
   final AnimationController fade;
+
+  /// The fade as it is drawn, on the theme's curve. A stand-in curve here: the
+  /// stack's build hands it the theme's with the duration, and again whenever
+  /// the theme changes.
+  final CurvedAnimation opacity;
+
   Timer? timer;
 
   /// Fading out: off the clock, and not to be dismissed a second time.
@@ -298,6 +306,12 @@ class _Entry {
   void cancel() {
     timer?.cancel();
     timer = null;
+  }
+
+  /// Lets go of the fade, the curve before the controller it listens to.
+  void dispose() {
+    opacity.dispose();
+    fade.dispose();
   }
 }
 
@@ -359,7 +373,7 @@ class _PlToastProviderState extends State<PlToastProvider>
     for (final entry in _entries) {
       entry
         ..cancel()
-        ..fade.dispose();
+        ..dispose();
     }
 
     _entries.clear();
@@ -491,7 +505,7 @@ class _PlToastProviderState extends State<PlToastProvider>
       }
 
       setState(() => _entries.remove(entry));
-      entry.fade.dispose();
+      entry.dispose();
 
       // The last toast takes the stack out of the tree, and neither a mouse
       // region nor a focus node reports leaving on its way out. What held the
@@ -568,10 +582,12 @@ class _PlToastProviderState extends State<PlToastProvider>
   Widget build(BuildContext context) {
     final visible = _entries.take(widget.limit).toList();
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    final fade = reduceMotion ? Duration.zero : PlassTheme.of(context).motionDuration;
+    final tokens = PlassTheme.of(context);
+    final fade = reduceMotion ? Duration.zero : tokens.motionDuration;
 
     for (final entry in _entries) {
       entry.fade.duration = fade;
+      easeBothWays(entry.opacity, tokens.motionEase);
     }
 
     return _PlToastScope(
@@ -617,18 +633,20 @@ class _PlToastProviderState extends State<PlToastProvider>
                             children: <Widget>[
                               // Newest nearest the edge the stack is pinned to, so a
                               // message that has just arrived is never the one that
-                              // moved.
-                              // Newest nearest the edge the stack is pinned to, so a
-                              // message that has just arrived is never the one that
                               // moved. The list is oldest-first, so a top stack reads
                               // it backwards and a bottom one does not.
+                              //
+                              // Keyed here, on the column's own child, rather than
+                              // further in: the column matches unkeyed children by
+                              // position, so a leaving toast's place would go to the
+                              // one after it, which would then be built again.
                               for (final entry in _atTop ? visible.reversed : visible)
                                 ConstrainedBox(
+                                  key: ValueKey<String>(entry.toast.id!),
                                   constraints: BoxConstraints(maxWidth: widget.width),
                                   child: FadeTransition(
-                                    opacity: entry.fade,
+                                    opacity: entry.opacity,
                                     child: _Toast(
-                                      key: ValueKey<String>(entry.toast.id!),
                                       toast: entry.toast,
                                       variant: entry.toast.variant ?? widget.variant,
                                       color: entry.toast.color ?? _color,
@@ -665,7 +683,6 @@ class _Toast extends StatelessWidget {
     required this.density,
     required this.closeLabel,
     required this.onClose,
-    super.key,
   });
 
   final PlToast toast;
