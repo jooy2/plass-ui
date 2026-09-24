@@ -454,6 +454,108 @@ void main() {
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
       });
 
+      // A click on the web brings the focus in, which is what stops the React
+      // strip; a press here leaves the focus where it was.
+      testWidgets('stops once an arrow is pressed, and the button says so', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+        await tester.pump();
+
+        await tester.tap(find.bySemanticsLabel('Next slide'));
+        await tester.pump();
+
+        expect(_valueOf(tester), 1);
+        expect(_toggle('Start slide show'), findsOneWidget);
+
+        await _wait(tester);
+
+        expect(_valueOf(tester), 1);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('stops once a dot is pressed, and the button says so', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+        await tester.pump();
+
+        await tester.tap(find.bySemanticsLabel('Slide 3 of 3'));
+        await tester.pump();
+
+        expect(_valueOf(tester), 2);
+        expect(_toggle('Start slide show'), findsOneWidget);
+
+        await _wait(tester);
+
+        expect(_valueOf(tester), 2);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('keeps playing when an arrow is pressed after the button started it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+        await tester.pump();
+
+        await tester.tap(_toggle('Stop slide show'));
+        await tester.pump();
+        await tester.tap(_toggle('Start slide show'));
+        await tester.pump();
+
+        // The reader has just asked for the motion, and steering on from there
+        // does not take it back.
+        await tester.tap(find.bySemanticsLabel('Next slide'));
+        await tester.pump();
+
+        final before = _valueOf(tester);
+        await _wait(tester);
+
+        expect(_valueOf(tester), isNot(before));
+        expect(_toggle('Stop slide show'), findsOneWidget);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('stops once the focus comes in after a press on the button started it', (
+        WidgetTester tester,
+      ) async {
+        final slide = FocusNode();
+        addTearDown(slide.dispose);
+
+        await tester.pumpWidget(
+          host(
+            _Harness(
+              autoPlay: true,
+              children: <Widget>[
+                Focus(focusNode: slide, child: const Text('Alpha')),
+                const Text('Bravo'),
+                const Text('Charlie'),
+              ],
+            ),
+            width: 360,
+          ),
+        );
+        await tester.pump();
+
+        // Started by a press with the focus elsewhere, which on the web would
+        // have had to leave before it could come in again.
+        await tester.tap(_toggle('Stop slide show'));
+        await tester.pump();
+        await tester.tap(_toggle('Start slide show'));
+        await tester.pump();
+
+        slide.requestFocus();
+        await tester.pump();
+        await tester.pump();
+
+        expect(_toggle('Start slide show'), findsOneWidget);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
       testWidgets('has no button when it does not play, or cannot', (WidgetTester tester) async {
         await tester.pumpWidget(host(const _Harness(), width: 360));
         await tester.pump();

@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **Pressing an arrow or a dot of an `autoPlay` `PlCarousel` stops it, as a click does in the React build.** A press moved the carousel on and left it playing, so a reader who had steered to a slide saw it turn away at the next interval, where a click on the web brings the focus into the carousel and stops it there. A press on an arrow or a dot now stops it as the focus does, and the button reads "Start slide show" until it is pressed. A carousel the button has just started keeps playing through a press on an arrow or a dot, as it does on the web, until the focus next comes in or goes out.
+
 - **A toast keeps its state when one above it leaves, and fades on the theme's `motionEase`.** The toasts drawn after a leaving one were built again from nothing once it had gone, so a title or description with state of its own lost it. A toast's fade also ran linearly, where the popups, the layers and the React build's toasts ease on `--plass-ease`; it now runs on the curve of the set in scope, the same way in and out.
 
 - **A fold closes and a fade goes out on the theme's `motionEase` the way they came in.** A `PlAccordion` section, a `PlCollapsible`, a `PlPill`'s details and a `PlTree` branch folded shut, and `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, `PlNavigationMenu`, the lists of `PlSelect` and `PlCombobox`, `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette` and the others faded out, on the curve read backwards, so the house ease-out opened briskly and closed slowly before snapping shut, where the React build's transitions ease the same way in both directions. A close now runs the curve forwards in time, and takes a new one when the theme changes.

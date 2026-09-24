@@ -117,10 +117,11 @@ class PlCarousel extends StatefulWidget {
   ///
   /// Off by default and deliberately so: a carousel that moves while it is being
   /// read is the most complained-about pattern there is. It pauses while the
-  /// pointer is over it. It **stops** once the focus comes into it, and stays
-  /// stopped until the button starts it again. For a reader who has asked for
-  /// reduced motion it starts stopped. And it needs [onChanged] — a frozen
-  /// carousel has nothing to advance, and no button.
+  /// pointer is over it. It **stops** once the focus comes into it or an arrow
+  /// or a dot is pressed, and stays stopped until the button starts it again.
+  /// For a reader who has asked for reduced motion it starts stopped. And it
+  /// needs [onChanged] — a frozen carousel has nothing to advance, and no
+  /// button.
   final bool autoPlay;
 
   /// How long each slide is held.
@@ -195,9 +196,10 @@ class _PlCarouselState extends State<PlCarousel> {
 
   // Two different things hold the strip still, and they are kept apart on
   // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
-  // as the pointer does. The focus coming in is a *stop*: a keyboard reader who
-  // has reached a slide is reading it, and the strip stays where it is until
-  // the button starts it again — the pointer leaving, or the focus, does not.
+  // as the pointer does. The focus coming in is a *stop*, and so is a press on
+  // an arrow or a dot: a reader who has reached a slide or steered to one is
+  // reading it, and the strip stays where it is until the button starts it
+  // again — the pointer leaving, or the focus, does not.
 
   /// Whether the pointer is over the frame. A carousel that kept advancing
   /// under the pointer would be moving what somebody is reading.
@@ -225,9 +227,15 @@ class _PlCarouselState extends State<PlCarousel> {
   /// from there.
   final FocusNode _toggleFocus = FocusNode(debugLabel: 'PlCarousel autoPlay');
 
-  /// Raised when the button starts the strip while the focus is inside it. The
-  /// reader has just answered the focus, and moving it on to an arrow or a
-  /// slide does not stop what they started. Lowered when the focus leaves.
+  /// Raised when the button starts the strip. The reader has just answered the
+  /// stop, and moving on to an arrow, a dot or a slide does not stop what they
+  /// started, whether the focus goes there or a press does.
+  ///
+  /// Raised whether or not the focus is inside, because a press on the button
+  /// is, and in a browser the click would have brought the focus with it.
+  /// Lowered whenever the focus comes in or goes out: a start made with the
+  /// focus inside ends when it leaves, and one made with it elsewhere ends when
+  /// it arrives, which in a browser it could only do after leaving.
   bool _resumedInside = false;
 
   @override
@@ -330,7 +338,17 @@ class _PlCarouselState extends State<PlCarousel> {
       return;
     }
 
-    if (!widget.autoPlay || _toggleFocus.hasFocus || _resumedInside || _stopped) {
+    if (_toggleFocus.hasFocus) {
+      return;
+    }
+
+    _hold();
+  }
+
+  /// Stops the strip because the reader has taken hold of it, unless the
+  /// button has just started it.
+  void _hold() {
+    if (!widget.autoPlay || _resumedInside || _stopped) {
       return;
     }
 
@@ -338,11 +356,21 @@ class _PlCarouselState extends State<PlCarousel> {
     _restart();
   }
 
+  /// An arrow or a dot, pressed by a pointer, a key or a screen reader.
+  ///
+  /// The same stop as the focus coming in. In a browser the click is what
+  /// brings the focus in, so the React build stops there without being told;
+  /// a press here leaves the focus where it was, and has to say so itself.
+  void _steer(int next) {
+    _hold();
+    _go(next);
+  }
+
   void _toggle() {
     final stop = !_stopped;
 
     setState(() => _choice = stop);
-    _resumedInside = !stop && _within.hasFocus;
+    _resumedInside = !stop;
     _restart();
   }
 
@@ -434,7 +462,10 @@ class _PlCarouselState extends State<PlCarousel> {
 
     return Focus(
       focusNode: _within,
-      onFocusChange: (bool focused) => _focusMoved(),
+      onFocusChange: (bool focused) {
+        _resumedInside = false;
+        _focusMoved();
+      },
       child: Semantics(
         container: true,
         label: widget.label ?? PlassTheme.labelsOf(context).carousel,
@@ -461,7 +492,7 @@ class _PlCarouselState extends State<PlCarousel> {
                       quiet: tokens.border,
                       ring: family.ring,
                       duration: _travel,
-                      onPressed: widget.onChanged == null ? null : () => _go(index),
+                      onPressed: widget.onChanged == null ? null : () => _steer(index),
                     ),
                 ],
               ),
@@ -511,7 +542,7 @@ class _PlCarouselState extends State<PlCarousel> {
       color: _color,
       elevation: 1,
       disabled: widget.onChanged == null || (!widget.loop && atEnd),
-      onPressed: () => _go(forward ? _index + 1 : _index - 1),
+      onPressed: () => _steer(forward ? _index + 1 : _index - 1),
     );
   }
 }
