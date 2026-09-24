@@ -99,14 +99,7 @@ void main() {
       final List<PlassChartSeries> deploys = <PlassChartSeries>[
         PlassChartSeries(name: 'Web', data: <PlassChartDatum>[on(1, 3), on(9, 5), on(20, 4)]),
       ];
-      List<String> ticks() =>
-          ((tester
-                          .widgetList<CustomPaint>(find.byType(CustomPaint))
-                          .firstWhere((CustomPaint paint) => paint.size.height > 40)
-                          .painter!
-                      as dynamic)
-                  .categoryTexts
-              as List<String>);
+      List<String> ticks() => _xTicks(tester);
 
       await _pump(tester, PlScatterChart(series: deploys));
 
@@ -125,6 +118,41 @@ void main() {
       );
 
       expect(ticks().every((String text) => text.startsWith('day ')), isTrue);
+    });
+
+    testWidgets('ticks an axis of numbers compactly, or through xAxis.format, as React does', (
+      WidgetTester tester,
+    ) async {
+      List<PlassChartSeries> across(double from, double to) => <PlassChartSeries>[
+        PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[_at(from, 3), _at(to, 5)]),
+      ];
+
+      // Thousands grouped and tens of thousands shortened, as the card writes
+      // a point's x, and never in the y's `format`.
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: across(10000, 50000),
+          format: (double value) => '\$${value.toStringAsFixed(2)}',
+        ),
+      );
+
+      expect(_xTicks(tester), <String>['10K', '20K', '30K', '40K', '50K']);
+
+      await _pump(tester, PlScatterChart(series: across(2000, 6000)));
+
+      expect(_xTicks(tester), contains('2,000'));
+      expect(_xTicks(tester), isNot(contains('2000')));
+
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: across(10000, 50000),
+          xAxis: PlChartAxis(format: (double value) => '${value.round()} km'),
+        ),
+      );
+
+      expect(_xTicks(tester), contains('10000 km'));
     });
 
     testWidgets('names every series in the legend', (WidgetTester tester) async {
@@ -529,6 +557,16 @@ Future<(String, String, String)> _readingOf(WidgetTester tester, PlScatterChart 
     find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label,
   );
 }
+
+/// What the x axis writes under the plot, read off the painter of the axes.
+List<String> _xTicks(WidgetTester tester) =>
+    ((tester
+                    .widgetList<CustomPaint>(find.byType(CustomPaint))
+                    .firstWhere((CustomPaint paint) => paint.size.height > 40)
+                    .painter!
+                as dynamic)
+            .categoryTexts
+        as List<String>);
 
 /// The colour of the swatch on the tooltip card, the one small square on it.
 Color? _cardSwatch(WidgetTester tester) =>

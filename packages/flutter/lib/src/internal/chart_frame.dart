@@ -912,8 +912,11 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         final double slot = (width - valueBand - 16) / math.max(1, count);
 
         // A value-scaled axis writes its own ticks: through `xAxis.format` when
-        // there is one, as the calendar does when they are moments, and as the
-        // numbers they are otherwise.
+        // there is one, as the calendar does when they are moments, and
+        // compactly otherwise, as the y's are and as the React axis writes
+        // them, so `10000` is `10K`. Never through the chart's `format`, which
+        // belongs to the y: a currency applied to an axis of years prints
+        // `$2,019`.
         final List<String> rawCategoryTexts = categoryScale == null
             ? <String>[
                 for (final PlassChartCategory category in categories) categoryText(category, names),
@@ -922,9 +925,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
             ? <String>[for (final double tick in categoryScale.ticks) widget.xAxis.format!(tick)]
             : categoryScale is TimeScale
             ? formatTimeTicks(categoryScale.ticks, categoryScale.unit, names)
-            : <String>[
-                for (final PlassChartCategory category in categories) categoryText(category, names),
-              ];
+            : <String>[for (final double tick in categoryScale.ticks) compactNumber(tick)];
 
         /* A turned category axis, and how deep its band is allowed to get.
            Only along the bottom: a horizontal chart's category names already
