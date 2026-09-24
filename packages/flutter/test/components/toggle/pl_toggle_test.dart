@@ -189,6 +189,56 @@ void main() {
         );
       });
 
+      testWidgets('eases between the glass and the gradient on solid, and keeps what it holds', (
+        WidgetTester tester,
+      ) async {
+        // Off, a `solid` toggle is glass, and on it is the gradient with no
+        // glass behind it. The blur coming and going with the state used to
+        // build the fill again, so the gradient arrived in one frame.
+        final PlassTokens tokens = PlassTokens.light();
+        final double opaque = tokens.family(PlassColor.primary).fill.colors.first.a;
+
+        Widget toggle({required bool on}) {
+          return host(PlToggle(variant: PlassVariant.solid, pressed: on, child: const _Probe()));
+        }
+
+        await tester.pumpWidget(toggle(on: false));
+        final State<_Probe> content = tester.state(find.byType(_Probe));
+
+        for (final (String reason, bool on) in <(String, bool)>[('on', true), ('off', false)]) {
+          await tester.pumpWidget(toggle(on: on));
+          await tester.pump(tokens.motionDuration ~/ 2);
+
+          expect(_gradientAlpha(tester), inExclusiveRange(0, opaque), reason: reason);
+
+          await tester.pumpAndSettle();
+
+          expect(_gradientAlpha(tester), on ? opaque : 0, reason: reason);
+          expect(tester.state(find.byType(_Probe)), same(content), reason: reason);
+        }
+      });
+
+      testWidgets('changes between the glass and the gradient at once under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        final double opaque = PlassTokens.light().family(PlassColor.primary).fill.colors.first.a;
+
+        Widget toggle({required bool on}) {
+          return host(
+            PlToggle(variant: PlassVariant.solid, pressed: on, child: const Text('Bold')),
+            disableAnimations: true,
+          );
+        }
+
+        await tester.pumpWidget(toggle(on: false));
+
+        for (final bool on in <bool>[true, false]) {
+          await tester.pumpWidget(toggle(on: on));
+
+          expect(_gradientAlpha(tester), on ? opaque : 0, reason: on ? 'on' : 'off');
+        }
+      });
+
       testWidgets('keeps the control ladder', (WidgetTester tester) async {
         for (final MapEntry<PlassSize, double> entry in <PlassSize, double>{
           PlassSize.xs: 24,
@@ -415,4 +465,36 @@ void main() {
       expect(tester.getTopLeft(find.text('A')).dy, lessThan(tester.getTopLeft(find.text('B')).dy));
     });
   });
+}
+
+/// How opaque the gradient the toggle paints on this frame is, or `0` for none.
+///
+/// Read off the `DecoratedBox` the fill's `AnimatedContainer` builds, which
+/// holds the value of the frame rather than the one it is easing towards. The
+/// pointer light is a `RadialGradient`, so it is not counted.
+double _gradientAlpha(WidgetTester tester) {
+  final Iterable<LinearGradient> painted = tester
+      .widgetList<DecoratedBox>(
+        find.descendant(of: find.byType(PlToggle), matching: find.byType(DecoratedBox)),
+      )
+      .map((DecoratedBox box) => box.decoration)
+      .whereType<BoxDecoration>()
+      .map((BoxDecoration decoration) => decoration.gradient)
+      .whereType<LinearGradient>();
+
+  return painted.isEmpty ? 0 : painted.single.colors.first.a;
+}
+
+/// Content with a `State` of its own: built again from scratch, it is a
+/// different object.
+class _Probe extends StatefulWidget {
+  const _Probe();
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => const Text('Bold');
 }

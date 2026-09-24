@@ -87,6 +87,12 @@ class PlassCssGradient extends LinearGradient {
    * for 150ms and snap back, which is precisely the flicker the class exists to
    * avoid. Both directions are covered because `Gradient.lerp` asks `b` first
    * and falls through to `a`.
+   *
+   * From no gradient at all, or to none, the colours fade in or out, as a
+   * `LinearGradient`'s do. The missing side used to stand in for the other one,
+   * so a gradient arrived whole on the first frame and left whole on the last:
+   * a `PlSwitch` going off held its fill for the length of the transition and
+   * then dropped it.
    */
 
   @override
@@ -99,25 +105,39 @@ class PlassCssGradient extends LinearGradient {
     return b == null || b is PlassCssGradient ? _lerp(this, b as PlassCssGradient?, t) : null;
   }
 
+  /// The same sweep with every colour's opacity multiplied by [factor].
+  ///
+  /// Overridden because a `LinearGradient`'s own `scale` hands back a plain
+  /// `LinearGradient`, which loses the angle.
+  @override
+  PlassCssGradient scale(double factor) {
+    return PlassCssGradient(
+      angle: angle,
+      colors: <Color>[for (final colour in colors) Color.lerp(null, colour, factor)!],
+      stops: stops,
+    );
+  }
+
   static PlassCssGradient? _lerp(PlassCssGradient? a, PlassCssGradient? b, double t) {
-    if (a == null && b == null) {
-      return null;
+    if (a == null) {
+      return b?.scale(t);
     }
 
-    final from = a ?? b!;
-    final to = b ?? a!;
+    if (b == null) {
+      return a.scale(1 - t);
+    }
 
     return PlassCssGradient(
-      angle: ui.lerpDouble(from.angle, to.angle, t)!,
+      angle: ui.lerpDouble(a.angle, b.angle, t)!,
       colors: <Color>[
-        for (var i = 0; i < math.min(from.colors.length, to.colors.length); i += 1)
-          Color.lerp(from.colors[i], to.colors[i], t)!,
+        for (var i = 0; i < math.min(a.colors.length, b.colors.length); i += 1)
+          Color.lerp(a.colors[i], b.colors[i], t)!,
       ],
-      stops: from.stops == null || to.stops == null
+      stops: a.stops == null || b.stops == null
           ? null
           : <double>[
-              for (var i = 0; i < math.min(from.stops!.length, to.stops!.length); i += 1)
-                ui.lerpDouble(from.stops![i], to.stops![i], t)!,
+              for (var i = 0; i < math.min(a.stops!.length, b.stops!.length); i += 1)
+                ui.lerpDouble(a.stops![i], b.stops![i], t)!,
             ],
     );
   }

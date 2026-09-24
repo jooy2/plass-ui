@@ -70,6 +70,8 @@ void main() {
         await tester.pumpWidget(
           host(const PlBox(variant: PlassVariant.ghost, child: Text('Grouped')), width: 320),
         );
+        // The sheet eases out rather than going in one frame.
+        await tester.pumpAndSettle();
 
         expect(
           decorationsOf(tester, find.byType(PlBox)),

@@ -205,27 +205,39 @@ class PlassSurfaceBox extends StatelessWidget {
 
     Widget box = Stack(
       alignment: Alignment.center,
+      // Every layer keeps its place whatever the state, and only what is in it
+      // changes. A layer that came and went would move every layer after it to
+      // another place in the stack, which Flutter builds again from scratch.
       children: <Widget>[
-        if (surface.blur)
-          Positioned.fill(
-            // `.grouped` rather than the plain constructor: with no
-            // `BackdropGroup` above it this resolves to the same null backdrop
-            // key and is the same widget, and with one above it every sheet in
-            // that group reads the backdrop once instead of once each. Where
-            // the group goes is the app's to say — a σ22 read shared between
-            // two sheets that overlap shows as one blur across the overlap, and
-            // only the app knows whether its own sheets overlap. A sheet
-            // *inside* this one is the exception the library can see for
-            // itself, and the group round [child] below is its answer. See the
-            // Flutter half of the design language page.
-            child: BackdropFilter.grouped(
-              filter: ui.ImageFilter.compose(
-                outer: saturationFilter(tokens.saturation),
-                inner: ui.ImageFilter.blur(sigmaX: tokens.blurSigma, sigmaY: tokens.blurSigma),
-              ),
-              child: const SizedBox.expand(),
-            ),
-          ),
+        // The blur too, although a surface only has one while it is glass: a
+        // `solid` toggle is glass while it is off and a gradient key while it
+        // is on, and a blur that came and went with it built the fill again,
+        // so the gradient arrived in one frame instead of easing in. An empty
+        // box stands in rather than a disabled filter, because a
+        // `BackdropFilter` asks what is above it to composite whether it is
+        // enabled or not.
+        Positioned.fill(
+          child: surface.blur
+              // `.grouped` rather than the plain constructor: with no
+              // `BackdropGroup` above it this resolves to the same null
+              // backdrop key and is the same widget, and with one above it
+              // every sheet in that group reads the backdrop once instead of
+              // once each. Where the group goes is the app's to say — a σ22
+              // read shared between two sheets that overlap shows as one blur
+              // across the overlap, and only the app knows whether its own
+              // sheets overlap. A sheet *inside* this one is the exception the
+              // library can see for itself, and the group round [child] below
+              // is its answer. See the Flutter half of the design language
+              // page.
+              ? BackdropFilter.grouped(
+                  filter: ui.ImageFilter.compose(
+                    outer: saturationFilter(tokens.saturation),
+                    inner: ui.ImageFilter.blur(sigmaX: tokens.blurSigma, sigmaY: tokens.blurSigma),
+                  ),
+                  child: const SizedBox.expand(),
+                )
+              : const SizedBox(),
+        ),
         Positioned.fill(
           child: AnimatedContainer(
             duration: motion,
@@ -238,12 +250,10 @@ class PlassSurfaceBox extends StatelessWidget {
             ),
           ),
         ),
-        // Every layer from here down keeps its place whatever the state, and
-        // only what is in it changes. `readOnly` and `disabled` take the gloss
-        // off a glass surface and put the light out, and a layer that came and
-        // went with them would move what the box holds to another place in the
-        // stack, which Flutter builds again from scratch: a field would come
-        // back with a new editor.
+        // `readOnly` and `disabled` take the gloss off a glass surface and put
+        // the light out, and a layer that came and went with them would move
+        // what the box holds as well: a field would come back with a new
+        // editor.
         Positioned.fill(
           child: CustomPaint(
             painter: surface.insets.isEmpty
