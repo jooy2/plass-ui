@@ -1241,15 +1241,21 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 
           if (active != null) {
             // A chart whose marks say their own reading is read the way its
-            // card is: the heading, then the reading.
+            // card is: the heading, then what the swatch stands for and the
+            // reading, as the React build reads a timeline's span and its row.
             if (widget.markReadout != null) {
               final String heading =
                   widget.markHeading?.call(active) ??
                   widget.series[active.series].name ??
                   '${active.series + 1}';
+              final String? name = widget.markName?.call(active);
               final String said = widget.markReadout!(active);
 
-              return said.isEmpty ? heading : '$heading, $said';
+              if (said.isEmpty) {
+                return heading;
+              }
+
+              return name == null ? '$heading, $said' : '$heading, $name: $said';
             }
 
             // A mark of a grid is one cell of a column, and is read as one: the

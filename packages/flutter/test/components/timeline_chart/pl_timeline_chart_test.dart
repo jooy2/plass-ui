@@ -295,12 +295,13 @@ void main() {
       String said() => find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label;
 
       // The rows run down the side, so the keys that walk them do too, and a
-      // span that names itself is read by its name and the two days it spans.
+      // span that names itself is read by its name, then its row and the two
+      // days it spans, as the card is written and as the React build reads it.
       for (final (LogicalKeyboardKey key, String reading) in <(LogicalKeyboardKey, String)>[
-        (LogicalKeyboardKey.arrowDown, 'Wireframes, Jan 1, 2026 – Jan 9, 2026'),
-        (LogicalKeyboardKey.arrowDown, 'Visuals, Jan 11, 2026 – Jan 18, 2026'),
-        (LogicalKeyboardKey.arrowDown, 'Implementation, Jan 8, 2026 – Jan 26, 2026'),
-        (LogicalKeyboardKey.arrowUp, 'Visuals, Jan 11, 2026 – Jan 18, 2026'),
+        (LogicalKeyboardKey.arrowDown, 'Wireframes, Design: Jan 1, 2026 – Jan 9, 2026'),
+        (LogicalKeyboardKey.arrowDown, 'Visuals, Design: Jan 11, 2026 – Jan 18, 2026'),
+        (LogicalKeyboardKey.arrowDown, 'Implementation, Build: Jan 8, 2026 – Jan 26, 2026'),
+        (LogicalKeyboardKey.arrowUp, 'Visuals, Design: Jan 11, 2026 – Jan 18, 2026'),
       ]) {
         await tester.sendKeyEvent(key);
         await tester.pump();

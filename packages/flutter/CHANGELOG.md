@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlTimelineChart` span is read with its row.** The live region read a span as its name and its dates, "Wireframes, Jan 1, 2026 – Jan 9, 2026", and left out the row the card shows beside the swatch. It now reads "Wireframes, Design: Jan 1, 2026 – Jan 9, 2026", as the React build does.
+
 - **A labelled `PlSparkline` reads its numbers the way a chart writes them.** Its semantic value wrote each number whole or with two fixed decimals, `48300` and `1234.57`, where every other chart writes it through `compactNumber`. It now does too, "1,234.57, 48.3K", as in the React build.
 
 - **A chart writes a value that is not a number as `∞`, `-∞` or `NaN`.** `compactNumber` ran an infinite value through the compacting and wrote it as `In,fin,ityT`, and threw on `NaN`. It now writes all three as the React build's `Intl` does, with no unit after them.
