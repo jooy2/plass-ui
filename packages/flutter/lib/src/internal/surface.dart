@@ -135,7 +135,7 @@ class PlassSurface {
 ///
 /// A glass box reads the backdrop in the [BackdropGroup] above it, and any box
 /// that paints something, glass or a fill, puts what it holds in a group of its
-/// own. Filters that share a backdrop key share one read of the backdrop, taken
+/// own, through a [PlassContentsGroup]. Filters that share a backdrop key share one read of the backdrop, taken
 /// where the first of them is painted, so a glass field on a card that shared
 /// the card's key would blur what was behind the *card*, read before the card
 /// was drawn, and show the page through it. The same goes for a glass control
@@ -143,7 +143,7 @@ class PlassSurface {
 /// taken before it. With a group of its own the field reads the card it sits
 /// on, the fields on one card still share that one read, and the card itself
 /// still joins whatever group the app put above it.
-class PlassSurfaceBox extends StatefulWidget {
+class PlassSurfaceBox extends StatelessWidget {
   /// Creates a painted surface around [child].
   const PlassSurfaceBox({
     required this.surface,
@@ -197,30 +197,11 @@ class PlassSurfaceBox extends StatefulWidget {
   final Duration? duration;
 
   @override
-  State<PlassSurfaceBox> createState() => _PlassSurfaceBoxState();
-}
-
-class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
-  /// The group this box's contents read the backdrop in while it paints
-  /// something. See [plassContentsBackdrop].
-  ///
-  /// Held for the life of the box rather than made in `build`: a group whose
-  /// key changes tells every filter under it to rebuild, and hands the engine a
-  /// backdrop it has not seen before on every frame.
-  final BackdropKey _contents = BackdropKey();
-
-  @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final surface = widget.surface;
-    final borderRadius = widget.borderRadius;
-    final reduceMotion = widget.reduceMotion;
-    final pointer = widget.pointer;
-    final glow = widget.glow;
-    final flash = widget.flash;
-    final motion = widget.animate && !reduceMotion
-        ? widget.duration ?? tokens.motionDuration
-        : Duration.zero;
+    final glow = this.glow;
+    final flash = this.flash;
+    final motion = animate && !reduceMotion ? duration ?? tokens.motionDuration : Duration.zero;
 
     Widget box = Stack(
       alignment: Alignment.center,
@@ -276,7 +257,7 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
               : RepaintBoundary(
                   child: PlassGlowLayer(
                     pointer: pointer,
-                    visible: widget.glowVisible,
+                    visible: glowVisible,
                     color: glow,
                     radius: glowRadius,
                     duration: PlassTokens.glowDuration,
@@ -284,17 +265,14 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
                   ),
                 ),
         ),
-        BackdropGroup(
-          backdropKey: plassContentsBackdrop(context, paints: surface.paints, own: _contents),
-          child: widget.child,
-        ),
+        PlassContentsGroup(paints: surface.paints, child: child),
         Positioned.fill(
           child: flash == null
               ? const SizedBox()
               : RepaintBoundary(
                   child: PlassGlowLayer(
                     pointer: pointer,
-                    visible: widget.flashVisible,
+                    visible: flashVisible,
                     color: flash,
                     radius: flashRadius,
                     duration: PlassTokens.flashDuration,
@@ -320,41 +298,26 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
   }
 }
 
-/// The backdrop key what a surface holds reads the backdrop in.
+/// Puts [child] in the [BackdropGroup] what a surface holds reads the backdrop
+/// in: one of its own while [paints], and the one around it otherwise.
 ///
-/// A surface that [PlassSurface.paints] anything hands what it holds [own], a
-/// group of its own. A surface that paints nothing passes the group above it
-/// straight through, so a ghost container changes nothing about what its
-/// contents share with the rest of the page.
+/// A [PlassSurfaceBox] and a `PlButton` put what they hold in one, and so does
+/// every fill painted without them: a row's wash, a table's header band, a
+/// window's body. A surface that paints anything hands what it holds a group of
+/// its own, for the reason [PlassSurfaceBox] gives. A surface that paints
+/// nothing passes the group above it straight through, so a ghost container
+/// changes nothing about what its contents share with the rest of the page.
+/// Pass it the fill's own test rather than `true` wherever the fill comes and
+/// goes, so an unpainted row leaves what it holds in the group around it.
 ///
-/// The caller keeps a [BackdropGroup] in the tree either way and changes only
-/// its key. A ghost control paints a wash only while it is hovered, pressed or
-/// focused, and a group that came and went with the wash would change the
-/// shape of the tree above what the control holds, which Flutter builds again
-/// from scratch: a ghost field would lose its editor, and the focus with it, the
-/// moment it was focused. With no group above to pass through, [own] stands in,
+/// The group is in the tree either way, and only its key changes. A ghost
+/// control paints a wash only while it is hovered, pressed or focused, and a
+/// group that came and went with the wash would change the shape of the tree
+/// above what the control holds, which Flutter builds again from scratch: a
+/// ghost field would lose its editor, and the focus with it, the moment it was
+/// focused. With no group above to pass through, the group's own key stands in,
 /// so what an unpainted surface holds on a page with no group shares one read,
 /// as it does on a painted one.
-BackdropKey plassContentsBackdrop(
-  BuildContext context, {
-  required bool paints,
-  required BackdropKey own,
-}) {
-  if (paints) {
-    return own;
-  }
-
-  return BackdropGroup.of(context)?.backdropKey ?? own;
-}
-
-/// Puts [child] in the group [plassContentsBackdrop] gives it, for a fill that
-/// is painted without a [PlassSurfaceBox]: a row's wash, a table's header band,
-/// a window's body.
-///
-/// The rule is the one the box follows, and [paints] says whether the fill is
-/// there. Pass it the fill's own test rather than `true` wherever the fill
-/// comes and goes, so an unpainted row leaves what it holds in the group around
-/// it.
 class PlassContentsGroup extends StatefulWidget {
   /// Puts [child] in a group of its own while [paints].
   const PlassContentsGroup({required this.paints, required this.child, super.key});
@@ -370,14 +333,15 @@ class PlassContentsGroup extends StatefulWidget {
 }
 
 class _PlassContentsGroupState extends State<PlassContentsGroup> {
-  /// Held for the life of the group, for the reason [PlassSurfaceBox] holds its
-  /// own.
+  /// Held for the life of the group rather than made in `build`: a group whose
+  /// key changes tells every filter under it to rebuild, and hands the engine a
+  /// backdrop it has not seen before on every frame.
   final BackdropKey _own = BackdropKey();
 
   @override
   Widget build(BuildContext context) {
     return BackdropGroup(
-      backdropKey: plassContentsBackdrop(context, paints: widget.paints, own: _own),
+      backdropKey: widget.paints ? _own : BackdropGroup.of(context)?.backdropKey ?? _own,
       child: widget.child,
     );
   }

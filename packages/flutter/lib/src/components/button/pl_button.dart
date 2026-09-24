@@ -193,11 +193,6 @@ class _PlButtonState extends State<PlButton> {
   bool _focusVisible = false;
   Offset? _pointer;
 
-  /// The group the button's own contents read the backdrop in while it paints
-  /// something, for the reason `PlassSurfaceBox` gives: anything glass the key
-  /// holds, such as a badge, has to blur the key rather than the page behind it.
-  final BackdropKey _contents = BackdropKey();
-
   /// The run this button is in, or `null`. Read here rather than in `build`
   /// because the resolved values below are wanted by the gesture callbacks too,
   /// and a callback has no build context to ask with.
@@ -471,16 +466,11 @@ class _PlButtonState extends State<PlButton> {
                 )
               : const SizedBox(),
         ),
-        // In the tree whatever the variant, with only its key changing, so a
-        // ghost key that takes a wash under the pointer keeps what it holds.
-        BackdropGroup(
-          backdropKey: plassContentsBackdrop(
-            context,
-            paints: glass || fill != null || gradient != null,
-            own: _contents,
-          ),
-          child: content,
-        ),
+        // What the key holds reads the backdrop in a group of its own while the
+        // key paints something, for the reason `PlassSurfaceBox` gives:
+        // anything glass on it, such as a badge, has to blur the key rather
+        // than the page behind it.
+        PlassContentsGroup(paints: glass || fill != null || gradient != null, child: content),
         Positioned.fill(
           child: _interactive
               ? RepaintBoundary(
