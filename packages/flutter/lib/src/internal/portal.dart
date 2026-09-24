@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 
@@ -199,7 +200,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
     final tokens = PlassTheme.of(context);
 
     _fade.duration = reduceMotion ? Duration.zero : tokens.motionDurationSlow;
-    _opacity.curve = tokens.motionEase;
+    easeBothWays(_opacity, tokens.motionEase);
 
     return OverlayPortal(
       controller: _portal,

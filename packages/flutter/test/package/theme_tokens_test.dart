@@ -501,6 +501,128 @@ void main() {
 
       expect(_opacityOver(tester, find.text('Settings')), closeTo(_steep.transform(0.5), 0.02));
     });
+
+    // A close that eases the way a CSS transition does runs the curve forwards
+    // in time, so half the time into it on the steep curve is an eighth of the
+    // way shut, as the open was an eighth of the way open at the same moment.
+    // The curve read backwards would be seven eighths of the way shut.
+    testWidgets("fold an accordion shut on the theme's curve run forwards", (
+      WidgetTester tester,
+    ) async {
+      final double shut = await _shutHalfway(
+        tester,
+        ({required bool open}) => PlAccordion<String>(
+          items: _sections,
+          value: open ? const <String>{'billing'} : const <String>{},
+          onChanged: (Set<String> _) {},
+        ),
+        find.byType(PlAccordion<String>),
+      );
+
+      expect(shut, closeTo(_steep.transform(0.5), 0.02));
+    });
+
+    testWidgets("fold a collapsible shut on the theme's curve run forwards", (
+      WidgetTester tester,
+    ) async {
+      final double shut = await _shutHalfway(
+        tester,
+        ({required bool open}) => PlCollapsible(
+          open: open,
+          title: const Text('Billing'),
+          child: const Text('Card on file'),
+        ),
+        find.byType(PlCollapsible),
+      );
+
+      expect(shut, closeTo(_steep.transform(0.5), 0.02));
+    });
+
+    testWidgets("fold a pill's details shut on the theme's curve run forwards", (
+      WidgetTester tester,
+    ) async {
+      final double shut = await _shutHalfway(
+        tester,
+        ({required bool open}) => PlPill(
+          title: const Text('Two updates'),
+          details: const Text('Billing moved.'),
+          expanded: open,
+        ),
+        find.byType(PlPill),
+      );
+
+      expect(shut, closeTo(_steep.transform(0.5), 0.02));
+    });
+
+    testWidgets("fold a tree branch shut on the theme's curve run forwards", (
+      WidgetTester tester,
+    ) async {
+      final double shut = await _shutHalfway(
+        tester,
+        ({required bool open}) => PlTree(
+          items: const <PlTreeNode>[
+            PlTreeNode(
+              id: 'src',
+              label: Text('src'),
+              children: <PlTreeNode>[PlTreeNode(id: 'index', label: Text('index.ts'))],
+            ),
+          ],
+          expanded: open ? const <String>{'src'} : const <String>{},
+        ),
+        find.byType(PlTree),
+      );
+
+      expect(shut, closeTo(_steep.transform(0.5), 0.02));
+    });
+
+    testWidgets("fade a popover out on the theme's curve run forwards", (
+      WidgetTester tester,
+    ) async {
+      Widget popover({required bool open}) {
+        return host(
+          PlassTheme.tokens(
+            tokens: _slowSteep,
+            child: PlPopover(
+              open: open,
+              trigger: PlButton(onPressed: () {}, child: const Text('Explain')),
+              child: const Text('The base rate'),
+            ),
+          ),
+          overlay: true,
+        );
+      }
+
+      await tester.pumpWidget(popover(open: false));
+      await tester.pumpWidget(popover(open: true));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(popover(open: false));
+      await tester.pump(_fast ~/ 2);
+
+      expect(
+        _opacityOver(tester, find.text('The base rate')),
+        closeTo(1 - _steep.transform(0.5), 0.02),
+      );
+    });
+
+    testWidgets("fade a modal out on the theme's curve run forwards", (WidgetTester tester) async {
+      Widget modal({required bool open}) {
+        return host(
+          PlassTheme.tokens(
+            tokens: _slowSteep,
+            child: PlModal(open: open, title: const Text('Settings')),
+          ),
+          overlay: true,
+        );
+      }
+
+      await tester.pumpWidget(modal(open: false));
+      await tester.pumpWidget(modal(open: true));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(modal(open: false));
+      await tester.pump(_slow ~/ 2);
+
+      expect(_opacityOver(tester, find.text('Settings')), closeTo(1 - _steep.transform(0.5), 0.02));
+    });
   });
 
   group('every component reads the scales off the set', () {
@@ -597,6 +719,41 @@ double _opacityOver(WidgetTester tester, Finder finder) {
       .first
       .opacity
       .value;
+}
+
+/// How far the fold [build] draws has shut half way through its close, as a
+/// share of the way from open to shut, measured by the height of [finder].
+///
+/// It opens on the linear set and is handed the steep one while it is open, so
+/// the curve it shuts on is one a theme change brought to a fold already on
+/// screen.
+Future<double> _shutHalfway(
+  WidgetTester tester,
+  Widget Function({required bool open}) build,
+  Finder finder,
+) async {
+  Widget fold(PlassTokens tokens, {required bool open}) {
+    return host(
+      PlassTheme.tokens(
+        tokens: tokens,
+        child: build(open: open),
+      ),
+      width: 400,
+    );
+  }
+
+  await tester.pumpWidget(fold(_slowSquare, open: false));
+  final double closed = _heightOf(tester, finder);
+
+  await tester.pumpWidget(fold(_slowSquare, open: true));
+  await tester.pumpAndSettle();
+  final double open = _heightOf(tester, finder);
+
+  await tester.pumpWidget(fold(_slowSteep, open: true));
+  await tester.pumpWidget(fold(_slowSteep, open: false));
+  await tester.pump(_slow ~/ 2);
+
+  return (open - _heightOf(tester, finder)) / (open - closed);
 }
 
 /// The private state that owns one accordion section's fold, found by its

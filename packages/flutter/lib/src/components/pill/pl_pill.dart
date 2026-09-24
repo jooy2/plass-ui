@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -230,7 +231,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
     _open.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
         ? Duration.zero
         : tokens.motionDurationSlow;
-    _reveal.curve = tokens.motionEase;
+    easeBothWays(_reveal, tokens.motionEase);
   }
 
   @override

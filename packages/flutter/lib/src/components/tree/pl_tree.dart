@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -529,7 +530,7 @@ class _BranchState extends State<_Branch> with SingleTickerProviderStateMixin {
     _fold.duration = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
         ? Duration.zero
         : tokens.motionDurationSlow;
-    _factor.curve = tokens.motionEase;
+    easeBothWays(_factor, tokens.motionEase);
   }
 
   @override

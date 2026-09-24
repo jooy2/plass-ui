@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A fold closes and a fade goes out on the theme's `motionEase` the way they came in.** A `PlAccordion` section, a `PlCollapsible`, a `PlPill`'s details and a `PlTree` branch folded shut, and `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, `PlNavigationMenu`, the lists of `PlSelect` and `PlCombobox`, `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette` and the others faded out, on the curve read backwards, so the house ease-out opened briskly and closed slowly before snapping shut, where the React build's transitions ease the same way in both directions. A close now runs the curve forwards in time, and takes a new one when the theme changes.
+
 - **Under reduced motion, a `PlassAnimateMode.exit` effect leaves, and a delayed one waits.** With animations turned off an effect was drawn at the end of an entrance whatever it was, so an exit stayed on screen and a `delay` was ignored. It now lands on its last frame at the moment it would have started, `delay` included: an exit has left, and an alternating run ends where it would have. Until that moment the content is shown as it is, and a run that had already finished when the setting arrived stays where it ended.
 
 - **A `PlTimePicker` or a `PlDateTimePicker` says the whole time to a screen reader.** The live region that reads the columns as one time, such as "9:30", sat in a box with no size, and a node with no size is taken off the semantics tree, so it was never heard. It now has a pixel square, as a chart's readout does.

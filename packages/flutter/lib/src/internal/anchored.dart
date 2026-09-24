@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -276,7 +277,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     final tokens = PlassTheme.of(context);
 
     _fade.duration = reduceMotion ? Duration.zero : tokens.motionDuration;
-    _opacity.curve = tokens.motionEase;
+    easeBothWays(_opacity, tokens.motionEase);
 
     // Around the portal rather than inside the popup: the popup's element sits
     // under the portal's, so one binding reaches a focus on the anchor and a
