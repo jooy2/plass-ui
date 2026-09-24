@@ -298,7 +298,8 @@ class PlCombobox<T> extends StatefulWidget {
   /// Stretches to the width of the container.
   final bool fullWidth;
 
-  /// The value is shown but cannot be changed, and the list does not open.
+  /// The value is shown but cannot be changed. The list still opens, to be
+  /// looked through, and taking a row from it changes nothing.
   final bool readOnly;
 
   /// Unavailable.
@@ -459,6 +460,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       !widget.readOnly &&
       (widget.multiple ? widget.onValuesChanged != null : widget.onChanged != null);
 
+  /// Whether the list opens: to be picked from, or, while read-only, to be
+  /// looked through, as Base UI opens a read-only combobox.
+  bool get _openable => _usable || (widget.readOnly && !widget.disabled);
+
   List<T> get _chosen => widget.multiple
       ? widget.values
       : widget.value == null
@@ -540,7 +545,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   }
 
   void _openList() {
-    if (!_usable || _open) {
+    if (!_openable || _open) {
       return;
     }
 
@@ -642,7 +647,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   void _take(int index) {
     final rows = _rows;
 
-    if (index < 0 || index >= rows.length) {
+    // A read-only list is there to be looked through, and taking a row from it
+    // changes nothing.
+    if (!_usable || index < 0 || index >= rows.length) {
       return;
     }
 
@@ -711,8 +718,15 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       offset: _standoff,
       anchorWidth: PlassAnchorWidth.exact,
       onDismiss: _close,
+      // The field goes on being used while the list is up, as Base UI leaves
+      // the input group out of the outside press: a press on the text moves the
+      // caret, a chip's × takes the chip off, and the chevron closes the list.
+      anchorInside: true,
       popup: _list(tokens, family, scale),
-      child: _shell(tokens, family, scale, radius),
+      // Everything on the field counts as the text's own too, so a press on a
+      // chip or the chevron does not take the focus out of the text, which on
+      // a desktop, and in a browser, a press outside it does.
+      child: TextFieldTapRegion(child: _shell(tokens, family, scale, radius)),
     );
 
     final stack = Column(
@@ -964,7 +978,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           adornment(
             shape: PlassGlyphShape.chevron,
             label: widget.openLabel ?? PlassTheme.labelsOf(context).open,
-            onTap: _usable ? (_open ? _close : _openList) : null,
+            onTap: _openable ? (_open ? _close : _openList) : null,
             turns: _open ? 0.5 : 0,
           ),
         ],
@@ -1047,8 +1061,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         // A press anywhere on the field opens the list as well as focusing it,
         // as the React field does, so the chevron, which keeps the size it is
         // drawn at, has a control the size of the field that does what it
-        // does. While the list is up, the portal takes a press on the field and
-        // closes it, as it does a press on the chevron.
+        // does. While the list is up, a press on the field leaves it open: the
+        // portal counts the field as inside the list, and only the chevron
+        // closes it.
         onTap: widget.disabled ? null : _pressField,
         // The press half of the light. On a touch screen there is no hover at
         // all, and this is the layer that carries the effect there.
@@ -1205,7 +1220,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           inMutuallyExclusiveGroup: !row.isCreate,
           selected: chosen,
           enabled: !disabled,
-          onTap: disabled ? null : () => _take(index),
+          onTap: disabled || !_usable ? null : () => _take(index),
           child: Opacity(
             opacity: disabled ? disabledOpacity : 1,
             child: DecoratedBox(

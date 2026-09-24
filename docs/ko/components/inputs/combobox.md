@@ -149,7 +149,7 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 
 `error`는 combobox를 invalid로도 만들고, 그러면 색 계열 전체가 `danger`로 옮겨 갑니다. 테두리와 ring과 caret과 메시지가 함께 넘어갑니다. `invalid`는 메시지 없이 같은 일을 합니다.
 
-`readOnly` combobox는 값과 포커스를 유지하되 입력을 받지 않고, chip의 ×도 사라집니다. `disabled`는 포커스 순서에서 빠집니다.
+`readOnly` combobox는 값과 포커스를 유지하되 입력을 받지 않고, chip의 ×도 사라집니다. 목록은 여전히 열려서 훑어볼 수 있지만, 거기서 행을 골라도 아무것도 바뀌지 않습니다. `disabled`는 포커스 순서에서 빠집니다.
 
 옵션 하나만 `disabled`일 수도 있습니다. 그래도 목록에 남습니다. 고를 수 없다고 사라지는 옵션은 독자가 찾아 헤매게 되는 옵션입니다.
 

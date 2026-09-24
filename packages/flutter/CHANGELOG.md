@@ -56,7 +56,9 @@
 
 ### Changed
 
-- **A press on a `PlCombobox` field opens its list, as it does in the React build.** A press focused the field and left the list shut until something was typed or the chevron was pressed. It now opens the list as well, on the text and around it, so the field is the chevron's equivalent control, since the chevron keeps the size it is drawn at. A read-only or disabled field stays shut.
+- **A `readOnly` `PlCombobox` opens its list to be looked through, as it does in the React build.** A read-only field never opened, so the options it held a choice between could not be seen. The list now opens on a press, on the chevron and with the arrow keys, and a row taken there changes nothing.
+
+- **A press on a `PlCombobox` field opens its list, as it does in the React build.** A press focused the field and left the list shut until something was typed or the chevron was pressed. It now opens the list as well, on the text and around it, so the field is the chevron's equivalent control, since the chevron keeps the size it is drawn at. A disabled field stays shut.
 
 - **A `PlCollapsible`'s title and subtitle wrap, as a `PlAccordionItem`'s do.** They were each held to one line and ellipsed, so a heading that ran past the header lost its end with nothing to press for the rest. `truncate` puts both back on one line, for a name out of a database beside a control.
 
@@ -69,6 +71,8 @@
 - **A chart legend's switched-off entry fades instead of going grey.** The swatch went part-transparent and the name was recoloured to the muted ink, which read as a second kind of text rather than as the same entry, off. The whole row now fades as one thing — swatch and name together, at one opacity — which is what a control that has been switched off looks like everywhere else in the library. The line through the name stays, because it is the half of "off" that survives being read in one colour. The React build makes the same change.
 
 ### Fixed
+
+- **A press on an open `PlCombobox` field reaches the field and leaves the list open.** The list took any press on the field as a press outside it and closed, so the × on a `multiple` chip did not take the chip off and a press to move the caret shut the list, and on a desktop or in a browser a press on a chip took the focus out of the text as well. The field now counts as part of the list, as Base UI's input group does in the React build: the caret moves, the chip comes off and the list stays open, and the chevron, `Escape` or a press elsewhere closes it.
 
 - **A `PlScatterChart` card is headed by the point's x, with its series and its y under it.** The card was headed by the series and wrote `x, y (z)` on one line, where the React card and every other card in both builds are headed by where the reading is. It is now written as the React card is: the x, then the swatch, the series and the y through `format` or `compactNumber`, with a point's own `label` in place of the y when it has one. The live region reads it the same way, "10, Q1: 22". A bubble's `z` is no longer on the card; it stays in the text the chart hands a screen reader.
 

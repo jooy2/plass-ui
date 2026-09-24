@@ -149,7 +149,7 @@ The same height ladder as every other control. With `multiple` the number is a m
 
 `error` also turns the combobox invalid, which re-points the whole colour family at `danger`, the edge, the ring, the caret and the message turn over together. `invalid` does the same without a message.
 
-A `readOnly` combobox keeps its value and its focus but cannot be typed into, and its chips lose their ×. A `disabled` one leaves the tab order.
+A `readOnly` combobox keeps its value and its focus but cannot be typed into, and its chips lose their ×. Its list still opens to be looked through, and choosing a row there changes nothing. A `disabled` one leaves the tab order.
 
 An option may be `disabled` on its own: it stays in the list, because an option that vanishes when it cannot be picked is an option the reader will look for.
 

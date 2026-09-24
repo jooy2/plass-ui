@@ -54,6 +54,7 @@ class PlassAnchoredPortal extends StatefulWidget {
     this.offset = 6,
     this.onDismiss,
     this.onEscape,
+    this.anchorInside = false,
     this.anchorWidth = PlassAnchorWidth.free,
     this.onSideResolved,
     super.key,
@@ -84,7 +85,8 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// The press still reaches whatever it landed on, so the screen behind the
   /// popup goes on being pressed and scrolled. The exception is the anchor: a
   /// press on it closes the popup and goes no further, or a trigger that opens
-  /// its popup would open it again on the same press.
+  /// its popup would open it again on the same press. [anchorInside] turns that
+  /// exception round.
   final VoidCallback? onDismiss;
 
   /// Called when Escape is pressed while the popup is open and the focus is on
@@ -94,6 +96,17 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// it is not a barrier. With neither, Escape is left to whatever is around the
   /// popup.
   final VoidCallback? onEscape;
+
+  /// Whether a press on the anchor counts as a press inside the popup.
+  ///
+  /// Off, a press on the anchor is outside it, which suits an anchor that is a
+  /// trigger and nothing else: the press closes the popup, as a trigger pressed
+  /// again does. On, a press on the anchor leaves the popup open and reaches
+  /// the anchor, which suits an anchor that goes on being used while its popup
+  /// is up — a combobox's field, whose caret moves, whose chips come off and
+  /// whose chevron closes the list itself. Base UI leaves a combobox's input
+  /// group out of the outside press for the same reason.
+  final bool anchorInside;
 
   /// How the popup's width follows the anchor's.
   ///
@@ -229,6 +242,17 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     widget.onSideResolved?.call(side);
   }
 
+  /// Whether [position], in global coordinates, is on the anchor.
+  bool _onAnchor(Offset position) {
+    final anchor = _anchorKey.currentContext?.findRenderObject() as RenderBox?;
+
+    if (anchor == null || !anchor.attached || !anchor.hasSize) {
+      return false;
+    }
+
+    return (Offset.zero & anchor.size).contains(anchor.globalToLocal(position));
+  }
+
   /// The side that has room, which is the one asked for unless it does not.
   PlassSide _fit(Rect anchor, Size popup, Size room) {
     final needsY = popup.height + widget.offset;
@@ -294,7 +318,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
             controller: _portal,
             overlayChildBuilder: _buildPopup,
             child: _PressShield(
-              shielding: widget.open && widget.onDismiss != null,
+              shielding: widget.open && widget.onDismiss != null && !widget.anchorInside,
               child: KeyedSubtree(key: _anchorKey, child: widget.child),
             ),
           ),
@@ -355,7 +379,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
                 child: Listener(
                   behavior: HitTestBehavior.translucent,
                   onPointerDown: (PointerDownEvent event) {
-                    if (widget.open) {
+                    if (widget.open && !(widget.anchorInside && _onAnchor(event.position))) {
                       widget.onDismiss!();
                     }
                   },

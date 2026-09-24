@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,6 +39,27 @@ List<String> _rows(WidgetTester tester) {
 
 /// Puts a combobox on screen with an overlay for its list to go into.
 Widget _host(Widget child) => host(SizedBox(width: 320, child: child), overlay: true, width: 420);
+
+/// A `multiple` combobox holding Seoul and Lisbon, whose chips come off as they
+/// would for a caller.
+///
+/// With [tapRegions], the tree has the surface a `WidgetsApp` puts under every
+/// app, which is what tells a text field about a press outside it.
+Future<void> _pumpChips(WidgetTester tester, {bool tapRegions = false}) async {
+  List<String> values = <String>['seoul', 'lisbon'];
+
+  final Widget tree = _host(
+    StatefulBuilder(
+      builder: (BuildContext context, StateSetter setState) => PlCombobox<String>.multiple(
+        options: _cities,
+        values: values,
+        onChanged: (List<String> next) => setState(() => values = next),
+      ),
+    ),
+  );
+
+  await tester.pumpWidget(tapRegions ? TapRegionSurface(child: tree) : tree);
+}
 
 void main() {
   group('PlCombobox', () {
@@ -288,27 +311,197 @@ void main() {
         expect(chosen, isNull);
       });
 
-      testWidgets('does not open while read-only', (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _host(
-            PlCombobox<String>(
-              options: _cities,
-              value: 'seoul',
-              onChanged: (String? _) {},
-              readOnly: true,
+      group('while read-only', () {
+        testWidgets('opens to be looked through, and takes nothing from it', (
+          WidgetTester tester,
+        ) async {
+          int changed = 0;
+
+          await tester.pumpWidget(
+            _host(
+              PlCombobox<String>(
+                options: _cities,
+                value: null,
+                onChanged: (String? _) => changed += 1,
+                readOnly: true,
+              ),
             ),
-          ),
-        );
+          );
 
-        await tester.tap(_adornment('Open'));
-        await tester.pumpAndSettle();
+          // As Base UI opens a read-only combobox: the value is locked, not
+          // the list.
+          await tester.tap(find.byType(EditableText));
+          await tester.pumpAndSettle();
 
-        expect(find.text('Lisbon'), findsNothing);
+          expect(find.text('Lisbon'), findsOneWidget);
 
-        await tester.tap(find.byType(EditableText));
-        await tester.pumpAndSettle();
+          await tester.tap(find.text('Lisbon'));
+          await tester.pumpAndSettle();
 
-        expect(find.text('Lisbon'), findsNothing);
+          expect(changed, 0);
+          expect(find.text('Lisbon'), findsOneWidget);
+          expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, isEmpty);
+
+          // The chevron closes it and opens it again.
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+          expect(find.text('Lisbon'), findsNothing);
+
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+          expect(find.text('Lisbon'), findsOneWidget);
+        });
+
+        testWidgets('opens with the arrow keys and takes nothing on Enter', (
+          WidgetTester tester,
+        ) async {
+          final List<List<String>> reported = <List<String>>[];
+
+          await tester.pumpWidget(
+            _host(
+              PlCombobox<String>.multiple(
+                options: _cities,
+                values: const <String>['seoul'],
+                onChanged: reported.add,
+                readOnly: true,
+              ),
+            ),
+          );
+
+          await tester.tap(find.byType(EditableText));
+          await tester.pumpAndSettle();
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+          expect(find.text('Lisbon'), findsNothing);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+          expect(find.text('Lisbon'), findsOneWidget);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(reported, isEmpty);
+          expect(find.byType(PlChip), findsOneWidget);
+        });
+
+        testWidgets('does not open while disabled as well', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            _host(
+              PlCombobox<String>(
+                options: _cities,
+                value: null,
+                onChanged: (String? _) {},
+                readOnly: true,
+                disabled: true,
+              ),
+            ),
+          );
+
+          await tester.tap(_adornment('Open'), warnIfMissed: false);
+          await tester.pumpAndSettle();
+          await tester.tap(find.byType(EditableText), warnIfMissed: false);
+          await tester.pumpAndSettle();
+
+          expect(find.text('Lisbon'), findsNothing);
+        });
+      });
+
+      group('a press on the field while the list is up', () {
+        testWidgets('on the text leaves it open and moves the caret', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            _host(PlCombobox<String>(options: _cities, value: null, onChanged: (String? _) {})),
+          );
+
+          await tester.enterText(find.byType(EditableText), 'lis');
+          await tester.pumpAndSettle();
+
+          final TextEditingController text = tester
+              .widget<EditableText>(find.byType(EditableText))
+              .controller;
+          expect(find.text('Lisbon'), findsOneWidget);
+          expect(text.selection, const TextSelection.collapsed(offset: 3));
+
+          await tester.tapAt(tester.getTopLeft(find.byType(EditableText)) + const Offset(1, 8));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Lisbon'), findsOneWidget);
+          expect(text.selection, const TextSelection.collapsed(offset: 0));
+        });
+
+        testWidgets('on a chip’s × takes the chip off and leaves it open', (
+          WidgetTester tester,
+        ) async {
+          await _pumpChips(tester);
+
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+          expect(find.text('Quito'), findsOneWidget);
+
+          await tester.tap(_adornment('Remove Seoul'));
+          await tester.pumpAndSettle();
+
+          expect(find.byType(PlChip), findsOneWidget);
+          expect(find.text('Quito'), findsOneWidget);
+        });
+
+        testWidgets('on a chip’s × does the same with a mouse on a desktop', (
+          WidgetTester tester,
+        ) async {
+          // Where a press outside the text takes the focus out of it, and the
+          // list goes with the focus. Put back however the test ends, so a
+          // failure here is not a failure of every test after it.
+          debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+          try {
+            await _pumpChips(tester, tapRegions: true);
+
+            await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+            await tester.pumpAndSettle();
+            expect(find.text('Quito'), findsOneWidget);
+
+            await tester.tap(_adornment('Remove Seoul'), kind: PointerDeviceKind.mouse);
+            await tester.pumpAndSettle();
+
+            expect(find.byType(PlChip), findsOneWidget);
+            expect(find.text('Quito'), findsOneWidget);
+            expect(
+              tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+              isTrue,
+            );
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        });
+
+        testWidgets('on the chevron closes it', (WidgetTester tester) async {
+          await _pumpChips(tester);
+
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+          expect(find.text('Quito'), findsOneWidget);
+
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Quito'), findsNothing);
+          expect(find.byType(PlChip), findsNWidgets(2));
+        });
+
+        testWidgets('beside the field closes it', (WidgetTester tester) async {
+          await _pumpChips(tester);
+
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+          expect(find.text('Quito'), findsOneWidget);
+
+          await tester.tapAt(const Offset(4, 4));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Quito'), findsNothing);
+        });
       });
     });
 
