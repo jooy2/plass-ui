@@ -139,27 +139,6 @@ PlassTheme.tokens(
 
 세트는 `build` 안이 아니라 한 번 만들어 들고 계세요. 값이 같은 두 세트는 서로 같다고 비교돼 아무것도 바꾸지 않지만, 매 프레임 새로 만든 세트는 그때마다 계열 여섯 개어치를 비교합니다.
 
-모서리와 움직임, 필드에 비치는 빛도 같은 방법으로 바꿉니다. `radii`는 웹의 `--plass-radius-*`에 해당하는 크기별 모서리 값이고, `motionDuration`과 `motionDurationSlow`, `motionEase`는 `--plass-duration`과 `--plass-duration-slow`, `--plass-ease`입니다. `fieldGlowStrength`는 `--plass-glow-field-strength`로, 키가 받는 포인터의 빛을 필드가 몇 퍼센트만큼 받는지 정합니다. 모든 컴포넌트가 자기 위에서 가장 가까운 세트에서 이 값을 읽으므로, 세트 하나로 화면 전체의 모서리나 속도가 바뀝니다.
-
-```dart
-PlassTheme.tokens(
-  tokens: PlassTokens.light().copyWith(
-    radii: const <PlassSize, double>{
-      PlassSize.xs: 4,
-      PlassSize.sm: 4,
-      PlassSize.md: 6,
-      PlassSize.lg: 6,
-      PlassSize.xl: 8,
-    },
-    motionDuration: const Duration(milliseconds: 200),
-    motionEase: Curves.easeOutCubic,
-  ),
-  child: const App(),
-)
-```
-
-`radii`에는 다섯 크기가 모두 있어야 합니다. `PlassTokens.radius`와 `duration`, `durationSlow`, `ease`, `glowFieldStrength`는 그대로 남아 세트가 출발하는 기본값을 들고 있지만, 테마를 따라 바뀌지는 않습니다. 라이브러리와 모서리를 맞춰야 하는 위젯을 직접 만든다면 대신 `PlassTheme.of(context).radii`를 읽으세요.
-
 :::
 
 바꿀 때 확인할 것 셋.
@@ -203,9 +182,9 @@ PlassTheme.tokens(
 
 :::
 
-## React에서 토큰 지정하기
-
 ::: fw react
+
+## React에서 토큰 지정하기
 
 토큰을 꼭 스타일시트에 써야 하는 것은 아닙니다. `--plass-*`는 모두 평범한 custom property이므로 inline `style`로 지정할 수 있고, 이건 보기보다 중요합니다. inline 선언은 어떤 class보다도 강하기 때문입니다.
 
@@ -240,6 +219,33 @@ const quiet: PlassTokens = {
 ```
 
 컴포넌트가 _자기 자신에게_ 쓰는 `--p-*`는 여기에 포함되지 않습니다. 그건 라이브러리 자신의 계산값(이 컨트롤이 어떤 계열로 정해졌는지, 이 `elevation`에서 그림자가 얼마인지)이고, 그것을 정하는 것은 `color`, `variant`, `elevation` prop입니다.
+
+:::
+
+::: fw flutter
+
+## Flutter에서 토큰 지정하기
+
+모서리와 움직임, 필드에 비치는 빛도 `PlassTokens`의 필드이고, 계열과 같은 방법으로 바꿉니다. 세트에 `copyWith`를 불러 `PlassTheme.tokens`에 넘기면 됩니다. `radii`는 웹의 `--plass-radius-*`에 해당하는 크기별 모서리 값이고, `motionDuration`과 `motionDurationSlow`, `motionEase`는 `--plass-duration`과 `--plass-duration-slow`, `--plass-ease`입니다. `fieldGlowStrength`는 `--plass-glow-field-strength`로, 키가 받는 포인터의 빛을 필드가 몇 퍼센트만큼 받는지 정합니다. 모든 컴포넌트가 자기 위에서 가장 가까운 세트에서 이 값을 읽으므로, 세트 하나로 화면 전체의 모서리나 속도가 바뀝니다.
+
+```dart
+PlassTheme.tokens(
+  tokens: PlassTokens.light().copyWith(
+    radii: const <PlassSize, double>{
+      PlassSize.xs: 4,
+      PlassSize.sm: 4,
+      PlassSize.md: 6,
+      PlassSize.lg: 6,
+      PlassSize.xl: 8,
+    },
+    motionDuration: const Duration(milliseconds: 200),
+    motionEase: Curves.easeOutCubic,
+  ),
+  child: const App(),
+)
+```
+
+`radii`에는 다섯 크기가 모두 있어야 합니다. `PlassTokens.radius`와 `duration`, `durationSlow`, `ease`, `glowFieldStrength`는 그대로 남아 세트가 출발하는 기본값을 들고 있지만, 테마를 따라 바뀌지는 않습니다. 라이브러리와 모서리를 맞춰야 하는 위젯을 직접 만든다면 대신 `PlassTheme.of(context).radii`를 읽으세요.
 
 :::
 

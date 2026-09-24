@@ -139,27 +139,6 @@ PlassTheme.tokens(
 
 Build the set once and hold it rather than in `build`. Two sets with the same values compare equal and change nothing, but a set rebuilt every frame is still six families' worth of comparison each time.
 
-The corners, the motion and the light on a field move the same way. `radii` is the ladder the web spells `--plass-radius-*`, `motionDuration`, `motionDurationSlow` and `motionEase` are `--plass-duration`, `--plass-duration-slow` and `--plass-ease`, and `fieldGlowStrength` is `--plass-glow-field-strength`, the percentage of a key's pointer light that a field carries. Every component reads them off the nearest set above it, so one set gives a whole screen other corners or another pace.
-
-```dart
-PlassTheme.tokens(
-  tokens: PlassTokens.light().copyWith(
-    radii: const <PlassSize, double>{
-      PlassSize.xs: 4,
-      PlassSize.sm: 4,
-      PlassSize.md: 6,
-      PlassSize.lg: 6,
-      PlassSize.xl: 8,
-    },
-    motionDuration: const Duration(milliseconds: 200),
-    motionEase: Curves.easeOutCubic,
-  ),
-  child: const App(),
-)
-```
-
-`radii` has to name all five sizes. `PlassTokens.radius`, `duration`, `durationSlow`, `ease` and `glowFieldStrength` are still there and hold the defaults a set starts from, but they do not follow the theme. A widget of your own that should match the library's corners reads `PlassTheme.of(context).radii` instead.
-
 :::
 
 Three things to check when you do:
@@ -203,9 +182,9 @@ A layer opened from inside that subtree comes with it. A menu, a tooltip, a sele
 
 :::
 
-## Setting a token from React
-
 ::: fw react
+
+## Setting a token from React
 
 A token does not have to be set in a stylesheet. Every `--plass-*` value is an ordinary custom property, so an inline `style` sets one, and that matters more than it looks, because an inline declaration beats every class there is.
 
@@ -240,6 +219,33 @@ const quiet: PlassTokens = {
 ```
 
 The `--p-*` properties a component writes onto _itself_ are not part of this. Those are the library's own working values (which family this control resolved to, what its shadow costs at this `elevation`), and `color`, `variant` and `elevation` are the props that decide them.
+
+:::
+
+::: fw flutter
+
+## Setting a token from Flutter
+
+The corners, the motion and the light on a field are fields of `PlassTokens` as well, and they move the way a family does: `copyWith` on a set, handed to `PlassTheme.tokens`. `radii` is the ladder the web spells `--plass-radius-*`, `motionDuration`, `motionDurationSlow` and `motionEase` are `--plass-duration`, `--plass-duration-slow` and `--plass-ease`, and `fieldGlowStrength` is `--plass-glow-field-strength`, the percentage of a key's pointer light that a field carries. Every component reads them off the nearest set above it, so one set gives a whole screen other corners or another pace.
+
+```dart
+PlassTheme.tokens(
+  tokens: PlassTokens.light().copyWith(
+    radii: const <PlassSize, double>{
+      PlassSize.xs: 4,
+      PlassSize.sm: 4,
+      PlassSize.md: 6,
+      PlassSize.lg: 6,
+      PlassSize.xl: 8,
+    },
+    motionDuration: const Duration(milliseconds: 200),
+    motionEase: Curves.easeOutCubic,
+  ),
+  child: const App(),
+)
+```
+
+`radii` has to name all five sizes. `PlassTokens.radius`, `duration`, `durationSlow`, `ease` and `glowFieldStrength` are still there and hold the defaults a set starts from, but they do not follow the theme. A widget of your own that should match the library's corners reads `PlassTheme.of(context).radii` instead.
 
 :::
 
