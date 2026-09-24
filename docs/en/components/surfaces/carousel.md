@@ -125,6 +125,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 ::: fw react
 
 - It pauses while the tab is in the background.
+- It pauses while it is hidden and has no width, inside a closed `PlAccordion` or an unselected `PlTab` that keeps it mounted. Shown again, it holds the slide it was hidden on for a whole `interval` before it moves on.
 - The live region that announces the current slide goes **silent** while it is playing, because a screen reader saying a new slide's name every five seconds is what makes a page unusable. Once it has stopped, the region says where the reader went.
 - An uncontrolled carousel advances with or without `onValueChange`. A controlled one moves only when the new index comes back as `value`.
 

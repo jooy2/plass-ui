@@ -46,10 +46,12 @@ export interface PlCarouselProps
    *
    * Off by default and deliberately so: a carousel that moves while it is being
    * read is the most complained-about pattern on the web. It pauses while the
-   * pointer is over it and while the tab is in the background. It **stops** once
-   * the focus comes into it or an arrow or a dot is clicked, and stays stopped
-   * until the button starts it again. For a reader who has asked for reduced
-   * motion it starts stopped.
+   * pointer is over it, while the tab is in the background, and while it is
+   * hidden in a tab panel that is not selected or a closed disclosure; shown
+   * again, it holds the slide it was hidden on for a whole `interval`. It
+   * **stops** once the focus comes into it or an arrow or a dot is clicked, and
+   * stays stopped until the button starts it again. For a reader who has asked
+   * for reduced motion it starts stopped.
    * @default false
    */
   autoPlay?: boolean;
@@ -229,6 +231,15 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     // which Firefox throws for that, reads the old slide rather than the reader
     // landing on one.
     const hidden = React.useRef(false);
+    // The times the track has had its width back. The `autoPlay` interval
+    // starts over on each, so a carousel shown again holds the slide it was
+    // hidden on for a whole `interval` before it moves on, rather than for
+    // whatever was left of one that went on running while it was hidden. Kept
+    // twice: the ref is raised in the frame the width comes back in and the
+    // state a render later, and an interval started before the ref was raised
+    // is the one that is about to be replaced.
+    const shownAgainRef = React.useRef(0);
+    const [shownAgain, setShownAgain] = React.useState(0);
 
     // Two different things hold the strip still, and they are kept apart on
     // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
@@ -333,6 +344,8 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
         } else if (hidden.current) {
           hidden.current = false;
           place();
+          shownAgainRef.current += 1;
+          setShownAgain(shownAgainRef.current);
         }
       });
 
@@ -413,7 +426,21 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       }
 
       const timer = window.setInterval(() => {
-        if (document.hidden) {
+        // Nothing moves while the page is in a background tab, or while the
+        // track has no width, inside a tab panel that is not selected or a
+        // closed disclosure: a carousel that went on turning there appeared
+        // on a later slide than the one it was hidden on. Each of the three
+        // reads covers a stretch the others miss. The width is read for the
+        // frame it goes in, before the observer has heard; `hidden` stays
+        // raised in the frame it comes back in, until the strip is placed;
+        // and from then until this interval is replaced, `shownAgainRef` is
+        // ahead of the count it was started with.
+        if (
+          document.hidden ||
+          hidden.current ||
+          shownAgainRef.current !== shownAgain ||
+          trackRef.current?.clientWidth === 0
+        ) {
           return;
         }
 
@@ -421,7 +448,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       }, interval);
 
       return () => window.clearInterval(timer);
-    }, [playing, hovered, count, interval, index]);
+    }, [playing, hovered, count, interval, index, shownAgain]);
 
     const toggle = () => {
       const next = !stopped;

@@ -233,6 +233,90 @@ describe('PlCarousel', () => {
       }
     });
 
+    describe('hidden in a tab panel', () => {
+      /** The box a tab panel that is not selected, or a closed disclosure, hides it in. */
+      function Tab({
+        shown,
+        interval,
+        onValueChange
+      }: {
+        shown: boolean;
+        interval: number;
+        onValueChange: (index: number) => void;
+      }) {
+        return (
+          <div style={{ display: shown ? 'block' : 'none' }}>
+            <PlCarousel autoPlay interval={interval} onValueChange={onValueChange}>
+              {slides}
+            </PlCarousel>
+          </div>
+        );
+      }
+
+      it('holds still while it is hidden, and goes on from the slide it was hidden on', async () => {
+        const onValueChange = vi.fn();
+        const screen = await render(<Tab shown interval={200} onValueChange={onValueChange} />);
+
+        await screen.rerender(<Tab shown={false} interval={200} onValueChange={onValueChange} />);
+
+        // A slow machine can take a turn before the box is hidden, so what is
+        // held is the slide it was hidden on.
+        const held = current(screen);
+        // "Slide n of 3" is index n - 1, so the slide after it is index n,
+        // wrapped round.
+        const next = Number(held?.split(' ')[1]) % 3;
+
+        onValueChange.mockClear();
+        await aWhile();
+
+        expect(onValueChange).not.toHaveBeenCalled();
+        expect(current(screen)).toBe(held);
+
+        await screen.rerender(<Tab shown interval={200} onValueChange={onValueChange} />);
+
+        // Hiding it is not the reader stopping it: the button still offers the
+        // stop, and it moves on by itself.
+        await expect
+          .element(screen.getByRole('button', { name: 'Stop slide show' }))
+          .toBeInTheDocument();
+        await expect
+          .poll(() => onValueChange.mock.calls.length, { timeout: 2000 })
+          .toBeGreaterThan(0);
+        expect(onValueChange.mock.calls[0][0]).toBe(next);
+      });
+
+      it('holds the slide for a whole interval once it is shown again', async () => {
+        const interval = 600;
+        const turns: number[] = [];
+        const onValueChange = () => turns.push(performance.now());
+        const screen = await render(
+          <Tab shown interval={interval} onValueChange={onValueChange} />
+        );
+        const started = performance.now();
+
+        await screen.rerender(
+          <Tab shown={false} interval={interval} onValueChange={onValueChange} />
+        );
+        // Shown again most of an interval after the one it was hidden in
+        // started, so an interval that ran on while it was hidden would turn
+        // it almost at once.
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.max(0, started + interval - 100 - performance.now()))
+        );
+        turns.length = 0;
+
+        const shownAt = performance.now();
+
+        await screen.rerender(<Tab shown interval={interval} onValueChange={onValueChange} />);
+        await expect.poll(() => turns.length, { timeout: interval * 4 }).toBeGreaterThan(0);
+
+        // A timer fires no earlier than it was asked to, and the whole interval
+        // starts once the carousel has seen its width come back, which is after
+        // `shownAt`. The margin is for the clock the browser rounds.
+        expect(turns[0] - shownAt).toBeGreaterThanOrEqual(interval - 10);
+      });
+    });
+
     it('moves the strip without scrolling the page while it plays', async () => {
       const screen = await render(
         <PlCarousel autoPlay interval={200} label="Tall">
