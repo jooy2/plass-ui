@@ -219,7 +219,8 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
   /// calendar whose every cell was inert would be a menu of nothing.
   bool get _usable => !widget.disabled && !widget.readOnly;
 
-  /// Empties the control, and keeps the focus on it.
+  /// Empties the control, closes the popup if it is up, and keeps the focus on
+  /// the control.
   ///
   /// The × leaves the tree with the value it cleared. Holding the focus as it
   /// goes, it would hand it to the scope round the picker, which gives it to
@@ -231,6 +232,12 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
     final held = _focusNode.hasFocus && !_focusNode.hasPrimaryFocus;
 
     widget.onClear();
+
+    // As a press anywhere else outside the popup closes it, and as the React ×
+    // closes it, which is outside the popover's trigger.
+    if (widget.open) {
+      widget.onOpenChanged(false);
+    }
 
     if (held) {
       _focusNode.requestFocus();
@@ -418,6 +425,10 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
       align: PlassAlign.start,
       offset: pickerStandoff,
       onDismiss: () => widget.onOpenChanged(false),
+      // A press on the trigger reaches it rather than closing the popup on its
+      // way down and going no further. The trigger closes the popup itself, and
+      // the × inside it would otherwise never be pressed while the popup is up.
+      anchorInside: true,
       popup: PlassSurfaceBox(
         surface: pickerPopupSurface(tokens),
         borderRadius: radius,

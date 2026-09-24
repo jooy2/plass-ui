@@ -72,6 +72,8 @@
 
 ### Fixed
 
+- **The clear × on an open picker empties it.** A press on the × while the popup was up was taken as a press outside the popup, which closed it and went no further, so the value stayed. The press now reaches the ×, which clears the value and closes the popup, as it does in the React build. This covers `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker`, `PlColorPicker` and `PlTreeSelect`.
+
 - **A mouse press on a `PlCombobox` row takes that row and leaves the focus in the field, on a desktop and in a browser.** The press took the focus out of the text, which closed the list and put the text back before the row was taken: a `multiple` list closed after every row, and a row pressed after a query was swapped for the one in its place in the whole list, so pressing Lisbon under "lis" took Seoul. The list now counts as part of the field, as its chips and chevron already do, and a `multiple` list stays open to take row after row.
 
 - **An open single-value `PlCombobox` lists every row, with the chosen one lit, until the text changes.** The list was filtered by the field's text, which is the chosen row's label, so a combobox holding a value opened on that row alone, and a `readOnly` one could not be looked through. It now lists every row until the reader types, as Base UI does in the React build, with the keyboard starting on the chosen row; once the text has changed it filters again, even back to the label.

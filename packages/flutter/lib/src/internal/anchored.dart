@@ -105,7 +105,9 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// the anchor, which suits an anchor that goes on being used while its popup
   /// is up — a combobox's field, whose caret moves, whose chips come off and
   /// whose chevron closes the list itself. Base UI leaves a combobox's input
-  /// group out of the outside press for the same reason.
+  /// group out of the outside press for the same reason. A picker's trigger is
+  /// the other one: it closes its popup itself, and the × in it clears the
+  /// value while the popup is up.
   final bool anchorInside;
 
   /// How the popup's width follows the anchor's.

@@ -161,6 +161,19 @@ void main() {
         expect(find.text('July'), findsNothing);
       });
 
+      testWidgets('closes on a press on the trigger, and stays closed', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlDatePicker(value: july27, onChanged: (DateTime? _) {}));
+        await _open(tester);
+        expect(find.text('July'), findsOneWidget);
+
+        await tester.tap(_triggerGlyph());
+        await tester.pumpAndSettle();
+
+        expect(find.text('July'), findsNothing);
+      });
+
       testWidgets('always draws six weeks, so stepping never resizes it', (
         WidgetTester tester,
       ) async {
@@ -569,6 +582,36 @@ void main() {
 
         expect(called, isTrue);
         expect(chosen, isNull);
+      });
+
+      testWidgets('empties the picker while it is open, and closes it', (
+        WidgetTester tester,
+      ) async {
+        DateTime? chosen = july27;
+
+        await _pump(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlDatePicker(
+              value: chosen,
+              clearable: true,
+              onChanged: (DateTime? next) => setState(() => chosen = next),
+            ),
+          ),
+        );
+
+        // Found before the calendar opens, whose footer has a Clear of its own.
+        final Offset mark = tester.getCenter(find.bySemanticsLabel('Clear'));
+
+        await tester.tap(_triggerGlyph());
+        await tester.pumpAndSettle();
+        expect(find.text('Today'), findsOneWidget);
+
+        await tester.tapAt(mark);
+        await tester.pumpAndSettle();
+
+        expect(chosen, isNull);
+        expect(find.text('Today'), findsNothing);
       });
 
       testWidgets('empties the picker from the keyboard', (WidgetTester tester) async {
