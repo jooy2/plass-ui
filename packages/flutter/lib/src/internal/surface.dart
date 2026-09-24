@@ -18,6 +18,7 @@ library;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/css.dart';
@@ -727,14 +728,93 @@ class _Lit extends StatelessWidget {
       duration: reduceMotion ? Duration.zero : tokens.motionDuration,
       curve: tokens.motionEase,
       child: child,
-      // Filtered at rest too, by a brightness of 1, which is the identity. A
-      // filter that came and went with the pointer would change the shape of
-      // the tree above the content, and Flutter builds a changed shape from
-      // scratch: every hover and every press would build what the surface
-      // holds again, and a field in it would lose what was typed.
+      // In the tree at rest too, with no filter to apply. A filter that came
+      // and went with the pointer would change the shape of the tree above the
+      // content, and Flutter builds a changed shape from scratch: every hover
+      // and every press would build what the surface holds again, and a field
+      // in it would lose what was typed.
       builder: (BuildContext context, double value, Widget? child) {
-        return ColorFiltered(colorFilter: brightnessFilter(value), child: child);
+        return PlassFiltered(
+          colorFilter: value == 1 ? null : brightnessFilter(value),
+          child: child,
+        );
       },
+    );
+  }
+}
+
+/// Paints [child] through [colorFilter], or straight onto the canvas when there
+/// is none.
+///
+/// A [ColorFiltered] adds a layer whatever its filter is, the identity
+/// included, so a control that kept one in the tree at rest would carry a layer
+/// for nothing. Taking it out at rest is worse, because that changes the shape
+/// of the tree above what the control holds, which Flutter builds again from
+/// scratch. This keeps the shape and adds the layer only while there is a
+/// filter to apply.
+class PlassFiltered extends SingleChildRenderObjectWidget {
+  /// Paints [child] through [colorFilter].
+  const PlassFiltered({required this.colorFilter, super.child, super.key});
+
+  /// The filter, or `null` to paint [child] as it is.
+  final ColorFilter? colorFilter;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderFiltered(colorFilter);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) {
+    (renderObject as _RenderFiltered).colorFilter = colorFilter;
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(
+      DiagnosticsProperty<ColorFilter>('colorFilter', colorFilter, defaultValue: null),
+    );
+  }
+}
+
+class _RenderFiltered extends RenderProxyBox {
+  _RenderFiltered(this._colorFilter);
+
+  ColorFilter? _colorFilter;
+
+  set colorFilter(ColorFilter? value) {
+    if (value == _colorFilter) {
+      return;
+    }
+
+    final bool composited = alwaysNeedsCompositing;
+    _colorFilter = value;
+
+    if (composited != alwaysNeedsCompositing) {
+      markNeedsCompositingBitsUpdate();
+    }
+
+    markNeedsPaint();
+  }
+
+  @override
+  bool get alwaysNeedsCompositing => child != null && _colorFilter != null;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    final ColorFilter? filter = _colorFilter;
+
+    if (filter == null) {
+      layer = null;
+      super.paint(context, offset);
+
+      return;
+    }
+
+    layer = context.pushColorFilter(
+      offset,
+      filter,
+      super.paint,
+      oldLayer: layer as ColorFilterLayer?,
     );
   }
 }

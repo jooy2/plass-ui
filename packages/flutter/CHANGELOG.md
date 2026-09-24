@@ -94,7 +94,7 @@
 
 - **A `PlTabs` bar brings the tab the arrow keys move to into view.** The keys moved the choice and the focus along a bar with more tabs than room, but not the strip, so six presses of → on a narrow bar left the chosen tab out of sight past its end. The tab is now brought in, clear of the edge fade, as it is when the bar opens. A value set from outside the bar leaves the strip where it is, as in the React build.
 
-- **A `PlButton` and every other control that brightens under the pointer keep what they hold through a hover and a press.** The brightness filter came and went with the pointer, which changed the shape of the tree above the content, so the label, the icons and anything stateful in them were built again from scratch each time the pointer arrived, pressed or left. The filter now stays, as the identity, at rest.
+- **A `PlButton` and every other control that brightens under the pointer keep what they hold through a hover and a press.** The brightness filter came and went with the pointer, which changed the shape of the tree above the content, so the label, the icons and anything stateful in them were built again from scratch each time the pointer arrived, pressed or left. The filter now stays in the tree at rest, and adds a layer only while there is a brightness to apply.
 
 - **A toast under an app's `BackdropGroup` blurs what is behind it.** The toast stack opened no group of its own, so a toast shared the app's read of the backdrop, taken where that group began. The stack now reads the backdrop in a group of its own, as a modal or a popover does.
 

@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -356,6 +357,39 @@ void main() {
           await tester.pumpAndSettle();
 
           expect(tester.state(find.byType(_Probe)), same(resting), reason: 'at rest again');
+        });
+
+        testWidgets('filters a ${variant.name} key only while the pointer lights it', (
+          WidgetTester tester,
+        ) async {
+          // The filter stays in the tree at rest, and a layer applying a
+          // brightness of 1 would be one more layer on every button on the
+          // screen for nothing.
+          Iterable<ColorFilterLayer> filters() => tester.layers.whereType<ColorFilterLayer>();
+
+          await tester.pumpWidget(
+            host(PlButton(onPressed: () {}, variant: variant, child: const Text('Save'))),
+          );
+
+          expect(filters(), isEmpty, reason: 'at rest');
+
+          final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+          await gesture.addPointer(location: tester.getCenter(find.byType(PlButton)));
+          addTearDown(gesture.removePointer);
+          await tester.pumpAndSettle();
+
+          expect(filters(), hasLength(1), reason: 'hovered');
+
+          await gesture.down(tester.getCenter(find.byType(PlButton)));
+          await tester.pumpAndSettle();
+
+          expect(filters(), hasLength(1), reason: 'pressed');
+
+          await gesture.up();
+          await gesture.moveTo(Offset.zero);
+          await tester.pumpAndSettle();
+
+          expect(filters(), isEmpty, reason: 'at rest again');
         });
       }
     });

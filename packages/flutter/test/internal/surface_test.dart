@@ -6,6 +6,7 @@
 /// so what is checked here is the content's own state, kept across both.
 library;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -51,25 +52,31 @@ void main() {
       }
     });
 
-    testWidgets('is the identity at rest', (WidgetTester tester) async {
+    testWidgets('adds a filter layer only while it has a brightness to apply', (
+      WidgetTester tester,
+    ) async {
+      // In the tree at rest, but painting straight through: a layer applying a
+      // brightness of 1 would be one more layer on every control for nothing.
+      Iterable<ColorFilterLayer> filters() => tester.layers.whereType<ColorFilterLayer>();
+
+      await tester.pumpWidget(lit());
+
+      expect(filters(), isEmpty, reason: 'at rest');
+
       await tester.pumpWidget(lit(hovered: true));
       await tester.pumpAndSettle();
+
+      expect(filters(), hasLength(1), reason: 'hovered');
+
+      await tester.pumpWidget(lit(hovered: true, pressed: true));
+      await tester.pumpAndSettle();
+
+      expect(filters(), hasLength(1), reason: 'pressed');
+
       await tester.pumpWidget(lit());
       await tester.pumpAndSettle();
 
-      final ColorFiltered filter = tester.widget(
-        find.ancestor(of: find.byType(_Probe), matching: find.byType(ColorFiltered)),
-      );
-
-      expect(
-        filter.colorFilter,
-        const ColorFilter.matrix(<double>[
-          1, 0, 0, 0, 0, //
-          0, 1, 0, 0, 0, //
-          0, 0, 1, 0, 0, //
-          0, 0, 0, 1, 0, //
-        ]),
-      );
+      expect(filters(), isEmpty, reason: 'at rest again');
     });
   });
 }
