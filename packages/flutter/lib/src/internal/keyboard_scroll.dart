@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -29,6 +30,8 @@ class PlassKeyboardScroll extends StatefulWidget {
     required this.child,
     this.vertical,
     this.horizontal,
+    this.ringOffset = focusRingOffset,
+    this.color,
     super.key,
   });
 
@@ -40,6 +43,17 @@ class PlassKeyboardScroll extends StatefulWidget {
 
   /// The corners the focus ring follows.
   final BorderRadius borderRadius;
+
+  /// How far outside the box the focus ring sits.
+  ///
+  /// Negative draws it inside, for a box that lives inside something that
+  /// clips, as a table's grid does inside its sheet: a ring drawn outside it
+  /// would be cut off along with the overflow.
+  final double ringOffset;
+
+  /// The family the ring is drawn from, when the widget around the box has one
+  /// of its own rather than the theme's.
+  final PlassColor? color;
 
   /// The scroll views.
   final Widget child;
@@ -164,11 +178,15 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final family = tokens.family(PlassTheme.colorOf(context) ?? PlassColor.primary);
+    final family = tokens.family(widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary);
 
     return CustomPaint(
       foregroundPainter: _focusVisible
-          ? PlassFocusRingPainter(color: family.ring, borderRadius: widget.borderRadius)
+          ? PlassFocusRingPainter(
+              color: family.ring,
+              borderRadius: widget.borderRadius,
+              offset: widget.ringOffset,
+            )
           : null,
       child: Focus(
         focusNode: _node,

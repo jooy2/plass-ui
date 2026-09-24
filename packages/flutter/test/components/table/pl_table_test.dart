@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -392,6 +394,153 @@ void main() {
 
         // A title that slid away would take the table's name with it.
         expect(tester.getTopLeft(find.text('Recent builds')).dy, caption);
+      });
+    });
+
+    group('the keyboard', () {
+      /// A table after a stop of its own, reached with Tab the way a keyboard
+      /// reader reaches it.
+      Future<void> tabInto(WidgetTester tester, Widget table) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(host(afterFocusStop(before, table), width: 420));
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+      }
+
+      ScrollController controllerOf(WidgetTester tester) {
+        return tester.widget<SingleChildScrollView>(find.byType(SingleChildScrollView)).controller!;
+      }
+
+      testWidgets('scrolls a grid past its cap from a stop of its own', (
+        WidgetTester tester,
+      ) async {
+        await tabInto(tester, PlTable<_Build>(rows: _many, columns: _columns(), maxHeight: 200));
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, 'PlassKeyboardScroll');
+
+        final ScrollController controller = controllerOf(tester);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(controller.offset, 40);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
+        await tester.pumpAndSettle();
+        expect(controller.offset, 40 + controller.position.viewportDimension);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pumpAndSettle();
+        expect(controller.offset, controller.position.maxScrollExtent);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.pumpAndSettle();
+        expect(controller.offset, 0);
+      });
+
+      testWidgets('names the stop with `semanticLabel`', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tabInto(
+          tester,
+          PlTable<_Build>(
+            rows: _many,
+            columns: _columns(),
+            maxHeight: 200,
+            semanticLabel: 'Recent builds',
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Recent builds')),
+          isSemantics(label: 'Recent builds', isFocusable: true, isFocused: true),
+        );
+        // Still the one table, inside the stop that names it.
+        expect(tester.getSemantics(find.byType(Table)).role, SemanticsRole.table);
+
+        handle.dispose();
+      });
+
+      testWidgets('is a stop in a box that bounds its height, with no cap of its own', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              SizedBox(
+                height: 200,
+                child: PlTable<_Build>(rows: _many, columns: _columns()),
+              ),
+            ),
+            width: 420,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(controllerOf(tester).offset, 40);
+      });
+
+      testWidgets('is no stop while every row fits', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tabInto(
+          tester,
+          PlTable<_Build>(rows: _rows, columns: _columns(), semanticLabel: 'Recent builds'),
+        );
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, isNot('PlassKeyboardScroll'));
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Recent builds')),
+          isSemantics(label: 'Recent builds', isFocusable: false),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('rings the stop inside the sheet, in the table\'s own colour', (
+        WidgetTester tester,
+      ) async {
+        FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+        addTearDown(
+          () => FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic,
+        );
+
+        await tabInto(
+          tester,
+          PlTable<_Build>(
+            rows: _many,
+            columns: _columns(),
+            maxHeight: 200,
+            color: PlassColor.danger,
+          ),
+        );
+
+        final PlassFocusRingPainter ring = tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .map((CustomPaint paint) => paint.foregroundPainter)
+            .whereType<PlassFocusRingPainter>()
+            .single;
+
+        // The sheet clips at its rounded corner, so a ring outside the grid
+        // would be cut off with it.
+        expect(ring.offset, -focusRingWidth);
+        expect(ring.color, PlassTokens.light().family(PlassColor.danger).ring);
       });
     });
 

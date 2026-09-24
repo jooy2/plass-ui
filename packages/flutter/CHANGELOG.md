@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlTable` or a `PlDataTable` whose rows scroll can be scrolled from the keyboard.** A grid taller than its `maxHeight`, or than the box around it, scrolled in a plain scroll view, so in a table whose cells take no focus the rows past the edge were out of reach without a pointer. While the rows scroll, the grid is a tab stop named by `semanticLabel`: the arrow keys move it a line, Page Up and Page Down a screen, and Home and End to its ends, and its ring is drawn inside the sheet in the table's `color`. A table that fits adds no stop.
+
 - **A resting `PlCarousel` dot turns the accent colour under the pointer, as the React dot does.** It stayed grey, so nothing showed which dot the pointer was on before it was pressed. Its width and colour now also run on `motionDuration` and `motionEase` rather than on the slower travel of the strip, which is what the React dot runs on.
 
 - **Pressing an arrow or a dot of an `autoPlay` `PlCarousel` stops it, as a click does in the React build.** A press moved the carousel on and left it playing, so a reader who had steered to a slide saw it turn away at the next interval, where a click on the web brings the focus into the carousel and stops it there. A press on an arrow or a dot now stops it as the focus does, and the button reads "Start slide show" until it is pressed. A carousel the button has just started keeps playing through a press on an arrow or a dot, as it does on the web, until the focus next comes in or goes out.

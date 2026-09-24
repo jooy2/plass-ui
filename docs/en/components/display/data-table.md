@@ -320,6 +320,7 @@ They are inside the sheet rather than floating above and below it because they b
 - **A sorted heading says its direction out loud**, as its semantics value. That is the one place the two builds differ in kind rather than in spelling: `aria-sort` is a platform affordance every screen reader speaks in the reader's own language, and Flutter's semantics have no equivalent, so the word has to be said, and a word that is said has to be translated. `sortedAscending` and `sortedDescending` are in [the label set](../../guide/locales) here and are not in the React one.
 - The tick in a row carries whether the row is chosen; the tint is what a sighted reader sees.
 - The pinned header band is silent, because the row it copies is not.
+- A grid taller than `maxHeight`, or than the box it is in, scrolls inside the sheet. While it does, the grid is a tab stop, so the arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> reach the rows past the edge of a table with no sortable heading and no tick column. `semanticLabel` names the stop. A caption is a widget rather than a string, so it cannot be the name, and it is read just before the stop instead.
 - The row's focus stop is in its first cell and the ring is painted by the row, inset, for the sheet's rounded corner.
 
 :::

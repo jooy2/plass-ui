@@ -874,6 +874,80 @@ void main() {
       });
     });
 
+    group('the keyboard', () {
+      /// One plain column, so nothing in the grid takes the focus.
+      final List<PlDataTableColumn<Invoice>> plain = <PlDataTableColumn<Invoice>>[
+        PlDataTableColumn<Invoice>(
+          key: 'id',
+          header: const Text('Invoice'),
+          cell: (Invoice row, int _) => Text(row.id),
+        ),
+      ];
+      final List<Invoice> many = <Invoice>[
+        for (var index = 0; index < 24; index += 1) Invoice('INV-${10 + index}', 'Acme', index),
+      ];
+
+      Future<void> tabInto(WidgetTester tester, List<Invoice> data) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlDataTable<Invoice>(
+                columns: plain,
+                rows: data,
+                rowKey: (Invoice row, int _) => row.id,
+                maxHeight: 200,
+                semanticLabel: 'Open invoices',
+              ),
+            ),
+            width: 640,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('scrolls a grid past its cap from a stop named by `semanticLabel`', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tabInto(tester, many);
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Open invoices')),
+          isSemantics(label: 'Open invoices', isFocusable: true, isFocused: true),
+        );
+
+        final ScrollController controller = tester
+            .widget<SingleChildScrollView>(find.byType(SingleChildScrollView))
+            .controller!;
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(controller.offset, 40);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pumpAndSettle();
+        expect(controller.offset, controller.position.maxScrollExtent);
+
+        handle.dispose();
+      });
+
+      testWidgets('is no stop while every row fits', (WidgetTester tester) async {
+        await tabInto(tester, rows);
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, isNot('PlassKeyboardScroll'));
+      });
+    });
+
     group('loading', () {
       testWidgets('draws bars in place of the rows', (WidgetTester tester) async {
         await tester.pumpWidget(host(table(loading: true), width: 640));

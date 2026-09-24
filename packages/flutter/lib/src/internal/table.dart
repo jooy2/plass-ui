@@ -18,6 +18,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/keyboard_scroll.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
@@ -134,7 +135,8 @@ class PlassGrid extends StatefulWidget {
   /// A hard cap on the grid's height, in logical pixels.
   final double? maxHeight;
 
-  /// The name a screen reader gives the table.
+  /// The name a screen reader gives the table, and the stop its rows scroll
+  /// from the keyboard at.
   final String? semanticLabel;
 
   @override
@@ -168,6 +170,9 @@ class _PlassGridState extends State<PlassGrid> {
   /// anything else is not.
   double? _measuredAt;
 
+  /// The view the rows scroll in, which the keyboard moves as well.
+  final ScrollController _scroll = ScrollController();
+
   bool get _interactive => widget.onRowPressed != null;
 
   @override
@@ -180,6 +185,7 @@ class _PlassGridState extends State<PlassGrid> {
   void dispose() {
     _hovered.dispose();
     _focused.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -416,26 +422,24 @@ class _PlassGridState extends State<PlassGrid> {
 
     // Everything the rows scroll past, and nothing a title should scroll with.
     Widget scrolling = SingleChildScrollView(
+      controller: _scroll,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Semantics(
-            label: widget.semanticLabel,
-            child: CustomPaint(
-              painter: _RowBands(
-                grid: _gridKey,
-                rowCount: widget.rowCount,
-                hovered: _hovered,
-                focused: _focused,
-                lit: widget.hoverable || _interactive,
-                tint: widget.rowTint,
-                hover: family.soft,
-                ring: family.ring,
-                rule: rowRule,
-              ),
-              child: grid,
+          CustomPaint(
+            painter: _RowBands(
+              grid: _gridKey,
+              rowCount: widget.rowCount,
+              hovered: _hovered,
+              focused: _focused,
+              lit: widget.hoverable || _interactive,
+              tint: widget.rowTint,
+              hover: family.soft,
+              ring: family.ring,
+              rule: rowRule,
             ),
+            child: grid,
           ),
           if (widget.rowCount == 0)
             Padding(
@@ -501,6 +505,29 @@ class _PlassGridState extends State<PlassGrid> {
         },
       );
     }
+
+    // A grid held by `maxHeight`, or by a box too small for it, is a tab stop
+    // while it scrolls, so rows past the edge are in reach of a keyboard in a
+    // table where no cell takes the focus. Round the pinned header as well as
+    // the rows, so the ring is drawn over the band rather than under it, and
+    // inside the box, because the sheet clips at its rounded corner.
+    //
+    // The table's name is on the stop, which holds the table: a stop is
+    // announced by its name. A caption is a widget and cannot be that name,
+    // and it is read just before the grid either way. The stop's own focus
+    // merges into this node, which is the point; the scroll view under it is a
+    // node of its own, so nothing else does.
+    scrolling = Semantics(
+      container: true,
+      label: widget.semanticLabel,
+      child: PlassKeyboardScroll(
+        vertical: _scroll,
+        borderRadius: BorderRadius.circular(tokens.radii[size]!),
+        ringOffset: -focusRingWidth,
+        color: widget.color,
+        child: scrolling,
+      ),
+    );
 
     return DefaultTextStyle.merge(
       style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),

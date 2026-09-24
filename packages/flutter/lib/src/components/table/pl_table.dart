@@ -207,6 +207,10 @@ class PlTable<T> extends StatelessWidget {
   ///
   /// [caption] is drawn *and* read, so a captioned table usually needs no name
   /// of its own. This is for the case where the two have to differ.
+  ///
+  /// It also names the stop the grid is while its rows scroll, past
+  /// [maxHeight] or in a box too small for them, where the keyboard scrolls
+  /// them from. A caption is read just before that stop, and is not its name.
   final String? semanticLabel;
 
   @override

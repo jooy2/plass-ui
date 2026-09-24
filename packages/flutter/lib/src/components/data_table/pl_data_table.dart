@@ -354,6 +354,10 @@ class PlDataTable<T> extends StatefulWidget {
   final PlassElevation elevation;
 
   /// The name a screen reader gives the table.
+  ///
+  /// It also names the stop the grid is while its rows scroll, past
+  /// [maxHeight] or in a box too small for them, where the keyboard scrolls
+  /// them from. A caption is read just before that stop, and is not its name.
   final String? semanticLabel;
 
   /// Names the box at the top of the tick column.
