@@ -17,6 +17,15 @@ const List<PlComboboxOption<String>> _cities = <PlComboboxOption<String>>[
   PlComboboxOption<String>(value: 'quito', label: 'Quito', disabled: true),
 ];
 
+/// Long enough that the first row, the last one and the chosen ones are all
+/// different rows.
+const List<PlComboboxOption<String>> _more = <PlComboboxOption<String>>[
+  ..._cities,
+  PlComboboxOption<String>(value: 'osaka', label: 'Osaka'),
+  PlComboboxOption<String>(value: 'porto', label: 'Porto'),
+  PlComboboxOption<String>(value: 'rome', label: 'Rome'),
+];
+
 /// One of the two glyphs at the end of the field.
 ///
 /// Not `find.bySemanticsLabel`: the field merges its descendants' semantics, so
@@ -135,7 +144,9 @@ void main() {
       ) async {
         await open(tester);
 
-        for (int i = 0; i < 20; i += 1) {
+        // Opened by a press with nothing chosen, so nothing is lit until the
+        // first arrow key lights the first row.
+        for (int i = 0; i < 21; i += 1) {
           await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
           await tester.pump();
         }
@@ -660,6 +671,80 @@ void main() {
         expect(_lit(tester), 'Lisbon');
       });
 
+      testWidgets('puts the chosen label back as Escape closes it, and opens on every row again', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: 'lisbon', onChanged: (String? _) {})),
+        );
+
+        final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('se');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Seoul']);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+
+        expect(editor.controller.text, 'Lisbon');
+        expect(editor.focusNode.hasFocus, isTrue);
+
+        // On its way out the list is still the one the query left, rather than
+        // every row the label that has just gone back in lists.
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(_listed(tester), <String>['Seoul']);
+
+        await tester.pumpAndSettle();
+        expect(_listed(tester), isEmpty);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito']);
+        expect(_lit(tester), 'Lisbon');
+      });
+
+      testWidgets('empties the text as the list closes with nothing chosen, or with `multiple`', (
+        WidgetTester tester,
+      ) async {
+        for (final Widget combobox in <Widget>[
+          PlCombobox<String>(
+            key: const ValueKey<String>('single'),
+            options: _cities,
+            value: null,
+            onChanged: (String? _) {},
+          ),
+          PlCombobox<String>.multiple(
+            key: const ValueKey<String>('multiple'),
+            options: _cities,
+            values: const <String>['seoul'],
+            onChanged: (List<String> _) {},
+          ),
+        ]) {
+          await tester.pumpWidget(_host(combobox));
+
+          final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
+
+          await tester.tap(find.byType(EditableText));
+          await tester.pumpAndSettle();
+          tester.testTextInput.enterText('lis');
+          await tester.pumpAndSettle();
+          expect(_listed(tester), <String>['Lisbon']);
+
+          // Closed by the chevron this time, which is a close all the same.
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+          expect(editor.controller.text, isEmpty);
+
+          await tester.tap(_adornment('Open'));
+          await tester.pumpAndSettle();
+          expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito']);
+        }
+      });
+
       testWidgets('reports what is typed as it changes', (WidgetTester tester) async {
         final typed = <String>[];
 
@@ -705,6 +790,94 @@ void main() {
 
         expect(find.text('Seoul'), findsOneWidget);
         expect(find.text('Lisbon'), findsNothing);
+      });
+    });
+
+    group('the highlight', () {
+      testWidgets('lights no row as a press opens the list with nothing chosen', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _more, value: null, onChanged: (String? _) {})),
+        );
+
+        // A press on the text, and one on the chevron.
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(_listed(tester), isNotEmpty);
+        expect(_lit(tester), isNull);
+
+        // From there up is the last row, rather than one short of it.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+        expect(_lit(tester), 'Rome');
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        expect(_lit(tester), isNull);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(_lit(tester), 'Seoul');
+
+        // Opened from the keyboard, the first row is lit straight away.
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Seoul');
+      });
+
+      testWidgets('opens a `multiple` list on its first chosen row, and keeps the row just taken', (
+        WidgetTester tester,
+      ) async {
+        List<String> values = <String>['osaka', 'lisbon'];
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>.multiple(
+                options: _more,
+                values: values,
+                onChanged: (List<String> next) => setState(() => values = next),
+              ),
+            ),
+          ),
+        );
+
+        // The first chosen row down the list, not the first value in the set.
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Lisbon');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Lisbon');
+
+        // Two rows down, past the one that cannot be taken.
+        for (int i = 0; i < 2; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+        }
+        expect(_lit(tester), 'Porto');
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(values, <String>['osaka', 'lisbon', 'porto']);
+        expect(_lit(tester), 'Porto');
+
+        // After a query, where the whole list puts the row once it is spent.
+        tester.testTextInput.enterText('rom');
+        await tester.pumpAndSettle();
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(values, <String>['osaka', 'lisbon', 'porto', 'rome']);
+        expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito', 'Osaka', 'Porto', 'Rome']);
+        expect(_lit(tester), 'Rome');
       });
     });
 

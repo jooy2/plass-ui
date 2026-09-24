@@ -196,10 +196,11 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - **The keys stay on the field**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Enter</kbd> takes the highlighted row and <kbd>Escape</kbd> closes without taking one. The list is the field's list, not a second place to be.
 - The first match lights up as the query changes, so <kbd>Enter</kbd> commits without an arrow key first, which is also what makes the create row reachable from the keyboard at all.
 - The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row.
+- The list opens with the chosen row lit, or with `multiple` the first chosen row down the list, and a row just taken stays lit. With nothing chosen, an arrow key opens the list on its first row and a press opens it with no row lit.
 - A row that cannot be taken stays in the list and is announced as unavailable.
 - Each chip's × is named after its chip.
 - The clear × is drawn at the size of the text, and a press anywhere in a 24px square around it reaches it, which is the minimum target size in WCAG 2.5.8. The chevron keeps the size it is drawn at, and a press on the field opens the list as well.
-- Nothing is committed when focus leaves: the query goes back to being the value, and a value the list does not have is only ever taken by taking its row.
+- Nothing is committed when the list closes or focus leaves: the query goes back to being the value, so the list opens on every row again, and a value the list does not have is only ever taken by taking its row.
 
 :::
 

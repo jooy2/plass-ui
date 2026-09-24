@@ -74,6 +74,10 @@
 
 ### Fixed
 
+- **A `PlCombobox` puts the chosen label back in the field whenever its list closes, and empties a `multiple` one's text, as Base UI does in the React build.** A query typed before `Escape`, the chevron or a press elsewhere stayed in the field while it kept the focus, so the list opened again filtered by it. The list now fades out on the rows it was showing and opens again on every row.
+
+- **A `multiple` `PlCombobox` opens with its first chosen row lit and keeps the row just taken lit, and a list a press opens with nothing chosen lights no row, as in the React build.** A `multiple` list lit its first row as it opened and after every row taken, and a list opened by a press or the chevron lit its first row even with nothing chosen. An arrow key still opens a list with nothing chosen on its first row, and the up arrow from no row lit goes to the last.
+
 - **A popup or a layer closed under reduced motion goes the frame after it is closed.** With animations off, `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, `PlNavigationMenu`, the lists of `PlSelect` and `PlCombobox`, the pickers' popups, `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette` and the others finished their fade inside the build that closed them and asked to be taken down there, which a debug build refuses with an assertion from `OverlayPortalController.hide`. The popup or layer then stayed in the tree unseen, and a layer's backdrop went on taking every press on the page. It is now taken down once that frame is over, unless it has opened again by then.
 
 - **A `PlScrollArea`, `PlScrollZone` or `PlAnimateMarquee` box that scrolls from the keyboard, and the scrolling grid of a `PlTable` or a `PlDataTable`, is ringed only while the box itself has the focus.** The box was ringed whenever the focus was anywhere inside it, so a button in a scroll area or a sort heading in a data table drew a second ring round the whole box as well as its own, and the box kept its ring when Tab moved from it to a stop inside it. It is now ringed only while it is the focused stop, as `:focus-visible` rings the React box.
