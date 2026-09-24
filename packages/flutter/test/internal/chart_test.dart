@@ -376,6 +376,16 @@ void main() {
       expect(compactNumber(999.999), '1,000');
       expect(compactNumber(123.456), '123.46');
     });
+
+    test('groups the figure in front of the last unit from five digits up, as `Intl` does', () {
+      // `Intl`'s compact notation groups only from five whole digits, where a
+      // plain number is grouped from four.
+      expect(compactNumber(1.234e15), '1234T');
+      expect(compactNumber(1.5e16), '15,000T');
+      expect(compactNumber(1.23456e16), '12,345.6T');
+      expect(compactNumber(1.5e18), '1,500,000T');
+      expect(compactNumber(-1.5e18), '-1,500,000T');
+    });
   });
 
   group('a time axis before 1970', () {

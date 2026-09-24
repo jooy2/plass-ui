@@ -141,17 +141,9 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
   /// cell fail to dismiss its readout.
   ({int row, int index})? _active;
 
-  String _write(double value) {
-    if (widget.format != null) {
-      return widget.format!(value);
-    }
-
-    if (value == value.roundToDouble() && value.abs() < 1e15) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(2);
-  }
+  /// A number as every chart writes it: in the caller's `format`, or compactly
+  /// without one.
+  String _write(double value) => widget.format?.call(value) ?? compactNumber(value);
 
   @override
   Widget build(BuildContext context) {

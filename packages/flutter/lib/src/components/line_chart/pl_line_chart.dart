@@ -221,16 +221,7 @@ class PlLineChart extends StatelessWidget {
       valueLabels: valueLabels,
       valueLabelColor: valueLabelColor,
       nulls: _nulls,
-      write: (double value) => format?.call(value) ?? _write(value),
+      write: (double value) => format?.call(value) ?? compactNumber(value),
     );
-  }
-
-  /// The fallback for a chart that named no format.
-  String _write(double value) {
-    if (value == value.roundToDouble() && value.abs() < 1e15) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(2);
   }
 }

@@ -176,6 +176,23 @@ void main() {
       expect(node.value, 'Q1: 1, 1 (100); 2, 2');
     });
 
+    testWidgets('writes every number of a point compactly and grouped without a format', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: <PlassChartSeries>[
+            PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[_at(12345, 1234.5, z: 1500000)]),
+          ],
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+      expect(node.value, 'Q1: 12.3K, 1,234.5 (1.5M)');
+    });
+
     testWidgets('stops reading a series switched off in the legend, and reads it again', (
       WidgetTester tester,
     ) async {

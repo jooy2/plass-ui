@@ -147,17 +147,9 @@ class PlScatterChart extends StatelessWidget {
   /// Type scale, plot height and the default mark radius.
   final PlassSize? size;
 
-  String _write(double value) {
-    if (format != null) {
-      return format!(value);
-    }
-
-    if (value == value.roundToDouble() && value.abs() < 1e15) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(2);
-  }
+  /// A number as every chart writes it: in the caller's [format], or compactly
+  /// without one.
+  String _write(double value) => format?.call(value) ?? compactNumber(value);
 
   @override
   Widget build(BuildContext context) {

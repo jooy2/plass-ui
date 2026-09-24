@@ -2216,7 +2216,14 @@ String compactNumber(double value) {
     unit += 1;
   }
 
-  return '${value < 0 ? '-' : ''}${_trimmed(scaled, 1)}${_compactUnits[unit]}';
+  final String mantissa = _trimmed(scaled, 1);
+
+  // Past the last unit the figure in front of it keeps growing, and `Intl`
+  // groups it from five whole digits up, where a plain number is grouped from
+  // four: `1234T`, but `12,345T`.
+  final String written = mantissa.split('.').first.length >= 5 ? _grouped(mantissa) : mantissa;
+
+  return '${value < 0 ? '-' : ''}$written${_compactUnits[unit]}';
 }
 
 /// One instant on a time axis, written unambiguously.

@@ -1,3 +1,5 @@
+import 'dart:ui' show Paragraph;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
@@ -815,6 +817,38 @@ void main() {
 
         expect(node.value, contains('£'));
       });
+
+      testWidgets('writes a value label compactly and grouped without a format', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          const PlLineChart(
+            series: <PlassChartSeries>[
+              PlassChartSeries(
+                name: 'Revenue',
+                data: <PlassChartDatum>[PlassChartDatum(9999), PlassChartDatum(1234567)],
+              ),
+            ],
+            valueLabels: PlassChartValueLabels.all,
+            // With both axes and the legend hidden, the value labels are the
+            // only text the plot paints.
+            xAxis: PlChartAxis(hidden: true),
+            yAxis: PlChartAxis(hidden: true),
+            legend: PlChartLegend(hidden: true),
+          ),
+        );
+
+        final canvas = _TextCanvas();
+
+        for (final CustomPaint paint in tester.widgetList<CustomPaint>(find.byType(CustomPaint))) {
+          paint.painter?.paint(canvas, tester.getSize(find.byWidget(paint)));
+        }
+
+        // A canvas keeps no words, only how long each painted line is: `9,999`
+        // and `1.2M`, where the number as it was stored is `9999` and `1234567`.
+        expect(canvas.lengths, <int>[5, 4]);
+      });
     });
 
     group('curves and markers', () {
@@ -950,4 +984,17 @@ void main() {
       });
     });
   });
+}
+
+/// A canvas that keeps how many characters each piece of text painted on it
+/// holds, and drops everything else.
+class _TextCanvas implements Canvas {
+  final List<int> lengths = <int>[];
+
+  @override
+  void drawParagraph(Paragraph paragraph, Offset offset) =>
+      lengths.add(paragraph.getLineBoundary(const TextPosition(offset: 0)).end);
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
 }

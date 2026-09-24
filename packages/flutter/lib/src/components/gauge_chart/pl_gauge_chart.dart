@@ -112,17 +112,9 @@ class PlGaugeChart extends StatelessWidget {
   /// The family the arc takes where no threshold applies.
   final PlassColor? color;
 
-  String _write(double each) {
-    if (format != null) {
-      return format!(each);
-    }
-
-    if (each == each.roundToDouble() && each.abs() < 1e15) {
-      return each.toInt().toString();
-    }
-
-    return each.toStringAsFixed(2);
-  }
+  /// A number as every chart writes it: in the caller's [format], or compactly
+  /// without one.
+  String _write(double each) => format?.call(each) ?? compactNumber(each);
 
   @override
   Widget build(BuildContext context) {

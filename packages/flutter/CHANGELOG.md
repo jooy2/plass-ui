@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A line chart's value labels, a scatter, a pie, a heatmap and a gauge write their numbers compactly and grouped.** They wrote the bare number, so a slice worth 48,300 read `48300` and 1,234.5 read `1234.50`, where every other chart and the React build write `48.3K` and `1,234.5`. They now go through the writer the axes and the tooltips use, and a caller's `format` still wins. A compact figure of five digits or more in front of the last unit is grouped too, `1,500,000T` rather than `1500000T`, as `Intl` writes it.
+
 - **A tap on a `PlPill` with no `onPressed` reaches what is around it.** The pill kept a tap recogniser that answered nothing, so a pill inside a pressable row or card swallowed the tap and the row never saw it. It now claims no tap until it is given something to do, and keeps what it holds when `onPressed` comes or goes.
 
 - **A `PlCollapsible` leaves space between its header and its body.** Under the default header the body began at the open header's tinted edge, so its first line read as part of the title; only a `triggerBuilder` of the caller's own had the space. Both now have the space a `PlAccordion` section leaves.

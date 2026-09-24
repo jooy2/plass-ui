@@ -183,17 +183,9 @@ class _PlPieChartState extends State<PlPieChart> {
 
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
 
-  String _write(double value) {
-    if (widget.format != null) {
-      return widget.format!(value);
-    }
-
-    if (value == value.roundToDouble() && value.abs() < 1e15) {
-      return value.toInt().toString();
-    }
-
-    return value.toStringAsFixed(2);
-  }
+  /// A number as every chart writes it: in the caller's `format`, or compactly
+  /// without one.
+  String _write(double value) => widget.format?.call(value) ?? compactNumber(value);
 
   @override
   Widget build(BuildContext context) {

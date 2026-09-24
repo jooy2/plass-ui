@@ -75,6 +75,26 @@ void main() {
       expect(node.value, contains('Referral 15 · 15%'));
     });
 
+    testWidgets('writes a slice compactly and grouped without a format', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlPieChart(
+          data: <PlassChartDatum>[PlassChartDatum(1234.5), PlassChartDatum(48300)],
+          categories: <PlassChartCategory>[
+            PlassChartCategory.text('Search'),
+            PlassChartCategory.text('Social'),
+          ],
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+      expect(node.value, contains('Search 1,234.5 · '));
+      expect(node.value, contains('Social 48.3K · '));
+    });
+
     testWidgets('takes every shape it names', (WidgetTester tester) async {
       for (final PlPieShape shape in PlPieShape.values) {
         await _pump(tester, PlPieChart(data: traffic, categories: sources, shape: shape));

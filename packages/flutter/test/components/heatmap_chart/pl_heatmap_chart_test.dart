@@ -51,6 +51,24 @@ void main() {
       expect(node.value, contains('Wed: 09 1'));
     });
 
+    testWidgets('writes a cell compactly and grouped without a format', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlHeatmapChart(
+          series: <PlassChartSeries>[
+            PlassChartSeries(name: 'Mon', data: _row(<double?>[1234.5, 48300])),
+          ],
+          categories: hours.sublist(0, 2),
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+      expect(node.value, contains('Mon: 09 1,234.5, 12 48.3K'));
+    });
+
     testWidgets('writes a date column as a day rather than a timestamp', (
       WidgetTester tester,
     ) async {

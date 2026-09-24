@@ -41,6 +41,15 @@ void main() {
       expect(find.bySemanticsLabel('Speed: 90 / 120'), findsOneWidget);
     });
 
+    testWidgets('writes its numbers compactly and grouped without a format', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, const PlGaugeChart(value: 1234.5, max: 48300, semanticLabel: 'Storage'));
+
+      expect(find.bySemanticsLabel('Storage: 1,234.5 / 48.3K'), findsOneWidget);
+      expect(find.text('1,234.5'), findsOneWidget);
+    });
+
     testWidgets('says nothing is there when the range is empty', (WidgetTester tester) async {
       await _pump(tester, const PlGaugeChart(value: 5, min: 10, max: 10));
 
