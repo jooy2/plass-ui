@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A `PlNavigationMenu` sheet eases from one panel to the next, and follows the item it hangs from.** Moving between items, the sheet took the next panel's size in one frame and jumped to its place under the next item, and closing collapsed it to its edges before it could fade. It now eases to the size of the panel coming in and to its place under the new item, whether a trigger or the page changed the panel, and lands on that size however slow the frames are; a panel keeps its own lines while the sheet is between two sizes, and the sheet keeps the size of what it held while it fades out. Opening, and every change under `prefers-reduced-motion`, arrives at once.
+
 - **A `PlScatterChart`'s table writes y and z as every chart writes a value.** They were written with at most two decimals and never compacted, so a z the card and the legend never showed was `1,500,000` and a y the card wrote as `48.3K` was `48,300`. They now go through the chart's `format`, or compactly without one.
 
 - **`Escape` on a `PlHeatmapChart` is taken only while a cell is being read.** The heatmap answered the key whatever it held and marked it handled, so a heatmap with nothing being read kept the key from a `usePlHotKeys` binding around it, and one with a readout let the same press go on and close the sheet it sat in as well. With a readout, the press now clears it and stops there; with none, it goes on to whatever the chart sits in, as on every other chart.

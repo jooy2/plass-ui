@@ -156,11 +156,53 @@ const popupClasses = /* @__PURE__ */ [
   '[border-color:var(--plass-glass-line)]',
   '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]',
   '[outline:none] overflow-hidden',
-  // Opacity and the viewport's own size only. A panel that slid in would drag a
-  // page's worth of links across the screen.
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease),width_var(--plass-duration)_var(--plass-ease),height_var(--plass-duration)_var(--plass-ease)]',
+  // The size of the panel it holds, which the root measures. Unset until a
+  // panel has been measured, which leaves the sheet `auto`.
+  'w-(--p-panel-w) h-(--p-panel-h)',
+  '[transition-duration:var(--plass-duration)] [transition-timing-function:var(--plass-ease)]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
+
+/**
+ * What the sheet eases: its opacity always, and its size only while one panel
+ * is following another. Opening at the size of what it opens with is not a
+ * resize, and a panel that slid in would drag a page's worth of links across
+ * the screen. Under reduced motion, and while Base UI holds the positioner
+ * still for a window resize, the size arrives at once.
+ */
+const popupFadeClasses = '[transition-property:opacity]';
+const popupResizeClasses = /* @__PURE__ */ [
+  '[transition-property:opacity,width,height]',
+  'motion-reduce:[transition-property:opacity] in-data-[instant]:[transition-property:opacity]'
+].join(' ');
+
+/**
+ * The box the sheet sits in, at the size the sheet is going to, so it is
+ * placed once for where the sheet ends up rather than again on every frame of
+ * the resize. Its place eases only while one panel is following another: the
+ * first place of an opening panel is not a move, and one that eased after a
+ * scroll would trail the row it hangs from.
+ */
+const positionerClasses = /* @__PURE__ */ [
+  'plass-portal z-(--plass-z-portal) [outline:none]',
+  'w-(--p-panel-w) h-(--p-panel-h)',
+  '[transition-duration:var(--plass-duration)] [transition-timing-function:var(--plass-ease)]'
+].join(' ');
+const positionerStillClasses = '[transition-property:none]';
+const positionerMoveClasses = /* @__PURE__ */ [
+  '[transition-property:top,left,right,bottom]',
+  'motion-reduce:[transition-property:none] data-[instant]:[transition-property:none]'
+].join(' ');
+
+/** The lengths a change of panel eases, on the sheet and on its box. */
+const easedProperties = /* @__PURE__ */ new Set([
+  'width',
+  'height',
+  'top',
+  'left',
+  'right',
+  'bottom'
+]);
 
 const linkClasses = /* @__PURE__ */ [
   'flex min-w-0 cursor-pointer items-start no-underline',
@@ -297,10 +339,18 @@ export function PlNavigationMenuItem({
               crawler that never hovers still finds them — which is what the
               `<a>`s are for. A closed panel carries `hidden`, and the
               `[hidden]` rule is here because `grid` would otherwise outrank
-              the browser's own `display: none` for it and show the panel. */}
+              the browser's own `display: none` for it and show the panel.
+
+              As wide as its links, up to the room beside the row less the
+              sheet's two edges, and never as wide as the sheet around it: the
+              sheet is between two sizes while it eases, and a panel that
+              followed it would wrap its lines again on every frame. */}
           <BaseUINavigationMenu.Content
             keepMounted
-            className={cx('grid gap-1 [&[hidden]]:hidden', panelPaddingClasses[size])}
+            className={cx(
+              'grid w-max max-w-[calc(var(--available-width)-2px)] gap-1 [&[hidden]]:hidden',
+              panelPaddingClasses[size]
+            )}
             style={
               columns > 1
                 ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }
@@ -326,9 +376,10 @@ export function PlNavigationMenuItem({
  * index. Reach for a menu when the row *does* something and for this when the
  * row *goes* somewhere.
  *
- * One panel is open at a time and it resizes between items rather than closing
- * and reopening, which is Base UI's doing and is what makes crossing the row
- * read as one surface rather than three.
+ * One panel is open at a time, which is Base UI's doing, and the sheet eases
+ * from one item's panel to the next, in size and in place, rather than closing
+ * and reopening, which is what makes crossing the row read as one surface
+ * rather than three.
  */
 export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
   HTMLElement,
@@ -359,6 +410,151 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
 
   const context = React.useMemo(() => ({ size, density }), [size, density]);
 
+  /*
+   * Which panel is open, whoever holds it. Base UI keeps an uncontrolled value
+   * to itself, but every change it makes goes through `onValueChange`, so the
+   * copy here moves with it.
+   */
+  const [ownValue, setOwnValue] = React.useState<string | null>(defaultValue ?? null);
+  const openValue = value !== undefined ? value : ownValue;
+
+  /*
+   * Whether one panel is following another, which is the one change the sheet
+   * eases. Set in the render that changes the panel, so the easing is in place
+   * before the new size is; cleared when the menu closes and once the sheet
+   * has finished easing, so a later change of size or place arrives at once.
+   */
+  const [shownValue, setShownValue] = React.useState(openValue);
+  const [moving, setMoving] = React.useState(false);
+
+  if (shownValue !== openValue) {
+    setShownValue(openValue);
+    setMoving(openValue !== null && shownValue !== null);
+  }
+
+  const [positioner, setPositioner] = React.useState<HTMLDivElement | null>(null);
+  const [viewport, setViewport] = React.useState<HTMLDivElement | null>(null);
+  const popupRef = React.useRef<HTMLElement>(null);
+
+  /*
+   * Hands the sheet and its box the size of the panel in the viewport, edges
+   * included.
+   *
+   * The sheet never reads the `--popup-width` and `--popup-height` Base UI
+   * writes. Those are measured once, when a trigger changes the panel, with
+   * the popup laid out wherever the last panel left it; they are set a frame
+   * later and handed back as `auto` once the popup stops animating. A change
+   * no trigger makes is never measured, and one that cancels the hand-back
+   * leaves the sheet held at a size that is not its panel's. This size is the
+   * panel's by construction: it is read whenever the panel changes or changes
+   * size, and the viewport is as wide as the panel rather than as the sheet,
+   * so it reads the same wherever the sheet is.
+   */
+  const fit = React.useCallback(() => {
+    const popup = popupRef.current;
+
+    if (!positioner || !popup || !viewport) {
+      return;
+    }
+
+    const panel = getComputedStyle(viewport);
+    const width = Number.parseFloat(panel.width);
+    const height = Number.parseFloat(panel.height);
+
+    // Nothing in it: the menu is closed, or closing with its panel taken out
+    // of the flow to fade. The sheet keeps the size of what it held.
+    if (!(width > 0 && height > 0)) {
+      return;
+    }
+
+    const edge = getComputedStyle(popup);
+    const across =
+      Number.parseFloat(edge.borderLeftWidth) + Number.parseFloat(edge.borderRightWidth);
+    const down = Number.parseFloat(edge.borderTopWidth) + Number.parseFloat(edge.borderBottomWidth);
+
+    positioner.style.setProperty('--p-panel-w', `${width + across}px`);
+    positioner.style.setProperty('--p-panel-h', `${height + down}px`);
+  }, [positioner, viewport]);
+
+  // In the commit that changes the panel, so the box is already the new size
+  // when Base UI places it under the new trigger.
+  React.useLayoutEffect(() => {
+    if (openValue !== null) {
+      fit();
+    }
+  }, [openValue, fit]);
+
+  // And whenever the panel's own size changes after that: its links changing,
+  // a font arriving, the room beside the row narrowing. On the next frame
+  // rather than inside the observer: Base UI and Floating UI watch the sheet
+  // and its box with observers of their own, and a size changed in here would
+  // reach them only as a "ResizeObserver loop" error.
+  React.useEffect(() => {
+    if (!viewport || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    let frame = 0;
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(fit);
+    });
+
+    observer.observe(viewport);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [viewport, fit]);
+
+  // Ends the easing once nothing is easing.
+  React.useEffect(() => {
+    if (!positioner) {
+      return undefined;
+    }
+
+    const settle = (event: TransitionEvent) => {
+      const popup = popupRef.current;
+
+      if (!easedProperties.has(event.propertyName) || !popup) {
+        return;
+      }
+
+      const elements = [positioner, popup];
+
+      // Reading a computed value brings the styles up to date, which starts
+      // the transitions of a change of panel that has not reached a frame
+      // yet, so that change counts as easing rather than being cut short.
+      for (const element of elements) {
+        getComputedStyle(element).getPropertyValue('width');
+      }
+
+      const easing = elements.some((element) =>
+        element
+          .getAnimations()
+          .some(
+            (animation) =>
+              animation instanceof CSSTransition &&
+              easedProperties.has(animation.transitionProperty) &&
+              animation.playState !== 'finished'
+          )
+      );
+
+      if (!easing) {
+        setMoving(false);
+      }
+    };
+
+    positioner.addEventListener('transitionend', settle);
+    positioner.addEventListener('transitioncancel', settle);
+
+    return () => {
+      positioner.removeEventListener('transitionend', settle);
+      positioner.removeEventListener('transitioncancel', settle);
+    };
+  }, [positioner]);
+
   return (
     <NavigationMenuContext.Provider value={context}>
       <BaseUINavigationMenu.Root
@@ -366,7 +562,13 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
         orientation={orientation}
         value={value}
         defaultValue={defaultValue}
-        onValueChange={(next) => onValueChange?.(next)}
+        onValueChange={(next) => {
+          if (value === undefined) {
+            setOwnValue(next);
+          }
+
+          onValueChange?.(next);
+        }}
         delay={delay}
         closeDelay={closeDelay}
         className={className}
@@ -391,12 +593,26 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
           {/* `.plass-portal` is a hook, not a style: a portalled popup leaves
               the subtree a host may have scoped its CSS reset to. */}
           <BaseUINavigationMenu.Positioner
-            className="plass-portal z-(--plass-z-portal) [outline:none]"
+            ref={setPositioner}
+            className={cx(
+              positionerClasses,
+              moving ? positionerMoveClasses : positionerStillClasses
+            )}
             sideOffset={sideOffset}
             collisionPadding={12}
           >
-            <BaseUINavigationMenu.Popup className={cx(popupClasses, radiusClasses[size])}>
-              <BaseUINavigationMenu.Viewport />
+            <BaseUINavigationMenu.Popup
+              ref={popupRef}
+              className={cx(
+                popupClasses,
+                moving ? popupResizeClasses : popupFadeClasses,
+                radiusClasses[size]
+              )}
+            >
+              {/* As wide as the panel in it rather than as the sheet, which
+                  is what lets it be measured while the sheet is between two
+                  sizes. The sheet clips it. */}
+              <BaseUINavigationMenu.Viewport ref={setViewport} className="w-max" />
             </BaseUINavigationMenu.Popup>
           </BaseUINavigationMenu.Positioner>
         </BaseUINavigationMenu.Portal>
