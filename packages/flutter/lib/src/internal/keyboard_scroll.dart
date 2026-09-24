@@ -21,8 +21,9 @@ const double _line = 40;
 /// ends. The left and right arrows follow the writing direction.
 ///
 /// The stop exists only while the content overflows, so a box that fits adds
-/// nothing to the tab order. The ring is drawn around the box while the focus
-/// arrived from the keyboard.
+/// nothing to the tab order. The ring is drawn around the box while the box
+/// itself holds a focus that arrived from the keyboard, and never for a stop
+/// inside it, which draws its own.
 class PlassKeyboardScroll extends StatefulWidget {
   /// Wraps [child], the scroll views that [vertical] and [horizontal] drive.
   const PlassKeyboardScroll({
@@ -71,13 +72,34 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
   @override
   void initState() {
     super.initState();
+    _node.addListener(_onFocus);
     WidgetsBinding.instance.addPostFrameCallback((Duration _) => _check());
   }
 
   @override
   void dispose() {
-    _node.dispose();
+    _node
+      ..removeListener(_onFocus)
+      ..dispose();
     super.dispose();
+  }
+
+  /// Rings the box while it holds the focus itself, as `:focus-visible` on the
+  /// React box does.
+  ///
+  /// Read off the node rather than off `Focus.onFocusChange`, whose `hasFocus`
+  /// counts a focused descendant as well: a sort heading inside a table would
+  /// ring the whole box as well as itself, and the ring would stay when the
+  /// focus moved from the box to a stop inside it. The node tells its
+  /// listeners when it gains or loses the primary focus, either way.
+  void _onFocus() {
+    final bool visible =
+        _node.hasPrimaryFocus &&
+        FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+
+    if (visible != _focusVisible) {
+      setState(() => _focusVisible = visible);
+    }
   }
 
   static bool _overflows(ScrollController? controller) {
@@ -193,12 +215,6 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
         canRequestFocus: _scrollable,
         skipTraversal: !_scrollable,
         onKeyEvent: _onKey,
-        onFocusChange: (bool has) {
-          setState(() {
-            _focusVisible =
-                has && FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
-          });
-        },
         // Content that grows or shrinks changes whether there is anything to
         // scroll, and the answer can only be read once it is laid out.
         child: NotificationListener<ScrollMetricsNotification>(

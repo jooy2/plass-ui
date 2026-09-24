@@ -2,6 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -890,6 +892,7 @@ void main() {
       Future<void> tabInto(
         WidgetTester tester,
         List<Invoice> data, {
+        List<PlDataTableColumn<Invoice>>? columns,
         Widget? caption,
         String? semanticLabel = 'Open invoices',
       }) async {
@@ -901,7 +904,7 @@ void main() {
             afterFocusStop(
               before,
               PlDataTable<Invoice>(
-                columns: plain,
+                columns: columns ?? plain,
                 rows: data,
                 rowKey: (Invoice row, int _) => row.id,
                 maxHeight: 200,
@@ -967,6 +970,49 @@ void main() {
         await tabInto(tester, rows);
 
         expect(tester.binding.focusManager.primaryFocus?.debugLabel, isNot('PlassKeyboardScroll'));
+      });
+
+      testWidgets('rings the grid while it holds the focus itself, and not for a heading in it', (
+        WidgetTester tester,
+      ) async {
+        // Every ring on screen, told apart by where it sits: the grid's inside
+        // the sheet, a heading's outside itself.
+        List<double> rings() => tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .map((CustomPaint paint) => paint.foregroundPainter)
+            .whereType<PlassFocusRingPainter>()
+            .map((PlassFocusRingPainter ring) => ring.offset)
+            .toList();
+
+        // A grid that fits is no stop, so Tab goes straight to the heading,
+        // which is the one ring drawn.
+        await tabInto(tester, rows, columns: columnsOf());
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, isNot('PlassKeyboardScroll'));
+        expect(rings(), <double>[focusRingOffset]);
+
+        // A grid past its cap is a stop, ringed when Tab reaches it.
+        await tabInto(tester, many, columns: columnsOf());
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, 'PlassKeyboardScroll');
+        expect(rings(), <double>[-focusRingWidth]);
+
+        // And the ring moves to the heading the next Tab reaches, rather than
+        // staying round the grid as well.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, isNot('PlassKeyboardScroll'));
+        expect(rings(), <double>[focusRingOffset]);
+
+        // Back on the grid, it is ringed again.
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.pumpAndSettle();
+
+        expect(tester.binding.focusManager.primaryFocus?.debugLabel, 'PlassKeyboardScroll');
+        expect(rings(), <double>[-focusRingWidth]);
       });
     });
 
