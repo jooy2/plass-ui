@@ -15,6 +15,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -169,7 +170,7 @@ class PlassStepBullet extends StatelessWidget {
               ),
               child: IconTheme.merge(
                 data: IconThemeData(color: ink, size: size * 0.6),
-                child: child ?? const SizedBox.shrink(),
+                child: PlassContentsGroup(paints: true, child: child ?? const SizedBox.shrink()),
               ),
             ),
           ),

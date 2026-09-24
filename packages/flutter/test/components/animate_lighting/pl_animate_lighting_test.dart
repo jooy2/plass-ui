@@ -30,7 +30,11 @@ void main() {
       );
 
       expect(stack.children.first, isA<PositionedDirectional>());
-      expect(stack.children.last, isA<Text>());
+      // The content is the last child, in a backdrop group of its own.
+      expect(
+        find.descendant(of: find.byWidget(stack.children.last), matching: find.text('Live')),
+        findsOneWidget,
+      );
       // The glow reaches past the content, so the stack must not clip.
       expect(stack.clipBehavior, Clip.none);
     });

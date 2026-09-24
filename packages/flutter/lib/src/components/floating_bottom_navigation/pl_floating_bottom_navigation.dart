@@ -318,7 +318,10 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
               quiet: chosen >= 0 && widget.items[chosen].disabled,
             ),
           ),
-        row,
+        // The key is painted before every disc, so one group round them hands
+        // the current one a read with the key in it — on a `ghost` bar as well,
+        // which has no capsule to open a group of its own.
+        PlassContentsGroup(paints: _rect != null, child: row),
       ],
     );
 

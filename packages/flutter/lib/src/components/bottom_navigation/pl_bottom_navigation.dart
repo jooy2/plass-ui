@@ -329,7 +329,10 @@ class PlBottomNavigation<T> extends StatelessWidget {
 
         content = DecoratedBox(
           decoration: BoxDecoration(color: wash, borderRadius: radius),
-          child: Center(child: content),
+          child: PlassContentsGroup(
+            paints: wash != null,
+            child: Center(child: content),
+          ),
         );
 
         // A destination of its own that is unavailable is dimmed and drained of

@@ -386,18 +386,21 @@ class PlChip extends StatelessWidget {
         color: filled ? tokens.glowOnFill : family.softPress,
         borderRadius: BorderRadius.circular(fontSize),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-        child: DefaultTextStyle.merge(
-          style: TextStyle(
-            color: filled ? family.onSolid : family.accent,
-            fontSize: fontSize * _countScale,
-            fontWeight: FontWeight.w600,
-            height: 1,
-            leadingDistribution: TextLeadingDistribution.even,
-            fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+      child: PlassContentsGroup(
+        paints: true,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+          child: DefaultTextStyle.merge(
+            style: TextStyle(
+              color: filled ? family.onSolid : family.accent,
+              fontSize: fontSize * _countScale,
+              fontWeight: FontWeight.w600,
+              height: 1,
+              leadingDistribution: TextLeadingDistribution.even,
+              fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+            ),
+            child: count!,
           ),
-          child: count!,
         ),
       ),
     );

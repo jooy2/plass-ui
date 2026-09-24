@@ -343,7 +343,9 @@ class _PlSpoilerState extends State<PlSpoiler> {
         Focus(
           focusNode: _coverFocus,
           includeSemantics: false,
-          child: _cover(tokens, insetX, insetY),
+          // On the wash rather than on the sheet, so what the cover holds reads
+          // a backdrop with the wash in it.
+          child: PlassContentsGroup(paints: !_open, child: _cover(tokens, insetX, insetY)),
         ),
       ],
     );

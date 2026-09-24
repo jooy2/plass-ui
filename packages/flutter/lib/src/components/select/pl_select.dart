@@ -732,45 +732,49 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
                 color: lit ? family.soft : null,
                 borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
               ),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  start: _tickGutter,
-                  end: 8,
-                  top: _rowPaddingY,
-                  bottom: _rowPaddingY,
-                ),
-                child: Stack(
-                  // The tick sits in the gutter the padding just opened, which
-                  // is outside this stack: clipped, it would not be drawn at all.
-                  clipBehavior: Clip.none,
-                  children: <Widget>[
-                    DefaultTextStyle.merge(
-                      style: TextStyle(
-                        color: ink,
-                        fontSize: scale.size,
-                        height: scale.height,
-                        fontWeight: chosen ? FontWeight.w600 : FontWeight.w400,
-                        leadingDistribution: TextLeadingDistribution.even,
+              child: PlassContentsGroup(
+                paints: lit,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    start: _tickGutter,
+                    end: 8,
+                    top: _rowPaddingY,
+                    bottom: _rowPaddingY,
+                  ),
+                  child: Stack(
+                    // The tick sits in the gutter the padding just opened,
+                    // which is outside this stack: clipped, it would not be
+                    // drawn at all.
+                    clipBehavior: Clip.none,
+                    children: <Widget>[
+                      DefaultTextStyle.merge(
+                        style: TextStyle(
+                          color: ink,
+                          fontSize: scale.size,
+                          height: scale.height,
+                          fontWeight: chosen ? FontWeight.w600 : FontWeight.w400,
+                          leadingDistribution: TextLeadingDistribution.even,
+                        ),
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        child: _label(option),
                       ),
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                      child: _label(option),
-                    ),
-                    if (chosen)
-                      PositionedDirectional(
-                        top: 0,
-                        bottom: 0,
-                        start: -_tickGutter + 8,
-                        child: Center(
-                          child: PlassGlyph(
-                            PlassGlyphShape.check,
-                            size: scale.size,
-                            color: family.accent,
+                      if (chosen)
+                        PositionedDirectional(
+                          top: 0,
+                          bottom: 0,
+                          start: -_tickGutter + 8,
+                          child: Center(
+                            child: PlassGlyph(
+                              PlassGlyphShape.check,
+                              size: scale.size,
+                              color: family.accent,
+                            ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

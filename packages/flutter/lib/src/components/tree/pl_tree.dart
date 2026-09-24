@@ -10,6 +10,7 @@ import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -699,20 +700,19 @@ class _TreeRow extends StatelessWidget {
           if (has) onFocused();
         },
         builder: (BuildContext context, PlassInteraction state) {
+          final Color? fill = node.disabled
+              ? null
+              : selected
+              ? family.soft
+              : state.hovered || state.pressed
+              ? family.soft
+              : null;
+
           Widget surface = AnimatedContainer(
             duration: tokens.motionDuration,
             curve: tokens.motionEase,
-            decoration: BoxDecoration(
-              color: node.disabled
-                  ? null
-                  : selected
-                  ? family.soft
-                  : state.hovered || state.pressed
-                  ? family.soft
-                  : null,
-              borderRadius: radius,
-            ),
-            child: content,
+            decoration: BoxDecoration(color: fill, borderRadius: radius),
+            child: PlassContentsGroup(paints: fill != null, child: content),
           );
 
           if (state.focusVisible) {

@@ -13,6 +13,7 @@ import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/languages.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -907,37 +908,40 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
         border: Border.all(color: palette.rule, width: hairline),
         boxShadow: tokens.elevation(widget.elevation),
       ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            if (widget.toolbar &&
-                (widget.showLanguage ||
-                    widget.copyable ||
-                    widget.rawToggle ||
-                    widget.title != null))
-              _Bar(
-                palette: palette,
-                size: size,
-                density: _density,
-                family: tokens.family(_color),
-                title: widget.title,
-                language: widget.showLanguage ? languageName : null,
-                copyable: widget.copyable,
-                copied: _copied,
-                copyLabel: widget.copyLabel ?? labels.copy,
-                copiedLabel: widget.copiedLabel ?? labels.copied,
-                copyFailedLabel: widget.copyFailedLabel ?? labels.copyFailed,
-                onCopy: _copy,
-                rawToggle: widget.rawToggle && widget.lines != null,
-                raw: _raw,
-                rawLabel: widget.rawLabel ?? labels.raw,
-                onRaw: () => setState(() => _raw = !_raw),
-              ),
-            Flexible(child: body),
-          ],
+      child: PlassContentsGroup(
+        paints: true,
+        child: ClipRRect(
+          borderRadius: radius,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              if (widget.toolbar &&
+                  (widget.showLanguage ||
+                      widget.copyable ||
+                      widget.rawToggle ||
+                      widget.title != null))
+                _Bar(
+                  palette: palette,
+                  size: size,
+                  density: _density,
+                  family: tokens.family(_color),
+                  title: widget.title,
+                  language: widget.showLanguage ? languageName : null,
+                  copyable: widget.copyable,
+                  copied: _copied,
+                  copyLabel: widget.copyLabel ?? labels.copy,
+                  copiedLabel: widget.copiedLabel ?? labels.copied,
+                  copyFailedLabel: widget.copyFailedLabel ?? labels.copyFailed,
+                  onCopy: _copy,
+                  rawToggle: widget.rawToggle && widget.lines != null,
+                  raw: _raw,
+                  rawLabel: widget.rawLabel ?? labels.raw,
+                  onRaw: () => setState(() => _raw = !_raw),
+                ),
+              Flexible(child: body),
+            ],
+          ),
         ),
       ),
     );

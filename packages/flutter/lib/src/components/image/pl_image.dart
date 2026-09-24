@@ -14,6 +14,7 @@ import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/image.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/watermark.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
@@ -769,7 +770,10 @@ class _PlImageState extends State<PlImage> {
     final Decoration? painted = widget.letterbox?.decoration;
 
     if (painted != null) {
-      picture = DecoratedBox(decoration: painted, child: picture);
+      picture = DecoratedBox(
+        decoration: painted,
+        child: PlassContentsGroup(paints: true, child: picture),
+      );
     }
 
     // The mark goes on before the ratio and the clip, so it is bounded by the

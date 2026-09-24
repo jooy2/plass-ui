@@ -446,68 +446,70 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
             ? family.accent
             : tokens.fg;
 
+        final bool washed = lit && !disabled;
+
         Widget row = AnimatedContainer(
           duration: reduceMotion ? Duration.zero : tokens.motionDuration,
           curve: tokens.motionEase,
-          decoration: BoxDecoration(
-            color: lit && !disabled ? family.soft : null,
-            borderRadius: radius,
-          ),
+          decoration: BoxDecoration(color: washed ? family.soft : null, borderRadius: radius),
           padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: gap[size]!,
-            children: <Widget>[
-              if (item.startIcon != null)
-                IconTheme.merge(
-                  data: IconThemeData(color: tokens.mutedFg, size: title.size * iconScale),
-                  child: item.startIcon!,
-                ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: sheetHeaderGap[size]!,
-                  children: <Widget>[
-                    if (item.title != null)
-                      DefaultTextStyle.merge(
-                        style: TextStyle(
-                          color: ink,
-                          fontSize: title.size,
-                          height: title.height,
-                          fontWeight: FontWeight.w600,
-                          leadingDistribution: TextLeadingDistribution.even,
+          child: PlassContentsGroup(
+            paints: washed,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              spacing: gap[size]!,
+              children: <Widget>[
+                if (item.startIcon != null)
+                  IconTheme.merge(
+                    data: IconThemeData(color: tokens.mutedFg, size: title.size * iconScale),
+                    child: item.startIcon!,
+                  ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: sheetHeaderGap[size]!,
+                    children: <Widget>[
+                      if (item.title != null)
+                        DefaultTextStyle.merge(
+                          style: TextStyle(
+                            color: ink,
+                            fontSize: title.size,
+                            height: title.height,
+                            fontWeight: FontWeight.w600,
+                            leadingDistribution: TextLeadingDistribution.even,
+                          ),
+                          maxLines: item.truncate ? 1 : null,
+                          softWrap: !item.truncate,
+                          overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
+                          child: item.title!,
                         ),
-                        maxLines: item.truncate ? 1 : null,
-                        softWrap: !item.truncate,
-                        overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
-                        child: item.title!,
-                      ),
-                    if (item.subtitle != null)
-                      DefaultTextStyle.merge(
-                        style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
-                        maxLines: item.truncate ? 1 : null,
-                        softWrap: !item.truncate,
-                        overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
-                        child: item.subtitle!,
-                      ),
-                  ],
+                      if (item.subtitle != null)
+                        DefaultTextStyle.merge(
+                          style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
+                          maxLines: item.truncate ? 1 : null,
+                          softWrap: !item.truncate,
+                          overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
+                          child: item.subtitle!,
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-              // Turned, not moved. It is also the only thing on the header that
-              // reports the open state by moving, which is why the header itself
-              // only changes colour.
-              AnimatedRotation(
-                turns: open ? 0.5 : 0,
-                duration: reduceMotion ? Duration.zero : tokens.motionDuration,
-                curve: tokens.motionEase,
-                child: PlassGlyph(
-                  PlassGlyphShape.chevron,
-                  size: title.size * iconScale,
-                  color: tokens.mutedFg,
+                // Turned, not moved. It is also the only thing on the header
+                // that reports the open state by moving, which is why the
+                // header itself only changes colour.
+                AnimatedRotation(
+                  turns: open ? 0.5 : 0,
+                  duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+                  curve: tokens.motionEase,
+                  child: PlassGlyph(
+                    PlassGlyphShape.chevron,
+                    size: title.size * iconScale,
+                    color: tokens.mutedFg,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
 

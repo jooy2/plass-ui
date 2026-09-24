@@ -358,15 +358,14 @@ class _Step extends StatelessWidget {
         ),
       );
 
+      final bool washed = interactive && state.hovered;
+
       content = AnimatedContainer(
         duration: tokens.motionDuration,
         curve: tokens.motionEase,
-        decoration: BoxDecoration(
-          color: interactive && state.hovered ? family.soft : null,
-          borderRadius: radius,
-        ),
+        decoration: BoxDecoration(color: washed ? family.soft : null, borderRadius: radius),
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: content,
+        child: PlassContentsGroup(paints: washed, child: content),
       );
 
       content = plassStateFilter(child: content, disabled: item.disabled, lit: false);

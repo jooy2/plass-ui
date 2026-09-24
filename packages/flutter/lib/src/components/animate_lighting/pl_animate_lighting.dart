@@ -7,6 +7,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -172,7 +173,9 @@ class PlAnimateLighting extends StatelessWidget {
             },
           ),
         ),
-        child,
+        // In a group of its own, so a glass sheet lit from behind blurs the
+        // light rather than a read the app's group took before it was drawn.
+        PlassContentsGroup(paints: true, child: child),
       ],
     );
   }

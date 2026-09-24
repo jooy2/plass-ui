@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -318,6 +319,12 @@ class _Row extends StatelessWidget {
       onTap: onPressed,
       cursor: SystemMouseCursors.click,
       builder: (BuildContext context, PlassInteraction state) {
+        final Color? fill = lit
+            ? family.soft
+            : state.hovered
+            ? tokens.glassHover
+            : null;
+
         return AnimatedContainer(
           duration: tokens.motionDuration,
           curve: tokens.motionEase,
@@ -328,29 +335,28 @@ class _Row extends StatelessWidget {
             bottom: 4,
           ),
           decoration: BoxDecoration(
-            color: lit
-                ? family.soft
-                : state.hovered
-                ? tokens.glassHover
-                : null,
+            color: fill,
             borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
             border: BorderDirectional(
               start: BorderSide(color: lit ? family.accent : const Color(0x00000000), width: 2),
             ),
           ),
-          child: DefaultTextStyle.merge(
-            style: TextStyle(
-              color: lit ? family.accent : tokens.mutedFg,
-              fontSize: text.size,
-              height: text.height,
-              fontWeight: lit ? FontWeight.w500 : FontWeight.w400,
-              overflow: TextOverflow.ellipsis,
+          child: PlassContentsGroup(
+            paints: fill != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: lit ? family.accent : tokens.mutedFg,
+                fontSize: text.size,
+                height: text.height,
+                fontWeight: lit ? FontWeight.w500 : FontWeight.w400,
+                overflow: TextOverflow.ellipsis,
+              ),
+              maxLines: 1,
+              // `selected` rather than a role: a table of contents row is where
+              // the reader is *within* the document, which is what
+              // `aria-current="location"` says in the React build.
+              child: Semantics(selected: lit, child: item.label),
             ),
-            maxLines: 1,
-            // `selected` rather than a role: a table of contents row is where
-            // the reader is *within* the document, which is what
-            // `aria-current="location"` says in the React build.
-            child: Semantics(selected: lit, child: item.label),
           ),
         );
       },

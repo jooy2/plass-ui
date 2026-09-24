@@ -12,6 +12,7 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/window.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -323,7 +324,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
               metrics.band.bottom,
             ),
             color: paint.body,
-            child: widget.child ?? const SizedBox.shrink(),
+            child: PlassContentsGroup(paints: true, child: widget.child ?? const SizedBox.shrink()),
           ),
         ),
       ),
@@ -619,16 +620,19 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         gradient: chrome.image,
         border: chrome.rule ? Border(bottom: BorderSide(color: colors.line)) : null,
       ),
-      child: chrome.titleAlign == PlWindowTitleAlign.center
-          ? Stack(
-              children: <Widget>[
-                // Centred over the whole window rather than over what is left
-                // of it, which is where macOS and GNOME both put it.
-                Center(child: name),
-                Positioned.fill(child: row),
-              ],
-            )
-          : row,
+      child: PlassContentsGroup(
+        paints: true,
+        child: chrome.titleAlign == PlWindowTitleAlign.center
+            ? Stack(
+                children: <Widget>[
+                  // Centred over the whole window rather than over what is left
+                  // of it, which is where macOS and GNOME both put it.
+                  Center(child: name),
+                  Positioned.fill(child: row),
+                ],
+              )
+            : row,
+      ),
     );
 
     if (!widget.draggable) {

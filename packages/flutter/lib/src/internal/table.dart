@@ -20,6 +20,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/keyboard_scroll.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -420,6 +421,12 @@ class _PlassGridState extends State<PlassGrid> {
       ],
     );
 
+    final bool lit = widget.hoverable || _interactive;
+    final tint = widget.rowTint;
+    final bool tinted =
+        tint != null &&
+        Iterable<int>.generate(widget.rowCount).any((int index) => tint(index) != null);
+
     // Everything the rows scroll past, and nothing a title should scroll with.
     Widget scrolling = SingleChildScrollView(
       controller: _scroll,
@@ -433,13 +440,26 @@ class _PlassGridState extends State<PlassGrid> {
               rowCount: widget.rowCount,
               hovered: _hovered,
               focused: _focused,
-              lit: widget.hoverable || _interactive,
-              tint: widget.rowTint,
+              lit: lit,
+              tint: tint,
               hover: family.soft,
               ring: family.ring,
               rule: rowRule,
             ),
-            child: grid,
+            // The bands are all painted before the first cell, so one group
+            // round the grid hands every cell a read with its row's band in
+            // it. Only the hover is read here, and only the group is built
+            // again for it.
+            child: ValueListenableBuilder<int?>(
+              valueListenable: _hovered,
+              child: grid,
+              builder: (BuildContext context, int? hovered, Widget? child) {
+                return PlassContentsGroup(
+                  paints: tinted || (lit && hovered != null),
+                  child: child!,
+                );
+              },
+            ),
           ),
           if (widget.rowCount == 0)
             Padding(
@@ -679,13 +699,19 @@ class _PinnedHeader extends StatelessWidget {
           color: fill,
           border: Border(bottom: rule),
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              for (var index = 0; index < cells.length; index += 1)
-                SizedBox(width: index < widths.length ? widths[index] : null, child: cells[index]),
-            ],
+        child: PlassContentsGroup(
+          paints: true,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                for (var index = 0; index < cells.length; index += 1)
+                  SizedBox(
+                    width: index < widths.length ? widths[index] : null,
+                    child: cells[index],
+                  ),
+              ],
+            ),
           ),
         ),
       ),

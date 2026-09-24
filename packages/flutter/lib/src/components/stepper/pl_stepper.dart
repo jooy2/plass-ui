@@ -7,6 +7,7 @@ import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/steps.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -393,6 +394,8 @@ class _Step extends StatelessWidget {
           // comes and goes. Put in only while focused, it moved the step a
           // level down the tree, which built its bullet and its words again
           // every time the focus arrived or left.
+          final bool washed = state.hovered || state.pressed;
+
           return CustomPaint(
             foregroundPainter: state.focusVisible
                 ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
@@ -400,11 +403,8 @@ class _Step extends StatelessWidget {
             child: AnimatedContainer(
               duration: tokens.motionDuration,
               curve: tokens.motionEase,
-              decoration: BoxDecoration(
-                color: state.hovered || state.pressed ? family.soft : null,
-                borderRadius: radius,
-              ),
-              child: content,
+              decoration: BoxDecoration(color: washed ? family.soft : null, borderRadius: radius),
+              child: PlassContentsGroup(paints: washed, child: content),
             ),
           );
         },

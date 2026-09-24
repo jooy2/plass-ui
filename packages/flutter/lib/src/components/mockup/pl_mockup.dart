@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/mockup.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -178,50 +179,53 @@ class PlMockup extends StatelessWidget {
         border: bare ? null : Border.all(color: shell.shade),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: <Widget>[
-          // Behind everything, including the system's own bars: a wallpaper is
-          // what the screen is showing, not a film over the glass. Drawn as the
-          // bottom of the stack rather than as the container's own decoration,
-          // because that slot is already holding the screen's radius and the
-          // ring the hardware cuts around it.
-          if (wallpaper != null) Positioned.fill(child: DecoratedBox(decoration: wallpaper!)),
-          // The bars are left out of the semantics tree, as the rest of the
-          // hardware is: the clock in them is part of the picture, and what a
-          // screen reader is told about is what the caller put on the screen.
-          Column(
-            children: <Widget>[
-              if (chrome.top != null) ExcludeSemantics(child: chrome.top!),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    if (chrome.start != null) ExcludeSemantics(child: chrome.start!),
-                    Expanded(child: ClipRect(child: child ?? const SizedBox.expand())),
-                  ],
-                ),
-              ),
-              if (chrome.bottom != null) ExcludeSemantics(child: chrome.bottom!),
-            ],
-          ),
-          // Above the bars, because it is a hole in the glass they are printed
-          // on. Left to the source order it would sit under one instead, which
-          // is a camera behind a pane of frosted plastic.
-          if (mockupCutout(notch: cutout, screen: metrics.screen, landscape: landscape) != null)
-            Positioned.fill(
-              child: ExcludeSemantics(
-                child: Align(
-                  alignment: landscape ? Alignment.centerLeft : Alignment.topCenter,
-                  child: Stack(
-                    clipBehavior: Clip.none,
+      child: PlassContentsGroup(
+        paints: true,
+        child: Stack(
+          children: <Widget>[
+            // Behind everything, including the system's own bars: a wallpaper
+            // is what the screen is showing, not a film over the glass. Drawn
+            // as the bottom of the stack rather than as the container's own
+            // decoration, because that slot is already holding the screen's
+            // radius and the ring the hardware cuts around it.
+            if (wallpaper != null) Positioned.fill(child: DecoratedBox(decoration: wallpaper!)),
+            // The bars are left out of the semantics tree, as the rest of the
+            // hardware is: the clock in them is part of the picture, and what a
+            // screen reader is told about is what the caller put on the screen.
+            Column(
+              children: <Widget>[
+                if (chrome.top != null) ExcludeSemantics(child: chrome.top!),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
-                      mockupCutout(notch: cutout, screen: metrics.screen, landscape: landscape)!,
+                      if (chrome.start != null) ExcludeSemantics(child: chrome.start!),
+                      Expanded(child: ClipRect(child: child ?? const SizedBox.expand())),
                     ],
                   ),
                 ),
-              ),
+                if (chrome.bottom != null) ExcludeSemantics(child: chrome.bottom!),
+              ],
             ),
-        ],
+            // Above the bars, because it is a hole in the glass they are
+            // printed on. Left to the source order it would sit under one
+            // instead, which is a camera behind a pane of frosted plastic.
+            if (mockupCutout(notch: cutout, screen: metrics.screen, landscape: landscape) != null)
+              Positioned.fill(
+                child: ExcludeSemantics(
+                  child: Align(
+                    alignment: landscape ? Alignment.centerLeft : Alignment.topCenter,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: <Widget>[
+                        mockupCutout(notch: cutout, screen: metrics.screen, landscape: landscape)!,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
 

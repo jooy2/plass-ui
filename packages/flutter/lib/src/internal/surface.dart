@@ -338,6 +338,42 @@ BackdropKey plassContentsBackdrop(
   return BackdropGroup.of(context)?.backdropKey ?? own;
 }
 
+/// Puts [child] in the group [plassContentsBackdrop] gives it, for a fill that
+/// is painted without a [PlassSurfaceBox]: a row's wash, a table's header band,
+/// a window's body.
+///
+/// The rule is the one the box follows, and [paints] says whether the fill is
+/// there. Pass it the fill's own test rather than `true` wherever the fill
+/// comes and goes, so an unpainted row leaves what it holds in the group around
+/// it.
+class PlassContentsGroup extends StatefulWidget {
+  /// Puts [child] in a group of its own while [paints].
+  const PlassContentsGroup({required this.paints, required this.child, super.key});
+
+  /// Whether a fill is painted behind [child].
+  final bool paints;
+
+  /// What is drawn on the fill.
+  final Widget child;
+
+  @override
+  State<PlassContentsGroup> createState() => _PlassContentsGroupState();
+}
+
+class _PlassContentsGroupState extends State<PlassContentsGroup> {
+  /// Held for the life of the group, for the reason [PlassSurfaceBox] holds its
+  /// own.
+  final BackdropKey _own = BackdropKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return BackdropGroup(
+      backdropKey: plassContentsBackdrop(context, paints: widget.paints, own: _own),
+      child: widget.child,
+    );
+  }
+}
+
 /* ---------------------------------------------------------------------------
  * The three surfaces
  *

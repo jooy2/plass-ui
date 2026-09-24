@@ -865,20 +865,23 @@ class _PlMenuState extends State<PlMenu> {
             color: lit || opened ? family.softHover : null,
             borderRadius: BorderRadius.circular(tokens.radii[_rowRadiusStep[_size]!]!),
           ),
-          child: Opacity(
-            opacity: available ? 1 : disabledOpacity,
-            child: Padding(
-              padding: _rowPadding[_density]![_size]!,
-              child: _rowBody(
-                tokens,
-                entry,
-                ink: !available
-                    ? tokens.mutedFg
-                    : accented
-                    ? family.accent
-                    : tokens.fg,
-                family: family,
-                scale: scale,
+          child: PlassContentsGroup(
+            paints: lit || opened,
+            child: Opacity(
+              opacity: available ? 1 : disabledOpacity,
+              child: Padding(
+                padding: _rowPadding[_density]![_size]!,
+                child: _rowBody(
+                  tokens,
+                  entry,
+                  ink: !available
+                      ? tokens.mutedFg
+                      : accented
+                      ? family.accent
+                      : tokens.fg,
+                  family: family,
+                  scale: scale,
+                ),
               ),
             ),
           ),

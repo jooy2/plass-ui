@@ -402,7 +402,7 @@ class PlListItem extends StatelessWidget {
       duration: tokens.motionDuration,
       curve: tokens.motionEase,
       decoration: BoxDecoration(color: fill, borderRadius: radius),
-      child: content,
+      child: PlassContentsGroup(paints: fill != null, child: content),
     );
 
     surface = plassStateFilter(child: surface, disabled: disabled, lit: false);

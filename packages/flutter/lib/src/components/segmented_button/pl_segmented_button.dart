@@ -372,7 +372,10 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
             height: _tile!.height,
             child: _Riding(variant: widget.variant, family: family, tokens: tokens),
           ),
-        row,
+        // The tile is painted before every segment, so one group round them
+        // hands the chosen one a read with the tile in it — on a `ghost` set as
+        // well, whose groove paints nothing to open a group of its own.
+        PlassContentsGroup(paints: _tile != null, child: row),
       ],
     );
 

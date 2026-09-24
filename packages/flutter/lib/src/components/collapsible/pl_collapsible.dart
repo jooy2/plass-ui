@@ -382,65 +382,70 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
             ? family.accent
             : tokens.fg;
 
+        final bool washed = lit && !widget.disabled;
+
         Widget row = AnimatedContainer(
           duration: reduceMotion ? Duration.zero : tokens.motionDuration,
           curve: tokens.motionEase,
-          decoration: BoxDecoration(color: lit && !widget.disabled ? family.soft : null),
+          decoration: BoxDecoration(color: washed ? family.soft : null),
           padding: EdgeInsets.symmetric(horizontal: padX, vertical: padY),
-          child: Row(
-            spacing: gap[_size]!,
-            children: <Widget>[
-              if (widget.startIcon != null)
-                IconTheme.merge(
-                  data: IconThemeData(color: tokens.mutedFg, size: title.size * iconScale),
-                  child: widget.startIcon!,
-                ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: sheetHeaderGap[_size]!,
-                  children: <Widget>[
-                    if (widget.title != null)
-                      DefaultTextStyle.merge(
-                        style: TextStyle(
-                          color: ink,
-                          fontSize: title.size,
-                          height: title.height,
-                          fontWeight: FontWeight.w600,
-                          leadingDistribution: TextLeadingDistribution.even,
+          child: PlassContentsGroup(
+            paints: washed,
+            child: Row(
+              spacing: gap[_size]!,
+              children: <Widget>[
+                if (widget.startIcon != null)
+                  IconTheme.merge(
+                    data: IconThemeData(color: tokens.mutedFg, size: title.size * iconScale),
+                    child: widget.startIcon!,
+                  ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: sheetHeaderGap[_size]!,
+                    children: <Widget>[
+                      if (widget.title != null)
+                        DefaultTextStyle.merge(
+                          style: TextStyle(
+                            color: ink,
+                            fontSize: title.size,
+                            height: title.height,
+                            fontWeight: FontWeight.w600,
+                            leadingDistribution: TextLeadingDistribution.even,
+                          ),
+                          maxLines: widget.truncate ? 1 : null,
+                          softWrap: !widget.truncate,
+                          overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
+                          child: widget.title!,
                         ),
-                        maxLines: widget.truncate ? 1 : null,
-                        softWrap: !widget.truncate,
-                        overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
-                        child: widget.title!,
-                      ),
-                    if (widget.subtitle != null)
-                      DefaultTextStyle.merge(
-                        style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
-                        maxLines: widget.truncate ? 1 : null,
-                        softWrap: !widget.truncate,
-                        overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
-                        child: widget.subtitle!,
-                      ),
-                  ],
-                ),
-              ),
-              // Turned, not moved. It is also the only thing on the header that
-              // reports the open state by moving, which is why the header itself
-              // only changes colour.
-              if (widget.indicator)
-                AnimatedRotation(
-                  turns: widget.open ? 0.5 : 0,
-                  duration: reduceMotion ? Duration.zero : tokens.motionDuration,
-                  curve: tokens.motionEase,
-                  child: PlassGlyph(
-                    PlassGlyphShape.chevron,
-                    size: title.size * iconScale,
-                    color: tokens.mutedFg,
+                      if (widget.subtitle != null)
+                        DefaultTextStyle.merge(
+                          style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
+                          maxLines: widget.truncate ? 1 : null,
+                          softWrap: !widget.truncate,
+                          overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
+                          child: widget.subtitle!,
+                        ),
+                    ],
                   ),
                 ),
-            ],
+                // Turned, not moved. It is also the only thing on the header
+                // that reports the open state by moving, which is why the
+                // header itself only changes colour.
+                if (widget.indicator)
+                  AnimatedRotation(
+                    turns: widget.open ? 0.5 : 0,
+                    duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+                    curve: tokens.motionEase,
+                    child: PlassGlyph(
+                      PlassGlyphShape.chevron,
+                      size: title.size * iconScale,
+                      color: tokens.mutedFg,
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
 

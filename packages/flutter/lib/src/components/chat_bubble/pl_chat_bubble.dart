@@ -570,62 +570,65 @@ class _Preview extends StatelessWidget {
             border: Border.all(color: colorMix(ink, 18), width: hairline),
             borderRadius: radius,
           ),
-          child: ClipRRect(
-            borderRadius: radius,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (preview.image != null)
-                  // Decorative: everything the picture is saying is written
-                  // underneath it.
-                  SizedBox(
-                    height: 112,
-                    child: Image(image: preview.image!, fit: BoxFit.cover),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 2,
-                    children: <Widget>[
-                      if (preview.site != null)
-                        DefaultTextStyle.merge(
-                          style: TextStyle(color: ink.withValues(alpha: ink.a * 0.7)),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: 4,
-                            children: <Widget>[
-                              PlassGlyph(
-                                PlassGlyphShape.link,
-                                size: 12,
-                                color: ink.withValues(alpha: ink.a * 0.7),
-                              ),
-                              Flexible(child: preview.site!),
-                            ],
+          child: PlassContentsGroup(
+            paints: true,
+            child: ClipRRect(
+              borderRadius: radius,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (preview.image != null)
+                    // Decorative: everything the picture is saying is written
+                    // underneath it.
+                    SizedBox(
+                      height: 112,
+                      child: Image(image: preview.image!, fit: BoxFit.cover),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 2,
+                      children: <Widget>[
+                        if (preview.site != null)
+                          DefaultTextStyle.merge(
+                            style: TextStyle(color: ink.withValues(alpha: ink.a * 0.7)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: 4,
+                              children: <Widget>[
+                                PlassGlyph(
+                                  PlassGlyphShape.link,
+                                  size: 12,
+                                  color: ink.withValues(alpha: ink.a * 0.7),
+                                ),
+                                Flexible(child: preview.site!),
+                              ],
+                            ),
                           ),
-                        ),
-                      if (preview.title != null)
-                        DefaultTextStyle.merge(
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          child: preview.title!,
-                        ),
-                      if (preview.description != null)
-                        DefaultTextStyle.merge(
-                          style: TextStyle(color: ink.withValues(alpha: ink.a * 0.8)),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          child: preview.description!,
-                        ),
-                    ],
+                        if (preview.title != null)
+                          DefaultTextStyle.merge(
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            child: preview.title!,
+                          ),
+                        if (preview.description != null)
+                          DefaultTextStyle.merge(
+                            style: TextStyle(color: ink.withValues(alpha: ink.a * 0.8)),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            child: preview.description!,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
