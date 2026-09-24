@@ -174,7 +174,11 @@ async function settleOn(href: string) {
   await expect.poll(() => link(href)?.checkVisibility()).toBe(true);
   await expect.poll(() => popup().hasAttribute('data-starting-style')).toBe(false);
   await expect.poll(() => easing().length).toBe(0);
-  expect(offBy(href)).toEqual([0, 0]);
+  // Polled rather than read once: on CI's Ubuntu WebKit the sheet was a few
+  // pixels short of the panel in the frame its transitions stopped being
+  // listed, and what the sheet owes is to land on the panel, not to land there
+  // in that frame.
+  await expect.poll(() => offBy(href)).toEqual([0, 0]);
 }
 
 /** A pixel length out of a keyframe, `'111.5px'` → `111.5`. */
