@@ -49,6 +49,27 @@ void main() {
       expect(node.value, '1, —, 3');
     });
 
+    testWidgets('writes the numbers as a chart writes a value it has no format for', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlSparkline(
+          data: <PlassChartDatum>[
+            PlassChartDatum(1234.567),
+            PlassChartDatum(48300),
+            PlassChartDatum(1500000),
+          ],
+          semanticLabel: 'Signups',
+        ),
+      );
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Signups'));
+
+      // What `compactNumber` writes, and what the React strip reads in English.
+      expect(node.value, '1,234.57, 48.3K, 1.5M');
+    });
+
     testWidgets('says nothing at all when it carries no name', (WidgetTester tester) async {
       await _pump(tester, const PlSparkline(data: trend));
 

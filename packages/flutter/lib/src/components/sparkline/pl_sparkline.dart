@@ -158,20 +158,17 @@ class PlSparkline extends StatelessWidget {
 
     // The numbers, for the readers the strip does not reach. A sparkline is a
     // picture of a trend and nothing else, so what it owes is the values — not
-    // a description of the shape they happen to make.
+    // a description of the shape they happen to make — written as every chart
+    // writes a value it was given no `format` for.
     return Semantics(
       label: semanticLabel,
       value: values
-          .map((ChartValue one) => one.value == null ? '—' : _write(one.value!))
+          .map((ChartValue one) => one.value == null ? '—' : compactNumber(one.value!))
           .join(', '),
       excludeSemantics: true,
       child: strip,
     );
   }
-
-  String _write(double value) => value == value.roundToDouble() && value.abs() < 1e15
-      ? value.toInt().toString()
-      : value.toStringAsFixed(2);
 }
 
 class _SparklinePainter extends CustomPainter {

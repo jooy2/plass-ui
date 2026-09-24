@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **A labelled `PlSparkline` reads its numbers the way a chart writes them.** The values written out for a screen reader were the raw figures, `48300` and `1234.567`, where every other chart writes a value it has no `format` for compactly and grouped in the reader's locale. They now go through the same writer, in the provider's `locale`: "1,234.57, 48.3K".
+
 - **A `PlCarousel` mounted where it has no width opens on the slide its `defaultValue` or `value` names.** Inside a hidden tab or a closed disclosure the strip could not be placed when it mounted, so it showed the first slide when it appeared while the dots marked the chosen one. The strip is now placed the first time it has a width, before that frame is painted and without travelling there.
 
 - **A floating `PlBackTop` clears the safe area at its inline end as well as at the bottom.** It added only `env(safe-area-inset-bottom)`, so the camera cutout of a phone held on its side could cover it. It now stands off the side it is against as well, the right or the left under RTL, as `PlFloatingActionButton` does.

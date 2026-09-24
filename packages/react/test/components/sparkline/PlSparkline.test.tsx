@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PlSparkline } from 'plass-ui';
+import { PlassProvider, PlSparkline } from 'plass-ui';
 import { render } from 'vitest-browser-react';
 
 const TREND = [12, 19, 15, 22, 18, 26];
@@ -280,6 +280,24 @@ describe('PlSparkline', () => {
       const screen = await render(<PlSparkline label="Signups" data={[1, null, 3]} width={200} />);
 
       await expect.element(screen.getByText('1, —, 3')).toBeInTheDocument();
+    });
+
+    it('writes the numbers as a chart writes a value it has no format for', async () => {
+      const screen = await render(
+        <PlSparkline label="Signups" data={[1234.567, 48300, 1500000]} width={200} />
+      );
+
+      await expect.element(screen.getByText('1,234.57, 48.3K, 1.5M')).toBeInTheDocument();
+    });
+
+    it("writes them in the provider's locale", async () => {
+      const screen = await render(
+        <PlassProvider locale="de-DE">
+          <PlSparkline label="Signups" data={[1234.5, 2.25]} width={200} />
+        </PlassProvider>
+      );
+
+      await expect.element(screen.getByText('1.234,5, 2,25')).toBeInTheDocument();
     });
 
     it('is invisible to a reader when it carries no name', async () => {

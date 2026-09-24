@@ -13,7 +13,8 @@ import {
   markGap,
   resolveColor,
   sparklineHeights,
-  toValue
+  toValue,
+  writeChartValue
 } from '../../internal/chart.js';
 import { useMeasuredWidth } from '../../internal/chart-frame.js';
 import { useDefaults } from '../../internal/defaults.js';
@@ -280,10 +281,17 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
 
         {/* The numbers, for the readers the strip does not reach. A sparkline is
             a picture of a trend and nothing else, so what it owes is the values
-            — not a description of the shape they happen to make. */}
+            — not a description of the shape they happen to make — written as
+            every chart writes a value it was given no `format` for. */}
         {label ? (
           <span className={srOnlyClasses}>
-            {values.map((value) => (value.value === null ? '—' : value.value)).join(', ')}
+            {values
+              .map((value) =>
+                value.value === null
+                  ? '—'
+                  : writeChartValue(value.value, undefined, defaults.locale)
+              )
+              .join(', ')}
           </span>
         ) : null}
       </div>

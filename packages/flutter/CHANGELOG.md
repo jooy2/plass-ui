@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A labelled `PlSparkline` reads its numbers the way a chart writes them.** Its semantic value wrote each number whole or with two fixed decimals, `48300` and `1234.57`, where every other chart writes it through `compactNumber`. It now does too, "1,234.57, 48.3K", as in the React build.
+
 - **A chart writes a value that is not a number as `∞`, `-∞` or `NaN`.** `compactNumber` ran an infinite value through the compacting and wrote it as `In,fin,ityT`, and threw on `NaN`. It now writes all three as the React build's `Intl` does, with no unit after them.
 
 - **A `PlButton`, and the `PlIconButton` and `PlFloatingActionButton` built on it, keep what they hold as the focus ring, `loading`, `readOnly` and `disabled` change.** The focus ring, the pointer light, the gloss of a `glass` key, the saturation and the opacity each came and went with the state, which changed the shape of the tree above the content, so the label, the icons and anything stateful in them were built again from scratch each time. They now stay in the tree with only their settings changing, and an available button carries no layer for its opacity.
