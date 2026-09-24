@@ -267,6 +267,15 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       [count, loop, value, index, onValueChange]
     );
 
+    // Read by the placement below when the track only gets a width later, by
+    // which time the slide may have changed. Written in a layout effect so it
+    // is current before the browser lays out the frame the width arrives in.
+    const indexRef = React.useRef(index);
+
+    React.useLayoutEffect(() => {
+      indexRef.current = index;
+    });
+
     // The strip opens on the current slide rather than on the first, or a
     // carousel handed slide 3 marks its third dot over the first picture. Done
     // before the first paint, so the first picture is never seen, and
@@ -274,13 +283,40 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     // be. Slide 0 is where the browser already has it.
     React.useLayoutEffect(() => {
       const track = trackRef.current;
-      const slide = slideRefs.current[index];
 
-      if (index > 0 && track && slide) {
-        scrollTrackTo(track, slide, 'instant');
+      if (!track) {
+        return;
       }
+
+      const place = () => {
+        const slide = slideRefs.current[indexRef.current];
+
+        if (indexRef.current > 0 && slide) {
+          scrollTrackTo(track, slide, 'instant');
+        }
+      };
+
+      if (track.clientWidth > 0 || typeof ResizeObserver === 'undefined') {
+        place();
+
+        return;
+      }
+
+      // Mounted with no width, inside a hidden tab or a closed disclosure,
+      // there is nothing to scroll yet, and the strip would show the first
+      // slide when it appears. It is placed the first time it has a width,
+      // before that frame is painted.
+      const observer = new ResizeObserver(() => {
+        if (track.clientWidth > 0) {
+          observer.disconnect();
+          place();
+        }
+      });
+
+      observer.observe(track);
+
+      return () => observer.disconnect();
       // The mount only: every later change of slide is the effect below's.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     React.useEffect(() => {

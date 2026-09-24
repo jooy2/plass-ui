@@ -72,6 +72,32 @@ describe('a PlCarousel that opens on a slide other than the first', () => {
       .toHaveAttribute('aria-current', 'true');
   });
 
+  it('shows the slide `defaultValue` names once the box it was mounted hidden in is shown, without travelling to it', async () => {
+    function Tab({ shown }: { shown: boolean }) {
+      return (
+        <div style={{ display: shown ? 'block' : 'none' }}>
+          <Strip defaultValue={2} />
+        </div>
+      );
+    }
+
+    const screen = await render(<Tab shown={false} />);
+    const track = document.querySelector('[role="group"][aria-label="Carousel"]')!;
+    const positions: number[] = [];
+
+    track.addEventListener('scroll', () => positions.push(track.scrollLeft));
+    await screen.rerender(<Tab shown />);
+
+    // Polled, unlike the readings above: the strip can only be placed once the
+    // browser has laid the track out with a width, which is a frame after it
+    // is shown.
+    await expect.poll(() => offsetOf('Slide 3 of 3')).toBeLessThan(1);
+    await expect.poll(() => positions.length).toBeGreaterThan(0);
+    // In one step: a strip that travelled there would have passed through the
+    // second slide on the way.
+    expect(positions.every((position) => position === positions.at(-1))).toBe(true);
+  });
+
   it('does the same the other way round under RTL', async () => {
     const screen = await render(<Strip defaultValue={2} dir="rtl" />);
 
