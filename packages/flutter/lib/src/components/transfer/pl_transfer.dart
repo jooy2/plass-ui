@@ -316,9 +316,9 @@ class _PlTransferState extends State<PlTransfer> {
     _commit(next);
 
     final PlassLabels words = PlassTheme.labelsOf(context);
-    final String list = toTarget
-        ? widget.targetLabel ?? words.transferSelected
-        : widget.sourceLabel ?? words.transferAvailable;
+    final String fallback = toTarget ? words.transferSelected : words.transferAvailable;
+    final String heading = _heading(toTarget ? widget.targetLabel : widget.sourceLabel, fallback);
+    final String list = heading.trim().isEmpty ? fallback : heading;
     final String Function(int count, String list) say = widget.movedLabel ?? words.transferMoved;
 
     // The pressed arrow is disabled by the rebuild this move causes, since
@@ -477,7 +477,7 @@ class _PlTransferState extends State<PlTransfer> {
       children: <Widget>[
         Expanded(
           child: _panel(
-            title: widget.sourceLabel ?? PlassTheme.labelsOf(context).transferAvailable,
+            title: _heading(widget.sourceLabel, PlassTheme.labelsOf(context).transferAvailable),
             fallback: PlassTheme.labelsOf(context).transferAvailable,
             rows: sourceRows,
             controller: _sourceSearch,
@@ -518,7 +518,7 @@ class _PlTransferState extends State<PlTransfer> {
         ),
         Expanded(
           child: _panel(
-            title: widget.targetLabel ?? PlassTheme.labelsOf(context).transferSelected,
+            title: _heading(widget.targetLabel, PlassTheme.labelsOf(context).transferSelected),
             fallback: PlassTheme.labelsOf(context).transferSelected,
             rows: targetRows,
             controller: _targetSearch,
@@ -543,6 +543,13 @@ class _PlTransferState extends State<PlTransfer> {
     }
 
     return <String>[words, list].where((String part) => part.isNotEmpty).join(' ');
+  }
+
+  /// The heading over a list: the caller's, or the theme's name for the list
+  /// when the caller's is missing or empty. An empty string is a heading left
+  /// out rather than a list with nothing over it, as in the React build.
+  static String _heading(String? label, String fallback) {
+    return label == null || label.isEmpty ? fallback : label;
   }
 
   /// What a caller sees of one side, so the two panels are literally one method.

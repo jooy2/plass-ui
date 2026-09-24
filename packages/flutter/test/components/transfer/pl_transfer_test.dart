@@ -62,6 +62,23 @@ void main() {
         expect(find.text('In the report'), findsOneWidget);
       });
 
+      testWidgets("draws the theme's name over a list whose heading is empty", (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTransfer(items: items, sourceLabel: '', targetLabel: '', height: 160),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        // An empty heading is a heading left out, as it is in the React build,
+        // rather than a list with nothing over it.
+        expect(find.text('Available'), findsOneWidget);
+        expect(find.text('Selected'), findsOneWidget);
+      });
+
       testWidgets('says so when a list is empty', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(
@@ -170,6 +187,25 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.takeAnnouncements().single.message, 'In the report: +1');
+      });
+
+      testWidgets("says the theme's name for a list whose heading is empty", (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlTransfer(items: items, targetLabel: '', height: 160),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        await tester.tap(find.text('Name'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('Move to selected'));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeAnnouncements().single.message, '1 item moved to Selected');
       });
 
       testWidgets('keeps the order of items on both sides', (WidgetTester tester) async {
