@@ -18,6 +18,7 @@ import {
 import {
   controlTextClasses,
   cx,
+  fieldDescriptionClasses,
   focusRingClasses,
   metaTextClasses,
   radiusClasses,
@@ -835,11 +836,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           {description ? (
             <span
               id={`${fieldId}-description`}
-              className={cx(
-                metaTextClasses[size],
-                'text-(--plass-muted-fg)',
-                classNames?.description
-              )}
+              className={cx(fieldDescriptionClasses(size), classNames?.description)}
             >
               {description}
             </span>
