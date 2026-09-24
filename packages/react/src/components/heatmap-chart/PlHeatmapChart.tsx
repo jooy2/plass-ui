@@ -506,8 +506,13 @@ export function PlHeatmapChart({
             const next = cells[Math.max(0, (at === -1 ? cells.length : at) - 1)];
 
             setActive({ row: next.row, index: next.index });
-          } else if (event.key === 'Escape') {
+          } else if (event.key === 'Escape' && active !== null) {
+            // Only while a cell is being read, as on every other chart: with
+            // nothing to clear, the key belongs to the sheet the chart sits in,
+            // and with something to clear, the first press closes the readout
+            // and not that sheet as well.
             setActive(null);
+            event.stopPropagation();
           } else {
             return;
           }

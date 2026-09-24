@@ -66,6 +66,8 @@
 
 ### Fixed
 
+- **`Escape` on a `PlHeatmapChart` is taken only while a cell is being read.** The heatmap answered the key whatever it held and marked it handled, so a heatmap with nothing being read kept the key from a `usePlHotKeys` binding around it, and one with a readout let the same press go on and close the sheet it sat in as well. With a readout, the press now clears it and stops there; with none, it goes on to whatever the chart sits in, as on every other chart.
+
 - **A labelled `PlSparkline` reads its numbers the way a chart writes them.** The values written out for a screen reader were the raw figures, `48300` and `1234.567`, where every other chart writes a value it has no `format` for compactly and grouped in the reader's locale. They now go through the same writer, in the provider's `locale`: "1,234.57, 48.3K".
 
 - **A `PlCarousel` mounted where it has no width opens on the slide its `defaultValue` or `value` names.** Inside a hidden tab or a closed disclosure the strip could not be placed when it mounted, so it showed the first slide when it appeared while the dots marked the chosen one. The strip is now placed the first time it has a width, before that frame is painted and without travelling there.
