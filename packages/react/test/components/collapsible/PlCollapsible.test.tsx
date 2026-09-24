@@ -42,6 +42,40 @@ describe('PlCollapsible', () => {
       await expect.element(screen.getByTestId('glyph')).toBeInTheDocument();
     });
 
+    it('lets a title longer than the header wrap rather than ellipsing it', async () => {
+      const screen = await render(
+        <PlCollapsible title="A heading long enough to need a second line" subtitle="Nine settings">
+          Everything else.
+        </PlCollapsible>
+      );
+
+      expect(
+        screen.getByText('A heading long enough to need a second line').element()
+      ).not.toHaveClass('truncate');
+      expect(screen.getByText('Nine settings').element()).not.toHaveClass('truncate');
+    });
+
+    it('holds the title and the subtitle to one line with `truncate`', async () => {
+      const screen = await render(
+        <PlCollapsible title="Advanced" subtitle="Nine settings" truncate>
+          Everything else.
+        </PlCollapsible>
+      );
+
+      expect(screen.getByText('Advanced').element()).toHaveClass('truncate');
+      expect(screen.getByText('Nine settings').element()).toHaveClass('truncate');
+    });
+
+    it('keeps `truncate` off the rendered sheet', async () => {
+      await render(
+        <PlCollapsible className="fold-under-test" title="Advanced" truncate>
+          Everything else.
+        </PlCollapsible>
+      );
+
+      expect(document.querySelector('.fold-under-test')).not.toHaveAttribute('truncate');
+    });
+
     it('keeps an action outside the trigger', async () => {
       const screen = await render(
         <PlCollapsible title="Advanced" action={<PlSwitch label="On" />}>
@@ -184,6 +218,34 @@ describe('PlCollapsible', () => {
 
       expect(element?.style.getPropertyValue('--p-fill')).toBe('');
       expect(element?.style.getPropertyValue('--p-line')).toBe('var(--plass-danger-line)');
+    });
+
+    it('leaves space above the body under the default header', async () => {
+      const screen = await render(
+        <PlCollapsible defaultOpen title="Advanced">
+          <span data-testid="body">Everything else.</span>
+        </PlCollapsible>
+      );
+
+      const body = screen.getByTestId('body').element().parentElement;
+
+      // The header's padding is room around the title. The body buys its own,
+      // or its first line lands against the open header's tinted edge.
+      expect(body).toHaveClass('pt-3');
+      expect(body).toHaveClass('pb-5');
+    });
+
+    it('leaves the same space under a trigger of its own', async () => {
+      const screen = await render(
+        <PlCollapsible defaultOpen trigger={<PlButton>Show more</PlButton>}>
+          <span data-testid="body">Everything else.</span>
+        </PlCollapsible>
+      );
+
+      const body = screen.getByTestId('body').element().parentElement;
+
+      expect(body).toHaveClass('pt-3');
+      expect(body).toHaveClass('pb-5');
     });
 
     it('goes full bleed when the padding is turned off', async () => {

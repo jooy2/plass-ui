@@ -38,6 +38,8 @@
 
 ### Changed
 
+- **A `PlCollapsible`'s title and subtitle wrap, as a `PlAccordionItem`'s do.** They were each held to one line and ellipsed, so a heading that ran past the header lost its end with nothing to press for the rest. `truncate` puts both back on one line, for a name out of a database beside a control.
+
 - **A carousel stops once the focus comes into it, and stays stopped until its button starts it again.** Hover and focus shared one pause, so a pointer passing over the frame started it again while a keyboard reader's focus was still inside. The pointer now pauses it only while it is over the frame. A reader who asked for reduced motion starts stopped rather than never starting, and the live region announces the slide once the carousel has stopped.
 
 - **A `dashed` series is keyed in the legend with a short dashed rule rather than the filled square.** A dashed line reads as a forecast or a target on the plot, and its legend entry was the same square as every other series', so the key did not carry the one distinction the plot did. The entry now draws two dashes at the line's weight and rhythm wherever the line is drawn dashed, on `PlLineChart` and on a `PlAreaChart` that is not stacked; a bar or a stacked band has no line to dash and keeps the square.
@@ -53,6 +55,8 @@
 - **A chart legend's switched-off entry fades instead of going grey.** The swatch went part-transparent and the name was recoloured to the muted ink, which read as a second kind of text rather than as the same entry, off. The whole row now fades as one thing — swatch, name and value together, at one opacity — which is what a control that has been switched off looks like everywhere else in the library. The line through the name stays, because it is the half of "off" that survives being read in one colour. The Flutter build makes the same change.
 
 ### Fixed
+
+- **A `PlCollapsible` leaves space between its header and its body.** Under the default header the body began at the open header's tinted edge, so its first line read as part of the title; only a `trigger` of the caller's own had the space. Both now have the space a `PlAccordion` section leaves.
 
 - **A `PlPill` that starts `expanded` is open on its first frame.** It rendered its panel at a height of 0 and measured it afterwards, so it animated open as it arrived. An open panel is now at its natural height until it has been measured, in the server's HTML as well, and opening and closing afterwards animate as before.
 

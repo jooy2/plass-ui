@@ -46,6 +46,8 @@
 
 ### Changed
 
+- **A `PlCollapsible`'s title and subtitle wrap, as a `PlAccordionItem`'s do.** They were each held to one line and ellipsed, so a heading that ran past the header lost its end with nothing to press for the rest. `truncate` puts both back on one line, for a name out of a database beside a control.
+
 - **A `dashed` series is keyed in the legend with a short dashed rule rather than the filled square.** A dashed line reads as a forecast or a target on the plot, and its legend entry was the same square as every other series', so the key did not carry the one distinction the plot did. The entry now draws two dashes at the line's weight and rhythm wherever the line is drawn dashed, on `PlLineChart` and on a `PlAreaChart` that is not stacked; a bar or a stacked band has no line to dash and keeps the square.
 
 - **A field's interaction light is turned down, and steps out of the way while the field is being typed into.** A key is pressed and the reader has moved on; a field is pressed once and then written in for a minute, with the bloom sitting under the words being typed and following a pointer nobody is moving any more. At a key's strength that reads as a stain on the sentence rather than as the surface answering. `PlassTokens.fieldGlow` and `fieldFlash` now mix the family's tint down to `PlassTokens.glowFieldStrength`, which is 55%, so `PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox`, `PlFilePicker` and the six picker triggers are all a shade quieter. Buttons, toggles, chips, pills and segmented controls are untouched. On the three fields that hold a text editor the bloom also goes out while the text or the caret is moving, and comes back on the next real pointer move.
@@ -55,6 +57,8 @@
 - **A chart legend's switched-off entry fades instead of going grey.** The swatch went part-transparent and the name was recoloured to the muted ink, which read as a second kind of text rather than as the same entry, off. The whole row now fades as one thing — swatch and name together, at one opacity — which is what a control that has been switched off looks like everywhere else in the library. The line through the name stays, because it is the half of "off" that survives being read in one colour. The React build makes the same change.
 
 ### Fixed
+
+- **A `PlCollapsible` leaves space between its header and its body.** Under the default header the body began at the open header's tinted edge, so its first line read as part of the title; only a `triggerBuilder` of the caller's own had the space. Both now have the space a `PlAccordion` section leaves.
 
 - **A `PlCard` or a `PlPill` keeps what it holds when `onPressed` or `interactive` changes.** The wrappers above the content came and went with those parameters, so the content was built again from scratch and a `PlTextField` inside lost what was typed into it. They now stay in the tree and only their settings change; a card that cannot be pressed still takes no focus and lets a tap through to whatever is around it. A pill also keeps its content when a keyboard focus brings its focus ring.
 

@@ -92,6 +92,7 @@ class PlCollapsible extends StatefulWidget {
     this.action,
     this.triggerBuilder,
     this.indicator = true,
+    this.truncate = false,
     this.disabled = false,
     this.padded = true,
     this.keepMounted = false,
@@ -147,6 +148,15 @@ class PlCollapsible extends StatefulWidget {
 
   /// The chevron at the end of the header, turned to report the state.
   final bool indicator;
+
+  /// Holds the title and the subtitle to one line each, ellipsing what runs
+  /// past.
+  ///
+  /// Off, as it is on a [PlAccordionItem]: a fold's title is a heading rather
+  /// than a cell, and ellipsing one costs the reader the end of it with nothing
+  /// to press to see the rest. The place for it is a header carrying a name
+  /// from a database beside a control.
+  final bool truncate;
 
   /// Unavailable. The trigger stops answering and the panel stays as it is.
   final bool disabled;
@@ -287,12 +297,13 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
               leadingDistribution: TextLeadingDistribution.even,
             ),
             child: Padding(
+              // Both sides, under the default header as well as under a
+              // caller's own trigger: the header's padding is room around the
+              // title, and the body buys its own.
               padding: EdgeInsetsDirectional.only(
                 start: widget.padded ? padX : 0,
                 end: widget.padded ? padX : 0,
-                top: widget.padded && widget.triggerBuilder != null
-                    ? _panelPaddingTop[_density]![_size]!
-                    : 0,
+                top: widget.padded ? _panelPaddingTop[_density]![_size]! : 0,
                 bottom: widget.padded ? _panelPaddingBottom[_density]![_size]! : 0,
               ),
               child: widget.child!,
@@ -396,17 +407,17 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
                           fontWeight: FontWeight.w600,
                           leadingDistribution: TextLeadingDistribution.even,
                         ),
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: widget.truncate ? 1 : null,
+                        softWrap: !widget.truncate,
+                        overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
                         child: widget.title!,
                       ),
                     if (widget.subtitle != null)
                       DefaultTextStyle.merge(
                         style: TextStyle(color: tokens.mutedFg, fontSize: metaText[_size]!),
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
+                        maxLines: widget.truncate ? 1 : null,
+                        softWrap: !widget.truncate,
+                        overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
                         child: widget.subtitle!,
                       ),
                   ],

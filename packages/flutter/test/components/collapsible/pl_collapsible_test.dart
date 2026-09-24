@@ -85,6 +85,63 @@ void main() {
         expect(find.text('Nine settings'), findsOneWidget);
       });
 
+      testWidgets('lets a title longer than the header wrap', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlCollapsible(
+              open: false,
+              title: Text('A heading long enough to need a second line'),
+              subtitle: Text('Nine settings'),
+              child: Text('Everything else.'),
+            ),
+            width: 260,
+          ),
+        );
+
+        for (final String text in <String>[
+          'A heading long enough to need a second line',
+          'Nine settings',
+        ]) {
+          final DefaultTextStyle wrapped = tester.widget<DefaultTextStyle>(
+            find.ancestor(of: find.text(text), matching: find.byType(DefaultTextStyle)).first,
+          );
+
+          expect(wrapped.maxLines, isNull);
+          expect(wrapped.softWrap, isTrue);
+          expect(wrapped.overflow, TextOverflow.clip);
+        }
+      });
+
+      testWidgets('holds the title and the subtitle to one line with truncate', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const PlCollapsible(
+              open: false,
+              truncate: true,
+              title: Text('A heading long enough to need a second line'),
+              subtitle: Text('Nine settings'),
+              child: Text('Everything else.'),
+            ),
+            width: 260,
+          ),
+        );
+
+        for (final String text in <String>[
+          'A heading long enough to need a second line',
+          'Nine settings',
+        ]) {
+          final DefaultTextStyle clipped = tester.widget<DefaultTextStyle>(
+            find.ancestor(of: find.text(text), matching: find.byType(DefaultTextStyle)).first,
+          );
+
+          expect(clipped.maxLines, 1);
+          expect(clipped.softWrap, isFalse);
+          expect(clipped.overflow, TextOverflow.ellipsis);
+        }
+      });
+
       testWidgets('keeps an action outside the trigger', (WidgetTester tester) async {
         var pressed = 0;
 
@@ -240,6 +297,39 @@ void main() {
     });
 
     group('the sheet', () {
+      testWidgets('leaves the same space above the body under either header', (
+        WidgetTester tester,
+      ) async {
+        /// The distance from the bottom of the header to the top of the body.
+        Future<double> gapUnder(_Harness harness, Finder header) async {
+          // Emptied first, so the second harness starts closed rather than
+          // taking over the first one's state.
+          await tester.pumpWidget(const SizedBox());
+          await tester.pumpWidget(host(harness, width: 360));
+          await tester.tap(header);
+          await tester.pumpAndSettle();
+
+          return tester.getRect(find.text('Everything else.')).top - tester.getRect(header).bottom;
+        }
+
+        final double underDefault = await gapUnder(
+          const _Harness(),
+          find.ancestor(of: find.text('Advanced'), matching: find.byType(AnimatedContainer)).first,
+        );
+        final double underOwn = await gapUnder(
+          _Harness(
+            triggerBuilder: (BuildContext context, bool open, VoidCallback toggle) =>
+                PlButton(onPressed: toggle, child: const Text('More')),
+          ),
+          find.byType(PlButton),
+        );
+
+        // The header's padding is room around the title. The body buys its
+        // own, or its first line lands against the open header's tinted edge.
+        expect(underDefault, greaterThan(0));
+        expect(underDefault, underOwn);
+      });
+
       testWidgets('is never dyed, whatever colour it is given', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

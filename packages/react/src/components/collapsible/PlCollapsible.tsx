@@ -70,6 +70,17 @@ export interface PlCollapsibleProps
   trigger?: React.ReactElement;
   /** The chevron at the end of the header, turned to report the state. @default true */
   indicator?: boolean;
+  /**
+   * Holds the header's title and subtitle to one line each, ellipsing whatever
+   * runs past.
+   *
+   * Off, as it is on a `PlAccordionItem`: a fold's title is a heading rather
+   * than a cell, and ellipsing one costs the reader the end of it with no
+   * tooltip and no way to see it. The place for it is a header carrying a name
+   * from a database beside a control.
+   * @default false
+   */
+  truncate?: boolean;
   /** Unavailable. The trigger stops answering and the panel stays as it is. */
   disabled?: boolean;
   /**
@@ -150,6 +161,7 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       action,
       trigger,
       indicator = true,
+      truncate = false,
       disabled = false,
       padded = true,
       hiddenUntilFound = false,
@@ -168,6 +180,9 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
 
     const padX = sheetPaddingXClasses[density][size];
     const padY = sheetPaddingYClasses[density][size];
+    // `min-w-0` on the column is what lets a wrapped line break inside a flex
+    // row at all, and it is there for the ellipsis as well.
+    const clamp = truncate ? 'truncate' : '';
 
     return (
       <BaseUICollapsible.Root
@@ -219,14 +234,12 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
 
               <span className={cx('flex min-w-0 flex-1 flex-col', sheetHeaderGapClasses[size])}>
                 {hasContent(title) ? (
-                  <span
-                    className={cx('plass-title truncate font-semibold', sheetTitleClasses[size])}
-                  >
+                  <span className={cx('plass-title font-semibold', clamp, sheetTitleClasses[size])}>
                     {title}
                   </span>
                 ) : null}
                 {hasContent(subtitle) ? (
-                  <span className={cx('truncate text-(--plass-muted-fg)', metaTextClasses[size])}>
+                  <span className={cx('text-(--plass-muted-fg)', clamp, metaTextClasses[size])}>
                     {subtitle}
                   </span>
                 ) : null}
@@ -274,15 +287,12 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
             className={cx(
               'min-w-0 text-(--plass-muted-fg)',
               sheetBodyClasses[size],
-              padded ? padX : '',
-              // The default header already paid for the space above, so the
-              // body only owes what goes under it — otherwise a closed
-              // collapsible would look padded. A caller's own `trigger` has paid
-              // for nothing, so there the panel owes both.
+              // Both sides, under the default header as well as under a
+              // caller's own `trigger`: the header's padding is room around the
+              // title, and the body buys its own. It is inside the panel, so a
+              // closed fold carries none of it.
               padded
-                ? trigger
-                  ? `${panelPaddingTopClasses[density][size]} ${panelPaddingBottomClasses[density][size]}`
-                  : panelPaddingBottomClasses[density][size]
+                ? `${padX} ${panelPaddingTopClasses[density][size]} ${panelPaddingBottomClasses[density][size]}`
                 : ''
             )}
           >

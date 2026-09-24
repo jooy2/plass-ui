@@ -5000,6 +5000,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     }),
     from('PlCollapsible', 'indicator', { type: 'bool', default: 'true' }),
+    from('PlCollapsible', 'truncate', { type: 'bool', default: 'false' }),
     from('PlCollapsible', 'disabled', { type: 'bool', default: 'false' }),
     from('PlCollapsible', 'padded', { type: 'bool', default: 'true' }),
     from('PlCollapsible', 'keepMounted', {

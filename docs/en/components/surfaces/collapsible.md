@@ -87,6 +87,8 @@ The three materials, read as a _container's_: the sheet is never dyed, because a
 
 `title`, `subtitle` and `startIcon` are the header. `action` is pinned to the end of it and sits **outside the trigger**, which is not a layout preference: a header that both folds and holds a switch has two things to press, and one of them cannot be nested inside the other.
 
+The title and the subtitle **wrap**, as a `PlAccordion` section's do. `truncate` holds each of them to one line and ellipses what runs past, for a header carrying a name from a database beside a control.
+
 The chevron is turned rather than moved, and it is the only thing on the header that reports the state by moving, which is why the header itself only changes colour.
 
 <Demo src="collapsible/slots" :min-height="220">
