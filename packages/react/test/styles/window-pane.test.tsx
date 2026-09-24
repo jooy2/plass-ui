@@ -129,6 +129,17 @@ describe('a window both maximized and minimized', () => {
 });
 
 describe('a window that starts minimized', () => {
+  // The height a window comes to rest at is what is asserted, not the journey
+  // there, so the roll-up by the button is made instant: on a slow runner its
+  // 260ms travel outlasted the poll that waits for it.
+  beforeAll(async () => {
+    await emulateMedia({ reducedMotion: 'reduce' });
+  });
+
+  afterAll(async () => {
+    await emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
   const systems = [
     'macos',
     'macosx',
