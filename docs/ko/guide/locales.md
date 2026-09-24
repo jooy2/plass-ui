@@ -31,13 +31,13 @@ order: 3
 
 `locale`은 `Intl`이 형식을 맞추는 BCP 47 태그입니다. 날짜가 `9/4/2026`이 아니라 `2026. 9. 4.`로 읽히는지, 7월을 뭐라고 부르는지, 천 단위 구분이 어디에 들어가는지를 정합니다. 전부 플랫폼의 몫이라 라이브러리는 달 이름을 하나도 싣지 않습니다.
 
-`labels`는 `Intl`이 아무 의견도 갖지 않는 백일곱 개의 항목입니다. "닫기"는 날짜도 숫자도 아니고, 플랫폼의 어느 부분도 그 말을 모릅니다.
+`labels`는 `Intl`이 아무 의견도 갖지 않는 백여덟 개의 항목입니다. "닫기"는 날짜도 숫자도 아니고, 플랫폼의 어느 부분도 그 말을 모릅니다.
 
 :::
 
 ::: fw flutter
 
-`labels`는 위젯이 스스로에 대해 말하는 백여섯 개의 항목입니다. 그중 셋은 React 쪽에 없습니다. `sortedAscending`과 `sortedDescending`은 `aria-sort`가 나르는 뜻을 여기서는 말로 해야 해서 있고, 자세한 이유는 [`PlDataTable`](../components/display/data-table) 페이지에 있습니다. `howToStep`은 진짜 `<ol>`이면 스크린 리더가 몇 번째 단계인지 알려 주는데 Flutter에는 물려받을 순서 목록이 없어서 있습니다. 반대로 React 쪽의 넷은 여기에 없습니다. `notifications`는 브라우저가 토스트를 안내하는 영역의 이름인데, Flutter 화면에는 그런 영역이 없습니다. `paginationStatus`는 페이저의 live region이 하는 말인데, Flutter 페이저에는 live region이 없습니다. `slide`는 슬라이드의 `aria-roledescription`이고, Flutter의 semantics에는 이것을 담을 자리가 없습니다. `otpSlot`은 코드 입력 칸 하나의 이름인데, Flutter 필드는 칸이 따로 없는 시맨틱 노드 하나입니다. 프레임워크에 `Intl`이 없으니 날짜는 별도 객체입니다. `PlDateNames`가 달 이름과 요일 약자를 들고 있고, 지정하는 방법은 같습니다. [기본값 정하기](defaults)를 보세요. 숫자에는 그런 객체가 없습니다. 차트는 locale과 상관없이 `9,999`, `48.3K`처럼 영어식으로 쓰고, 다르게 쓰려면 `format`을 넘깁니다.
+`labels`는 위젯이 스스로에 대해 말하는 백일곱 개의 항목입니다. 그중 셋은 React 쪽에 없습니다. `sortedAscending`과 `sortedDescending`은 `aria-sort`가 나르는 뜻을 여기서는 말로 해야 해서 있고, 자세한 이유는 [`PlDataTable`](../components/display/data-table) 페이지에 있습니다. `howToStep`은 진짜 `<ol>`이면 스크린 리더가 몇 번째 단계인지 알려 주는데 Flutter에는 물려받을 순서 목록이 없어서 있습니다. 반대로 React 쪽의 넷은 여기에 없습니다. `notifications`는 브라우저가 토스트를 안내하는 영역의 이름인데, Flutter 화면에는 그런 영역이 없습니다. `paginationStatus`는 페이저의 live region이 하는 말인데, Flutter 페이저에는 live region이 없습니다. `slide`는 슬라이드의 `aria-roledescription`이고, Flutter의 semantics에는 이것을 담을 자리가 없습니다. `otpSlot`은 코드 입력 칸 하나의 이름인데, Flutter 필드는 칸이 따로 없는 시맨틱 노드 하나입니다. 프레임워크에 `Intl`이 없으니 날짜는 별도 객체입니다. `PlDateNames`가 달 이름과 요일 약자를 들고 있고, 지정하는 방법은 같습니다. [기본값 정하기](defaults)를 보세요. 숫자에는 그런 객체가 없습니다. 차트는 locale과 상관없이 `9,999`, `48.3K`처럼 영어식으로 쓰고, 다르게 쓰려면 `format`을 넘깁니다.
 
 :::
 
@@ -153,7 +153,7 @@ PlassTheme.merge(
 
 ::: fw react
 
-병합은 키 단위입니다. 네 단어만 정한 프로바이더는 나머지 백세 개를 영어로 두고, 다른 프로바이더 안에 들어간 프로바이더는 자기가 이름 붙인 것만 바꾸고 나머지는 물려받습니다.
+병합은 키 단위입니다. 네 단어만 정한 프로바이더는 나머지 백네 개를 영어로 두고, 다른 프로바이더 안에 들어간 프로바이더는 자기가 이름 붙인 것만 바꾸고 나머지는 물려받습니다.
 
 주변 컴포넌트와 줄을 맞춰야 하는 자기 컴포넌트를 위해, 걸려 있는 값을 읽는 방법입니다.
 
