@@ -1,16 +1,21 @@
-/// That the filters a surface wears for its state leave what it holds alone.
+/// That the layers and the filters a surface wears for its state leave what it
+/// holds alone.
 ///
 /// A hover and a press change how bright a lit surface is, and `readOnly` and
-/// `disabled` how drained and how faint, and nothing else about it. A filter
-/// that came and went with them would change the shape of the tree above the
-/// content, and Flutter builds a changed shape from scratch, so what is checked
-/// here is the content's own state, kept across all four.
+/// `disabled` how drained and how faint, whether a glass surface has its gloss
+/// and whether it takes the light, and nothing else about it. A layer or a
+/// filter that came and went with them would change the shape of the tree above
+/// the content, and Flutter builds a changed shape from scratch, so what is
+/// checked here is the content's own state, kept across all four.
 library;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/css.dart';
+import 'package:plass_ui/src/internal/glow.dart';
+import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
@@ -31,6 +36,55 @@ class _ProbeState extends State<_Probe> {
 }
 
 void main() {
+  group('PlassSurfaceBox', () {
+    testWidgets('keeps what it holds as its gloss and its light come and go', (
+      WidgetTester tester,
+    ) async {
+      // What `readOnly` and `disabled` do to a glass field: the gloss goes, and
+      // the bloom and the flash are put out.
+      Widget box({required bool available}) {
+        final PlassTokens tokens = PlassTokens.light();
+
+        return host(
+          SizedBox(
+            width: 200,
+            height: 40,
+            child: PlassSurfaceBox(
+              surface: PlassSurface(
+                fill: tokens.glass,
+                ink: tokens.fg,
+                blur: true,
+                insets: <PlassInsetShadow>[if (available) tokens.glossGlass],
+              ),
+              borderRadius: BorderRadius.circular(12),
+              glow: available ? const Color(0x33FFFFFF) : null,
+              flash: available ? const Color(0x66FFFFFF) : null,
+              child: const _Probe(),
+            ),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(box(available: true));
+      final State<_Probe> resting = tester.state(find.byType(_Probe));
+
+      for (final (String reason, bool available) in <(String, bool)>[
+        ('unavailable', false),
+        ('available again', true),
+      ]) {
+        await tester.pumpWidget(box(available: available));
+        await tester.pumpAndSettle();
+
+        expect(tester.state(find.byType(_Probe)), same(resting), reason: reason);
+        expect(
+          find.byType(PlassGlowLayer),
+          available ? findsNWidgets(2) : findsNothing,
+          reason: reason,
+        );
+      }
+    });
+  });
+
   group('plassStateFilter', () {
     Widget lit({bool hovered = false, bool pressed = false}) {
       return host(plassStateFilter(hovered: hovered, pressed: pressed, child: const _Probe()));

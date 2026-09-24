@@ -172,13 +172,13 @@ class PlassSurfaceBox extends StatefulWidget {
   /// Where the pointer is, in this box's coordinates.
   final Offset? pointer;
 
-  /// The bloom's colour. `null` leaves the layer out entirely.
+  /// The bloom's colour. `null` paints no bloom at all.
   final Color? glow;
 
   /// Whether the bloom is lit.
   final bool glowVisible;
 
-  /// The press flash's colour. `null` leaves the layer out entirely.
+  /// The press flash's colour. `null` paints no flash at all.
   final Color? flash;
 
   /// Whether the flash is lit.
@@ -257,44 +257,53 @@ class _PlassSurfaceBoxState extends State<PlassSurfaceBox> {
             ),
           ),
         ),
-        if (surface.insets.isNotEmpty)
-          Positioned.fill(
-            child: CustomPaint(
-              painter: PlassInsetShadowPainter(shadows: surface.insets, borderRadius: borderRadius),
-            ),
+        // Every layer from here down keeps its place whatever the state, and
+        // only what is in it changes. `readOnly` and `disabled` take the gloss
+        // off a glass surface and put the light out, and a layer that came and
+        // went with them would move what the box holds to another place in the
+        // stack, which Flutter builds again from scratch: a field would come
+        // back with a new editor.
+        Positioned.fill(
+          child: CustomPaint(
+            painter: surface.insets.isEmpty
+                ? null
+                : PlassInsetShadowPainter(shadows: surface.insets, borderRadius: borderRadius),
           ),
-        if (glow != null)
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: PlassGlowLayer(
-                pointer: pointer,
-                visible: widget.glowVisible,
-                color: glow,
-                radius: glowRadius,
-                duration: PlassTokens.glowDuration,
-                reduceMotion: reduceMotion,
-              ),
-            ),
-          ),
+        ),
+        Positioned.fill(
+          child: glow == null
+              ? const SizedBox()
+              : RepaintBoundary(
+                  child: PlassGlowLayer(
+                    pointer: pointer,
+                    visible: widget.glowVisible,
+                    color: glow,
+                    radius: glowRadius,
+                    duration: PlassTokens.glowDuration,
+                    reduceMotion: reduceMotion,
+                  ),
+                ),
+        ),
         BackdropGroup(
           backdropKey: plassContentsBackdrop(context, paints: surface.paints, own: _contents),
           child: widget.child,
         ),
-        if (flash != null)
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: PlassGlowLayer(
-                pointer: pointer,
-                visible: widget.flashVisible,
-                color: flash,
-                radius: flashRadius,
-                duration: PlassTokens.flashDuration,
-                curve: PlassTokens.flashEase,
-                instant: true,
-                reduceMotion: reduceMotion,
-              ),
-            ),
-          ),
+        Positioned.fill(
+          child: flash == null
+              ? const SizedBox()
+              : RepaintBoundary(
+                  child: PlassGlowLayer(
+                    pointer: pointer,
+                    visible: widget.flashVisible,
+                    color: flash,
+                    radius: flashRadius,
+                    duration: PlassTokens.flashDuration,
+                    curve: PlassTokens.flashEase,
+                    instant: true,
+                    reduceMotion: reduceMotion,
+                  ),
+                ),
+        ),
       ],
     );
 

@@ -162,7 +162,7 @@ class PlChip extends StatelessWidget {
     final radius = BorderRadius.circular(tokens.radii[step]!);
     final interactive = onPressed != null && !disabled;
 
-    if (!interactive) {
+    if (onPressed == null) {
       return _shell(
         context,
         tokens: tokens,
@@ -178,17 +178,26 @@ class PlChip extends StatelessWidget {
       );
     }
 
+    // The same widgets above the label whether the chip is disabled or not,
+    // with the difference in their flags: a chip wrapped only while it could
+    // be pressed would be built again from scratch as `disabled` changed. A
+    // disabled chip takes no focus and claims no tap, so a press on it
+    // reaches whatever is around it, and it is not announced as a button.
     return PlassInteractive(
       onTap: onPressed,
+      enabled: interactive,
+      interactive: interactive,
+      pressable: interactive,
+      cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
       focusNode: focusNode,
       autofocus: autofocus,
       builder: (BuildContext context, PlassInteraction state) {
         return Semantics(
-          container: true,
-          button: true,
-          selected: selected,
-          enabled: true,
-          onTap: onPressed,
+          container: interactive,
+          button: interactive ? true : null,
+          selected: interactive ? selected : null,
+          enabled: interactive ? true : null,
+          onTap: interactive ? onPressed : null,
           child: _shell(
             context,
             tokens: tokens,
@@ -202,7 +211,7 @@ class PlChip extends StatelessWidget {
             // The chip's own focus. A focus node counts a focused descendant
             // as focus, and the × inside the chip is a stop of its own that
             // draws its own ring.
-            focusVisible: state.focusVisible && Focus.of(context).hasPrimaryFocus,
+            focusVisible: interactive && state.focusVisible && Focus.of(context).hasPrimaryFocus,
             padded: true,
           ),
         );

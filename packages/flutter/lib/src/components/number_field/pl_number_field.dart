@@ -856,7 +856,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
       children: <Widget>[
         if (showSteppers && split) stepper(-1),
         if (widget.startIcon != null) adornment(widget.startIcon!),
-        Expanded(child: editor),
+        // Keyed, because a read-only field puts its steppers away, and with
+        // `split` one of them is in front of the editor. Found by its place
+        // alone, the editor would be built again from scratch.
+        Expanded(key: const ValueKey<String>('editor'), child: editor),
         if (widget.endIcon != null) adornment(widget.endIcon!),
         if (showSteppers && !split)
           Row(

@@ -4,6 +4,13 @@ import 'package:plass_ui/plass_ui.dart';
 
 import '../../support/host.dart';
 
+/// The mark. The sheet under the quote keeps a `CustomPaint` for its gloss
+/// whatever the variant, and the default ghost sheet has no gloss to paint, so
+/// on it the mark is the one `CustomPaint` with a painter.
+final Finder _mark = find.byWidgetPredicate(
+  (Widget widget) => widget is CustomPaint && widget.painter != null,
+);
+
 void main() {
   group('PlBlockquote', () {
     group('rendering', () {
@@ -26,7 +33,7 @@ void main() {
       testWidgets('draws the house mark by default', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlBlockquote(child: Text('Less')), width: 400));
 
-        expect(find.byType(CustomPaint), findsWidgets);
+        expect(_mark, findsOneWidget);
       });
 
       testWidgets('takes the mark away when asked', (WidgetTester tester) async {
@@ -34,7 +41,7 @@ void main() {
           host(const PlBlockquote(showIcon: false, child: Text('Less')), width: 400),
         );
 
-        expect(find.byType(CustomPaint), findsNothing);
+        expect(_mark, findsNothing);
       });
     });
 
