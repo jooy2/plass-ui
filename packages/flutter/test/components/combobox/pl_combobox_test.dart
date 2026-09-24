@@ -205,6 +205,63 @@ void main() {
         expect(chosen, equals('lisbon'));
       });
 
+      group('a press on the field', () {
+        Future<void> pump(WidgetTester tester) {
+          return tester.pumpWidget(
+            _host(PlCombobox<String>(options: _cities, value: null, onChanged: (String? _) {})),
+          );
+        }
+
+        testWidgets('on the text opens the list, and opens it again once it is shut', (
+          WidgetTester tester,
+        ) async {
+          await pump(tester);
+
+          // The field is the chevron's equivalent: the glyph keeps the size it
+          // is drawn at, and the field is a target the size of a control.
+          await tester.tap(find.byType(EditableText));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Lisbon'), findsOneWidget);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+          expect(find.text('Lisbon'), findsNothing);
+
+          // Already focused, with the caret where the press puts it again.
+          await tester.tap(find.byType(EditableText));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Lisbon'), findsOneWidget);
+        });
+
+        testWidgets('beside the text opens the list too', (WidgetTester tester) async {
+          await pump(tester);
+
+          final Rect box = tester.getRect(
+            find
+                .descendant(
+                  of: find.byType(PlCombobox<String>),
+                  matching: find.byType(PlassSurfaceBox),
+                )
+                .first,
+          );
+          await tester.tapAt(box.centerLeft + const Offset(4, 0));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Lisbon'), findsOneWidget);
+        });
+
+        testWidgets('that drags across the text leaves the list shut', (WidgetTester tester) async {
+          await pump(tester);
+
+          await tester.drag(find.byType(EditableText), const Offset(-60, 0));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Lisbon'), findsNothing);
+        });
+      });
+
       testWidgets('leaves a row that cannot be taken alone', (WidgetTester tester) async {
         String? chosen;
 
@@ -244,6 +301,11 @@ void main() {
         );
 
         await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Lisbon'), findsNothing);
+
+        await tester.tap(find.byType(EditableText));
         await tester.pumpAndSettle();
 
         expect(find.text('Lisbon'), findsNothing);

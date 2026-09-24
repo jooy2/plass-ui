@@ -1,6 +1,7 @@
 /// A field you can type into and also choose from.
 library;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -551,6 +552,34 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     _reveal.reveal(_scroll, _highlighted, _rows.length);
   }
 
+  /// Focuses the field, and opens the list whenever it can be picked from.
+  void _pressField() {
+    _focusNode.requestFocus();
+    _openList();
+  }
+
+  /// Where a press on the text went down, for as long as it can still be a tap.
+  Offset? _pressedAt;
+
+  void _onTextDown(PointerDownEvent event) {
+    _pressedAt = event.buttons == kPrimaryButton ? event.position : null;
+  }
+
+  void _onTextMove(PointerMoveEvent event) {
+    final Offset? at = _pressedAt;
+
+    if (at != null && (event.position - at).distance > kTouchSlop) {
+      _pressedAt = null;
+    }
+  }
+
+  void _onTextUp(PointerUpEvent event) {
+    if (_pressedAt != null) {
+      _pressedAt = null;
+      _pressField();
+    }
+  }
+
   void _close() {
     if (_open) {
       setState(() {
@@ -802,6 +831,18 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       );
     }
 
+    // A press on the text is the editor's own, which is how the caret lands
+    // where it was pressed, so the field's tap never hears it. It is heard here
+    // instead, without taking part in deciding what the press was, and opens
+    // the list as a press anywhere else on the field does.
+    editor = Listener(
+      onPointerDown: widget.disabled ? null : _onTextDown,
+      onPointerMove: widget.disabled ? null : _onTextMove,
+      onPointerUp: widget.disabled ? null : _onTextUp,
+      onPointerCancel: (PointerCancelEvent event) => _pressedAt = null,
+      child: editor,
+    );
+
     editor = plassHotKeyScope(hotKeys: widget.hotKeys, child: editor);
 
     final chips = widget.multiple && widget.values.isNotEmpty
@@ -1003,7 +1044,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
-        onTap: widget.disabled ? null : _focusNode.requestFocus,
+        // A press anywhere on the field opens the list as well as focusing it,
+        // as the React field does, so the chevron, which keeps the size it is
+        // drawn at, has a control the size of the field that does what it
+        // does. While the list is up, the portal takes a press on the field and
+        // closes it, as it does a press on the chevron.
+        onTap: widget.disabled ? null : _pressField,
         // The press half of the light. On a touch screen there is no hover at
         // all, and this is the layer that carries the effect there.
         onTapDown: (TapDownDetails details) {

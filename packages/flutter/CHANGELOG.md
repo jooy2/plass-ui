@@ -48,6 +48,8 @@
 
 ### Changed
 
+- **A press on a `PlCombobox` field opens its list, as it does in the React build.** A press focused the field and left the list shut until something was typed or the chevron was pressed. It now opens the list as well, on the text and around it, so the field is the chevron's equivalent control, since the chevron keeps the size it is drawn at. A read-only or disabled field stays shut.
+
 - **A `PlCollapsible`'s title and subtitle wrap, as a `PlAccordionItem`'s do.** They were each held to one line and ellipsed, so a heading that ran past the header lost its end with nothing to press for the rest. `truncate` puts both back on one line, for a name out of a database beside a control.
 
 - **A `dashed` series is keyed in the legend with a short dashed rule rather than the filled square.** A dashed line reads as a forecast or a target on the plot, and its legend entry was the same square as every other series', so the key did not carry the one distinction the plot did. The entry now draws two dashes at the line's weight and rhythm wherever the line is drawn dashed, on `PlLineChart` and on a `PlAreaChart` that is not stacked; a bar or a stacked band has no line to dash and keeps the square.
