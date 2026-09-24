@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/disposal.dart';
 import '../../support/host.dart';
 
 /// A fold wired to a variable, which is how every caller uses one.
@@ -287,6 +288,19 @@ void main() {
         // wrapper put around the panel only while it was closed rebuilt that
         // `State` from scratch on the way in and again on the way out.
         expect(find.text('ada'), findsOneWidget);
+      });
+
+      testWidgets('lets go of the curve it folds on when it leaves the tree', (
+        WidgetTester tester,
+      ) async {
+        final curves = await disposalOf(tester, 'CurvedAnimation', () async {
+          await tester.pumpWidget(host(const _Harness(), width: 360));
+          await tester.tap(find.text('Advanced'));
+          await tester.pumpAndSettle();
+        });
+
+        expect(curves.made, greaterThan(0));
+        expect(curves.kept, 0);
       });
 
       testWidgets('drops the chevron when it is asked to', (WidgetTester tester) async {

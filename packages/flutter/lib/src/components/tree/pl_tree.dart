@@ -535,6 +535,8 @@ class _BranchState extends State<_Branch> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _fold.removeStatusListener(_onFold);
+    // Before the controller it listens to: the curve holds a listener on it.
+    _factor.dispose();
     _fold.dispose();
     super.dispose();
   }

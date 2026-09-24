@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 
+import '../../support/disposal.dart';
 import '../../support/host.dart';
 
 /// Content with a `State` of its own: rebuilt from scratch, it is a different
@@ -396,6 +397,27 @@ void main() {
         // The pill grew downward into it: one object saying more, rather than a
         // different shape.
         expect(tester.getSize(find.byType(PlPill)).height, greaterThan(closed));
+      });
+
+      testWidgets('lets go of the curve it opens on when it leaves the tree', (
+        WidgetTester tester,
+      ) async {
+        final curves = await disposalOf(tester, 'CurvedAnimation', () async {
+          await tester.pumpWidget(
+            host(
+              const PlPill(
+                expanded: true,
+                title: Text('Two updates'),
+                details: Text('Billing moved.'),
+              ),
+              width: 320,
+            ),
+          );
+          await tester.pumpAndSettle();
+        });
+
+        expect(curves.made, greaterThan(0));
+        expect(curves.kept, 0);
       });
     });
 

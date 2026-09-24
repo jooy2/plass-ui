@@ -235,6 +235,8 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    // Before the controller it listens to: the curve holds a listener on it.
+    _reveal.dispose();
     _open.dispose();
     super.dispose();
   }

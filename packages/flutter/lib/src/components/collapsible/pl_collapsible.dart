@@ -263,6 +263,8 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
   @override
   void dispose() {
     _fold.removeStatusListener(_onFold);
+    // Before the controller it listens to: the curve holds a listener on it.
+    _foldFactor.dispose();
     _fold.dispose();
     super.dispose();
   }

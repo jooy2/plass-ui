@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/disposal.dart';
 import '../../support/host.dart';
 
 const List<PlAccordionItem<String>> sections = <PlAccordionItem<String>>[
@@ -205,6 +206,23 @@ void main() {
 
         expect(find.text('Card on file'), findsNothing);
         expect(tester.getSize(find.byType(PlAccordion<String>)).height, closed);
+      });
+
+      testWidgets('lets go of the curve each section folds on when it leaves the tree', (
+        WidgetTester tester,
+      ) async {
+        final curves = await disposalOf(tester, 'CurvedAnimation', () async {
+          await tester.pumpWidget(
+            host(
+              const PlAccordion<String>(items: sections, value: <String>{'billing'}),
+              width: 400,
+            ),
+          );
+          await tester.pumpAndSettle();
+        });
+
+        expect(curves.made, greaterThan(0));
+        expect(curves.kept, 0);
       });
 
       testWidgets('does not fold a disabled section', (WidgetTester tester) async {

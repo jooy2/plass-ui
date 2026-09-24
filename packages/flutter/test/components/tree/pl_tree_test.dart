@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import '../../support/disposal.dart';
 import '../../support/host.dart';
 
 const List<PlTreeNode> items = <PlTreeNode>[
@@ -171,6 +172,17 @@ void main() {
         // dropped in would be at its full height on the first frame.
         expect(halfway, greaterThan(0));
         expect(halfway, lessThan(whole));
+      });
+
+      testWidgets('lets go of the curve a branch folds on when it leaves the tree', (
+        WidgetTester tester,
+      ) async {
+        final curves = await disposalOf(tester, 'CurvedAnimation', () async {
+          await _pump(tester, const _Host(expanded: <String>{'src', 'components'}));
+        });
+
+        expect(curves.made, greaterThan(0));
+        expect(curves.kept, 0);
       });
 
       testWidgets('builds nothing at all for a branch that is shut', (WidgetTester tester) async {

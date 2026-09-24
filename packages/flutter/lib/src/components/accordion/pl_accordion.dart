@@ -406,6 +406,8 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
   @override
   void dispose() {
     _fold.removeStatusListener(_onFold);
+    // Before the controller it listens to: the curve holds a listener on it.
+    _foldFactor.dispose();
     _fold.dispose();
     super.dispose();
   }
