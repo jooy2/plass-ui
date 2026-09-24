@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/decode.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
 
@@ -395,6 +396,160 @@ void main() {
       });
     });
 
+    group('a grid’s and a justified board’s rows', () {
+      /// Six square pictures, which three columns, or a 300px justified board
+      /// with 100px rows, lay out as A B C over D E F.
+      final List<PlGalleryItem> six = <PlGalleryItem>[
+        for (int at = 0; at < 6; at += 1)
+          PlGalleryItem(
+            id: '$at',
+            image: _picture(at + 1),
+            semanticLabel: String.fromCharCode(65 + at),
+            ratio: 1,
+          ),
+      ];
+      final List<String> given = <String>['A', 'B', 'C', 'D', 'E', 'F'];
+
+      Finder picture(String label) => find.byWidgetPredicate(
+        (Widget widget) => widget is PlImage && widget.semanticLabel == label,
+      );
+
+      Widget grid({int columns = 3, void Function(PlGalleryItem item, int index)? onItemSelected}) {
+        return PlGallery(
+          items: six,
+          columns: PlassResponsive<int>(columns),
+          gap: 0,
+          onItemSelected: onItemSelected,
+        );
+      }
+
+      Widget justified({void Function(PlGalleryItem item, int index)? onItemSelected}) {
+        return PlGallery(
+          items: six,
+          layout: PlGalleryLayout.justified,
+          rowHeight: 100,
+          gap: 0,
+          onItemSelected: onItemSelected,
+        );
+      }
+
+      for (final (String name, Widget Function() board) in <(String, Widget Function())>[
+        ('grid', () => grid()),
+        ('justified board', () => justified()),
+      ]) {
+        testWidgets('reads a $name row by row', (WidgetTester tester) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+
+          await _pump(tester, board(), width: 300);
+
+          expect(
+            tester.getTopLeft(picture('D')).dy,
+            greaterThan(tester.getTopLeft(picture('C')).dy),
+          );
+          expect(_read(tester, given), given);
+          handle.dispose();
+        });
+      }
+
+      testWidgets('walks a grid and a justified board with Tab row by row', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await _pump(
+          tester,
+          afterFocusStop(before, grid(onItemSelected: (PlGalleryItem _, int _) {})),
+          width: 300,
+        );
+
+        expect(await _walk(tester, before, given.length), given);
+
+        await _pump(
+          tester,
+          afterFocusStop(before, justified(onItemSelected: (PlGalleryItem _, int _) {})),
+          width: 300,
+        );
+
+        expect(await _walk(tester, before, given.length), given);
+      });
+
+      testWidgets('draws the first tile of a row on the reader’s starting side', (
+        WidgetTester tester,
+      ) async {
+        tester.view.physicalSize = const Size(300, 900);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        for (final Widget board in <Widget>[grid(), justified()]) {
+          await tester.pumpWidget(
+            host(board, width: 300, overlay: true, textDirection: TextDirection.rtl),
+          );
+          await _settle(tester);
+
+          expect(tester.getTopLeft(picture('A')).dx, closeTo(200, 0.5));
+          expect(tester.getTopLeft(picture('C')).dx, closeTo(0, 0.5));
+        }
+      });
+
+      testWidgets('keeps a grid tile and its focus when the columns move it to another row', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        Widget board(int columns) {
+          return afterFocusStop(
+            before,
+            grid(columns: columns, onItemSelected: (PlGalleryItem _, int _) {}),
+          );
+        }
+
+        await _pump(tester, board(3), width: 300);
+        await _walk(tester, before, 4);
+
+        expect(_focusedTile(), 'D');
+
+        final State<PlImage> resting = tester.state<State<PlImage>>(picture('D'));
+        final double y = tester.getTopLeft(picture('D')).dy;
+
+        await _pump(tester, board(4), width: 300);
+
+        // D goes from the second row of three to the first row of four, and is
+        // still the tile it was: the same picture, with the focus still on it.
+        expect(tester.getTopLeft(picture('D')).dy, lessThan(y));
+        expect(tester.state<State<PlImage>>(picture('D')), same(resting));
+        expect(_focusedTile(), 'D');
+      });
+
+      testWidgets('keeps a justified tile and its focus when the width moves it to another row', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        Widget board() {
+          return afterFocusStop(before, justified(onItemSelected: (PlGalleryItem _, int _) {}));
+        }
+
+        await _pump(tester, board(), width: 300);
+        await _walk(tester, before, 3);
+
+        expect(_focusedTile(), 'C');
+
+        final State<PlImage> resting = tester.state<State<PlImage>>(picture('C'));
+        final double y = tester.getTopLeft(picture('C')).dy;
+
+        await _pump(tester, board(), width: 200);
+
+        // At 200px a row holds two, so C goes from the end of the first row to
+        // the start of the second, and is still the tile it was.
+        expect(tester.getTopLeft(picture('C')).dy, greaterThan(y));
+        expect(tester.state<State<PlImage>>(picture('C')), same(resting));
+        expect(_focusedTile(), 'C');
+      });
+    });
+
     group('captions', () {
       testWidgets('says nothing by default', (WidgetTester tester) async {
         await _pump(tester, PlGallery(items: items));
@@ -451,6 +606,42 @@ void main() {
 
         expect(seen, items[1]);
         expect(at, 1);
+      });
+
+      testWidgets('keeps a tile’s picture when the focus ring comes and goes', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        int rings() => tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+            .length;
+
+        await _pump(
+          tester,
+          afterFocusStop(
+            before,
+            PlGallery(items: items, onItemSelected: (PlGalleryItem _, int _) {}),
+          ),
+        );
+
+        final State<PlImage> resting = tester.state<State<PlImage>>(find.byType(PlImage).first);
+
+        await _walk(tester, before, 1);
+        await _settle(tester);
+
+        // The ring really is drawn, and the picture under it is the same one.
+        expect(_focusedTile(), 'A harbour');
+        expect(rings(), 1);
+        expect(tester.state<State<PlImage>>(find.byType(PlImage).first), same(resting));
+
+        before.requestFocus();
+        await _settle(tester);
+
+        expect(rings(), 0);
+        expect(tester.state<State<PlImage>>(find.byType(PlImage).first), same(resting));
       });
 
       testWidgets('names a tile by its picture and its place in the set', (

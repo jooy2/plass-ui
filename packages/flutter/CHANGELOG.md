@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlGallery` grid or justified tile keeps its picture and its focus when it moves to another row, and a gallery tile or a `PlStepper` step keeps what it holds when the focus ring comes and goes.** Each row of a grid or a justified board was a row of its own, so a tile that moved to another row when the column count or the width changed was built again from nothing, loading its picture again and dropping the focus. The tiles are now one list drawn along their rows, as a masonry's already were. The focus ring was wrapped around a tile or a step only while the keyboard was on it, which built the tile again and reloaded its picture, and built a step's label again, each time the focus arrived or left; the ring is now painted over content that stays where it is.
+
 - **A `PlTable` or a `PlDataTable` whose rows scroll can be scrolled from the keyboard.** A grid taller than its `maxHeight`, or than the box around it, scrolled in a plain scroll view, so in a table whose cells take no focus the rows past the edge were out of reach without a pointer. While the rows scroll, the grid is a tab stop named by `semanticLabel`: the arrow keys move it a line, Page Up and Page Down a screen, and Home and End to its ends, and its ring is drawn inside the sheet in the table's `color`. A table that fits adds no stop.
 
 - **A resting `PlCarousel` dot turns the accent colour under the pointer, as the React dot does.** It stayed grey, so nothing showed which dot the pointer was on before it was pressed. Its width and colour now also run on `motionDuration` and `motionEase` rather than on the slower travel of the strip, which is what the React dot runs on.

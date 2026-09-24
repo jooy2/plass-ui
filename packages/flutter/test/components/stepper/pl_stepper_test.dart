@@ -1,8 +1,26 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
+
+/// A label with a `State` of its own: built again from scratch, it is a
+/// different object.
+class _Probe extends StatefulWidget {
+  const _Probe(this.text);
+
+  final String text;
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => Text(widget.text);
+}
 
 /// The three-step sign-up every test works against.
 const List<PlStep> steps = <PlStep>[
@@ -120,6 +138,50 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(pressed, equals(0));
+      });
+
+      testWidgets('keeps a step’s label when the focus ring comes and goes', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        int rings() => tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+            .length;
+
+        await _pump(
+          tester,
+          afterFocusStop(
+            before,
+            PlStepper(
+              steps: const <PlStep>[
+                PlStep(label: _Probe('Account')),
+                PlStep(label: Text('Verify')),
+              ],
+              active: 1,
+              onActiveChanged: (int next) {},
+            ),
+          ),
+        );
+
+        final State<_Probe> resting = tester.state(find.byType(_Probe));
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        // The ring really is drawn, and the label inside it is the same object.
+        expect(rings(), 1);
+        expect(tester.state(find.byType(_Probe)), same(resting));
+
+        before.requestFocus();
+        await tester.pumpAndSettle();
+
+        expect(rings(), 0);
+        expect(tester.state(find.byType(_Probe)), same(resting));
       });
 
       testWidgets('does not call a step ahead disabled', (WidgetTester tester) async {

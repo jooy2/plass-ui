@@ -389,24 +389,24 @@ class _Step extends StatelessWidget {
       inner = PlassInteractive(
         onTap: onPressed,
         builder: (BuildContext context, PlassInteraction state) {
-          Widget body = AnimatedContainer(
-            duration: tokens.motionDuration,
-            curve: tokens.motionEase,
-            decoration: BoxDecoration(
-              color: state.hovered || state.pressed ? family.soft : null,
-              borderRadius: radius,
+          // The ring's `CustomPaint` stays in the tree and only its painter
+          // comes and goes. Put in only while focused, it moved the step a
+          // level down the tree, which built its bullet and its words again
+          // every time the focus arrived or left.
+          return CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+                : null,
+            child: AnimatedContainer(
+              duration: tokens.motionDuration,
+              curve: tokens.motionEase,
+              decoration: BoxDecoration(
+                color: state.hovered || state.pressed ? family.soft : null,
+                borderRadius: radius,
+              ),
+              child: content,
             ),
-            child: content,
           );
-
-          if (state.focusVisible) {
-            body = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-              child: body,
-            );
-          }
-
-          return body;
         },
       );
     } else if (step.disabled) {

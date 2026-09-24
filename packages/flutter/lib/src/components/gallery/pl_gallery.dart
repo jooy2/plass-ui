@@ -372,6 +372,13 @@ class _PlGalleryState extends State<PlGallery> {
    * The layouts
    * ---------------------------------------------------------------------- */
 
+  /// The tiles in one list, in the order they were given, with the rows drawn
+  /// by [_Rows] rather than built as a `Row` each.
+  ///
+  /// A `Row` per row made the row a tile sat on part of where it sat in the
+  /// tree, so a tile that moved to another row when the number of columns
+  /// changed was built again from nothing, as a masonry's tile was when it
+  /// changed lanes.
   Widget _grid(
     int lanes,
     double gap,
@@ -382,34 +389,20 @@ class _PlGalleryState extends State<PlGallery> {
     required bool square,
   }) {
     final double cell = (width - gap * (lanes - 1)) / lanes;
-    final rows = <Widget>[];
 
-    for (int start = 0; start < widget.items.length; start += lanes) {
-      final children = <Widget>[];
-
-      for (int at = start; at < start + lanes; at += 1) {
-        if (at > start) {
-          children.add(SizedBox(width: gap));
-        }
-
-        children.add(
+    return _Rows(
+      rowOf: <int>[for (int at = 0; at < widget.items.length; at += 1) at ~/ lanes],
+      gap: gap,
+      width: width,
+      textDirection: Directionality.of(context),
+      children: <Widget>[
+        for (int at = 0; at < widget.items.length; at += 1)
           SizedBox(
             width: cell,
-            child: at < widget.items.length
-                ? _tile(at, radius, size, tokens, ratio: widget.ratio)
-                : const SizedBox.shrink(),
+            child: _tile(at, radius, size, tokens, ratio: widget.ratio),
           ),
-        );
-      }
-
-      if (rows.isNotEmpty) {
-        rows.add(SizedBox(height: gap));
-      }
-
-      rows.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: children));
-    }
-
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows);
+      ],
+    );
   }
 
   /// The tiles in one list, in the order they were given, with the lanes drawn
@@ -478,6 +471,10 @@ class _PlGalleryState extends State<PlGallery> {
     );
   }
 
+  /// The tiles in one list, drawn on the rows [justifyRows] broke them into.
+  ///
+  /// The rows are broken again whenever the width changes, so with a `Row` per
+  /// row a tile that moved to the next row, or back, was built again.
   Widget _justified(
     double gap,
     double width,
@@ -487,20 +484,14 @@ class _PlGalleryState extends State<PlGallery> {
   ) {
     final List<double> ratios = widget.items.map(_ratioOf).toList();
     final List<PlassJustifiedRow> rows = justifyRows(ratios, width, widget.rowHeight, gap);
-    final children = <Widget>[];
+    final rowOf = <int>[];
+    final tiles = <Widget>[];
 
-    for (final PlassJustifiedRow row in rows) {
-      if (children.isNotEmpty) {
-        children.add(SizedBox(height: gap));
-      }
-
-      final tiles = <Widget>[];
+    for (int line = 0; line < rows.length; line += 1) {
+      final PlassJustifiedRow row = rows[line];
 
       for (final int at in row.indexes) {
-        if (tiles.isNotEmpty) {
-          tiles.add(SizedBox(width: gap));
-        }
-
+        rowOf.add(line);
         tiles.add(
           SizedBox(
             width: row.height * ratios[at],
@@ -509,11 +500,15 @@ class _PlGalleryState extends State<PlGallery> {
           ),
         );
       }
-
-      children.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: tiles));
     }
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: children);
+    return _Rows(
+      rowOf: rowOf,
+      gap: gap,
+      width: width,
+      textDirection: Directionality.of(context),
+      children: tiles,
+    );
   }
 
   Widget _quilted(
@@ -680,29 +675,26 @@ class _PlGalleryState extends State<PlGallery> {
         builder: (BuildContext context, PlassInteraction state) {
           final bool lit = state.hovered || state.pressed || state.focusVisible;
 
-          Widget tile = AnimatedContainer(
-            duration: tokens.motionDuration,
-            curve: tokens.motionEase,
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              boxShadow: widget.hover == PlGalleryHover.lift && lit
-                  ? tokens.elevation(2)
-                  : const <BoxShadow>[],
-            ),
-            child: body(lit),
-          );
-
-          if (state.focusVisible) {
-            tile = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: tokens.family(_color).ring,
+          // The ring's `CustomPaint` stays in the tree and only its painter
+          // comes and goes. Put in only while focused, it moved the tile a
+          // level down the tree, which built the tile again and loaded its
+          // picture again every time the focus arrived or left.
+          return CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: tokens.family(_color).ring, borderRadius: radius)
+                : null,
+            child: AnimatedContainer(
+              duration: tokens.motionDuration,
+              curve: tokens.motionEase,
+              decoration: BoxDecoration(
                 borderRadius: radius,
+                boxShadow: widget.hover == PlGalleryHover.lift && lit
+                    ? tokens.elevation(2)
+                    : const <BoxShadow>[],
               ),
-              child: tile,
-            );
-          }
-
-          return tile;
+              child: body(lit),
+            ),
+          );
         },
       ),
     );
@@ -752,7 +744,7 @@ class _PlGalleryState extends State<PlGallery> {
 }
 
 /* ---------------------------------------------------------------------------
- * The lanes
+ * The lanes and the rows
  * ------------------------------------------------------------------------- */
 
 /// A masonry's tiles, drawn down the lanes they were dealt into.
@@ -806,40 +798,65 @@ class _Lanes extends MultiChildRenderObjectWidget {
   }
 }
 
-class _LanesParentData extends ContainerBoxParentData<RenderBox> {}
+/// A grid's or a justified board's tiles, drawn along the rows they fall on.
+///
+/// The children stay in the order they were given and each is told its row,
+/// so a tile that moves to another row when the columns or the width change
+/// keeps the element it had. Every tile is laid out at the size it asks for,
+/// after the one before it on the same row, and a row is as tall as its
+/// tallest tile — what a `Row` per row did, with the row no longer part of the
+/// tree.
+class _Rows extends MultiChildRenderObjectWidget {
+  const _Rows({
+    required this.rowOf,
+    required this.gap,
+    required this.width,
+    required this.textDirection,
+    required super.children,
+  });
 
-class _RenderLanes extends RenderBox
+  /// The row each child is drawn on, by the child's index. The rows run in the
+  /// order the children do.
+  final List<int> rowOf;
+
+  final double gap;
+
+  /// The width the rows fill, which the layouts around this one measure too.
+  final double width;
+  final TextDirection textDirection;
+
+  @override
+  _RenderRows createRenderObject(BuildContext context) {
+    return _RenderRows(rowOf: rowOf, gap: gap, width: width, textDirection: textDirection);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderRows renderObject) {
+    renderObject
+      ..rowOf = rowOf
+      ..gap = gap
+      ..width = width
+      ..textDirection = textDirection;
+  }
+}
+
+class _TilesParentData extends ContainerBoxParentData<RenderBox> {}
+
+/// What [_RenderLanes] and [_RenderRows] share: one list of tiles, the gap
+/// between them, the width they divide, and the side a reader starts from.
+abstract class _RenderTiles extends RenderBox
     with
-        ContainerRenderObjectMixin<RenderBox, _LanesParentData>,
-        RenderBoxContainerDefaultsMixin<RenderBox, _LanesParentData> {
-  _RenderLanes({
-    required int count,
-    required List<int> laneOf,
-    required double gap,
-    required double width,
-    required TextDirection textDirection,
-  }) : _count = count,
-       _laneOf = laneOf,
-       _gap = gap,
-       _width = width,
-       _textDirection = textDirection;
+        ContainerRenderObjectMixin<RenderBox, _TilesParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _TilesParentData> {
+  _RenderTiles({required double gap, required double width, required TextDirection textDirection})
+    : _gap = gap,
+      _width = width,
+      _textDirection = textDirection;
 
-  int _count;
-  int get count => _count;
-  set count(int value) {
-    if (_count == value) return;
-    _count = value;
-    markNeedsLayout();
-  }
-
-  List<int> _laneOf;
-  List<int> get laneOf => _laneOf;
-  set laneOf(List<int> value) {
-    if (listEquals(_laneOf, value)) return;
-    _laneOf = value;
-    markNeedsLayout();
-  }
-
+  /// The space between two tiles.
+  ///
+  /// Read as `this.gap` in the subclasses, where a bare `gap` is the table of
+  /// the same name in `internal/scales.dart`.
   double _gap;
   double get gap => _gap;
   set gap(double value) {
@@ -864,40 +881,21 @@ class _RenderLanes extends RenderBox
     markNeedsLayout();
   }
 
-  @override
-  void setupParentData(RenderBox child) {
-    if (child.parentData is! _LanesParentData) {
-      child.parentData = _LanesParentData();
-    }
+  /// Where a box [extent] wide starts, [start] in from the reader's starting
+  /// side.
+  ///
+  /// Under RTL that side is the right-hand one. Mirrored in layout rather than
+  /// in `paint`, because a hit test and a semantics rectangle read the offsets
+  /// too.
+  double left(double start, double extent) {
+    return textDirection == TextDirection.rtl ? width - start - extent : start;
   }
 
   @override
-  void performLayout() {
-    final double laneWidth = math.max(0, (width - gap * (count - 1)) / count);
-    final List<double> depths = List<double>.filled(count, 0);
-    final List<bool> started = List<bool>.filled(count, false);
-    int index = 0;
-
-    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
-      final _LanesParentData data = child.parentData! as _LanesParentData;
-      final int lane = index < laneOf.length ? laneOf[index].clamp(0, count - 1) : 0;
-      final double top = started[lane] ? depths[lane] + gap : 0;
-
-      child.layout(BoxConstraints.tightFor(width: laneWidth), parentUsesSize: true);
-
-      // The first lane is on the reader's starting side, so under RTL it is
-      // the right-hand one. Mirrored here rather than in `paint`, because a hit
-      // test and a semantics rectangle read the offsets too.
-      final double start = lane * (laneWidth + gap);
-      final double dx = textDirection == TextDirection.rtl ? width - start - laneWidth : start;
-
-      data.offset = Offset(dx, top);
-      depths[lane] = top + child.size.height;
-      started[lane] = true;
-      index += 1;
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _TilesParentData) {
+      child.parentData = _TilesParentData();
     }
-
-    size = constraints.constrain(Size(width, depths.reduce(math.max)));
   }
 
   @override
@@ -908,6 +906,110 @@ class _RenderLanes extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     defaultPaint(context, offset);
+  }
+}
+
+class _RenderLanes extends _RenderTiles {
+  _RenderLanes({
+    required int count,
+    required List<int> laneOf,
+    required super.gap,
+    required super.width,
+    required super.textDirection,
+  }) : _count = count,
+       _laneOf = laneOf;
+
+  int _count;
+  int get count => _count;
+  set count(int value) {
+    if (_count == value) return;
+    _count = value;
+    markNeedsLayout();
+  }
+
+  List<int> _laneOf;
+  List<int> get laneOf => _laneOf;
+  set laneOf(List<int> value) {
+    if (listEquals(_laneOf, value)) return;
+    _laneOf = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final double laneWidth = math.max(0, (width - this.gap * (count - 1)) / count);
+    final List<double> depths = List<double>.filled(count, 0);
+    final List<bool> started = List<bool>.filled(count, false);
+    int index = 0;
+
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
+      final _TilesParentData data = child.parentData! as _TilesParentData;
+      final int lane = index < laneOf.length ? laneOf[index].clamp(0, count - 1) : 0;
+      final double top = started[lane] ? depths[lane] + this.gap : 0;
+
+      child.layout(BoxConstraints.tightFor(width: laneWidth), parentUsesSize: true);
+
+      // The first lane is on the reader's starting side.
+      data.offset = Offset(left(lane * (laneWidth + this.gap), laneWidth), top);
+      depths[lane] = top + child.size.height;
+      started[lane] = true;
+      index += 1;
+    }
+
+    size = constraints.constrain(Size(width, depths.reduce(math.max)));
+  }
+}
+
+class _RenderRows extends _RenderTiles {
+  _RenderRows({
+    required List<int> rowOf,
+    required super.gap,
+    required super.width,
+    required super.textDirection,
+  }) : _rowOf = rowOf;
+
+  List<int> _rowOf;
+  List<int> get rowOf => _rowOf;
+  set rowOf(List<int> value) {
+    if (listEquals(_rowOf, value)) return;
+    _rowOf = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void performLayout() {
+    final BoxConstraints loose = BoxConstraints(maxWidth: width);
+    int? row;
+    double top = 0;
+    double height = 0;
+    double along = 0;
+    int index = 0;
+
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
+      final _TilesParentData data = child.parentData! as _TilesParentData;
+      final int line = index < rowOf.length ? rowOf[index] : (row ?? 0);
+
+      if (row == null) {
+        row = line;
+      } else if (line != row) {
+        row = line;
+        top += height + this.gap;
+        height = 0;
+        along = 0;
+      } else {
+        along += this.gap;
+      }
+
+      child.layout(loose, parentUsesSize: true);
+
+      // A row starts on the reader's starting side, as a `Row` does.
+      data.offset = Offset(left(along, child.size.width), top);
+      along += child.size.width;
+      height = math.max(height, child.size.height);
+      index += 1;
+    }
+
+    size = constraints.constrain(Size(width, top + height));
   }
 }
 
