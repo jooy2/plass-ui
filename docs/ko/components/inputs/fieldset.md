@@ -50,7 +50,7 @@ PlFieldset(
 
 이 컴포넌트가 쥐는 것은 셋뿐입니다.
 
-- **legend.** 묶음에 이름을 줍니다.
+- **legend.** <Fw react="묶음에 이름을 줍니다." flutter="묶음 맨 앞에서 컨트롤보다 먼저 읽힙니다." />
 - **간격.** 컨트롤이 서는 거리이고, 시트 사다리를 씁니다.
 - **`disabled`.** 안의 모든 컨트롤에 닿습니다. 세 단계 아래의 컴포넌트가 그리고 이쪽이 존재조차 모르는 것까지 닿습니다.
 
@@ -62,7 +62,7 @@ PlFieldset(
 
 ### disabled
 
-`<div>` 대신 fieldset을 쓰는 이유입니다. 켜면 안의 모든 컨트롤이 tab 순서에서도 폼에서도 빠집니다. fieldset이 그것들이 무엇인지 알 필요 없이.
+<Fw react="`<div>`" flutter="`Column`" /> 대신 fieldset을 쓰는 이유입니다. 켜면 fieldset이 안의 컨트롤이 무엇인지 몰라도 그 모두가 <Fw react="tab 순서에서도 폼에서도 빠집니다." flutter="tab 순서에서 빠지고, 포인터가 닿지 않으며, 흐리게 그려집니다." />
 
 <Demo src="fieldset/disabled" :min-height="280">
 
@@ -148,7 +148,7 @@ legend의 타입 스케일과 컨트롤 사이의 간격이고, 시트 사다리
 | --- | --- | --- |
 | 네이티브 `<fieldset>` 속성인 `disabled` | 포인터를 거두고, focus를 거두고, 묶음을 비움 | Flutter에는 그런 cascade가 없습니다. 그 속성이 실제로 사 주는 세 가지를 대신 합니다. 못 하는 것은 안의 필드가 스스로 "쓸 수 없음"이라고 _말하게_ 하는 것이라, 그렇게 알려야 하는 필드에는 자기 `disabled`를 주세요. |
 | 브라우저의 border·padding·margin·`min-width`를 되돌린 `<fieldset>` | `Column` | 되돌릴 것이 없습니다. |
-| 모든 컨트롤의 접근 가능한 이름에 들어가는 legend | 이름 있는 컨테이너 위의 heading인 legend | 물려받을 `<fieldset>`/`<legend>` 짝이 Flutter에는 없고, 컨트롤 이름마다 앞에 붙이면 묶음의 이름을 컨트롤 수만큼 말하게 됩니다. |
+| 모든 컨트롤의 접근 가능한 이름에 들어가는 legend | header로 표시되지 않은 평범한 글자로, 이름 없는 semantics 컨테이너 하나의 맨 위에 놓인 legend | legend가 이름을 붙일 group role이 Flutter의 semantics에는 없고, 컨트롤 이름마다 앞에 붙이면 묶음의 이름을 컨트롤 수만큼 말하게 됩니다. |
 | `children` | `children: List<Widget>` | 스택을 여기서 배치하므로 받은 것을 셉니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
 

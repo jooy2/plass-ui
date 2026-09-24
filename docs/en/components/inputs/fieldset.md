@@ -50,7 +50,7 @@ The border, the padding and the margin a browser gives a `<fieldset>` are undone
 
 It owns three things, and nothing else:
 
-- **The legend**, which names the group.
+- **The legend**, <Fw react="which names the group." flutter="which is read first, before the controls." />
 - **The gap** the controls stand at, on the sheet ladder.
 - **`disabled`**, which reaches every control inside, including one a component three levels down rendered and never heard of.
 
@@ -62,7 +62,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### disabled
 
-The reason to use a fieldset rather than a `<div>`. Turning it on takes every control inside out of the tab order and out of the form, without the fieldset knowing what any of them are.
+The reason to use a fieldset rather than a <Fw react="`<div>`" flutter="`Column`" />. Turning it on takes every control inside out of the tab order <Fw react="and out of the form" flutter="and out of the pointer's reach, and drains the group" />, without the fieldset knowing what any of them are.
 
 <Demo src="fieldset/disabled" :min-height="280">
 
@@ -148,7 +148,7 @@ Two fieldsets on one card is the usual arrangement, and it is what makes the no-
 | --- | --- | --- |
 | `disabled` as the native `<fieldset>` attribute | the pointer taken away, the focus taken away, the group drained | There is no such cascade in Flutter. This does the three things the attribute actually buys; what it cannot do is make a field inside _report_ itself as unavailable, so a field that has to say so is given its own `disabled`. |
 | a `<fieldset>` whose browser border, padding, margin and `min-width` are undone | a `Column` | There is nothing to undo. |
-| the legend as part of every control's accessible name | the legend as a heading above a named container | Flutter has no `<fieldset>`/`<legend>` pairing to inherit, and prefixing every control's own name would say the group's name once per control. |
+| the legend as part of every control's accessible name | the legend as plain text at the top of one unnamed semantics container, not marked as a header | Flutter's semantics have no group role for a legend to name, and prefixing every control's own name would say the group's name once per control. |
 | `children` | `children: List<Widget>` | The stack is laid out here, so it counts what it is given. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
