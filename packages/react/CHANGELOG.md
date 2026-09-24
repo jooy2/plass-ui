@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A double click on a `PlWindowPane`'s `actions` belongs to the action and leaves the window's size alone.** The `actions` kept a press from dragging the bar, but not a double click, so an action clicked twice also maximized or restored the window and called `onMaximizedChange`. The caption buttons already kept their double clicks, and a double tap on `actions` already stays theirs in the Flutter build.
+
 - **A `PlPieChart` slice's name is said and written once.** The live region read "Search, Search: 40 · 40%", and the card was headed by the name and wrote it again beside the swatch. The name now heads both with only what the slice is worth after it, "Search, 40 · 40%", as the Flutter card writes it. A custom `tooltip.render` is still handed the slice with its `name`.
 
 - **A `PlTimelineChart`'s own `tooltip.render` is handed the row a span sits on.** Its `category` was the name of whichever row had the same place as the span has along its own row, and its `index` was that place, so the second span on "Design" was handed "Build" and `1`. It is now handed the span's row as `category` and that row's place as `index`, as a bar is handed its column.

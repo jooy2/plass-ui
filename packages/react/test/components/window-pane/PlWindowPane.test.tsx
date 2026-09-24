@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { PlWindowPane } from 'plass-ui';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { press } from '../../support/keys';
 import { moveMouseOntoPage } from '../../support/pointer';
@@ -410,6 +411,35 @@ describe('PlWindowPane', () => {
 
       await screen.getByRole('button', { name: 'Maximize' }).click();
 
+      await expect.element(screen.getByRole('button', { name: 'Restore' })).toBeInTheDocument();
+    });
+
+    it('leaves a double click on `actions` to the action rather than maximizing', async () => {
+      const onShare = vi.fn();
+      const onMaximizedChange = vi.fn();
+      const screen = await render(
+        <PlWindowPane
+          os="windows11"
+          title="Notes"
+          actions={<button onClick={onShare}>Share</button>}
+          onMaximizedChange={onMaximizedChange}
+        >
+          Body
+        </PlWindowPane>
+      );
+
+      await userEvent.dblClick(screen.getByRole('button', { name: 'Share' }));
+
+      // Pressed twice, as it was, and the window stays the size it was.
+      expect(onShare).toHaveBeenCalledTimes(2);
+      expect(onMaximizedChange).not.toHaveBeenCalled();
+      await expect.element(screen.getByRole('button', { name: 'Maximize' })).toBeInTheDocument();
+
+      // The same gesture on the bar itself still maximizes, so the one above was
+      // delivered and turned away rather than never sent.
+      await userEvent.dblClick(screen.getByText('Notes'));
+
+      expect(onMaximizedChange).toHaveBeenCalledWith(true);
       await expect.element(screen.getByRole('button', { name: 'Restore' })).toBeInTheDocument();
     });
 
