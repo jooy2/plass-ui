@@ -204,6 +204,31 @@ void main() {
         expect(wide.width, closeTo(200, 0.5));
         expect(wide.height, closeTo(200, 0.5));
       });
+
+      for (final PlGalleryLayout layout in <PlGalleryLayout>[
+        PlGalleryLayout.grid,
+        PlGalleryLayout.quilted,
+      ]) {
+        testWidgets('lays a ${layout.name} board out narrower than its gaps', (
+          WidgetTester tester,
+        ) async {
+          // Four columns and three 40px gaps want 120px before a tile has any
+          // width at all.
+          await _pump(
+            tester,
+            PlGallery(
+              items: items,
+              layout: layout,
+              columns: const PlassResponsive<int>(4),
+              gap: 40,
+            ),
+            width: 60,
+          );
+
+          expect(tester.takeException(), isNull);
+          expect(tester.getSize(find.byType(PlImage).first).width, 0);
+        });
+      }
     });
 
     group('a masonry’s order', () {

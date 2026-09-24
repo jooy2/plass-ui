@@ -72,6 +72,8 @@
 
 ### Fixed
 
+- **A `PlGallery` grid laid out narrower than its gaps no longer fails in a debug build.** Its columns came out less than zero wide, which a debug build stops on. They are now held at zero, as a masonry's lanes already were, and a quilt's are held the same way.
+
 - **The focus ring of a `PlScrollZone` strip is drawn in the zone's `color`, as its buttons are.** A strip the keyboard scrolls drew its ring in the theme's colour whatever `color` the zone was given, where the React strip's ring takes it.
 
 - **A popup or a layer that closes as the theme's motion changes fades out over the new duration.** `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, `PlNavigationMenu`, the lists of `PlSelect` and `PlCombobox`, the pickers' popups, `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette` and the others started to fade out before they were handed the theme's `motionDuration` or `motionDurationSlow`, so one closed in the same frame as the theme changed faded over the duration it had before. The fade is now handed the theme's duration and curve before it starts, as a fold is.

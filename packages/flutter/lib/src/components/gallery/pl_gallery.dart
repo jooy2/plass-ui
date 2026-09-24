@@ -333,7 +333,7 @@ class _PlGalleryState extends State<PlGallery> {
 
         switch (widget.layout) {
           case PlGalleryLayout.grid:
-            return _grid(lanes, gap, width, radius, size, tokens, square: true);
+            return _grid(lanes, gap, width, radius, size, tokens);
           case PlGalleryLayout.masonry:
             return _masonry(lanes, gap, width, radius, size, tokens);
           case PlGalleryLayout.justified:
@@ -385,10 +385,10 @@ class _PlGalleryState extends State<PlGallery> {
     double width,
     BorderRadius radius,
     PlassSize size,
-    PlassTokens tokens, {
-    required bool square,
-  }) {
-    final double cell = (width - gap * (lanes - 1)) / lanes;
+    PlassTokens tokens,
+  ) {
+    // Held at zero, as a masonry's lane is, for a board narrower than its gaps.
+    final double cell = math.max(0, (width - gap * (lanes - 1)) / lanes);
 
     return _Rows(
       rowOf: <int>[for (int at = 0; at < widget.items.length; at += 1) at ~/ lanes],
@@ -523,7 +523,8 @@ class _PlGalleryState extends State<PlGallery> {
         .map((PlGalleryItem item) => (cols: item.cols, rows: item.rows))
         .toList();
     final List<PlassQuiltCell> cells = quiltCells(spans, lanes);
-    final double cell = (width - gap * (lanes - 1)) / lanes;
+    // Held at zero, as a masonry's lane is, for a board narrower than its gaps.
+    final double cell = math.max(0, (width - gap * (lanes - 1)) / lanes);
 
     int lastRow = 0;
 
