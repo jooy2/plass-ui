@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -210,7 +211,24 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   }
 
   void _onFade(AnimationStatus status) {
-    if (status == AnimationStatus.dismissed && _portal.isShowing) {
+    if (status != AnimationStatus.dismissed || !_portal.isShowing) {
+      return;
+    }
+
+    // After the frame while the tree is building, for the reason `PlassPortal`
+    // gives: under reduced motion the fade is over inside the build that
+    // closed the popup.
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      _afterFrame(_takeDown);
+    } else {
+      _takeDown();
+    }
+  }
+
+  /// Takes the popup down, unless it has been opened again or has left the
+  /// tree since it finished going out.
+  void _takeDown() {
+    if (mounted && !widget.open && _fade.isDismissed && _portal.isShowing) {
       _portal.hide();
     }
   }

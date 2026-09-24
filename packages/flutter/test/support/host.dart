@@ -116,6 +116,22 @@ Widget afterFocusStop(FocusNode before, Widget child) {
   );
 }
 
+/// Runs [change] once the next frame has been built, and builds the tree again
+/// at once, ahead of everything that frame's build put off until after it.
+///
+/// A widget that leaves part of its work until the frame is over has to cope
+/// with being handed a new widget, or taken out of the tree, before that work
+/// runs. Called before the frame is pumped, this queues [change] ahead of
+/// anything the frame's build queues, so the tree has been built again with
+/// [change] applied by the time any of that runs.
+void rebuildBeforeDeferredWork(WidgetTester tester, VoidCallback change) {
+  tester.binding.addPostFrameCallback((Duration _) {
+    change();
+    tester.binding.buildOwner!.buildScope(tester.binding.rootElement!);
+    tester.binding.buildOwner!.finalizeTree();
+  });
+}
+
 /// The first node on the semantics tree carrying [label], walked the same way
 /// [semanticsLabels] walks it, so it reaches a layer lifted into an overlay.
 SemanticsNode? semanticsNodeLabelled(WidgetTester tester, String label) {

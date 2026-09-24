@@ -56,6 +56,35 @@ Future<_HarnessState> _pump(WidgetTester tester, _Harness harness) async {
   return tester.state<_HarnessState>(find.byType(_Harness));
 }
 
+/// A modal whose `open` its parent reads from [open], over a page with one
+/// thing on it to press. The parent takes the modal out of the tree when [open]
+/// holds `null`.
+Widget _handedDown(
+  ValueNotifier<bool?> open, {
+  VoidCallback? onBehind,
+  bool disableAnimations = true,
+}) {
+  return host(
+    Column(
+      children: <Widget>[
+        GestureDetector(onTap: onBehind, child: const Text('Behind')),
+        ValueListenableBuilder<bool?>(
+          valueListenable: open,
+          builder: (BuildContext context, bool? value, Widget? child) {
+            if (value == null) {
+              return const SizedBox.shrink();
+            }
+
+            return PlModal(open: value, title: const Text('Settings'));
+          },
+        ),
+      ],
+    ),
+    disableAnimations: disableAnimations,
+    overlay: true,
+  );
+}
+
 void main() {
   group('PlModal', () {
     group('shapes', () {
@@ -182,6 +211,89 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(state.open, isTrue);
+      });
+    });
+
+    // With no fade to wait for, the layer is closed inside the build that
+    // closed it, where it cannot be taken down yet.
+    group('under reduced motion', () {
+      testWidgets('goes the frame after its parent closes it, and gives the page back', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+        var pressed = 0;
+
+        await tester.pumpWidget(_handedDown(open, onBehind: () => pressed += 1));
+        await tester.pumpAndSettle();
+        expect(find.text('Settings'), findsOneWidget);
+
+        open.value = false;
+        await tester.pump();
+        await tester.pump();
+
+        expect(find.text('Settings'), findsNothing);
+
+        // Its backdrop goes with it rather than staying behind, unseen, over a
+        // page that no longer answers.
+        await tester.tap(find.text('Behind'));
+        expect(pressed, 1);
+      });
+
+      testWidgets('goes as fast when it closes in the frame reduced motion turns on', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+
+        await tester.pumpWidget(_handedDown(open, disableAnimations: false));
+        await tester.pumpAndSettle();
+
+        open.value = false;
+        await tester.pumpWidget(_handedDown(open));
+        await tester.pump();
+
+        expect(find.text('Settings'), findsNothing);
+      });
+
+      testWidgets('stays up when it opens again before the frame it closed in is over', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+
+        await tester.pumpWidget(_handedDown(open));
+        await tester.pumpAndSettle();
+
+        rebuildBeforeDeferredWork(tester, () => open.value = true);
+        open.value = false;
+        await tester.pump();
+        await tester.pump();
+
+        // Not taken down and put back up a frame later, which would lose what
+        // the layer was holding and blink on the way.
+        expect(find.text('Settings'), findsOneWidget);
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('Settings'), findsOneWidget);
+      });
+
+      testWidgets('leaves nothing to do once it leaves the tree in the frame it closed in', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+
+        await tester.pumpWidget(_handedDown(open));
+        await tester.pumpAndSettle();
+
+        rebuildBeforeDeferredWork(tester, () => open.value = null);
+        open.value = false;
+        await tester.pump();
+        await tester.pumpAndSettle();
+
+        expect(find.text('Settings'), findsNothing);
       });
     });
 

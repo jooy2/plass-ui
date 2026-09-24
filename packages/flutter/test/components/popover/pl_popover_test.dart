@@ -65,6 +65,29 @@ Future<_HarnessState> _pump(WidgetTester tester, _Harness harness) async {
   return tester.state<_HarnessState>(find.byType(_Harness));
 }
 
+/// A popover whose `open` its parent reads from [open], and which the parent
+/// takes out of the tree when [open] holds `null`.
+Widget _handedDown(ValueNotifier<bool?> open, {bool disableAnimations = true}) {
+  return host(
+    ValueListenableBuilder<bool?>(
+      valueListenable: open,
+      builder: (BuildContext context, bool? value, Widget? child) {
+        if (value == null) {
+          return const SizedBox.shrink();
+        }
+
+        return PlPopover(
+          open: value,
+          trigger: PlButton(onPressed: () {}, child: const Text('Explain')),
+          child: const Text('The base rate'),
+        );
+      },
+    ),
+    disableAnimations: disableAnimations,
+    overlay: true,
+  );
+}
+
 void main() {
   group('PlPopover', () {
     group('opening and closing', () {
@@ -143,6 +166,82 @@ void main() {
         // A popup that refuses to be dismissed needs a way out of its own, which
         // is why turning this off is something to be deliberate about.
         expect(state.open, isTrue);
+      });
+    });
+
+    // With no fade to wait for, the popup is closed inside the build that
+    // closed it, where it cannot be taken down yet.
+    group('under reduced motion', () {
+      testWidgets('goes the frame after its parent closes it', (WidgetTester tester) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+
+        await tester.pumpWidget(_handedDown(open));
+        await tester.pumpAndSettle();
+        expect(find.text('The base rate'), findsOneWidget);
+
+        open.value = false;
+        await tester.pump();
+        await tester.pump();
+
+        expect(find.text('The base rate'), findsNothing);
+      });
+
+      testWidgets('goes as fast when it closes in the frame reduced motion turns on', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+
+        await tester.pumpWidget(_handedDown(open, disableAnimations: false));
+        await tester.pumpAndSettle();
+
+        open.value = false;
+        await tester.pumpWidget(_handedDown(open));
+        await tester.pump();
+
+        expect(find.text('The base rate'), findsNothing);
+      });
+
+      testWidgets('stays up when it opens again before the frame it closed in is over', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+
+        await tester.pumpWidget(_handedDown(open));
+        await tester.pumpAndSettle();
+
+        rebuildBeforeDeferredWork(tester, () => open.value = true);
+        open.value = false;
+        await tester.pump();
+        await tester.pump();
+
+        // Not taken down and put back up a frame later, which would lose what
+        // the popup was holding and blink on the way.
+        expect(find.text('The base rate'), findsOneWidget);
+
+        await tester.pumpAndSettle();
+
+        expect(find.text('The base rate'), findsOneWidget);
+      });
+
+      testWidgets('leaves nothing to do once it leaves the tree in the frame it closed in', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<bool?> open = ValueNotifier<bool?>(true);
+        addTearDown(open.dispose);
+
+        await tester.pumpWidget(_handedDown(open));
+        await tester.pumpAndSettle();
+
+        rebuildBeforeDeferredWork(tester, () => open.value = null);
+        open.value = false;
+        await tester.pump();
+        await tester.pumpAndSettle();
+
+        expect(find.text('Explain'), findsNothing);
+        expect(find.text('The base rate'), findsNothing);
       });
     });
 

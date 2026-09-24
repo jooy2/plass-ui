@@ -3,6 +3,7 @@ library;
 
 import 'dart:ui' as ui;
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -158,7 +159,25 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
   void _onFade(AnimationStatus status) {
     // Taken down only once it has finished going out, so the fade is seen
     // rather than skipped by the widget disappearing on the first frame.
-    if (status == AnimationStatus.dismissed && _portal.isShowing) {
+    if (status != AnimationStatus.dismissed || !_portal.isShowing) {
+      return;
+    }
+
+    // A fade with no duration has finished the moment it is reversed, and
+    // under reduced motion that moment is inside the build that closed the
+    // layer, where a portal cannot be taken down. So it goes once that frame
+    // is over.
+    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      _afterFrame(_takeDown);
+    } else {
+      _takeDown();
+    }
+  }
+
+  /// Takes the layer down, unless it has been opened again or has left the
+  /// tree since it finished going out.
+  void _takeDown() {
+    if (mounted && !widget.open && _fade.isDismissed && _portal.isShowing) {
       _portal.hide();
     }
   }

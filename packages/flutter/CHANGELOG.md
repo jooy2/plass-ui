@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A popup or a layer closed under reduced motion goes the frame after it is closed.** With animations off, `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, `PlNavigationMenu`, the lists of `PlSelect` and `PlCombobox`, the pickers' popups, `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette` and the others finished their fade inside the build that closed them and asked to be taken down there, which a debug build refuses with an assertion from `OverlayPortalController.hide`. The popup or layer then stayed in the tree unseen, and a layer's backdrop went on taking every press on the page. It is now taken down once that frame is over, unless it has opened again by then.
+
 - **A `PlScrollArea`, `PlScrollZone` or `PlAnimateMarquee` box that scrolls from the keyboard, and the scrolling grid of a `PlTable` or a `PlDataTable`, is ringed only while the box itself has the focus.** The box was ringed whenever the focus was anywhere inside it, so a button in a scroll area or a sort heading in a data table drew a second ring round the whole box as well as its own, and the box kept its ring when Tab moved from it to a stop inside it. It is now ringed only while it is the focused stop, as `:focus-visible` rings the React box.
 
 - **The x axis of a `PlScatterChart` writes its numbers compactly, `10K` rather than `10000`, and groups those under ten thousand, `2,000`.** The ticks under the plot wrote each number in full, where the React axis, the y axis beside it, and the card and the reading of a point's x all write it compactly. `xAxis.format` still writes the ticks when it is given, and an axis of dates still ticks like a calendar.
