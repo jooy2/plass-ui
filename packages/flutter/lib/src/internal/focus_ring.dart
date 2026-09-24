@@ -15,6 +15,14 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 
 /// Paints a focus ring around a box of the painter's size.
+///
+/// It goes on a [CustomPaint] that is in the tree whether the focus is there or
+/// not, as its `foregroundPainter` while there is a ring to draw and `null`
+/// while there is none. A [CustomPaint] put round the control only while it was
+/// focused would move the control a level down the tree as the focus arrived
+/// and again as it left, and Flutter builds a moved widget again from scratch:
+/// what the control holds would lose its state, start its animations over, and
+/// give up a focus it had just been given.
 class PlassFocusRingPainter extends CustomPainter {
   /// Creates a ring in [color] around a shape with [borderRadius].
   const PlassFocusRingPainter({

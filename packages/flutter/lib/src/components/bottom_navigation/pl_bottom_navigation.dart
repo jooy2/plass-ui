@@ -342,18 +342,18 @@ class PlBottomNavigation<T> extends StatelessWidget {
         // only the item's own state is read here.
         content = plassStateFilter(child: content, disabled: item.disabled, lit: false);
 
-        if (state.focusVisible) {
-          content = CustomPaint(
-            // Inward: the item is inside a sheet that clips, and a ring drawn
-            // outside it would have its top sliced off.
-            foregroundPainter: PlassFocusRingPainter(
-              color: family.ring,
-              borderRadius: radius,
-              offset: -focusRingWidth,
-            ),
-            child: content,
-          );
-        }
+        content = CustomPaint(
+          // Inward: the item is inside a sheet that clips, and a ring drawn
+          // outside it would have its top sliced off.
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(
+                  color: family.ring,
+                  borderRadius: radius,
+                  offset: -focusRingWidth,
+                )
+              : null,
+          child: content,
+        );
 
         return Semantics(
           button: true,

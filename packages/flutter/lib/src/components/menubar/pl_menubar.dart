@@ -473,19 +473,19 @@ class _Word extends StatelessWidget {
 
         word = plassStateFilter(child: word, disabled: disabled, lit: false);
 
-        if (state.focusVisible) {
-          word = CustomPaint(
-            // Turned inward, because a word on a strip has a neighbour a hair
-            // away on each side and a ring drawn outside it would overlap
-            // them.
-            foregroundPainter: PlassFocusRingPainter(
-              color: family.ring,
-              borderRadius: radius,
-              offset: -focusRingWidth,
-            ),
-            child: word,
-          );
-        }
+        word = CustomPaint(
+          // Turned inward, because a word on a strip has a neighbour a hair
+          // away on each side and a ring drawn outside it would overlap
+          // them.
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(
+                  color: family.ring,
+                  borderRadius: radius,
+                  offset: -focusRingWidth,
+                )
+              : null,
+          child: word,
+        );
 
         return Semantics(
           role: SemanticsRole.menuItem,

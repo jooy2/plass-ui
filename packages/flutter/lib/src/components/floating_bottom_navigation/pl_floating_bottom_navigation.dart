@@ -410,20 +410,16 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
         // the only filled surface in the row is the key.
         content = plassStateFilter(child: content, disabled: unavailable, lit: false);
 
-        if (state.focusVisible) {
-          content = CustomPaint(
-            // Offset rather than flush, which is the exception the rest of the
-            // library does not make: a flush ring on a circle is the circle's
-            // own edge thickening, and that reads as a border rather than as
-            // focus.
-            foregroundPainter: PlassFocusRingPainter(
-              color: family.ring,
-              borderRadius: round,
-              offset: 2,
-            ),
-            child: content,
-          );
-        }
+        content = CustomPaint(
+          // Offset rather than flush, which is the exception the rest of the
+          // library does not make: a flush ring on a circle is the circle's
+          // own edge thickening, and that reads as a border rather than as
+          // focus.
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(color: family.ring, borderRadius: round, offset: 2)
+              : null,
+          child: content,
+        );
 
         return Semantics(
           button: true,
@@ -460,14 +456,18 @@ class _Key extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget key = DecoratedBox(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: family.fill,
-        boxShadow: <BoxShadow>[...tokens.elevation(1), tokens.lift(family)],
+    // In the filter whether it is quiet or not, with only the filter's settings
+    // changing, for the reason `plassStateFilter` gives.
+    return plassStateFilter(
+      disabled: quiet,
+      lit: false,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: family.fill,
+          boxShadow: <BoxShadow>[...tokens.elevation(1), tokens.lift(family)],
+        ),
       ),
     );
-
-    return quiet ? plassStateFilter(child: key, disabled: true, lit: false) : key;
   }
 }

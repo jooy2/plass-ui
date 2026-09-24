@@ -264,12 +264,12 @@ class _PlToggleState extends State<PlToggle> {
         reduceMotion: reduceMotion,
       );
 
-      if (state.focusVisible) {
-        toggle = CustomPaint(
-          foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-          child: toggle,
-        );
-      }
+      toggle = CustomPaint(
+        foregroundPainter: state.focusVisible
+            ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+            : null,
+        child: toggle,
+      );
 
       return toggle;
     }

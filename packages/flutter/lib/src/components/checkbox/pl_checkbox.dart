@@ -196,12 +196,12 @@ class PlCheckbox extends StatelessWidget {
         reduceMotion: reduceMotion,
       );
 
-      if (state.focusVisible) {
-        surface = CustomPaint(
-          foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-          child: surface,
-        );
-      }
+      surface = CustomPaint(
+        foregroundPainter: state.focusVisible
+            ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+            : null,
+        child: surface,
+      );
 
       return surface;
     }

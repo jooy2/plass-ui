@@ -662,15 +662,15 @@ class _Thumb extends StatelessWidget {
             ),
           );
 
-          if (focusVisible) {
-            mark = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: family.ring,
-                borderRadius: BorderRadius.circular(size),
-              ),
-              child: mark,
-            );
-          }
+          mark = CustomPaint(
+            foregroundPainter: focusVisible
+                ? PlassFocusRingPainter(
+                    color: family.ring,
+                    borderRadius: BorderRadius.circular(size),
+                  )
+                : null,
+            child: mark,
+          );
 
           return MouseRegion(
             cursor: disabled

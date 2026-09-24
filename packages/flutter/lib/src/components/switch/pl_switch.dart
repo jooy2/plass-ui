@@ -203,15 +203,15 @@ class PlSwitch extends StatelessWidget {
         reduceMotion: reduceMotion,
       );
 
-      if (state.focusVisible) {
-        rails = CustomPaint(
-          foregroundPainter: PlassFocusRingPainter(
-            color: family.ring,
-            borderRadius: BorderRadius.circular(rail.height),
-          ),
-          child: rails,
-        );
-      }
+      rails = CustomPaint(
+        foregroundPainter: state.focusVisible
+            ? PlassFocusRingPainter(
+                color: family.ring,
+                borderRadius: BorderRadius.circular(rail.height),
+              )
+            : null,
+        child: rails,
+      );
 
       return rails;
     }

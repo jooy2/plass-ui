@@ -253,15 +253,15 @@ class _PlRatingState extends State<PlRating> {
       ],
     );
 
-    if (_focusVisible) {
-      row = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(
-          color: family.ring,
-          borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
-        ),
-        child: row,
-      );
-    }
+    row = CustomPaint(
+      foregroundPainter: _focusVisible
+          ? PlassFocusRingPainter(
+              color: family.ring,
+              borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
+            )
+          : null,
+      child: row,
+    );
 
     if (widget.disabled) {
       // The house treatment, not a grey token: the light goes out of the row

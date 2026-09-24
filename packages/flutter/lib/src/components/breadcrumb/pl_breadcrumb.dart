@@ -370,12 +370,12 @@ class _Step extends StatelessWidget {
 
       content = plassStateFilter(child: content, disabled: item.disabled, lit: false);
 
-      if (state.focusVisible) {
-        content = CustomPaint(
-          foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-          child: content,
-        );
-      }
+      content = CustomPaint(
+        foregroundPainter: state.focusVisible
+            ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+            : null,
+        child: content,
+      );
 
       return content;
     }
@@ -449,12 +449,12 @@ class _Fold extends StatelessWidget {
           ),
         );
 
-        if (state.focusVisible) {
-          mark = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-            child: mark,
-          );
-        }
+        mark = CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+              : null,
+          child: mark,
+        );
 
         return Semantics(
           container: true,

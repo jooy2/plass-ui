@@ -292,6 +292,42 @@ void main() {
       expect(seen.single, '#22c55e');
     });
 
+    testWidgets('keeps the focus Tab gives the square, and moves it with the arrow keys', (
+      WidgetTester tester,
+    ) async {
+      final List<String> seen = <String>[];
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+      addTearDown(() => FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic);
+
+      await tester.pumpWidget(
+        host(
+          afterFocusStop(
+            before,
+            PlColorPicker(inline: true, value: '#3b82f6', onValueChanged: seen.add),
+          ),
+          width: 400,
+          height: 500,
+          overlay: true,
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+
+      // The ring drawn round the square is not what takes the focus away.
+      expect(FocusManager.instance.primaryFocus, isNot(same(before)));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump();
+
+      expect(seen, hasLength(1));
+    });
+
     testWidgets('reaches a swatch with Tab and chooses it with Enter', (WidgetTester tester) async {
       final List<String> seen = <String>[];
       final FocusNode before = FocusNode();

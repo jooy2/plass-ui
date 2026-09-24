@@ -969,15 +969,12 @@ class _TrackState extends State<_Track> {
       child: track,
     );
 
-    if (_focusVisible) {
-      track = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(
-          color: widget.ring,
-          borderRadius: widget.borderRadius,
-        ),
-        child: track,
-      );
-    }
+    track = CustomPaint(
+      foregroundPainter: _focusVisible
+          ? PlassFocusRingPainter(color: widget.ring, borderRadius: widget.borderRadius)
+          : null,
+      child: track,
+    );
 
     return Semantics(
       slider: true,
@@ -1060,15 +1057,12 @@ class _Swatch extends StatelessWidget {
                 : null,
           );
 
-          if (state.focusVisible) {
-            dot = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: ring,
-                borderRadius: BorderRadius.circular(size / 2),
-              ),
-              child: dot,
-            );
-          }
+          dot = CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: ring, borderRadius: BorderRadius.circular(size / 2))
+                : null,
+            child: dot,
+          );
 
           return dot;
         },

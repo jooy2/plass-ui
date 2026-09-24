@@ -903,15 +903,15 @@ class _SortableHeader extends StatelessWidget {
       child: PlassInteractive(
         onTap: onPressed,
         builder: (BuildContext context, PlassInteraction state) {
-          if (!state.focusVisible) {
-            return heading;
-          }
-
           return CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(
-              color: ring,
-              borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.xs]!),
-            ),
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(
+                    color: ring,
+                    borderRadius: BorderRadius.circular(
+                      PlassTheme.of(context).radii[PlassSize.xs]!,
+                    ),
+                  )
+                : null,
             child: heading,
           );
         },

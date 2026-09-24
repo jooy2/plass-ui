@@ -451,18 +451,18 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
 
         row = plassStateFilter(child: row, disabled: !_interactive, lit: false);
 
-        if (state.focusVisible) {
-          row = CustomPaint(
-            // Inset, because the sheet clips its children so the panel can be a
-            // window — and a clip takes a descendant's ring with it.
-            foregroundPainter: PlassFocusRingPainter(
-              color: family.ring,
-              borderRadius: BorderRadius.zero,
-              offset: -focusRingWidth,
-            ),
-            child: row,
-          );
-        }
+        row = CustomPaint(
+          // Inset, because the sheet clips its children so the panel can be a
+          // window — and a clip takes a descendant's ring with it.
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(
+                  color: family.ring,
+                  borderRadius: BorderRadius.zero,
+                  offset: -focusRingWidth,
+                )
+              : null,
+          child: row,
+        );
 
         return Semantics(
           container: true,

@@ -298,18 +298,18 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
       cell = Opacity(opacity: disabledOpacity, child: cell);
     }
 
-    if (_focusVisible) {
+    cell = CustomPaint(
       // Turned inward: a ring drawn outside a cell in a gapless grid is a ring
       // drawn on its neighbours.
-      cell = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(
-          color: family.ring,
-          borderRadius: corners,
-          offset: -focusRingWidth,
-        ),
-        child: cell,
-      );
-    }
+      foregroundPainter: _focusVisible
+          ? PlassFocusRingPainter(
+              color: family.ring,
+              borderRadius: corners,
+              offset: -focusRingWidth,
+            )
+          : null,
+      child: cell,
+    );
 
     // The focus goes around the cell's semantics rather than inside them. The
     // cell excludes what is under it, so its label is not read twice, and a

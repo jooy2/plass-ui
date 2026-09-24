@@ -429,16 +429,16 @@ class _HandleState extends State<_Handle> {
       ),
     );
 
-    if (_focusVisible) {
-      mark = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(
-          color: widget.family.ring,
-          borderRadius: BorderRadius.zero,
-          offset: -focusRingWidth,
-        ),
-        child: mark,
-      );
-    }
+    mark = CustomPaint(
+      foregroundPainter: _focusVisible
+          ? PlassFocusRingPainter(
+              color: widget.family.ring,
+              borderRadius: BorderRadius.zero,
+              offset: -focusRingWidth,
+            )
+          : null,
+      child: mark,
+    );
 
     Widget handle = MouseRegion(
       cursor: widget.resizable

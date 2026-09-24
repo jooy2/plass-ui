@@ -407,18 +407,18 @@ class PlListItem extends StatelessWidget {
 
     surface = plassStateFilter(child: surface, disabled: disabled, lit: false);
 
-    if (state.focusVisible) {
-      surface = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(
-          color: family.ring,
-          borderRadius: radius,
-          // A row lives inside a sheet that clips, so its ring turns inward
-          // rather than being sliced off at the sheet's edge.
-          offset: scope.dividers ? -focusRingWidth : focusRingOffset,
-        ),
-        child: surface,
-      );
-    }
+    surface = CustomPaint(
+      foregroundPainter: state.focusVisible
+          ? PlassFocusRingPainter(
+              color: family.ring,
+              borderRadius: radius,
+              // A row lives inside a sheet that clips, so its ring turns inward
+              // rather than being sliced off at the sheet's edge.
+              offset: scope.dividers ? -focusRingWidth : focusRingOffset,
+            )
+          : null,
+      child: surface,
+    );
 
     return MouseRegion(
       cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,

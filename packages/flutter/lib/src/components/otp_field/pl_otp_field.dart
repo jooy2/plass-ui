@@ -551,12 +551,12 @@ class _PlOtpFieldState extends State<PlOtpField> {
       ),
     );
 
-    if (active) {
-      slot = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: corners),
-        child: slot,
-      );
-    }
+    slot = CustomPaint(
+      foregroundPainter: active
+          ? PlassFocusRingPainter(color: family.ring, borderRadius: corners)
+          : null,
+      child: slot,
+    );
 
     return SizedBox(
       width: box.width,

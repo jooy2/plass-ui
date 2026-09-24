@@ -477,9 +477,11 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             label: labelNode!,
             child: shell,
           );
-        } else if (state.focusVisible) {
+        } else {
           shell = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+                : null,
             child: shell,
           );
         }

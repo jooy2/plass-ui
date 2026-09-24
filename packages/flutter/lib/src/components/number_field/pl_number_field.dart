@@ -819,16 +819,16 @@ class _PlNumberFieldState extends State<PlNumberField> {
             ),
           );
 
-          if (state.focusVisible) {
-            button = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: family.ring,
-                borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
-                offset: -focusRingWidth,
-              ),
-              child: button,
-            );
-          }
+          button = CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(
+                    color: family.ring,
+                    borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
+                    offset: -focusRingWidth,
+                  )
+                : null,
+            child: button,
+          );
 
           // A held stepper repeats, which is the difference between a spinner
           // and two buttons: nobody presses `+` forty times.

@@ -841,12 +841,10 @@ class _PlImageState extends State<PlImage> {
         interactive: ready,
         cursor: SystemMouseCursors.zoomIn,
         builder: (BuildContext context, PlassInteraction state) {
-          if (!state.focusVisible) {
-            return content;
-          }
-
           return CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+                : null,
             child: content,
           );
         },

@@ -817,17 +817,18 @@ class _Tab<T> extends StatelessWidget {
 
           body = plassStateFilter(child: body, disabled: disabled, lit: false);
 
-          if (state.focusVisible) {
-            body = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: family.ring,
-                borderRadius: BorderRadius.circular(tokens.radii[size]!),
-                // A tab sits on a rail that clips, so its ring turns inward.
-                offset: -focusRingWidth,
-              ),
-              child: body,
-            );
-          }
+          body = CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(
+                    color: family.ring,
+                    borderRadius: BorderRadius.circular(tokens.radii[size]!),
+                    // A tab sits on a rail that clips, so its ring turns
+                    // inward.
+                    offset: -focusRingWidth,
+                  )
+                : null,
+            child: body,
+          );
 
           return Semantics(
             container: true,

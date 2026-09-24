@@ -633,12 +633,12 @@ class _Preview extends StatelessWidget {
           ),
         );
 
-        if (state.focusVisible) {
-          card = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(color: ring, borderRadius: radius),
-            child: card,
-          );
-        }
+        card = CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(color: ring, borderRadius: radius)
+              : null,
+          child: card,
+        );
 
         return Semantics(
           container: true,

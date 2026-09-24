@@ -581,18 +581,18 @@ class _Tile<T> extends StatelessWidget {
             );
           }
 
-          if (state.focusVisible) {
-            // Inset rather than offset — an offset ring on a segment inside a
-            // groove is drawn on top of its neighbours.
-            body = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: family.ring,
-                borderRadius: BorderRadius.circular(height),
-                offset: -focusRingWidth,
-              ),
-              child: body,
-            );
-          }
+          // Inset rather than offset — an offset ring on a segment inside a
+          // groove is drawn on top of its neighbours.
+          body = CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(
+                    color: family.ring,
+                    borderRadius: BorderRadius.circular(height),
+                    offset: -focusRingWidth,
+                  )
+                : null,
+            child: body,
+          );
 
           return Semantics(
             container: true,

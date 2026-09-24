@@ -1229,15 +1229,12 @@ class _BarButtonState extends State<_BarButton> {
             ),
           );
 
-          if (state.focusVisible) {
-            button = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: widget.family.ring,
-                borderRadius: radius,
-              ),
-              child: button,
-            );
-          }
+          button = CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: widget.family.ring, borderRadius: radius)
+                : null,
+            child: button,
+          );
 
           return button;
         },

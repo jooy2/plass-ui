@@ -2069,15 +2069,13 @@ class _LegendFold extends StatelessWidget {
             ),
           );
 
-          if (!state.focusVisible) {
-            return word;
-          }
-
           return CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(
-              color: tokens.family(PlassColor.primary).ring,
-              borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
-            ),
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(
+                    color: tokens.family(PlassColor.primary).ring,
+                    borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
+                  )
+                : null,
             child: word,
           );
         },
@@ -2218,15 +2216,13 @@ class _LegendEntry extends StatelessWidget {
         child: PlassInteractive(
           onTap: onTap,
           builder: (BuildContext context, PlassInteraction state) {
-            if (!state.focusVisible) {
-              return row;
-            }
-
             return CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(
-                color: tokens.family(PlassColor.primary).ring,
-                borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
-              ),
+              foregroundPainter: state.focusVisible
+                  ? PlassFocusRingPainter(
+                      color: tokens.family(PlassColor.primary).ring,
+                      borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
+                    )
+                  : null,
               child: row,
             );
           },

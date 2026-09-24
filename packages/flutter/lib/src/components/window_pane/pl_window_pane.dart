@@ -1002,19 +1002,19 @@ class _WindowButton extends StatelessWidget {
               : null,
         );
 
-        if (state.focusVisible) {
-          face = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(
-              color: colors.ring,
-              borderRadius: radius,
-              // Inside the button, as `outline-offset: -2px` puts it in the React
-              // build: the window clips its corners, and a Windows close button
-              // sits in one.
-              offset: -focusRingWidth,
-            ),
-            child: face,
-          );
-        }
+        face = CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(
+                  color: colors.ring,
+                  borderRadius: radius,
+                  // Inside the button, as `outline-offset: -2px` puts it in
+                  // the React build: the window clips its corners, and a
+                  // Windows close button sits in one.
+                  offset: -focusRingWidth,
+                )
+              : null,
+          child: face,
+        );
 
         return Semantics(
           button: true,
@@ -1456,19 +1456,18 @@ class _ResizeHandleState extends State<_ResizeHandle> {
   @override
   Widget build(BuildContext context) {
     final ValueChanged<Offset>? onNudge = widget.onNudge;
+    final Color? ring = widget.ring;
 
-    Widget target = const SizedBox.expand();
-
-    if (_focusVisible && widget.ring != null) {
-      target = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(
-          color: widget.ring!,
-          borderRadius: BorderRadius.zero,
-          offset: -focusRingWidth,
-        ),
-        child: target,
-      );
-    }
+    final Widget target = CustomPaint(
+      foregroundPainter: _focusVisible && ring != null
+          ? PlassFocusRingPainter(
+              color: ring,
+              borderRadius: BorderRadius.zero,
+              offset: -focusRingWidth,
+            )
+          : null,
+      child: const SizedBox.expand(),
+    );
 
     Widget handle = MouseRegion(
       cursor: widget.edge.cursor,

@@ -428,12 +428,12 @@ class _Trigger extends StatelessWidget {
 
           trigger = plassStateFilter(child: trigger, disabled: item.disabled, lit: false);
 
-          if (state.focusVisible) {
-            trigger = CustomPaint(
-              foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
-              child: trigger,
-            );
-          }
+          trigger = CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+                : null,
+            child: trigger,
+          );
 
           return trigger;
         },
@@ -613,19 +613,19 @@ class _Link extends StatelessWidget {
           child: row,
         );
 
-        if (state.focusVisible) {
-          row = CustomPaint(
-            // Turned inward: the panel clips, so a ring drawn outside a row
-            // would have its top or its bottom sliced off by the sheet's own
-            // corners.
-            foregroundPainter: PlassFocusRingPainter(
-              color: family.ring,
-              borderRadius: radius,
-              offset: -focusRingWidth,
-            ),
-            child: row,
-          );
-        }
+        row = CustomPaint(
+          // Turned inward: the panel clips, so a ring drawn outside a row
+          // would have its top or its bottom sliced off by the sheet's own
+          // corners.
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(
+                  color: family.ring,
+                  borderRadius: radius,
+                  offset: -focusRingWidth,
+                )
+              : null,
+          child: row,
+        );
 
         return Semantics(link: true, button: false, onTap: choose, child: row);
       },

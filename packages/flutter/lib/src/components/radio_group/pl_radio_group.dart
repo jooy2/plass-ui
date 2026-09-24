@@ -403,15 +403,12 @@ class _Radio<T> extends StatelessWidget {
         reduceMotion: reduceMotion,
       );
 
-      if (state.focusVisible) {
-        circle = CustomPaint(
-          foregroundPainter: PlassFocusRingPainter(
-            color: family.ring,
-            borderRadius: BorderRadius.circular(box),
-          ),
-          child: circle,
-        );
-      }
+      circle = CustomPaint(
+        foregroundPainter: state.focusVisible
+            ? PlassFocusRingPainter(color: family.ring, borderRadius: BorderRadius.circular(box))
+            : null,
+        child: circle,
+      );
 
       return circle;
     }

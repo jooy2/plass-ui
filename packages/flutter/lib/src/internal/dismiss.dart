@@ -70,25 +70,20 @@ class PlassDismissButton extends StatelessWidget {
       builder: (BuildContext context, PlassInteraction state) {
         final lit = state.hovered || state.focusVisible;
 
-        Widget mark = AnimatedOpacity(
-          opacity: lit ? 1 : _rest,
-          duration: reduceMotion ? Duration.zero : tokens.motionDuration,
-          curve: tokens.motionEase,
-          child: SizedBox.square(
-            dimension: size,
-            child: PlassGlyph(PlassGlyphShape.close, size: size, color: color),
+        final Widget mark = CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(color: ring, borderRadius: BorderRadius.circular(size))
+              : null,
+          child: AnimatedOpacity(
+            opacity: lit ? 1 : _rest,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
+            child: SizedBox.square(
+              dimension: size,
+              child: PlassGlyph(PlassGlyphShape.close, size: size, color: color),
+            ),
           ),
         );
-
-        if (state.focusVisible) {
-          mark = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(
-              color: ring,
-              borderRadius: BorderRadius.circular(size),
-            ),
-            child: mark,
-          );
-        }
 
         return PlassTarget(
           child: Semantics(

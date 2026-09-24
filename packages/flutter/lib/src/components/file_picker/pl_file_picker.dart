@@ -605,9 +605,11 @@ class _PlFilePickerState extends State<PlFilePicker> {
             label: labelNode!,
             child: box,
           );
-        } else if (state.focusVisible) {
+        } else {
           box = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(color: family.ring, borderRadius: radius),
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+                : null,
             child: box,
           );
         }

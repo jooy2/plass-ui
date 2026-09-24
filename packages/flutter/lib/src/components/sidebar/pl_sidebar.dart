@@ -457,16 +457,16 @@ class _ResizeHandleState extends State<_ResizeHandle> {
       color: lit ? widget.family.soft : null,
     );
 
-    if (_focusVisible) {
-      mark = CustomPaint(
-        foregroundPainter: PlassFocusRingPainter(
-          color: widget.family.ring,
-          borderRadius: BorderRadius.zero,
-          offset: -focusRingWidth,
-        ),
-        child: mark,
-      );
-    }
+    mark = CustomPaint(
+      foregroundPainter: _focusVisible
+          ? PlassFocusRingPainter(
+              color: widget.family.ring,
+              borderRadius: BorderRadius.zero,
+              offset: -focusRingWidth,
+            )
+          : null,
+      child: mark,
+    );
 
     Widget handle = MouseRegion(
       cursor: SystemMouseCursors.resizeColumn,

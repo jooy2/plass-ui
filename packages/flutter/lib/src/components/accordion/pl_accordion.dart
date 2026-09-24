@@ -515,18 +515,19 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
 
         row = plassStateFilter(child: row, disabled: disabled, lit: false);
 
-        if (state.focusVisible) {
-          row = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(
-              color: family.ring,
-              borderRadius: radius,
-              // A ring drawn outside a header on a clipped sheet is a ring with
-              // its top or bottom sliced off at the first and last section.
-              offset: widget.dividers ? -focusRingWidth : focusRingOffset,
-            ),
-            child: row,
-          );
-        }
+        row = CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(
+                  color: family.ring,
+                  borderRadius: radius,
+                  // A ring drawn outside a header on a clipped sheet is a
+                  // ring with its top or bottom sliced off at the first and
+                  // last section.
+                  offset: widget.dividers ? -focusRingWidth : focusRingOffset,
+                )
+              : null,
+          child: row,
+        );
 
         return Semantics(
           container: true,

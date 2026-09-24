@@ -210,15 +210,12 @@ class PlTextLink extends StatelessWidget {
           );
         }
 
-        if (state.focusVisible) {
-          label = CustomPaint(
-            foregroundPainter: PlassFocusRingPainter(
-              color: ring,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: label,
-          );
-        }
+        label = CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(color: ring, borderRadius: BorderRadius.circular(4))
+              : null,
+          child: label,
+        );
 
         return Semantics(
           container: true,
