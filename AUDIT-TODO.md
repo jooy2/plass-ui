@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**408 of 424 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**424 of 437 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -65,6 +65,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 16    | `1bb27381..60c9e871` | Every question asked through the prompt first. Answers first: the Flutter radius and motion tokens, a `BackdropGroup` per glass sheet and overlay, keyboard-walkable Flutter charts, the dashed legend key, one dash loop, Flutter number grouping, sparkline clipping, `Infinity` progress, per-thumb slider values, the gallery reading order, manual-paging row keys, stable card and pill trees, the README counts, a marquee `label`, the code block alias table and `auto` theme, the combobox clear target, focus after clearing a picker, the transfer select-all sentence and announcement, the calendar year step and disabled wrappers, the FAB parameters, the expanded pill, repeated accordion values, the tab reveal offset, the `PlShow` Flutter demo, the `plass-lang` rename, the reset media rules, the field description helper and the Korean emphases. Then 354, 58, 107, 118, 130, 134, 168, 170, 187, 195, 201, 216, 223, 228, 229, 233, 238, 247, 248, 256, with 308 closed as no longer reproducing |
 | 17    | `ec4bc112..c3ece1b3` | Answers first: 253, 270, 282, 297, 333, 334, 336 and 337, glass on opaque surfaces, the confirm ×, opening a Flutter `PlCombobox` on a press, a `PlTable` `label`, `loadingLabel`, the `PlNavigationMenu` size transition checked and added as item 391, `Escape` on a React chart, the Flutter token section, `fieldGlowStrength` and eased Flutter overlay fades. Then 373 to 390, every item left                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | 18    | `176c539d..4af1469f` | Answers first: the sparkline's numbers, the resting brightness filter, reversed Flutter curves, the focus after a pointer-opened `PlMenu`, a caption-less `PlTable`'s `aria-label` and a press on a Flutter carousel's dots and arrows. Then 391 and 402 as one change, 392 to 401 and 403 to 410                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 19    | `ea2d3a65..34d68477` | Answers first: the fieldset page, a table named by its caption, a window both maximized and minimized, a double tap on a Flutter window's bar, a bubble's z and a scatter chart's x, the navigation menu in `llms-full.txt` and a click after a hover. Then 411 to 426, every item left, with 424 closed as no longer reproducing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -92,18 +93,16 @@ Batch 17 had no questions to ask at its start: every entry under Waiting for an 
 
 Batch 18 had no questions to ask at its start. It worked the six answers batch 17 approved first, and then twenty items, 391 to 410, in ten worktrees at once, brought onto `main` one commit at a time with the changelog entries added there. Item 395's pick met the stepper, window and table changes of three earlier picks and was merged by hand. Four answers rewrote an unreleased changelog entry rather than adding one: the table `label`, the resting brightness filter, the `PlMenu` focus and the read-only combobox. Items 391 and 402 turned out to be one change and went in as one commit: the sheet now takes a size the root measures in the commit that changes the panel, and a panel as wide as its links, rather than the `--popup-width` Base UI measures once, and the positioner eases under the next item. It held on slow frames locally, with Chromium's CPU throttled four and six times and twenty runs under load. On CI its tests passed in all nine jobs on the first push; on the second, Ubuntu WebKit found the sheet a few pixels short of the panel in the frame its transitions stopped, so `4af1469f` waits for the sheet to land on the panel, and the third push passed in all nine. Both items are ticked. The first push left four React jobs red on `PlAnimateScramble`'s pausing test, which the batch had not touched: the new reduced-motion test of the navigation menu switched the emulation off with `null` rather than back to `'no-preference'`, which hands the question to the runner's system, and CI's Windows and macOS Chromium and macOS and Ubuntu WebKit answer `reduce`; `d1479814` fixes it. Twenty-four questions were asked at the end and every one was answered with its recommendation: fifteen bugs became items 412 to 426, eight changes wait below, and a ring left on a Flutter menu's trigger after a mouse closes it on a desktop stays, as the Flutter convention. The size budget's "Everything" stands at +5.6 kB, 1.92% of its 2%, so the next batch that adds to it will need `npm run size -- --update` in a commit of its own.
 
+Batch 19 had no questions to ask at its start. It worked the eight answers batch 18 approved first and then the sixteen items left, 411 to 426, in eight worktrees at once, with item 418 in a ninth started from `main` once the others were on it, because it touched the focus ring of nearly every Flutter control. Item 424 no longer reproduces: the widget test that saw no wash under the mouse had put the menu off screen in a 600px host, and a real mouse lights a row. Item 422 did reproduce. The click after a hover closing a `PlNavigationMenu` is Base UI's own `stickIfOpen` behaviour, the same before batch 18 and in bare Base UI, so it stays and has no commit. Several answers and items rewrote an unreleased changelog entry rather than adding one: the table stop's name, the scatter card, the carousel in a hidden tab, the navigation menu's easing and the Flutter carousel entry, which said the React click stops it through the focus. Picking item 417's refactor onto `main` broke two of item 420's combobox tests, whose helper found every painting `PlassContentsGroup` and so the field's and the list's too once `PlassSurfaceBox` moved onto it; `34d68477` narrows the helper to the row's own group. The size budget's "Everything" crossed its 2% at +5.9 kB and was moved in `6af86276`, a commit of its own. Item 425's frame-by-frame check passed its tests in all nine CI jobs on the first push. Sixteen questions were asked at the end and every one was answered with its recommendation: twelve bugs became items 427 to 438, and four changes wait below. After the push, macOS WebKit failed `PlSelect`'s "opens again once the read-only is lifted", a test neither batch touched that failed the same way in Chromium on 2026-09-21; the job passed when it was run again, and the Prompter chose to have it looked into as item 439.
+
 ## Waiting for an answer
 
-Asked through the prompt at the end of batch 18. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
+Asked through the prompt at the end of batch 19. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
 
-1. **The fieldset page's Flutter statements.** Make the Flutter row of the differences table, the shared Props list's "The legend, which names the group" and the `disabled` example's "out of the form" say what the Flutter group does: one unnamed semantics container, with no header flag on the legend.
-1. **A name for a Flutter table's stop from its caption.** Name the keyboard stop item 398 added with `plassTextOf(caption)` when there is no `semanticLabel`, as a caption names the React one.
-1. **A window both maximized and minimized.** Roll the React window up to its bar while it is maximized, with a height of `minimized ? rolled : '100%'` in the maximized branch, as the Flutter one does since item 397.
-1. **A double tap on a Flutter window's bar.** Toggle `maximized` on a double tap of the title bar, as a double click does in React, and check that it does not fight the drag.
-1. **A bubble's z on the scatter card.** Write the value as `y (z)` on the card and in the live region in both builds.
-1. **A scatter chart's x.** Write an x that is not a date through the number writers, `writeChartValue` and `compactNumber`, on the card and in the React table, as the axis and the Flutter summary do.
-1. **The navigation menu in `llms-full.txt`.** Say there that the sheet also moves under the item it hangs from.
-1. **Clicking an item a hover just opened.** Check whether a `PlNavigationMenu` also closes on that click before batch 18's change and in Base UI's own demo; keep it if it is Base UI's behaviour, and fix it if batch 18 caused it.
+1. **The rest of the fieldset page.** Split the shared Accessibility list's first entry, that the legend is read before each control, into `::: fw` blocks, since the Flutter legend is read once before the controls, and write the Korean page's "묶음을 비웁니다" and "비움" as "흐려집니다", as the other Korean pages call a surface that is unavailable.
+1. **The double click on a window's bar.** Say on the window pane page, in both locales and for both builds, that a double click or a double tap on the title bar of a window with a maximize button maximizes it and restores it.
+1. **The scatter chart's description.** Make the scatter page's first Accessibility entry say what the React chart hands a screen reader, the short summary item 52 settled on with every point in the table under the chart, and keep the Flutter wording in its own block.
+1. **A carousel hidden in a tab.** Stop an `autoPlay` React `PlCarousel` from moving on while its track has no width, and let it go on from the slide it was on once it appears again.
 
 ## Passed over and not yet asked
 
@@ -1164,82 +1163,147 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Problem: Four linear stops rather than conic gradients is an internal detail the page rules keep off component pages.
   - Proposal: Move it to the source or the design documents.
 
-- [ ] **411.** The Flutter `PlWindowPane` props table misses three rows, and a window-pane style test presses Tab from the runner (Docs · Docs · Low)
+- [x] **411.** The Flutter `PlWindowPane` props table misses three rows, and a window-pane style test presses Tab from the runner (Docs · Docs · Low)
   - Location: `docs/.vitepress/data/props-flutter.ts`, `packages/react/test/styles/window-pane.test.tsx`
   - Problem: `maximizeLabel`, `restoreLabel` and `closeLabel` have no rows; the traffic-light test presses `{Tab}` from the runner's frame, which Firefox does not hand to the page.
   - Proposal: Add the rows, and focus the element directly in the test.
 
-- [ ] **412.** A React carousel whose slide changes while it is hidden shows the old slide when it appears (Bug · React · Low)
+- [x] **412.** A React carousel whose slide changes while it is hidden shows the old slide when it appears (Bug · React · Low)
   - Location: `packages/react/src/components/carousel/PlCarousel.tsx`
   - Problem: A controlled carousel that has been on screen once, hidden and then given another `value`, or an `autoPlay` one that moves on while hidden, comes back with its strip on the old slide and its dot on the new one. Seen in Chromium.
   - Proposal: Keep the `ResizeObserver` item 400 added, and place the strip on the current slide every time the track's width comes back from zero.
 
-- [ ] **413.** A React carousel's arrows and dots may not stop `autoPlay` in Safari (Bug · React · Low)
+- [x] **413.** A React carousel's arrows and dots may not stop `autoPlay` in Safari (Bug · React · Low)
   - Location: `packages/react/src/components/carousel/PlCarousel.tsx`
   - Problem: A click stops the carousel only because it brings the focus in, and Safari does not focus a button on a click (going by MDN, not checked on a device). Playwright's WebKit focuses one, so the suite cannot show it. Flutter stops on a press explicitly since batch 18.
   - Proposal: Stop the carousel on a click of an arrow or a dot as well, as the Flutter build does.
 
-- [ ] **414.** A Flutter `PlScrollZone` draws its keyboard ring in the theme's colour (Bug · Flutter · Low)
+- [x] **414.** A Flutter `PlScrollZone` draws its keyboard ring in the theme's colour (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/scroll_zone/`
   - Problem: It takes `color`, but the ring of its keyboard stop ignores it.
   - Proposal: Hand `color` to `PlassKeyboardScroll`, which takes one since item 398.
 
-- [ ] **415.** A Flutter `PlWindowPane` resized with no `height` leaves its body at the height of its content (Bug · Flutter · Low)
+- [x] **415.** A Flutter `PlWindowPane` resized with no `height` leaves its body at the height of its content (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/window_pane/pl_window_pane.dart`
   - Problem: The body fills the window only when `height` is given, so a window made taller by a drag shows the band colour under its body, which is transparent on macOS.
   - Proposal: Fill the body whenever the window has a height, a dragged one included, as the React body does.
 
-- [ ] **416.** A Flutter gallery grid or quilt narrower than its gaps throws in debug builds (Bug · Flutter · Low)
+- [x] **416.** A Flutter gallery grid or quilt narrower than its gaps throws in debug builds (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/gallery/pl_gallery.dart`
   - Problem: The tile width, `(width - gap * (lanes - 1)) / lanes`, goes below zero and a `SizedBox` asserts; the masonry floors it at zero. The `square` argument of `_grid` is never read.
   - Proposal: Floor the width at zero as the masonry does, and drop the unused argument.
 
-- [ ] **417.** Flutter controls drawn on `PlassSurfaceBox` build their content again when `disabled` or `readOnly` changes (Performance · Flutter · Low)
+- [x] **417.** Flutter controls drawn on `PlassSurfaceBox` build their content again when `disabled` or `readOnly` changes (Performance · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/surface.dart` (`PlassSurfaceBox`); `PlChip`, `PlToggle`, `PlTextField`, `PlSelect`, `PlCombobox`, `PlNumberField`, `PlFilePicker`
   - Problem: The glow, the flash and the inset shadow come and go with the state, which changes the shape of the tree above the content; confirmed for `PlChip`, and a text field's editor is likely built again.
   - Proposal: Keep the layers in the tree and switch their settings, as item 392 did for `PlButton`, and move the group code of `PlassSurfaceBox` and `PlButton` onto the `PlassContentsGroup` item 395 added.
 
-- [ ] **418.** About thirty Flutter components wrap their focus ring round their content only while focused (Performance · Flutter · Low)
+- [x] **418.** About thirty Flutter components wrap their focus ring round their content only while focused (Performance · Flutter · Low)
   - Location: every conditional `CustomPaint` with a `PlassFocusRingPainter` in `packages/flutter/lib/src/components/`, such as the discs of `PlFloatingBottomNavigation`, whose `_Key` also comes and goes with `quiet`
   - Problem: The content moves a level down the tree as the focus arrives and leaves, so it is built again each time, as item 393 found for the gallery and the stepper.
   - Proposal: Keep the `CustomPaint` in the tree and switch only its painter, in one change.
 
-- [ ] **419.** React `PlPieChart` cannot clear its readout with `Escape` (Bug · React · Low)
+- [x] **419.** React `PlPieChart` cannot clear its readout with `Escape` (Bug · React · Low)
   - Location: `packages/react/src/components/pie-chart/PlPieChart.tsx`
   - Problem: Its `onKeyDown` takes only the arrow keys, where every other React chart clears its readout on `Escape` since batch 17.
   - Proposal: Take `Escape` while there is a readout to clear and keep it from the sheet around it, as the chart frame does.
 
-- [ ] **420.** An open single-value Flutter `PlCombobox` lists only the chosen row (Bug · Flutter · Low)
+- [x] **420.** An open single-value Flutter `PlCombobox` lists only the chosen row (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart`
   - Problem: The list is filtered by the field's text, which is the chosen row's label, so a read-only combobox, which opens since item 396, cannot be looked through. Base UI does not filter until the query changes after opening.
   - Proposal: Show every row until the text changes, as Base UI does.
 
-- [ ] **421.** A mouse press on a Flutter `PlCombobox` row closes a `multiple` list on a desktop and on the web (Bug · Flutter · Low)
+- [x] **421.** A mouse press on a Flutter `PlCombobox` row closes a `multiple` list on a desktop and on the web (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart`
   - Problem: The press takes the focus out of the field, which closes the list after every row taken.
   - Proposal: Put the popup in a `TextFieldTapRegion`, as item 396 did for the field.
 
-- [ ] **422.** A Flutter picker's clear × may only close an open popup (Bug · Flutter · Low)
+- [x] **422.** A Flutter picker's clear × may only close an open popup (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/picker.dart` (`PlassPickerShell`)
   - Problem: The × is inside the popup's anchor, so a press on it while the popup is open may be taken as a press on the anchor and only close it. Read from the source, not run. React's × is outside the trigger and clears as the popup closes.
   - Proposal: Reproduce it in a test first; if it reproduces, let the press reach the ×, as item 396's `anchorInside` does for the combobox.
 
-- [ ] **423.** A Flutter popup or layer that closes as the theme changes fades on the old duration (Bug · Flutter · Low)
+- [x] **423.** A Flutter popup or layer that closes as the theme changes fades on the old duration (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/portal.dart`, `packages/flutter/lib/src/internal/anchored.dart`
   - Problem: `didUpdateWidget` starts the fade out before `build` hands it the theme's duration; the folds set their motion in `didUpdateWidget` first.
   - Proposal: Set the fade's duration before reversing it, as the folds do.
 
-- [ ] **424.** A mouse over a Flutter `PlMenu` row may not light it (Bug · Flutter · Low)
+- [x] **424.** A mouse over a Flutter `PlMenu` row may not light it (Bug · Flutter · Low) — no longer reproduces
   - Location: `packages/flutter/lib/src/components/menu/pl_menu.dart`
   - Problem: In a widget test, hovering a row did not turn its wash on, where the arrow keys did. Not checked in an app.
   - Proposal: Check it in the example app and in a test; fix it if it is real, and close the item if it only happens in the test.
 
-- [ ] **425.** A `PlNavigationMenu` that moves between two panels of the same size and place keeps easing its position until it closes (Bug · React · Low)
+- [x] **425.** A `PlNavigationMenu` that moves between two panels of the same size and place keeps easing its position until it closes (Bug · React · Low)
   - Location: `packages/react/src/components/navigation-menu/PlNavigationMenu.tsx`
   - Problem: Item 391's `moving` state is cleared on `transitionend`, and a change that starts no transition never gets one, so the positioner's `top` and `left` ease until the menu closes and the sheet trails a sticky row as the page scrolls.
   - Proposal: Clear it when the change starts no transition, and check again that it holds on slow frames.
 
-- [ ] **426.** Four small differences between the chart builds (Bug · Both · Low)
+- [x] **426.** Four small differences between the chart builds (Bug · Both · Low)
   - Location: the scatter and timeline charts, `internal/chart-frame.tsx`, `internal/chart_frame.dart`
   - Problem: The Flutter scatter summary and the React scatter table ignore a point's `label` for y; the Flutter card's swatch takes the series colour over a point's own `color`; a series with no name is "1" on a Flutter card and blank on a React one; a timeline span with no name is read with its row twice, "Design, Design: …", in both.
   - Proposal: Follow React: `label` for y, the point's colour, a blank name in both, and the row read once.
+
+- [ ] **427.** A Flutter popup or layer closed under reduced motion fails an assertion in a debug build (Bug · Flutter · Medium)
+  - Location: `packages/flutter/lib/src/internal/portal.dart`, `packages/flutter/lib/src/internal/anchored.dart` (`_onFade`)
+  - Problem: With animations off, `reverse()` on a `Duration.zero` fade is dismissed inside `didUpdateWidget`, and `_onFade` then calls `_portal.hide()` while the tree is building, which trips `_OverlayPortalState.hide`'s `schedulerPhase != SchedulerPhase.persistentCallbacks`. Reproduced at `ea2d3a65` with `PlPopover` and `PlModal`; since item 423, a close in the frame reduced motion turns on hits it too.
+  - Proposal: While the tree is building, hide the portal after the frame instead, and only if the fade is still dismissed then.
+
+- [ ] **428.** A Flutter `PlCombobox` differs from Base UI in three places (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart`
+  - Problem: A query typed before `Escape` stays in the field, so the list opens filtered by it next time, where Base UI puts the chosen label back once it has closed; a `multiple` list lights its first row when it opens and after a row is taken, where Base UI lights the first chosen row and keeps the one just taken; a list opened by a pointer with nothing chosen lights its first row, where Base UI lights none.
+  - Proposal: Follow Base UI in all three, with a test each.
+
+- [ ] **429.** A Flutter `solid` `PlToggle` changes between glass and its gradient in one frame (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/surface.dart` (`PlassSurfaceBox`, the `blur` layer), `packages/flutter/lib/src/components/toggle/`
+  - Problem: Off is glass and on is a gradient key, so the blur layer comes and goes with the state, which builds the fill again and shows the gradient at once, where the React toggle eases `background-image` with the rest of the house transition.
+  - Proposal: Keep the blur layer's place in the tree and switch it, so the fill eases over `motionDuration` as React's does.
+
+- [ ] **430.** A Flutter `PlNumberField` stepper carries an opacity layer while it is available (Performance · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/number_field/`
+  - Problem: The steppers are wrapped in `Opacity(opacity: inert ? disabledOpacity : 1)`, and an `Opacity` at 1 still pushes a layer.
+  - Proposal: Draw them through `PlassFiltered`, as item 392 did for `PlButton`.
+
+- [ ] **431.** A double click on a React `PlWindowPane`'s `actions` may toggle `maximized` (Bug · React · Low)
+  - Location: `packages/react/src/components/window-pane/PlWindowPane.tsx`
+  - Problem: The `actions` span stops `pointerdown` from reaching the bar but not `dblclick`, so an action pressed twice may also maximize the window. Read from the source, not run.
+  - Proposal: Reproduce it in a test; if it reproduces, stop the double click there as the control group does.
+
+- [ ] **432.** A React `PlWindowPane` that starts minimized is shorter than one rolled up by its button (Bug · React · Low)
+  - Location: `packages/react/src/components/window-pane/PlWindowPane.tsx`
+  - Problem: With `defaultMinimized`, the window is `metrics.bar` tall, which leaves out the frame, so its title bar is cut: 30px on `windowsxp` at `md` where a window rolled up by its button is 32px. Measured in a browser.
+  - Proposal: Fall back to `metrics.bar + metrics.frame * 2`.
+
+- [ ] **433.** The Flutter scatter chart's x axis writes its ticks in full (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/scatter_chart/`, `packages/flutter/lib/src/internal/chart_frame.dart`
+  - Problem: The ticks read "10000" where React's read "10K", and the card and the summary write the x compactly since batch 19.
+  - Proposal: Write the ticks through `xAxis.format` or `compactNumber`, as the card does.
+
+- [ ] **434.** A React `PlTimelineChart`'s `tooltip.render` is handed the wrong row and index (Bug · React · Low)
+  - Location: `packages/react/src/components/timeline-chart/`, `packages/react/src/internal/chart-frame.tsx`
+  - Problem: Its `category` is `names[spanIndex]` and its `index` is the span's, because the frame reads the value off the filler series the timeline is drawn with.
+  - Proposal: Hand it the span's row and the row's index, and test it with a custom card.
+
+- [ ] **435.** React `PlPieChart` says a slice's name twice (Bug · React · Low)
+  - Location: `packages/react/src/components/pie-chart/PlPieChart.tsx`
+  - Problem: The live region reads "Search, Search: 40 · 40%", and the card heads itself with the name and writes it again beside the swatch. The Flutter pie says it once.
+  - Proposal: Say and write the name once, as the Flutter pie does.
+
+- [ ] **436.** A vertical `PlNavigationMenu` opens its panels below the rail (Bug · React · Low)
+  - Location: `packages/react/src/components/navigation-menu/PlNavigationMenu.tsx`
+  - Problem: `orientation="vertical"` is documented as a rail whose panels open beside it, but the positioner is given no `side`, so Base UI's default, `bottom`, places them underneath. Read from the source; not looked at on screen.
+  - Proposal: Pass `side="inline-end"` when the menu is vertical, and check the Flutter vertical menu too.
+
+- [ ] **437.** Flutter's keyboard scroll stop rings its box when something inside it has the focus (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/keyboard_scroll.dart` (`PlassKeyboardScroll`)
+  - Problem: `Focus.onFocusChange` fires for a focused descendant as well, so a `PlDataTable` sort heading that takes the focus draws a second ring round the whole scroll box.
+  - Proposal: Draw the ring only while the box itself has the primary focus.
+
+- [ ] **438.** A few Flutter wrappers still come and go with a state other than the focus (Performance · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/calendar.dart` (`PlassCalendarCell`'s `current` `Stack` and `disabled` `Opacity`), `PlFloatingBottomNavigation`'s `disabled` `Opacity`, `PlRating`'s `disabled` wrapper
+  - Problem: Each changes the shape of the tree above what it holds, so the content is built again when the state changes, as item 418 found for the focus rings.
+  - Proposal: Keep each wrapper in the tree and switch its settings, drawing an `Opacity` through `PlassFiltered`.
+
+- [ ] **439.** React `PlSelect`'s test of opening once the read-only is lifted fails now and then on CI (Test · React · Low)
+  - Location: `packages/react/test/components/select/PlSelect.test.tsx` ("opens again once the read-only is lifted"), `packages/react/src/components/select/PlSelect.tsx`
+  - Problem: The second press, after `readOnly` is taken off, sometimes opens no list and the test times out: macOS WebKit on batch 19's push, Chromium on 2026-09-21. The test and the component were not changed by either batch. Whether the cause is the test or the component is not known.
+  - Proposal: Find out. If a read-only press leaves Base UI's open state or a pending press behind, fix the component; if the test presses before the rerender has reached the trigger, wait for the trigger to be operable instead.
