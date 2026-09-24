@@ -2,7 +2,7 @@
 
 /**
  * The box a `PlTable`'s grid scrolls in, and the one part of the table that has
- * to run in the browser.
+ * to run in the browser. `PlDataTable` scrolls its grid in the same box.
  *
  * A table wider than its sheet scrolls sideways, and one under a `maxHeight`
  * scrolls down. When no cell in it takes the focus — a table of plain values,
@@ -34,6 +34,8 @@ export interface PlassTableScrollProps {
   tableClassName: string;
   /** The `<table>`'s inline style. */
   tableStyle: React.CSSProperties;
+  /** Marks the `<table>` busy, while its rows are still on their way. */
+  busy?: boolean;
   /** The table's name, written into its `<caption>`. */
   caption?: React.ReactNode;
   /** The stop's name when there is no caption to name it. */
@@ -47,6 +49,7 @@ export function PlassTableScroll({
   style,
   tableClassName,
   tableStyle,
+  busy,
   caption,
   label,
   children
@@ -103,7 +106,7 @@ export function PlassTableScroll({
       aria-labelledby={byCaption ? captionId : undefined}
       aria-label={byLabel ? label : undefined}
     >
-      <table className={tableClassName} style={tableStyle}>
+      <table className={tableClassName} style={tableStyle} aria-busy={busy || undefined}>
         {/* The accessible name, and nothing a sighted reader meets: the same
             words are already drawn above the sheet. */}
         {caption ? (

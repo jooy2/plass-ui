@@ -62,6 +62,8 @@
 
 ### Fixed
 
+- **A `PlDataTable` wider than its sheet, or taller than its `maxHeight`, can be scrolled from the keyboard.** A table with no sortable heading and no tick column had nothing in it to take the focus, which left whatever was past the edge out of reach without a pointer. While the grid scrolls, the box it scrolls in is a tab stop, named by `caption` or, without one, by the new `label`, as a `PlTable`'s is.
+
 - **Under reduced motion, a `PlAnimate*` effect ends on its last frame rather than on the element as it stands.** The effect was switched off, so `<PlAnimateRotate from={0} to={90}>` stood at 0°, a `mode="out"` element never left, and a caller waiting on `animationend` waited for ever. The effect now runs in no time: nothing changes until the moment it would have started, `delay` included, and then it is on its last frame, so the turn stands at 90°, an exit has left and `animationend` fires. An alternating run ends where it would have, an endless one on the last frame of one pass, and a `timeline="view"` effect goes back to the clock. Content waiting for its trigger is still shown as it is.
 
 - **A `PlCarousel` given a `defaultValue` or `value` other than 0 opens on that slide.** The strip was placed only when the slide changed after the first render, so the dots marked the chosen slide while the first one was showing. The strip is now on the chosen slide before the first paint, without travelling there.

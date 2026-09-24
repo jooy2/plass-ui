@@ -30,6 +30,7 @@ import {
   srOnlyClasses,
   surfaceSlots
 } from '../../internal/styles.js';
+import { PlassTableScroll } from '../../internal/table-scroll.js';
 import {
   cellPaddingYValues,
   clickableRowClasses,
@@ -162,6 +163,15 @@ export interface PlDataTableProps<Row>
   getRowKey?: (row: Row, index: number) => React.Key;
   /** Shown above the grid, and read out as the table's accessible name. */
   caption?: React.ReactNode;
+  /**
+   * What the box the grid scrolls in is called when there is no `caption` —
+   * "Invoices", "Exchange rates".
+   *
+   * A grid wider than its sheet, or taller than `maxHeight`, is a tab stop
+   * while it scrolls, and a stop is announced by its name. A caption is that
+   * name when there is one, and this is not read then.
+   */
+  label?: string;
   /** What to show instead of rows when there are none left to show. */
   empty?: React.ReactNode;
   /** Tints every other row. @default false */
@@ -329,6 +339,7 @@ export function PlDataTable<Row>({
   rows,
   getRowKey,
   caption,
+  label,
   empty: emptyProp,
   striped = false,
   hoverable = false,
@@ -662,218 +673,220 @@ export function PlDataTable<Row>({
         </div>
       ) : null}
 
-      <div
+      {/* While the grid is wider than the sheet, or taller than `maxHeight`,
+          the box it scrolls in is a tab stop named by the caption, or by
+          `label` without one: with no sortable heading and no tick column,
+          nothing in it takes the focus, and whatever is past the edge would be
+          out of reach of the keyboard. */}
+      <PlassTableScroll
         className={cx('overflow-x-auto', capped && 'overflow-y-auto overscroll-contain')}
         style={capped ? { maxHeight } : undefined}
+        tableClassName={cx('text-start', controlTextLeadingClasses[size], 'text-(--plass-fg)')}
+        tableStyle={tableStyle}
+        busy={loading}
+        caption={hasContent(caption) ? caption : undefined}
+        label={label}
       >
-        <table
-          className={cx('text-start', controlTextLeadingClasses[size], 'text-(--plass-fg)')}
-          style={tableStyle}
-          aria-busy={loading || undefined}
-        >
-          {hasContent(caption) ? <caption className={srOnlyClasses}>{caption}</caption> : null}
+        <colgroup>
+          {ticks ? <col style={{ width: tickWidths[size] }} /> : null}
+          {columns.map((column) => (
+            <col
+              key={column.key}
+              style={
+                column.width === undefined
+                  ? undefined
+                  : {
+                      width: typeof column.width === 'number' ? `${column.width}px` : column.width
+                    }
+              }
+            />
+          ))}
+        </colgroup>
 
-          <colgroup>
-            {ticks ? <col style={{ width: tickWidths[size] }} /> : null}
-            {columns.map((column) => (
-              <col
-                key={column.key}
-                style={
-                  column.width === undefined
-                    ? undefined
-                    : {
-                        width: typeof column.width === 'number' ? `${column.width}px` : column.width
-                      }
-                }
-              />
-            ))}
-          </colgroup>
+        <thead>
+          <tr>
+            {ticks ? (
+              <th
+                scope="col"
+                className={cx(stickyHeader && 'sticky top-0 z-10')}
+                style={headCellStyle}
+              >
+                {selection === 'multiple' ? (
+                  <PlCheckbox
+                    size={size}
+                    color={color}
+                    checked={allTicked}
+                    // Neither ticked nor unticked: some of this page is. The
+                    // box has to say so, because a half-filled page under a
+                    // plain unticked box reads as "nothing here is chosen".
+                    indeterminate={tickedHere.length > 0 && !allTicked}
+                    onCheckedChange={toggleAll}
+                    disabled={selectableHere.length === 0}
+                    aria-label={labels.selectAll}
+                  />
+                ) : (
+                  // A single-selection table has a tick column and nothing to
+                  // put at the top of it. The header cell still has to exist,
+                  // or every row is one cell wider than its heading row.
+                  <span className={srOnlyClasses}>{labels.selectRow}</span>
+                )}
+              </th>
+            ) : null}
 
-          <thead>
-            <tr>
-              {ticks ? (
+            {columns.map((column) => {
+              const sorted = sort?.key === column.key ? sort.direction : null;
+
+              return (
                 <th
+                  key={column.key}
                   scope="col"
-                  className={cx(stickyHeader && 'sticky top-0 z-10')}
-                  style={headCellStyle}
+                  className={cx(
+                    'font-semibold whitespace-nowrap text-(--plass-muted-fg)',
+                    stickyHeader && 'sticky top-0 z-10'
+                  )}
+                  style={{ ...headCellStyle, textAlign: column.align ?? 'start' }}
+                  // The sort is announced by the *heading*, which is what a
+                  // screen reader reads when it enters a cell in this column.
+                  // A state on the button inside would only be heard by a
+                  // reader who happened to land on the button.
+                  aria-sort={
+                    column.sortable
+                      ? sorted === 'asc'
+                        ? 'ascending'
+                        : sorted === 'desc'
+                          ? 'descending'
+                          : 'none'
+                      : undefined
+                  }
                 >
-                  {selection === 'multiple' ? (
-                    <PlCheckbox
-                      size={size}
-                      color={color}
-                      checked={allTicked}
-                      // Neither ticked nor unticked: some of this page is. The
-                      // box has to say so, because a half-filled page under a
-                      // plain unticked box reads as "nothing here is chosen".
-                      indeterminate={tickedHere.length > 0 && !allTicked}
-                      onCheckedChange={toggleAll}
-                      disabled={selectableHere.length === 0}
-                      aria-label={labels.selectAll}
-                    />
+                  {column.sortable ? (
+                    <button
+                      type="button"
+                      className={sortButtonClasses}
+                      onClick={() => goSort(column.key)}
+                    >
+                      {column.header ?? column.key}
+                      <SortMark direction={sorted} />
+                    </button>
                   ) : (
-                    // A single-selection table has a tick column and nothing to
-                    // put at the top of it. The header cell still has to exist,
-                    // or every row is one cell wider than its heading row.
-                    <span className={srOnlyClasses}>{labels.selectRow}</span>
+                    (column.header ?? column.key)
                   )}
                 </th>
-              ) : null}
+              );
+            })}
+          </tr>
+        </thead>
 
-              {columns.map((column) => {
-                const sorted = sort?.key === column.key ? sort.direction : null;
-
-                return (
-                  <th
-                    key={column.key}
-                    scope="col"
-                    className={cx(
-                      'font-semibold whitespace-nowrap text-(--plass-muted-fg)',
-                      stickyHeader && 'sticky top-0 z-10'
-                    )}
-                    style={{ ...headCellStyle, textAlign: column.align ?? 'start' }}
-                    // The sort is announced by the *heading*, which is what a
-                    // screen reader reads when it enters a cell in this column.
-                    // A state on the button inside would only be heard by a
-                    // reader who happened to land on the button.
-                    aria-sort={
-                      column.sortable
-                        ? sorted === 'asc'
-                          ? 'ascending'
-                          : sorted === 'desc'
-                            ? 'descending'
-                            : 'none'
-                        : undefined
-                    }
-                  >
-                    {column.sortable ? (
-                      <button
-                        type="button"
-                        className={sortButtonClasses}
-                        onClick={() => goSort(column.key)}
-                      >
-                        {column.header ?? column.key}
-                        <SortMark direction={sorted} />
-                      </button>
-                    ) : (
-                      (column.header ?? column.key)
-                    )}
-                  </th>
-                );
-              })}
+        <tbody>
+          {loading ? (
+            // As many bars as a page holds, so the grid does not change height
+            // when the rows arrive — the jump that makes a reader lose the row
+            // they were about to press.
+            Array.from({ length: paging === 'pages' ? pageSize : 5 }, (_, index) => (
+              <tr key={index} className={rowClasses}>
+                {Array.from({ length: span }, (__, cell) => (
+                  <td key={cell} style={bodyCellStyle(index)}>
+                    <PlSkeleton size={size} color={color} />
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : shown.length === 0 ? (
+            <tr className={rowClasses}>
+              <td
+                colSpan={span}
+                className="text-(--plass-muted-fg)"
+                style={{ ...cellStyle, padding: `2rem ${padX}`, textAlign: 'center' }}
+              >
+                {empty}
+              </td>
             </tr>
-          </thead>
+          ) : (
+            // `place` is where the row is drawn, for the stripe and the rule
+            // above it. `index` is where it is in `rows`, for everything a
+            // caller is told.
+            shown.map(({ row, index }, place) => {
+              const rowKey = key(row, index);
+              const ticked = selected.includes(rowKey);
+              const canTick = selectable(row, index);
 
-          <tbody>
-            {loading ? (
-              // As many bars as a page holds, so the grid does not change height
-              // when the rows arrive — the jump that makes a reader lose the row
-              // they were about to press.
-              Array.from({ length: paging === 'pages' ? pageSize : 5 }, (_, index) => (
-                <tr key={index} className={rowClasses}>
-                  {Array.from({ length: span }, (__, cell) => (
-                    <td key={cell} style={bodyCellStyle(index)}>
-                      <PlSkeleton size={size} color={color} />
+              return (
+                <tr
+                  key={rowKey}
+                  // `aria-selected` and not a class alone: a row that is
+                  // visibly tinted and silently unselected is a row a screen
+                  // reader disagrees with the screen about.
+                  aria-selected={ticks ? ticked : undefined}
+                  className={cx(
+                    rowClasses,
+                    striped && place % 2 === 1 && '[--p-row:var(--plass-stripe)]',
+                    ticked && '[--p-row:var(--p-soft)]',
+                    lit && 'hover:[--p-row:var(--p-soft)]',
+                    clickable && clickableRowClasses
+                  )}
+                  style={{ backgroundColor: 'var(--p-row)' }}
+                  tabIndex={clickable ? 0 : undefined}
+                  onClick={onRowClick ? () => onRowClick(row, index) : undefined}
+                  onKeyDown={
+                    onRowClick
+                      ? (event) => {
+                          // Only the row's own keys. A cell can hold a link or
+                          // a tick, and those have an Enter of their own.
+                          if (event.target !== event.currentTarget) {
+                            return;
+                          }
+
+                          if (event.key !== 'Enter' && event.key !== ' ') {
+                            return;
+                          }
+
+                          event.preventDefault();
+                          onRowClick(row, index);
+                        }
+                      : undefined
+                  }
+                >
+                  {ticks ? (
+                    <td style={bodyCellStyle(place)}>
+                      <PlCheckbox
+                        size={size}
+                        color={color}
+                        checked={ticked}
+                        disabled={!canTick}
+                        // The native event, for the one bit of it a range
+                        // needs: whether shift was down. Base UI hands the
+                        // details object rather than the event itself.
+                        onCheckedChange={(_, details) =>
+                          toggleRow(
+                            rowKey,
+                            Boolean((details.event as Partial<MouseEvent>).shiftKey)
+                          )
+                        }
+                        // A press on the tick is a press on the tick. Without
+                        // this it is also a press on the row, so a selectable
+                        // table with `onRowClick` fires both at once.
+                        onClick={(event) => event.stopPropagation()}
+                        aria-label={labels.selectRow}
+                      />
+                    </td>
+                  ) : null}
+
+                  {columns.map((column) => (
+                    <td
+                      key={column.key}
+                      style={{ ...bodyCellStyle(place), textAlign: column.align ?? 'start' }}
+                    >
+                      {column.render
+                        ? column.render(row, index)
+                        : ((row as Record<string, unknown>)[column.key] as React.ReactNode)}
                     </td>
                   ))}
                 </tr>
-              ))
-            ) : shown.length === 0 ? (
-              <tr className={rowClasses}>
-                <td
-                  colSpan={span}
-                  className="text-(--plass-muted-fg)"
-                  style={{ ...cellStyle, padding: `2rem ${padX}`, textAlign: 'center' }}
-                >
-                  {empty}
-                </td>
-              </tr>
-            ) : (
-              // `place` is where the row is drawn, for the stripe and the rule
-              // above it. `index` is where it is in `rows`, for everything a
-              // caller is told.
-              shown.map(({ row, index }, place) => {
-                const rowKey = key(row, index);
-                const ticked = selected.includes(rowKey);
-                const canTick = selectable(row, index);
-
-                return (
-                  <tr
-                    key={rowKey}
-                    // `aria-selected` and not a class alone: a row that is
-                    // visibly tinted and silently unselected is a row a screen
-                    // reader disagrees with the screen about.
-                    aria-selected={ticks ? ticked : undefined}
-                    className={cx(
-                      rowClasses,
-                      striped && place % 2 === 1 && '[--p-row:var(--plass-stripe)]',
-                      ticked && '[--p-row:var(--p-soft)]',
-                      lit && 'hover:[--p-row:var(--p-soft)]',
-                      clickable && clickableRowClasses
-                    )}
-                    style={{ backgroundColor: 'var(--p-row)' }}
-                    tabIndex={clickable ? 0 : undefined}
-                    onClick={onRowClick ? () => onRowClick(row, index) : undefined}
-                    onKeyDown={
-                      onRowClick
-                        ? (event) => {
-                            // Only the row's own keys. A cell can hold a link or
-                            // a tick, and those have an Enter of their own.
-                            if (event.target !== event.currentTarget) {
-                              return;
-                            }
-
-                            if (event.key !== 'Enter' && event.key !== ' ') {
-                              return;
-                            }
-
-                            event.preventDefault();
-                            onRowClick(row, index);
-                          }
-                        : undefined
-                    }
-                  >
-                    {ticks ? (
-                      <td style={bodyCellStyle(place)}>
-                        <PlCheckbox
-                          size={size}
-                          color={color}
-                          checked={ticked}
-                          disabled={!canTick}
-                          // The native event, for the one bit of it a range
-                          // needs: whether shift was down. Base UI hands the
-                          // details object rather than the event itself.
-                          onCheckedChange={(_, details) =>
-                            toggleRow(
-                              rowKey,
-                              Boolean((details.event as Partial<MouseEvent>).shiftKey)
-                            )
-                          }
-                          // A press on the tick is a press on the tick. Without
-                          // this it is also a press on the row, so a selectable
-                          // table with `onRowClick` fires both at once.
-                          onClick={(event) => event.stopPropagation()}
-                          aria-label={labels.selectRow}
-                        />
-                      </td>
-                    ) : null}
-
-                    {columns.map((column) => (
-                      <td
-                        key={column.key}
-                        style={{ ...bodyCellStyle(place), textAlign: column.align ?? 'start' }}
-                      >
-                        {column.render
-                          ? column.render(row, index)
-                          : ((row as Record<string, unknown>)[column.key] as React.ReactNode)}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+              );
+            })
+          )}
+        </tbody>
+      </PlassTableScroll>
 
       {hasFooter ? (
         <div style={{ ...barStyle, borderTop: rowRule }}>

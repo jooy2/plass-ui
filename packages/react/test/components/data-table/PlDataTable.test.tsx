@@ -620,6 +620,72 @@ describe('PlDataTable', () => {
     });
   });
 
+  describe('a grid wider than its sheet', () => {
+    /** Three plain columns of 300px, which a 200px sheet cannot hold, and none
+        of which takes the focus. */
+    const wide: PlDataTableColumn<Invoice>[] = columns.map((column) => ({
+      ...column,
+      sortable: false,
+      width: 300
+    }));
+    const scrollerOf = () => document.querySelector('.table-under-test table')!.parentElement!;
+
+    it('is a tab stop named by the caption while it scrolls', async () => {
+      await render(
+        <PlDataTable
+          className="table-under-test"
+          style={{ width: 200 }}
+          columns={wide}
+          rows={rows}
+          getRowKey={key}
+          caption="Open invoices"
+        />
+      );
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+      expect(scrollerOf()).toHaveAttribute('role', 'group');
+      expect(scrollerOf()).toHaveAccessibleName('Open invoices');
+    });
+
+    it('is named by `label` when there is no caption', async () => {
+      await render(
+        <PlDataTable
+          className="table-under-test"
+          style={{ width: 200 }}
+          columns={wide}
+          rows={rows}
+          getRowKey={key}
+          label="Open invoices"
+        />
+      );
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+      expect(scrollerOf()).toHaveAccessibleName('Open invoices');
+      expect(document.querySelector('.table-under-test')).not.toHaveAttribute('label');
+    });
+
+    it('stops being one once everything fits', async () => {
+      const table = (width: number) => (
+        <PlDataTable
+          className="table-under-test"
+          style={{ width }}
+          columns={wide}
+          rows={rows}
+          getRowKey={key}
+          caption="Open invoices"
+        />
+      );
+      const screen = await render(table(200));
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBe('0');
+
+      await screen.rerender(table(1200));
+
+      await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBeNull();
+      expect(scrollerOf()).not.toHaveAttribute('role');
+    });
+  });
+
   describe('loading', () => {
     it('marks the grid busy and draws bars in place of the rows', async () => {
       const screen = await render(

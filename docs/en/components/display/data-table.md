@@ -309,6 +309,7 @@ They are inside the sheet rather than floating above and below it because they b
 - Its focus ring is inset, because the sheet clips at its rounded corner and a ring outside the first heading would have its top sliced off.
 - A chosen row carries `aria-selected`; each tick is named by the locale's `selectRow` and the header's by `selectAll`.
 - The grid carries `aria-busy` while `loading`.
+- A grid wider than its sheet, or taller than `maxHeight`, scrolls inside it. While it does, the box it scrolls in is a tab stop, so the arrow keys reach the columns past the edge of a table with no sortable heading and no tick column, and it is a group named by `caption`. A table with no caption names the stop with `label` instead; without either, the stop has no name of its own.
 - `caption` is drawn above the sheet and marked `aria-hidden`, with a real `<caption>` inside the table carrying the same words. A caption that scrolled away would take the table's accessible name with it.
 
 :::
