@@ -139,7 +139,7 @@ PlassTheme.tokens(
 
 Build the set once and hold it rather than in `build`. Two sets with the same values compare equal and change nothing, but a set rebuilt every frame is still six families' worth of comparison each time.
 
-The corners and the motion move the same way. `radii` is the ladder the web spells `--plass-radius-*`, and `motionDuration`, `motionDurationSlow` and `motionEase` are `--plass-duration`, `--plass-duration-slow` and `--plass-ease`. Every component reads them off the nearest set above it, so one set gives a whole screen other corners or another pace.
+The corners, the motion and the light on a field move the same way. `radii` is the ladder the web spells `--plass-radius-*`, `motionDuration`, `motionDurationSlow` and `motionEase` are `--plass-duration`, `--plass-duration-slow` and `--plass-ease`, and `fieldGlowStrength` is `--plass-glow-field-strength`, the percentage of a key's pointer light that a field carries. Every component reads them off the nearest set above it, so one set gives a whole screen other corners or another pace.
 
 ```dart
 PlassTheme.tokens(
@@ -158,7 +158,7 @@ PlassTheme.tokens(
 )
 ```
 
-`radii` has to name all five sizes. `PlassTokens.radius`, `duration`, `durationSlow` and `ease` are still there and hold the defaults a set starts from, but they do not follow the theme. A widget of your own that should match the library's corners reads `PlassTheme.of(context).radii` instead.
+`radii` has to name all five sizes. `PlassTokens.radius`, `duration`, `durationSlow`, `ease` and `glowFieldStrength` are still there and hold the defaults a set starts from, but they do not follow the theme. A widget of your own that should match the library's corners reads `PlassTheme.of(context).radii` instead.
 
 :::
 

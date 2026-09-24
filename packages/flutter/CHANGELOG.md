@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlassTokens` carries the strength of a field's pointer light as `fieldGlowStrength`, so `copyWith` moves it too.** It is the Dart name of `--plass-glow-field-strength`, and `fieldGlow` and `fieldFlash` read it off the set. `PlassTokens.glowFieldStrength` stays, at 55, as the default both shipped sets start from.
+
 - **`PlassTokens` carries the corner radii and the motion, so `copyWith` moves them too.** `radii`, `motionDuration`, `motionDurationSlow` and `motionEase` are the Dart names of `--plass-radius-*`, `--plass-duration`, `--plass-duration-slow` and `--plass-ease`, and every component reads them off the theme, including a fold or a fade that is already on screen when the theme changes. `PlassTokens.radius`, `duration`, `durationSlow` and `ease` stay, with the same values, as the defaults both shipped sets start from; a widget of your own that should match the library reads `PlassTheme.of(context).radii` rather than the static.
 
 - **`PlAccordion` takes `headingLevel`, so its headers sit at the level the page's outline needs.** Every header was a level-3 heading, so an FAQ straight under the page's title skipped a level. It takes `1` to `6` and defaults to `3`; only the semantics change, never the type scale.

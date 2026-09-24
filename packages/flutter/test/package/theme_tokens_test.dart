@@ -5,14 +5,15 @@
 // rather than under `test/components/`. What it asserts is that a set built
 // with `copyWith` reaches the widgets that read it, that it compares equal to
 // an identical set so a rebuild with the same values is not a rebuild of
-// everything under the theme, and that no component reads the radius or the
-// motion as a static the theme cannot reach.
+// everything under the theme, and that no component reads the radius, the
+// motion or a field's light as a static the theme cannot reach.
 import 'dart:io';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/glow.dart';
 
 import '../support/host.dart';
 
@@ -156,6 +157,7 @@ void main() {
         expect(tokens.motionDuration, PlassTokens.duration);
         expect(tokens.motionDurationSlow, PlassTokens.durationSlow);
         expect(tokens.motionEase, same(PlassTokens.ease));
+        expect(tokens.fieldGlowStrength, PlassTokens.glowFieldStrength);
       }
 
       // And the statics are still the numbers they were, because they are
@@ -163,17 +165,24 @@ void main() {
       expect(PlassTokens.radius[PlassSize.md], 12);
       expect(PlassTokens.duration, const Duration(milliseconds: 150));
       expect(PlassTokens.durationSlow, const Duration(milliseconds: 260));
+      expect(PlassTokens.glowFieldStrength, 55);
     });
 
     test('move through copyWith and keep what they were not given', () {
       final PlassTokens base = PlassTokens.light();
-      final PlassTokens moved = base.copyWith(radii: _squareRadii, motionEase: Curves.linear);
+      final PlassTokens moved = base.copyWith(
+        radii: _squareRadii,
+        motionEase: Curves.linear,
+        fieldGlowStrength: 30,
+      );
 
       expect(moved.radii, _squareRadii);
       expect(moved.motionEase, Curves.linear);
+      expect(moved.fieldGlowStrength, 30);
       expect(moved.motionDuration, base.motionDuration);
       expect(moved.motionDurationSlow, base.motionDurationSlow);
       expect(base.copyWith(blurSigma: 8).radii, base.radii);
+      expect(base.copyWith(blurSigma: 8).fieldGlowStrength, base.fieldGlowStrength);
     });
 
     test('take part in equality, so a theme that moves one renotifies', () {
@@ -181,6 +190,11 @@ void main() {
       expect(
         PlassTokens.light().copyWith(motionDuration: const Duration(seconds: 1)),
         isNot(PlassTokens.light()),
+      );
+      expect(PlassTokens.light().copyWith(fieldGlowStrength: 30), isNot(PlassTokens.light()));
+      expect(
+        PlassTokens.light().copyWith(fieldGlowStrength: 30).hashCode,
+        PlassTokens.light().copyWith(fieldGlowStrength: 30).hashCode,
       );
       expect(
         PlassTokens.light().copyWith(radii: Map<PlassSize, double>.of(_squareRadii)),
@@ -197,6 +211,34 @@ void main() {
         () => PlassTokens.light().copyWith(radii: const <PlassSize, double>{PlassSize.md: 4}),
         throwsAssertionError,
       );
+    });
+
+    test('refuse a field light strength outside a percentage', () {
+      expect(() => PlassTokens.light().copyWith(fieldGlowStrength: 120), throwsAssertionError);
+      expect(() => PlassTokens.light().copyWith(fieldGlowStrength: -1), throwsAssertionError);
+    });
+
+    testWidgets("light a field at the theme's strength", (WidgetTester tester) async {
+      // What `--plass-glow-field-strength` does on a page: the field's bloom is
+      // the family's wash mixed down to it.
+      final PlassTokens full = PlassTokens.light().copyWith(fieldGlowStrength: 100);
+      final PlassColorFamily primary = full.family(PlassColor.primary);
+
+      await tester.pumpWidget(
+        host(
+          PlassTheme.tokens(tokens: full, child: const PlTextField(fullWidth: true)),
+          width: 240,
+        ),
+      );
+
+      final PlassGlowLayer bloom = tester
+          .widgetList<PlassGlowLayer>(
+            find.descendant(of: find.byType(PlTextField), matching: find.byType(PlassGlowLayer)),
+          )
+          .first;
+
+      expect(bloom.color, full.fieldGlow(primary));
+      expect(bloom.color, isNot(PlassTokens.light().fieldGlow(primary)));
     });
 
     testWidgets("reach a button's, a field's and a card's corners", (WidgetTester tester) async {
@@ -477,13 +519,15 @@ void main() {
           .replaceAll(RegExp(r'^\s*///?.*$', multiLine: true), '');
     }
 
-    final RegExp static = RegExp(r'PlassTokens\.(?:radius|duration|durationSlow|ease)\b');
+    final RegExp static = RegExp(
+      r'PlassTokens\.(?:radius|duration|durationSlow|ease|glowFieldStrength)\b',
+    );
 
     test('lib/src is not empty (the scan below would pass vacuously)', () {
       expect(sources.length, greaterThan(40));
     });
 
-    test('nothing outside the token file reads radius, duration or ease as a static', () {
+    test('nothing outside the token file reads a scale the theme can move as a static', () {
       final List<String> offenders = <String>[
         for (final File file in sources)
           if (!file.path.replaceAll(r'\', '/').endsWith('lib/src/theme/tokens.dart') &&
@@ -495,8 +539,9 @@ void main() {
         offenders,
         isEmpty,
         reason:
-            'Read radii, motionDuration, motionDurationSlow and motionEase off '
-            'PlassTheme.of(context), so an app that moves them moves this too.',
+            'Read radii, motionDuration, motionDurationSlow, motionEase and '
+            'fieldGlowStrength off PlassTheme.of(context), so an app that moves '
+            'them moves this too.',
       );
     });
   });

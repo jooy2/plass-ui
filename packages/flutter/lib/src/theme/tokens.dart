@@ -275,6 +275,7 @@ class PlassTokens {
     this.motionDuration = duration,
     this.motionDurationSlow = durationSlow,
     this.motionEase = ease,
+    this.fieldGlowStrength = glowFieldStrength,
   });
 
   /// The light theme, and the default.
@@ -658,6 +659,15 @@ class PlassTokens {
   /// Starts from [ease] in both themes.
   final Curve motionEase;
 
+  /// How much of a key's interaction light a **field** carries, as a
+  /// percentage: `--plass-glow-field-strength`.
+  ///
+  /// One value for both layers and for every family, because what is being
+  /// dialled down is the effect rather than a colour. [fieldGlow] and
+  /// [fieldFlash] mix a family's washes down to it. Starts from
+  /// [glowFieldStrength] in both themes.
+  final double fieldGlowStrength;
+
   /// One family. There are six and they are all present, so this never fails.
   PlassColorFamily family(PlassColor color) => families[color]!;
 
@@ -739,10 +749,15 @@ class PlassTokens {
     Duration? motionDuration,
     Duration? motionDurationSlow,
     Curve? motionEase,
+    double? fieldGlowStrength,
   }) {
     assert(
       radii == null || PlassSize.values.every(radii.containsKey),
       'radii has to name every PlassSize: every component reads its corner off one of them.',
+    );
+    assert(
+      fieldGlowStrength == null || (fieldGlowStrength >= 0 && fieldGlowStrength <= 100),
+      'fieldGlowStrength is a percentage, from 0 to 100, as --plass-glow-field-strength is.',
     );
 
     return PlassTokens._(
@@ -782,6 +797,7 @@ class PlassTokens {
       motionDuration: motionDuration ?? this.motionDuration,
       motionDurationSlow: motionDurationSlow ?? this.motionDurationSlow,
       motionEase: motionEase ?? this.motionEase,
+      fieldGlowStrength: fieldGlowStrength ?? this.fieldGlowStrength,
     );
   }
 
@@ -835,7 +851,8 @@ class PlassTokens {
         mapEquals(other.radii, radii) &&
         other.motionDuration == motionDuration &&
         other.motionDurationSlow == motionDurationSlow &&
-        other.motionEase == motionEase;
+        other.motionEase == motionEase &&
+        other.fieldGlowStrength == fieldGlowStrength;
   }
 
   @override
@@ -882,6 +899,7 @@ class PlassTokens {
     motionDuration,
     motionDurationSlow,
     motionEase,
+    fieldGlowStrength,
   ]);
 
   /// The bloom that follows the pointer across a surface of [variant].
@@ -903,24 +921,24 @@ class PlassTokens {
   /// glass at its most opaque, and white light on it is white light on a
   /// near-white sheet.
   ///
-  /// And they take it mixed down to [glowFieldStrength]. A key is pressed and
+  /// And they take it mixed down to [fieldGlowStrength]. A key is pressed and
   /// the reader has moved on; a field is pressed once and then written in for a
   /// minute, with the light sitting under the words being typed and following a
   /// pointer nobody is moving any more. At a key's strength that reads as a
   /// stain on the sentence rather than as the surface answering.
-  Color fieldGlow(PlassColorFamily family) => colorMix(family.soft, glowFieldStrength);
+  Color fieldGlow(PlassColorFamily family) => colorMix(family.soft, fieldGlowStrength);
 
   /// The brighter of the two, the moment the field is pressed.
-  Color fieldFlash(PlassColorFamily family) => colorMix(family.softHover, glowFieldStrength);
+  Color fieldFlash(PlassColorFamily family) => colorMix(family.softHover, fieldGlowStrength);
 
   /* -------------------------------------------------------------------------
    * The defaults the scales start from
    *
-   * [radii], [motionDuration], [motionDurationSlow] and [motionEase] are what
-   * the components read, off the set in scope. These four are the values both
-   * shipped sets start them from, and they stay `static const` because they
-   * were public before the scales could move: they are the defaults, not the
-   * values in force, and they do not follow a theme.
+   * [radii], [motionDuration], [motionDurationSlow], [motionEase] and
+   * [fieldGlowStrength] are what the components read, off the set in scope.
+   * These five are the values both shipped sets start them from, and they stay
+   * `static const` because they were public before the scales could move: they
+   * are the defaults, not the values in force, and they do not follow a theme.
    * ---------------------------------------------------------------------- */
 
   /// The default for [radii].
@@ -945,16 +963,12 @@ class PlassTokens {
   /// The default for [motionEase].
   static const Curve ease = Cubic(0.16, 0.9, 0.3, 1);
 
+  /// The default for [fieldGlowStrength], 55%.
+  static const double glowFieldStrength = 55;
+
   /* -------------------------------------------------------------------------
    * Scales that do not change with the theme
    * ---------------------------------------------------------------------- */
-
-  /// How much of a key's interaction light a **field** carries, as a percentage.
-  ///
-  /// One value for both layers and for every family, because what is being
-  /// dialled down is the effect rather than a colour. The stylesheet spells it
-  /// `--plass-glow-field-strength`.
-  static const double glowFieldStrength = 55;
 
   /// How long the pointer bloom takes to fade in and out.
   static const Duration glowDuration = Duration(milliseconds: 240);
