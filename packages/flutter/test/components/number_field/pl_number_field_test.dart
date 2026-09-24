@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +7,7 @@ import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/notch.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -112,6 +113,37 @@ void main() {
 
         expect(tester.getCenter(_minus()).dx, lessThan(tester.getCenter(_plus()).dx));
         expect(tester.getCenter(_minus()).dx, lessThan(tester.getCenter(find.text('5')).dx));
+      });
+
+      testWidgets('dims a stepper only while it has nothing to step', (WidgetTester tester) async {
+        final int dim = Color.getAlphaFromOpacity(disabledOpacity);
+
+        Iterable<int> alphas() {
+          return tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha!);
+        }
+
+        Future<void> field({double value = 5, bool disabled = false}) async {
+          await tester.pumpWidget(
+            host(
+              PlNumberField(value: value, max: 10, disabled: disabled, onChanged: (double? _) {}),
+              width: 320,
+            ),
+          );
+          await tester.pumpAndSettle();
+        }
+
+        // Both steppers can step, and an opacity of 1 on them would be two
+        // more layers on every field for nothing.
+        await field();
+        expect(alphas(), isEmpty, reason: 'available');
+
+        // At the top of the range the `+` goes out, and the `-` does not.
+        await field(value: 10);
+        expect(alphas(), <int>[dim], reason: 'at the top of the range');
+
+        // A disabled field is dimmed as one, and both steppers in it with it.
+        await field(disabled: true);
+        expect(alphas(), <int>[dim, dim, dim], reason: 'disabled');
       });
     });
 

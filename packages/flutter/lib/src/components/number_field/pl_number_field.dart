@@ -843,7 +843,14 @@ class _PlNumberFieldState extends State<PlNumberField> {
               label: direction > 0
                   ? widget.incrementLabel ?? PlassTheme.labelsOf(context).increase
                   : widget.decrementLabel ?? PlassTheme.labelsOf(context).decrease,
-              child: Opacity(opacity: inert ? disabledOpacity : 1, child: button),
+              // Painted straight onto the canvas while it can step, rather
+              // than through an `Opacity` at 1, which is a layer all the same:
+              // one on each stepper of every field on the screen, for nothing.
+              child: PlassFiltered(
+                colorFilter: null,
+                opacity: inert ? disabledOpacity : 1,
+                child: button,
+              ),
             ),
           );
         },
