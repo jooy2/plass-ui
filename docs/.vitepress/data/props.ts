@@ -548,6 +548,8 @@ const timeColumnProps: PropRow[] = [
 function animateProps(options: {
   duration: string;
   repeat?: string;
+  /** What `repeat` does, for the one component where it does not count runs. */
+  repeatDescription?: Text;
   /** What starts it, for an effect that does not start on mount. */
   trigger?: string;
   /** Names a component genuinely does not take — a reel has no direction. */
@@ -598,7 +600,7 @@ function animateProps(options: {
       type: "number | 'infinite'",
       default: options.repeat ?? '1',
       shared: true,
-      description: {
+      description: options.repeatDescription ?? {
         ko: "몇 번 반복할지. 끝없이 돌리려면 Infinity가 아니라 'infinite' — CSS에 그 단어로 그대로 쓰이기 때문입니다",
         en: "How many times it runs. 'infinite' rather than Infinity, because that word is what reaches CSS"
       }
@@ -1269,7 +1271,15 @@ export const propTables: Record<string, PropRow[]> = {
         en: "How far a line travels as it comes up or leaves. '100%' is one line's own height"
       }
     },
-    ...animateProps({ duration: '460', repeat: "'infinite'", omit: ['alternate'] })
+    ...animateProps({
+      duration: '460',
+      repeat: "'infinite'",
+      repeatDescription: {
+        ko: 'headline이 멈추는 방식만 바꿉니다. trigger="hover"에서 \'infinite\'는 포인터와 focus가 떠날 때 릴을 세우고, 횟수를 주면 떠난 뒤에도 계속 돌게 둡니다. 줄이나 바퀴를 세지 않습니다. 마지막 줄 다음에 다시 시작할지는 loop가 정합니다',
+        en: 'Only changes how the headline stops: with trigger="hover", \'infinite\' stops the reel when the pointer and the focus leave, and a count leaves it turning after they do. It counts neither lines nor cycles; loop decides whether the lines start again'
+      },
+      omit: ['alternate']
+    })
   ],
   PlAnimateLighting: [
     {

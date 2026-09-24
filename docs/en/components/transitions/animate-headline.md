@@ -58,7 +58,9 @@ Every native `<div>` attribute passes straight through. There is no `render` and
 
 `interval` is counted **from the moment a line arrives** rather than from the start of the cycle, so raising `duration` does not quietly eat the reading time.
 
-The rest of the shared settings — `duration`, `delay`, `easing`, `repeat`, `paused`, `trigger`, `play`, `once`, `threshold` — mean what they mean everywhere else. `delay` is what happens before the reel starts turning at all, so it is added once rather than to every line.
+The rest of the shared settings — `duration`, `delay`, `easing`, `paused`, `trigger`, `play`, `once`, `threshold` — mean what they mean everywhere else. `delay` is what happens before the reel starts turning at all, so it is added once rather than to every line.
+
+`repeat` is the exception: it counts neither lines nor cycles, and `loop` is what decides whether the lines start again after the last one. `repeat` only changes how the headline stops. With a hover `trigger`, <Fw react="'infinite'" flutter="null" code />, the default, stops the reel where it is when the pointer and the focus leave, and a count leaves it turning after they have gone. Under any other `trigger` it changes nothing.
 
 ## Examples
 
@@ -136,7 +138,7 @@ How far a line travels as it comes up or leaves. `'100%'` is one line's own heig
 | `render` | — | Flutter has no polymorphic element. |
 | `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
 | `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |
-| `repeat: number \| 'infinite'` | `int?`, `null` never stops | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
+| `repeat: number \| 'infinite'` | `int?`, `null` for `'infinite'` | There is no `'infinite'` to write, and `-1` would be a sentinel a caller has to look up. |
 | `trigger="visible"` via `IntersectionObserver` | watches every `Scrollable` above it | There is no observer here, so it counts as visible only once it is inside the viewport of every one of them and on the screen. With no scrollable above it there is nothing to watch, so it runs. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | The platform's own signal. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

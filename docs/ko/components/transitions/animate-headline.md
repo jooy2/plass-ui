@@ -58,7 +58,9 @@ const PlAnimateHeadline(
 
 `interval`은 주기의 시작이 아니라 **줄이 도착한 순간부터** 셉니다. 그래서 `duration`을 올려도 읽는 시간이 조용히 깎이지 않습니다.
 
-나머지 공유 설정 — `duration`, `delay`, `easing`, `repeat`, `paused`, `trigger`, `play`, `once`, `threshold` — 은 다른 곳에서와 같은 뜻입니다. `delay`는 릴이 돌기 시작하기 전에 일어나는 일이므로 줄마다가 아니라 한 번만 더해집니다.
+나머지 공유 설정 — `duration`, `delay`, `easing`, `paused`, `trigger`, `play`, `once`, `threshold` — 은 다른 곳에서와 같은 뜻입니다. `delay`는 릴이 돌기 시작하기 전에 일어나는 일이므로 줄마다가 아니라 한 번만 더해집니다.
+
+`repeat`만은 다릅니다. 줄도 바퀴도 세지 않으며, 마지막 줄 다음에 다시 시작할지는 `loop`가 정합니다. `repeat`는 headline이 멈추는 방식만 바꿉니다. hover `trigger`에서 `repeat`가 기본값 <Fw react="'infinite'" flutter="null" code />일 때는 포인터와 focus가 떠나면 릴이 그 자리에 멈추고, 횟수를 주면 떠난 뒤에도 계속 돕니다. 다른 `trigger`에서는 아무것도 바꾸지 않습니다.
 
 ## Examples
 
@@ -136,7 +138,7 @@ const PlAnimateHeadline(
 | `render` | — | Flutter에는 다형적 요소가 없습니다. |
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
-| `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |
+| `repeat: number \| 'infinite'` | `int?`, `'infinite'` 자리에 `null` | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |
 | `trigger="visible"`이 `IntersectionObserver` | 위에 있는 모든 `Scrollable`을 봅니다 | 여기에는 observer가 없으므로, 그 모든 viewport 안과 화면 안에 들어와야 보이는 것으로 칩니다. 위에 scrollable이 없으면 볼 것이 없으므로 그냥 돕니다. |
 | `prefers-reduced-motion` | `MediaQuery.disableAnimations` | 플랫폼 자신의 신호입니다. |
 | `className`, `style` | — | 통과시킬 class 목록도 style 속성도 없습니다. |

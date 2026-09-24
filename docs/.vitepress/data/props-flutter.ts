@@ -201,7 +201,14 @@ function timeColumnProps(component: string): PropRow[] {
  */
 function animateFlutterProps(
   component: string,
-  options: { duration: string; repeat?: string; trigger?: string; omit?: string[] }
+  options: {
+    duration: string;
+    repeat?: string;
+    /** What `repeat` does, for the one widget where it does not count runs. */
+    repeatDescription?: PropRow['description'];
+    trigger?: string;
+    omit?: string[];
+  }
 ): PropRow[] {
   // Built from a list of names rather than filtered afterwards, because `from`
   // throws on a React prop that is not there — and a prop this widget genuinely
@@ -213,7 +220,7 @@ function animateFlutterProps(
     repeat: {
       type: 'int?',
       default: options.repeat ?? '1',
-      description: {
+      description: options.repeatDescription ?? {
         ko: "몇 번 반복할지. null이 멈추지 않음을 뜻합니다 — 적을 'infinite'가 없고, -1은 찾아봐야 하는 sentinel입니다",
         en: "How many times it runs. null is what never stops: there is no 'infinite' to write, and -1 would be a sentinel a caller has to look up"
       }
@@ -392,6 +399,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     ...animateFlutterProps('PlAnimateHeadline', {
       duration: 'Duration(milliseconds: 460)',
       repeat: 'null',
+      repeatDescription: {
+        ko: 'headline이 멈추는 방식만 바꿉니다. PlassAnimateTrigger.hover에서 null은 포인터와 focus가 떠날 때 릴을 세우고, 횟수를 주면 떠난 뒤에도 계속 돌게 둡니다. 줄이나 바퀴를 세지 않습니다. 마지막 줄 다음에 다시 시작할지는 loop가 정합니다',
+        en: 'Only changes how the headline stops: with PlassAnimateTrigger.hover, null stops the reel when the pointer and the focus leave, and a count leaves it turning after they do. It counts neither lines nor cycles; loop decides whether the lines start again'
+      },
       omit: ['alternate']
     })
   ],
