@@ -255,10 +255,15 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
     // two-line pill from having a corner that eats its own text.
     final corner = BorderRadius.circular(_rowMinHeight[_size]! / 2);
 
+    // A pill with nothing to do claims no tap, so a press on it reaches
+    // whatever is around it, as it would if the pill were not there. Switched
+    // with `pressable` rather than by leaving the wrapper out, which keeps the
+    // same widgets above the content when `onPressed` comes or goes.
     return PlassInteractive(
       onTap: widget.onPressed,
       enabled: interactive,
       interactive: interactive,
+      pressable: interactive,
       cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
       builder: (BuildContext context, PlassInteraction state) {
         final surface = _surface(tokens, family, state, interactive: interactive);

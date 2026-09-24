@@ -124,6 +124,36 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('lets a press on a pill that cannot be pressed reach what is around it', (
+        WidgetTester tester,
+      ) async {
+        var around = 0;
+
+        await tester.pumpWidget(
+          host(
+            GestureDetector(
+              onTap: () => around += 1,
+              child: const PlPill(
+                expanded: true,
+                title: Text('Recording'),
+                endIcon: Text('00:41'),
+                details: Text('Billing moved.'),
+              ),
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The middle, the trailing slot and the open details: a pill with
+        // nothing to do claims none of them.
+        await tester.tap(find.text('Recording'));
+        await tester.tap(find.text('00:41'));
+        await tester.tap(find.text('Billing moved.'));
+
+        expect(around, 3);
+      });
+
       testWidgets('answers a press once it has one', (WidgetTester tester) async {
         var pressed = 0;
 

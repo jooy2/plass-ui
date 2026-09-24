@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A tap on a `PlPill` with no `onPressed` reaches what is around it.** The pill kept a tap recogniser that answered nothing, so a pill inside a pressable row or card swallowed the tap and the row never saw it. It now claims no tap until it is given something to do, and keeps what it holds when `onPressed` comes or goes.
+
 - **A `PlCollapsible` leaves space between its header and its body.** Under the default header the body began at the open header's tinted edge, so its first line read as part of the title; only a `triggerBuilder` of the caller's own had the space. Both now have the space a `PlAccordion` section leaves.
 
 - **A `PlCard` or a `PlPill` keeps what it holds when `onPressed` or `interactive` changes.** The wrappers above the content came and went with those parameters, so the content was built again from scratch and a `PlTextField` inside lost what was typed into it. They now stay in the tree and only their settings change; a card that cannot be pressed still takes no focus and lets a tap through to whatever is around it. A pill also keeps its content when a keyboard focus brings its focus ring.
