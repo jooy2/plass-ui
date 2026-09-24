@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A chart writes a value that is not a number as `∞`, `-∞` or `NaN`.** `compactNumber` ran an infinite value through the compacting and wrote it as `In,fin,ityT`, and threw on `NaN`. It now writes all three as the React build's `Intl` does, with no unit after them.
+
 - **A `PlButton`, and the `PlIconButton` and `PlFloatingActionButton` built on it, keep what they hold as the focus ring, `loading`, `readOnly` and `disabled` change.** The focus ring, the pointer light, the gloss of a `glass` key, the saturation and the opacity each came and went with the state, which changed the shape of the tree above the content, so the label, the icons and anything stateful in them were built again from scratch each time. They now stay in the tree with only their settings changing, and an available button carries no layer for its opacity.
 
 - **A maximized `PlWindowPane` fills the box it is laid out in and stops dragging, and a minimized one rolls up to its title bar whatever `height` it was given.** Maximizing only squared the corners and renamed the button: the window kept its size and its offset, and the bar still dragged and still took the arrow keys. It now fills the box its parent lays it out in from the box's corner, keeping its own size along an axis the box leaves open, such as down a scrolling column, and the bar's drag and its keyboard stop stand down until it is restored, as in the React build. A minimized window with a `height` kept that height with nothing under the bar; it is now as tall as the bar and comes back down to the height it had.

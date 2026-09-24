@@ -386,6 +386,13 @@ void main() {
       expect(compactNumber(1.5e18), '1,500,000T');
       expect(compactNumber(-1.5e18), '-1,500,000T');
     });
+
+    test('writes a value that is not a number as `Intl` does, with no unit', () {
+      // What `Intl` gives the React build in `en-US`, compact or plain.
+      expect(compactNumber(double.infinity), '∞');
+      expect(compactNumber(double.negativeInfinity), '-∞');
+      expect(compactNumber(double.nan), 'NaN');
+    });
   });
 
   group('a time axis before 1970', () {

@@ -2196,7 +2196,18 @@ String _grouped(String text) {
 /// rather than `1000K`. Under ten thousand it is the plain number with at most
 /// two decimals and its thousands grouped, `9,999`, as `Intl` writes it in
 /// English — see [_grouped] for what that means in another language.
+///
+/// A value that is not a number at all is written as `Intl` writes it, `∞`,
+/// `-∞` or `NaN`, with no unit after it.
 String compactNumber(double value) {
+  if (value.isNaN) {
+    return 'NaN';
+  }
+
+  if (value.isInfinite) {
+    return value < 0 ? '-∞' : '∞';
+  }
+
   final double magnitude = value.abs();
 
   if (magnitude < 10000) {
