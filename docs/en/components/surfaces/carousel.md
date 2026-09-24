@@ -119,6 +119,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 - A button in the top corner of the frame stops it and starts it again. It is the first thing a keyboard reaches, and its name says what pressing it does: "Stop slide show" while it plays, "Start slide show" once it has stopped.
 - It **pauses** while the pointer is over it, and carries on when the pointer leaves.
 - It **stops** once the focus comes into it, which is the important one: a keyboard reader who has tabbed into a slide is reading it. It stays stopped until the button starts it again, whether or not the focus or the pointer has left since. The button is the one place the focus can land without stopping it.
+- A press on an arrow or a dot stops it as well, whether or not the press moves the focus. Once the button has started it again, pressing the arrows and the dots does not stop it.
 - For a reader who has asked for reduced motion it starts stopped, and the button starts it.
 
 ::: fw react
@@ -131,7 +132,6 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 ::: fw flutter
 
-- A press on an arrow or a dot stops it too. On the web the click moves the focus into the carousel, and that is what stops it there. A Flutter press leaves the focus where it was, so the press itself stops it. Once the button has started it again, pressing the arrows and the dots does not stop it.
 - It needs `onChanged`. The widget is controlled, so a carousel nothing is listening to has nothing to advance, and neither the timer nor the button is there.
 
 :::

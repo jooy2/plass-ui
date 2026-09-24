@@ -483,6 +483,88 @@ describe('PlCarousel', () => {
         .toBeInTheDocument();
     });
 
+    // A DOM click rather than the runner's, which focuses the button it presses
+    // in every browser Playwright drives. Safari does not focus a button it
+    // clicks, so there the click has to stop the strip by itself.
+    it.each(['Next slide', 'Slide 3 of 3'])(
+      'stops once the button “%s” is clicked, when the click brings no focus in',
+      async (name) => {
+        const screen = await render(
+          <PlCarousel autoPlay interval={200}>
+            {slides}
+          </PlCarousel>
+        );
+
+        (screen.getByRole('button', { name }).element() as HTMLElement).click();
+
+        expect(screen.getByRole('region').element().contains(document.activeElement)).toBe(false);
+        await expect
+          .element(screen.getByRole('button', { name: 'Start slide show' }))
+          .toBeInTheDocument();
+      }
+    );
+
+    it('keeps playing through a click on an arrow or a dot once its button has started it, when no click brings the focus in', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCarousel autoPlay interval={200} onValueChange={onValueChange}>
+          {slides}
+        </PlCarousel>
+      );
+      const click = (name: string) =>
+        (screen.getByRole('button', { name }).element() as HTMLElement).click();
+
+      click('Stop slide show');
+      await expect
+        .element(screen.getByRole('button', { name: 'Start slide show' }))
+        .toBeInTheDocument();
+      click('Start slide show');
+      await expect
+        .element(screen.getByRole('button', { name: 'Stop slide show' }))
+        .toBeInTheDocument();
+
+      // The reader has just answered the stop, with the focus outside the
+      // carousel all along.
+      click('Next slide');
+      click('Slide 1 of 3');
+      onValueChange.mockClear();
+
+      expect(screen.getByRole('region').element().contains(document.activeElement)).toBe(false);
+      await expect
+        .element(screen.getByRole('button', { name: 'Stop slide show' }))
+        .toBeInTheDocument();
+      await expect
+        .poll(() => onValueChange.mock.calls.length, { timeout: 2000 })
+        .toBeGreaterThan(0);
+    });
+
+    it('stops once the focus comes in after a click that brought no focus in started it', async () => {
+      const screen = await render(
+        <PlCarousel autoPlay interval={200}>
+          {slides}
+        </PlCarousel>
+      );
+      const click = (name: string) =>
+        (screen.getByRole('button', { name }).element() as HTMLElement).click();
+
+      click('Stop slide show');
+      await expect
+        .element(screen.getByRole('button', { name: 'Start slide show' }))
+        .toBeInTheDocument();
+      click('Start slide show');
+      await expect
+        .element(screen.getByRole('button', { name: 'Stop slide show' }))
+        .toBeInTheDocument();
+
+      // What the start answered was a stop made from outside, so a reader who
+      // then tabs into a slide is reading it.
+      (screen.getByRole('group', { name: 'Carousel' }).element() as HTMLElement).focus();
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Start slide show' }))
+        .toBeInTheDocument();
+    });
+
     it('announces the slide once it is stopped, and not while it plays', async () => {
       const screen = await render(
         <PlCarousel autoPlay interval={60000}>

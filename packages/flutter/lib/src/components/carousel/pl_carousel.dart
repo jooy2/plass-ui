@@ -232,10 +232,10 @@ class _PlCarouselState extends State<PlCarousel> {
   /// started, whether the focus goes there or a press does.
   ///
   /// Raised whether or not the focus is inside, because a press on the button
-  /// is, and in a browser the click would have brought the focus with it.
-  /// Lowered whenever the focus comes in or goes out: a start made with the
-  /// focus inside ends when it leaves, and one made with it elsewhere ends when
-  /// it arrives, which in a browser it could only do after leaving.
+  /// is, as the React carousel raises it whether or not the click brought the
+  /// focus. Lowered whenever the focus comes in or goes out: a start made with
+  /// the focus inside ends when it leaves, and one made with it elsewhere ends
+  /// when it arrives.
   bool _resumedInside = false;
 
   @override
@@ -358,9 +358,9 @@ class _PlCarouselState extends State<PlCarousel> {
 
   /// An arrow or a dot, pressed by a pointer, a key or a screen reader.
   ///
-  /// The same stop as the focus coming in. In a browser the click is what
-  /// brings the focus in, so the React build stops there without being told;
-  /// a press here leaves the focus where it was, and has to say so itself.
+  /// The same stop as the focus coming in. A press here leaves the focus where
+  /// it was, and has to say so itself, as a click does in the React build,
+  /// since Safari does not focus a button it clicks.
   void _steer(int next) {
     _hold();
     _go(next);

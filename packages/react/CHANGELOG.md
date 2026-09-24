@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **Clicking an arrow or a dot of an `autoPlay` `PlCarousel` stops it in Safari too.** The carousel stopped only because the click brought the focus into it, and Safari does not focus a button it clicks, so there a reader who had steered to a slide saw it turn away at the next interval. A click on an arrow or a dot now stops it by itself, as a press does in the Flutter build, and the button reads "Start slide show" until it is pressed. A carousel the button has just started keeps playing through a click on an arrow or a dot until the focus next comes in or goes out, whether or not the start brought the focus in.
+
 - **`Escape` clears a `PlPieChart` readout.** The pie took only the arrow keys, so a slice being read stayed on the card and in the live region until the pointer or the focus left, where every other chart clears it on `Escape`. With a slice being read, the press now clears it and stops there; with none, it goes on to whatever the chart sits in.
 
 - **A `PlScatterChart`'s table writes a point's own `label` in place of its y.** The table wrote the bare y beside a point the card called by its label; it now writes the label, as the card and every other chart's table do.

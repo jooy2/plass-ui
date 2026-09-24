@@ -47,8 +47,9 @@ export interface PlCarouselProps
    * Off by default and deliberately so: a carousel that moves while it is being
    * read is the most complained-about pattern on the web. It pauses while the
    * pointer is over it and while the tab is in the background. It **stops** once
-   * the focus comes into it, and stays stopped until the button starts it
-   * again. For a reader who has asked for reduced motion it starts stopped.
+   * the focus comes into it or an arrow or a dot is clicked, and stays stopped
+   * until the button starts it again. For a reader who has asked for reduced
+   * motion it starts stopped.
    * @default false
    */
   autoPlay?: boolean;
@@ -231,10 +232,10 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
 
     // Two different things hold the strip still, and they are kept apart on
     // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
-    // as the pointer does. The focus coming in is a *stop*: a keyboard reader
-    // who has tabbed into a slide is reading it, and the strip stays where it is
-    // until the button starts it again — leaving with the pointer, or with the
-    // focus, does not.
+    // as the pointer does. The focus coming in is a *stop*, and so is a click on
+    // an arrow or a dot: a reader who has tabbed into a slide or steered to one
+    // is reading it, and the strip stays where it is until the button starts it
+    // again — leaving with the pointer, or with the focus, does not.
     const [hovered, setHovered] = React.useState(false);
     // The reader's own answer to "should this be moving?", `true` for stopped.
     // `null` until they have given one, and until then it is the platform's
@@ -245,10 +246,13 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     const stopped = choice ?? reducedMotion;
     const playing = autoPlay && !stopped;
     const toggleRef = React.useRef<HTMLButtonElement>(null);
-    const focusInside = React.useRef(false);
-    // Raised when the button starts the strip while the focus is inside it. The
-    // reader has just answered the focus, and moving it on to the arrows or a
-    // slide does not stop what they started. Lowered when the focus leaves.
+    // Raised when the button starts the strip. The reader has just answered the
+    // stop, and moving on to an arrow, a dot or a slide does not stop what they
+    // started, whether the focus goes there or only a click does. Raised
+    // whether or not the focus is inside, because Safari does not focus a
+    // button it clicks. Lowered whenever the focus comes in or goes out: a
+    // start made with the focus inside ends when it leaves, and one made with
+    // it elsewhere ends when it arrives.
     const resumedInside = React.useRef(false);
 
     const go = React.useCallback(
@@ -423,7 +427,25 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       const next = !stopped;
 
       setChoice(next);
-      resumedInside.current = !next && focusInside.current;
+      resumedInside.current = !next;
+    };
+
+    /** Stops the strip because the reader has taken hold of it, unless the
+     * button has just started it. */
+    const hold = () => {
+      if (autoPlay && !resumedInside.current) {
+        setChoice(true);
+      }
+    };
+
+    /**
+     * An arrow or a dot. The same stop as the focus coming in, said by the
+     * click itself: the click brings the focus in only where the browser
+     * focuses a button it clicks, and Safari does not.
+     */
+    const steer = (next: number) => {
+      hold();
+      go(next);
     };
 
     const atStart = index <= 0;
@@ -444,24 +466,21 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
           onPointerEnter: () => setHovered(true),
           onPointerLeave: () => setHovered(false),
           onFocus: (event: React.FocusEvent<HTMLDivElement>) => {
-            focusInside.current = true;
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+              resumedInside.current = false;
+            }
 
             // The button is the one place the focus can land without stopping
             // anything. A keyboard reader reaches it first and can stop the
             // strip from there, and a mouse press moves the focus onto it
             // before the click arrives — stopping on that focus would have
             // turned the click on "stop" into a click on "start".
-            if (
-              autoPlay &&
-              (event.target as EventTarget) !== toggleRef.current &&
-              !resumedInside.current
-            ) {
-              setChoice(true);
+            if ((event.target as EventTarget) !== toggleRef.current) {
+              hold();
             }
           },
           onBlur: (event: React.FocusEvent<HTMLDivElement>) => {
             if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-              focusInside.current = false;
               resumedInside.current = false;
             }
           }
@@ -571,7 +590,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
                     <ChevronIcon />
                   </span>
                 }
-                onClick={() => go(index - 1)}
+                onClick={() => steer(index - 1)}
               />
               <span className="flex-1" />
               <PlIconButton
@@ -588,7 +607,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
                     <ChevronIcon />
                   </span>
                 }
-                onClick={() => go(index + 1)}
+                onClick={() => steer(index + 1)}
               />
             </div>
           ) : null}
@@ -612,7 +631,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
                   'group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full',
                   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-0'
                 )}
-                onClick={() => go(dotIndex)}
+                onClick={() => steer(dotIndex)}
               >
                 <span
                   aria-hidden="true"
