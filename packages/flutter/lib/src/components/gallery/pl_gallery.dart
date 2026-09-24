@@ -1,7 +1,10 @@
 /// A set of pictures, arranged.
 library;
 
-import 'package:flutter/semantics.dart';
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -332,7 +335,7 @@ class _PlGalleryState extends State<PlGallery> {
           case PlGalleryLayout.grid:
             return _grid(lanes, gap, width, radius, size, tokens, square: true);
           case PlGalleryLayout.masonry:
-            return _masonry(lanes, gap, radius, size, tokens);
+            return _masonry(lanes, gap, width, radius, size, tokens);
           case PlGalleryLayout.justified:
             return _justified(gap, width, radius, size, tokens);
           case PlGalleryLayout.quilted:
@@ -409,48 +412,59 @@ class _PlGalleryState extends State<PlGallery> {
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows);
   }
 
-  Widget _masonry(int lanes, double gap, BorderRadius radius, PlassSize size, PlassTokens tokens) {
+  /// The tiles in one list, in the order they were given, with the lanes drawn
+  /// by [_Lanes] rather than built as a column each.
+  ///
+  /// A column per lane made the lane a tile was dealt into part of where it sat
+  /// in the tree, so a tile that moved to another lane when the number of lanes
+  /// changed was built again from nothing: its picture loaded again and the
+  /// focus it held was lost. In one list a tile keeps its place whatever lane
+  /// it is drawn in, which is what the React build gets from its grid.
+  Widget _masonry(
+    int lanes,
+    double gap,
+    double width,
+    BorderRadius radius,
+    PlassSize size,
+    PlassTokens tokens,
+  ) {
     final List<double> ratios = widget.items.map(_ratioOf).toList();
     final List<List<int>> dealt = dealColumns(ratios, lanes);
-    final columns = <Widget>[];
+    final List<int> laneOf = List<int>.filled(ratios.length, 0);
 
     for (int lane = 0; lane < dealt.length; lane += 1) {
-      if (lane > 0) {
-        columns.add(SizedBox(width: gap));
-      }
-
-      final stack = <Widget>[];
-
       for (final int at in dealt[lane]) {
-        if (stack.isNotEmpty) {
-          stack.add(SizedBox(height: gap));
-        }
-
-        stack.add(_inOrder(at, _tile(at, radius, size, tokens, ratio: _ratioOf(widget.items[at]))));
+        laneOf[at] = lane;
       }
-
-      columns.add(
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: stack),
-        ),
-      );
     }
 
     return FocusTraversalGroup(
       policy: OrderedTraversalPolicy(),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: columns),
+      child: _Lanes(
+        count: lanes,
+        laneOf: laneOf,
+        gap: gap,
+        width: width,
+        textDirection: Directionality.of(context),
+        children: <Widget>[
+          for (int at = 0; at < ratios.length; at += 1)
+            _inOrder(at, _tile(at, radius, size, tokens, ratio: ratios[at])),
+        ],
+      ),
     );
   }
 
-  /// A masonry tile, handed back its place in the list.
+  /// A masonry or quilted tile, handed back its place in the list.
   ///
   /// A screen reader and the Tab key both order what they visit by where it is
-  /// drawn, not by where it sits in the tree, and a board of lanes is drawn in
-  /// neither the list's order nor rows: the screen reader read down the first
-  /// lane before it started the second, and Tab took whichever tile was nearest
-  /// the top, which is a different order again once the shapes are mixed. Each
-  /// tile is told its index instead, so both follow the set as it was given —
-  /// which is what the React build gets from keeping its tiles in one list.
+  /// drawn, not by where it sits in the tree, and neither board is drawn in the
+  /// list's order. A masonry's lanes are not rows: the screen reader read down
+  /// the first lane before it started the second, and Tab took whichever tile
+  /// was nearest the top, which is a different order again once the shapes are
+  /// mixed. A quilt is packed densely, so a later, narrower tile fills a gap an
+  /// earlier, wider one left, and is drawn before it. Each tile is told its
+  /// index instead, so both follow the set as it was given — which is what the
+  /// React build gets from keeping its tiles in one list.
   ///
   /// The node is a container so that a tile that is not a button keeps its
   /// picture and its caption as the separate nodes they were, rather than
@@ -526,23 +540,27 @@ class _PlGalleryState extends State<PlGallery> {
       }
     }
 
-    return SizedBox(
-      width: width,
-      height: lastRow * widget.rowHeight + (lastRow - 1) * gap,
-      child: Stack(
-        children: <Widget>[
-          for (int at = 0; at < cells.length; at += 1)
-            PositionedDirectional(
-              // The quilt is packed in reading order, so the first column is the
-              // *start* edge — which puts the first picture under a right-to-left
-              // reader's eye rather than at the far side of the wall.
-              start: cells[at].column * (cell + gap),
-              top: cells[at].row * (widget.rowHeight + gap),
-              width: cells[at].columnSpan * cell + (cells[at].columnSpan - 1) * gap,
-              height: cells[at].rowSpan * widget.rowHeight + (cells[at].rowSpan - 1) * gap,
-              child: _tile(at, radius, size, tokens, ratio: null),
-            ),
-        ],
+    return FocusTraversalGroup(
+      policy: OrderedTraversalPolicy(),
+      child: SizedBox(
+        width: width,
+        height: lastRow * widget.rowHeight + (lastRow - 1) * gap,
+        child: Stack(
+          children: <Widget>[
+            for (int at = 0; at < cells.length; at += 1)
+              PositionedDirectional(
+                // The quilt is packed in reading order, so the first column is
+                // the *start* edge — which puts the first picture under a
+                // right-to-left reader's eye rather than at the far side of the
+                // wall.
+                start: cells[at].column * (cell + gap),
+                top: cells[at].row * (widget.rowHeight + gap),
+                width: cells[at].columnSpan * cell + (cells[at].columnSpan - 1) * gap,
+                height: cells[at].rowSpan * widget.rowHeight + (cells[at].rowSpan - 1) * gap,
+                child: _inOrder(at, _tile(at, radius, size, tokens, ratio: null)),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -730,6 +748,166 @@ class _PlGalleryState extends State<PlGallery> {
       ),
       child: Padding(padding: const EdgeInsets.all(10), child: words),
     );
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * The lanes
+ * ------------------------------------------------------------------------- */
+
+/// A masonry's tiles, drawn down the lanes they were dealt into.
+///
+/// The children stay in the order they were given and each is told its lane,
+/// so a change in the number of lanes moves a tile without building it again.
+/// Every tile is laid out at the width of a lane and as tall as it comes out,
+/// under the one before it in the same lane — what a column per lane did, with
+/// the lane no longer part of the tree.
+class _Lanes extends MultiChildRenderObjectWidget {
+  const _Lanes({
+    required this.count,
+    required this.laneOf,
+    required this.gap,
+    required this.width,
+    required this.textDirection,
+    required super.children,
+  });
+
+  /// How many lanes there are.
+  final int count;
+
+  /// The lane each child goes down, by the child's index.
+  final List<int> laneOf;
+
+  final double gap;
+
+  /// The width the lanes share, which the layouts around this one measure too.
+  final double width;
+  final TextDirection textDirection;
+
+  @override
+  _RenderLanes createRenderObject(BuildContext context) {
+    return _RenderLanes(
+      count: count,
+      laneOf: laneOf,
+      gap: gap,
+      width: width,
+      textDirection: textDirection,
+    );
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderLanes renderObject) {
+    renderObject
+      ..count = count
+      ..laneOf = laneOf
+      ..gap = gap
+      ..width = width
+      ..textDirection = textDirection;
+  }
+}
+
+class _LanesParentData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderLanes extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _LanesParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _LanesParentData> {
+  _RenderLanes({
+    required int count,
+    required List<int> laneOf,
+    required double gap,
+    required double width,
+    required TextDirection textDirection,
+  }) : _count = count,
+       _laneOf = laneOf,
+       _gap = gap,
+       _width = width,
+       _textDirection = textDirection;
+
+  int _count;
+  int get count => _count;
+  set count(int value) {
+    if (_count == value) return;
+    _count = value;
+    markNeedsLayout();
+  }
+
+  List<int> _laneOf;
+  List<int> get laneOf => _laneOf;
+  set laneOf(List<int> value) {
+    if (listEquals(_laneOf, value)) return;
+    _laneOf = value;
+    markNeedsLayout();
+  }
+
+  double _gap;
+  double get gap => _gap;
+  set gap(double value) {
+    if (_gap == value) return;
+    _gap = value;
+    markNeedsLayout();
+  }
+
+  double _width;
+  double get width => _width;
+  set width(double value) {
+    if (_width == value) return;
+    _width = value;
+    markNeedsLayout();
+  }
+
+  TextDirection _textDirection;
+  TextDirection get textDirection => _textDirection;
+  set textDirection(TextDirection value) {
+    if (_textDirection == value) return;
+    _textDirection = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _LanesParentData) {
+      child.parentData = _LanesParentData();
+    }
+  }
+
+  @override
+  void performLayout() {
+    final double laneWidth = math.max(0, (width - gap * (count - 1)) / count);
+    final List<double> depths = List<double>.filled(count, 0);
+    final List<bool> started = List<bool>.filled(count, false);
+    int index = 0;
+
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
+      final _LanesParentData data = child.parentData! as _LanesParentData;
+      final int lane = index < laneOf.length ? laneOf[index].clamp(0, count - 1) : 0;
+      final double top = started[lane] ? depths[lane] + gap : 0;
+
+      child.layout(BoxConstraints.tightFor(width: laneWidth), parentUsesSize: true);
+
+      // The first lane is on the reader's starting side, so under RTL it is
+      // the right-hand one. Mirrored here rather than in `paint`, because a hit
+      // test and a semantics rectangle read the offsets too.
+      final double start = lane * (laneWidth + gap);
+      final double dx = textDirection == TextDirection.rtl ? width - start - laneWidth : start;
+
+      data.offset = Offset(dx, top);
+      depths[lane] = top + child.size.height;
+      started[lane] = true;
+      index += 1;
+    }
+
+    size = constraints.constrain(Size(width, depths.reduce(math.max)));
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    defaultPaint(context, offset);
   }
 }
 

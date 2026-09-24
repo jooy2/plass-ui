@@ -100,7 +100,7 @@ The tiles stay in one list, in the order they were given, and CSS Grid draws eac
 
 ::: fw flutter
 
-Each lane is a column of its own, and every tile carries its place in the list, so the Tab order and a screen reader follow the order the pictures were given rather than going down one lane before the next.
+The tiles stay in one list, in the order they were given, and each one is drawn down the lane it was dealt into. The Tab order and a screen reader follow that order rather than going down one lane before the next, and a tile that moves to another lane when the column count changes keeps its picture and the focus as they were.
 
 :::
 
@@ -212,6 +212,8 @@ A tile takes `cols` columns and `rows` rows of the grid. The flow is **dense**: 
 </Demo>
 
 A span wider than the grid is clamped rather than refused, which is what the caller meant by `cols: 99`.
+
+The Tab order and a screen reader follow the order the pictures were given, so a tile that fills an earlier hole is still reached after every tile before it in the list.
 
 ### preview
 

@@ -58,6 +58,8 @@
 
 ### Fixed
 
+- **A `PlGallery` masonry tile keeps its picture and its focus when the number of lanes changes, and a quilt is read in the order it was given.** Each lane was a column of its own, so a tile dealt into another lane when the breakpoint changed was built again from nothing, loading its picture again and dropping the focus. The tiles are now one list drawn down their lanes. A dense quilt lets a later, narrower tile fill a gap an earlier one left, and a screen reader and Tab followed the order it was drawn in; they now follow the order the pictures were given, as a masonry already did.
+
 - **Each `PlCarousel` dot can be reached with Tab.** The dots could be pressed but not reached from the keyboard. Each is now a focus stop of its own, named after its slide, pressed with Enter or Space and drawn with the focus ring while the keyboard holds it, as the React dots are. A frozen carousel's dots leave the tab order, as its arrows do.
 
 - **A `nearest` tooltip card is headed by its category, and a `PlTimelineChart` card names the span's row.** The `nearest` card was headed by the series alone, with the category nowhere on it though the live region read it; it is now the column's card narrowed to the one mark, the category over the series and its value. A timeline card named a span that names itself and left its row out; the row is now written beside the swatch, under the span's name, as in the React build.

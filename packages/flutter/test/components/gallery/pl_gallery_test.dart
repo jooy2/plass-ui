@@ -60,6 +60,54 @@ List<String> _pictures(WidgetTester tester) {
       .toList();
 }
 
+/// The pictures named in [names] a screen reader reaches, in the order it
+/// reaches them.
+List<String> _read(WidgetTester tester, List<String> names) {
+  return tester.semantics
+      .simulatedAccessibilityTraversal()
+      .map((SemanticsNode node) => node.label.split(' — ').first)
+      .where(names.contains)
+      .toList();
+}
+
+/// The tile holding the focus, by the words on its picture, or `null` when the
+/// focus is on something else.
+String? _focusedTile() {
+  String? label;
+
+  FocusManager.instance.primaryFocus?.context?.visitAncestorElements((Element element) {
+    final Widget widget = element.widget;
+
+    if (widget is Semantics && widget.properties.button == true) {
+      label = widget.properties.label;
+
+      return false;
+    }
+
+    return true;
+  });
+
+  return label?.split(' — ').first;
+}
+
+/// The tiles [steps] presses of Tab visit from [before], in the order they
+/// visit them.
+Future<List<String>> _walk(WidgetTester tester, FocusNode before, int steps) async {
+  final List<String> visited = <String>[];
+
+  before.requestFocus();
+  await tester.pump();
+
+  for (int step = 0; step < steps; step += 1) {
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+
+    visited.add(_focusedTile() ?? '');
+  }
+
+  return visited;
+}
+
 void main() {
   group('PlGallery', () {
     group('rendering', () {
@@ -181,22 +229,16 @@ void main() {
       ];
       final List<String> given = <String>['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
 
-      Widget masonry({void Function(PlGalleryItem item, int index)? onItemSelected}) {
+      Widget masonry({
+        int lanes = 3,
+        void Function(PlGalleryItem item, int index)? onItemSelected,
+      }) {
         return PlGallery(
           items: mixed,
           layout: PlGalleryLayout.masonry,
-          columns: const PlassResponsive<int>(3),
+          columns: PlassResponsive<int>(lanes),
           onItemSelected: onItemSelected,
         );
-      }
-
-      /// The pictures a screen reader reaches, in the order it reaches them.
-      List<String> read(WidgetTester tester) {
-        return tester.semantics
-            .simulatedAccessibilityTraversal()
-            .map((SemanticsNode node) => node.label.split(' — ').first)
-            .where(given.contains)
-            .toList();
       }
 
       testWidgets('is read in the order the pictures were given', (WidgetTester tester) async {
@@ -204,7 +246,7 @@ void main() {
 
         await _pump(tester, masonry());
 
-        expect(read(tester), given);
+        expect(_read(tester, given), given);
         handle.dispose();
       });
 
@@ -215,7 +257,7 @@ void main() {
 
         await _pump(tester, masonry(onItemSelected: (PlGalleryItem item, int index) {}));
 
-        expect(read(tester), given);
+        expect(_read(tester, given), given);
         handle.dispose();
       });
 
@@ -229,32 +271,127 @@ void main() {
           tester,
           afterFocusStop(before, masonry(onItemSelected: (PlGalleryItem item, int index) {})),
         );
-        before.requestFocus();
-        await tester.pump();
 
-        final List<String> visited = <String>[];
+        expect(await _walk(tester, before, given.length), given);
+      });
 
-        for (int step = 0; step < given.length; step += 1) {
-          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-          await tester.pump();
+      testWidgets('keeps a tile, and the focus on it, when the number of lanes changes', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
 
-          String? label;
-
-          FocusManager.instance.primaryFocus?.context?.visitAncestorElements((Element element) {
-            final Widget widget = element.widget;
-
-            if (widget is Semantics && widget.properties.button == true) {
-              label = widget.properties.label;
-
-              return false;
-            }
-
-            return true;
-          });
-          visited.add(label?.split(' — ').first ?? '');
+        Widget board(int lanes) {
+          return afterFocusStop(
+            before,
+            masonry(lanes: lanes, onItemSelected: (PlGalleryItem item, int index) {}),
+          );
         }
 
-        expect(visited, given);
+        final Finder e = find.byWidgetPredicate(
+          (Widget widget) => widget is PlImage && widget.semanticLabel == 'E',
+        );
+
+        await _pump(tester, board(3), width: 300);
+        await _walk(tester, before, 5);
+
+        expect(_focusedTile(), 'E');
+
+        final Element picture = tester.element(e);
+        final double x = tester.getTopLeft(e).dx;
+
+        await _pump(tester, board(2), width: 300);
+
+        // E goes from the last of three lanes to the second of two, and is
+        // still the tile it was: the same picture, with the focus still on it.
+        expect(tester.getTopLeft(e).dx, isNot(closeTo(x, 1)));
+        expect(identical(tester.element(e), picture), isTrue);
+        expect(_focusedTile(), 'E');
+      });
+
+      testWidgets('draws the first lane on the reader’s starting side', (
+        WidgetTester tester,
+      ) async {
+        double left(String label) => tester
+            .getTopLeft(
+              find.byWidgetPredicate(
+                (Widget widget) => widget is PlImage && widget.semanticLabel == label,
+              ),
+            )
+            .dx;
+
+        await _pump(tester, masonry());
+
+        // A leads the first lane and C the third.
+        expect(left('A'), lessThan(left('C')));
+
+        tester.view.physicalSize = const Size(600, 900);
+        await tester.pumpWidget(
+          host(masonry(), width: 600, overlay: true, textDirection: TextDirection.rtl),
+        );
+        await _settle(tester);
+
+        expect(left('A'), greaterThan(left('C')));
+      });
+    });
+
+    group('a quilt’s order', () {
+      /// Two wide tiles and two narrow ones on three columns. B is too wide for
+      /// the one column left beside A, so it opens the second row, and C, which
+      /// fits, fills the gap: the quilt is drawn A C, B D.
+      final List<PlGalleryItem> quilt = <PlGalleryItem>[
+        for (final (int at, int cols) in <(int, int)>[(0, 2), (1, 2), (2, 1), (3, 1)])
+          PlGalleryItem(
+            id: '$at',
+            image: _picture(at + 1),
+            semanticLabel: String.fromCharCode(65 + at),
+            cols: cols,
+          ),
+      ];
+      final List<String> given = <String>['A', 'B', 'C', 'D'];
+
+      Widget quilted({void Function(PlGalleryItem item, int index)? onItemSelected}) {
+        return PlGallery(
+          items: quilt,
+          layout: PlGalleryLayout.quilted,
+          columns: const PlassResponsive<int>(3),
+          rowHeight: 100,
+          onItemSelected: onItemSelected,
+        );
+      }
+
+      testWidgets('is read in the order the pictures were given', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, quilted());
+
+        expect(_read(tester, given), given);
+        handle.dispose();
+      });
+
+      testWidgets('is read in the order given when the tiles are buttons', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, quilted(onItemSelected: (PlGalleryItem item, int index) {}));
+
+        expect(_read(tester, given), given);
+        handle.dispose();
+      });
+
+      testWidgets('is walked with Tab in the order the pictures were given', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await _pump(
+          tester,
+          afterFocusStop(before, quilted(onItemSelected: (PlGalleryItem item, int index) {})),
+        );
+
+        expect(await _walk(tester, before, given.length), given);
       });
     });
 
