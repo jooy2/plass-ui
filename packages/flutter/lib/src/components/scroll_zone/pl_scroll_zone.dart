@@ -279,7 +279,8 @@ class PlScrollZone extends StatefulWidget {
   /// The size of the buttons and how far in from the edge they sit.
   final PlassSize? size;
 
-  /// Semantic colour role, carried by the buttons.
+  /// Semantic colour role, carried by the buttons and by the focus ring the
+  /// strip draws while the keyboard scrolls it.
   final PlassColor? color;
 
   /// What the scrollable region is called — "Categories", "Recent files".
@@ -694,11 +695,13 @@ class _PlScrollZoneState extends State<PlScrollZone> with SingleTickerProviderSt
     );
 
     // A strip with no buttons, or with nothing focusable in it, is still one
-    // the keyboard can scroll.
+    // the keyboard can scroll. Its ring is the zone's colour, as the buttons
+    // are.
     strip = PlassKeyboardScroll(
       vertical: _horizontal ? null : _scroll,
       horizontal: _horizontal ? _scroll : null,
       borderRadius: BorderRadius.circular(tokens.radii[_size]!),
+      color: _color,
       child: strip,
     );
 

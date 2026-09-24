@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
 
@@ -175,6 +176,46 @@ void main() {
           // Away from the widget, so the next direction starts from a new one.
           await tester.pumpWidget(const SizedBox.shrink());
         }
+      });
+
+      testWidgets('rings the strip in the zone\'s own colour', (WidgetTester tester) async {
+        FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+        addTearDown(
+          () => FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic,
+        );
+
+        final before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlScrollZone(
+                buttons: PlScrollZoneButtons.none,
+                spacing: 8,
+                color: PlassColor.danger,
+                children: _cards(),
+              ),
+            ),
+            width: 300,
+            height: 200,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        final PlassFocusRingPainter ring = tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .map((CustomPaint paint) => paint.foregroundPainter)
+            .whereType<PlassFocusRingPainter>()
+            .single;
+
+        expect(ring.color, PlassTokens.light().family(PlassColor.danger).ring);
       });
     });
 
