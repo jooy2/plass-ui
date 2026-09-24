@@ -1,9 +1,12 @@
 /// A window, drawn the way one of eight systems draws it.
 library;
 
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' show FlutterView;
 
+import 'package:flutter/gestures.dart'
+    show kDoubleTapSlop, kDoubleTapTimeout, kPrimaryButton, kTouchSlop;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -197,7 +200,8 @@ class PlWindowPane extends StatefulWidget {
   /// its bar.
   final bool maximized;
 
-  /// Called when the maximize button is pressed.
+  /// Called when the maximize button is pressed, and when the title bar of a
+  /// window that has one is double-tapped.
   final ValueChanged<bool>? onMaximizedChanged;
 
   /// Overrides the minimize button's name.
@@ -267,6 +271,83 @@ class _PlWindowPaneState extends State<PlWindowPane> {
 
   /// The window itself, so a gesture can measure it.
   final GlobalKey _paneKey = GlobalKey();
+
+  /// The last press a caption button or the bar's `actions` took. It is theirs
+  /// rather than the bar's, so a button pressed twice is pressed twice and the
+  /// window stays the size it was.
+  int? _claimedPointer;
+
+  /// The press on the bar that is still a tap, where it went down, and whether
+  /// it is the second of a double tap.
+  int? _tapPointer;
+  Offset _tapAt = Offset.zero;
+  bool _tapIsSecond = false;
+
+  /// Where the last tap on the bar went down, until the time for a second one
+  /// runs out.
+  Offset? _lastTap;
+  Timer? _lastTapTimer;
+
+  @override
+  void dispose() {
+    _lastTapTimer?.cancel();
+    super.dispose();
+  }
+
+  void _claim(PointerDownEvent event) => _claimedPointer = event.pointer;
+
+  /// A double tap on the bar, told from the pointer rather than by a double tap
+  /// recognizer, which would hold every press on the bar until it knew whether
+  /// a second was coming: a caption button's press would wait for it, and the
+  /// bar's drag would have to travel before it moved the window. Nothing here
+  /// takes part in the gesture arena, so both stay exactly as they were.
+  void _barDown(PointerDownEvent event) {
+    final Offset? last = _lastTap;
+    _forgetTap();
+
+    if (event.pointer == _claimedPointer || event.buttons != kPrimaryButton) {
+      _tapPointer = null;
+      return;
+    }
+
+    _tapPointer = event.pointer;
+    _tapAt = event.position;
+    _tapIsSecond = last != null && (event.position - last).distance <= kDoubleTapSlop;
+  }
+
+  void _barMove(PointerMoveEvent event) {
+    if (event.pointer == _tapPointer && (event.position - _tapAt).distance > kTouchSlop) {
+      _tapPointer = null;
+    }
+  }
+
+  void _barUp(PointerUpEvent event) {
+    if (event.pointer != _tapPointer) {
+      return;
+    }
+
+    _tapPointer = null;
+
+    if (_tapIsSecond) {
+      widget.onMaximizedChanged?.call(!widget.maximized);
+      return;
+    }
+
+    _lastTap = _tapAt;
+    _lastTapTimer = Timer(kDoubleTapTimeout, _forgetTap);
+  }
+
+  void _barCancel(PointerCancelEvent event) {
+    if (event.pointer == _tapPointer) {
+      _tapPointer = null;
+    }
+  }
+
+  void _forgetTap() {
+    _lastTapTimer?.cancel();
+    _lastTapTimer = null;
+    _lastTap = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -562,22 +643,28 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     required PlassLabels labels,
     required PlassTokens tokens,
   }) {
-    final Widget buttons = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        for (int i = 0; i < order.length; i += 1) ...<Widget>[
-          if (i > 0) SizedBox(width: metrics.gap),
-          _WindowButton(
-            control: order[i],
-            chrome: chrome,
-            metrics: metrics,
-            colors: colors,
-            maximized: widget.maximized,
-            label: _labelFor(order[i], labels),
-            onPressed: () => _press(order[i]),
-          ),
+    // The set as a whole, the gaps between the buttons included, as the React
+    // build's group keeps a double click in it from reaching the bar.
+    final Widget buttons = Listener(
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: _claim,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (int i = 0; i < order.length; i += 1) ...<Widget>[
+            if (i > 0) SizedBox(width: metrics.gap),
+            _WindowButton(
+              control: order[i],
+              chrome: chrome,
+              metrics: metrics,
+              colors: colors,
+              maximized: widget.maximized,
+              label: _labelFor(order[i], labels),
+              onPressed: () => _press(order[i]),
+            ),
+          ],
         ],
-      ],
+      ),
     );
 
     final Widget name = DefaultTextStyle.merge(
@@ -604,7 +691,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         if (!chrome.controlsAtEnd) buttons,
         if (!chrome.controlsAtEnd) SizedBox(width: metrics.padX),
         Expanded(child: leading),
-        if (widget.actions != null) widget.actions!,
+        if (widget.actions != null) Listener(onPointerDown: _claim, child: widget.actions),
         if (chrome.controlsAtEnd) buttons,
       ],
     );
@@ -635,8 +722,19 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       ),
     );
 
+    // A double tap on the bar maximizes the window or restores it, as a double
+    // click does in the React build, when the window has a maximize button.
+    final bool canMaximize = order.contains(PlWindowControl.maximize);
+    final Widget held = Listener(
+      onPointerDown: canMaximize ? _barDown : null,
+      onPointerMove: canMaximize ? _barMove : null,
+      onPointerUp: canMaximize ? _barUp : null,
+      onPointerCancel: canMaximize ? _barCancel : null,
+      child: bar,
+    );
+
     if (!widget.draggable) {
-      return bar;
+      return held;
     }
 
     // The inside of the frame's corners, which is where the ring has to turn.
@@ -676,7 +774,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
                   _moveTo(_grippedAt + _travel);
                 }
               : null,
-          child: bar,
+          child: held,
         ),
       ),
     );

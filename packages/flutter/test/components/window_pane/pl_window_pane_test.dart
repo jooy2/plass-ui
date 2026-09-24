@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show kDoubleTapTimeout;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -1108,5 +1109,163 @@ void main() {
         expect(marks, findsOneWidget);
       });
     });
+
+    group('a double tap on the title bar', () {
+      const Set<PlWindowControl> all = <PlWindowControl>{
+        PlWindowControl.minimize,
+        PlWindowControl.maximize,
+        PlWindowControl.close,
+      };
+
+      /// What the window last asked to be, and how often its minimize button
+      /// was pressed.
+      late bool maximized;
+      late int minimizes;
+
+      /// A window whose `maximized` is fed back, inside whatever [wrap] puts it
+      /// in.
+      Future<void> pumpWindow(
+        WidgetTester tester, {
+        bool draggable = false,
+        Set<PlWindowControl> controls = all,
+        Widget Function(Widget pane) wrap = _asIs,
+      }) async {
+        maximized = false;
+        minimizes = 0;
+
+        await _pumpFree(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => wrap(
+              PlWindowPane(
+                title: const Text('Notes'),
+                width: 300,
+                draggable: draggable,
+                controls: controls,
+                maximized: maximized,
+                onMaximizedChanged: (bool value) => setState(() => maximized = value),
+                onMinimizedChanged: (bool value) => minimizes += 1,
+              ),
+            ),
+          ),
+        );
+      }
+
+      /// Two taps on [target], as close together as a hand makes them.
+      Future<void> doubleTap(WidgetTester tester, Finder target) async {
+        await tester.tap(target);
+        await tester.pump(const Duration(milliseconds: 80));
+        await tester.tap(target);
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('maximizes the window and restores it, whether or not the bar drags', (
+        WidgetTester tester,
+      ) async {
+        for (final bool draggable in <bool>[false, true]) {
+          await pumpWindow(tester, draggable: draggable);
+          await doubleTap(tester, find.text('Notes'));
+
+          expect(maximized, isTrue, reason: 'draggable: $draggable');
+          expect(find.bySemanticsLabel('Restore'), findsOneWidget);
+
+          await doubleTap(tester, find.text('Notes'));
+
+          expect(maximized, isFalse, reason: 'draggable: $draggable');
+        }
+      });
+
+      testWidgets('takes two taps too far apart as two taps', (WidgetTester tester) async {
+        await pumpWindow(tester);
+
+        await tester.tap(find.text('Notes'));
+        await tester.pump(kDoubleTapTimeout + const Duration(milliseconds: 50));
+        await tester.tap(find.text('Notes'));
+        await tester.pumpAndSettle();
+
+        expect(maximized, isFalse);
+      });
+
+      testWidgets('does nothing on a window with no maximize button', (WidgetTester tester) async {
+        await pumpWindow(
+          tester,
+          controls: const <PlWindowControl>{PlWindowControl.minimize, PlWindowControl.close},
+        );
+        await doubleTap(tester, find.text('Notes'));
+
+        expect(maximized, isFalse);
+      });
+
+      testWidgets('leaves a press on a bar button to the button, at once and every time', (
+        WidgetTester tester,
+      ) async {
+        await pumpWindow(tester, draggable: true);
+
+        // Pressed the moment the finger lifts, rather than once the time for a
+        // second tap has run out.
+        await tester.tap(find.bySemanticsLabel('Minimize'));
+        await tester.pump();
+
+        expect(minimizes, 1);
+
+        // And a button pressed twice is pressed twice, not a double tap on the
+        // bar under it.
+        await doubleTap(tester, find.bySemanticsLabel('Minimize'));
+
+        expect(minimizes, 3);
+        expect(maximized, isFalse);
+
+        // The gap between two lights belongs to the set as well.
+        final Rect minimize = tester.getRect(find.bySemanticsLabel('Minimize'));
+        final Rect maximize = tester.getRect(find.bySemanticsLabel('Maximize'));
+        final Offset gap = Offset((minimize.right + maximize.left) / 2, minimize.center.dy);
+
+        expect(maximize.left, greaterThan(minimize.right));
+
+        await tester.tapAt(gap);
+        await tester.pump(const Duration(milliseconds: 80));
+        await tester.tapAt(gap);
+        await tester.pumpAndSettle();
+
+        expect(maximized, isFalse);
+      });
+
+      testWidgets('leaves the drag moving the window from the first pixel', (
+        WidgetTester tester,
+      ) async {
+        await pumpWindow(tester, draggable: true);
+
+        final Offset before = tester.getTopLeft(find.text('Notes'));
+        final TestGesture gesture = await tester.startGesture(tester.getCenter(find.text('Notes')));
+
+        await gesture.moveBy(const Offset(6, 0));
+        await tester.pump();
+
+        expect(tester.getTopLeft(find.text('Notes')) - before, const Offset(6, 0));
+
+        await gesture.up();
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets('maximizes a window that drags inside a scrolling column', (
+        WidgetTester tester,
+      ) async {
+        await pumpWindow(
+          tester,
+          draggable: true,
+          wrap: (Widget pane) => SizedBox(
+            height: 400,
+            child: SingleChildScrollView(
+              child: Column(children: <Widget>[pane, const SizedBox(height: 800)]),
+            ),
+          ),
+        );
+        await doubleTap(tester, find.text('Notes'));
+
+        expect(maximized, isTrue);
+      });
+    });
   });
 }
+
+Widget _asIs(Widget pane) => pane;

@@ -6388,8 +6388,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'onMaximizedChanged',
       type: 'ValueChanged<bool>?',
       description: {
-        ko: 'maximize를 누르면 부릅니다',
-        en: 'Called when the maximize button is pressed'
+        ko: 'maximize를 누르거나 제목 표시줄을 두 번 탭하면 부릅니다',
+        en: 'Called when the maximize button is pressed or the title bar is double-tapped'
       }
     },
     from('PlWindowPane', 'minimizeLabel', { type: 'String?' }),

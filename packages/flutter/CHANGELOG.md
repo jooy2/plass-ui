@@ -6,6 +6,8 @@
 
 ### Added
 
+- **A double tap on a `PlWindowPane` title bar maximizes the window, and another restores it, as a double click does in the React build.** Only the maximize button did. It works on a window whose `controls` include that button and reports through `onMaximizedChanged`. A press on a caption button, in the gap between two of them or on `actions` stays that control's own, so a button pressed twice is pressed twice, and a drag of a `draggable` bar still moves the window from the first pixel.
+
 - **`PlAnimateSplit` takes `mode`, so a line can leave one part at a time.** The React split had `mode="out"` and the Flutter one had no exit at all. `PlassAnimateMode.exit` runs each part's entrance backwards, in the order the parts would have arrived or the other way round with `reverse`, and holds them gone; with animations turned off, each part is there until its turn and gone from then on, as every other exit is.
 
 - **`PlPopconfirm` takes `loadingLabel`, the word a screen reader hears while it waits on `onConfirm`.** The confirming button's semantic hint was always the label set's `loading`, which does not say what is being waited for, and the popconfirm had no way to hand it another. `loadingLabel` reaches that button and puts the popconfirm's own word in its place, such as "Revoking", and the label stays what it was.
