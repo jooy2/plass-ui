@@ -727,11 +727,12 @@ class _Lit extends StatelessWidget {
       duration: reduceMotion ? Duration.zero : tokens.motionDuration,
       curve: tokens.motionEase,
       child: child,
+      // Filtered at rest too, by a brightness of 1, which is the identity. A
+      // filter that came and went with the pointer would change the shape of
+      // the tree above the content, and Flutter builds a changed shape from
+      // scratch: every hover and every press would build what the surface
+      // holds again, and a field in it would lose what was typed.
       builder: (BuildContext context, double value, Widget? child) {
-        if (value == 1) {
-          return child!;
-        }
-
         return ColorFiltered(colorFilter: brightnessFilter(value), child: child);
       },
     );

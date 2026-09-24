@@ -534,11 +534,10 @@ class _PlButtonState extends State<PlButton> {
         duration: reduceMotion ? Duration.zero : tokens.motionDuration,
         curve: tokens.motionEase,
         child: surface,
+        // At rest too, by the identity, for the reason `plassStateFilter`
+        // gives: a filter that came and went with the pointer would build the
+        // label and the icons again on every hover and every press.
         builder: (BuildContext context, double value, Widget? child) {
-          if (value == 1) {
-            return child!;
-          }
-
           return ColorFiltered(colorFilter: brightnessFilter(value), child: child);
         },
       );

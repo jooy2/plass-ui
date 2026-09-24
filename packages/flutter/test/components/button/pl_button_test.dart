@@ -50,6 +50,20 @@ BoxDecoration surfaceOf(WidgetTester tester) => _decoration(tester, shadowed: fa
 /// The outermost box, which is the one carrying the drop shadows.
 BoxDecoration shellOf(WidgetTester tester) => _decoration(tester, shadowed: true);
 
+/// Content with a `State` of its own: rebuilt from scratch, it is a different
+/// object.
+class _Probe extends StatefulWidget {
+  const _Probe();
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => const Text('3');
+}
+
 BoxDecoration _decoration(WidgetTester tester, {required bool shadowed}) {
   final container = tester
       .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
@@ -305,6 +319,45 @@ void main() {
         // cursor undoes the restraint everything else is spending effort on.
         expect(tester.getTopLeft(find.text('Save')), atRest);
       });
+
+      for (final PlassVariant variant in PlassVariant.values) {
+        testWidgets('keeps what a ${variant.name} key holds across a hover and a press', (
+          WidgetTester tester,
+        ) async {
+          // The brightness answers the pointer, and the tree above the label
+          // must not: a filter that came and went with it would build the label
+          // and the icons again, and a stateful one would start over.
+          await tester.pumpWidget(
+            host(
+              PlButton(
+                onPressed: () {},
+                variant: variant,
+                endIcon: const _Probe(),
+                child: const Text('Save'),
+              ),
+            ),
+          );
+          final State<_Probe> resting = tester.state(find.byType(_Probe));
+
+          final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
+          await gesture.addPointer(location: tester.getCenter(find.byType(PlButton)));
+          addTearDown(gesture.removePointer);
+          await tester.pumpAndSettle();
+
+          expect(tester.state(find.byType(_Probe)), same(resting), reason: 'hovered');
+
+          await gesture.down(tester.getCenter(find.byType(PlButton)));
+          await tester.pumpAndSettle();
+
+          expect(tester.state(find.byType(_Probe)), same(resting), reason: 'pressed');
+
+          await gesture.up();
+          await gesture.moveTo(Offset.zero);
+          await tester.pumpAndSettle();
+
+          expect(tester.state(find.byType(_Probe)), same(resting), reason: 'at rest again');
+        });
+      }
     });
 
     group('icons', () {
