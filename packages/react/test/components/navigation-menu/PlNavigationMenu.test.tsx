@@ -2,7 +2,12 @@ import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { PlNavigationMenu, PlNavigationMenuItem, PlNavigationMenuLink } from 'plass-ui';
+import {
+  PlassProvider,
+  PlNavigationMenu,
+  PlNavigationMenuItem,
+  PlNavigationMenuLink
+} from 'plass-ui';
 
 describe('PlNavigationMenu', () => {
   describe('the row', () => {
@@ -267,6 +272,72 @@ describe('PlNavigationMenu', () => {
       );
 
       await expect.element(screen.getByRole('link', { name: 'Analytics' })).toBeVisible();
+    });
+  });
+
+  describe('where the panel opens', () => {
+    const trigger = () => document.querySelector<HTMLElement>('button')!;
+    const positioner = () => document.querySelector<HTMLElement>('.plass-portal')!;
+
+    /**
+     * How far the box Base UI places the panel in stands off the word it opened
+     * from, to the pixel: below the word, past its right edge and short of its
+     * left edge. The side the panel is on is the one that reads `sideOffset`.
+     */
+    function standoff() {
+      const box = positioner().getBoundingClientRect();
+      const word = trigger().getBoundingClientRect();
+
+      return {
+        below: Math.round(box.top - word.bottom),
+        right: Math.round(box.left - word.right),
+        left: Math.round(word.left - box.right)
+      };
+    }
+
+    function menu(orientation?: 'horizontal' | 'vertical') {
+      return (
+        <PlNavigationMenu orientation={orientation}>
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink href="/a" title="Analytics" />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+    }
+
+    it('hangs it under the row', async () => {
+      await render(menu());
+
+      trigger().click();
+
+      await expect.poll(() => standoff().below).toBe(8);
+      expect(positioner()).toHaveAttribute('data-side', 'bottom');
+    });
+
+    it('opens it beside a vertical rail, at the end of the line', async () => {
+      await render(menu('vertical'));
+
+      trigger().click();
+
+      await expect.poll(() => standoff().right).toBe(8);
+      expect(positioner()).toHaveAttribute('data-side', 'inline-end');
+    });
+
+    it('opens it to the left of the rail on a page that runs right to left', async () => {
+      document.documentElement.setAttribute('dir', 'rtl');
+
+      try {
+        // Base UI reads the direction from `PlassProvider`, which reads it off
+        // the document.
+        await render(<PlassProvider>{menu('vertical')}</PlassProvider>);
+
+        trigger().click();
+
+        await expect.poll(() => standoff().left).toBe(8);
+        expect(positioner()).toHaveAttribute('data-side', 'inline-end');
+      } finally {
+        document.documentElement.removeAttribute('dir');
+      }
     });
   });
 

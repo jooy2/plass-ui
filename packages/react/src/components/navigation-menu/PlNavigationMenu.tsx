@@ -35,11 +35,13 @@ import type { PlassDensity, PlassOrientation, PlassSize, PlassStyleProps } from 
 interface NavigationMenuContextValue {
   size: PlassSize;
   density: PlassDensity;
+  orientation: PlassOrientation;
 }
 
 const NavigationMenuContext = /* @__PURE__ */ React.createContext<NavigationMenuContextValue>({
   size: 'md',
-  density: 'default'
+  density: 'default',
+  orientation: 'horizontal'
 });
 
 export interface PlNavigationMenuProps
@@ -295,11 +297,14 @@ export function PlNavigationMenuItem({
   className,
   style
 }: PlNavigationMenuItemProps): React.ReactElement {
-  const { size, density } = React.useContext(NavigationMenuContext);
+  const { size, density, orientation } = React.useContext(NavigationMenuContext);
   const isLink = href !== undefined && !hasContent(children);
 
   const chrome = cx(
     triggerClasses,
+    // Across the whole rail, so a panel that opens beside the word opens
+    // beside the rail, and each one opens against the same edge.
+    orientation === 'vertical' && 'w-full',
     controlHeightClasses[size],
     controlTextClasses[size],
     gapClasses[size],
@@ -408,7 +413,10 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
 
-  const context = React.useMemo(() => ({ size, density }), [size, density]);
+  const context = React.useMemo(
+    () => ({ size, density, orientation }),
+    [size, density, orientation]
+  );
 
   /*
    * Which panel is open, whoever holds it. Base UI keeps an uncontrolled value
@@ -599,13 +607,17 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
             positioner is `hidden` and inert, and stops tracking its anchor. */}
         <BaseUINavigationMenu.Portal keepMounted>
           {/* `.plass-portal` is a hook, not a style: a portalled popup leaves
-              the subtree a host may have scoped its CSS reset to. */}
+              the subtree a host may have scoped its CSS reset to.
+
+              A rail's panels open beside it, at the end of the line, which is
+              its left under RTL. */}
           <BaseUINavigationMenu.Positioner
             ref={setPositioner}
             className={cx(
               positionerClasses,
               moving ? positionerMoveClasses : positionerStillClasses
             )}
+            side={orientation === 'vertical' ? 'inline-end' : 'bottom'}
             sideOffset={sideOffset}
             collisionPadding={12}
           >

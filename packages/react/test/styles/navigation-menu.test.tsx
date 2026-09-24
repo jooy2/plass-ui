@@ -143,6 +143,17 @@ function twinNav(width = 600) {
   );
 }
 
+/** The same items down a rail wider than its words. */
+function railNav() {
+  return (
+    <div style={{ width: 240 }}>
+      <PlNavigationMenu orientation="vertical">
+        <Row />
+      </PlNavigationMenu>
+    </div>
+  );
+}
+
 /** A menu whose page holds the value and takes every change a trigger asks for. */
 function ControlledNav() {
   const [value, setValue] = React.useState<string | null>(null);
@@ -368,6 +379,33 @@ describe('a PlNavigationMenu moving between panels', () => {
     // And stops easing once it has arrived, so a later move, such as the row
     // scrolling with the page, is followed at once rather than trailed.
     await expect.poll(() => getComputedStyle(positioner()).transitionProperty).toBe('none');
+  });
+
+  it('opens a vertical rail s panels beside the rail, and moves the sheet down it', async () => {
+    await render(railNav());
+
+    // How far the sheet's box stands off the rail's end edge, to the pixel.
+    const standoff = () =>
+      Math.round(
+        positioner().getBoundingClientRect().left -
+          trigger('Product').closest('nav')!.getBoundingClientRect().right
+      );
+
+    press('Product');
+    await settleOn('/a');
+    expect(standoff()).toBe(8);
+
+    const watch = watchTheSheet();
+
+    press('Company');
+    await settleOn('/about');
+    watch.stop();
+
+    // Against the same edge for a longer word, so the box eases down the rail
+    // and never along it.
+    expect(standoff()).toBe(8);
+    expect(watch.kinds()).toContain('box:top');
+    expect(watch.kinds()).not.toContain('box:left');
   });
 
   it('moves the sheet under the next item when only its place changes', async () => {
