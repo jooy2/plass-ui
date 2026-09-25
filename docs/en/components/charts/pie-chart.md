@@ -131,7 +131,7 @@ Where the first slice starts, in degrees clockwise from twelve o'clock. `semi` i
 
 ## Accessibility
 
-- The drawing carries the chart's name, and the reading a sighted reader takes from the angles is handed over as text: every visible slice, its value and its share.
+- The drawing carries the chart's name, and the reading a sighted reader takes from the angles is handed over as text: every visible slice, its value and its share. A slice whose point carries its own `label` is read by that label instead, and its readout writes the label too.
 - On React the picture is a `role="img"` and a **tab stop**, and the arrow keys walk the slices. <kbd>Escape</kbd> clears the readout. The key is taken only while a slice is being read; otherwise it goes on to whatever the chart sits in, so a sheet around it still closes. What each slice is worth is announced in a live region as the focus moves.
 - On React, focusing the picture reads its name and then every slice with its share, such as "Search 40 · 40%, Social 25 · 25%". The same numbers are also written into a table under the chart, clipped from view but never hidden from the accessibility tree.
 - The legend is real buttons. Pressing one takes its slice out of the ring and shares the angle out again among the rest.

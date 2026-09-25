@@ -23,6 +23,14 @@ const List<PlassChartCategory> sources = <PlassChartCategory>[
   PlassChartCategory.text('Referral'),
 ];
 
+/// The same slices, with the first one carrying its own words.
+const List<PlassChartDatum> labelled = <PlassChartDatum>[
+  PlassChartDatum.point(PlassChartPoint(y: 40, label: 'About two in five')),
+  PlassChartDatum(25),
+  PlassChartDatum(20),
+  PlassChartDatum(15),
+];
+
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(500, 700);
   tester.view.devicePixelRatio = 1;
@@ -73,6 +81,18 @@ void main() {
 
       expect(node.value, contains('Search 40 · 40%'));
       expect(node.value, contains('Referral 15 · 15%'));
+    });
+
+    testWidgets('reads a slice by its own label when it carries one', (WidgetTester tester) async {
+      await _pump(tester, const PlPieChart(data: labelled, categories: sources));
+
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+      // The point's own words stand in for its value and share, as they do on
+      // every other chart; a slice without any is still read by its share.
+      expect(node.value, contains('Search About two in five'));
+      expect(node.value, isNot(contains('Search 40 · 40%')));
+      expect(node.value, contains('Social 25 · 25%'));
     });
 
     testWidgets('writes a slice compactly and grouped without a format', (
@@ -274,6 +294,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('40 · 40%'), findsOneWidget);
+    });
+
+    testWidgets('writes a slice by its own label on its readout', (WidgetTester tester) async {
+      await _pump(tester, const PlPieChart(data: labelled, categories: sources, height: 240));
+
+      await tester.tapAt(tester.getCenter(find.byType(CustomPaint).first) + const Offset(30, -50));
+      await tester.pumpAndSettle();
+
+      expect(find.text('About two in five'), findsOneWidget);
+      expect(find.text('40 · 40%'), findsNothing);
     });
 
     testWidgets('takes a second press on the same slice as a dismissal', (

@@ -347,7 +347,7 @@ class _PlPieChartState extends State<PlPieChart> {
                           children: <Widget>[
                             _Readout(
                               color: values[_active!].color ?? colors[_active!],
-                              text: _share(values[_active!].value ?? 0, total),
+                              text: _said(values[_active!], total),
                               tokens: tokens,
                               size: size,
                             ),
@@ -481,6 +481,11 @@ class _PlPieChartState extends State<PlPieChart> {
     return '${_write(value)} · $written%';
   }
 
+  /// What a slice is worth, as its card writes it and a screen reader hears
+  /// it: the point's own `label` when it carries one, as on every other chart
+  /// and in the React build, and its value and share when it does not.
+  String _said(ChartValue value, double total) => value.label ?? _share(value.value ?? 0, total);
+
   /// Every visible slice and what it is worth.
   String _summary(
     List<PlassChartSeries> slices,
@@ -495,7 +500,7 @@ class _PlPieChartState extends State<PlPieChart> {
         continue;
       }
 
-      parts.add('${slices[i].name} ${_share(values[i].value!, total)}');
+      parts.add('${slices[i].name} ${_said(values[i], total)}');
     }
 
     return parts.join(', ');
