@@ -94,6 +94,8 @@ const trackBaseClasses = /* @__PURE__ */ [
   '[transition-property:background-color,background-image,box-shadow,filter]',
   '[transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]',
+  // At once under reduced motion, as the house transition does.
+  'motion-reduce:[transition-duration:0ms]',
   focusRingClasses
 ].join(' ');
 

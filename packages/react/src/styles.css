@@ -2742,7 +2742,9 @@
  * transitions: someone who has asked for less movement is asking for state
  * changes to *arrive*, not to be taken away. The colours still change; they
  * simply stop easing, and the light stops trailing the pointer across the
- * surface — it is either on the control or it is not.
+ * surface — it is either on the control or it is not. The colours are the house
+ * transition's, which is a set of utilities rather than a class, so it says so
+ * beside itself in `internal/styles.ts`.
  * ------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {

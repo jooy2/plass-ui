@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **Under reduced motion a control's colours, edge and shadow change at once, as the Flutter surfaces do.** Only the pointer light stopped easing under `prefers-reduced-motion`, and every other change the house transition carries, a glass key's wash, a field's edge, a shadow, a label's ink and a switch's track, still eased over `--plass-duration`.
+
 - **A `PlWindowPane` resized as short as it goes stops at its title bar and the frame round it, and `minHeight` does not take it any shorter.** The floor was the bar alone, so a window shrunk by an edge, the resize corner or the arrow keys, or given a `minHeight` below its bar, lost the bottom of its bar to the frame: 2px on most systems, and 4px on `windows8`.
 
 - **A `PlNumberField` stepper that has run into `min` or `max` fades to half, as every other disabled control does.** It went to 40% opacity, so on a form the one unavailable stepper was fainter than a disabled button or field beside it, and fainter than the same stepper in the Flutter build. It now fades to 50%.

@@ -397,11 +397,16 @@ export const glassClasses =
  * scaling a key resamples its label, and text that shimmers under the cursor
  * undoes the restraint everything else is spending effort on. A surface that
  * holds content rather than being pressed — a Card — may lift, and does.
+ *
+ * Under reduced motion the new colours arrive at once instead of easing in, as
+ * the Flutter surfaces do. Nothing waits on the end of one of these, so no
+ * duration is kept for a `transitionend` to arrive on.
  */
 export const transitionClasses = /* @__PURE__ */ [
   '[transition-property:background-color,background-image,border-color,box-shadow,color,filter,opacity]',
   '[transition-duration:var(--plass-duration)]',
-  '[transition-timing-function:var(--plass-ease)]'
+  '[transition-timing-function:var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]'
 ].join(' ');
 
 /**
