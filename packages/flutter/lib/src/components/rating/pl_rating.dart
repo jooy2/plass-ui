@@ -167,6 +167,18 @@ class _PlRatingState extends State<PlRating> {
 
   int get _stars => widget.count < 1 ? 1 : widget.count;
 
+  @override
+  void didUpdateWidget(PlRating oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // A row that can no longer be used promises nothing, with the pointer on
+    // it or not. Left to the pointer leaving, the preview would go on showing
+    // a score nobody can choose, over the one the row actually holds.
+    if (!_interactive) {
+      _hovered = null;
+    }
+  }
+
   /// What a score is called: the caller's words, or else the theme's.
   String _valueName(double value) {
     return widget.valueLabel?.call(value, _stars) ??

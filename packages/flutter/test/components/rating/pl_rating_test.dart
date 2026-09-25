@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -215,6 +216,42 @@ void main() {
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 2);
       });
+    });
+
+    group('the pointer', () {
+      /// A mouse resting on the last star.
+      Future<void> hoverLast(WidgetTester tester) async {
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: Offset.zero);
+        addTearDown(mouse.removePointer);
+        await mouse.moveTo(tester.getCenter(find.byType(ClipRect).last));
+        await tester.pump();
+      }
+
+      testWidgets('previews the score it is on', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const _Harness(value: 1)));
+        await hoverLast(tester);
+
+        expect(fills(tester), <double>[1, 1, 1, 1, 1]);
+      });
+
+      for (final (String state, Widget Function() build) in <(String, Widget Function())>[
+        ('read-only', () => PlRating(value: 1, readOnly: true, onChanged: (double _) {})),
+        ('disabled', () => PlRating(value: 1, disabled: true, onChanged: (double _) {})),
+        ('frozen', () => const PlRating(value: 1)),
+      ]) {
+        testWidgets('stops previewing once the row is made $state', (WidgetTester tester) async {
+          await tester.pumpWidget(host(PlRating(value: 1, onChanged: (double _) {})));
+          await hoverLast(tester);
+
+          expect(fills(tester), <double>[1, 1, 1, 1, 1]);
+
+          await tester.pumpWidget(host(build()));
+
+          // The score the row holds, with the pointer still on the last star.
+          expect(fills(tester), <double>[1, 0, 0, 0, 0]);
+        });
+      }
     });
 
     group('the keyboard', () {

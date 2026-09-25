@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A `PlRating` made read-only, disabled or left without `onChanged` under the pointer shows the score it holds.** The hover preview stayed until the pointer left the row, so a rating of 1 went on showing the five stars the pointer was on, a score nobody could choose. It now goes as soon as the row stops being usable.
+
 - **A popup above or below its anchor hangs from the reader's start or end under RTL.** `PlassAlign.start` and `end` were read as the anchor's left and right in every writing direction, so under a right-to-left `Directionality` a `PlSelect` list, a `PlMenu`, the popup of every picker, a horizontal `PlNavigationMenu` panel, and a `PlPopover`, `PlHoverCard` or `PlTooltip` given `start` or `end` hung from the wrong edge, and a `PlTooltip`'s wedge sat at the wrong end of its plate. They now turn over with the direction, as `PlassAlign` says and as they do in the React build. Along a side edge, `start` is still the top.
 
 - **A `PlTour` closed and opened again before the frame is over stays as it was.** It was taken down after that frame whether or not it had been opened again, so it handed the focus back to what had opened it, came back up a frame later built from nothing, and took the focus to its card, away from a button the reader was on.
