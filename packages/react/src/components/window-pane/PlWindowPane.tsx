@@ -400,15 +400,10 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
     const active = activeProp ?? attended;
 
     /**
-     * The two lengths a roll-up animates between.
-     *
-     * `rolled` is what the window measures with nothing under its title bar, read
-     * off the bar itself rather than off the metrics table so it is right whatever
-     * box model the page is in. `pinned` is the height a window that was never
-     * given one had at the moment it was rolled up: a transition needs a number to
-     * travel from, and `auto` is not one.
+     * The height a window that was never given one had at the moment it was
+     * rolled up: a transition needs a number to travel from, and `auto` is not
+     * one. Where it travels to is `shortest`, below.
      */
-    const [rolled, setRolled] = React.useState<number | null>(null);
     const [pinned, setPinned] = React.useState<number | null>(null);
 
     /** Raised while a drag or a resize is running, which is when the window has to
@@ -693,7 +688,11 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
     }
 
     // No shorter than the title bar and the frame round it, whatever `minHeight`
-    // says: any less and the frame is taken out of the bar.
+    // says: any less and the frame is taken out of the bar. It is also how tall
+    // a rolled-up window is, worked out on every render rather than measured at
+    // the press, so a window given another `size` or `os` while it is rolled up
+    // fits its new bar. It is a `border-box` height, as every height here is: a
+    // resize writes the box it measured back as `height`.
     const shortest = metrics.bar + metrics.frame * 2;
 
     const floor = {
@@ -776,14 +775,6 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
      */
     function rollUp(next: boolean) {
       const root = rootRef.current;
-      const bar = root?.firstElementChild;
-
-      if (root && bar instanceof HTMLElement) {
-        // Measured rather than read off the metrics table: the collapsed height is
-        // the bar plus whatever the borders come to, and which of those the height
-        // property includes is the page's box model to decide.
-        setRolled(bar.offsetHeight + (root.offsetHeight - root.clientHeight));
-      }
 
       // A maximized window is `100%` tall, which is a length already. Pinned, it
       // would come back down to the height of its box once it was restored.
@@ -960,23 +951,20 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       </div>
     );
 
-    // Rolled up to its title bar whatever it was told to be, maximized or not —
-    // the height belongs to the body, and the body has gone. A window that
-    // starts rolled up has not been measured yet, so it is the bar and the frame
-    // round it, which is what the measurement comes to.
-    const rolledHeight = rolled ?? metrics.bar + metrics.frame * 2;
-
+    // Rolled up to its title bar and the frame round it whatever it was told to
+    // be, maximized or not — the height belongs to the body, and the body has
+    // gone.
     const geometry: React.CSSProperties = maximized
       ? // `100%` rather than `inset: 0`, and on every `position`: both ends of a
         // maximize have to be lengths for the window to travel between them, and
         // `auto` is not one. A window minimized as well keeps the whole width
         // and is only as tall as its bar.
-        { left: 0, top: 0, width: '100%', height: minimized ? rolledHeight : '100%' }
+        { left: 0, top: 0, width: '100%', height: minimized ? shortest : '100%' }
       : {
           left: offset.x,
           top: offset.y,
           width: sized?.width ?? width,
-          height: minimized ? rolledHeight : (sized?.height ?? height ?? pinned ?? undefined)
+          height: minimized ? shortest : (sized?.height ?? height ?? pinned ?? undefined)
         };
 
     const pane = useRender({

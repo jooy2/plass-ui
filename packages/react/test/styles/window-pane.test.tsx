@@ -197,6 +197,55 @@ describe('a window that starts minimized', () => {
   }
 });
 
+describe('a window rolled up by its button and then made another size or system', () => {
+  // Where the window comes to rest is what is asserted, so the roll-up is made
+  // instant rather than left to travel for 260ms under the poll.
+  beforeAll(async () => {
+    await emulateMedia({ reducedMotion: 'reduce' });
+  });
+
+  afterAll(async () => {
+    await emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  const changes = [
+    { name: 'size', from: { size: 'md' }, to: { size: 'xl' } },
+    { name: 'os', from: { os: 'macos' }, to: { os: 'linux' } }
+  ] as const;
+
+  for (const change of changes) {
+    it(`is as tall as its new bar and the frame round it, after its ${change.name} changes`, async () => {
+      const screen = await render(
+        <PlWindowPane title="Notes" {...change.from}>
+          <p>Body</p>
+        </PlWindowPane>
+      );
+
+      const pane = screen.getByRole('group', { name: 'Notes' }).element() as HTMLElement;
+      const bar = pane.firstElementChild as HTMLElement;
+      const frame = () => parseFloat(getComputedStyle(pane).borderBottomWidth);
+      const rolled = () =>
+        bar.getBoundingClientRect().bottom + frame() - pane.getBoundingClientRect().top;
+      const height = () => pane.getBoundingClientRect().height;
+
+      await screen.getByRole('button', { name: 'Minimize' }).click();
+      await expect.poll(() => height() - rolled()).toBeCloseTo(0, 0);
+
+      const before = bar.getBoundingClientRect().height;
+
+      await screen.rerender(
+        <PlWindowPane title="Notes" {...change.to}>
+          <p>Body</p>
+        </PlWindowPane>
+      );
+
+      // The bar has grown, and the window with it rather than over it.
+      await expect.poll(() => bar.getBoundingClientRect().height).toBeGreaterThan(before);
+      await expect.poll(() => height() - rolled()).toBeCloseTo(0, 0);
+    });
+  }
+});
+
 describe('a window resized as short as it goes', () => {
   // Where the window comes to rest is what is asserted, so the resize is made
   // instant rather than left to travel for 260ms under the poll.
