@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **The bullet of a `PlStepper`, `PlTimeline` or `PlHowToSteps` step takes its new state at once when animations are turned off.** It always eased over `motionDuration`, so with `disableAnimations` on, a step that was reached still faded into its gradient and halo, where every surface changes in one frame.
+
 - **A `PlPieChart` slice whose point carries its own `label` is written and read by that label, as in the React build.** Its readout and the text a screen reader is handed always wrote the value and the share, "40 · 40%", and dropped the words the caller gave the point, where every other Flutter chart and the React pie's card, live region and summary write them. A slice with no `label` is still written by its value and share.
 
 - **A `solid` `PlToggle` eases between its glass and its gradient over `motionDuration`, and a `PlSwitch`, `PlCheckbox`, `PlRadioGroup` or step marker fades its gradient out as it faded it in.** The toggle's blur came and went with its state, which built its fill again, so the gradient arrived in one frame and the glass came back in one. A gradient eased to or from no gradient at all used the other side in place of the missing one, so it arrived whole on the first frame and, going off, stayed whole for the length of the transition before it dropped. A surface whose `variant` changes between glass and a fill, such as a `PlBox`, eases the same way. Under reduced motion the change is still immediate.

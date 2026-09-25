@@ -134,12 +134,15 @@ class PlassStepBullet extends StatelessWidget {
   Widget build(BuildContext context) {
     final filled = status != PlassStepStatus.upcoming;
     final ink = filled ? family.onSolid : tokens.mutedFg;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return ExcludeSemantics(
       child: SizedBox.square(
         dimension: size,
         child: AnimatedContainer(
-          duration: tokens.motionDuration,
+          // At once when the platform asks for less movement, as every surface
+          // changes: a step reached is a state, and easing into it is motion.
+          duration: reduceMotion ? Duration.zero : tokens.motionDuration,
           curve: tokens.motionEase,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
