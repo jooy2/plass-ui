@@ -97,6 +97,8 @@ export interface PlRadioProps extends Omit<
 const dotBaseClasses = /* @__PURE__ */ [
   'relative inline-flex shrink-0 items-center justify-center rounded-full border',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
+  // The gradient fades in and out with the ring, as a PlCheckbox's tick does.
+  'plass-fill [--p-fill-edge:1px]',
   transitionClasses,
   focusRingClasses
 ].join(' ');
@@ -117,7 +119,7 @@ const restDotClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-pointer bg-(--plass-glass) [border-color:var(--plass-border)]',
   'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[--p-fill-on:1] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent] data-[checked]:hover:brightness-105',
   forcedCheckedClasses
 ].join(' ');
@@ -126,7 +128,7 @@ const readOnlyDotClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-default bg-(--plass-glass) [border-color:var(--plass-border)]',
   'saturate-[0.55]',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[--p-fill-on:1] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent]',
   forcedCheckedClasses
 ].join(' ');
@@ -135,7 +137,7 @@ const disabledDotClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-not-allowed bg-(--plass-glass) [border-color:var(--plass-border)]',
   'opacity-50 saturate-[0.35]',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[--p-fill-on:1] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent]',
   forcedDisabledCheckedClasses
 ].join(' ');

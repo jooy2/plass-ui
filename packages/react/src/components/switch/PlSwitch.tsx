@@ -88,10 +88,12 @@ const thumbTravelClasses: Record<PlassSize, string> = {
 const trackBaseClasses = /* @__PURE__ */ [
   'relative inline-flex shrink-0 rounded-full',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
-  // `background-image` is in the list because the on state is the gradient, and
-  // `left` deliberately is not: it belongs to the thumb, which is the one thing
-  // in the library that actually moves.
-  '[transition-property:background-color,background-image,box-shadow,filter]',
+  // The on state's gradient is a layer of its own, which fades in and out with
+  // the thumb where a background would arrive and leave in one frame.
+  'plass-fill',
+  // `left` is deliberately not in the list: it belongs to the thumb, which is
+  // the one thing in the library that actually moves.
+  '[transition-property:background-color,box-shadow,filter]',
   '[transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]',
   // At once under reduced motion, as the house transition does.
@@ -141,14 +143,14 @@ const restTrackClasses = /* @__PURE__ */ [
   forcedTrackClasses,
   'cursor-pointer bg-(--plass-track)',
   'hover:brightness-[0.97] dark:hover:brightness-110',
-  'data-[checked]:[background-image:var(--p-fill)]',
+  'data-[checked]:[--p-fill-on:1]',
   'data-[checked]:[box-shadow:var(--p-lift)] data-[checked]:hover:brightness-105'
 ].join(' ');
 
 const readOnlyTrackClasses = /* @__PURE__ */ [
   forcedTrackClasses,
   'cursor-default bg-(--plass-track) saturate-[0.55]',
-  'data-[checked]:[background-image:var(--p-fill)]',
+  'data-[checked]:[--p-fill-on:1]',
   'data-[checked]:shadow-none'
 ].join(' ');
 
@@ -156,7 +158,7 @@ const disabledTrackClasses = /* @__PURE__ */ [
   'forced-colors:border forced-colors:[border-color:GrayText]',
   'cursor-not-allowed bg-(--plass-track)',
   'opacity-50 saturate-[0.35] shadow-none',
-  'data-[checked]:[background-image:var(--p-fill)]'
+  'data-[checked]:[--p-fill-on:1]'
 ].join(' ');
 
 /**

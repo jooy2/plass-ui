@@ -939,6 +939,49 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * A fill that comes and goes with a state
+ *
+ * A tick, a radio's ring, a switch's track and a chosen day are glass, a groove
+ * or nothing while they are off and the family's gradient while they are on,
+ * and no browser eases a gradient to or from nothing. Set on the element
+ * itself, the gradient arrived in one frame and left in one. So it is a layer of
+ * its own, there in both states and faded by its opacity, which is the one
+ * thing about it a browser can ease — the way a `PlProgressBox` plate breathes.
+ *
+ * The component says when it is on with `--p-fill-on`, 0 or 1, from the state
+ * variants that used to set the gradient, and a control with an edge says how
+ * wide the edge is with `--p-fill-edge`, so the fill runs under the edge it
+ * turns transparent, as a background does. Both are only read here, never
+ * declared: this is a real class, which a consumer's own Tailwind build keeps
+ * outside the layer it puts utilities in, so a value declared here would beat
+ * the component's. Left unset, the fill is off and has no edge.
+ *
+ * Under what is drawn on the control and over its own background, which is what
+ * the negative depth in a box of its own is for, as the bloom's is above. It is
+ * in CSS rather than in Tailwind for the bloom's reason too: it is a gradient
+ * on a pseudo-element.
+ * ------------------------------------------------------------------------- */
+
+.plass-fill {
+  isolation: isolate;
+}
+
+.plass-fill::before {
+  content: '';
+  position: absolute;
+  inset: calc(-1 * var(--p-fill-edge, 0px));
+  z-index: -1;
+  /* An edge as wide as the control's, and as clear, so the gradient is laid out
+     inside it and drawn under it exactly as the control's own background was. */
+  border: var(--p-fill-edge, 0px) solid transparent;
+  border-radius: inherit;
+  background-image: var(--p-fill);
+  opacity: var(--p-fill-on, 0);
+  pointer-events: none;
+  transition: opacity var(--plass-duration) var(--plass-ease);
+}
+
+/* ---------------------------------------------------------------------------
  * The three dots in a bubble somebody is typing into
  *
  * Colour only. The dots never move, so a message being written does not bounce
@@ -2751,6 +2794,12 @@
   .plass-glow::before,
   .plass-glow::after {
     transition-duration: 1ms;
+  }
+
+  /* A fill that comes with a state arrives with it, as the colours round it
+     do. */
+  .plass-fill::before {
+    transition-duration: 0ms;
   }
 
   /* The highlight stops travelling and the placeholder pulses in place. It is

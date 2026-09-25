@@ -382,9 +382,15 @@ export const glassClasses =
  * The house transition.
  *
  * One duration and one curve, applied the same way in both directions — a key
- * going down and a key coming back up are the same spring. `background-image`
- * is in the list because a gradient fill is the thing being changed on a solid
- * surface, and `filter` because that is what hover and press actually move.
+ * going down and a key coming back up are the same spring. `filter` is in the
+ * list because that is what hover and press actually move.
+ *
+ * `background-image` is in it for WebKit, the one engine that eases one
+ * gradient into another, which is a solid surface changing family. None of them
+ * eases a gradient to or from `none`, and Chromium and Firefox ease no gradient
+ * at all, so a fill that comes and goes with a state — a tick, a switch, a
+ * chosen day — is not a background but a layer of its own, faded by its
+ * opacity: `.plass-fill` in `styles.css`.
  *
  * `opacity` is in it because half the library already writes an opacity as a
  * *state*: `opacity-50` is what disabled looks like everywhere, a `PlBackTop`

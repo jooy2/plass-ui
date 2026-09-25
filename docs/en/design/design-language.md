@@ -218,6 +218,8 @@ active  brightness(0.95)  + one level down, and the tint contracts under it
 
 Three things move together and they all say the same thing: the control has gone down and there is less room under it for its own shadow.
 
+A fill that comes and goes with a state runs into the same limit from the other side. A tick, a radio's ring, a switch's track and a chosen day are clear or neutral while they are off and the gradient while they are on, and a gradient cannot be eased to or from nothing either. So the fill is a layer of its own, which fades in and out over `--plass-duration` and arrives at once when the platform asks for less motion.
+
 ### One duration, both ways
 
 `--plass-duration` is 150ms and `--plass-ease` is one curve, applied identically in both directions. A key going down and a key coming back up are the same spring; an asymmetric press belongs to a different material.

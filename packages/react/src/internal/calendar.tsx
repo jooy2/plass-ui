@@ -187,6 +187,9 @@ const cellRadiusEndClasses: Record<PlassSize, string> = {
 const cellBaseClasses = /* @__PURE__ */ [
   'relative flex items-center justify-center tabular-nums select-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
+  // The chosen cell's gradient is a layer of its own, which fades in and out
+  // as the choice moves where a background would arrive and leave in one frame.
+  'plass-fill',
   transitionClasses,
   'focus-visible:z-10 focus-visible:[outline:2px_solid_var(--p-ring)]',
   'focus-visible:[outline-offset:-2px]'
@@ -260,7 +263,7 @@ function Cell({
   const stateClasses = disabled
     ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
     : selected
-      ? `cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95 ${forcedFillClasses}`
+      ? `cursor-pointer font-semibold text-(--p-on-solid) [--p-fill-on:1] hover:brightness-105 active:brightness-95 ${forcedFillClasses}`
       : inRange
         ? // The band's tint is repainted in the page's colour in forced-colours
           // mode, so there the run is drawn as an edge along its top and bottom.
@@ -1381,7 +1384,7 @@ export function TimeGrid({
                 disabled
                   ? 'cursor-not-allowed text-(--plass-muted-fg) opacity-50'
                   : chosen
-                    ? `cursor-pointer font-semibold text-(--p-on-solid) [background-image:var(--p-fill)] hover:brightness-105 active:brightness-95 ${forcedFillClasses}`
+                    ? `cursor-pointer font-semibold text-(--p-on-solid) [--p-fill-on:1] hover:brightness-105 active:brightness-95 ${forcedFillClasses}`
                     : 'cursor-pointer text-(--plass-fg) hover:bg-(--p-soft) active:bg-(--p-soft-hover)'
               )}
               onClick={() => {

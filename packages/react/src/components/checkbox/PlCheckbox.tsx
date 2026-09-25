@@ -66,6 +66,10 @@ export interface PlCheckboxProps extends BaseCheckboxProps {
 const tickBaseClasses = /* @__PURE__ */ [
   'relative inline-flex shrink-0 items-center justify-center border',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
+  // The gradient is a layer of its own, which fades in and out with the tick
+  // where a background would arrive and leave in one frame. It reaches under
+  // the 1px edge, which goes transparent as the box fills.
+  'plass-fill [--p-fill-edge:1px]',
   transitionClasses,
   focusRingClasses
 ].join(' ');
@@ -103,9 +107,9 @@ const restClasses = /* @__PURE__ */ [
   'hover:bg-(--plass-glass-hover) hover:[border-color:var(--p-line)]',
   // `data-checked` rather than `:checked`: the visible tick is a `<span>`, and
   // the real input is hidden beside it.
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[--p-fill-on:1] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent] data-[checked]:hover:brightness-105',
-  'data-[indeterminate]:[background-image:var(--p-fill)] data-[indeterminate]:text-(--p-on-solid)',
+  'data-[indeterminate]:[--p-fill-on:1] data-[indeterminate]:text-(--p-on-solid)',
   'data-[indeterminate]:[border-color:transparent]',
   forcedCheckedClasses,
   forcedIndeterminateClasses
@@ -115,7 +119,7 @@ const readOnlyClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-default bg-(--plass-glass) [border-color:var(--plass-border)]',
   'saturate-[0.55]',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[--p-fill-on:1] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent]',
   forcedCheckedClasses,
   forcedIndeterminateClasses
@@ -126,9 +130,9 @@ const disabledTickClasses = /* @__PURE__ */ [
   glassClasses,
   'cursor-not-allowed bg-(--plass-glass) [border-color:var(--plass-border)]',
   'opacity-50 saturate-[0.35]',
-  'data-[checked]:[background-image:var(--p-fill)] data-[checked]:text-(--p-on-solid)',
+  'data-[checked]:[--p-fill-on:1] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent]',
-  'data-[indeterminate]:[background-image:var(--p-fill)] data-[indeterminate]:text-(--p-on-solid)',
+  'data-[indeterminate]:[--p-fill-on:1] data-[indeterminate]:text-(--p-on-solid)',
   forcedDisabledCheckedClasses,
   'forced-colors:data-[indeterminate]:[background-color:GrayText]',
   'forced-colors:data-[indeterminate]:[color:Canvas]'
