@@ -1094,6 +1094,46 @@ void main() {
         expect(removed, 2);
       });
 
+      testWidgets('takes a chosen value back out when its row is taken again', (
+        WidgetTester tester,
+      ) async {
+        List<String> values = <String>['seoul', 'lisbon'];
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>.multiple(
+                options: _cities,
+                values: values,
+                onChanged: (List<String> next) => setState(() => values = next),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        await tester.tap(_inList('Seoul'));
+        await tester.pumpAndSettle();
+
+        expect(values, <String>['lisbon']);
+        expect(_adornment('Remove Seoul'), findsNothing);
+        expect(_inList('Seoul'), findsOneWidget);
+
+        // The row stays lit, so Enter puts the value back, and takes it out
+        // again the next time.
+        expect(_lit(tester), 'Seoul');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(values, <String>['lisbon', 'seoul']);
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(values, <String>['lisbon']);
+      });
+
       testWidgets('empties the query after each pick, so the list stays open', (
         WidgetTester tester,
       ) async {

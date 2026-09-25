@@ -759,20 +759,23 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final value = row.isCreate ? widget.onCreate!(row.query!) : row.option!.value;
 
     if (widget.multiple) {
-      final next = <T>[...widget.values];
+      // A chosen row taken again is taken back out, as Base UI takes it, so
+      // the list can drop a value as well as a chip's × can.
+      final bool held = widget.values.contains(value);
 
-      if (!next.contains(value)) {
-        next.add(value);
-      }
-
-      widget.onValuesChanged?.call(next);
+      widget.onValuesChanged?.call(<T>[
+        for (final T each in widget.values)
+          if (each != value) each,
+        if (!held) value,
+      ]);
       // The query is spent, and the field goes on filtering from empty — which
       // is what lets a set of tags be built without the list ever closing.
       _text.clear();
 
-      // The row just taken stays lit, as Base UI keeps it, wherever the whole
-      // list puts it once the query is spent. A value made from the query is
-      // not a row of the list, and the highlight goes where the list opens.
+      // The row just taken, or taken back out, stays lit, as Base UI keeps it,
+      // wherever the whole list puts it once the query is spent. A value made
+      // from the query is not a row of the list, and the highlight goes where
+      // the list opens.
       final int taken = _indexOf(value);
 
       setState(() => _highlighted = taken >= 0 ? taken : _start(keyboard: false));
