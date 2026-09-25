@@ -48,6 +48,10 @@ class _HarnessState extends State<_Harness> {
     setState(() => _value = next);
   }
 
+  /// Hands the carousel a new value from outside, as a caller's own control
+  /// would.
+  void choose(int next) => setState(() => _value = next);
+
   @override
   Widget build(BuildContext context) {
     return PlCarousel(
@@ -97,6 +101,18 @@ final Map<String, Widget Function(bool hidden, Widget carousel)> _hiding =
             child: carousel,
           ),
     };
+
+/// Where the strip is, in slides. A page view builds the slides either side of
+/// the one in view as well, so a slide's text being there says nothing.
+double _pageOf(WidgetTester tester) =>
+    tester.widget<PageView>(find.byType(PageView)).controller!.page!;
+
+/// Runs the frames of a travel until the strip is passing [slide].
+Future<void> _passing(WidgetTester tester, int slide) async {
+  while (_pageOf(tester).round() != slide) {
+    await tester.pump(const Duration(milliseconds: 16));
+  }
+}
 
 /// The `autoPlay` button, found by what it is called right now.
 Finder _toggle(String label) =>
@@ -242,6 +258,62 @@ void main() {
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 1);
       });
+
+      testWidgets('reports only the slide a dot sends it to, not the ones on the way', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.bySemanticsLabel('Slide 3 of 3'));
+        await _passing(tester, 1);
+        await _passing(tester, 2);
+        await tester.pumpAndSettle();
+
+        // Once, for the dot, and not again for the second slide the strip went
+        // by or for the third when it got there.
+        expect(_harness(tester).reported, <int>[2]);
+        expect(_pageOf(tester), 2);
+      });
+
+      testWidgets('reports where a finger leaves it after taking hold of it on its way', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.bySemanticsLabel('Slide 3 of 3'));
+        await _passing(tester, 1);
+
+        // Held on the second slide and let go, so it settles there.
+        final hold = await tester.startGesture(tester.getCenter(find.byType(PageView)));
+        await tester.pump();
+        await hold.up();
+        await tester.pumpAndSettle();
+
+        expect(_pageOf(tester), 1);
+        expect(_valueOf(tester), 1);
+      });
+
+      testWidgets('turns round for a value that names the slide a travel is passing', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.bySemanticsLabel('Slide 3 of 3'));
+        await _passing(tester, 1);
+
+        // Built again in a frame of its own, before the strip has moved on
+        // from the slide the new value names.
+        _harness(tester).choose(1);
+        await tester.pump();
+        await tester.pumpAndSettle();
+
+        expect(_pageOf(tester), 1);
+        expect(_valueOf(tester), 1);
+        expect(_harness(tester).reported, <int>[2]);
+      });
     });
 
     group('autoPlay', () {
@@ -252,12 +324,29 @@ void main() {
         await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
         await tester.pump();
 
+        // One interval and not two: the next one ends while the strip is still
+        // on its way to the slide the first one turned to.
         await tester.pump(const Duration(milliseconds: 250));
-        await tester.pump(PlassTokens.durationSlow);
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 1);
 
         // And stopped, so nothing is left ticking past the end of the test.
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
+      testWidgets('reports each turn once, with an interval shorter than the travel', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+
+        // Three intervals of 200ms against a 260ms travel, in frames, so that
+        // every turn is still on its way when the next one begins.
+        for (var frame = 0; frame < 35; frame += 1) {
+          await tester.pump(const Duration(milliseconds: 20));
+        }
+
+        expect(_harness(tester).reported, <int>[1, 2, 0]);
+
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
       });
 

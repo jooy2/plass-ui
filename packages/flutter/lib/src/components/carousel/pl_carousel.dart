@@ -198,6 +198,23 @@ class _PlCarouselState extends State<PlCarousel> {
   late final PageController _pages = PageController(initialPage: _index);
   Timer? _timer;
 
+  /// The slide the strip is travelling to, while it travels there on its own
+  /// because [PlCarousel.value] changed.
+  ///
+  /// That slide has been reported already, or it came down from the caller, so
+  /// the travel reports nothing: not the slides it passes, which a jump from
+  /// the first dot to the third or a turn from the last slide back to the
+  /// first goes by, and not its own slide a second time.
+  int? _target;
+
+  /// The travels started, so that one that ends because the next began does
+  /// not speak for it.
+  int _travels = 0;
+
+  /// The slide the strip last reported, or the one it was handed. A swipe
+  /// reports each slide it crosses into once, against this.
+  late int _reported = _index;
+
   // Two different things hold the strip still, and they are kept apart on
   // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
   // as the pointer does. The focus coming in is a *stop*, and so is a press on
@@ -277,14 +294,15 @@ class _PlCarouselState extends State<PlCarousel> {
   void didUpdateWidget(PlCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (_pages.hasClients && _pages.page?.round() != _index) {
-      // `animateToPage` and not `jumpToPage`: the travel is what says the slides
-      // are a strip rather than a stack of pictures being swapped.
-      _pages.animateToPage(
-        _index,
-        duration: _travel == Duration.zero ? const Duration(milliseconds: 1) : _travel,
-        curve: PlassTheme.of(context).motionEase,
-      );
+    if (widget.value != oldWidget.value) {
+      _reported = _index;
+    }
+
+    // Against the slide the strip is heading for while it travels, rather than
+    // the one it happens to be passing: a new value that names the slide under
+    // a travel on its way somewhere else still has to turn it round.
+    if (_pages.hasClients && (_target ?? _pages.page?.round()) != _index) {
+      _travelTo(_index);
     }
 
     // Only when something the timer depends on changed. A parent that rebuilds
@@ -323,6 +341,48 @@ class _PlCarouselState extends State<PlCarousel> {
       : PlassTheme.of(context).motionDurationSlow;
 
   bool get _reduceMotion => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+  void _travelTo(int page) {
+    final travel = ++_travels;
+
+    _target = page;
+    // `animateToPage` and not `jumpToPage`: the travel is what says the slides
+    // are a strip rather than a stack of pictures being swapped.
+    _pages
+        .animateToPage(
+          page,
+          duration: _travel == Duration.zero ? const Duration(milliseconds: 1) : _travel,
+          curve: PlassTheme.of(context).motionEase,
+        )
+        // Over when it arrives, and when a finger takes hold of the strip on
+        // the way, which is the swipe's to report from then on.
+        .whenComplete(() {
+          if (travel == _travels) {
+            _target = null;
+          }
+        });
+  }
+
+  /// Reports the slide a swipe has carried the strip into.
+  ///
+  /// Read off the scrolling rather than [PageView.onPageChanged], which reports
+  /// every slide a travel passes as well, and which keeps its own record of the
+  /// last one it reported: a travel it was not allowed to speak for would leave
+  /// that record on a slide nobody heard about.
+  bool _scrolled(ScrollUpdateNotification notification) {
+    if (notification.depth != 0 || _target != null) {
+      return false;
+    }
+
+    final int? page = (notification.metrics as PageMetrics).page?.round();
+
+    if (page != null && page != _reported) {
+      _reported = page;
+      widget.onChanged?.call(page);
+    }
+
+    return false;
+  }
 
   void _restart() {
     _timer?.cancel();
@@ -469,15 +529,17 @@ class _PlCarouselState extends State<PlCarousel> {
     final radius = BorderRadius.circular(tokens.radii[_size]!);
     final dot = _dot[_size]!;
 
-    Widget strip = PageView.builder(
-      controller: _pages,
-      itemCount: _count,
+    Widget strip = NotificationListener<ScrollUpdateNotification>(
       // Reported rather than acted on, like every other control in the package:
       // a swipe says where the reader went, and the value comes back down.
-      onPageChanged: (int page) => widget.onChanged?.call(page),
-      itemBuilder: (BuildContext context, int index) {
-        return Semantics(container: true, label: _name(index + 1), child: widget.children[index]);
-      },
+      onNotification: _scrolled,
+      child: PageView.builder(
+        controller: _pages,
+        itemCount: _count,
+        itemBuilder: (BuildContext context, int index) {
+          return Semantics(container: true, label: _name(index + 1), child: widget.children[index]);
+        },
+      ),
     );
 
     if (widget.aspectRatio != null) {
