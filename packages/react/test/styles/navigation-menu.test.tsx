@@ -143,10 +143,13 @@ function twinNav(width = 600) {
   );
 }
 
-/** The same items down a rail wider than its words. */
+/**
+ * The same items down a rail wider than its words, clear of the top of the
+ * page, where the sheet would be held off the edge by its collision padding.
+ */
 function railNav() {
   return (
-    <div style={{ width: 240 }}>
+    <div style={{ width: 240, paddingTop: 40 }}>
       <PlNavigationMenu orientation="vertical">
         <Row />
       </PlNavigationMenu>
@@ -381,7 +384,7 @@ describe('a PlNavigationMenu moving between panels', () => {
     await expect.poll(() => getComputedStyle(positioner()).transitionProperty).toBe('none');
   });
 
-  it('opens a vertical rail s panels beside the rail, and moves the sheet down it', async () => {
+  it('opens a vertical rail s panels beside the rail, level with their items, and moves the sheet down it', async () => {
     await render(railNav());
 
     // How far the sheet's box stands off the rail's end edge, to the pixel.
@@ -391,21 +394,39 @@ describe('a PlNavigationMenu moving between panels', () => {
           trigger('Product').closest('nav')!.getBoundingClientRect().right
       );
 
+    // How far the box's top stands from the top of the item it opened from.
+    const drop = (label: string) =>
+      Math.round(
+        positioner().getBoundingClientRect().top - trigger(label).getBoundingClientRect().top
+      );
+
     press('Product');
     await settleOn('/a');
     expect(standoff()).toBe(8);
+    expect(drop('Product')).toBe(0);
 
+    const from = positioner().getBoundingClientRect().top;
     const watch = watchTheSheet();
 
     press('Company');
     await settleOn('/about');
+    // Floating UI places the box beside the next item a few microtasks after
+    // the panel changes, which can be after the sheet has come to rest.
+    await expect.poll(() => drop('Company')).toBe(0);
+    await expect.poll(() => easing().length).toBe(0);
     watch.stop();
 
     // Against the same edge for a longer word, so the box eases down the rail
-    // and never along it.
+    // and never along it, and by as far as the one item is from the other.
     expect(standoff()).toBe(8);
     expect(watch.kinds()).toContain('box:top');
     expect(watch.kinds()).not.toContain('box:left');
+    expect(Math.round(positioner().getBoundingClientRect().top - from)).toBe(
+      Math.round(
+        trigger('Company').getBoundingClientRect().top -
+          trigger('Product').getBoundingClientRect().top
+      )
+    );
   });
 
   it('moves the sheet under the next item when only its place changes', async () => {

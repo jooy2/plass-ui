@@ -123,7 +123,7 @@ PlNavigationMenu(
 
 ### orientation
 
-`vertical`은 패널이 아래가 아니라 옆으로 열리는 nav rail입니다. 화살표 키는 어느 쪽이든 따라갑니다.
+`vertical`은 패널이 아래가 아니라 옆으로 열리는 nav rail입니다. 패널은 줄의 끝 쪽, RTL에서는 왼쪽에 열리고 윗변을 항목의 윗변에 맞춥니다. 화살표 키는 어느 쪽이든 따라갑니다.
 
 <Demo src="navigation-menu/orientation" :min-height="200">
 
@@ -182,6 +182,6 @@ PlNavigationMenu(
 ::: fw react
 
 - 모든 패널의 링크는 열렸든 닫혔든 첫 렌더부터 페이지 HTML에 있어서, 패널을 열지 않는 크롤러도 찾습니다. 닫힌 패널은 `hidden`이므로 그려지지 않고, 읽히지 않고, focus가 멈추지도 않습니다.
-- 한 항목에서 다음 항목으로 넘어가면 시트가 새 패널의 크기와 새 항목 아래 자리로 옮겨 가고, 그동안 링크의 줄바꿈은 그대로입니다. `prefers-reduced-motion`에서는 둘 다 바로 바뀝니다.
+- 한 항목에서 다음 항목으로 넘어가면 시트가 새 패널의 크기와 새 항목에 붙은 자리로 옮겨 가고, 그동안 링크의 줄바꿈은 그대로입니다. `prefers-reduced-motion`에서는 둘 다 바로 바뀝니다.
 
 :::

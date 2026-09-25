@@ -123,7 +123,7 @@ One panel is open at a time and it **resizes between items** rather than closing
 
 ### orientation
 
-`vertical` is a nav rail whose panels open beside it rather than under it. The arrow keys follow either way.
+`vertical` is a nav rail whose panels open beside it rather than under it: at the end of the line, which is the left under RTL, with each panel's top level with its item's. The arrow keys follow either way.
 
 <Demo src="navigation-menu/orientation" :min-height="200">
 
@@ -182,6 +182,6 @@ Merged rather than replaced: the common reason to write a `rel` by hand is `nofo
 ::: fw react
 
 - Every panel's links are in the page's HTML from the first render, open or not, so a crawler that never opens a panel still finds them. A closed panel is `hidden`: it is not drawn, not announced and not a focus stop.
-- Moving from one item to the next, the sheet eases to the new panel's size and to its place under the new item, and the links keep their lines while it does. Under `prefers-reduced-motion` it takes both at once.
+- Moving from one item to the next, the sheet eases to the new panel's size and to its place at the new item, and the links keep their lines while it does. Under `prefers-reduced-motion` it takes both at once.
 
 :::

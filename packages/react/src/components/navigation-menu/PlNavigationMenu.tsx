@@ -610,7 +610,9 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
               the subtree a host may have scoped its CSS reset to.
 
               A rail's panels open beside it, at the end of the line, which is
-              its left under RTL. */}
+              its left under RTL, with their top level with the item's, as a
+              submenu opens beside its row: moving down the rail moves the
+              sheet down by the items' spacing. */}
           <BaseUINavigationMenu.Positioner
             ref={setPositioner}
             className={cx(
@@ -618,6 +620,7 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
               moving ? positionerMoveClasses : positionerStillClasses
             )}
             side={orientation === 'vertical' ? 'inline-end' : 'bottom'}
+            align={orientation === 'vertical' ? 'start' : 'center'}
             sideOffset={sideOffset}
             collisionPadding={12}
           >

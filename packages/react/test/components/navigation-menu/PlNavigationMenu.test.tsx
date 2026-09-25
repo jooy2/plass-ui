@@ -312,6 +312,7 @@ describe('PlNavigationMenu', () => {
 
       await expect.poll(() => standoff().below).toBe(8);
       expect(positioner()).toHaveAttribute('data-side', 'bottom');
+      expect(positioner()).toHaveAttribute('data-align', 'center');
     });
 
     it('opens it beside a vertical rail, at the end of the line', async () => {
@@ -321,6 +322,36 @@ describe('PlNavigationMenu', () => {
 
       await expect.poll(() => standoff().right).toBe(8);
       expect(positioner()).toHaveAttribute('data-side', 'inline-end');
+    });
+
+    it('sets a rail s panel level with its item, top to top', async () => {
+      // A panel several times the height of its item, with room above the rail,
+      // so a panel centred on the item would stand well above it. The links are
+      // given their height here because no stylesheet is loaded to give it.
+      await render(
+        <div style={{ paddingTop: 200 }}>
+          <PlNavigationMenu orientation="vertical">
+            <PlNavigationMenuItem label="Product">
+              {['/a', '/b', '/c'].map((href) => (
+                <PlNavigationMenuLink
+                  key={href}
+                  href={href}
+                  title={href}
+                  style={{ display: 'block', height: 100 }}
+                />
+              ))}
+            </PlNavigationMenuItem>
+          </PlNavigationMenu>
+        </div>
+      );
+
+      trigger().click();
+
+      await expect.poll(() => standoff().right).toBe(8);
+      expect(
+        Math.round(positioner().getBoundingClientRect().top - trigger().getBoundingClientRect().top)
+      ).toBe(0);
+      expect(positioner()).toHaveAttribute('data-align', 'start');
     });
 
     it('opens it to the left of the rail on a page that runs right to left', async () => {
