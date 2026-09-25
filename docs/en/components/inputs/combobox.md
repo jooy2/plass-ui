@@ -105,7 +105,19 @@ The typed text is offered as its own row at the end of the list, so committing i
 
 ### multiple
 
-The chosen values become [`PlChip`](../display/chip)s inside the field and the input goes on filtering after each one, so a set of tags is built without the field ever closing.
+The chosen values become [`PlChip`](../display/chip)s inside the field, and the input goes on filtering after each one.
+
+::: fw react
+
+A row taken from a filtered list closes the list and empties the text, which is how the primitive underneath behaves. A row taken with nothing typed leaves the list open for the next one.
+
+:::
+
+::: fw flutter
+
+The list stays open after every row and the text empties, so a set of tags is built without the list ever closing.
+
+:::
 
 The field then has no fixed height, the chips wrap, so its padding is `(control height − chip height) / 2` instead, which makes a one-row combobox exactly as tall as the field beside it.
 
