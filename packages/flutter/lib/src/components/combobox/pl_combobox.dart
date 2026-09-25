@@ -52,6 +52,42 @@ class _MoveIntent extends Intent {
   final int by;
 }
 
+/// Escape: closes the list, or with the list closed empties a field that holds
+/// a value, and with neither to do hands the [DismissIntent] on to whatever the
+/// field sits in, a modal or a page that binds it too.
+///
+/// Handed on rather than merely disabled. The text field under the focus
+/// answers Escape with a [DismissIntent] of its own, which goes to the nearest
+/// action above it, and a disabled one there stops it: the modal round the
+/// field would never hear it. It is handed on from the combobox's own context,
+/// above the list's layer as well, so a closed list does not stop it either.
+class _EscapeAction<T> extends Action<DismissIntent> {
+  _EscapeAction(this._state);
+
+  final _PlComboboxState<T> _state;
+
+  /// What the field sits in answers Escape with, if anything does.
+  Action<DismissIntent>? get _outer {
+    return _state.mounted ? Actions.maybeFind<DismissIntent>(_state.context) : null;
+  }
+
+  @override
+  bool isEnabled(DismissIntent intent) {
+    return _state._escapable || (_outer?.isEnabled(intent) ?? false);
+  }
+
+  @override
+  Object? invoke(DismissIntent intent) {
+    if (_state._escapable) {
+      _state._escape();
+
+      return null;
+    }
+
+    return Actions.maybeInvoke<DismissIntent>(_state.context, intent);
+  }
+}
+
 /// One choice.
 ///
 /// The same description a [PlSelectOption] is, with one difference: the label is
@@ -729,6 +765,13 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   void _onQueryChanged(String query) {
     widget.onQueryChanged?.call(query);
 
+    // Emptying the text of a single-value field empties the field, as Base UI
+    // empties it: the label is what says the value is there, and with it gone
+    // the value would be held with nothing on screen to show it.
+    if (!widget.multiple && query.isEmpty && widget.value != null && _usable) {
+      widget.onChanged?.call(null);
+    }
+
     setState(() {
       _queryEdited = true;
       _open = _usable;
@@ -807,6 +850,20 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     }
 
     _text.clear();
+  }
+
+  late final _EscapeAction<T> _escapeAction = _EscapeAction<T>(this);
+
+  /// Whether Escape has anything to do here: close the list, or with the list
+  /// closed empty a field that holds a value, as Base UI's Escape does.
+  bool get _escapable => _open || (_usable && _chosen.isNotEmpty);
+
+  void _escape() {
+    if (_open) {
+      _close();
+    } else {
+      _clear();
+    }
   }
 
   @override
@@ -1210,13 +1267,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
               return null;
             },
           ),
-          DismissIntent: CallbackAction<DismissIntent>(
-            onInvoke: (DismissIntent intent) {
-              _close();
-
-              return null;
-            },
-          ),
+          DismissIntent: _escapeAction,
         },
         child: shell,
       ),

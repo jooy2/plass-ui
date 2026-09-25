@@ -1281,7 +1281,189 @@ void main() {
       });
     });
 
+    group('Escape', () {
+      /// Gives the field the focus without opening its list.
+      Future<void> focus(WidgetTester tester) async {
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode.requestFocus();
+        await tester.pumpAndSettle();
+      }
+
+      /// Presses Escape and reports whether it went past the field, to a
+      /// handler round it.
+      Future<bool> escape(WidgetTester tester, List<int> heard) async {
+        final int before = heard.length;
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        return heard.length > before;
+      }
+
+      /// [child] with a handler round it that counts the Escapes reaching it,
+      /// bound the way a route or a modal binds its own.
+      Widget around(Widget child, List<int> heard) {
+        return Actions(
+          actions: <Type, Action<Intent>>{
+            DismissIntent: CallbackAction<DismissIntent>(
+              onInvoke: (DismissIntent intent) {
+                heard.add(1);
+
+                return null;
+              },
+            ),
+          },
+          child: child,
+        );
+      }
+
+      testWidgets('closes the list, then empties the field, then goes on to what is round it', (
+        WidgetTester tester,
+      ) async {
+        final List<int> heard = <int>[];
+        String? value = 'seoul';
+
+        await tester.pumpWidget(
+          _host(
+            around(
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
+                  options: _cities,
+                  value: value,
+                  onChanged: (String? next) => setState(() => value = next),
+                ),
+              ),
+              heard,
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(_inList('Lisbon'), findsOneWidget);
+
+        expect(await escape(tester, heard), isFalse);
+        expect(_inList('Lisbon'), findsNothing);
+        expect(value, 'seoul');
+
+        expect(await escape(tester, heard), isFalse);
+        expect(value, isNull);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, isEmpty);
+
+        expect(await escape(tester, heard), isTrue);
+      });
+
+      testWidgets('empties a `multiple` field with its list closed', (WidgetTester tester) async {
+        final List<int> heard = <int>[];
+        List<String> values = <String>['seoul', 'lisbon'];
+
+        await tester.pumpWidget(
+          _host(
+            around(
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) =>
+                    PlCombobox<String>.multiple(
+                      options: _cities,
+                      values: values,
+                      onChanged: (List<String> next) => setState(() => values = next),
+                    ),
+              ),
+              heard,
+            ),
+          ),
+        );
+
+        await focus(tester);
+
+        expect(await escape(tester, heard), isFalse);
+        expect(values, isEmpty);
+
+        expect(await escape(tester, heard), isTrue);
+      });
+
+      testWidgets('empties the field in a modal, and then closes the modal', (
+        WidgetTester tester,
+      ) async {
+        final List<bool> modal = <bool>[];
+        String? value = 'seoul';
+
+        await tester.pumpWidget(
+          host(
+            PlModal(
+              open: true,
+              onOpenChanged: modal.add,
+              title: const Text('Settings'),
+              child: StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
+                  options: _cities,
+                  value: value,
+                  onChanged: (String? next) => setState(() => value = next),
+                ),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await focus(tester);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(value, isNull);
+        expect(modal, isEmpty);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(modal, <bool>[false]);
+      });
+
+      testWidgets('leaves the key to what is round a read-only field', (WidgetTester tester) async {
+        final List<int> heard = <int>[];
+        final List<String?> reported = <String?>[];
+
+        await tester.pumpWidget(
+          _host(
+            around(
+              PlCombobox<String>(
+                options: _cities,
+                value: 'seoul',
+                readOnly: true,
+                onChanged: reported.add,
+              ),
+              heard,
+            ),
+          ),
+        );
+
+        await focus(tester);
+
+        expect(await escape(tester, heard), isTrue);
+        expect(reported, isEmpty);
+      });
+    });
+
     group('clearing', () {
+      testWidgets('empties a single value as its text is emptied', (WidgetTester tester) async {
+        final List<String?> reported = <String?>[];
+
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: 'seoul', onChanged: reported.add)),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('Seo');
+        await tester.pumpAndSettle();
+
+        expect(reported, isEmpty);
+
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+
+        expect(reported, <String?>[null]);
+      });
+
       testWidgets('offers a × only when asked', (WidgetTester tester) async {
         await tester.pumpWidget(
           _host(PlCombobox<String>(options: _cities, value: 'seoul', onChanged: (String? _) {})),

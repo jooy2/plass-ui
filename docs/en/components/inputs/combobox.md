@@ -192,6 +192,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - Base UI renders the `combobox`/`listbox` pair, keeps `aria-expanded` and `aria-activedescendant` in step, and owns the filtering and its collator.
 - `label`, `description` and `error` are wired to the input by Base UI's Field, so no `htmlFor` is needed.
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> move through the list, <kbd>Enter</kbd> takes the highlighted row and <kbd>Esc</kbd> closes. With `multiple`, <kbd>←</kbd> <kbd>→</kbd> walk the chips and <kbd>Backspace</kbd> removes one.
+- With the list closed, <kbd>Esc</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.
 - The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is.
 - The "add this" row is a **real option**, not a special case in the key handling, so a click, <kbd>Enter</kbd> and the arrow keys all reach it the way every other row is reached.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
@@ -206,6 +207,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 
 - The field is announced as a text field that says whether its list is open. Each row is announced as one of a mutually exclusive set, taken or not.
 - **The keys stay on the field**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Enter</kbd> takes the highlighted row and <kbd>Escape</kbd> closes without taking one. The list is the field's list, not a second place to be.
+- With the list closed, <kbd>Escape</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.
 - The first match lights up as the query changes, so <kbd>Enter</kbd> commits without an arrow key first, which is also what makes the create row reachable from the keyboard at all.
 - The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row.
 - The list opens with the chosen row lit, or with `multiple` the first chosen row down the list, and a row just taken, or taken back out, stays lit. With nothing chosen, an arrow key opens the list on its first row and a press opens it with no row lit.

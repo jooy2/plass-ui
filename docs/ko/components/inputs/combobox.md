@@ -192,6 +192,7 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 - Base UI가 `combobox`/`listbox` 쌍을 렌더링하고 `aria-expanded`와 `aria-activedescendant`를 맞춰 두며, 필터링과 collator도 소유합니다.
 - `label` `description` `error`는 Base UI의 Field가 입력창과 엮어 주므로 `htmlFor`가 필요 없습니다.
 - 키보드는 primitive의 것입니다. <kbd>↑</kbd> <kbd>↓</kbd>로 목록을 움직이고, <kbd>Enter</kbd>로 강조된 행을 취하고, <kbd>Esc</kbd>로 닫습니다. `multiple`에서는 <kbd>←</kbd> <kbd>→</kbd>가 chip 사이를 걷고 <kbd>Backspace</kbd>가 하나를 지웁니다.
+- 목록이 닫혀 있을 때 <kbd>Esc</kbd>는 값이 있는 field를 비우고, 값이 없으면 field를 담은 modal 같은 곳으로 넘어갑니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
 - 입력하는 동안 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. "이걸 추가" 행이 키보드로 닿을 수 있는 이유도 이것입니다. 목록에 없는 값은 유일한 일치 항목이기 때문입니다.
 - "이걸 추가" 행은 키 처리의 특수 케이스가 아니라 **진짜 option**입니다. 클릭도, <kbd>Enter</kbd>도, 화살표도 다른 모든 행과 똑같은 방식으로 닿습니다.
 - 행은 `:hover`가 아니라 `data-highlighted`로 켜집니다. 포인터와 화살표가 같은 행을 밝힙니다.
@@ -206,6 +207,7 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 
 - field는 목록이 열려 있는지 말해 주는 text field로 읽힙니다. 각 행은 서로 배타적인 묶음 중 하나로, 취해졌는지 여부와 함께 읽힙니다.
 - **키는 field에 머뭅니다.** 포커스도 그렇습니다. <kbd>↑</kbd> <kbd>↓</kbd>가 강조를 옮기고, <kbd>Enter</kbd>가 강조된 행을 취하고, <kbd>Escape</kbd>가 아무것도 취하지 않고 닫습니다. 목록은 field의 목록이지 두 번째로 머물 자리가 아닙니다.
+- 목록이 닫혀 있을 때 <kbd>Escape</kbd>는 값이 있는 field를 비우고, 값이 없으면 field를 담은 modal 같은 곳으로 넘어갑니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
 - 질의가 바뀔 때마다 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. 생성 행이 키보드로 닿을 수 있는 이유도 이것입니다.
 - 강조는 행마다의 hover 상태가 아니라 숫자 하나입니다. 그래서 포인터와 화살표가 같은 행을 밝힙니다.
 - 목록은 선택된 행에, `multiple`에서는 목록에서 가장 위에 있는 선택된 행에 불이 들어온 채로 열리고, 방금 취했거나 다시 뺀 행은 계속 켜져 있습니다. 선택된 것이 없으면 화살표 키로 열 때는 첫 행에 불이 들어오고, 눌러서 열 때는 어느 행에도 들어오지 않습니다.

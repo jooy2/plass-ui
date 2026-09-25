@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **`Escape` on a `PlCombobox` whose list is closed empties a field that holds a value, and otherwise goes on to whatever the field sits in, and emptying a single-value field's text empties its value, as in the React build.** The combobox took `Escape` whether or not its list was open, so a `PlModal` or a page's own `DismissIntent` action round the field never heard it, and a value stayed held after its label was deleted.
+
 - **Taking a chosen row of a `multiple` `PlCombobox` again takes its value back out, by a press or by `Enter`, as it does in the React build.** A row already chosen did nothing, so a chip's × was the only way to drop a value. The row stays lit, so the next `Enter` puts the value back.
 
 - **A `PlCarousel` reports the slide it is going to once, and not the slides it passes on the way.** `onChanged` heard every slide a travel went by and the new slide a second time, so a dot pressed from the first slide to the third reported 2, 1, 2, `autoPlay` turning from the last slide back to the first reported 0, 1, 0, and every turn of `autoPlay` was reported twice. A swipe still reports each slide it crosses into, and a new `value` that names the slide a travel is passing now turns the strip back to it instead of letting it run on.
