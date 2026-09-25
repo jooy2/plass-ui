@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A `PlWindowPane` resized as short as it goes stops at its title bar and the frame round it, and `minHeight` does not take it any shorter.** The floor was the bar alone, so a window shrunk by an edge, the resize corner or the arrow keys, or given a `minHeight` below its bar, pushed the bottom of its bar out of the frame and reported "A RenderFlex overflowed" in a debug build: by 2 logical pixels on most systems, and 4 on `windows8`.
+
 - **The bullet of a `PlStepper`, `PlTimeline` or `PlHowToSteps` step takes its new state at once when animations are turned off.** It always eased over `motionDuration`, so with `disableAnimations` on, a step that was reached still faded into its gradient and halo, where every surface changes in one frame.
 
 - **A `PlPieChart` slice whose point carries its own `label` is written and read by that label, as in the React build.** Its readout and the text a screen reader is handed always wrote the value and the share, "40 · 40%", and dropped the words the caller gave the point, where every other Flutter chart and the React pie's card, live region and summary write them. A slice with no `label` is still written by its value and share.

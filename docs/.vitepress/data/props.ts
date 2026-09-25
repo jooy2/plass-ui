@@ -15607,8 +15607,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'minHeight',
       type: 'number',
       description: {
-        ko: '아래쪽으로 같은 것. 기본은 표시줄 높이',
-        en: 'The same downward. Defaults to the bar height'
+        ko: '아래쪽으로 같은 것. 제목 표시줄과 그 둘레 테두리를 합한 높이보다 작아지지 않으며, 기본값도 그 높이',
+        en: 'The same downward. Never less than the title bar and the frame round it, which is also the default'
       }
     },
     {

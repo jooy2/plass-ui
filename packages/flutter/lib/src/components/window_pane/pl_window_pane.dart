@@ -154,8 +154,9 @@ class PlWindowPane extends StatefulWidget {
   /// How narrow it may be dragged, in logical pixels.
   final double minWidth;
 
-  /// The same downward. Defaults to the title bar's own height, which is what
-  /// is left of a window once the body has been dragged out of it.
+  /// The same downward. Never less than the title bar and the frame round it,
+  /// which is what is left of a window once the body has been dragged out of
+  /// it, and that is also the default.
   final double? minHeight;
 
   /// How far it has been dragged from where the layout put it.
@@ -459,6 +460,9 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     if (widget.resizable && !widget.maximized && !widget.minimized) {
       final Color ring = tokens.family(family).ring;
       final String name = widget.resizeLabel ?? labels.resizeWindow;
+      // No shorter than the title bar and the frame round it, whatever
+      // `minHeight` says: any less and the frame is taken out of the bar.
+      final double shortest = metrics.bar + metrics.frame * 2;
 
       framed = Stack(
         children: <Widget>[
@@ -468,14 +472,14 @@ class _PlWindowPaneState extends State<PlWindowPane> {
               _ResizeHandle(
                 edge: edge,
                 onStart: _gripWindow,
-                onUpdate: (Offset delta) => _resize(edge, delta, metrics.bar),
+                onUpdate: (Offset delta) => _resize(edge, delta, shortest),
                 // One of the eight is reachable without a pointer, and it is the
                 // corner that changes both axes at once: eight stops around
                 // every window would cost a keyboard reader more than the seven
                 // extra directions are worth.
                 ring: edge == _WindowEdge.se ? ring : null,
                 label: edge == _WindowEdge.se ? name : null,
-                onNudge: edge == _WindowEdge.se ? (Offset step) => _nudge(step, metrics.bar) : null,
+                onNudge: edge == _WindowEdge.se ? (Offset step) => _nudge(step, shortest) : null,
               ),
             ),
         ],
@@ -520,7 +524,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     _travel = Offset.zero;
   }
 
-  void _resize(_WindowEdge edge, Offset delta, double bar) {
+  void _resize(_WindowEdge edge, Offset delta, double shortest) {
     final Size? from = _gripped;
     if (from == null) {
       return;
@@ -529,7 +533,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     _travel += delta;
 
     final double floorWidth = math.max(0, widget.minWidth);
-    final double floorHeight = math.max(bar, widget.minHeight ?? bar);
+    final double floorHeight = math.max(shortest, widget.minHeight ?? shortest);
 
     double width = from.width;
     double height = from.height;
@@ -566,7 +570,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
   ///
   /// It reads the window rather than a grip, because a key press is a whole
   /// gesture on its own: there is no press to have measured anything at.
-  void _nudge(Offset step, double bar) {
+  void _nudge(Offset step, double shortest) {
     final RenderObject? box = _paneKey.currentContext?.findRenderObject();
     if (box is! RenderBox || !box.hasSize) {
       return;
@@ -575,7 +579,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     _resizeTo(
       Size(
         math.max(math.max(0, widget.minWidth), box.size.width + step.dx),
-        math.max(math.max(bar, widget.minHeight ?? bar), box.size.height + step.dy),
+        math.max(math.max(shortest, widget.minHeight ?? shortest), box.size.height + step.dy),
       ),
     );
   }

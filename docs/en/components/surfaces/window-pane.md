@@ -121,7 +121,7 @@ It applies to the title bar, the body's own fill and the border, **never to the 
 
 The title bar drags and the eight edges and corners resize. Both are off by default: a window in a page is usually a picture of one, and a frame that moved when a reader brushed it would be a surprise.
 
-A resize stops at `minWidth` and `minHeight`, and `onResize` reports the size it stopped at. Dragging a left or a top edge moves the window as well as resizing it, so `onOffsetChange` fires during those too.
+A resize stops at `minWidth` and `minHeight`, and `onResize` reports the size it stopped at. `minHeight` is never less than the title bar and the frame round it, which is also where a resize stops when it is not given. Dragging a left or a top edge moves the window as well as resizing it, so `onOffsetChange` fires during those too.
 
 The title bar of a `draggable` window is also a stop in the tab order, ahead of the window's buttons, named **Move window** or whatever `moveLabel` says. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the window 16px a press and 64px with <kbd>Shift</kbd>, the way the arrow points in either writing direction, and stop where the title bar would leave the screen. The stop is there whenever the bar drags.
 

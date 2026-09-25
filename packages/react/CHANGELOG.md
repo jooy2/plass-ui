@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A `PlWindowPane` resized as short as it goes stops at its title bar and the frame round it, and `minHeight` does not take it any shorter.** The floor was the bar alone, so a window shrunk by an edge, the resize corner or the arrow keys, or given a `minHeight` below its bar, lost the bottom of its bar to the frame: 2px on most systems, and 4px on `windows8`.
+
 - **A `PlNumberField` stepper that has run into `min` or `max` fades to half, as every other disabled control does.** It went to 40% opacity, so on a form the one unavailable stepper was fainter than a disabled button or field beside it, and fainter than the same stepper in the Flutter build. It now fades to 50%.
 
 - **A press on a read-only `PlSelect` does not open it, even when the lock lifts before the press is answered.** Base UI answers a pointer press on the next frame, and `PlSelect` checked `readOnly` at that frame rather than at the press, so a lock lifted in between, such as by a form that unlocks the field on the same press, let the press open the list anyway. The press is now judged by whether the field was locked when it was made.

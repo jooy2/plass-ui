@@ -133,7 +133,10 @@ export interface PlWindowPaneProps extends Omit<
   height?: number | string;
   /** How small it may be dragged, in pixels. @default 180 */
   minWidth?: number;
-  /** The same downward. Defaults to the title bar's own height. */
+  /**
+   * The same downward. Never less than the title bar and the frame round it,
+   * which is also the default.
+   */
   minHeight?: number;
   /** How far it has been dragged from where the layout put it. */
   offset?: PlWindowOffset;
@@ -689,9 +692,13 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       }
     }
 
+    // No shorter than the title bar and the frame round it, whatever `minHeight`
+    // says: any less and the frame is taken out of the bar.
+    const shortest = metrics.bar + metrics.frame * 2;
+
     const floor = {
       width: Math.max(0, minWidth),
-      height: Math.max(metrics.bar, minHeight ?? metrics.bar)
+      height: Math.max(shortest, minHeight ?? shortest)
     };
 
     function resizeTo(next: PlWindowPaneSize) {

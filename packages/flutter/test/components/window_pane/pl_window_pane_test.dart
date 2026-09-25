@@ -743,6 +743,80 @@ void main() {
       expect(sized!.width, 200);
     });
 
+    testWidgets('stops at its bar and the frame round it, whatever minHeight says', (
+      WidgetTester tester,
+    ) async {
+      final PlWindowMetrics metrics = windowMetrics(PlWindowOs.windowsxp, PlassSize.md);
+      final double shortest = metrics.bar + metrics.frame * 2;
+
+      for (final double? floor in <double?>[null, 0]) {
+        Size? sized;
+
+        await _pumpFree(
+          tester,
+          PlWindowPane(
+            // A window of its own each time, so the size one drag left behind
+            // is not where the next one starts.
+            key: ValueKey<double?>(floor),
+            os: PlWindowOs.windowsxp,
+            title: const Text('Notes'),
+            width: 300,
+            height: 200,
+            resizable: true,
+            minHeight: floor,
+            onResize: (Size value) => sized = value,
+            child: const Text('Body'),
+          ),
+        );
+
+        await tester.dragFrom(_edge(tester, AxisDirection.down), const Offset(0, -400));
+        await tester.pumpAndSettle();
+
+        // Any shorter and the bar overflows the frame it is laid out in.
+        expect(tester.takeException(), isNull);
+        expect(sized!.height, closeTo(shortest, 0.5));
+        expect(_drawn(tester).height, closeTo(shortest, 0.5));
+      }
+    });
+
+    testWidgets('stops there from the keyboard too', (WidgetTester tester) async {
+      final PlWindowMetrics metrics = windowMetrics(PlWindowOs.windowsxp, PlassSize.md);
+      final double shortest = metrics.bar + metrics.frame * 2;
+      Size? sized;
+
+      await _pumpFree(
+        tester,
+        PlWindowPane(
+          os: PlWindowOs.windowsxp,
+          title: const Text('Notes'),
+          width: 300,
+          height: shortest + 4,
+          resizable: true,
+          minHeight: 0,
+          onResize: (Size value) => sized = value,
+          child: const Text('Body'),
+        ),
+      );
+
+      Focus.of(
+        tester.element(
+          find
+              .descendant(
+                of: find.byType(FocusableActionDetector),
+                matching: find.byType(MouseRegion),
+              )
+              .last,
+        ),
+      ).requestFocus();
+      await tester.pump();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(sized!.height, closeTo(shortest, 0.5));
+    });
+
     testWidgets('keeps the window under the pointer at the floor', (WidgetTester tester) async {
       Offset? moved;
 

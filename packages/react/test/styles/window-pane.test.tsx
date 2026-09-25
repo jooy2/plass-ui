@@ -1,7 +1,7 @@
 /**
- * What a macOS traffic light shows, where the move handle lies and how tall a
- * window rolled up in its box or from its first render is, which the
- * stylesheet decides.
+ * What a macOS traffic light shows, where the move handle lies, and how tall a
+ * window is once it is rolled up, in its box or from its first render, or
+ * resized as short as it goes, which the stylesheet decides.
  *
  * The mark is held back with `opacity` and brought out by a hover on the set and
  * by the focus on one light, so nothing about it can be read off the markup —
@@ -16,6 +16,7 @@ import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlWindowPane } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { press } from '../support/keys';
 import { emulateMedia } from '../support/media';
 
 let sheet: HTMLStyleElement;
@@ -192,6 +193,49 @@ describe('a window that starts minimized', () => {
         expect(height(name) - rolled(pane(name))).toBeCloseTo(0, 0);
         expect(height(name)).toBeCloseTo(height('Pressed'), 0);
       }
+    });
+  }
+});
+
+describe('a window resized as short as it goes', () => {
+  // Where the window comes to rest is what is asserted, so the resize is made
+  // instant rather than left to travel for 260ms under the poll.
+  beforeAll(async () => {
+    await emulateMedia({ reducedMotion: 'reduce' });
+  });
+
+  afterAll(async () => {
+    await emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  for (const minHeight of [undefined, 0]) {
+    it(`keeps its bar and the frame round it, with a minHeight of ${minHeight}`, async () => {
+      const screen = await render(
+        <PlWindowPane
+          os="windowsxp"
+          title="Notes"
+          resizable
+          width={300}
+          height={40}
+          minHeight={minHeight}
+        >
+          <p>Body</p>
+        </PlWindowPane>
+      );
+
+      const pane = screen.getByRole('group', { name: 'Notes' }).element() as HTMLElement;
+      const bar = pane.firstElementChild as HTMLElement;
+      const frame = () => parseFloat(getComputedStyle(pane).borderBottomWidth);
+      const height = () => pane.getBoundingClientRect().height;
+
+      // One step up from 40px asks for less than the bar and the frame come to.
+      press(screen.getByRole('button', { name: 'Resize window' }).element(), 'ArrowUp');
+
+      await expect.poll(height).toBeLessThan(40);
+      expect(height()).toBeCloseTo(
+        bar.getBoundingClientRect().bottom + frame() - pane.getBoundingClientRect().top,
+        0
+      );
     });
   }
 });
