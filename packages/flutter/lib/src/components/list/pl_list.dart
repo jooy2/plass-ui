@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -357,15 +358,19 @@ class PlListItem extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               if (child != null)
-                DefaultTextStyle.merge(
-                  style: TextStyle(
-                    color: selected && !disabled ? family.accent : tokens.fg,
-                    fontWeight: selected ? FontWeight.w500 : null,
+                // Eased with the row's tint as it is chosen, as the React row's
+                // `color` is. Only the words: a glyph in the label keeps the
+                // colour it had.
+                PlassInk(
+                  color: selected && !disabled ? family.accent : tokens.fg,
+                  icons: false,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(fontWeight: selected ? FontWeight.w500 : null),
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    child: child!,
                   ),
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  child: child!,
                 ),
               if (description != null)
                 DefaultTextStyle.merge(

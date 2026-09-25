@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -402,13 +403,18 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
           child: PlassSurfaceBox(
             surface: surface,
             borderRadius: round,
-            child: Center(
-              child: item.icon == null
-                  ? const SizedBox.shrink()
-                  : IconTheme.merge(
-                      data: IconThemeData(color: surface.ink, size: iconSize[_size]!),
-                      child: item.icon!,
-                    ),
+            // The glyph eases to a new ink as the key arrives under it or
+            // leaves, as the React disc's `color` does.
+            child: PlassInk(
+              color: surface.ink,
+              child: Center(
+                child: item.icon == null
+                    ? const SizedBox.shrink()
+                    : IconTheme.merge(
+                        data: IconThemeData(size: iconSize[_size]!),
+                        child: item.icon!,
+                      ),
+              ),
             ),
           ),
         );

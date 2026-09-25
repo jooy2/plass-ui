@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -306,18 +307,24 @@ class PlBadge extends StatelessWidget {
 
     final text = _text;
 
-    Widget body = DefaultTextStyle.merge(
-      style: TextStyle(
-        color: surface.ink,
-        fontSize: _badgeText[size]!,
-        fontWeight: FontWeight.w600,
-        height: 1,
-        leadingDistribution: TextLeadingDistribution.even,
-        fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+    // Eased with the fill when the badge changes its variant or its colour, as
+    // the React badge's `color` is. Only the words: a glyph handed in as the
+    // content keeps the colour it had.
+    Widget body = PlassInk(
+      color: surface.ink,
+      icons: false,
+      child: DefaultTextStyle.merge(
+        style: TextStyle(
+          fontSize: _badgeText[size]!,
+          fontWeight: FontWeight.w600,
+          height: 1,
+          leadingDistribution: TextLeadingDistribution.even,
+          fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+        ),
+        maxLines: 1,
+        softWrap: false,
+        child: content ?? Text(text ?? ''),
       ),
-      maxLines: 1,
-      softWrap: false,
-      child: content ?? Text(text ?? ''),
     );
 
     if (label != null) {

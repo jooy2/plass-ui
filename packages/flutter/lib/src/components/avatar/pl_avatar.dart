@@ -5,6 +5,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/decode.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -223,22 +224,24 @@ class _PlAvatarState extends State<PlAvatar> {
         ? BorderRadius.circular(box)
         : BorderRadius.circular(tokens.radii[_size]!);
 
-    Widget fallback = DefaultTextStyle.merge(
-      style: TextStyle(
-        color: surface.ink,
-        fontSize: _initialsText[_size]!,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.4,
-        height: 1,
-        leadingDistribution: TextLeadingDistribution.even,
-      ),
-      child: IconTheme.merge(
-        data: IconThemeData(color: surface.ink, size: box * _glyphFraction),
-        child:
-            widget.child ??
-            (standIn != null
-                ? Text(standIn)
-                : _PersonMark(size: box * _glyphFraction, color: surface.ink)),
+    // Eased with the fill when the avatar changes its variant or its colour, as
+    // the React avatar's `color` is.
+    Widget fallback = PlassInk(
+      color: surface.ink,
+      child: DefaultTextStyle.merge(
+        style: TextStyle(
+          fontSize: _initialsText[_size]!,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.4,
+          height: 1,
+          leadingDistribution: TextLeadingDistribution.even,
+        ),
+        child: IconTheme.merge(
+          data: IconThemeData(size: box * _glyphFraction),
+          child:
+              widget.child ??
+              (standIn != null ? Text(standIn) : _PersonMark(size: box * _glyphFraction)),
+        ),
       ),
     );
 
@@ -309,15 +312,20 @@ class _PlAvatarState extends State<PlAvatar> {
 /// It exists so that a `PlAvatar` with nothing at all is still an avatar. A box
 /// with no picture, no name and no glyph in it is indistinguishable from a
 /// component that failed to render.
+///
+/// Drawn in the ink the avatar hands down through the icon theme, so it eases
+/// with the fill as initials would.
 class _PersonMark extends StatelessWidget {
-  const _PersonMark({required this.size, required this.color});
+  const _PersonMark({required this.size});
 
   final double size;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(size: Size.square(size), painter: _PersonPainter(color));
+    return CustomPaint(
+      size: Size.square(size),
+      painter: _PersonPainter(IconTheme.of(context).color ?? const Color(0xFF000000)),
+    );
   }
 }
 

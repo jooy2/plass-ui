@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/glow.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/roving.dart';
@@ -515,7 +516,6 @@ class _Tile<T> extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: paddingX[density]![size]!),
               child: DefaultTextStyle.merge(
                 style: TextStyle(
-                  color: ink,
                   fontSize: fontSize,
                   fontWeight: FontWeight.w600,
                   height: 1,
@@ -524,12 +524,17 @@ class _Tile<T> extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 child: IconTheme.merge(
-                  data: IconThemeData(color: ink, size: fontSize * iconScale),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: gap[size]!,
-                    children: <Widget>[?segment.startIcon, ?segment.label, ?segment.endIcon],
+                  data: IconThemeData(size: fontSize * iconScale),
+                  // Eased as the tile slides in under the segment, so a chosen
+                  // `solid` segment does not write white on the trough first.
+                  child: PlassInk(
+                    color: ink,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: gap[size]!,
+                      children: <Widget>[?segment.startIcon, ?segment.label, ?segment.endIcon],
+                    ),
                   ),
                 ),
               ),

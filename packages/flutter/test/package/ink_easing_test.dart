@@ -1,0 +1,478 @@
+// That every control whose words or glyphs change colour with its state eases
+// that colour as its fill eases.
+//
+// The React build's house transition eases `color` with the fill, so a label
+// changes colour as its surface does. A Flutter control that hands its label a
+// new colour changes it in one frame instead, and over a fill that is still
+// easing, the label takes its new colour on the old surface for the length of
+// the transition. What is checked here is the colour actually drawn: part of the
+// way along halfway through the change, exactly the new colour once it has
+// settled, and the new colour at once under reduced motion. A control added
+// later with an ink of its own belongs in this list.
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/icons.dart';
+
+import '../support/host.dart';
+
+/// A glyph a caller hands a control, recording the colour it is drawn in.
+class _Glyph extends StatelessWidget {
+  const _Glyph();
+
+  static Color? seen;
+
+  @override
+  Widget build(BuildContext context) {
+    seen = IconTheme.of(context).color;
+
+    return const SizedBox.square(dimension: 16);
+  }
+}
+
+/// How the colour is read off the control.
+typedef _Read = Color Function(WidgetTester tester);
+
+/// How the state is changed, in a frame of its own. `null` changes it by
+/// building the control again with `on`.
+typedef _Change = Future<void> Function(WidgetTester tester, bool on);
+
+/// One control, how to put it in the state that changes its ink, and where the
+/// ink is read.
+class _Case {
+  const _Case(this.build, {this.read = _label, this.change, this.endless = false});
+
+  /// The control, with the state that changes its ink on or off.
+  final Widget Function(bool on) build;
+
+  final _Read read;
+
+  final _Change? change;
+
+  /// Whether something in it moves for as long as it is on screen, such as a
+  /// spinner, so it never settles and is given time instead.
+  final bool endless;
+}
+
+/// The colour the words `Label` are drawn in.
+Color _label(WidgetTester tester) => _words('Label')(tester);
+
+_Read _words(String text) {
+  return (WidgetTester tester) =>
+      tester.renderObject<RenderParagraph>(find.text(text).last).text.style!.color!;
+}
+
+/// The colour the glyph a caller handed the control is drawn in.
+Color _glyph(WidgetTester tester) => _Glyph.seen!;
+
+/// The colour one of the library's own glyphs is drawn in, which it takes from
+/// the icon theme around it.
+_Read _ownGlyph(PlassGlyphShape shape) {
+  return (WidgetTester tester) {
+    final Finder glyph = find.byWidgetPredicate(
+      (Widget widget) => widget is PlassGlyph && widget.shape == shape,
+    );
+
+    return IconTheme.of(tester.element(glyph.first)).color!;
+  };
+}
+
+/// A mouse, put in the corner and then moved onto the control.
+_Change _hover(Finder Function() target) {
+  late TestGesture mouse;
+
+  return (WidgetTester tester, bool on) async {
+    if (!on) {
+      mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await tester.pump();
+
+      return;
+    }
+
+    await mouse.moveTo(tester.getCenter(target()));
+    await tester.pump();
+  };
+}
+
+/// The focus, handed to the control or taken away.
+///
+/// Two frames: the focus moves in the first, and the control hears of it after
+/// that frame has been built, so it draws its new state in the second.
+_Change _focus(FocusNode node) {
+  return (WidgetTester tester, bool on) async {
+    if (on) {
+      node.requestFocus();
+    } else {
+      node.unfocus();
+    }
+
+    await tester.pump();
+    await tester.pump();
+  };
+}
+
+/// Opens a popup list on its chosen row, then moves the highlight to the next
+/// row with the arrow keys.
+_Change _highlight(Finder Function() opener) {
+  return (WidgetTester tester, bool on) async {
+    if (!on) {
+      await tester.tap(opener());
+      await tester.pumpAndSettle();
+
+      return;
+    }
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+  };
+}
+
+final GlobalKey _section = GlobalKey();
+final PlAnchorItem _heading = PlAnchorItem(target: _section, label: const Text('Label'));
+final FocusNode _textFocus = FocusNode();
+final FocusNode _numberFocus = FocusNode();
+
+final Map<String, _Case> _cases = <String, _Case>{
+  'glass PlButton, disabled': _Case(
+    (bool on) => PlButton(
+      variant: PlassVariant.glass,
+      disabled: on,
+      onPressed: () {},
+      child: const Text('Label'),
+    ),
+  ),
+  'loading PlButton, its spinner': _Case(
+    (bool on) => PlButton(
+      variant: PlassVariant.glass,
+      disabled: on,
+      loading: true,
+      onPressed: () {},
+      child: const Text('Label'),
+    ),
+    read: (WidgetTester tester) => IconTheme.of(tester.element(find.byType(PlassSpinner))).color!,
+    endless: true,
+  ),
+  for (final PlassVariant variant in PlassVariant.values)
+    '${variant.name} PlToggle': _Case(
+      (bool on) => PlToggle(variant: variant, pressed: on, child: const Text('Label')),
+    ),
+  'glass PlChip, disabled': _Case(
+    (bool on) => PlChip(variant: PlassVariant.glass, disabled: on, child: const Text('Label')),
+  ),
+  'glass PlChip, disabled, its ×': _Case(
+    (bool on) => PlChip(
+      variant: PlassVariant.glass,
+      disabled: on,
+      onDeleted: () {},
+      child: const Text('Label'),
+    ),
+    read: _ownGlyph(PlassGlyphShape.close),
+  ),
+  'PlTabs': _Case(
+    (bool on) => PlTabs<int>(
+      value: on ? 1 : 0,
+      onChanged: (int _) {},
+      tabs: const <PlTab<int>>[
+        PlTab<int>(value: 0, label: Text('Other')),
+        PlTab<int>(value: 1, label: Text('Label')),
+      ],
+    ),
+  ),
+  for (final PlassVariant variant in PlassVariant.values)
+    '${variant.name} PlSegmentedButton': _Case(
+      (bool on) => PlSegmentedButton<int>(
+        variant: variant,
+        value: on ? 1 : 0,
+        onChanged: (int _) {},
+        segments: const <PlSegment<int>>[
+          PlSegment<int>(value: 0, label: Text('Other')),
+          PlSegment<int>(value: 1, label: Text('Label')),
+        ],
+      ),
+    ),
+  'PlBottomNavigation': _Case(
+    (bool on) => PlBottomNavigation<int>(
+      value: on ? 1 : 0,
+      onChanged: (int _) {},
+      safeArea: false,
+      items: const <PlBottomNavigationItem<int>>[
+        PlBottomNavigationItem<int>(value: 0, label: 'Other'),
+        PlBottomNavigationItem<int>(value: 1, label: 'Label', icon: _Glyph()),
+      ],
+    ),
+  ),
+  'PlBottomNavigation, its glyph': _Case(
+    (bool on) => PlBottomNavigation<int>(
+      value: on ? 1 : 0,
+      onChanged: (int _) {},
+      safeArea: false,
+      items: const <PlBottomNavigationItem<int>>[
+        PlBottomNavigationItem<int>(value: 0, label: 'Other'),
+        PlBottomNavigationItem<int>(value: 1, label: 'Label', icon: _Glyph()),
+      ],
+    ),
+    read: _glyph,
+  ),
+  'PlFloatingBottomNavigation': _Case(
+    (bool on) => PlFloatingBottomNavigation<int>(
+      value: on ? 1 : 0,
+      onChanged: (int _) {},
+      items: const <PlFloatingBottomNavigationItem<int>>[
+        PlFloatingBottomNavigationItem<int>(value: 0, label: 'Other'),
+        PlFloatingBottomNavigationItem<int>(value: 1, label: 'Label', icon: _Glyph()),
+      ],
+    ),
+    read: _glyph,
+  ),
+  'PlNavigationMenu': _Case(
+    (bool on) => PlNavigationMenu(
+      items: <PlNavigationMenuItem>[
+        PlNavigationMenuItem(label: 'Label', selected: on, onPressed: () {}),
+      ],
+    ),
+  ),
+  'PlAccordion': _Case(
+    (bool on) => PlAccordion<int>(
+      value: on ? const <int>{1} : const <int>{},
+      onChanged: (Set<int> _) {},
+      items: const <PlAccordionItem<int>>[
+        PlAccordionItem<int>(value: 1, title: Text('Label'), child: Text('Body')),
+      ],
+    ),
+  ),
+  'PlCollapsible': _Case(
+    (bool on) => PlCollapsible(
+      open: on,
+      onOpenChanged: (bool _) {},
+      title: const Text('Label'),
+      child: const Text('Body'),
+    ),
+  ),
+  'PlList': _Case(
+    (bool on) => PlList(
+      children: <Widget>[PlListItem(selected: on, onPressed: () {}, child: const Text('Label'))],
+    ),
+  ),
+  'PlTree': _Case(
+    (bool on) => PlTree(
+      items: const <PlTreeNode>[PlTreeNode(id: 'a', label: Text('Label'))],
+      selected: on ? const <String>{'a'} : const <String>{},
+      onSelectedChanged: (Set<String> _) {},
+    ),
+  ),
+  'PlStepper, its bullet': _Case(
+    (bool on) => PlStepper(
+      active: on ? 1 : 0,
+      onActiveChanged: (int _) {},
+      linear: false,
+      steps: const <PlStep>[
+        PlStep(label: Text('One')),
+        PlStep(label: Text('Two')),
+      ],
+    ),
+    read: _words('2'),
+  ),
+  'PlCalendar': _Case(
+    (bool on) => PlCalendar(
+      value: on ? DateTime(2026, 3, 18) : null,
+      month: DateTime(2026, 3),
+      onChanged: (DateTime? _) {},
+    ),
+    read: _words('18'),
+  ),
+  'PlAnchor': _Case(
+    (bool on) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        PlAnchor(items: <PlAnchorItem>[_heading], active: on ? _heading : null),
+        SizedBox(key: _section, height: 10),
+      ],
+    ),
+  ),
+  'PlBreadcrumb, under the pointer': _Case(
+    (bool on) => PlBreadcrumb(
+      items: <PlBreadcrumbItem>[
+        PlBreadcrumbItem(label: const Text('Label'), onPressed: () {}),
+        const PlBreadcrumbItem(label: Text('Here')),
+      ],
+    ),
+    change: _hover(() => find.text('Label')),
+  ),
+  'PlNumberField, a stepper under the pointer': _Case(
+    (bool on) => PlNumberField(value: 4, onChanged: (num? _) {}),
+    read: _ownGlyph(PlassGlyphShape.plus),
+    change: _hover(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.plus,
+      ),
+    ),
+  ),
+  'PlCodeBlock, its copy button under the pointer': _Case(
+    (bool on) => const PlCodeBlock(code: 'print(1);'),
+    read: _words('Copy'),
+    change: _hover(() => find.text('Copy')),
+  ),
+  'PlTextField, an adornment as it takes the focus': _Case(
+    (bool on) => PlTextField(focusNode: _textFocus, startIcon: const Text('Label')),
+    change: _focus(_textFocus),
+  ),
+  'PlNumberField, an adornment as it takes the focus': _Case(
+    (bool on) => PlNumberField(
+      value: 4,
+      onChanged: (num? _) {},
+      focusNode: _numberFocus,
+      startIcon: const Text('Label'),
+    ),
+    change: _focus(_numberFocus),
+  ),
+  // A mark changes its ink only with its variant or its colour, and its fill
+  // eases between the two as a control's does.
+  'PlBadge, its variant': _Case(
+    (bool on) => PlBadge(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      content: const Text('Label'),
+    ),
+  ),
+  'PlAvatar, its variant': _Case(
+    (bool on) =>
+        PlAvatar(variant: on ? PlassVariant.solid : PlassVariant.glass, child: const Text('Label')),
+  ),
+  'PlAvatar, its silhouette': _Case(
+    (bool on) => PlAvatar(variant: on ? PlassVariant.solid : PlassVariant.glass),
+    read: (WidgetTester tester) {
+      final CustomPaint silhouette = tester.widget<CustomPaint>(
+        find.descendant(of: find.byType(PlAvatar), matching: find.byType(CustomPaint)).last,
+      );
+
+      return IconTheme.of(tester.element(find.byWidget(silhouette))).color!;
+    },
+  ),
+  'PlKbd, its variant': _Case(
+    (bool on) =>
+        PlKbd(variant: on ? PlassVariant.solid : PlassVariant.glass, child: const Text('Label')),
+  ),
+  'PlSelect, a row the arrow keys reach': _Case(
+    (bool on) => PlSelect<int>(
+      value: 0,
+      onChanged: (int? _) {},
+      options: const <PlSelectOption<int>>[
+        PlSelectOption<int>(value: 0, label: Text('Other')),
+        PlSelectOption<int>(value: 1, label: Text('Label')),
+      ],
+    ),
+    change: _highlight(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.chevron,
+      ),
+    ),
+  ),
+  'PlCombobox, a row the arrow keys reach': _Case(
+    (bool on) => PlCombobox<int>(
+      value: 0,
+      onChanged: (int? _) {},
+      options: const <PlComboboxOption<int>>[
+        PlComboboxOption<int>(value: 0, label: 'Other'),
+        PlComboboxOption<int>(value: 1, label: 'Label'),
+      ],
+    ),
+    change: _highlight(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is Semantics && widget.properties.label == 'Open',
+      ),
+    ),
+  ),
+};
+
+/// Whether every channel of [colour] lies between those of [a] and [b].
+bool _between(Color colour, Color a, Color b) {
+  bool within(double value, double one, double other) {
+    const double slack = 1 / 255;
+
+    return value >= (one < other ? one : other) - slack &&
+        value <= (one < other ? other : one) + slack;
+  }
+
+  return within(colour.a, a.a, b.a) &&
+      within(colour.r, a.r, b.r) &&
+      within(colour.g, a.g, b.g) &&
+      within(colour.b, a.b, b.b);
+}
+
+void main() {
+  final Duration half = PlassTokens.light().motionDuration ~/ 2;
+
+  for (final MapEntry<String, _Case> entry in _cases.entries) {
+    final _Case control = entry.value;
+
+    Future<void> settle(WidgetTester tester) async {
+      if (control.endless) {
+        await tester.pump(const Duration(seconds: 1));
+      } else {
+        await tester.pumpAndSettle();
+      }
+    }
+
+    Future<void> start(WidgetTester tester, {required bool reduced}) async {
+      await tester.pumpWidget(
+        host(control.build(false), width: 480, disableAnimations: reduced, overlay: true),
+      );
+      await settle(tester);
+      await control.change?.call(tester, false);
+    }
+
+    Future<void> turn(WidgetTester tester, {required bool reduced}) async {
+      final _Change? change = control.change;
+
+      if (change != null) {
+        await change(tester, true);
+      } else {
+        await tester.pumpWidget(
+          host(control.build(true), width: 480, disableAnimations: reduced, overlay: true),
+        );
+      }
+    }
+
+    testWidgets('${entry.key} eases its ink as its state changes', (WidgetTester tester) async {
+      await start(tester, reduced: false);
+
+      final Color from = control.read(tester);
+
+      await turn(tester, reduced: false);
+      await tester.pump(half);
+
+      final Color halfway = control.read(tester);
+
+      await settle(tester);
+
+      final Color to = control.read(tester);
+
+      // The state has to change the ink for the question to mean anything.
+      expect(to, isNot(from));
+      expect(halfway, isNot(from), reason: 'still the old ink halfway through');
+      expect(halfway, isNot(to), reason: 'already the new ink halfway through');
+      expect(_between(halfway, from, to), isTrue, reason: '$halfway is not between the two');
+    });
+
+    testWidgets('${entry.key} changes its ink at once under reduced motion', (
+      WidgetTester tester,
+    ) async {
+      await start(tester, reduced: true);
+
+      final Color from = control.read(tester);
+
+      await turn(tester, reduced: true);
+
+      final Color at = control.read(tester);
+
+      await settle(tester);
+
+      expect(at, isNot(from));
+      expect(at, control.read(tester));
+    });
+  }
+}

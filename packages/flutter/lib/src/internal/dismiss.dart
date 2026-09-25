@@ -37,8 +37,8 @@ class PlassDismissButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     required this.size,
-    required this.color,
     required this.ring,
+    this.color,
     super.key,
   });
 
@@ -51,8 +51,10 @@ class PlassDismissButton extends StatelessWidget {
   /// The box the × is drawn in.
   final double size;
 
-  /// The ink, which is whatever the surface it sits on is written in.
-  final Color color;
+  /// The ink, which is whatever the surface it sits on is written in, or
+  /// `null` for the ambient [IconTheme]'s, which is how a × on a control
+  /// follows the control's ink as it eases.
+  final Color? color;
 
   /// The focus ring's colour.
   final Color ring;

@@ -1,6 +1,6 @@
 import 'dart:ui' show Tristate;
 
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -355,11 +355,14 @@ void main() {
         // open" has to be legible from across the bar.
         final PlassColorFamily family = PlassTokens.light().family(PlassColor.primary);
 
+        // What is drawn rather than what the `Text` was handed: the word takes
+        // its ink from the style around it, which eases as the menu opens.
         expect(
           tester
-              .widget<Text>(
+              .renderObject<RenderParagraph>(
                 find.descendant(of: find.byType(PlMenubar), matching: find.text('File')),
               )
+              .text
               .style!
               .color,
           family.accent,

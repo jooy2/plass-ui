@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/button_group.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -209,7 +210,6 @@ class _PlToggleState extends State<PlToggle> {
 
       Widget content = DefaultTextStyle.merge(
         style: TextStyle(
-          color: surface.ink,
           fontSize: fontSize,
           fontWeight: FontWeight.w600,
           height: 1,
@@ -219,12 +219,17 @@ class _PlToggleState extends State<PlToggle> {
         softWrap: false,
         textAlign: TextAlign.center,
         child: IconTheme.merge(
-          data: IconThemeData(color: surface.ink, size: fontSize * iconScale),
-          child: Row(
-            mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: gap[size]!,
-            children: <Widget>[?widget.startIcon, ?widget.child, ?widget.endIcon],
+          data: IconThemeData(size: fontSize * iconScale),
+          // Eased with the fill, so a `solid` toggle going on does not write
+          // its white label over the glass it is leaving.
+          child: PlassInk(
+            color: surface.ink,
+            child: Row(
+              mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: gap[size]!,
+              children: <Widget>[?widget.startIcon, ?widget.child, ?widget.endIcon],
+            ),
           ),
         ),
       );

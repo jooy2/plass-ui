@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -303,31 +304,35 @@ class PlBottomNavigation<T> extends StatelessWidget {
 
         Widget content = Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: _itemGap[size]!,
-            children: <Widget>[
-              if (item.icon != null)
-                IconTheme.merge(
-                  data: IconThemeData(color: ink, size: iconSize[size]!),
-                  child: item.icon!,
-                ),
-              // Undrawn is not unsaid: the name is the item's semantics label
-              // whatever `labels` says, and only the drawing is taken away.
-              if (named)
-                Text(
-                  item.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: ink,
-                    fontSize: metaText[size]!,
-                    fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
-                    height: 1.2,
+          // The glyph and the name ease to a new ink as the React item's
+          // `color` does under the house transition.
+          child: PlassInk(
+            color: ink,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: _itemGap[size]!,
+              children: <Widget>[
+                if (item.icon != null)
+                  IconTheme.merge(
+                    data: IconThemeData(size: iconSize[size]!),
+                    child: item.icon!,
                   ),
-                ),
-            ],
+                // Undrawn is not unsaid: the name is the item's semantics label
+                // whatever `labels` says, and only the drawing is taken away.
+                if (named)
+                  Text(
+                    item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: metaText[size]!,
+                      fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
+                      height: 1.2,
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
 

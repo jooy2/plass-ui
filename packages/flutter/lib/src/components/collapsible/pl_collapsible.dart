@@ -7,6 +7,7 @@ import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -406,18 +407,24 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
                     spacing: sheetHeaderGap[_size]!,
                     children: <Widget>[
                       if (widget.title != null)
-                        DefaultTextStyle.merge(
-                          style: TextStyle(
-                            color: ink,
-                            fontSize: title.size,
-                            height: title.height,
-                            fontWeight: FontWeight.w600,
-                            leadingDistribution: TextLeadingDistribution.even,
+                        // Eased with the wash as the fold opens and closes, as
+                        // the React trigger's `color` is. Only the words: a
+                        // glyph in the title keeps the colour it had.
+                        PlassInk(
+                          color: ink,
+                          icons: false,
+                          child: DefaultTextStyle.merge(
+                            style: TextStyle(
+                              fontSize: title.size,
+                              height: title.height,
+                              fontWeight: FontWeight.w600,
+                              leadingDistribution: TextLeadingDistribution.even,
+                            ),
+                            maxLines: widget.truncate ? 1 : null,
+                            softWrap: !widget.truncate,
+                            overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
+                            child: widget.title!,
                           ),
-                          maxLines: widget.truncate ? 1 : null,
-                          softWrap: !widget.truncate,
-                          overflow: widget.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
-                          child: widget.title!,
                         ),
                       if (widget.subtitle != null)
                         DefaultTextStyle.merge(

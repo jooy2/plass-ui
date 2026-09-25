@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/notch.dart';
@@ -657,11 +658,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
         height: scale.line,
         child: Center(
           child: IconTheme.merge(
-            data: IconThemeData(color: ink, size: scale.size * iconScale),
-            child: DefaultTextStyle.merge(
-              style: TextStyle(color: ink),
-              child: slot,
-            ),
+            data: IconThemeData(size: scale.size * iconScale),
+            // Eased as the focus arrives and leaves, as the React adornment's
+            // `color` is.
+            child: PlassInk(color: ink, child: slot),
           ),
         ),
       );
@@ -810,10 +810,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
             child: SizedBox.square(
               dimension: box,
               child: Center(
-                child: PlassGlyph(
-                  direction > 0 ? PlassGlyphShape.plus : PlassGlyphShape.minus,
-                  size: scale.size * _stepperGlyphScale,
+                // Eased under the pointer, as the React stepper's `color` is.
+                child: PlassInk(
                   color: ink,
+                  child: PlassGlyph(
+                    direction > 0 ? PlassGlyphShape.plus : PlassGlyphShape.minus,
+                    size: scale.size * _stepperGlyphScale,
+                  ),
                 ),
               ),
             ),

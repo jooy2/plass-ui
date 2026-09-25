@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -352,11 +353,10 @@ class _PlTextFieldState extends State<PlTextField> {
         height: scale.line,
         child: Center(
           child: IconTheme.merge(
-            data: IconThemeData(color: ink, size: scale.size * iconScale),
-            child: DefaultTextStyle.merge(
-              style: TextStyle(color: ink),
-              child: slot,
-            ),
+            data: IconThemeData(size: scale.size * iconScale),
+            // Eased as the focus arrives and leaves, as the React adornment's
+            // `color` is.
+            child: PlassInk(color: ink, child: slot),
           ),
         ),
       );

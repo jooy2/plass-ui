@@ -218,6 +218,62 @@ void main() {
         }
       });
 
+      testWidgets('eases its label to the new ink with the fill on solid', (
+        WidgetTester tester,
+      ) async {
+        // The label used to take its new ink in one frame while the fill under
+        // it was still easing, so a toggle going on wrote its white label over
+        // the pale glass it was leaving, and going off wrote grey on the
+        // gradient.
+        final PlassTokens tokens = PlassTokens.light();
+        final Color off = tokens.mutedFg;
+        final Color on = tokens.family(PlassColor.primary).onSolid;
+
+        Widget toggle({required bool pressed}) {
+          return host(
+            PlToggle(variant: PlassVariant.solid, pressed: pressed, child: const Text('Bold')),
+          );
+        }
+
+        await tester.pumpWidget(toggle(pressed: false));
+
+        for (final (Color from, Color to, bool pressed) in <(Color, Color, bool)>[
+          (off, on, true),
+          (on, off, false),
+        ]) {
+          await tester.pumpWidget(toggle(pressed: pressed));
+          await tester.pump(tokens.motionDuration ~/ 2);
+
+          expect(
+            styleOf(tester, 'Bold').color,
+            Color.lerp(from, to, tokens.motionEase.transform(0.5)),
+            reason: pressed ? 'on' : 'off',
+          );
+
+          await tester.pumpAndSettle();
+
+          expect(styleOf(tester, 'Bold').color, to, reason: pressed ? 'on' : 'off');
+        }
+      });
+
+      testWidgets('changes its label ink at once under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        final PlassTokens tokens = PlassTokens.light();
+
+        Widget toggle({required bool pressed}) {
+          return host(
+            PlToggle(variant: PlassVariant.solid, pressed: pressed, child: const Text('Bold')),
+            disableAnimations: true,
+          );
+        }
+
+        await tester.pumpWidget(toggle(pressed: false));
+        await tester.pumpWidget(toggle(pressed: true));
+
+        expect(styleOf(tester, 'Bold').color, tokens.family(PlassColor.primary).onSolid);
+      });
+
       testWidgets('changes between the glass and the gradient at once under reduced motion', (
         WidgetTester tester,
       ) async {

@@ -9,6 +9,7 @@ import 'package:plass_ui/src/components/chip/pl_chip.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/list_reveal.dart';
@@ -1458,21 +1459,27 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                     // drawn at all.
                     clipBehavior: Clip.none,
                     children: <Widget>[
-                      DefaultTextStyle.merge(
-                        style: TextStyle(
-                          color: ink,
-                          fontSize: scale.size,
-                          height: scale.height,
-                          fontWeight: chosen ? FontWeight.w600 : FontWeight.w400,
-                          leadingDistribution: TextLeadingDistribution.even,
+                      // Eased as the highlight arrives and leaves, as the React
+                      // row's `color` is. Only the words: a glyph in a custom
+                      // label keeps the colour it had.
+                      PlassInk(
+                        color: ink,
+                        icons: false,
+                        child: DefaultTextStyle.merge(
+                          style: TextStyle(
+                            fontSize: scale.size,
+                            height: scale.height,
+                            fontWeight: chosen ? FontWeight.w600 : FontWeight.w400,
+                            leadingDistribution: TextLeadingDistribution.even,
+                          ),
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.ellipsis,
+                          child: row.isCreate
+                              ? (widget.customLabel?.call(row.query!) ??
+                                    Text(PlassTheme.labelsOf(context).addCustom(row.query!)))
+                              : Text(row.label),
                         ),
-                        maxLines: 1,
-                        softWrap: false,
-                        overflow: TextOverflow.ellipsis,
-                        child: row.isCreate
-                            ? (widget.customLabel?.call(row.query!) ??
-                                  Text(PlassTheme.labelsOf(context).addCustom(row.query!)))
-                            : Text(row.label),
                       ),
                       if (chosen || row.isCreate)
                         PositionedDirectional(
@@ -1497,7 +1504,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       ),
     );
 
-    return lit ? _reveal.mark(index: index, child: shown) : shown;
+    // Every row is marked, lit or not, so a row keeps its place in the tree as
+    // the highlight moves and its ink eases rather than starting over.
+    return _reveal.mark(index: index, marked: lit, child: shown);
   }
 }
 

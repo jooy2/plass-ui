@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -381,16 +382,21 @@ class _Trigger extends StatelessWidget {
               spacing: gap[size]!,
               children: <Widget>[
                 ?item.startIcon,
-                Text(
-                  item.label,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: TextStyle(
-                    color: ink,
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w500,
-                    height: 1,
-                    leadingDistribution: TextLeadingDistribution.even,
+                // The word and the chevron ease to a new ink with the wash, as
+                // the React trigger's `color` does. Each is inked on its own so
+                // a `startIcon` keeps the colour it is drawn in.
+                PlassInk(
+                  color: ink,
+                  child: Text(
+                    item.label,
+                    maxLines: 1,
+                    softWrap: false,
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w500,
+                      height: 1,
+                      leadingDistribution: TextLeadingDistribution.even,
+                    ),
                   ),
                 ),
                 if (item.opensPanel)
@@ -404,15 +410,17 @@ class _Trigger extends StatelessWidget {
                     turns: open && !vertical ? 0.5 : 0,
                     duration: reduceMotion ? Duration.zero : tokens.motionDuration,
                     curve: tokens.motionEase,
-                    child: PlassGlyph(
-                      PlassGlyphShape.chevron,
-                      size: fontSize * iconScale,
+                    child: PlassInk(
                       color: ink,
-                      quarterTurns: !vertical
-                          ? 0
-                          : Directionality.of(context) == TextDirection.rtl
-                          ? 1
-                          : -1,
+                      child: PlassGlyph(
+                        PlassGlyphShape.chevron,
+                        size: fontSize * iconScale,
+                        quarterTurns: !vertical
+                            ? 0
+                            : Directionality.of(context) == TextDirection.rtl
+                            ? 1
+                            : -1,
+                      ),
                     ),
                   ),
               ],

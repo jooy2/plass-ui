@@ -21,13 +21,15 @@ import 'package:plass_ui/src/types.dart';
 /// control, rather than carrying a size of its own.
 class PlassSpinner extends StatefulWidget {
   /// Creates a spinner [size] logical pixels across, in [color].
-  const PlassSpinner({required this.size, required this.color, super.key});
+  const PlassSpinner({required this.size, this.color, super.key});
 
   /// The box the spinner is drawn in. The stroke scales with it.
   final double size;
 
-  /// The ink. The track behind it is the same colour at a quarter alpha.
-  final Color color;
+  /// The ink, or `null` for the ambient [IconTheme]'s, which is how a spinner
+  /// inside a control follows the control's ink as it eases. The track behind
+  /// it is the same colour at a quarter alpha.
+  final Color? color;
 
   @override
   State<PlassSpinner> createState() => _PlassSpinnerState();
@@ -67,7 +69,12 @@ class _PlassSpinnerState extends State<PlassSpinner> with SingleTickerProviderSt
     return RepaintBoundary(
       child: RotationTransition(
         turns: _turn,
-        child: CustomPaint(size: Size.square(widget.size), painter: _SpinnerPainter(widget.color)),
+        child: CustomPaint(
+          size: Size.square(widget.size),
+          painter: _SpinnerPainter(
+            widget.color ?? IconTheme.of(context).color ?? const Color(0xFF000000),
+          ),
+        ),
       ),
     );
   }

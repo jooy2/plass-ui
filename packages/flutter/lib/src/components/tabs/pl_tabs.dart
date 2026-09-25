@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/roving.dart';
@@ -786,7 +787,6 @@ class _Tab<T> extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: paddingX[density]![size]!),
               child: DefaultTextStyle.merge(
                 style: TextStyle(
-                  color: ink,
                   fontSize: fontSize,
                   fontWeight: FontWeight.w600,
                   height: 1,
@@ -795,20 +795,25 @@ class _Tab<T> extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 child: IconTheme.merge(
-                  data: IconThemeData(color: ink, size: fontSize * iconScale),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    // The row is handed a tight width by whatever stretched the
-                    // tab, so this is what places the label inside it. `start`
-                    // and `end` follow the writing direction, which is what
-                    // makes the prop logical without anything being converted.
-                    mainAxisAlignment: switch (align) {
-                      PlassAlign.start => MainAxisAlignment.start,
-                      PlassAlign.center => MainAxisAlignment.center,
-                      PlassAlign.end => MainAxisAlignment.end,
-                    },
-                    spacing: gap[size]!,
-                    children: <Widget>[?tab.startIcon, ?tab.label, ?tab.endIcon],
+                  data: IconThemeData(size: fontSize * iconScale),
+                  // Eased as the tab is chosen and as the pointer arrives, as
+                  // the React tab's `color` is.
+                  child: PlassInk(
+                    color: ink,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      // The row is handed a tight width by whatever stretched the
+                      // tab, so this is what places the label inside it. `start`
+                      // and `end` follow the writing direction, which is what
+                      // makes the prop logical without anything being converted.
+                      mainAxisAlignment: switch (align) {
+                        PlassAlign.start => MainAxisAlignment.start,
+                        PlassAlign.center => MainAxisAlignment.center,
+                        PlassAlign.end => MainAxisAlignment.end,
+                      },
+                      spacing: gap[size]!,
+                      children: <Widget>[?tab.startIcon, ?tab.label, ?tab.endIcon],
+                    ),
                   ),
                 ),
               ),

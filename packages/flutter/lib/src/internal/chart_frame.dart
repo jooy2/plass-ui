@@ -26,6 +26,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -2062,12 +2063,12 @@ class _LegendFold extends StatelessWidget {
       child: PlassInteractive(
         onTap: onTap,
         builder: (BuildContext context, PlassInteraction state) {
-          final Widget word = Text(
-            said,
-            style: TextStyle(
-              fontSize: metaText[size]!,
-              fontWeight: FontWeight.w500,
-              color: state.hovered ? tokens.fg : tokens.mutedFg,
+          // Eased under the pointer, as the React button's `color` is.
+          final Widget word = PlassInk(
+            color: state.hovered ? tokens.fg : tokens.mutedFg,
+            child: Text(
+              said,
+              style: TextStyle(fontSize: metaText[size]!, fontWeight: FontWeight.w500),
             ),
           );
 

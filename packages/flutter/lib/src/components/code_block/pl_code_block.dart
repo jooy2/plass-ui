@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/languages.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -1211,21 +1212,20 @@ class _BarButtonState extends State<_BarButton> {
           Widget button = Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             decoration: BoxDecoration(color: lit ? palette.hover : null, borderRadius: radius),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                IconTheme(
-                  data: IconThemeData(color: ink),
-                  child: widget.icon,
-                ),
-                if (widget.showLabel) ...<Widget>[
-                  const SizedBox(width: 4),
-                  Text(
-                    widget.label,
-                    style: TextStyle(fontSize: meta, color: ink),
-                  ),
+            // Eased under the pointer, as the React button's `color` is. The
+            // glyph is given its size, so it takes only the colour from here.
+            child: PlassInk(
+              color: ink,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  widget.icon,
+                  if (widget.showLabel) ...<Widget>[
+                    const SizedBox(width: 4),
+                    Text(widget.label, style: TextStyle(fontSize: meta)),
+                  ],
                 ],
-              ],
+              ),
             ),
           );
 

@@ -24,6 +24,7 @@ import 'package:plass_ui/src/components/button/pl_button.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -263,7 +264,6 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
       decoration: BoxDecoration(color: fill, gradient: gradient, borderRadius: corners),
       child: DefaultTextStyle.merge(
         style: TextStyle(
-          color: ink,
           fontSize: controlText[widget.size]!,
           fontWeight: weight,
           height: 1,
@@ -291,15 +291,14 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
         if (widget.current)
           PositionedDirectional(
             bottom: side * 0.14,
-            child: SizedBox.square(
-              dimension: side * 0.09,
-              child: DecoratedBox(
-                decoration: BoxDecoration(color: ink, shape: BoxShape.circle),
-              ),
-            ),
+            child: SizedBox.square(dimension: side * 0.09, child: const _TodayDot()),
           ),
       ],
     );
+
+    // The number and the dot ease to a new ink with the fill, as the React
+    // cell's `color` does under the house transition.
+    cell = PlassInk(color: ink, child: cell);
 
     // Painted straight onto the canvas while the cell can be taken, rather
     // than through an `Opacity` at 1, which is a layer all the same.
@@ -1492,3 +1491,16 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
 
 /// Between two rows of one column.
 const double _rowGap = 2;
+
+/// Today's mark, in the ink the cell is written in, read from the icon theme so
+/// it eases with the number.
+class _TodayDot extends StatelessWidget {
+  const _TodayDot();
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(color: IconTheme.of(context).color, shape: BoxShape.circle),
+    );
+  }
+}

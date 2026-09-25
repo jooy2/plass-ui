@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/menu/pl_menu.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -440,16 +441,20 @@ class _Word extends StatelessWidget {
               children: <Widget>[
                 ?menu.startIcon,
                 Center(
-                  child: Text(
-                    menu.label,
-                    maxLines: 1,
-                    softWrap: false,
-                    style: TextStyle(
-                      color: ink,
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.w500,
-                      height: 1,
-                      leadingDistribution: TextLeadingDistribution.even,
+                  // Eased with the wash as the menu opens and closes, as the
+                  // React trigger's `color` is.
+                  child: PlassInk(
+                    color: ink,
+                    child: Text(
+                      menu.label,
+                      maxLines: 1,
+                      softWrap: false,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w500,
+                        height: 1,
+                        leadingDistribution: TextLeadingDistribution.even,
+                      ),
                     ),
                   ),
                 ),

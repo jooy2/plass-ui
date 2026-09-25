@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -285,7 +286,6 @@ class PlChip extends StatelessWidget {
 
     Widget body = DefaultTextStyle.merge(
       style: TextStyle(
-        color: surface.ink,
         fontSize: fontSize,
         fontWeight: FontWeight.w500,
         height: 1,
@@ -295,7 +295,7 @@ class PlChip extends StatelessWidget {
       softWrap: false,
       overflow: TextOverflow.ellipsis,
       child: IconTheme.merge(
-        data: IconThemeData(color: surface.ink, size: fontSize * iconScale),
+        data: IconThemeData(size: fontSize * iconScale),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: spacing,
@@ -332,13 +332,17 @@ class PlChip extends StatelessWidget {
               label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
               onPressed: disabled ? null : onDeleted,
               size: fontSize * dismissScale,
-              color: surface.ink,
               ring: family.ring,
             ),
           ),
         ],
       );
     }
+
+    // The label, its glyphs and the × ease to a new ink with the fill, as the
+    // React build's `color` does under the house transition. The count's plate
+    // names its own colours and keeps them.
+    body = PlassInk(color: surface.ink, child: body);
 
     Widget chip = SizedBox(
       height: height,

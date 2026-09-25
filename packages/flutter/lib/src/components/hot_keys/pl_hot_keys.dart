@@ -5,6 +5,7 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -261,18 +262,24 @@ class PlKbd extends StatelessWidget {
           child: Center(
             widthFactor: 1,
             heightFactor: 1,
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: surface.ink,
-                fontSize: controlText[step]!,
-                fontWeight: FontWeight.w500,
-                height: 1,
-                leadingDistribution: TextLeadingDistribution.even,
-                fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+            // Eased with the fill when the cap changes its variant or its
+            // colour, as the React cap's `color` is. Only the words: a glyph
+            // printed on the cap keeps the colour it had.
+            child: PlassInk(
+              color: surface.ink,
+              icons: false,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  fontSize: controlText[step]!,
+                  fontWeight: FontWeight.w500,
+                  height: 1,
+                  leadingDistribution: TextLeadingDistribution.even,
+                  fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+                ),
+                maxLines: 1,
+                softWrap: false,
+                child: child,
               ),
-              maxLines: 1,
-              softWrap: false,
-              child: child,
             ),
           ),
         ),

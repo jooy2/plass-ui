@@ -12,6 +12,7 @@ import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -373,7 +374,6 @@ class _PlButtonState extends State<PlButton> {
       padding: EdgeInsets.symmetric(horizontal: iconOnly ? 0 : paddingX[_density]![_size]!),
       child: DefaultTextStyle.merge(
         style: TextStyle(
-          color: ink,
           fontSize: fontSize,
           fontWeight: FontWeight.w600,
           // `leading-none`: the label is one line, so the line box is the type
@@ -390,11 +390,16 @@ class _PlButtonState extends State<PlButton> {
         softWrap: false,
         textAlign: TextAlign.center,
         child: IconTheme.merge(
-          data: IconThemeData(color: ink, size: glyph),
-          child: Row(
-            mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: _slots(glyph: glyph, ink: ink),
+          data: IconThemeData(size: glyph),
+          // The label and its glyphs ease to a new ink with the fill, as the
+          // React build's `color` does under the house transition.
+          child: PlassInk(
+            color: ink,
+            child: Row(
+              mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _slots(glyph: glyph),
+            ),
           ),
         ),
       ),
@@ -648,8 +653,10 @@ class _PlButtonState extends State<PlButton> {
   }
 
   /// The label and whatever flanks it, with the size's gap between them.
-  List<Widget> _slots({required double glyph, required Color ink}) {
-    final leading = widget.loading ? PlassSpinner(size: glyph, color: ink) : widget.startIcon;
+  List<Widget> _slots({required double glyph}) {
+    // The spinner reads the ink from the icon theme, so it eases with the
+    // label rather than jumping to the colour the label is easing to.
+    final leading = widget.loading ? PlassSpinner(size: glyph) : widget.startIcon;
 
     final parts = <Widget>[
       ?leading,

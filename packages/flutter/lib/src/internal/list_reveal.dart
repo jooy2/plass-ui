@@ -22,11 +22,19 @@ class PlassRowReveal {
   int _index = -1;
 
   /// Wraps the highlighted row, so where it landed can be read after layout.
-  Widget mark({required int index, required Widget child}) {
+  ///
+  /// [marked] says whether the row is the highlighted one. A list that wraps
+  /// every row and passes it keeps each row in the same place in the tree as
+  /// the highlight moves, so what the row holds is not built again from
+  /// scratch, and a row easing to its highlighted ink goes on easing. Only a
+  /// marked row is remembered.
+  Widget mark({required int index, required Widget child, bool marked = true}) {
     return Builder(
       builder: (BuildContext context) {
-        _row = context;
-        _index = index;
+        if (marked) {
+          _row = context;
+          _index = index;
+        }
 
         return child;
       },

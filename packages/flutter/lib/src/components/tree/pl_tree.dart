@@ -8,6 +8,7 @@ import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -669,20 +670,26 @@ class _TreeRow extends StatelessWidget {
             SizedBox(width: gap[size]!),
           ],
           Flexible(
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: node.disabled
-                    ? tokens.mutedFg
-                    : selected
-                    ? family.accent
-                    : tokens.fg,
-                fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
-                fontSize: controlTextLeading[size]!.size,
-                height: controlTextLeading[size]!.height,
-                leadingDistribution: TextLeadingDistribution.even,
-                overflow: TextOverflow.ellipsis,
+            // Eased with the row's tint as it is chosen, as the React row's
+            // `color` is. Only the words: a glyph in the label keeps the colour
+            // it had.
+            child: PlassInk(
+              color: node.disabled
+                  ? tokens.mutedFg
+                  : selected
+                  ? family.accent
+                  : tokens.fg,
+              icons: false,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  fontWeight: selected ? FontWeight.w500 : FontWeight.w400,
+                  fontSize: controlTextLeading[size]!.size,
+                  height: controlTextLeading[size]!.height,
+                  leadingDistribution: TextLeadingDistribution.even,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                child: node.label,
               ),
-              child: node.label,
             ),
           ),
         ],

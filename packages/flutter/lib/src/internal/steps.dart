@@ -15,6 +15,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -161,7 +162,6 @@ class PlassStepBullet extends StatelessWidget {
           child: Center(
             child: DefaultTextStyle.merge(
               style: TextStyle(
-                color: ink,
                 // The label inside the bullet is sized off the bullet rather
                 // than off the page's own text, so a number in an `xs` bullet is
                 // not the same 8px it would be in an `xl` one.
@@ -172,8 +172,13 @@ class PlassStepBullet extends StatelessWidget {
                 fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
               ),
               child: IconTheme.merge(
-                data: IconThemeData(color: ink, size: size * 0.6),
-                child: PlassContentsGroup(paints: true, child: child ?? const SizedBox.shrink()),
+                data: IconThemeData(size: size * 0.6),
+                // The number or the tick eases to its new ink as the fill
+                // does, rather than writing white on the empty bullet first.
+                child: PlassInk(
+                  color: ink,
+                  child: PlassContentsGroup(paints: true, child: child ?? const SizedBox.shrink()),
+                ),
               ),
             ),
           ),

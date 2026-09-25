@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -340,20 +341,25 @@ class _Step extends StatelessWidget {
           : tokens.mutedFg;
 
       Widget content = DefaultTextStyle.merge(
-        style: TextStyle(color: ink, fontWeight: current ? FontWeight.w500 : null),
+        style: TextStyle(fontWeight: current ? FontWeight.w500 : null),
         maxLines: 1,
         softWrap: false,
         overflow: TextOverflow.ellipsis,
         child: IconTheme.merge(
-          data: IconThemeData(color: ink, size: controlText[size]! * iconScale),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: gap[size]!,
-            children: <Widget>[
-              if (item.startIcon != null) slot(item.startIcon!),
-              Flexible(child: item.label),
-              if (item.endIcon != null) slot(item.endIcon!),
-            ],
+          data: IconThemeData(size: controlText[size]! * iconScale),
+          // Eased with the wash under the pointer, as the React link's `color`
+          // is.
+          child: PlassInk(
+            color: ink,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: gap[size]!,
+              children: <Widget>[
+                if (item.startIcon != null) slot(item.startIcon!),
+                Flexible(child: item.label),
+                if (item.endIcon != null) slot(item.endIcon!),
+              ],
+            ),
           ),
         ),
       );
@@ -442,10 +448,9 @@ class _Fold extends StatelessWidget {
             borderRadius: radius,
           ),
           padding: const EdgeInsets.symmetric(horizontal: 2),
-          child: PlassGlyph(
-            PlassGlyphShape.ellipsis,
-            size: glyph,
+          child: PlassInk(
             color: state.hovered ? family.accent : muted,
+            child: PlassGlyph(PlassGlyphShape.ellipsis, size: glyph),
           ),
         );
 

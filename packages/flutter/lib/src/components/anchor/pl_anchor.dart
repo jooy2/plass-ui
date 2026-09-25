@@ -4,6 +4,7 @@ library;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -343,19 +344,25 @@ class _Row extends StatelessWidget {
           ),
           child: PlassContentsGroup(
             paints: fill != null,
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: lit ? family.accent : tokens.mutedFg,
-                fontSize: text.size,
-                height: text.height,
-                fontWeight: lit ? FontWeight.w500 : FontWeight.w400,
-                overflow: TextOverflow.ellipsis,
+            // Eased with the rule and the wash as the reader moves through
+            // the document, as the React row's `color` is. Only the words: a
+            // glyph in a label keeps the colour it had.
+            child: PlassInk(
+              color: lit ? family.accent : tokens.mutedFg,
+              icons: false,
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  fontSize: text.size,
+                  height: text.height,
+                  fontWeight: lit ? FontWeight.w500 : FontWeight.w400,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                maxLines: 1,
+                // `selected` rather than a role: a table of contents row is
+                // where the reader is *within* the document, which is what
+                // `aria-current="location"` says in the React build.
+                child: Semantics(selected: lit, child: item.label),
               ),
-              maxLines: 1,
-              // `selected` rather than a role: a table of contents row is where
-              // the reader is *within* the document, which is what
-              // `aria-current="location"` says in the React build.
-              child: Semantics(selected: lit, child: item.label),
             ),
           ),
         );

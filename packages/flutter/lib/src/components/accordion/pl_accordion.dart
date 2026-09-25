@@ -7,6 +7,7 @@ import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/fold.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -471,18 +472,24 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
                     spacing: sheetHeaderGap[size]!,
                     children: <Widget>[
                       if (item.title != null)
-                        DefaultTextStyle.merge(
-                          style: TextStyle(
-                            color: ink,
-                            fontSize: title.size,
-                            height: title.height,
-                            fontWeight: FontWeight.w600,
-                            leadingDistribution: TextLeadingDistribution.even,
+                        // Eased with the wash as the fold opens and closes, as
+                        // the React trigger's `color` is. Only the words: a
+                        // glyph in the title keeps the colour it had.
+                        PlassInk(
+                          color: ink,
+                          icons: false,
+                          child: DefaultTextStyle.merge(
+                            style: TextStyle(
+                              fontSize: title.size,
+                              height: title.height,
+                              fontWeight: FontWeight.w600,
+                              leadingDistribution: TextLeadingDistribution.even,
+                            ),
+                            maxLines: item.truncate ? 1 : null,
+                            softWrap: !item.truncate,
+                            overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
+                            child: item.title!,
                           ),
-                          maxLines: item.truncate ? 1 : null,
-                          softWrap: !item.truncate,
-                          overflow: item.truncate ? TextOverflow.ellipsis : TextOverflow.clip,
-                          child: item.title!,
                         ),
                       if (item.subtitle != null)
                         DefaultTextStyle.merge(
