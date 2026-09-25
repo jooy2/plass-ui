@@ -123,7 +123,7 @@ One panel is open at a time and it **resizes between items** rather than closing
 
 ### orientation
 
-`vertical` is a nav rail whose panels open beside it rather than under it: at the end of the line, which is the left under RTL, with each panel's top level with its item's. The arrow keys follow either way.
+`vertical` is a nav rail whose panels open beside it rather than under it: at the end of the line, which is the left under RTL, with each panel's top level with its item's. The item's chevron points that way too. The arrow keys follow either way.
 
 <Demo src="navigation-menu/orientation" :min-height="200">
 
@@ -177,7 +177,7 @@ Merged rather than replaced: the common reason to write a `rel` by hand is `nofo
 - `active` marks the destination the reader is on, as `aria-current="page"` in React and as a selected node in Flutter, where the parameter is `selected`. The word takes the accent, the same one an open panel's word takes.
 - A `disabled` item keeps its word in the row and opens nothing. It is dimmed rather than recoloured, which is what `disabled` looks like everywhere in the library.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset hangs the same reset.
-- The chevron turns rather than the panel sliding. Nothing here moves under the pointer.
+- The panel never slides. A row's chevron turns over while its panel is open, and a rail's points at the side its panel opens on. Nothing here moves under the pointer.
 
 ::: fw react
 

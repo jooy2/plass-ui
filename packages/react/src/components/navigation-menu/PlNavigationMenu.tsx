@@ -334,8 +334,18 @@ export function PlNavigationMenuItem({
             {label}
             {/* Drawn pointing down and turned when the panel is open, which is
                 the one allowance the no-transform rule makes: a glyph rotating
-                is not a control moving. */}
-            <BaseUINavigationMenu.Icon className="flex items-center [transition:rotate_var(--plass-duration)_var(--plass-ease)] data-[popup-open]:rotate-180">
+                is not a control moving. On a rail it points where the panel
+                opens, at the end of the line, and stays there while the panel
+                is open, as a submenu's chevron does; the open item says so
+                with its fill and its accent. */}
+            <BaseUINavigationMenu.Icon
+              className={cx(
+                'flex items-center',
+                orientation === 'vertical'
+                  ? '-rotate-90 rtl:rotate-90'
+                  : '[transition:rotate_var(--plass-duration)_var(--plass-ease)] data-[popup-open]:rotate-180'
+              )}
+            >
               <ChevronIcon />
             </BaseUINavigationMenu.Icon>
           </BaseUINavigationMenu.Trigger>

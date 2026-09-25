@@ -287,6 +287,7 @@ class _PlNavigationMenuState extends State<PlNavigationMenu> {
     final Widget trigger = _Trigger(
       item: item,
       open: open,
+      vertical: widget.orientation == PlassOrientation.vertical,
       size: _size,
       color: _color,
       density: _density,
@@ -332,6 +333,7 @@ class _Trigger extends StatelessWidget {
   const _Trigger({
     required this.item,
     required this.open,
+    required this.vertical,
     required this.size,
     required this.color,
     required this.density,
@@ -341,6 +343,10 @@ class _Trigger extends StatelessWidget {
 
   final PlNavigationMenuItem item;
   final bool open;
+
+  /// Whether the word is on a rail, whose panel opens beside it.
+  final bool vertical;
+
   final PlassSize size;
   final PlassColor color;
   final PlassDensity density;
@@ -390,15 +396,23 @@ class _Trigger extends StatelessWidget {
                 if (item.opensPanel)
                   // Drawn pointing down and turned when the panel is open, which
                   // is the one allowance the no-transform rule makes: a glyph
-                  // rotating is not a control moving.
+                  // rotating is not a control moving. On a rail it points where
+                  // the panel opens, at the end of the line, and stays there
+                  // while the panel is open, as a submenu's chevron does; the
+                  // open item says so with its fill and its accent.
                   AnimatedRotation(
-                    turns: open ? 0.5 : 0,
+                    turns: open && !vertical ? 0.5 : 0,
                     duration: reduceMotion ? Duration.zero : tokens.motionDuration,
                     curve: tokens.motionEase,
                     child: PlassGlyph(
                       PlassGlyphShape.chevron,
                       size: fontSize * iconScale,
                       color: ink,
+                      quarterTurns: !vertical
+                          ? 0
+                          : Directionality.of(context) == TextDirection.rtl
+                          ? 1
+                          : -1,
                     ),
                   ),
               ],

@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A vertical `PlNavigationMenu`'s chevrons point where their panels open.** A rail's panel opens beside it, at the end of the line, but every item's chevron pointed down and turned up while its panel was open. It now points at the end of the line, which is the left under a right-to-left `Directionality`, and stays there while the panel is open, as a `PlMenuSubmenu`'s chevron does; the open item still takes its fill and its accent.
+
 - **A `PlRating` made read-only, disabled or left without `onChanged` under the pointer shows the score it holds.** The hover preview stayed until the pointer left the row, so a rating of 1 went on showing the five stars the pointer was on, a score nobody could choose. It now goes as soon as the row stops being usable.
 
 - **A popup above or below its anchor hangs from the reader's start or end under RTL.** `PlassAlign.start` and `end` were read as the anchor's left and right in every writing direction, so under a right-to-left `Directionality` a `PlSelect` list, a `PlMenu`, the popup of every picker, a horizontal `PlNavigationMenu` panel, and a `PlPopover`, `PlHoverCard` or `PlTooltip` given `start` or `end` hung from the wrong edge, and a `PlTooltip`'s wedge sat at the wrong end of its plate. They now turn over with the direction, as `PlassAlign` says and as they do in the React build. Along a side edge, `start` is still the top.

@@ -123,7 +123,7 @@ PlNavigationMenu(
 
 ### orientation
 
-`vertical`은 패널이 아래가 아니라 옆으로 열리는 nav rail입니다. 패널은 줄의 끝 쪽, RTL에서는 왼쪽에 열리고 윗변을 항목의 윗변에 맞춥니다. 화살표 키는 어느 쪽이든 따라갑니다.
+`vertical`은 패널이 아래가 아니라 옆으로 열리는 nav rail입니다. 패널은 줄의 끝 쪽, RTL에서는 왼쪽에 열리고 윗변을 항목의 윗변에 맞춥니다. 항목의 셰브런도 그쪽을 가리킵니다. 화살표 키는 어느 쪽이든 따라갑니다.
 
 <Demo src="navigation-menu/orientation" :min-height="200">
 
@@ -177,7 +177,7 @@ PlNavigationMenu(
 - `active`는 독자가 지금 있는 목적지를 표시합니다. React에서는 `aria-current="page"`로, Flutter에서는 선택된 노드로 알리며 Flutter의 매개변수 이름은 `selected`입니다. 단어는 열린 패널의 단어와 같은 강조색을 띱니다.
 - `disabled` 항목은 단어를 행에 남기고 아무것도 열지 않습니다. 색을 바꾸는 대신 흐려지는데, 라이브러리 전체에서 `disabled`가 그렇게 보입니다.
 - 팝업은 `<body>` 끝으로 portal되고 positioner가 `.plass-portal`을 지닙니다. CSS reset을 범위 지정한 호스트가 같은 reset을 거는 자리가 그것입니다.
-- 패널이 미끄러지는 대신 셰브런이 돕니다. 여기서 포인터 아래에서 움직이는 것은 없습니다.
+- 패널은 미끄러지지 않습니다. 가로 행의 셰브런은 패널이 열려 있는 동안 뒤집히고, rail의 셰브런은 패널이 열리는 쪽을 가리킵니다. 여기서 포인터 아래에서 움직이는 것은 없습니다.
 
 ::: fw react
 

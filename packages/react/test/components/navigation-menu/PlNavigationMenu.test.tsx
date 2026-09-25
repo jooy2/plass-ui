@@ -370,6 +370,24 @@ describe('PlNavigationMenu', () => {
         document.documentElement.removeAttribute('dir');
       }
     });
+
+    // Turned by classes, since nothing loads Tailwind here; the stylesheet test
+    // reads the angles they come to.
+    const chevron = () => trigger().querySelector('[aria-hidden]')!;
+
+    it('points a row s chevron down, and turns it over while the panel is open', async () => {
+      await render(menu());
+
+      expect(chevron()).toHaveClass('data-[popup-open]:rotate-180');
+      expect(chevron()).not.toHaveClass('-rotate-90');
+    });
+
+    it('points a rail s chevron where its panel opens, and keeps it there', async () => {
+      await render(menu('vertical'));
+
+      expect(chevron()).toHaveClass('-rotate-90', 'rtl:rotate-90');
+      expect(chevron()).not.toHaveClass('data-[popup-open]:rotate-180');
+    });
   });
 
   describe('states', () => {

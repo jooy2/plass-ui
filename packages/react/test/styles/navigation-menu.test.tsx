@@ -579,3 +579,47 @@ describe('a PlNavigationMenu moving between panels', () => {
     }
   });
 });
+
+describe("a PlNavigationMenu item's chevron", () => {
+  beforeEach(async () => {
+    // A pointer left over the row by an earlier file would open a panel.
+    await commands.parkPointer();
+  });
+
+  const angle = (label: string) =>
+    getComputedStyle(trigger(label).querySelector<HTMLElement>('[aria-hidden]')!).rotate;
+
+  it('points down on a row, and turns over while its panel is open', async () => {
+    await render(wideNav());
+
+    expect(angle('Product')).toBe('none');
+
+    press('Product');
+    await settleOn('/a');
+
+    await expect.poll(() => angle('Product')).toBe('180deg');
+  });
+
+  it('points at the end of the line on a rail, and stays there while its panel is open', async () => {
+    await render(railNav());
+
+    expect(angle('Product')).toBe('-90deg');
+
+    press('Product');
+    await settleOn('/a');
+
+    expect(angle('Product')).toBe('-90deg');
+  });
+
+  it('points left on a rail on a page that runs right to left', async () => {
+    document.documentElement.setAttribute('dir', 'rtl');
+
+    try {
+      await render(railNav());
+
+      expect(angle('Product')).toBe('90deg');
+    } finally {
+      document.documentElement.removeAttribute('dir');
+    }
+  });
+});

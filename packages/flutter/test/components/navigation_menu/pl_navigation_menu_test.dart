@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/icons.dart';
+
 import '../../support/host.dart';
 
 List<PlNavigationMenuItem> menu({VoidCallback? onPricing, VoidCallback? onAnalytics}) {
@@ -282,6 +284,78 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Analytics'), findsNothing);
+      });
+    });
+
+    group('the chevron', () {
+      Finder chevron() => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.chevron,
+      );
+
+      /// Which way the glyph is drawn: a quarter turn from pointing down.
+      int pointing(WidgetTester tester) => tester.widget<PlassGlyph>(chevron()).quarterTurns;
+
+      /// How far it is turned over on top of that, in whole turns.
+      double turnedOver(WidgetTester tester) => tester
+          .widget<AnimatedRotation>(
+            find.ancestor(of: chevron(), matching: find.byType(AnimatedRotation)),
+          )
+          .turns;
+
+      testWidgets('points down on a row, and turns over while its panel is open', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(PlNavigationMenu(items: menu()), width: 600, height: 400, overlay: true),
+        );
+
+        expect(pointing(tester), 0);
+        expect(turnedOver(tester), 0);
+
+        await tester.tap(find.text('Product'));
+        await tester.pumpAndSettle();
+
+        expect(pointing(tester), 0);
+        expect(turnedOver(tester), 0.5);
+      });
+
+      testWidgets('points where a rail s panel opens, and stays there while it is open', (
+        WidgetTester tester,
+      ) async {
+        for (final TextDirection direction in TextDirection.values) {
+          await tester.pumpWidget(
+            host(
+              PlNavigationMenu(items: menu(), orientation: PlassOrientation.vertical),
+              width: 600,
+              height: 400,
+              overlay: true,
+              textDirection: direction,
+            ),
+          );
+
+          // The end of the line: right, and left under RTL.
+          final int end = direction == TextDirection.rtl ? 1 : -1;
+
+          expect(pointing(tester), end, reason: '$direction');
+          expect(turnedOver(tester), 0, reason: '$direction');
+
+          await tester.tap(find.text('Product'));
+          await tester.pumpAndSettle();
+
+          final Rect word = tester.getRect(find.text('Product'));
+          final Rect link = tester.getRect(find.text('Analytics'));
+
+          if (direction == TextDirection.rtl) {
+            expect(link.right, lessThan(word.left), reason: '$direction');
+          } else {
+            expect(link.left, greaterThan(word.right), reason: '$direction');
+          }
+
+          expect(pointing(tester), end, reason: '$direction');
+          expect(turnedOver(tester), 0, reason: '$direction');
+
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
       });
     });
 
