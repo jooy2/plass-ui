@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A `PlTour` closed and opened again before the frame is over stays as it was.** It was taken down after that frame whether or not it had been opened again, so it handed the focus back to what had opened it, came back up a frame later built from nothing, and took the focus to its card, away from a button the reader was on.
+
 - **A `PlWindowPane` resized as short as it goes stops at its title bar and the frame round it, and `minHeight` does not take it any shorter.** The floor was the bar alone, so a window shrunk by an edge, the resize corner or the arrow keys, or given a `minHeight` below its bar, pushed the bottom of its bar out of the frame and reported "A RenderFlex overflowed" in a debug build: by 2 logical pixels on most systems, and 4 on `windows8`.
 
 - **The bullet of a `PlStepper`, `PlTimeline` or `PlHowToSteps` step takes its new state at once when animations are turned off.** It always eased over `motionDuration`, so with `disableAnimations` on, a step that was reached still faded into its gradient and halo, where every surface changes in one frame.

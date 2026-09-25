@@ -286,7 +286,7 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
     if (widget.open != oldWidget.open) {
       // Closed after the frame, like it is opened: a layer cannot be taken down
       // in the middle of the build that asked for it.
-      widget.open ? _open() : _afterFrame(_hide);
+      widget.open ? _open() : _afterFrame(_hideIfClosed);
     }
 
     if (widget.open && widget.step != oldWidget.step) {
@@ -321,6 +321,15 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
         return;
       }
 
+      // Still up when it was closed and opened again before the frame that
+      // closed it was over, so it never went down, and the focus is wherever
+      // the reader has put it in the card.
+      if (_portal.isShowing) {
+        _reveal();
+
+        return;
+      }
+
       _returnTo ??= FocusManager.instance.primaryFocus;
       _portal.show();
       _reveal();
@@ -333,6 +342,14 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
         }
       });
     });
+  }
+
+  /// Takes the layer down once the frame that closed the tour is over, unless
+  /// it has been opened again or has left the tree by then.
+  void _hideIfClosed() {
+    if (mounted && !widget.open) {
+      _hide();
+    }
   }
 
   /// Takes the layer down, and hands the focus back to where it was before the

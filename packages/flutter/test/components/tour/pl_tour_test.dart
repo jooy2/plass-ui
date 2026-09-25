@@ -279,6 +279,62 @@ void main() {
         expect(opener.hasFocus, isTrue);
       });
 
+      testWidgets('stays as it was when it is closed and opened again in one frame', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode opener = FocusNode(debugLabel: 'opener');
+        addTearDown(opener.dispose);
+        final ValueNotifier<bool> open = ValueNotifier<bool>(false);
+        addTearDown(open.dispose);
+
+        await pump(
+          tester,
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Focus(focusNode: opener, child: const Text('Start the tour')),
+              Expanded(
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: open,
+                  builder: (BuildContext context, bool value, Widget? child) => Page(open: value),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        opener.requestFocus();
+        await tester.pump();
+        open.value = true;
+        await tester.pumpAndSettle();
+
+        // The reader has gone on from the card to its Next button.
+        final FocusNode next = Focus.of(tester.element(find.text('Next')));
+        next.requestFocus();
+        await tester.pump();
+        expect(next.hasPrimaryFocus, isTrue);
+
+        final Element card = tester.element(find.text('Narrow the list'));
+        final List<FocusNode?> moves = <FocusNode?>[];
+        void track() => moves.add(FocusManager.instance.primaryFocus);
+        FocusManager.instance.addListener(track);
+        addTearDown(() => FocusManager.instance.removeListener(track));
+
+        rebuildBeforeDeferredWork(tester, () => open.value = true);
+        open.value = false;
+        await tester.pump();
+        await tester.pump();
+        await tester.pump();
+        await tester.pumpAndSettle();
+
+        // The same card rather than one built again after a trip out of the
+        // overlay, and the focus never handed back to the opener or taken to
+        // the card on the way.
+        expect(tester.element(find.text('Narrow the list')), same(card));
+        expect(moves, isEmpty);
+        expect(next.hasPrimaryFocus, isTrue);
+      });
+
       testWidgets('draws no × and ignores Escape when it cannot be dismissed', (
         WidgetTester tester,
       ) async {
