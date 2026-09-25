@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -284,6 +285,148 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Analytics'), findsNothing);
+      });
+    });
+
+    group('the panel', () {
+      /// The frosted sheet round the link called [title].
+      Rect sheetAround(WidgetTester tester, String title) => tester.getRect(
+        find.ancestor(
+          of: find.text(title),
+          matching: find.byWidgetPredicate(
+            (Widget widget) => widget is PlassSurfaceBox && widget.surface.blur,
+          ),
+        ),
+      );
+
+      testWidgets('is as wide as its links, with their words at its start', (
+        WidgetTester tester,
+      ) async {
+        for (final TextDirection direction in TextDirection.values) {
+          await tester.pumpWidget(
+            host(
+              PlNavigationMenu(items: menu(), initialValue: 'Product'),
+              width: 700,
+              height: 500,
+              overlay: true,
+              textDirection: direction,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final Rect sheet = sheetAround(tester, 'Analytics');
+          final Rect widest = tester.getRect(find.text('Numbers over time'));
+          final Rect title = tester.getRect(find.text('Analytics'));
+          final Rect shorter = tester.getRect(find.text('Billing'));
+
+          // As much room either side of the widest line as the other, so the
+          // sheet ends where its links do rather than at a width of its own.
+          expect(sheet.width, lessThan(560), reason: '$direction');
+          expect(
+            widest.left - sheet.left,
+            moreOrLessEquals(sheet.right - widest.right),
+            reason: '$direction',
+          );
+
+          // And every link's words start at the same edge.
+          if (direction == TextDirection.rtl) {
+            expect(shorter.right, title.right, reason: '$direction');
+          } else {
+            expect(shorter.left, title.left, reason: '$direction');
+          }
+
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
+      });
+
+      testWidgets('lays two columns out as wide as the wider of them', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            const PlNavigationMenu(
+              initialValue: 'Product',
+              items: <PlNavigationMenuItem>[
+                PlNavigationMenuItem(
+                  label: 'Product',
+                  columns: 2,
+                  links: <PlNavigationMenuLink>[
+                    PlNavigationMenuLink(title: 'Analytics'),
+                    PlNavigationMenuLink(title: 'Billing'),
+                  ],
+                ),
+              ],
+            ),
+            width: 700,
+            height: 500,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final Rect sheet = sheetAround(tester, 'Billing');
+        final Rect wider = tester.getRect(find.text('Analytics'));
+        final Rect narrower = tester.getRect(find.text('Billing'));
+
+        expect(sheet.width, lessThan(560));
+        // The second column starts as far past the first as the first's own
+        // words run, plus the same room: the two are one width.
+        expect(narrower.left - wider.left, greaterThan(wider.width));
+        expect(
+          wider.left - sheet.left,
+          moreOrLessEquals(sheet.right - (narrower.left + wider.width)),
+        );
+      });
+
+      testWidgets('stops at 560 and wraps a line longer than that', (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(1200, 600);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        const String long = 'A description long enough that it cannot sit on one line in any panel';
+
+        await tester.pumpWidget(
+          host(
+            const PlNavigationMenu(
+              initialValue: 'Product',
+              items: <PlNavigationMenuItem>[
+                PlNavigationMenuItem(
+                  label: 'Product',
+                  links: <PlNavigationMenuLink>[
+                    PlNavigationMenuLink(title: 'Analytics', description: long),
+                  ],
+                ),
+              ],
+            ),
+            width: 1100,
+            height: 500,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(sheetAround(tester, 'Analytics').width, 560);
+        expect(
+          tester.getRect(find.text(long)).height,
+          greaterThan(tester.getRect(find.text('Analytics')).height),
+        );
+      });
+
+      testWidgets('stays on an 800-wide screen beside a rail', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlNavigationMenu(
+              items: menu(),
+              orientation: PlassOrientation.vertical,
+              initialValue: 'Product',
+            ),
+            width: 240,
+            height: 400,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(tester.view.physicalSize.width / tester.view.devicePixelRatio, 800);
+        expect(sheetAround(tester, 'Analytics').right, lessThanOrEqualTo(800));
       });
     });
 

@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A `PlNavigationMenu` panel is as wide as its links, up to 560, with their words at its start.** Every panel took the whole 560 whatever its links were, with each link's words in the middle of its row, so a panel of two short links was a wide sheet with its words down the middle, and a rail's panel ran off an 800-wide screen. A panel is now as wide as its widest link, and a panel with `columns` as wide as its widest column in each, as the React panel is; a line longer than 560 wraps.
+
 - **A vertical `PlNavigationMenu`'s chevrons point where their panels open.** A rail's panel opens beside it, at the end of the line, but every item's chevron pointed down and turned up while its panel was open. It now points at the end of the line, which is the left under a right-to-left `Directionality`, and stays there while the panel is open, as a `PlMenuSubmenu`'s chevron does; the open item still takes its fill and its accent.
 
 - **A `PlRating` made read-only, disabled or left without `onChanged` under the pointer shows the score it holds.** The hover preview stayed until the pointer left the row, so a rating of 1 went on showing the five stars the pointer was on, a score nobody could choose. It now goes as soon as the row stops being usable.

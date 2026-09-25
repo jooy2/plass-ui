@@ -532,20 +532,25 @@ class _Panel extends StatelessWidget {
     return MouseRegion(
       onEnter: (PointerEnterEvent event) => onEnter(),
       onExit: (PointerExitEvent event) => onExit(),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: PlassSurfaceBox(
-          // The same frosted sheet a `PlMenu` and a `PlPopover` draw.
-          surface: PlassSurface(
-            fill: tokens.glassPress,
-            border: Border.all(color: tokens.glassLine, width: hairline),
-            ink: tokens.fg,
-            blur: true,
-            insets: <PlassInsetShadow>[tokens.glossGlass],
-            shadows: tokens.elevation(3),
+      // As wide as its links, up to 560, as the React panel is. A stretched
+      // column is as wide as whatever it is given, and a popup is given the
+      // screen.
+      child: IntrinsicWidth(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: PlassSurfaceBox(
+            // The same frosted sheet a `PlMenu` and a `PlPopover` draw.
+            surface: PlassSurface(
+              fill: tokens.glassPress,
+              border: Border.all(color: tokens.glassLine, width: hairline),
+              ink: tokens.fg,
+              blur: true,
+              insets: <PlassInsetShadow>[tokens.glossGlass],
+              shadows: tokens.elevation(3),
+            ),
+            borderRadius: BorderRadius.circular(tokens.radii[size]!),
+            child: Padding(padding: EdgeInsets.all(pad), child: body),
           ),
-          borderRadius: BorderRadius.circular(tokens.radii[size]!),
-          child: Padding(padding: EdgeInsets.all(pad), child: body),
         ),
       ),
     );
@@ -586,11 +591,12 @@ class _Link extends StatelessWidget {
       onTap: choose,
       interactive: link.onPressed != null,
       builder: (BuildContext context, PlassInteraction state) {
+        // Across the whole row, so the words start at its start edge in a
+        // panel as wide as a longer link: the surface centres what it holds.
         Widget row = Padding(
           padding: EdgeInsets.symmetric(horizontal: paddingX[density]![size]!, vertical: 8),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
             spacing: gap[size]!,
             children: <Widget>[
               ?link.startIcon,
