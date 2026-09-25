@@ -98,7 +98,7 @@ There is one place CSS answers it instead of JavaScript, and it is the exception
 All of them read `Directionality.of(context)`, and they fall into three kinds:
 
 - **A pointer or an arrow key against a physical axis.** A drag's `delta.dx` grows to the right in both directions, so `PlPanes`, `PlSidebar`, `PlSlider` and `PlScrollZone` turn it round, and with it the left/right arrow keys, which mean "further along the line" rather than "further right".
-- **A corner that has to be handed over resolved.** `PlButtonGroup`'s squared edges, `PlChatBubble`'s tail and a date range's open and closed ends are written as a `BorderRadius` rather than as a `BorderRadiusDirectional`, because the same value reaches a `ClipRRect`, a `BoxDecoration` and a painter, and the painter takes a resolved one.
+- **A corner or an alignment that has to be handed over resolved.** `PlButtonGroup`'s squared edges, `PlChatBubble`'s tail and a date range's open and closed ends are written as a `BorderRadius` rather than as a `BorderRadiusDirectional`, because the same value reaches a `ClipRRect`, a `BoxDecoration` and a painter, and the painter takes a resolved one. A popup's `align` above or below its anchor is resolved the same way, because the `CompositedTransformFollower` that places the popup takes only an `Alignment`.
 - **A `PlassSide` chosen for the reader.** `PlassSide` names an edge of the screen, so a `PlNavigationMenu` picks which edge its panel flies out towards rather than always taking the right.
 
 A **`PlSlider`** is worth naming, because it turns over more than a margin: the paint, the press mapping and the left/right arrow keys mirror together, and a control where only some of them did would be arguing with itself.

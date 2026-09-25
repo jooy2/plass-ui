@@ -98,7 +98,7 @@ CSS가 JavaScript 대신 답하는 자리가 한 곳 있고, 그것이 규칙을
 전부 `Directionality.of(context)`를 읽고, 세 종류로 나뉩니다.
 
 - **물리적인 축을 상대하는 포인터와 화살표 키.** 드래그의 `delta.dx`는 어느 방향에서든 오른쪽으로 커지므로 `PlPanes` · `PlSidebar` · `PlSlider` · `PlScrollZone`이 그것을 뒤집습니다. 좌우 화살표 키도 함께 뒤집힙니다. "더 오른쪽으로"가 아니라 "선을 따라 더 멀리"라는 뜻이기 때문입니다.
-- **풀린 채로 넘겨야 하는 모서리.** `PlButtonGroup`의 각진 가장자리, `PlChatBubble`의 꼬리, 날짜 range의 시작과 끝은 `BorderRadiusDirectional`이 아니라 `BorderRadius`로 적혀 있습니다. 같은 값이 `ClipRRect`와 `BoxDecoration`, 그리고 painter에 닿는데 painter는 풀린 것을 받기 때문입니다.
+- **풀린 채로 넘겨야 하는 모서리와 정렬.** `PlButtonGroup`의 각진 가장자리, `PlChatBubble`의 꼬리, 날짜 range의 시작과 끝은 `BorderRadiusDirectional`이 아니라 `BorderRadius`로 적혀 있습니다. 같은 값이 `ClipRRect`와 `BoxDecoration`, 그리고 painter에 닿는데 painter는 풀린 것을 받기 때문입니다. 앵커 위나 아래에 뜨는 popup의 `align`도 같은 식으로 풀어 넘깁니다. popup을 놓는 `CompositedTransformFollower`가 `Alignment`만 받기 때문입니다.
 - **읽는 사람에 맞춰 고르는 `PlassSide`.** `PlassSide`는 화면의 가장자리를 가리키므로, `PlNavigationMenu`는 패널이 날아갈 가장자리를 늘 오른쪽으로 두는 대신 그때그때 고릅니다.
 
 **`PlSlider`는** 따로 짚을 만합니다. 여백 하나보다 많은 것이 함께 돌아가기 때문입니다. 그림과 누른 자리의 해석, 좌우 화살표 키가 한꺼번에 뒤집히고, 그중 일부만 뒤집히는 컨트롤은 자기 자신과 어긋나 있는 컨트롤입니다.

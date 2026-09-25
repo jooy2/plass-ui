@@ -8,12 +8,14 @@ import '../../support/host.dart';
 
 Widget _tooltip({
   PlassSide side = PlassSide.top,
+  PlassAlign align = PlassAlign.center,
   PlassSize size = PlassSize.sm,
   bool arrow = true,
   bool disabled = false,
   Duration delay = const Duration(milliseconds: 600),
   ValueChanged<bool>? onOpenChanged,
   Widget content = const Text('Copy'),
+  TextDirection textDirection = TextDirection.ltr,
 }) {
   return host(
     Center(
@@ -21,6 +23,7 @@ Widget _tooltip({
         content: content,
         size: size,
         side: side,
+        align: align,
         arrow: arrow,
         disabled: disabled,
         delay: delay,
@@ -29,6 +32,7 @@ Widget _tooltip({
       ),
     ),
     overlay: true,
+    textDirection: textDirection,
   );
 }
 
@@ -209,6 +213,36 @@ void main() {
         expect(wedge.top, greaterThan(plate.bottom));
         expect(wedge.bottom, lessThanOrEqualTo(tester.getRect(find.text('Trigger')).top));
       });
+
+      for (final TextDirection direction in TextDirection.values) {
+        testWidgets('the wedge points at the start of the trigger in $direction', (
+          WidgetTester tester,
+        ) async {
+          // A plate wider than its trigger, so a wedge at the wrong end of it
+          // points past the trigger altogether.
+          await tester.pumpWidget(
+            _tooltip(
+              delay: Duration.zero,
+              align: PlassAlign.start,
+              content: const Text('Copy the link to this page'),
+              textDirection: direction,
+            ),
+          );
+          await _rest(tester);
+          await tester.pumpAndSettle();
+
+          final wedge = tester.getRect(find.byType(CustomPaint).last).center.dx;
+          final trigger = tester.getRect(find.text('Trigger'));
+
+          expect(wedge, inInclusiveRange(trigger.left, trigger.right));
+          expect(
+            wedge,
+            direction == TextDirection.ltr
+                ? lessThan(trigger.center.dx)
+                : greaterThan(trigger.center.dx),
+          );
+        });
+      }
 
       testWidgets('and is left out when it is turned off', (WidgetTester tester) async {
         await tester.pumpWidget(_tooltip(delay: Duration.zero));

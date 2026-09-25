@@ -526,12 +526,16 @@ class _PlTooltipState extends State<PlTooltip> {
     );
 
     // Inset by the corner radius so an `align: start` wedge points at the
-    // trigger rather than at the plate's own rounded corner.
+    // trigger rather than at the plate's own rounded corner. Along a top or a
+    // bottom edge, the start is the reader's, as it is for the plate.
     final slot = Padding(
       padding: vertical
           ? EdgeInsets.symmetric(horizontal: radius)
           : EdgeInsets.symmetric(vertical: radius),
-      child: Align(alignment: vertical ? Alignment(along, 0) : Alignment(0, along), child: wedge),
+      child: Align(
+        alignment: vertical ? AlignmentDirectional(along, 0) : Alignment(0, along),
+        child: wedge,
+      ),
     );
 
     // A hair of overlap, so the wedge's base and the plate's edge are one line

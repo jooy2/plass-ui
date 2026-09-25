@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A popup above or below its anchor hangs from the reader's start or end under RTL.** `PlassAlign.start` and `end` were read as the anchor's left and right in every writing direction, so under a right-to-left `Directionality` a `PlSelect` list, a `PlMenu`, the popup of every picker, a horizontal `PlNavigationMenu` panel, and a `PlPopover`, `PlHoverCard` or `PlTooltip` given `start` or `end` hung from the wrong edge, and a `PlTooltip`'s wedge sat at the wrong end of its plate. They now turn over with the direction, as `PlassAlign` says and as they do in the React build. Along a side edge, `start` is still the top.
+
 - **A `PlTour` closed and opened again before the frame is over stays as it was.** It was taken down after that frame whether or not it had been opened again, so it handed the focus back to what had opened it, came back up a frame later built from nothing, and took the focus to its card, away from a button the reader was on.
 
 - **A `PlWindowPane` resized as short as it goes stops at its title bar and the frame round it, and `minHeight` does not take it any shorter.** The floor was the bar alone, so a window shrunk by an edge, the resize corner or the arrow keys, or given a `minHeight` below its bar, pushed the bottom of its bar out of the frame and reported "A RenderFlex overflowed" in a debug build: by 2 logical pixels on most systems, and 4 on `windows8`.

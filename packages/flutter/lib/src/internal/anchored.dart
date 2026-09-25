@@ -320,7 +320,12 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
 
   /// Where on the anchor the popup hangs from, and where on the popup that point
   /// lands. The pair is what places it; the offset is only the standoff.
-  (Alignment, Alignment, Offset) get _anchors {
+  ///
+  /// Along a top or a bottom edge, `start` and `end` are the reader's, so the
+  /// right and the left under RTL, and they are resolved against [direction]
+  /// here because the follower takes a resolved alignment. Along a side edge
+  /// they are the top and the bottom in either direction.
+  (Alignment, Alignment, Offset) _anchors(TextDirection direction) {
     final along = switch (widget.align) {
       PlassAlign.start => -1.0,
       PlassAlign.center => 0.0,
@@ -328,8 +333,16 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     };
 
     return switch (_side) {
-      PlassSide.top => (Alignment(along, -1), Alignment(along, 1), Offset(0, -widget.offset)),
-      PlassSide.bottom => (Alignment(along, 1), Alignment(along, -1), Offset(0, widget.offset)),
+      PlassSide.top => (
+        AlignmentDirectional(along, -1).resolve(direction),
+        AlignmentDirectional(along, 1).resolve(direction),
+        Offset(0, -widget.offset),
+      ),
+      PlassSide.bottom => (
+        AlignmentDirectional(along, 1).resolve(direction),
+        AlignmentDirectional(along, -1).resolve(direction),
+        Offset(0, widget.offset),
+      ),
       PlassSide.left => (Alignment(-1, along), Alignment(1, along), Offset(-widget.offset, 0)),
       PlassSide.right => (Alignment(1, along), Alignment(-1, along), Offset(widget.offset, 0)),
     };
@@ -362,7 +375,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   }
 
   Widget _buildPopup(BuildContext context) {
-    final (targetAnchor, followerAnchor, standoff) = _anchors;
+    final (targetAnchor, followerAnchor, standoff) = _anchors(Directionality.of(context));
 
     Widget popup = FadeTransition(
       opacity: _opacity,
