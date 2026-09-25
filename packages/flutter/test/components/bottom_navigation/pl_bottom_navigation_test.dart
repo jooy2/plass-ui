@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -47,6 +48,20 @@ class _HarnessState extends State<_Harness> {
       onChanged: (String next) => setState(() => _value = next),
     );
   }
+}
+
+/// A glyph with a `State` of its own: built again from scratch, it is a
+/// different object.
+class _Probe extends StatefulWidget {
+  const _Probe();
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => const SizedBox(width: 16, height: 16);
 }
 
 /// A home indicator of a stated height.
@@ -256,7 +271,46 @@ void main() {
         await tester.pump();
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 'home');
-        expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.5);
+        // The bar is dimmed as one, outside everything in it.
+        expect(tester.widget<PlassFiltered>(find.byType(PlassFiltered).first).opacity, 0.5);
+      });
+
+      testWidgets('adds no layer to an available bar for its opacity', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+
+        expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+      });
+
+      testWidgets('keeps what its destinations hold as the whole bar is disabled', (
+        WidgetTester tester,
+      ) async {
+        Widget bar({bool disabled = false}) {
+          return host(
+            PlBottomNavigation<String>(
+              items: const <PlBottomNavigationItem<String>>[
+                PlBottomNavigationItem<String>(value: 'home', label: 'Home', icon: _Probe()),
+                PlBottomNavigationItem<String>(value: 'search', label: 'Search'),
+              ],
+              value: 'home',
+              disabled: disabled,
+              onChanged: (String next) {},
+            ),
+            width: 360,
+          );
+        }
+
+        await tester.pumpWidget(bar());
+        final State<_Probe> held = tester.state(find.byType(_Probe));
+
+        for (final (String reason, Widget next) in <(String, Widget)>[
+          ('disabled', bar(disabled: true)),
+          ('enabled again', bar()),
+        ]) {
+          await tester.pumpWidget(next);
+          await tester.pumpAndSettle();
+
+          expect(tester.state(find.byType(_Probe)), same(held), reason: reason);
+        }
       });
     });
 

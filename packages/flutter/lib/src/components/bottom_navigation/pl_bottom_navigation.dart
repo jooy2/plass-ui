@@ -253,9 +253,13 @@ class PlBottomNavigation<T> extends StatelessWidget {
           : row,
     );
 
-    if (disabled) {
-      bar = Opacity(opacity: disabledOpacity, child: bar);
-    }
+    // In the tree whether the bar is disabled or not, with only its opacity
+    // changing, for the reason `plassStateFilter` gives: wrapped round the bar
+    // only while it is disabled, it would build the sheet and every destination
+    // in it again from scratch. Painted straight onto the canvas while the bar
+    // is available, rather than through an `Opacity` at 1, which is a layer all
+    // the same.
+    bar = PlassFiltered(colorFilter: null, opacity: disabled ? disabledOpacity : 1, child: bar);
 
     return Semantics(container: true, explicitChildNodes: true, label: label, child: bar);
   }

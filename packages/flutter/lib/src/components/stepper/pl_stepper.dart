@@ -379,39 +379,55 @@ class _Step extends StatelessWidget {
 
     inner = Padding(padding: const EdgeInsets.all(4), child: inner);
 
-    if (reachable) {
-      // Held in a `final` of its own before the reassignment below. A closure
-      // captures the *variable*, so a builder that read `inner` would read
-      // whatever `inner` had become by the time it ran — which is the
-      // `PlassInteractive` holding the builder, and a widget that contains
-      // itself is a stack overflow rather than a layout.
-      final Widget content = inner;
+    // Held in a `final` of its own before the reassignment below. A closure
+    // captures the *variable*, so a builder that read `inner` would read
+    // whatever `inner` had become by the time it ran — which is the
+    // `PlassInteractive` holding the builder, and a widget that contains itself
+    // is a stack overflow rather than a layout.
+    final Widget content = inner;
 
-      inner = PlassInteractive(
-        onTap: onPressed,
-        builder: (BuildContext context, PlassInteraction state) {
-          // The ring's `CustomPaint` stays in the tree and only its painter
-          // comes and goes. Put in only while focused, it moved the step a
-          // level down the tree, which built its bullet and its words again
-          // every time the focus arrived or left.
-          final bool washed = state.hovered || state.pressed;
+    // The same widgets above the step whether it can be pressed or not, with
+    // only their settings switching, for the reason `plassStateFilter` gives:
+    // wrapped in one set while reachable and in another while disabled, the
+    // step would move to a new place in the tree as `disabled` changed, or as
+    // a linear stepper's reader came level with it, and its bullet and its
+    // words would be built again from scratch. A step out of reach takes no
+    // focus and claims no tap, so a press on it goes to whatever is around it,
+    // as it did with nothing wrapped round it.
+    inner = PlassInteractive(
+      onTap: onPressed,
+      enabled: reachable,
+      interactive: reachable,
+      pressable: reachable,
+      cursor: reachable ? SystemMouseCursors.click : MouseCursor.defer,
+      builder: (BuildContext context, PlassInteraction state) {
+        // The ring's `CustomPaint` stays in the tree and only its painter
+        // comes and goes. Put in only while focused, it moved the step a
+        // level down the tree, which built its bullet and its words again
+        // every time the focus arrived or left.
+        final bool washed = state.hovered || state.pressed;
 
-          return CustomPaint(
-            foregroundPainter: state.focusVisible
-                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
-                : null,
-            child: AnimatedContainer(
-              duration: tokens.motionDuration,
-              curve: tokens.motionEase,
-              decoration: BoxDecoration(color: washed ? family.soft : null, borderRadius: radius),
-              child: PlassContentsGroup(paints: washed, child: content),
-            ),
-          );
-        },
-      );
-    } else if (step.disabled) {
-      inner = Opacity(opacity: 0.5, child: inner);
-    }
+        return CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+              : null,
+          child: AnimatedContainer(
+            duration: tokens.motionDuration,
+            curve: tokens.motionEase,
+            decoration: BoxDecoration(color: washed ? family.soft : null, borderRadius: radius),
+            child: PlassContentsGroup(paints: washed, child: content),
+          ),
+        );
+      },
+    );
+
+    // Painted straight onto the canvas while the step is available, rather
+    // than through an `Opacity` at 1, which is a layer all the same.
+    inner = PlassFiltered(
+      colorFilter: null,
+      opacity: step.disabled ? disabledOpacity : 1,
+      child: inner,
+    );
 
     // `selected` marks the current step, which is the nearest thing the
     // framework has to the `aria-current="step"` the React build sets — and it

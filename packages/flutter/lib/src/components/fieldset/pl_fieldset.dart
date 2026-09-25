@@ -104,11 +104,18 @@ class PlFieldset extends StatelessWidget {
       ],
     );
 
-    if (disabled) {
-      group = ExcludeFocus(
-        child: IgnorePointer(child: plassStateFilter(child: group, disabled: true)),
-      );
-    }
+    // In the tree whether the group is disabled or not, with only their flags
+    // switching, for the reason `plassStateFilter` gives: wrapped round the
+    // group only while it is disabled, every field in it would be built again
+    // from scratch each time `disabled` changed, and lose what was typed into
+    // it. A group has no light of its own to answer the pointer with.
+    group = ExcludeFocus(
+      excluding: disabled,
+      child: IgnorePointer(
+        ignoring: disabled,
+        child: plassStateFilter(child: group, disabled: disabled, lit: false),
+      ),
+    );
 
     return Semantics(container: true, explicitChildNodes: true, child: group);
   }

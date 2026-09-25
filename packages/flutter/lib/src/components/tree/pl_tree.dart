@@ -684,7 +684,7 @@ class _TreeRow extends StatelessWidget {
       ),
     );
 
-    Widget body = Semantics(
+    final Widget body = Semantics(
       container: true,
       button: onPressed != null,
       enabled: !node.disabled,
@@ -727,10 +727,16 @@ class _TreeRow extends StatelessWidget {
       ),
     );
 
-    if (node.disabled) {
-      body = Opacity(opacity: 0.5, child: body);
-    }
-
-    return body;
+    // In the tree whether the node is disabled or not, with only its opacity
+    // changing, for the reason `plassStateFilter` gives: wrapped round the row
+    // only while the node is disabled, it would build the row and what it holds
+    // again from scratch. Painted straight onto the canvas while the node is
+    // available, rather than through an `Opacity` at 1, which is a layer all
+    // the same.
+    return PlassFiltered(
+      colorFilter: null,
+      opacity: node.disabled ? disabledOpacity : 1,
+      child: body,
+    );
   }
 }

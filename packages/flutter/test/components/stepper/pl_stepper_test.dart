@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -292,6 +294,67 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(pressed, isNull);
+      });
+
+      testWidgets('keeps a step’s label as it is disabled and enabled again', (
+        WidgetTester tester,
+      ) async {
+        Widget stepper({bool disabled = false}) {
+          return PlStepper(
+            steps: <PlStep>[
+              const PlStep(label: Text('Account')),
+              PlStep(label: const _Probe('Verify'), disabled: disabled),
+            ],
+            active: 0,
+            linear: false,
+            onActiveChanged: (int _) {},
+          );
+        }
+
+        double dim() {
+          return tester
+              .widget<PlassFiltered>(
+                find.ancestor(of: find.byType(_Probe), matching: find.byType(PlassFiltered)).first,
+              )
+              .opacity;
+        }
+
+        await _pump(tester, stepper());
+        final State<_Probe> held = tester.state(find.byType(_Probe));
+
+        expect(dim(), 1);
+
+        await _pump(tester, stepper(disabled: true));
+
+        expect(dim(), disabledOpacity);
+        expect(tester.state(find.byType(_Probe)), same(held), reason: 'disabled');
+
+        await _pump(tester, stepper());
+
+        expect(tester.state(find.byType(_Probe)), same(held), reason: 'enabled again');
+      });
+
+      testWidgets('keeps a step’s label as the reader comes level with it', (
+        WidgetTester tester,
+      ) async {
+        Widget stepper(int active) {
+          return PlStepper(
+            steps: const <PlStep>[
+              PlStep(label: Text('Account')),
+              PlStep(label: _Probe('Verify')),
+            ],
+            active: active,
+            onActiveChanged: (int _) {},
+          );
+        }
+
+        await _pump(tester, stepper(0));
+        final State<_Probe> held = tester.state(find.byType(_Probe));
+
+        // Within reach now, and so pressable, where it was out of reach before.
+        await _pump(tester, stepper(1));
+
+        expect(tester.state(find.byType(_Probe)), same(held));
       });
 
       testWidgets('is inert without an onActiveChanged', (WidgetTester tester) async {

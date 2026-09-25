@@ -2,6 +2,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/disposal.dart';
 import '../../support/host.dart';
@@ -22,6 +24,20 @@ const List<PlTreeNode> items = <PlTreeNode>[
   PlTreeNode(id: 'readme', label: Text('README.md')),
   PlTreeNode(id: 'lock', label: Text('package-lock.json'), disabled: true),
 ];
+
+/// A label with a `State` of its own: built again from scratch, it is a
+/// different object.
+class _Probe extends StatefulWidget {
+  const _Probe();
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => const Text('Probe');
+}
 
 /// A tree that keeps its own open and selected sets, which is what a caller
 /// writes and what makes the interaction tests about the widget.
@@ -457,6 +473,43 @@ void main() {
         // It is left in the tree rather than removed — a hierarchy with a hole
         // in it is one nobody can read — but the arrows walk past it.
         expect(_focused(), equals('readme'));
+      });
+
+      testWidgets('keeps what it holds as it is disabled and enabled again', (
+        WidgetTester tester,
+      ) async {
+        Widget tree({bool disabled = false}) {
+          return host(
+            PlTree(
+              items: <PlTreeNode>[PlTreeNode(id: 'a', label: const _Probe(), disabled: disabled)],
+            ),
+            width: 400,
+          );
+        }
+
+        double dim() {
+          return tester
+              .widget<PlassFiltered>(
+                find.ancestor(of: find.byType(_Probe), matching: find.byType(PlassFiltered)).first,
+              )
+              .opacity;
+        }
+
+        await tester.pumpWidget(tree());
+        final State<_Probe> held = tester.state(find.byType(_Probe));
+
+        expect(dim(), 1);
+
+        await tester.pumpWidget(tree(disabled: true));
+        await tester.pumpAndSettle();
+
+        expect(dim(), disabledOpacity);
+        expect(tester.state(find.byType(_Probe)), same(held), reason: 'disabled');
+
+        await tester.pumpWidget(tree());
+        await tester.pumpAndSettle();
+
+        expect(tester.state(find.byType(_Probe)), same(held), reason: 'enabled again');
       });
     });
 

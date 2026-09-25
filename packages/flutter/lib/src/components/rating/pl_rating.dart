@@ -370,16 +370,20 @@ class _PlRatingState extends State<PlRating> {
               child: widget.emptyIcon ?? PlassGlyph(PlassGlyphShape.starOutline, size: box),
             ),
           ),
-          if (fill > 0)
-            Positioned.fill(
-              child: ClipRect(
-                clipper: _FractionClipper(fraction: fill, direction: direction),
-                child: IconTheme.merge(
-                  data: IconThemeData(color: family.accent, size: box),
-                  child: widget.icon ?? PlassGlyph(PlassGlyphShape.star, size: box),
-                ),
+          // In the tree on an empty star too, cropped to nothing. Put in only
+          // once the star had some fill, it moved the hit regions after it to
+          // a new place in the stack, so they were built again from scratch
+          // every time the fill crossed zero, on every star the pointer ran
+          // across, and so was the caller's glyph.
+          Positioned.fill(
+            child: ClipRect(
+              clipper: _FractionClipper(fraction: fill, direction: direction),
+              child: IconTheme.merge(
+                data: IconThemeData(color: family.accent, size: box),
+                child: widget.icon ?? PlassGlyph(PlassGlyphShape.star, size: box),
               ),
             ),
+          ),
           if (!widget.readOnly)
             Positioned.fill(
               child: Row(

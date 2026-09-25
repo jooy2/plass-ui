@@ -107,8 +107,8 @@ void main() {
       testWidgets('fills whole stars and leaves the rest empty', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlRating(value: 3)));
 
-        // Only the filled stars draw a clip at all.
-        expect(fills(tester), <double>[1, 1, 1]);
+        // An empty star's filled glyph is cropped to nothing.
+        expect(fills(tester), <double>[1, 1, 1, 0, 0]);
       });
 
       testWidgets('draws a fraction the reader could not have chosen', (WidgetTester tester) async {
@@ -129,7 +129,33 @@ void main() {
       testWidgets('draws nothing at all below zero', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlRating(value: -4, count: 2)));
 
-        expect(fills(tester), isEmpty);
+        expect(fills(tester), <double>[0, 0]);
+      });
+
+      testWidgets('keeps a star’s glyph and its choices as its fill crosses zero', (
+        WidgetTester tester,
+      ) async {
+        Widget rating(double value) {
+          return host(PlRating(value: value, icon: const _Probe(), onChanged: (double _) {}));
+        }
+
+        // The first star's filled glyph, and its one choice.
+        State glyph() => tester.state(find.byType(_Probe).first);
+        State choice() => tester.state(find.byType(RawGestureDetector).first);
+
+        await tester.pumpWidget(rating(1));
+        final State heldGlyph = glyph();
+        final State heldChoice = choice();
+
+        for (final (String reason, Widget next) in <(String, Widget)>[
+          ('emptied', rating(0)),
+          ('filled again', rating(1)),
+        ]) {
+          await tester.pumpWidget(next);
+
+          expect(glyph(), same(heldGlyph), reason: reason);
+          expect(choice(), same(heldChoice), reason: reason);
+        }
       });
 
       testWidgets('fills from the trailing edge under RTL', (WidgetTester tester) async {
