@@ -25,6 +25,7 @@ import {
   type TimeScale
 } from '../../internal/chart.js';
 import { srOnlyClasses } from '../../internal/styles.js';
+import { textOf } from '../../internal/text.js';
 import type { PlassChartCategory, PlassTimelinePoint, PlassTimelineSeries } from '../../types.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
@@ -214,34 +215,33 @@ export function PlTimelineChart({
       }
 
       const own = one.span.label;
-      const items: ChartTooltipItem[] = [
-        {
-          seriesIndex: mark.series,
-          // Only under the span's own name. Under the row's, the row would be
-          // written twice and read twice, "Design, Design: …".
-          name: own === undefined || own === null ? undefined : names[mark.series],
-          color: one.color ?? colors[mark.series],
-          // A duration, which is the one number a span has. It is what a
-          // caller's own `tooltip.render` gets handed.
-          value: one.to - one.from,
-          formatted: `${formatTimeValue(one.from, scale.unit, locale, withDate)} – ${formatTimeValue(
-            one.to,
-            scale.unit,
-            locale,
-            withDate
-          )}`
-        }
-      ];
+      const named = own !== undefined && own !== null;
+      const reading: ChartTooltipItem = {
+        seriesIndex: mark.series,
+        color: one.color ?? colors[mark.series],
+        // A duration, which is the one number a span has. It is what a
+        // caller's own `tooltip.render` gets handed.
+        value: one.to - one.from,
+        formatted: `${formatTimeValue(one.from, scale.unit, locale, withDate)} – ${formatTimeValue(
+          one.to,
+          scale.unit,
+          locale,
+          withDate
+        )}`
+      };
 
       // The span names itself when it can, and the row is then the second line
-      // rather than a repeat of the first. A caller's own `tooltip.render` is
-      // handed the row and its place, the category the span sits in, as a
-      // bar's is handed its column, rather than the span's place along it.
+      // rather than a repeat of the first: only under the span's own name,
+      // because under the row's the row would be written twice and read twice,
+      // "Design, Design: …". A caller's own `tooltip.render` is handed the row
+      // and its place, the category the span sits in, as a bar's is handed its
+      // column, and so the span's own name, in words, is its item's `name`.
       return {
-        heading: own ?? names[mark.series],
-        items,
+        heading: named ? own : names[mark.series],
+        items: [{ ...reading, name: named ? names[mark.series] : undefined }],
         index: mark.series,
-        category: names[mark.series]
+        category: names[mark.series],
+        renderItems: [{ ...reading, name: named ? textOf(own) || undefined : undefined }]
       };
     },
     [spans, names, colors, scale.unit, locale, withDate]

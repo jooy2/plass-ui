@@ -889,6 +889,10 @@ export type PlassChartTooltipMode = 'index' | 'item' | 'nearest' | 'none';
 export interface PlassChartTooltipItem {
   /** Its place in the `series` array — the same index its colour came from. */
   seriesIndex: number;
+  /**
+   * The series' name. On a `PlTimelineChart`, whose `category` is the row, it
+   * is the span's own `label` in words, and absent for a span with none.
+   */
   name?: string;
   color: string;
   value: number | null;

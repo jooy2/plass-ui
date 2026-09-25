@@ -342,6 +342,55 @@ describe('PlTimelineChart', () => {
       await expect.poll(status).toMatch(/^Implementation,/);
       expect(card()).toBe('Build 1 1');
     });
+
+    it('hands a custom card the span s own name as its item s name', async () => {
+      const screen = await render(
+        <PlTimelineChart
+          label="Plan"
+          series={[
+            {
+              name: 'Design',
+              data: [
+                { start: at(1), end: at(9), label: 'Wireframes' },
+                { start: at(11), end: at(18), label: <strong>Visuals</strong> },
+                { start: at(20), end: at(24) }
+              ]
+            }
+          ]}
+          tooltip={{
+            render: ({ category, items }) => (
+              <div data-testid="card">
+                {`${String(category)}: ${items.map((one) => one.name ?? '-').join()}`}
+              </div>
+            )
+          }}
+        />
+      );
+      const plot = screen.getByRole('img', { name: 'Plan' });
+      const card = () => screen.container.querySelector('[data-testid="card"]')?.textContent;
+      const status = () => screen.getByRole('status').element().textContent ?? '';
+      const press = (key: string) =>
+        plot
+          .element()
+          .dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+
+      await expect.element(plot).toBeInTheDocument();
+
+      // The row is the category, so the item is named by the span rather than
+      // by the row a second time, in its words; a span that is not named has
+      // no name at all.
+      press('ArrowDown');
+      await expect.poll(card).toBe('Design: Wireframes');
+      press('ArrowDown');
+      await expect.poll(card).toBe('Design: Visuals');
+      press('ArrowDown');
+      await expect.poll(card).toBe('Design: -');
+
+      // The live region still reads the row beside a named span.
+      press('Home');
+      await expect.poll(card).toBe('Design: Wireframes');
+      expect(status()).toMatch(/^Wireframes, Design: /);
+    });
   });
 
   describe('lanes', () => {

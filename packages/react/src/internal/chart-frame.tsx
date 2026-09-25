@@ -1052,12 +1052,17 @@ interface CartesianProps extends CartesianChartProps {
    * `index` and `category` are what a caller's own `tooltip.render` is handed,
    * when the mark's own place is not them. A span sits in its row, which is the
    * category, and the mark's `index` is the span's place along that row.
+   * `renderItems` is handed in place of `items` when the card's rows are not
+   * what a caller should be handed: the card names a span's row beside the
+   * swatch, and a caller who is already handed the row as `category` wants the
+   * span's own name there instead.
    */
   markTooltip?: (mark: ChartMark) => {
     heading: React.ReactNode;
     items: readonly ChartTooltipItem[];
     index?: number;
     category?: PlassChartCategory;
+    renderItems?: readonly ChartTooltipItem[];
   } | null;
   /** Bars, and only bars, run the other way. */
   horizontal?: boolean;
@@ -1961,7 +1966,7 @@ export function CartesianChart({
               {tooltipOptions.render({
                 index: supplied?.index ?? activeIndex,
                 category: supplied?.category ?? markCategory ?? labels[activeIndex],
-                items
+                items: supplied?.renderItems ?? items
               })}
             </div>
           ) : (
