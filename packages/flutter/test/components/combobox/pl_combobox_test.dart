@@ -670,7 +670,12 @@ void main() {
         expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito']);
         expect(_lit(tester), 'Lisbon');
 
-        // Down from the chosen row, past the one that cannot be taken.
+        // Down from the chosen row, onto the one that cannot be taken, and
+        // round to the first.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(_lit(tester), 'Quito');
+
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
         await tester.pump();
         expect(_lit(tester), 'Seoul');
@@ -789,6 +794,53 @@ void main() {
         expect(typed, contains('qui'));
       });
 
+      testWidgets('reports the text it puts back, and the text a pick empties', (
+        WidgetTester tester,
+      ) async {
+        final List<String> typed = <String>[];
+
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: 'seoul',
+              onChanged: (String? _) {},
+              onQueryChanged: typed.add,
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('Seo');
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(typed, <String>['Seo', 'Seoul']);
+
+        typed.clear();
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              options: _cities,
+              values: const <String>[],
+              onChanged: (List<String> _) {},
+              onQueryChanged: typed.add,
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('lis');
+        await tester.pumpAndSettle();
+        await tester.tap(_inList('Lisbon'));
+        await tester.pumpAndSettle();
+
+        expect(typed, <String>['lis', '']);
+      });
+
       testWidgets('says so when nothing matched and nothing may be added', (
         WidgetTester tester,
       ) async {
@@ -854,6 +906,99 @@ void main() {
         expect(_lit(tester), 'Seoul');
       });
 
+      testWidgets('opens on the last row from the up arrow, with nothing chosen', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _more, value: null, onChanged: (String? _) {})),
+        );
+
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+
+        expect(_lit(tester), 'Rome');
+
+        // The last row cannot be taken here, and the one above it is lit.
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              key: const ValueKey<String>('cities'),
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+            ),
+          ),
+        );
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+
+        expect(_lit(tester), 'Lisbon');
+      });
+
+      testWidgets('stops on a row that cannot be taken, and takes nothing from it', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> taken = <String?>[];
+
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _more, value: null, onChanged: taken.add)),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+
+        for (final String row in <String>['Seoul', 'Lisbon', 'Quito']) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pump();
+          expect(_lit(tester), row);
+        }
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, isEmpty);
+        expect(_lit(tester), 'Quito');
+
+        // And from the row under it, back up onto it.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+        expect(_lit(tester), 'Quito');
+      });
+
+      testWidgets('follows the pointer onto any row, and goes out as it leaves them', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: null, onChanged: (String? _) {})),
+        );
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+
+        await mouse.moveTo(tester.getCenter(_inList('Lisbon')));
+        await tester.pump();
+        expect(_lit(tester), 'Lisbon');
+
+        await mouse.moveTo(tester.getCenter(_inList('Quito')));
+        await tester.pump();
+        expect(_lit(tester), 'Quito');
+
+        await mouse.moveTo(Offset.zero);
+        await tester.pump();
+        expect(_lit(tester), isNull);
+        expect(_inList('Lisbon'), findsOneWidget);
+      });
+
       testWidgets('opens a `multiple` list on its first chosen row, and keeps the row just taken', (
         WidgetTester tester,
       ) async {
@@ -882,8 +1027,8 @@ void main() {
         await tester.pumpAndSettle();
         expect(_lit(tester), 'Lisbon');
 
-        // Two rows down, past the one that cannot be taken.
-        for (int i = 0; i < 2; i += 1) {
+        // Three rows down, stopping on the one that cannot be taken.
+        for (int i = 0; i < 3; i += 1) {
           await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
           await tester.pump();
         }
@@ -1278,6 +1423,48 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(taken, isEmpty);
+      });
+
+      testWidgets('closes the list with no row lit, and puts the text back', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> taken = <String?>[];
+
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: 'seoul', onChanged: taken.add)),
+        );
+
+        await focus(tester);
+        tester.testTextInput.enterText('zzz');
+        await tester.pumpAndSettle();
+        expect(find.text('Nothing here'), findsOneWidget);
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Nothing here'), findsNothing);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Seoul');
+        expect(taken, isEmpty);
+      });
+
+      testWidgets('puts the held label back when the caller refuses the row', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> asked = <String?>[];
+
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: 'seoul', onChanged: asked.add)),
+        );
+
+        await focus(tester);
+        await tester.tap(_inList('Lisbon'));
+        await tester.pumpAndSettle();
+
+        final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
+
+        expect(asked, <String?>['lisbon']);
+        expect(editor.controller.text, 'Seoul');
+        expect(editor.focusNode.hasFocus, isTrue);
       });
     });
 

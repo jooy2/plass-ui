@@ -558,17 +558,24 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// than on the ones the query had left. Nothing is committed on the way out:
   /// that is the whole point of `onCreate` being a row you take rather than a
   /// thing that happens.
-  void _putTextBack() {
-    final String label = _labelOfValue();
+  void _putTextBack() => _write(_labelOfValue());
 
-    if (_text.text != label) {
-      // With the caret after it, where a field that keeps the focus goes on
-      // being typed into.
-      _text.value = TextEditingValue(
-        text: label,
-        selection: TextSelection.collapsed(offset: label.length),
-      );
+  /// Writes [text] into the field and reports it through `onQueryChanged`, as
+  /// Base UI reports every change to its input's text and not only what was
+  /// typed, so a caller that follows the query is not left with one the field
+  /// no longer shows.
+  void _write(String text) {
+    if (_text.text == text) {
+      return;
     }
+
+    // With the caret after it, where a field that keeps the focus goes on being
+    // typed into.
+    _text.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+    widget.onQueryChanged?.call(text);
   }
 
   /// The rows the list is currently showing.
@@ -621,9 +628,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     return known ? capped : <_Row<T>>[...capped, _Row<T>.create(query)];
   }
 
-  /// Opens the list, from an arrow key when [keyboard] is set and from a press
-  /// otherwise.
-  void _openList({bool keyboard = false}) {
+  /// Opens the list, from an arrow key when [by] is set, `1` down and `-1` up,
+  /// and from a press otherwise.
+  void _openList({int? by}) {
     if (!_openable || _open) {
       return;
     }
@@ -634,7 +641,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       _queryEdited = false;
       _rowsCache = null;
       _closing = null;
-      _highlighted = _start(keyboard: keyboard);
+      _highlighted = _start(by: by);
     });
     _reveal.reveal(_scroll, _highlighted, _rows.length);
   }
@@ -642,10 +649,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// Where the highlight starts as the list opens, as Base UI starts it: on the
   /// chosen row, or with `multiple` on the first chosen row down the list.
   ///
-  /// With none chosen, an arrow key starts on the first row that can be taken,
-  /// and a press on none: a list opened to be looked through does not already
-  /// point at a row the reader never went to.
-  int _start({required bool keyboard}) {
+  /// With none chosen, the down arrow starts on the first row that can be
+  /// taken and the up arrow on the last, and a press on none: a list opened to
+  /// be looked through does not already point at a row the reader never went
+  /// to.
+  int _start({int? by}) {
     final List<_Row<T>> rows = _rows;
     final List<T> chosen = _chosen;
 
@@ -659,7 +667,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       }
     }
 
-    return keyboard ? _next(-1, 1) : -1;
+    if (by == null) {
+      return -1;
+    }
+
+    return by > 0 ? _next(-1, 1) : _next(0, -1);
   }
 
   /// Where the row that holds [value] is in the list, or `-1`.
@@ -747,16 +759,23 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
   void _move(int by) {
     if (!_open) {
-      _openList(keyboard: true);
+      _openList(by: by);
 
       return;
     }
 
-    // With no row lit, down goes to the first row and up to the last.
-    final int from = _highlighted < 0 && by < 0 ? _rows.length : _highlighted;
-    final next = _next(from, by);
+    final int count = _rows.length;
 
-    if (next >= 0 && next != _highlighted) {
+    if (count == 0) {
+      return;
+    }
+
+    // With no row lit, down goes to the first row and up to the last. A row
+    // that cannot be taken is a stop like any other, as it is in Base UI: it
+    // is listed to be seen, and taking it does nothing.
+    final int next = _highlighted < 0 ? (by > 0 ? 0 : count - 1) : (_highlighted + by) % count;
+
+    if (next != _highlighted) {
       setState(() => _highlighted = next);
       _reveal.reveal(_scroll, next, _rows.length);
     }
@@ -813,7 +832,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       ]);
       // The query is spent, and the field goes on filtering from empty — which
       // is what lets a set of tags be built without the list ever closing.
-      _text.clear();
+      _write('');
 
       // The row just taken, or taken back out, stays lit, as Base UI keeps it,
       // wherever the whole list puts it once the query is spent. A value made
@@ -821,7 +840,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       // the list opens.
       final int taken = _indexOf(value);
 
-      setState(() => _highlighted = taken >= 0 ? taken : _start(keyboard: false));
+      setState(() => _highlighted = taken >= 0 ? taken : _start());
       _reveal.reveal(_scroll, _highlighted, _rows.length);
 
       return;
@@ -832,7 +851,17 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // showing, and without putting the text back: until the caller rebuilds,
     // `value` is still the one held before this row.
     _shut();
-    _text.text = row.label;
+    _write(row.label);
+
+    // Once the caller has rebuilt, the text is what it holds. A caller that
+    // refused the row still holds the value it had, and its label goes back in,
+    // as Base UI puts it back, rather than the row's staying until the focus
+    // leaves.
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted && !_open) {
+        _putTextBack();
+      }
+    });
   }
 
   void _remove(T value) {
@@ -849,7 +878,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       widget.onChanged?.call(null);
     }
 
-    _text.clear();
+    _write('');
   }
 
   late final _EscapeAction<T> _escapeAction = _EscapeAction<T>(this);
@@ -966,9 +995,16 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       onEditingComplete: () {},
       // Only while the list is open: with it closed, the row that was lit is not
       // on screen, and Enter must not commit something the reader cannot see.
+      // With no row lit it closes the list, as Base UI's does.
       onSubmitted: (String _) {
-        if (_open) {
+        if (!_open) {
+          return;
+        }
+
+        if (_highlighted >= 0) {
           _take(_highlighted);
+        } else if (_usable) {
+          _close();
         }
       },
       style: TextStyle(
@@ -1361,7 +1397,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   ) {
     final disabled = row.option?.disabled ?? false;
     final chosen = row.option != null && _chosen.contains(row.option!.value);
-    final lit = index == _highlighted && !disabled;
+    // A row that cannot be taken still lights, from the keys and the pointer
+    // alike, as it does in Base UI: the highlight is where the reader is.
+    final lit = index == _highlighted;
     final ink = disabled
         ? tokens.mutedFg
         : chosen || lit || row.isCreate
@@ -1373,8 +1411,16 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final Widget shown = MouseRegion(
       cursor: disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
       onEnter: (_) {
-        if (!disabled && _highlighted != index) {
+        if (_highlighted != index) {
           setState(() => _highlighted = index);
+        }
+      },
+      // Leaving a row puts its light out, as Base UI's list does, rather than
+      // leaving it on a row the pointer has gone from. Onto the next row, that
+      // row's own enter lights it straight after.
+      onExit: (_) {
+        if (_highlighted == index) {
+          setState(() => _highlighted = -1);
         }
       },
       child: GestureDetector(

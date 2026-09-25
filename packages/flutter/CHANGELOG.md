@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **The up arrow opens a `PlCombobox` list with nothing chosen on its last row, the arrow keys and the pointer stop on a row that cannot be taken, a row's light goes out as the pointer leaves it, `Enter` with no row lit closes the list, a row a controlled parent refuses gives the field its held label back, and `onQueryChanged` hears every text the field writes, as in the React build.** The list opened on its first row, skipped a disabled row, kept a row lit after the pointer had gone, ignored `Enter` with nothing lit, left the refused row's label in the field until the focus left, and reported only what was typed, not a label put back or a query emptied after a pick.
+
 - **`Escape` on a `PlCombobox` whose list is closed empties a field that holds a value, and otherwise goes on to whatever the field sits in, and emptying a single-value field's text empties its value, as in the React build.** The combobox took `Escape` whether or not its list was open, so a `PlModal` or a page's own `DismissIntent` action round the field never heard it, and a value stayed held after its label was deleted.
 
 - **Taking a chosen row of a `multiple` `PlCombobox` again takes its value back out, by a press or by `Enter`, as it does in the React build.** A row already chosen did nothing, so a chip's × was the only way to drop a value. The row stays lit, so the next `Enter` puts the value back.
@@ -104,7 +106,7 @@
 
 - **A `PlCombobox` puts the chosen label back in the field whenever its list closes, and empties a `multiple` one's text, as Base UI does in the React build.** A query typed before `Escape`, the chevron or a press elsewhere stayed in the field while it kept the focus, so the list opened again filtered by it. The list now fades out on the rows it was showing and opens again on every row.
 
-- **A `multiple` `PlCombobox` opens with its first chosen row lit and keeps the row just taken lit, and a list a press opens with nothing chosen lights no row, as in the React build.** A `multiple` list lit its first row as it opened and after every row taken, and a list opened by a press or the chevron lit its first row even with nothing chosen. An arrow key still opens a list with nothing chosen on its first row, and the up arrow from no row lit goes to the last.
+- **A `multiple` `PlCombobox` opens with its first chosen row lit and keeps the row just taken lit, and a list a press opens with nothing chosen lights no row, as in the React build.** A `multiple` list lit its first row as it opened and after every row taken, and a list opened by a press or the chevron lit its first row even with nothing chosen. The down arrow still opens a list with nothing chosen on its first row, the up arrow opens it on its last, and the up arrow from no row lit goes to the last.
 
 - **A popup or a layer closed under reduced motion goes the frame after it is closed.** With animations off, `PlPopover`, `PlTooltip`, `PlHoverCard`, `PlMenu`, `PlNavigationMenu`, the lists of `PlSelect` and `PlCombobox`, the pickers' popups, `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette` and the others finished their fade inside the build that closed them and asked to be taken down there, which a debug build refuses with an assertion from `OverlayPortalController.hide`. The popup or layer then stayed in the tree unseen, and a layer's backdrop went on taking every press on the page. It is now taken down once that frame is over, unless it has opened again by then.
 
