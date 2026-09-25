@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
@@ -117,7 +118,10 @@ class PlCarousel extends StatefulWidget {
   ///
   /// Off by default and deliberately so: a carousel that moves while it is being
   /// read is the most complained-about pattern there is. It pauses while the
-  /// pointer is over it. It **stops** once the focus comes into it or an arrow
+  /// pointer is over it, and while it is hidden but still in the tree: off stage,
+  /// under a [Visibility] or a [TickerMode] that hides it, clipped to nothing or
+  /// laid out with no size. Shown again, it holds the slide it was hidden on for
+  /// a whole [interval]. It **stops** once the focus comes into it or an arrow
   /// or a dot is pressed, and stays stopped until the button starts it again.
   /// For a reader who has asked for reduced motion it starts stopped. And it
   /// needs [onChanged] — a frozen carousel has nothing to advance, and no
@@ -205,6 +209,23 @@ class _PlCarouselState extends State<PlCarousel> {
   /// under the pointer would be moving what somebody is reading.
   bool _hovered = false;
 
+  /// Whether the tree above says the carousel is not being shown: a
+  /// [TickerMode] that is off, which is what a route something has been pushed
+  /// over is under, or a [Visibility] that hides it, which is what an
+  /// [IndexedStack] puts round every child but the one it shows.
+  bool _muted = false;
+
+  /// Whether the carousel was showing when the timer last looked, or when it
+  /// was started.
+  ///
+  /// A tick moves the strip only if the carousel was showing then and is still
+  /// showing now, so one shown again holds the slide it was hidden on for a
+  /// whole [PlCarousel.interval] at least, rather than for whatever was left of
+  /// an interval that went on running while nobody could see it. The tree
+  /// above says when [_muted] changes, and the timer starts over then; nothing
+  /// says when the layout shows it again, which is what this is for.
+  bool _shown = true;
+
   /// The reader's own answer to "should this be moving?", `true` for stopped.
   ///
   /// `null` until they have given one, and until then it is the platform's
@@ -281,6 +302,7 @@ class _PlCarouselState extends State<PlCarousel> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _muted = !TickerMode.valuesOf(context).enabled || !Visibility.of(context);
     _restart();
   }
 
@@ -314,7 +336,61 @@ class _PlCarouselState extends State<PlCarousel> {
       return;
     }
 
-    _timer = Timer.periodic(widget.interval, (Timer _) => _go(_index + 1));
+    _shown = !_hidden;
+    _timer = Timer.periodic(widget.interval, (Timer _) => _tick());
+  }
+
+  void _tick() {
+    final shown = !_hidden;
+    final wasShown = _shown;
+
+    _shown = shown;
+
+    if (shown && wasShown) {
+      _go(_index + 1);
+    }
+  }
+
+  /// Whether nobody can see the carousel, though it is still in the tree.
+  ///
+  /// The tree above answers for [_muted]; the rest is read off the layout,
+  /// walking up from the carousel's own box: laid out with no size, under an
+  /// [Offstage] that is off stage, which is what a minimized `PlWindowPane`
+  /// puts its body under, or inside a clip with no area, which is what a closed
+  /// `PlCollapsible` that keeps its content mounted folds it into. A carousel
+  /// that has not been laid out yet counts as showing.
+  bool get _hidden {
+    if (_muted) {
+      return true;
+    }
+
+    final RenderObject? box = context.findRenderObject();
+
+    if (box is! RenderBox || !box.hasSize) {
+      return false;
+    }
+
+    if (box.size.isEmpty) {
+      return true;
+    }
+
+    RenderObject child = box;
+
+    for (RenderObject? parent = box.parent; parent != null; parent = parent.parent) {
+      if (parent is RenderOffstage && parent.offstage) {
+        return true;
+      }
+
+      final Rect? clip = parent.describeApproximatePaintClip(child);
+
+      if (clip != null && clip.isEmpty) {
+        return true;
+      }
+
+      child = parent;
+    }
+
+    return false;
   }
 
   void _hover({required bool hovered}) {

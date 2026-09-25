@@ -118,6 +118,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 - A button in the top corner of the frame stops it and starts it again. It is the first thing a keyboard reaches, and its name says what pressing it does: "Stop slide show" while it plays, "Start slide show" once it has stopped.
 - It **pauses** while the pointer is over it, and carries on when the pointer leaves.
+- It pauses while it is hidden but still mounted. Shown again, it holds the slide it was hidden on for a whole `interval` before it moves on.
 - It **stops** once the focus comes into it, which is the important one: a keyboard reader who has tabbed into a slide is reading it. It stays stopped until the button starts it again, whether or not the focus or the pointer has left since. The button is the one place the focus can land without stopping it.
 - A press on an arrow or a dot stops it as well, whether or not the press moves the focus. Once the button has started it again, pressing the arrows and the dots does not stop it.
 - For a reader who has asked for reduced motion it starts stopped, and the button starts it.
@@ -125,7 +126,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 ::: fw react
 
 - It pauses while the tab is in the background.
-- It pauses while it is hidden and has no width, inside a closed `PlAccordion` or an unselected `PlTab` that keeps it mounted. Shown again, it holds the slide it was hidden on for a whole `interval` before it moves on.
+- Hidden means its track has no width, as inside a closed `PlAccordion` or an unselected `PlTab` that keeps it mounted.
 - The live region that announces the current slide goes **silent** while it is playing, because a screen reader saying a new slide's name every five seconds is what makes a page unusable. Once it has stopped, the region says where the reader went.
 - An uncontrolled carousel advances with or without `onValueChange`. A controlled one moves only when the new index comes back as `value`.
 
@@ -134,6 +135,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 ::: fw flutter
 
 - It needs `onChanged`. The widget is controlled, so a carousel nothing is listening to has nothing to advance, and neither the timer nor the button is there.
+- Flutter has more ways than a browser to keep a widget in the tree out of sight, and each of them counts as hidden: an `Offstage`, a `Visibility` or an `IndexedStack` that hides it; a `TickerMode` that is off, which is what a route something has been pushed over is under; a clip with no area, which is what a closed `PlCollapsible` that keeps it mounted folds it into; and a box of no size.
 
 :::
 

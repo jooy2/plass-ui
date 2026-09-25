@@ -38,13 +38,21 @@ class _Harness extends StatefulWidget {
 class _HarnessState extends State<_Harness> {
   int _value = 0;
 
+  /// Every slide the carousel has reported, in order.
+  final List<int> reported = <int>[];
+
   int get value => _value;
+
+  void _change(int next) {
+    reported.add(next);
+    setState(() => _value = next);
+  }
 
   @override
   Widget build(BuildContext context) {
     return PlCarousel(
       value: _value,
-      onChanged: widget.frozen ? null : (int next) => setState(() => _value = next),
+      onChanged: widget.frozen ? null : _change,
       loop: widget.loop,
       autoPlay: widget.autoPlay,
       interval: const Duration(milliseconds: 200),
@@ -59,8 +67,36 @@ class _HarnessState extends State<_Harness> {
   }
 }
 
+/// The harness, whether or not it is on stage.
+_HarnessState _harness(WidgetTester tester) =>
+    tester.state<_HarnessState>(find.byType(_Harness, skipOffstage: false));
+
 /// Where the harness has got to.
-int _valueOf(WidgetTester tester) => tester.state<_HarnessState>(find.byType(_Harness)).value;
+int _valueOf(WidgetTester tester) => _harness(tester).value;
+
+/// The ways a carousel can be hidden while it stays in the tree, each given
+/// whether it is hidden and the carousel to hide.
+final Map<String, Widget Function(bool hidden, Widget carousel)> _hiding =
+    <String, Widget Function(bool hidden, Widget carousel)>{
+      'an Offstage': (bool hidden, Widget carousel) => Offstage(offstage: hidden, child: carousel),
+      'an IndexedStack': (bool hidden, Widget carousel) => IndexedStack(
+        index: hidden ? 0 : 1,
+        children: <Widget>[const SizedBox(height: 180), carousel],
+      ),
+      'a Visibility': (bool hidden, Widget carousel) =>
+          Visibility(visible: !hidden, maintainState: true, child: carousel),
+      'a TickerMode': (bool hidden, Widget carousel) =>
+          TickerMode(enabled: !hidden, child: carousel),
+      'a box of no size': (bool hidden, Widget carousel) =>
+          hidden ? SizedBox.shrink(child: carousel) : SizedBox(child: carousel),
+      'a closed PlCollapsible that keeps it mounted': (bool hidden, Widget carousel) =>
+          PlCollapsible(
+            open: !hidden,
+            keepMounted: true,
+            title: const Text('More'),
+            child: carousel,
+          ),
+    };
 
 /// The `autoPlay` button, found by what it is called right now.
 Finder _toggle(String label) =>
@@ -578,6 +614,51 @@ void main() {
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 0);
       });
+
+      for (final MapEntry<String, Widget Function(bool, Widget)> hiding in _hiding.entries) {
+        testWidgets('holds while it is hidden in ${hiding.key}, and for a whole interval after', (
+          WidgetTester tester,
+        ) async {
+          var hidden = true;
+          late StateSetter show;
+
+          await tester.pumpWidget(
+            host(
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  show = setState;
+
+                  return hiding.value(hidden, const _Harness(autoPlay: true));
+                },
+              ),
+              width: 360,
+            ),
+          );
+
+          // Three and a half intervals, in steps, so that a page view that is
+          // travelling while nobody can see it has frames to report pages in.
+          for (var step = 0; step < 14; step += 1) {
+            await tester.pump(const Duration(milliseconds: 50));
+          }
+
+          expect(_harness(tester).reported, isEmpty);
+
+          // Shown halfway through an interval, which a timer that went on
+          // running would end a hundred milliseconds later.
+          show(() => hidden = false);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 190));
+
+          expect(_harness(tester).reported, isEmpty);
+
+          // And then on from the slide it was hidden on, within a second one.
+          await tester.pump(const Duration(milliseconds: 400));
+
+          expect(_harness(tester).reported.first, 1);
+
+          await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+        });
+      }
     });
 
     group('the dots', () {
