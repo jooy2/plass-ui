@@ -4,7 +4,8 @@
  *
  * No browser eases a gradient to or from `none`, so a tick, a radio's ring, a
  * switch's track and a chosen day paint theirs on a layer of their own,
- * `.plass-fill`'s `::before`, and fade its opacity. Written on the element
+ * `.plass-fill`'s `::before`, and a `solid` toggle on `.plass-fill-layer`, an
+ * element, and fade its opacity. Written on the element
  * itself, the gradient arrived in one frame and left in one, and a class-list
  * assertion cannot tell the two apart, so this file loads `src/standalone.css`
  * the way `card.test.tsx` does and records the transitions that actually run.
@@ -14,7 +15,7 @@
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlCheckbox, PlDatePicker, PlRadio, PlRadioGroup, PlSwitch } from 'plass-ui';
+import { PlCheckbox, PlDatePicker, PlRadio, PlRadioGroup, PlSwitch, PlToggle } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import { fullDate } from '../support/dates';
 import { emulateMedia } from '../support/media';
@@ -41,28 +42,35 @@ interface Fade {
 }
 
 /**
- * Every fade the element's fill layer starts, as the opacities its transition
- * runs between. Read on `transitionrun`, from the transition's own keyframes,
- * so nothing has to sample a frame.
+ * Every fade the fill layer starts, as the opacities its transition runs
+ * between: the element's `::before`, or the element itself when `pseudo` is
+ * empty. Read on `transitionrun`, from the transition's own keyframes, so
+ * nothing has to sample a frame.
  */
-function recordFades(element: Element): Fade[] {
+function recordFades(element: Element, pseudo: '::before' | '' = '::before'): Fade[] {
   const fades: Fade[] = [];
 
   element.addEventListener('transitionrun', (raw) => {
     const event = raw as TransitionEvent;
 
-    if (event.pseudoElement !== '::before' || event.propertyName !== 'opacity') {
+    if (
+      event.target !== element ||
+      event.pseudoElement !== pseudo ||
+      event.propertyName !== 'opacity'
+    ) {
       return;
     }
 
-    const run = element
-      .getAnimations({ subtree: true })
-      .find(
-        (one) =>
-          one instanceof CSSTransition &&
-          one.transitionProperty === 'opacity' &&
-          (one.effect as KeyframeEffect).pseudoElement === '::before'
+    const run = element.getAnimations({ subtree: true }).find((one) => {
+      const effect = one.effect as KeyframeEffect;
+
+      return (
+        one instanceof CSSTransition &&
+        one.transitionProperty === 'opacity' &&
+        effect.target === element &&
+        (effect.pseudoElement ?? '') === pseudo
       );
+    });
     const frames = (run?.effect as KeyframeEffect | undefined)?.getKeyframes() ?? [];
 
     fades.push({ from: Number(frames[0]?.opacity), to: Number(frames.at(-1)?.opacity) });
@@ -194,21 +202,67 @@ describe('a fill that comes and goes with a state', () => {
     await expect.poll(() => left).toEqual([{ from: 1, to: 0 }]);
   });
 
+  it('fades a solid toggle’s gradient in under its light and out again', async () => {
+    const screen = await render(<PlToggle variant="solid">Bold</PlToggle>);
+    const toggle = screen.getByRole('button').element();
+    const layer = toggle.querySelector('.plass-fill-layer') as HTMLElement;
+    const fades = recordFades(layer, '');
+
+    expect(getComputedStyle(layer).backgroundImage).toContain('linear-gradient');
+    expect(Number(getComputedStyle(layer).opacity)).toBe(0);
+
+    await screen.getByRole('button').click();
+    await expect.element(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+    await expect.poll(() => fades).toEqual([{ from: 0, to: 1 }]);
+    await settle(layer);
+
+    expect(getComputedStyle(toggle).backgroundImage).toBe('none');
+    // Under the bloom, which is the toggle's own `::before` and comes first.
+    expect(Number(getComputedStyle(layer).zIndex)).toBeLessThan(
+      Number(getComputedStyle(toggle, '::before').zIndex)
+    );
+
+    await screen.getByRole('button').click();
+    await expect.element(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'false');
+    await expect
+      .poll(() => fades)
+      .toEqual([
+        { from: 0, to: 1 },
+        { from: 1, to: 0 }
+      ]);
+  });
+
   it('puts the gradient on at once under reduced motion', async () => {
     await emulateMedia({ reducedMotion: 'reduce' });
 
-    const screen = await render(<PlCheckbox label="Remember me" />);
+    const screen = await render(
+      <>
+        <PlCheckbox label="Remember me" />
+        <PlToggle variant="solid">Bold</PlToggle>
+      </>
+    );
     const tick = screen.getByRole('checkbox').element();
+    const layer = screen
+      .getByRole('button', { name: 'Bold' })
+      .element()
+      .querySelector('.plass-fill-layer') as HTMLElement;
     const fades = recordFades(tick);
+    const toggled = recordFades(layer, '');
 
     await screen.getByText('Remember me').click();
+    await screen.getByRole('button', { name: 'Bold' }).click();
     await expect.element(screen.getByRole('checkbox')).toBeChecked();
+    await expect
+      .element(screen.getByRole('button', { name: 'Bold' }))
+      .toHaveAttribute('aria-pressed', 'true');
 
     expectLayerOnly(tick);
     expect(Number(layerOf(tick).opacity)).toBe(1);
+    expect(Number(getComputedStyle(layer).opacity)).toBe(1);
 
     await frames();
 
     expect(fades).toEqual([]);
+    expect(toggled).toEqual([]);
   });
 });

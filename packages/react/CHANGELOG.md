@@ -68,7 +68,7 @@
 
 ### Fixed
 
-- **A `PlCheckbox`, a `PlRadioGroup` option, a `PlSwitch` and the chosen day or time in a picker fade their gradient in and out as their state changes, and put it on at once under reduced motion.** The gradient was the control's own `background-image`, which no browser eases to or from nothing, so it arrived in one frame and left in one while the colours round it eased. It is now a layer of its own that fades over `--plass-duration`, as the Flutter controls fade theirs, and looks the same at rest.
+- **A `solid` `PlToggle`, a `PlCheckbox`, a `PlRadioGroup` option, a `PlSwitch` and the chosen day or time in a picker fade their gradient in and out as their state changes, and put it on at once under reduced motion.** The gradient was the control's own `background-image`, which no browser eases to or from nothing, so it arrived in one frame and left in one while the colours round it eased. It is now a layer of its own that fades over `--plass-duration`, as the Flutter controls fade theirs, and looks the same at rest; a `solid` toggle draws it as an `aria-hidden` `<span>` inside its button, since both of its pseudo-elements are the pointer light.
 
 - **Under reduced motion a control's colours, edge and shadow change at once, as the Flutter surfaces do.** Only the pointer light stopped easing under `prefers-reduced-motion`, and every other change the house transition carries, a glass key's wash, a field's edge, a shadow, a label's ink and a switch's track, still eased over `--plass-duration`.
 

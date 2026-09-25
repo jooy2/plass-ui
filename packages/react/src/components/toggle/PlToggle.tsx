@@ -161,7 +161,8 @@ const offHoverClasses: Record<PlassVariant, string> = {
  */
 const onClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
-    'text-(--p-on-solid) [background-image:var(--p-fill)]',
+    // The gradient is `fillLayerClasses` below, lit rather than set here.
+    'text-(--p-on-solid) [--p-fill-on:1]',
     '[box-shadow:var(--p-elev),var(--p-lift)]',
     forcedPressedClasses
   ].join(' '),
@@ -183,6 +184,15 @@ const onHoverClasses: Record<PlassVariant, string> = {
   glass: 'hover:bg-(--p-soft-hover) active:bg-(--p-soft-press)',
   ghost: 'hover:bg-(--p-soft-hover) active:bg-(--p-soft-press)'
 };
+
+/**
+ * Where a `solid` toggle's gradient is drawn: a layer of its own, which fades in
+ * as the toggle goes on and out as it goes off. Set as the toggle's own
+ * background, it arrived in one frame and left in one, since no browser eases a
+ * gradient to or from nothing; and the two pseudo-elements that could have held
+ * it are already the light. See `.plass-fill` in `styles.css`.
+ */
+const fillLayerClasses = 'plass-fill-layer';
 
 /**
  * A button that stays down.
@@ -266,6 +276,7 @@ export const PlToggle = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTo
         onPointerMove={glowPointerMove(!disabled, onPointerMove)}
         {...props}
       >
+        {variant === 'solid' ? <span aria-hidden="true" className={fillLayerClasses} /> : null}
         {startIcon}
         {children}
         {endIcon}

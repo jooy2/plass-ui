@@ -129,8 +129,33 @@ describe('PlToggle', () => {
 
       const toggle = screen.getByRole('button').element();
 
-      expect(toggle).toHaveClass('[background-image:var(--p-fill)]');
+      // The gradient is a layer of its own, lit by the toggle, so it can fade.
+      expect(toggle).toHaveClass('[--p-fill-on:1]');
+      expect(toggle).not.toHaveClass('[background-image:var(--p-fill)]');
       expect(toggle).toHaveClass('text-(--p-on-solid)');
+      expect(toggle.querySelector('.plass-fill-layer')).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('draws the fill layer on solid only, and leaves it out of the name', async () => {
+      const screen = await render(
+        <>
+          <PlToggle variant="solid">Solid</PlToggle>
+          <PlToggle variant="glass">Glass</PlToggle>
+          <PlToggle variant="ghost">Ghost</PlToggle>
+        </>
+      );
+
+      const solid = screen.getByRole('button', { name: 'Solid' }).element();
+
+      expect(solid.querySelector('.plass-fill-layer')).not.toBeNull();
+      expect(solid).not.toHaveClass('[--p-fill-on:1]');
+      expect(solid.textContent).toBe('Solid');
+
+      for (const name of ['Glass', 'Ghost']) {
+        expect(
+          screen.getByRole('button', { name }).element().querySelector('.plass-fill-layer')
+        ).toBeNull();
+      }
     });
 
     it('keeps its elevation when it goes on — only the colour moves', async () => {
