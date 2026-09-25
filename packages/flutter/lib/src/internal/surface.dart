@@ -790,6 +790,10 @@ class _Lit extends StatelessWidget {
 /// Taking them out is worse, because that changes the shape of the tree above
 /// what the control holds, which Flutter builds again from scratch. This keeps
 /// the shape and adds a layer only for what there is to apply.
+///
+/// At an opacity of 0 it paints nothing at all, as an [Opacity] does, rather
+/// than a layer that shows none of what is in it. What it holds is still laid
+/// out, still hit and still read out, as CSS `opacity: 0` leaves an element.
 class PlassFiltered extends SingleChildRenderObjectWidget {
   /// Paints [child] through [colorFilter] and at [opacity].
   const PlassFiltered({required this.colorFilter, this.opacity = 1, super.child, super.key})
@@ -862,13 +866,18 @@ class _RenderFiltered extends RenderProxyBox {
   }
 
   @override
-  bool get alwaysNeedsCompositing => child != null && (_colorFilter != null || _alpha != 255);
+  bool get alwaysNeedsCompositing {
+    return child != null && _alpha != 0 && (_colorFilter != null || _alpha != 255);
+  }
+
+  @override
+  bool paintsChild(RenderBox child) => _alpha != 0;
 
   @override
   void paint(PaintingContext context, Offset offset) {
     final ContainerLayer? old = layer;
 
-    if (child == null) {
+    if (child == null || _alpha == 0) {
       layer = null;
       _filterLayer.layer = null;
 

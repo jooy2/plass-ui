@@ -231,12 +231,14 @@ class _PlCalendarState extends State<PlCalendar> {
     // the calendar only while it is out of use, the grid would move to a new
     // parent each time `disabled` changed and be built again from nothing: the
     // view it had open, the day the keyboard was on and the highlight under
-    // the pointer would all go with it.
+    // the pointer would all go with it. The opacity is painted straight onto
+    // the canvas while the calendar is in use, rather than through an
+    // `Opacity` at 1, which is a layer all the same.
     calendar = ExcludeFocus(
       excluding: inert,
       child: IgnorePointer(
         ignoring: inert,
-        child: Opacity(opacity: inert ? 0.5 : 1, child: calendar),
+        child: PlassFiltered(colorFilter: null, opacity: inert ? 0.5 : 1, child: calendar),
       ),
     );
 

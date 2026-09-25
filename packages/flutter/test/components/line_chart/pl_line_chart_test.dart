@@ -1,7 +1,7 @@
 import 'dart:ui' show Paragraph;
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -292,6 +292,28 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, contains('Cost'));
+      });
+
+      testWidgets('fades an entry that is switched off, and only that one', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: <PlassChartSeries>[
+              series.first,
+              PlassChartSeries(name: 'Cost', data: series.last.data, hidden: true),
+            ],
+            categories: months,
+          ),
+        );
+
+        // Revenue's entry is on, and is not painted through an opacity of 1,
+        // which would be a layer on every entry of the legend for nothing.
+        expect(
+          tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha),
+          <int>[Color.getAlphaFromOpacity(0.4)],
+        );
       });
 
       testWidgets('leaves a series alone when the legend is not interactive', (

@@ -35,7 +35,63 @@ class _ProbeState extends State<_Probe> {
   Widget build(BuildContext context) => const Text('Content');
 }
 
+/// Counts how many times it has been painted.
+class _Counter extends CustomPainter {
+  int paints = 0;
+
+  @override
+  void paint(Canvas canvas, Size size) => paints += 1;
+
+  @override
+  bool shouldRepaint(_Counter oldDelegate) => false;
+}
+
 void main() {
+  group('PlassFiltered', () {
+    testWidgets('paints nothing at all at an opacity of 0, and still takes a tap', (
+      WidgetTester tester,
+    ) async {
+      final _Counter counter = _Counter();
+      int taps = 0;
+
+      Widget filtered(double opacity) {
+        return host(
+          Center(
+            child: PlassFiltered(
+              colorFilter: null,
+              opacity: opacity,
+              child: GestureDetector(
+                onTap: () => taps += 1,
+                child: CustomPaint(painter: counter, size: const Size(40, 40)),
+              ),
+            ),
+          ),
+        );
+      }
+
+      await tester.pumpWidget(filtered(0));
+
+      // Not a layer that shows none of what is in it, as an `Opacity` does not
+      // make one either.
+      expect(counter.paints, 0);
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+
+      // Still laid out and still hit, as CSS `opacity: 0` leaves an element.
+      await tester.tap(find.byType(CustomPaint).last);
+
+      expect(taps, 1);
+
+      await tester.pumpWidget(filtered(1));
+
+      expect(counter.paints, greaterThan(0));
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty, reason: 'at 1');
+
+      await tester.pumpWidget(filtered(0.5));
+
+      expect(tester.layers.whereType<OpacityLayer>().single.alpha, Color.getAlphaFromOpacity(0.5));
+    });
+  });
+
   group('PlassSurfaceBox', () {
     testWidgets('keeps what it holds as its gloss and its light come and go', (
       WidgetTester tester,

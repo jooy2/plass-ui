@@ -28,6 +28,7 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -2169,7 +2170,11 @@ class _LegendEntry extends StatelessWidget {
     // on to find out what it was. And so does the name, whose recolouring to
     // the muted ink was the one place a hidden entry was told apart by a hue,
     // and read as a second kind of text rather than as the same entry, off.
-    final Widget row = Opacity(
+    //
+    // Painted straight onto the canvas while the entry is on, rather than
+    // through an `Opacity` at 1, which would be a layer on every entry.
+    final Widget row = PlassFiltered(
+      colorFilter: null,
       opacity: on ? 1 : 0.4,
       child: Row(
         mainAxisSize: MainAxisSize.min,

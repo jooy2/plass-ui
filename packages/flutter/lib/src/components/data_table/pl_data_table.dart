@@ -877,7 +877,10 @@ class _SortableHeader extends StatelessWidget {
       spacing: 4,
       children: <Widget>[
         Flexible(child: child),
-        Opacity(
+        // Straight onto the canvas once the column is sorted, rather than
+        // through an `Opacity` at 1, which is a layer all the same.
+        PlassFiltered(
+          colorFilter: null,
           opacity: direction == null ? 0.3 : 1,
           child: PlassGlyph(
             PlassGlyphShape.chevron,

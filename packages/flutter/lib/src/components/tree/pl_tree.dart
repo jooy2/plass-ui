@@ -632,7 +632,12 @@ class _TreeRow extends StatelessWidget {
           // other chevron in the package turns on; this row was the one still
           // using `RotatedBox`, which rotates the layout and cannot be
           // animated.
-          Opacity(
+          //
+          // Painted straight onto the canvas on a branch, and not at all on a
+          // leaf, rather than through an `Opacity` at 1, which would be a
+          // layer on every branch of the tree.
+          PlassFiltered(
+            colorFilter: null,
             opacity: isBranch ? 1 : 0,
             child: AnimatedRotation(
               // A closed twisty points the way the rows run, so it turns the

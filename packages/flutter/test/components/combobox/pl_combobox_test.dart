@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +8,7 @@ import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/notch.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
@@ -284,6 +286,28 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(chosen, equals('lisbon'));
+      });
+
+      testWidgets('adds an opacity layer only for the row that cannot be taken', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _cities, value: null, onChanged: (String? _) {})),
+        );
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        final Iterable<int> alphas = tester.layers.whereType<OpacityLayer>().map(
+          (OpacityLayer layer) => layer.alpha!,
+        );
+
+        // The list fades in as one, which is the one layer at full strength.
+        // A row that can be taken is not painted through an opacity of 1 as
+        // well, which would be a layer on every row for nothing.
+        expect(alphas.where((int alpha) => alpha == 255), hasLength(1));
+        expect(alphas.where((int alpha) => alpha != 255), <int>[
+          Color.getAlphaFromOpacity(disabledOpacity),
+        ]);
       });
 
       group('a press on the field', () {

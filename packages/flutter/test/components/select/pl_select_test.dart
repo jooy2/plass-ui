@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +6,7 @@ import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/notch.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -220,6 +222,26 @@ void main() {
 
         expect(state.value, isNull);
         expect(_row('Singapore'), findsOneWidget);
+      });
+
+      testWidgets('adds an opacity layer only for the row that cannot be taken', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Harness());
+        await tester.tap(_trigger());
+        await tester.pumpAndSettle();
+
+        final Iterable<int> alphas = tester.layers.whereType<OpacityLayer>().map(
+          (OpacityLayer layer) => layer.alpha!,
+        );
+
+        // The list fades in as one, which is the one layer at full strength.
+        // A row that can be taken is not painted through an opacity of 1 as
+        // well, which would be a layer on every row for nothing.
+        expect(alphas.where((int alpha) => alpha == 255), hasLength(1));
+        expect(alphas.where((int alpha) => alpha != 255), <int>[
+          Color.getAlphaFromOpacity(disabledOpacity),
+        ]);
       });
 
       testWidgets('the arrow keys move the highlight and Enter takes it', (

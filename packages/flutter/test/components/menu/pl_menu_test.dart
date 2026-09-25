@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +6,7 @@ import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -148,6 +150,34 @@ void main() {
         // Still listed: a row that vanishes when it is unavailable is a menu
         // that changes length.
         expect(find.text('Cut'), findsOneWidget);
+      });
+
+      testWidgets('adds an opacity layer only for a row that is unavailable', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            menu(<PlMenuEntry>[
+              const PlMenuItem(label: 'Cut', disabled: true),
+              PlMenuItem(label: 'Copy', onPressed: () {}),
+              PlMenuItem(label: 'Paste', onPressed: () {}),
+            ]),
+            overlay: true,
+          ),
+        );
+        await openMenu(tester);
+
+        final Iterable<int> alphas = tester.layers.whereType<OpacityLayer>().map(
+          (OpacityLayer layer) => layer.alpha!,
+        );
+
+        // The menu fades in as one, which is the one layer at full strength.
+        // A row that can be picked is not painted through an opacity of 1 as
+        // well, which would be a layer on every row for nothing.
+        expect(alphas.where((int alpha) => alpha == 255), hasLength(1));
+        expect(alphas.where((int alpha) => alpha != 255), <int>[
+          Color.getAlphaFromOpacity(disabledOpacity),
+        ]);
       });
 
       testWidgets('carries a shortcut and a description', (WidgetTester tester) async {

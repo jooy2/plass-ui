@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -255,6 +256,28 @@ void main() {
         );
 
         handle.dispose();
+      });
+
+      testWidgets('fades the chevron of a column that is not sorted, and only that one', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            table(
+              sort: const PlDataTableSort(key: 'customer', direction: PlDataTableSortDirection.asc),
+              onSortChanged: (PlDataTableSort? _) {},
+            ),
+            width: 640,
+          ),
+        );
+
+        // The total's chevron is faint. The customer's is not, and is not
+        // painted through an opacity of 1 either, which would be a layer for
+        // nothing.
+        expect(
+          tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha),
+          <int>[Color.getAlphaFromOpacity(0.3)],
+        );
       });
 
       testWidgets('leaves a column that did not ask to be sortable alone', (

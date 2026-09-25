@@ -1332,7 +1332,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           selected: chosen,
           enabled: !disabled,
           onTap: disabled || !_usable ? null : () => _take(index),
-          child: Opacity(
+          // Painted straight onto the canvas while the row can be chosen,
+          // rather than through an `Opacity` at 1, which would be a layer on
+          // every row of the list.
+          child: PlassFiltered(
+            colorFilter: null,
             opacity: disabled ? disabledOpacity : 1,
             child: DecoratedBox(
               decoration: BoxDecoration(

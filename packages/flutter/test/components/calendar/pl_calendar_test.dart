@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -416,6 +417,22 @@ void main() {
         final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
 
         expect(focused?.findAncestorWidgetOfExactType<PlCalendar>(), isNull);
+      });
+
+      testWidgets('adds an opacity layer only while it is out of use', (WidgetTester tester) async {
+        Iterable<int> alphas() {
+          return tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha!);
+        }
+
+        await _pump(tester, PlCalendar(value: july27, disabled: true, onChanged: (DateTime? _) {}));
+
+        expect(alphas(), contains(Color.getAlphaFromOpacity(0.5)));
+
+        await _pump(tester, PlCalendar(value: july27, onChanged: (DateTime? _) {}));
+
+        // Not painted through an opacity of 1 while it is in use, which would
+        // be one more layer for nothing.
+        expect(alphas(), isEmpty);
       });
 
       testWidgets('keeps what it had open when disabled is turned on and off', (

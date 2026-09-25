@@ -867,7 +867,11 @@ class _PlMenuState extends State<PlMenu> {
           ),
           child: PlassContentsGroup(
             paints: lit || opened,
-            child: Opacity(
+            // Painted straight onto the canvas while the row can be chosen,
+            // rather than through an `Opacity` at 1, which would be a layer on
+            // every row of the menu.
+            child: PlassFiltered(
+              colorFilter: null,
               opacity: available ? 1 : disabledOpacity,
               child: Padding(
                 padding: _rowPadding[_density]![_size]!,

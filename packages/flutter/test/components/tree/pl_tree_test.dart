@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -208,6 +209,28 @@ void main() {
         // what keeps a tree of four hundred closed folders free.
         expect(find.byType(ClipRect), findsNothing);
         expect(find.text('index.ts'), findsNothing);
+      });
+
+      testWidgets('adds no opacity layer for a twisty', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const PlTree(
+            items: <PlTreeNode>[
+              PlTreeNode(
+                id: 'src',
+                label: Text('src'),
+                children: <PlTreeNode>[PlTreeNode(id: 'index', label: Text('index.ts'))],
+              ),
+              PlTreeNode(id: 'readme', label: Text('README.md')),
+            ],
+            expanded: <String>{'src'},
+          ),
+        );
+
+        // A branch's twisty is painted at full strength and a leaf's not at
+        // all, and neither is a layer: an opacity of 1 on every branch would be
+        // one for nothing.
+        expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
       });
 
       testWidgets('turns the twisty rather than jumping it between two angles', (

@@ -727,7 +727,11 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           selected: chosen,
           enabled: !option.disabled,
           onTap: option.disabled ? null : () => _take(index),
-          child: Opacity(
+          // Painted straight onto the canvas while the option can be chosen,
+          // rather than through an `Opacity` at 1, which would be a layer on
+          // every option of the list.
+          child: PlassFiltered(
+            colorFilter: null,
             opacity: option.disabled ? disabledOpacity : 1,
             child: DecoratedBox(
               decoration: BoxDecoration(
