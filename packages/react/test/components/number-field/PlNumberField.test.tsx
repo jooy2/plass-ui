@@ -102,6 +102,18 @@ describe('PlNumberField', () => {
       expect(screen.getByRole('button', { name: 'Increase' }).element()).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Decrease' }).element()).not.toBeDisabled();
     });
+
+    it('fades one at an end to half, as every disabled control is', async () => {
+      const screen = await render(
+        <PlNumberField label="Quantity" defaultValue={1} min={0} max={1} />
+      );
+
+      const increase = screen.getByRole('button', { name: 'Increase' }).element();
+
+      expect(increase).toBeDisabled();
+      expect(increase).toHaveClass('disabled:opacity-50');
+      expect(increase).not.toHaveClass('disabled:opacity-40');
+    });
   });
 
   describe('typing into it', () => {

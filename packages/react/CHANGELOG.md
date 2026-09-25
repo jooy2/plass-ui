@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A `PlNumberField` stepper that has run into `min` or `max` fades to half, as every other disabled control does.** It went to 40% opacity, so on a form the one unavailable stepper was fainter than a disabled button or field beside it, and fainter than the same stepper in the Flutter build. It now fades to 50%.
+
 - **A press on a read-only `PlSelect` does not open it, even when the lock lifts before the press is answered.** Base UI answers a pointer press on the next frame, and `PlSelect` checked `readOnly` at that frame rather than at the press, so a lock lifted in between, such as by a form that unlocks the field on the same press, let the press open the list anyway. The press is now judged by whether the field was locked when it was made.
 
 - **A vertical `PlNavigationMenu` opens its panels beside the rail, at the end of the line.** `orientation="vertical"` was documented as a nav rail whose panels open beside it, but every panel hung under its item, over the items below it. A panel now opens at the rail's inline end, which is its left under RTL with `PlassProvider`, and every item spans the rail, so each panel opens against the rail's edge and the sheet moves down the rail from one item to the next. The rail's labels now sit in its middle, as they do in the Flutter build and in a vertical `PlMenubar`.

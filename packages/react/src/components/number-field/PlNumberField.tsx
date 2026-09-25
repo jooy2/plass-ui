@@ -212,8 +212,8 @@ const stepperClasses = /* @__PURE__ */ [
   'active:bg-(--p-soft-press)',
   focusRingClasses,
   // A stepper that has run into `min` goes out like everything else that is
-  // unavailable here: the page shows through it.
-  'disabled:cursor-not-allowed disabled:bg-transparent disabled:opacity-40'
+  // unavailable here: the page shows through it, at the same half opacity.
+  'disabled:cursor-not-allowed disabled:bg-transparent disabled:opacity-50'
 ].join(' ');
 
 /**
