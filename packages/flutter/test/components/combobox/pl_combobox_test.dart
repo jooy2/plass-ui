@@ -656,6 +656,42 @@ void main() {
         expect(find.text('Seoul'), findsNothing);
       });
 
+      testWidgets('moves the list below the field once the query leaves room for it there', (
+        WidgetTester tester,
+      ) async {
+        // 120 under the field: too little for every row, and enough for one.
+        await tester.pumpWidget(
+          host(
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 120),
+                child: SizedBox(
+                  width: 320,
+                  child: PlCombobox<String>(options: _more, value: null, onChanged: (String? _) {}),
+                ),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+
+        final Rect field = tester.getRect(find.byType(EditableText));
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byType(SingleChildScrollView)).bottom, lessThan(field.top));
+
+        tester.testTextInput.enterText('rom');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Rome']);
+        expect(tester.getRect(find.byType(SingleChildScrollView)).top, greaterThan(field.bottom));
+
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        expect(tester.getRect(find.byType(SingleChildScrollView)).bottom, lessThan(field.top));
+      });
+
       testWidgets('lists every row as it opens on a chosen one, until the text changes', (
         WidgetTester tester,
       ) async {

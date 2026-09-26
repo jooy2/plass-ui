@@ -470,6 +470,243 @@ void main() {
         expect(placed.popup.size, const Size(100, 120));
         expect(placed.popup.bottom, placed.anchor.top);
       });
+
+      testWidgets('flips a popup that has grown too tall for its side, and back once it shrinks', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        final ValueNotifier<double> height = ValueNotifier<double>(80);
+        addTearDown(height.dispose);
+
+        // 160 below the anchor and 400 above it.
+        final Widget tree = Padding(
+          padding: const EdgeInsets.only(top: 400),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: PlassAnchoredPortal(
+              open: true,
+              side: PlassSide.bottom,
+              offset: 0,
+              popup: ValueListenableBuilder<double>(
+                valueListenable: height,
+                builder: (BuildContext context, double value, Widget? child) {
+                  return SizedBox(key: popupKey, width: 200, height: value);
+                },
+              ),
+              child: const SizedBox(key: anchorKey, width: 100, height: 40),
+            ),
+          ),
+        );
+
+        final short = await resize(tester, const Size(800, 600), tree);
+
+        expect(short.popup.top, short.anchor.bottom);
+
+        height.value = 200;
+        await tester.pumpAndSettle();
+
+        expect(tester.getRect(find.byKey(popupKey)).bottom, short.anchor.top);
+
+        height.value = 80;
+        await tester.pumpAndSettle();
+
+        expect(tester.getRect(find.byKey(popupKey)).top, short.anchor.bottom);
+      });
+
+      testWidgets('flips a popup whose anchor a relayout has moved or made taller', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        Widget anchored({required double top, required double height}) {
+          return Padding(
+            padding: EdgeInsets.only(top: top),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: PlassAnchoredPortal(
+                open: true,
+                side: PlassSide.bottom,
+                offset: 0,
+                popup: const SizedBox(key: popupKey, width: 200, height: 80),
+                child: SizedBox(key: anchorKey, width: 100, height: height),
+              ),
+            ),
+          );
+        }
+
+        final open = await resize(tester, const Size(800, 600), anchored(top: 100, height: 40));
+
+        expect(open.popup.top, open.anchor.bottom);
+
+        // Moved to 60 above the bottom, where the popup needs 80.
+        final moved = await resize(tester, const Size(800, 600), anchored(top: 500, height: 40));
+
+        expect(moved.popup.bottom, moved.anchor.top);
+
+        final back = await resize(tester, const Size(800, 600), anchored(top: 380, height: 40));
+
+        expect(back.popup.top, back.anchor.bottom);
+
+        // Grown down to 70 above the bottom, as a field whose chips wrap does.
+        final taller = await resize(tester, const Size(800, 600), anchored(top: 380, height: 150));
+
+        expect(taller.popup.bottom, taller.anchor.top);
+      });
+
+      testWidgets('turns a popup held to its room beside the anchor as its own width changes', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        final ValueNotifier<double> width = ValueNotifier<double>(250);
+        addTearDown(width.dispose);
+
+        // 292 to the right of the anchor and 392 to its left.
+        final Widget tree = Padding(
+          padding: const EdgeInsets.only(left: 400, top: 200),
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: PlassAnchoredPortal(
+              open: true,
+              side: PlassSide.right,
+              align: PlassAlign.start,
+              offset: 8,
+              fitWidth: true,
+              popup: ValueListenableBuilder<double>(
+                valueListenable: width,
+                builder: (BuildContext context, double value, Widget? child) {
+                  return SizedBox(key: popupKey, width: value, height: 40);
+                },
+              ),
+              child: const SizedBox(key: anchorKey, width: 100, height: 40),
+            ),
+          ),
+        );
+
+        final narrow = await resize(tester, const Size(800, 600), tree);
+
+        expect(narrow.popup.left, narrow.anchor.right + 8);
+        expect(narrow.popup.width, 250);
+
+        Rect popup() => tester.getRect(find.byKey(popupKey));
+
+        // Too wide for the right, and room for it on the left.
+        width.value = 350;
+        await tester.pumpAndSettle();
+
+        expect(popup().right, narrow.anchor.left - 8);
+        expect(popup().width, 350);
+
+        // Too wide for either, and held to its room on the side asked for,
+        // rather than kept on the left by the width it had before.
+        width.value = 450;
+        await tester.pumpAndSettle();
+
+        expect(popup().left, narrow.anchor.right + 8);
+        expect(popup().width, 292);
+
+        width.value = 250;
+        await tester.pumpAndSettle();
+
+        expect(popup().left, narrow.anchor.right + 8);
+        expect(popup().width, 250);
+      });
+
+      for (final String scroller in <String>['SingleChildScrollView', 'ListView']) {
+        testWidgets('measures nothing as a $scroller carries the anchor', (
+          WidgetTester tester,
+        ) async {
+          addTearDown(tester.view.reset);
+
+          final ScrollController scroll = ScrollController(initialScrollOffset: 300);
+          addTearDown(scroll.dispose);
+
+          final List<PlassSide> resolved = <PlassSide>[];
+
+          // 600 down the page, which the scroll puts 300 down the screen.
+          final List<Widget> page = <Widget>[
+            const SizedBox(height: 600),
+            Align(
+              alignment: Alignment.topCenter,
+              child: PlassAnchoredPortal(
+                open: true,
+                side: PlassSide.bottom,
+                offset: 0,
+                onSideResolved: resolved.add,
+                popup: const SizedBox(key: popupKey, width: 200, height: 80),
+                child: const SizedBox(key: anchorKey, width: 100, height: 40),
+              ),
+            ),
+            const SizedBox(height: 1000),
+          ];
+
+          final placed = await resize(
+            tester,
+            const Size(800, 600),
+            scroller == 'ListView'
+                ? ListView(controller: scroll, children: page)
+                : SingleChildScrollView(
+                    controller: scroll,
+                    child: Column(children: page),
+                  ),
+          );
+
+          expect(placed.anchor.top, 300);
+          expect(placed.popup.top, placed.anchor.bottom);
+
+          final int measured = resolved.length;
+
+          // 10 below the anchor once it is carried down, which a measure would
+          // flip it away from.
+          scroll.jumpTo(50);
+          await tester.pumpAndSettle();
+
+          final anchor = tester.getRect(find.byKey(anchorKey));
+
+          expect(anchor.top, 550);
+          expect(tester.getRect(find.byKey(popupKey)).top, anchor.bottom);
+          expect(resolved, hasLength(measured));
+        });
+      }
+
+      testWidgets('measures nothing again while nothing it was placed by changes', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        final List<PlassSide> resolved = <PlassSide>[];
+
+        final placed = await resize(
+          tester,
+          const Size(800, 600),
+          Padding(
+            padding: const EdgeInsets.only(left: 600, top: 530),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: PlassAnchoredPortal(
+                open: true,
+                side: PlassSide.bottom,
+                align: PlassAlign.start,
+                offset: 0,
+                fitWidth: true,
+                onSideResolved: resolved.add,
+                popup: wrapping,
+                child: const SizedBox(key: anchorKey, width: 100, height: 40),
+              ),
+            ),
+          ),
+        );
+
+        final int measured = resolved.length;
+
+        for (int frame = 0; frame < 5; frame += 1) {
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+
+        expect(resolved, hasLength(measured));
+        expect(tester.getRect(find.byKey(popupKey)), placed.popup);
+      });
     });
   });
 }

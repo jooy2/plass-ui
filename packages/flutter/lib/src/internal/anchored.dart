@@ -44,8 +44,9 @@ enum PlassAnchorWidth {
 /// avoid, and a popup that creeps sideways as its anchor nears the edge is a
 /// popup whose arrow no longer points at anything.
 ///
-/// The side is decided as the popup opens and again whenever the screen
-/// changes size, and never on a scroll, which the layer link already follows.
+/// The side is decided as the popup opens, and again whenever the screen
+/// changes size, the popup's own size changes, or a relayout moves or resizes
+/// the anchor, and never on a scroll, which the layer link already follows.
 ///
 /// Needs an [Overlay] above it, which `WidgetsApp` with a navigator and
 /// `MaterialApp` both provide.
@@ -127,11 +128,16 @@ class PlassAnchoredPortal extends StatefulWidget {
 
   /// Whether the popup is held to the room it has on its side of the anchor.
   ///
-  /// The room is measured after the flip, as the popup opens and again
-  /// whenever the screen changes size: from where the popup hangs to the edge
-  /// of the screen it runs towards. A popup here flips and never slides, so
-  /// one wider than that room would run off the screen. For a popup as wide as
-  /// whatever the caller puts in it; the rest keep the width they are given.
+  /// The room is measured after the flip, whenever the side is decided: from
+  /// where the popup hangs to the edge of the screen it runs towards. A popup
+  /// here flips and never slides, so one wider than that room would run off
+  /// the screen. For a popup as wide as whatever the caller puts in it; the
+  /// rest keep the width they are given.
+  ///
+  /// A flip beside the anchor is decided against the popup's own width, the
+  /// widest it would be laid out, as a React popup's `max-content`, and not
+  /// against the width its room holds it to. That width is read from its
+  /// intrinsic width, so what it holds has to be able to say what that is.
   final bool fitWidth;
 
   /// Told which side the popup actually ended up on, once it is known.
@@ -176,17 +182,17 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   /// its room, and `null` until that has been measured.
   double? _room;
 
-  /// How wide a popup held to its room is at its own width, measured as it
-  /// opens, before the room is known.
-  ///
-  /// A flip beside the anchor is decided against this rather than against the
-  /// width the popup is drawn at, because a popup held to the room on one side
-  /// always seems to fit there.
-  double? _ownWidth;
+  /// What the side was last decided from, and `null` until it has been since
+  /// the popup last opened.
+  _Placed? _placed;
 
-  /// The size of the screen when it was last looked at, and `null` until the
-  /// popup first opens.
-  Size? _screen;
+  /// The scrollables between the anchor and the screen, as the last measure
+  /// found them, whose scrolls are taken out of where the anchor is.
+  List<ScrollableState> _scrollables = const <ScrollableState>[];
+
+  /// Whether a look at the anchor and the popup waits for the end of the next
+  /// frame.
+  bool _watching = false;
 
   /// Answers Escape before anything around the popup does, so a popover opened
   /// in a modal closes itself and leaves the modal up.
@@ -214,7 +220,6 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
       // Read here as well as below, for the reason `PlassPortal` gives: a theme
       // that changed in the same frame as `open` reaches an update first.
       _syncMotion();
-      _watchScreen();
       widget.open ? _show() : _fade.reverse();
     }
   }
@@ -223,31 +228,40 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncMotion();
-    _watchScreen();
   }
 
-  /// Measures an open popup again once the frame has laid it out, when the
-  /// screen has changed size and moved the anchor and the room round it.
+  /// Looks at the anchor and the popup at the end of every frame for as long
+  /// as the popup is open, and measures it again when anything the side was
+  /// decided from has changed, as Floating UI's `autoUpdate` places a React
+  /// popup again.
   ///
-  /// The size is watched from the first time the popup opens and not before:
-  /// a page can hold hundreds of popups that never open, a tooltip on every
-  /// button, and all of them would be rebuilt on every frame of a window being
-  /// resized.
-  void _watchScreen() {
-    if (!widget.open && _screen == null) {
+  /// A look at the end of a frame rather than a listener on the screen, the
+  /// popup and the anchor: nothing else hears a relayout that moves the anchor.
+  /// It costs nothing while no frame is drawn, and only an open popup looks. A
+  /// scroll is taken out of where the anchor is, so a scroll that the layer
+  /// link carries the popup through measures nothing.
+  void _watch() {
+    if (_watching) {
       return;
     }
 
-    final screen = MediaQuery.maybeSizeOf(context);
+    _watching = true;
+    _afterFrame(() {
+      _watching = false;
 
-    if (screen != _screen) {
-      final resized = _screen != null;
-      _screen = screen;
-
-      if (resized && widget.open) {
-        _afterFrame(_measure);
+      if (!mounted || !widget.open) {
+        return;
       }
-    }
+
+      final placed = _placed;
+      final now = _look()?.placed;
+
+      if (now != null && (placed == null || now.differs(placed))) {
+        _measure();
+      }
+
+      _watch();
+    });
   }
 
   /// Hands the fade the theme's duration and curve, or no duration at all for
@@ -304,59 +318,154 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         return;
       }
 
-      // Laid out at its own width first, which is the width the flip is
-      // decided against, and held to its room only once that is known.
+      // Laid out at its own width first, and held to its room only once that
+      // is known.
       _side = widget.side;
       _room = null;
+      _placed = null;
       _portal.show();
       _fade.forward();
 
       // One more frame: the popup has to have been laid out once before there is
       // a size to decide the flip against.
-      _afterFrame(() => _measure(opening: true));
+      _afterFrame(() {
+        _measure();
+        _watch();
+      });
     });
+  }
+
+  /// The anchor, the popup and the screen as they are laid out now, with what
+  /// a side is decided from, or `null` while any of them has not been laid out.
+  ///
+  /// [collect] finds the scrollables between the anchor and the screen again,
+  /// which a measure does and a look at the end of a frame does not.
+  ({RenderBox anchor, RenderBox popup, RenderBox room, Rect box, _Placed placed})? _look({
+    bool collect = false,
+  }) {
+    final anchorContext = _anchorKey.currentContext;
+    final anchor = anchorContext?.findRenderObject() as RenderBox?;
+    final popup = _popupKey.currentContext?.findRenderObject() as RenderBox?;
+    final overlay = Overlay.maybeOf(context);
+    final room = overlay?.context.findRenderObject() as RenderBox?;
+
+    if (anchorContext == null ||
+        overlay == null ||
+        anchor == null ||
+        popup == null ||
+        room == null ||
+        !anchor.attached ||
+        !popup.attached ||
+        !anchor.hasSize ||
+        !popup.hasSize ||
+        !room.hasSize) {
+      return null;
+    }
+
+    if (collect) {
+      _scrollables = _scrollablesBetween(anchorContext, overlay.context);
+    }
+
+    final box = anchor.localToGlobal(Offset.zero, ancestor: room) & anchor.size;
+
+    // A popup held to its room is decided against the width it would be at
+    // its own width, within the anchor's and the screen's.
+    double? own;
+
+    if (widget.fitWidth) {
+      final bounds = _widthFor(anchor.size.width).enforce(BoxConstraints.loose(room.size));
+      own = bounds.constrainWidth(popup.getMaxIntrinsicWidth(bounds.maxHeight));
+    }
+
+    return (
+      anchor: anchor,
+      popup: popup,
+      room: room,
+      box: box,
+      placed: _Placed(anchor: box.shift(_scrolled()), popup: popup.size, own: own, room: room.size),
+    );
+  }
+
+  /// The scrollables [anchor] sits in, up to [overlay].
+  static List<ScrollableState> _scrollablesBetween(BuildContext anchor, BuildContext overlay) {
+    final found = <ScrollableState>[];
+
+    anchor.visitAncestorElements((Element element) {
+      if (identical(element, overlay)) {
+        return false;
+      }
+
+      if (element is StatefulElement && element.state is ScrollableState) {
+        found.add(element.state as ScrollableState);
+      }
+
+      return true;
+    });
+
+    return found;
+  }
+
+  /// How far the scrollables between the anchor and the screen have carried
+  /// it, turned round: added to where the anchor is, it gives a place that a
+  /// scroll does not change and a relayout does.
+  Offset _scrolled() {
+    var by = Offset.zero;
+
+    for (final scrollable in _scrollables) {
+      if (!scrollable.mounted || !scrollable.position.hasPixels) {
+        continue;
+      }
+
+      final pixels = scrollable.position.pixels;
+
+      by += switch (scrollable.axisDirection) {
+        AxisDirection.down => Offset(0, pixels),
+        AxisDirection.up => Offset(0, -pixels),
+        AxisDirection.right => Offset(pixels, 0),
+        AxisDirection.left => Offset(-pixels, 0),
+      };
+    }
+
+    return by;
+  }
+
+  /// The widths the popup is held to by an anchor [width] wide.
+  BoxConstraints _widthFor(double? width) {
+    return switch (widget.anchorWidth) {
+      PlassAnchorWidth.free => const BoxConstraints(),
+      PlassAnchorWidth.atLeast => BoxConstraints(minWidth: width ?? 0),
+      PlassAnchorWidth.exact => BoxConstraints.tightFor(width: width),
+    };
   }
 
   /// Decides the side, and the widths the popup is held to, from where the
   /// anchor and the popup are laid out now.
   ///
-  /// Run as the popup opens and when the screen changes size, and once more
-  /// after either has changed a width the popup is held to: a narrower popup
-  /// wraps its lines and grows taller, and a flip above or below the anchor is
-  /// decided against the height it grows to. That measure settles the side
-  /// rather than turning it back. A popup is held to the same room above the
-  /// anchor as below it, so it is as tall on either side, and a flip beside
-  /// the anchor is decided against [_ownWidth], which no room changes.
-  void _measure({bool opening = false}) {
-    // A popup held to its room is laid out at its own width as it opens, and
-    // only the measure that follows that layout may decide anything: one run
-    // in between would hold it to a room before its own width was known.
-    if (!mounted || !widget.open || (widget.fitWidth && _room == null && !opening)) {
+  /// Run as the popup opens, and after any frame that changed what it was
+  /// last decided from, which includes a width it holds the popup to: a
+  /// narrower popup wraps its lines and grows taller, and a flip above or
+  /// below the anchor is decided against the height it grows to. That measure
+  /// settles the side rather than turning it back. A popup is held to the same
+  /// room above the anchor as below it, so it is as tall on either side, and a
+  /// flip beside the anchor is decided against its own width, which no room
+  /// changes.
+  void _measure() {
+    if (!mounted || !widget.open) {
       return;
     }
 
-    final anchor = _anchorKey.currentContext?.findRenderObject() as RenderBox?;
-    final popup = _popupKey.currentContext?.findRenderObject() as RenderBox?;
-    final room = Overlay.maybeOf(context)?.context.findRenderObject() as RenderBox?;
+    final seen = _look(collect: true);
 
-    if (anchor == null || popup == null || room == null || !anchor.hasSize || !popup.hasSize) {
+    if (seen == null) {
       return;
     }
 
-    if (opening) {
-      _ownWidth = popup.size.width;
-    }
+    final (:anchor, :popup, :room, :box, :placed) = seen;
+    _placed = placed;
 
-    final origin = anchor.localToGlobal(Offset.zero, ancestor: room);
-    final box = origin & anchor.size;
-    final size = widget.fitWidth
-        ? Size(_ownWidth ?? popup.size.width, popup.size.height)
-        : popup.size;
+    final size = widget.fitWidth ? Size(placed.own!, popup.size.height) : popup.size;
     final side = _fit(box, size, room.size);
     final space = widget.fitWidth ? _roomOn(side, box, room.size) : null;
-    final widthChanged =
-        space != _room ||
-        (widget.anchorWidth != PlassAnchorWidth.free && anchor.size.width != _anchorWidth);
 
     if (side != _side || anchor.size.width != _anchorWidth || space != _room) {
       setState(() {
@@ -364,10 +473,6 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         _anchorWidth = anchor.size.width;
         _room = space;
       });
-    }
-
-    if (widthChanged) {
-      _afterFrame(_measure);
     }
 
     widget.onSideResolved?.call(side);
@@ -491,11 +596,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   Widget _buildPopup(BuildContext context) {
     final (targetAnchor, followerAnchor, standoff) = _anchors(Directionality.of(context));
 
-    final BoxConstraints width = switch (widget.anchorWidth) {
-      PlassAnchorWidth.free => const BoxConstraints(),
-      PlassAnchorWidth.atLeast => BoxConstraints(minWidth: _anchorWidth ?? 0),
-      PlassAnchorWidth.exact => BoxConstraints.tightFor(width: _anchorWidth),
-    };
+    final BoxConstraints width = _widthFor(_anchorWidth);
     final double? room = widget.fitWidth ? _room : null;
 
     Widget popup = FadeTransition(
@@ -554,6 +655,29 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         ),
       ),
     );
+  }
+}
+
+/// What a popup's side was decided from: where its anchor is, with every scroll
+/// between it and the screen taken out, how big the popup is, how wide it is
+/// at its own width when it is held to its room, and how big the screen is.
+@immutable
+class _Placed {
+  const _Placed({required this.anchor, required this.popup, required this.own, required this.room});
+
+  final Rect anchor;
+  final Size popup;
+  final double? own;
+  final Size room;
+
+  /// Whether the two would decide the side apart. The anchor's place is let
+  /// off by a hundredth of a pixel, which a scroll taken back out can leave.
+  bool differs(_Placed other) {
+    return (anchor.topLeft - other.anchor.topLeft).distance > 0.01 ||
+        anchor.size != other.anchor.size ||
+        popup != other.popup ||
+        own != other.own ||
+        room != other.room;
   }
 }
 
