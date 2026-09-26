@@ -76,6 +76,8 @@
 
 ### Fixed
 
+- **A `PlWindowPane` close button turns its own system's red, a macOS window behind the front one has grey traffic lights, and Aqua's lights are glossy, as in the React build.** Every square close button turned `#c42b1c`, the Windows 11 red, where `windows10` and `windows8` turn `#e81123`. The `macos` and `macosx` lights kept their colour on a window that was not `active`; they now take the page's ink at 22%. Their marks were drawn in black at 60% where the React marks are at 55%, and the `macosx` lights were flat; they now carry a highlight high in the drop, a dark ring and a shade at the foot. A square or Aero close button now also turns red while it is pressed, so a finger on a touch screen, which brings no hover, sees it turn; it turned only under the pointer.
+
 - **The glyph of the current destination of a `PlFloatingBottomNavigation` built with a `value` turns white only once its key is under it.** The glyph took the white it wears on the key from the first frame, while the key is placed by a measurement after it, so for that frame it stood white on the pale capsule. It now keeps the ink of a destination on the bare bar until the key arrives, and takes the white in the same frame, as the React bar paints its key and its glyph together.
 
 - **Words in the `startIcon` of a `PlSelect`, `PlCombobox`, `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker` or `PlTreeSelect` are drawn in the muted ink, as a glyph there is and as in the React build.** Only a glyph took the muted colour, so a `Text` there, such as a currency sign, kept the colour of the page around the field, where a `PlTextField` or a `PlNumberField` mutes both.

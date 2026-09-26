@@ -15,6 +15,7 @@ import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
+import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -668,6 +669,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
           for (int i = 0; i < order.length; i += 1) ...<Widget>[
             if (i > 0) SizedBox(width: metrics.gap),
             _WindowButton(
+              os: widget.os,
               control: order[i],
               chrome: chrome,
               metrics: metrics,
@@ -929,6 +931,7 @@ const double _plateHoverBrightness = 1.1;
 /// three from a `<button>`.
 class _WindowButton extends StatelessWidget {
   const _WindowButton({
+    required this.os,
     required this.control,
     required this.chrome,
     required this.metrics,
@@ -939,6 +942,10 @@ class _WindowButton extends StatelessWidget {
     required this.onPressed,
   });
 
+  /// The system, which is what the close button's red is looked up by: two
+  /// systems that draw the same square button turn it different reds.
+  final PlWindowOs os;
+
   final PlWindowControl control;
   final PlWindowChrome chrome;
   final PlWindowMetrics metrics;
@@ -946,7 +953,7 @@ class _WindowButton extends StatelessWidget {
   final bool maximized;
 
   /// Whether the window is the one in front, which an XP plate says by its
-  /// colour as the bar under it does.
+  /// colour as the bar under it does, and a traffic light by having one.
   final bool active;
 
   final String label;
@@ -964,11 +971,12 @@ class _WindowButton extends StatelessWidget {
         final bool closing = control == PlWindowControl.close;
         final double width = closing ? metrics.closeWidth : metrics.control.width;
 
-        final Color? danger = closing
-            ? closeHover[chrome.shape == PlWindowControlShape.dot
-                  ? PlWindowOs.macos
-                  : PlWindowOs.windows11]
-            : null;
+        // The red a close button turns under the pointer, and under a press
+        // with no pointer over it, as the React button's `active:` turns it,
+        // so a finger on a touch screen, which brings no hover with it, sees
+        // it too. `null` on the other two buttons, on a system whose close
+        // button does not turn, and while nothing is on it.
+        final Color? alarm = closing && (over || state.pressed) ? closeHover[os] : null;
 
         Color fill = const Color(0x00000000);
         Color ink = colors.barFg;
@@ -978,11 +986,15 @@ class _WindowButton extends StatelessWidget {
         switch (chrome.shape) {
           case PlWindowControlShape.dot:
           case PlWindowControlShape.glossDot:
-            fill = trafficColors[control]!;
             // A window behind the front one has grey lights, which is the whole of
-            // how macOS says which window is which.
-            ink = const Color(0x99000000);
+            // how macOS says which window is which: the page's ink at 22%.
+            fill = active ? trafficColors[control]! : tokens.fg.withValues(alpha: 0.22);
+            ink = trafficInk;
             radius = BorderRadius.circular(width);
+
+            if (chrome.shape == PlWindowControlShape.glossDot) {
+              finish = glossDotFinish;
+            }
           case PlWindowControlShape.plate:
             // A plate on a window behind the front one washes out with the bar
             // it sits on.
@@ -995,8 +1007,8 @@ class _WindowButton extends StatelessWidget {
           case PlWindowControlShape.aero:
             // Only the close button changes its face under the pointer; the
             // other two brighten the face they have.
-            fill = closing && over ? closeHover[PlWindowOs.windows7]! : aeroFace;
-            ink = closing && over ? const Color(0xFFFFFFFF) : colors.barFg;
+            fill = alarm ?? aeroFace;
+            ink = alarm == null ? colors.barFg : const Color(0xFFFFFFFF);
             // Rounded where it leaves the window and square where it meets the
             // edge it is hanging from.
             radius = const BorderRadius.vertical(bottom: Radius.circular(3));
@@ -1005,9 +1017,11 @@ class _WindowButton extends StatelessWidget {
             fill = over ? colors.hover : colors.hover.withValues(alpha: 0.5);
             radius = BorderRadius.circular(width);
           case PlWindowControlShape.square:
-            if (over) {
-              fill = closing ? (danger ?? colors.hover) : colors.hover;
-              ink = closing ? const Color(0xFFFFFFFF) : colors.barFg;
+            if (alarm != null) {
+              fill = alarm;
+              ink = const Color(0xFFFFFFFF);
+            } else if (over) {
+              fill = colors.hover;
             }
         }
 
@@ -1041,13 +1055,22 @@ class _WindowButton extends StatelessWidget {
         // React button's `background-image` and inset `box-shadow` lie over its
         // `background-color`, so a close button turning red keeps its gloss.
         if (finish != null) {
+          Widget inner = Center(child: mark);
+
+          if (finish.insets.isNotEmpty) {
+            inner = CustomPaint(
+              painter: PlassInsetShadowPainter(shadows: finish.insets, borderRadius: radius),
+              child: inner,
+            );
+          }
+
           mark = DecoratedBox(
             decoration: BoxDecoration(
               gradient: finish.image,
               borderRadius: radius,
               border: Border.all(color: finish.edge),
             ),
-            child: Center(child: mark),
+            child: inner,
           );
         }
 

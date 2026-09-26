@@ -21,8 +21,11 @@
 /// It is not exported from `plass_ui.dart`.
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Whose window this is a picture of.
@@ -683,18 +686,22 @@ const Map<PlWindowControl, Color> plateColors = <PlWindowControl, Color>{
 /// is not in front: 55% of the way from their own colour.
 const Color paintedWash = Color(0xFFC6C9CE);
 
-/// The finish over a button's face: a gloss laid over its colour and a white
-/// edge cut just inside it, both under the mark.
+/// The finish over a button's face: a gloss laid over its colour and an edge
+/// cut just inside it, both under the mark.
 @immutable
 class PlWindowFinish {
   /// Creates a finish.
-  const PlWindowFinish(this.image, this.edge);
+  const PlWindowFinish(this.image, this.edge, {this.insets = const <PlassInsetShadow>[]});
 
-  /// The gloss, top to bottom.
+  /// The gloss.
   final Gradient image;
 
   /// The edge, one logical pixel wide, inside the button.
   final Color edge;
+
+  /// Any shade cast inside the button besides the edge, over the gloss and
+  /// under the mark, as a CSS inset shadow is painted.
+  final List<PlassInsetShadow> insets;
 }
 
 /// XP's plates: bright at the top, clear through the middle and a shade darker
@@ -724,7 +731,32 @@ const PlWindowFinish aeroFinish = PlWindowFinish(
   Color(0x8CFFFFFF),
 );
 
-/// What each system turns the close button when the pointer is on it.
+/// Aqua's lights: a highlight high in the drop, where the light from above
+/// catches it, a dark ring round it and a shade in its foot, which is what
+/// makes a flat dot read as a bead of glass.
+///
+/// The highlight is `radial-gradient(circle at 50% 26%, …)`, which reaches the
+/// corner of the square it is drawn in farthest from its centre. That is
+/// √(0.5² + 0.74²) of the square's side away, and a [RadialGradient]'s radius
+/// is a fraction of that same side.
+final PlWindowFinish glossDotFinish = PlWindowFinish(
+  RadialGradient(
+    center: const Alignment(0, -0.48),
+    radius: math.sqrt(0.5 * 0.5 + 0.74 * 0.74),
+    colors: const <Color>[Color(0xCCFFFFFF), Color(0x00FFFFFF)],
+    stops: const <double>[0, 0.62],
+  ),
+  const Color(0x38000000),
+  insets: const <PlassInsetShadow>[
+    PlassInsetShadow(color: Color(0x26000000), offset: Offset(0, -1), blur: 1),
+  ],
+);
+
+/// The mark on a traffic light, whichever colour the light is.
+const Color trafficInk = Color(0x8C000000);
+
+/// What each system turns the close button when the pointer is on it or it is
+/// pressed.
 const Map<PlWindowOs, Color?> closeHover = <PlWindowOs, Color?>{
   PlWindowOs.macos: null,
   PlWindowOs.macosx: null,

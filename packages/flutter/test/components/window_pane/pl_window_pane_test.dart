@@ -1,4 +1,6 @@
-import 'package:flutter/gestures.dart' show PointerDeviceKind, kDoubleTapTimeout;
+import 'dart:math' as math;
+
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kDoubleTapTimeout, kPressTimeout;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +8,7 @@ import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -1390,6 +1393,49 @@ void main() {
             .ink;
       }
 
+      /// The button for [control], found by its name rather than by its mark,
+      /// which a traffic light at rest does not draw.
+      Finder lightNamed(PlWindowControl control) {
+        const Map<PlWindowControl, String> names = <PlWindowControl, String>{
+          PlWindowControl.close: 'Close',
+          PlWindowControl.minimize: 'Minimize',
+          PlWindowControl.maximize: 'Maximize',
+        };
+
+        return find
+            .ancestor(
+              of: find.bySemanticsLabel(names[control]!),
+              matching: find.byType(PlassInteractive),
+            )
+            .first;
+      }
+
+      /// What the button for [control] paints under its mark, as [captionFace]
+      /// reads it.
+      List<BoxDecoration> lightFace(WidgetTester tester, PlWindowControl control) {
+        return tester
+            .widgetList<DecoratedBox>(
+              find.descendant(of: lightNamed(control), matching: find.byType(DecoratedBox)),
+            )
+            .map((DecoratedBox box) => box.decoration as BoxDecoration)
+            .toList();
+      }
+
+      /// The shades cast inside the button for [control] past its edge, or
+      /// `null` where it casts none.
+      List<PlassInsetShadow>? lightInsets(WidgetTester tester, PlWindowControl control) {
+        final Finder painted = find.descendant(
+          of: lightNamed(control),
+          matching: find.byWidgetPredicate(
+            (Widget widget) => widget is CustomPaint && widget.painter is PlassInsetShadowPainter,
+          ),
+        );
+
+        return painted.evaluate().isEmpty
+            ? null
+            : (tester.widget<CustomPaint>(painted).painter! as PlassInsetShadowPainter).shadows;
+      }
+
       // `linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(255 255 255 /
       // 0.08) 52%, rgb(255 255 255 / 0.3))` and `inset 0 0 0 1px rgb(255 255
       // 255 / 0.55)`.
@@ -1506,6 +1552,185 @@ void main() {
           }
         },
       );
+
+      testWidgets('turn a square close button the red its own system turns it', (
+        WidgetTester tester,
+      ) async {
+        // `#c42b1c` on Windows 11, and `#e81123` on 10 and 8, which draw the
+        // same square button.
+        const Map<PlWindowOs, Color> red = <PlWindowOs, Color>{
+          PlWindowOs.windows11: Color(0xFFC42B1C),
+          PlWindowOs.windows10: Color(0xFFE81123),
+          PlWindowOs.windows8: Color(0xFFE81123),
+        };
+
+        for (final MapEntry<PlWindowOs, Color> system in red.entries) {
+          await _pump(tester, PlWindowPane(os: system.key, title: const Text('Notes')));
+
+          final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+          await mouse.addPointer(location: Offset.zero);
+          await mouse.moveTo(tester.getCenter(captionMark(PlWindowControl.close)));
+          await tester.pumpAndSettle();
+
+          expect(
+            captionFace(tester, PlWindowControl.close).first.color,
+            system.value,
+            reason: system.key.name,
+          );
+          expect(
+            captionInk(tester, PlWindowControl.close),
+            const Color(0xFFFFFFFF),
+            reason: system.key.name,
+          );
+
+          await mouse.removePointer();
+          await tester.pumpAndSettle();
+        }
+      });
+
+      testWidgets('turn a close button red under a press with no pointer over it', (
+        WidgetTester tester,
+      ) async {
+        const Map<PlWindowOs, Color> red = <PlWindowOs, Color>{
+          PlWindowOs.windows10: Color(0xFFE81123),
+          PlWindowOs.windows7: Color(0xFFE04A45),
+        };
+
+        for (final MapEntry<PlWindowOs, Color> system in red.entries) {
+          await _pump(tester, PlWindowPane(os: system.key, title: const Text('Notes')));
+
+          final Color? rest = captionFace(tester, PlWindowControl.close).first.color;
+
+          expect(rest, isNot(system.value), reason: system.key.name);
+
+          // A finger, which brings no hover with it, held down long enough to
+          // count as a press.
+          final TestGesture finger = await tester.startGesture(
+            tester.getCenter(captionMark(PlWindowControl.close)),
+          );
+
+          await tester.pump(kPressTimeout);
+          await tester.pumpAndSettle();
+
+          expect(
+            captionFace(tester, PlWindowControl.close).first.color,
+            system.value,
+            reason: system.key.name,
+          );
+          expect(
+            captionInk(tester, PlWindowControl.close),
+            const Color(0xFFFFFFFF),
+            reason: system.key.name,
+          );
+
+          // Taken off without pressing it.
+          await finger.cancel();
+          await tester.pumpAndSettle();
+
+          expect(
+            captionFace(tester, PlWindowControl.close).first.color,
+            rest,
+            reason: system.key.name,
+          );
+        }
+      });
+
+      testWidgets('grey the traffic lights of a window that is not in front', (
+        WidgetTester tester,
+      ) async {
+        for (final PlWindowOs os in <PlWindowOs>[PlWindowOs.macos, PlWindowOs.macosx]) {
+          await _pump(tester, PlWindowPane(os: os, title: const Text('Notes')));
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            expect(
+              lightFace(tester, control).first.color,
+              trafficColors[control],
+              reason: '${os.name} ${control.name}',
+            );
+          }
+
+          await _pump(tester, PlWindowPane(os: os, title: const Text('Notes'), active: false));
+
+          final Color ink = PlassTheme.of(tester.element(find.byType(PlWindowPane))).fg;
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            // `color-mix(in oklab, var(--plass-fg) 22%, transparent)`.
+            expect(
+              lightFace(tester, control).first.color,
+              ink.withValues(alpha: 0.22),
+              reason: '${os.name} ${control.name}',
+            );
+          }
+        }
+      });
+
+      testWidgets('draw a traffic light\'s mark in black at 55%', (WidgetTester tester) async {
+        for (final PlWindowOs os in <PlWindowOs>[PlWindowOs.macos, PlWindowOs.macosx]) {
+          await _pump(tester, PlWindowPane(os: os, title: const Text('Notes')));
+
+          final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+          await mouse.addPointer(location: Offset.zero);
+          await mouse.moveTo(tester.getCenter(lightNamed(PlWindowControl.close)));
+          await tester.pumpAndSettle();
+
+          // `rgb(0 0 0 / 0.55)`.
+          expect(
+            captionInk(tester, PlWindowControl.close),
+            const Color(0x8C000000),
+            reason: os.name,
+          );
+
+          await mouse.removePointer();
+          await tester.pumpAndSettle();
+        }
+      });
+
+      testWidgets('draw Aqua\'s lights with a highlight, a ring and a shade in the foot', (
+        WidgetTester tester,
+      ) async {
+        // `radial-gradient(circle at 50% 26%, rgb(255 255 255 / 0.8), rgb(255
+        // 255 255 / 0) 62%)`, which reaches the corner of the light's square
+        // farthest from its centre, √(0.5² + 0.74²) of its side away.
+        final Gradient aquaGloss = RadialGradient(
+          center: const Alignment(0, -0.48),
+          radius: math.sqrt(0.5 * 0.5 + 0.74 * 0.74),
+          colors: const <Color>[Color(0xCCFFFFFF), Color(0x00FFFFFF)],
+          stops: const <double>[0, 0.62],
+        );
+        // `inset 0 0 0 1px rgb(0 0 0 / 0.22)`.
+        final Border aquaRing = Border.all(color: const Color(0x38000000));
+        // `inset 0 -1px 1px rgb(0 0 0 / 0.15)`.
+        const List<PlassInsetShadow> aquaFoot = <PlassInsetShadow>[
+          PlassInsetShadow(color: Color(0x26000000), offset: Offset(0, -1), blur: 1),
+        ];
+
+        for (final bool active in <bool>[true, false]) {
+          await _pump(
+            tester,
+            PlWindowPane(os: PlWindowOs.macosx, title: const Text('Notes'), active: active),
+          );
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            final String reason = '${control.name}, ${active ? 'in front' : 'behind'}';
+            final List<BoxDecoration> face = lightFace(tester, control);
+
+            expect(face, hasLength(2), reason: reason);
+            expect(face.last.gradient, aquaGloss, reason: reason);
+            expect(face.last.border, aquaRing, reason: reason);
+            expect(lightInsets(tester, control), aquaFoot, reason: reason);
+          }
+        }
+
+        // The flat lights have none of it.
+        await _pump(tester, const PlWindowPane(os: PlWindowOs.macos, title: Text('Notes')));
+
+        for (final PlWindowControl control in PlWindowControl.values) {
+          expect(lightFace(tester, control), hasLength(1), reason: control.name);
+          expect(lightInsets(tester, control), isNull, reason: control.name);
+        }
+      });
     });
 
     group('a double tap on the title bar', () {
