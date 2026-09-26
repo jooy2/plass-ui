@@ -370,6 +370,23 @@ class _Row<T> {
   String get label => option?.label ?? query!;
 }
 
+/// What a single-value [combobox]'s field says for the value it holds: its
+/// option's label, or the value itself when no option holds it. Nothing with
+/// `multiple`, or with nothing held.
+String _labelHeldBy<T>(PlCombobox<T> combobox) {
+  if (combobox.multiple || combobox.value == null) {
+    return '';
+  }
+
+  for (final option in combobox.options) {
+    if (option.value == combobox.value) {
+      return option.label;
+    }
+  }
+
+  return '${combobox.value}';
+}
+
 class _PlComboboxState<T> extends State<PlCombobox<T>> {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
@@ -486,12 +503,30 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       _focusNode.addListener(_onFocusChanged);
     }
 
+    if (widget.multiple) {
+      return;
+    }
+
     // In single mode the text *is* the chosen option's label, so a value handed
     // in from outside has to reach the field, and is reported as Base UI reports
     // the label it writes. It is only written while the field is not focused:
     // doing it mid-edit would take the query out from under somebody typing.
-    if (!widget.multiple && !_focused && widget.value != oldWidget.value) {
-      _write(_labelOfValue(), later: true);
+    if (widget.value != oldWidget.value) {
+      if (!_focused) {
+        _write(_labelOfValue(), later: true);
+      }
+
+      return;
+    }
+
+    // A new label for the value it already holds is written in as well, as Base
+    // UI writes it, while the text is still the old label: not once the reader
+    // has typed a query into the list, which is theirs until the list closes.
+    final String was = _labelHeldBy(oldWidget);
+    final String label = _labelOfValue();
+
+    if (label != was && _text.text == was && !(_open && _queryEdited)) {
+      _write(label, later: true);
     }
   }
 
@@ -522,19 +557,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       ? <T>[]
       : <T>[widget.value as T];
 
-  String _labelOfValue() {
-    if (widget.multiple || widget.value == null) {
-      return '';
-    }
-
-    for (final option in widget.options) {
-      if (option.value == widget.value) {
-        return option.label;
-      }
-    }
-
-    return '${widget.value}';
-  }
+  String _labelOfValue() => _labelHeldBy(widget);
 
   void _onFocusChanged() {
     final has = _focusNode.hasFocus;
@@ -810,12 +833,23 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     setState(() {
       _queryEdited = true;
       _open = _usable;
-      // The first match lights up as the query changes, so Enter commits without
-      // an arrow key first — which is also what makes the create row reachable
-      // from the keyboard at all: a value the list does not have is the only
-      // match there is. The first row, whether or not it can be taken, as Base
-      // UI lights it and as the arrow keys stop on it.
-      _highlighted = _rows.isEmpty ? -1 : 0;
+
+      if (query.trim().isNotEmpty) {
+        // The first match lights up as the query changes, so Enter commits
+        // without an arrow key first — which is also what makes the create row
+        // reachable from the keyboard at all: a value the list does not have is
+        // the only match there is. The first row, whether or not it can be
+        // taken, as Base UI lights it and as the arrow keys stop on it.
+        _highlighted = _rows.isEmpty ? -1 : 0;
+      } else if (widget.multiple && widget.values.isNotEmpty) {
+        // With the query gone, a set goes back to where its list opens, on the
+        // first chosen row down it, as Base UI's does.
+        _highlighted = _start();
+      } else if (_highlighted >= _rows.length) {
+        // Otherwise the light stays where it was in the list, as Base UI leaves
+        // it, and only goes out where the whole list is shorter than that.
+        _highlighted = -1;
+      }
     });
     _reveal.reveal(_scroll, _highlighted, _rows.length);
   }

@@ -904,6 +904,60 @@ void main() {
         expect(typed, <String>['']);
       });
 
+      testWidgets('writes and reports a new label for the value it holds, until a query is typed', (
+        WidgetTester tester,
+      ) async {
+        final List<String> typed = <String>[];
+        String seoul = 'Seoul';
+        late StateSetter update;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                update = setState;
+
+                return PlCombobox<String>(
+                  options: <PlComboboxOption<String>>[
+                    PlComboboxOption<String>(value: 'seoul', label: seoul),
+                    ..._cities.skip(1),
+                  ],
+                  value: 'seoul',
+                  onChanged: (String? _) {},
+                  onQueryChanged: (String query) => setState(() => typed.add(query)),
+                );
+              },
+            ),
+          ),
+        );
+
+        final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
+
+        update(() => seoul = 'Seoul City');
+        await tester.pump();
+
+        expect(editor.controller.text, 'Seoul City');
+        expect(typed, <String>['Seoul City']);
+
+        // With the list open on every row, which it goes on listing.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        update(() => seoul = 'Seoul Special City');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Seoul Special City');
+        expect(_listed(tester), <String>['Seoul Special City', 'Lisbon', 'Quito']);
+
+        // But not over a query the reader has typed.
+        tester.testTextInput.enterText('Se');
+        await tester.pumpAndSettle();
+        update(() => seoul = 'Soul');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Se');
+        expect(typed.last, 'Se');
+      });
+
       testWidgets('says so when nothing matched and nothing may be added', (
         WidgetTester tester,
       ) async {
@@ -1068,6 +1122,55 @@ void main() {
         tester.testTextInput.enterText('por');
         await tester.pumpAndSettle();
         expect(_lit(tester), 'Porto');
+      });
+
+      testWidgets('keeps the light where it was as the text is emptied', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _more, value: null, onChanged: (String? _) {})),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('r');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Porto', 'Rome']);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(_lit(tester), 'Rome');
+
+        // The second row of the whole list, where the light was, rather than
+        // the first.
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito', 'Osaka', 'Porto', 'Rome']);
+        expect(_lit(tester), 'Lisbon');
+      });
+
+      testWidgets('lights the first chosen row of a `multiple` list as its text is emptied', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              options: _more,
+              values: const <String>['rome', 'osaka'],
+              onChanged: (List<String> _) {},
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('r');
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Porto');
+
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Osaka');
       });
 
       testWidgets('follows the pointer onto any row, and goes out as it leaves them', (
