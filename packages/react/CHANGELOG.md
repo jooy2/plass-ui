@@ -74,7 +74,7 @@
 
 - **A `PlHowToSteps` fills its done and current bullets with its family's gradient, with the number in the ink that goes on it, and eases them as `active` moves, as a `PlStepper` and a `PlTimeline` do.** Its bullets had no gradient, so a done or current step was a bare number in the page's ink, with only a halo round the current one, where the Flutter bullets are filled.
 
-- **A `PlNumberField` stepper eases its tint in as it is pressed, over the same `--plass-duration` it eases it out over as it is let go.** A press changed the tint in one frame and only the release eased it, where every other control eases both ways, and so does the Flutter stepper.
+- **A `PlNumberField` eases a stepper's tint in as it is pressed and its shell's fill and edge in as it takes the focus, and a `PlOtpField` slot eases its own in as it takes the focus, each over the same `--plass-duration` it eases them out over.** A press or a focus changed them in one frame and only the release or the blur eased them, where every other control eases both ways, a `PlTextField` among them, and so does the Flutter build. Under reduced motion they still change at once.
 
 - **An `autoPlay` `PlCarousel` holds the slide it is on for a whole `interval` once its browser tab comes back from the background.** It held still while the tab was hidden, but the interval went on running behind it, so the first turn could come a moment after the page was back in sight. Coming back now starts the interval over, as it does when a hidden tab panel shows the carousel again.
 

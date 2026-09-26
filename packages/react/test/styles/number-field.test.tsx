@@ -1,19 +1,22 @@
 /**
- * How a `PlNumberField` stepper eases while it is pressed, which only the
- * stylesheet can answer.
+ * How a `PlNumberField` eases while a stepper is pressed and while the field
+ * holds the focus, which only the stylesheet can answer.
  *
- * The press is an `active:` tint on the stepper's own transition list, so the
- * assertion is on the durations the stepper resolves while a real press holds
- * it, read with `src/standalone.css` loaded the way `card.test.tsx` loads it.
- * The press is held for a moment with Playwright's click `delay`, and read in
- * the first task after it lands, well before it lifts. No duration is
- * asserted, only that the press gets the one the release gets.
+ * The press is an `active:` tint on the stepper's own transition list and the
+ * focus a `focus-within:` fill and edge on the shell's, so the assertions are on
+ * the durations each element resolves while a real press holds it, or while the
+ * input holds the focus, read with `src/standalone.css` loaded the way
+ * `card.test.tsx` loads it. The press is held for a moment with Playwright's
+ * click `delay`, and read in the first task after it lands, well before it
+ * lifts. No duration is asserted, only that the press and the focus get the one
+ * the release and the blur get, and that reduced motion takes it away.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlNumberField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { emulateMedia } from '../support/media';
 
 let sheet: HTMLStyleElement;
 
@@ -25,6 +28,10 @@ beforeAll(() => {
 
 afterAll(() => {
   sheet.remove();
+});
+
+afterEach(async () => {
+  await emulateMedia({ reducedMotion: 'no-preference' });
 });
 
 interface Held {
@@ -59,6 +66,14 @@ async function readWhilePressed(element: HTMLElement): Promise<Held | undefined>
   return held;
 }
 
+/** The field's input and the shell it sits in, which carries the focus styles. */
+async function renderField(): Promise<{ input: HTMLInputElement; shell: HTMLElement }> {
+  const screen = await render(<PlNumberField label="Guests" variant="glass" defaultValue={2} />);
+  const input = screen.getByRole('textbox', { name: 'Guests' }).element() as HTMLInputElement;
+
+  return { input, shell: input.parentElement as HTMLElement };
+}
+
 describe('the number field stylesheet', () => {
   it('eases a stepper’s press over the duration it eases its release', async () => {
     const screen = await render(<PlNumberField label="Guests" defaultValue={2} />);
@@ -71,5 +86,32 @@ describe('the number field stylesheet', () => {
 
     expect(held?.active).toBe(true);
     expect(held?.durations).toBe(resting);
+  });
+
+  it('eases the shell into the focus over the duration it eases out of it', async () => {
+    const { input, shell } = await renderField();
+    const resting = getComputedStyle(shell).transitionDuration;
+
+    expect(resting.split(',').some((one) => parseFloat(one) > 0)).toBe(true);
+
+    input.focus();
+
+    expect(shell.matches(':focus-within')).toBe(true);
+    expect(getComputedStyle(shell).transitionDuration).toBe(resting);
+  });
+
+  it('takes the focus at once under reduced motion', async () => {
+    await emulateMedia({ reducedMotion: 'reduce' });
+
+    const { input, shell } = await renderField();
+
+    input.focus();
+
+    expect(shell.matches(':focus-within')).toBe(true);
+    expect(
+      getComputedStyle(shell)
+        .transitionDuration.split(',')
+        .every((one) => parseFloat(one) === 0)
+    ).toBe(true);
   });
 });

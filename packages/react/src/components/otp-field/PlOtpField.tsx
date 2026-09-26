@@ -276,7 +276,6 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
       // as often as by typing into it, and the ring is the only thing saying which
       // character the next keystroke lands on.
       'focus:[outline:2px_solid_var(--p-ring)] focus:[outline-offset:0px]',
-      'focus:[transition-duration:0ms]',
       // An if/else rather than stacked variants: two Tailwind classes of equal
       // specificity resolve by their order in the generated stylesheet.
       disabled

@@ -182,7 +182,6 @@ const shellBaseClasses = /* @__PURE__ */ [
   'group relative flex w-full cursor-text items-center',
   '[-webkit-tap-highlight-color:transparent]',
   transitionClasses,
-  'focus-within:[transition-duration:0ms]',
   iconClasses
 ].join(' ');
 
