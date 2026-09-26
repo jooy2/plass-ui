@@ -46,12 +46,13 @@ export interface PlCarouselProps
    *
    * Off by default and deliberately so: a carousel that moves while it is being
    * read is the most complained-about pattern on the web. It pauses while the
-   * pointer is over it, while the tab is in the background, and while it is
-   * hidden in a tab panel that is not selected or a closed disclosure; shown
-   * again, it holds the slide it was hidden on for a whole `interval`. It
-   * **stops** once the focus comes into it or an arrow or a dot is clicked, and
-   * stays stopped until the button starts it again. For a reader who has asked
-   * for reduced motion it starts stopped.
+   * pointer is over it, while a finger is down on the strip, while the tab is
+   * in the background, and while it is hidden in a tab panel that is not
+   * selected or a closed disclosure; once the finger lifts, or it is shown
+   * again, it holds the slide it is on for a whole `interval`. It **stops** once
+   * the focus comes into it or an arrow or a dot is clicked, and stays stopped
+   * until the button starts it again. For a reader who has asked for reduced
+   * motion it starts stopped.
    * @default false
    */
   autoPlay?: boolean;
@@ -242,12 +243,21 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     const [shownAgain, setShownAgain] = React.useState(0);
 
     // Two different things hold the strip still, and they are kept apart on
-    // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
-    // as the pointer does. The focus coming in is a *stop*, and so is a click on
-    // an arrow or a dot: a reader who has tabbed into a slide or steered to one
-    // is reading it, and the strip stays where it is until the button starts it
-    // again — leaving with the pointer, or with the focus, does not.
+    // purpose. The pointer over the frame, or a finger on the strip, is a
+    // *pause*: it lasts exactly as long as the pointer does. The focus coming in
+    // is a *stop*, and so is a click on an arrow or a dot: a reader who has
+    // tabbed into a slide or steered to one is reading it, and the strip stays
+    // where it is until the button starts it again — leaving with the pointer,
+    // or with the focus, does not.
     const [hovered, setHovered] = React.useState(false);
+    // The fingers down on the strip, by the touch's own identifier, and whether
+    // there are any. A finger holds the strip as the pointer over it does, but
+    // the pointer events cannot say how long for: once the browser takes a
+    // touch over to pan the strip it cancels the pointer and says it has left,
+    // while the finger is still dragging, and only the touch goes on to say
+    // when it lifts.
+    const touches = React.useRef(new Set<number>());
+    const [touched, setTouched] = React.useState(false);
     // The reader's own answer to "should this be moving?", `true` for stopped.
     // `null` until they have given one, and until then it is the platform's
     // answer: a reader who asked for reduced motion starts stopped, and the
@@ -420,8 +430,10 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       goRef.current = go;
     });
 
+    // Started again when the last finger lifts, so the slide it let go of is
+    // held for a whole `interval`.
     React.useEffect(() => {
-      if (!playing || hovered || count < 2) {
+      if (!playing || hovered || touched || count < 2) {
         return;
       }
 
@@ -448,7 +460,24 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
       }, interval);
 
       return () => window.clearInterval(timer);
-    }, [playing, hovered, count, interval, index, shownAgain]);
+    }, [playing, hovered, touched, count, interval, index, shownAgain]);
+
+    /** Counts the fingers a touch event puts down on the strip or lifts off it. */
+    const handleTouch = (event: React.TouchEvent<HTMLDivElement>) => {
+      const down = event.type === 'touchstart';
+
+      for (let each = 0; each < event.changedTouches.length; each += 1) {
+        const { identifier } = event.changedTouches[each];
+
+        if (down) {
+          touches.current.add(identifier);
+        } else {
+          touches.current.delete(identifier);
+        }
+      }
+
+      setTouched(touches.current.size > 0);
+    };
 
     const toggle = () => {
       const next = !stopped;
@@ -564,6 +593,12 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
               'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]'
             )}
             onScroll={handleScroll}
+            // A touch's end and cancel go to the element it started on, so
+            // every finger that lands on the strip is heard lifting off it,
+            // wherever it has moved to by then.
+            onTouchStart={handleTouch}
+            onTouchEnd={handleTouch}
+            onTouchCancel={handleTouch}
           >
             {/* Keyed by the slide's own key, which `toArray` has given every
                 element (by position where the caller gave none), so a slide

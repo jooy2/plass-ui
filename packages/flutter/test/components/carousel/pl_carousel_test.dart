@@ -390,6 +390,44 @@ void main() {
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
       });
 
+      testWidgets('holds while a finger is down on the strip, and for a whole interval after', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+        await tester.pump();
+
+        // Dragged part of the way to the next slide, not far enough to land on
+        // it, and held there.
+        final finger = await tester.startGesture(tester.getCenter(find.byType(PageView)));
+        await finger.moveBy(const Offset(-40, 0));
+        await tester.pump();
+        await finger.moveBy(const Offset(-40, 0));
+        await tester.pump();
+
+        // Three and a half intervals, in steps, so that a turn has frames to
+        // take the strip from the finger in.
+        for (var step = 0; step < 14; step += 1) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+
+        expect(_harness(tester).reported, isEmpty);
+        expect(_pageOf(tester), allOf(greaterThan(0), lessThan(0.5)));
+
+        // Let go halfway through an interval, which a timer that went on
+        // running would end a hundred milliseconds later.
+        await finger.up();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 190));
+
+        expect(_harness(tester).reported, isEmpty);
+
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(_harness(tester).reported.first, 1);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
       testWidgets('starts stopped for a reader who asked for stillness', (
         WidgetTester tester,
       ) async {

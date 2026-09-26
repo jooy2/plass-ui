@@ -118,6 +118,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 - A button in the top corner of the frame stops it and starts it again. It is the first thing a keyboard reaches, and its name says what pressing it does: "Stop slide show" while it plays, "Start slide show" once it has stopped.
 - It **pauses** while the pointer is over it, and carries on when the pointer leaves.
+- It pauses while a finger is down on the strip, dragging it or not. Once the finger lifts, it holds the slide the strip settles on for a whole `interval` before it moves on.
 - It pauses while it is hidden but still mounted. Shown again, it holds the slide it was hidden on for a whole `interval` before it moves on.
 - It **stops** once the focus comes into it, which is the important one: a keyboard reader who has tabbed into a slide is reading it. It stays stopped until the button starts it again, whether or not the focus or the pointer has left since. The button is the one place the focus can land without stopping it.
 - A press on an arrow or a dot stops it as well, whether or not the press moves the focus. Once the button has started it again, pressing the arrows and the dots does not stop it.

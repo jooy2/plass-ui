@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **An `autoPlay` `PlCarousel` holds still while a finger is down on its strip, and for a whole `interval` once it lifts.** It paused only for a mouse over the frame, so a turn that came while a finger was dragging the strip pulled the strip from under it. Every pointer that lands on the strip now holds it until it lifts.
+
 - **A `PlCombobox` row lights only for a pointer that moves over it, as in the React build.** A row lit as soon as it came under the pointer. With the pointer resting on the list, arrow keys that scrolled the list moved the light off the row they had reached and onto the row that slid under the pointer, and a list opening under a resting pointer lit the row it landed on, so `Enter` took that row instead.
 
 - **A control's words and glyphs ease to their new colour with its fill, over `motionDuration`, and change at once under reduced motion.** A label, an icon or a spinner took its new colour in one frame while the surface under it was still easing, so a `solid` `PlToggle` going on wrote its white label over the glass it was leaving, and a tab, a segment, a bottom navigation item, a menu or navigation menu trigger, an accordion or collapsible header, a list, tree, select or combobox row, a step bullet, a calendar cell, a breadcrumb, an anchor row, a field's adornment, a number field's stepper and a code block's buttons changed colour before their fill had moved. The same holds when a `PlButton`, `PlChip`, `PlBadge`, `PlAvatar` or `PlKbd` changes its variant or its colour. A `PlSelect` or `PlCombobox` row also keeps what it holds as the highlight moves on to it or off it, where it was built again from scratch.

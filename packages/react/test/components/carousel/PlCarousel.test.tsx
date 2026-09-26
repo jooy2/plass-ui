@@ -394,6 +394,69 @@ describe('PlCarousel', () => {
       }
     });
 
+    describe('under a finger', () => {
+      const finger = { pointerId: 7, pointerType: 'touch', isPrimary: true, bubbles: true };
+
+      /** A touch event carrying one touch, the finger's. Built by hand, because
+       * Firefox and WebKit on a desktop have no `TouchEvent` to construct. */
+      const touch = (type: string) =>
+        Object.defineProperty(new Event(type, { bubbles: true }), 'changedTouches', {
+          value: [{ identifier: 7 }]
+        });
+
+      /**
+       * What Chromium sends for a finger that lands on the strip and drags it:
+       * the pointer arrives and goes down and the touch starts, and once the
+       * browser takes the drag over as a pan it cancels the pointer and says
+       * it has left, while the finger stays down. Dispatched rather than
+       * performed, since only Chromium can be handed a real touch.
+       */
+      const pan = (track: HTMLElement) => {
+        track.dispatchEvent(new PointerEvent('pointerover', finger));
+        track.dispatchEvent(new PointerEvent('pointerdown', finger));
+        track.dispatchEvent(touch('touchstart'));
+        track.dispatchEvent(new PointerEvent('pointercancel', finger));
+        track.dispatchEvent(
+          new PointerEvent('pointerout', { ...finger, relatedTarget: document.body })
+        );
+      };
+
+      it('holds still while the finger drags the strip, and for a whole interval once it lifts', async () => {
+        const interval = 200;
+        const turns: number[] = [];
+        const screen = await render(
+          <PlCarousel
+            autoPlay
+            interval={interval}
+            onValueChange={() => turns.push(performance.now())}
+          >
+            {slides}
+          </PlCarousel>
+        );
+        const track = screen.getByRole('group', { name: 'Carousel' }).element() as HTMLElement;
+
+        pan(track);
+
+        // A slow machine can take a turn before the finger lands, so what is
+        // held is the slide it found.
+        const held = current(screen);
+
+        turns.length = 0;
+        await aWhile();
+
+        expect(turns).toEqual([]);
+        expect(current(screen)).toBe(held);
+
+        const lifted = performance.now();
+
+        track.dispatchEvent(touch('touchend'));
+
+        await expect.poll(() => turns.length, { timeout: interval * 4 }).toBeGreaterThan(0);
+        // The margin is for the clock the browser rounds.
+        expect(turns[0] - lifted).toBeGreaterThanOrEqual(interval - 10);
+      });
+    });
+
     it('holds still under the pointer and still calls the caller’s `onPointerEnter`', async () => {
       const onValueChange = vi.fn();
       const onPointerEnter = vi.fn();

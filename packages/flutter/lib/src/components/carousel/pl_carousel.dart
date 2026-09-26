@@ -118,13 +118,14 @@ class PlCarousel extends StatefulWidget {
   ///
   /// Off by default and deliberately so: a carousel that moves while it is being
   /// read is the most complained-about pattern there is. It pauses while the
-  /// pointer is over it, and while it is hidden but still in the tree: off stage,
-  /// under a [Visibility] or a [TickerMode] that hides it, clipped to nothing or
-  /// laid out with no size. Shown again, it holds the slide it was hidden on for
-  /// a whole [interval]. It **stops** once the focus comes into it or an arrow
-  /// or a dot is pressed, and stays stopped until the button starts it again.
-  /// For a reader who has asked for reduced motion it starts stopped. And it
-  /// needs [onChanged] — a frozen carousel has nothing to advance, and no
+  /// pointer is over it, while a finger is down on the strip, and while it is
+  /// hidden but still in the tree: off stage, under a [Visibility] or a
+  /// [TickerMode] that hides it, clipped to nothing or laid out with no size.
+  /// Once the finger lifts, or it is shown again, it holds the slide it is on
+  /// for a whole [interval]. It **stops** once the focus comes into it or an
+  /// arrow or a dot is pressed, and stays stopped until the button starts it
+  /// again. For a reader who has asked for reduced motion it starts stopped. And
+  /// it needs [onChanged] — a frozen carousel has nothing to advance, and no
   /// button.
   final bool autoPlay;
 
@@ -216,15 +217,21 @@ class _PlCarouselState extends State<PlCarousel> {
   late int _reported = _index;
 
   // Two different things hold the strip still, and they are kept apart on
-  // purpose. The pointer over the frame is a *pause*: it lasts exactly as long
-  // as the pointer does. The focus coming in is a *stop*, and so is a press on
-  // an arrow or a dot: a reader who has reached a slide or steered to one is
-  // reading it, and the strip stays where it is until the button starts it
-  // again — the pointer leaving, or the focus, does not.
+  // purpose. The pointer over the frame, or a finger on the strip, is a
+  // *pause*: it lasts exactly as long as the pointer does. The focus coming in
+  // is a *stop*, and so is a press on an arrow or a dot: a reader who has
+  // reached a slide or steered to one is reading it, and the strip stays where
+  // it is until the button starts it again — the pointer leaving, or the
+  // focus, does not.
 
   /// Whether the pointer is over the frame. A carousel that kept advancing
   /// under the pointer would be moving what somebody is reading.
   bool _hovered = false;
+
+  /// The pointers down on the strip. A finger has no hover to pause on, and a
+  /// turn that came while one was dragging the strip would take it from under
+  /// the finger, so each one holds it as the pointer over the frame does.
+  final Set<int> _pressed = <int>{};
 
   /// Whether the tree above says the carousel is not being shown: a
   /// [TickerMode] that is off, which is what a route something has been pushed
@@ -389,10 +396,15 @@ class _PlCarouselState extends State<PlCarousel> {
     _timer = null;
 
     // Every one of these is a way an auto-playing carousel goes wrong: it moves
-    // under the pointer, it moves once the reader has stopped it — or, before
-    // they have said, for a reader who asked for stillness — or it moves with
-    // nothing to report the move to.
-    if (!widget.autoPlay || _hovered || _stopped || _count < 2 || widget.onChanged == null) {
+    // under the pointer or a finger, it moves once the reader has stopped it —
+    // or, before they have said, for a reader who asked for stillness — or it
+    // moves with nothing to report the move to.
+    if (!widget.autoPlay ||
+        _hovered ||
+        _pressed.isNotEmpty ||
+        _stopped ||
+        _count < 2 ||
+        widget.onChanged == null) {
       return;
     }
 
@@ -460,6 +472,20 @@ class _PlCarouselState extends State<PlCarousel> {
 
     _hovered = hovered;
     _restart();
+  }
+
+  void _press(PointerDownEvent event) {
+    if (_pressed.add(event.pointer) && _pressed.length == 1) {
+      _restart();
+    }
+  }
+
+  /// Lets go for one pointer, and starts the timer over once the last one is
+  /// up, so the slide it let go of is held for a whole [PlCarousel.interval].
+  void _release(PointerEvent event) {
+    if (_pressed.remove(event.pointer) && _pressed.isEmpty) {
+      _restart();
+    }
   }
 
   /// Answers the focus arriving anywhere inside, or moving off the button.
@@ -533,12 +559,23 @@ class _PlCarouselState extends State<PlCarousel> {
       // Reported rather than acted on, like every other control in the package:
       // a swipe says where the reader went, and the value comes back down.
       onNotification: _scrolled,
-      child: PageView.builder(
-        controller: _pages,
-        itemCount: _count,
-        itemBuilder: (BuildContext context, int index) {
-          return Semantics(container: true, label: _name(index + 1), child: widget.children[index]);
-        },
+      // A listener rather than a gesture: it hears every pointer that lands on
+      // the strip and lifts off it, whichever gesture wins the press.
+      child: Listener(
+        onPointerDown: _press,
+        onPointerUp: _release,
+        onPointerCancel: _release,
+        child: PageView.builder(
+          controller: _pages,
+          itemCount: _count,
+          itemBuilder: (BuildContext context, int index) {
+            return Semantics(
+              container: true,
+              label: _name(index + 1),
+              child: widget.children[index],
+            );
+          },
+        ),
       ),
     );
 
