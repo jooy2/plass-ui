@@ -1308,6 +1308,49 @@ void main() {
         expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito', 'Osaka', 'Porto', 'Rome']);
         expect(_lit(tester), 'Rome');
       });
+
+      testWidgets('opens on a chosen row that cannot be taken, by a press and by the keys', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _more, value: 'quito', onChanged: (String? _) {})),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Quito');
+
+        // Down and up alike, rather than the row after or before it.
+        for (final LogicalKeyboardKey key in <LogicalKeyboardKey>[
+          LogicalKeyboardKey.arrowDown,
+          LogicalKeyboardKey.arrowUp,
+        ]) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+          expect(_listed(tester), isEmpty);
+
+          await tester.sendKeyEvent(key);
+          await tester.pumpAndSettle();
+          expect(_lit(tester), 'Quito');
+        }
+
+        // With `multiple`, the first chosen row down the list is the one that
+        // cannot be taken.
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              key: const ValueKey<String>('multiple'),
+              options: _more,
+              values: const <String>['porto', 'quito'],
+              onChanged: (List<String> _) {},
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Quito');
+      });
     });
 
     group('a value the list does not have', () {
@@ -1909,6 +1952,47 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(reported, <String?>[null]);
+      });
+
+      testWidgets('leaves a shut list shut as its text is emptied or left blank', (
+        WidgetTester tester,
+      ) async {
+        String? value = 'seoul';
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
+                options: _cities,
+                value: value,
+                onChanged: (String? next) => setState(() => value = next),
+              ),
+            ),
+          ),
+        );
+
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode.requestFocus();
+        await tester.pumpAndSettle();
+        expect(_listed(tester), isEmpty);
+
+        // The whole label at once, as selecting it and deleting it does.
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        expect(value, isNull);
+        expect(_listed(tester), isEmpty);
+
+        tester.testTextInput.enterText('  ');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), isEmpty);
+
+        // Something to look for opens it, and emptying it again leaves it open.
+        tester.testTextInput.enterText(' li');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Lisbon']);
+
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Seoul', 'Lisbon', 'Quito']);
       });
 
       testWidgets('offers a × only when asked', (WidgetTester tester) async {

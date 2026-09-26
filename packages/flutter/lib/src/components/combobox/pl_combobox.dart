@@ -686,7 +686,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   }
 
   /// Where the highlight starts as the list opens, as Base UI starts it: on the
-  /// chosen row, or with `multiple` on the first chosen row down the list.
+  /// chosen row, or with `multiple` on the first chosen row down the list,
+  /// whether or not that row can be taken, as Base UI's `findSelectionIndex`
+  /// finds it.
   ///
   /// With none chosen, the down arrow starts on the first row that can be
   /// taken and the up arrow on the last, and a press on none: a list opened to
@@ -700,7 +702,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       for (int index = 0; index < rows.length; index += 1) {
         final PlComboboxOption<T>? option = rows[index].option;
 
-        if (option != null && !option.disabled && chosen.contains(option.value)) {
+        if (option != null && chosen.contains(option.value)) {
           return index;
         }
       }
@@ -830,11 +832,20 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       widget.onChanged?.call(null);
     }
 
+    final bool typed = query.trim().isNotEmpty;
+
     setState(() {
       _queryEdited = true;
-      _open = _usable;
+      // Text typed into a closed list opens it, and text emptied or left blank
+      // does not, as Base UI's `maybeOpenOnInput` opens only on a query with
+      // something in it. An open list stays open either way.
+      _open = _usable && (_open || typed);
 
-      if (query.trim().isNotEmpty) {
+      if (!_open) {
+        return;
+      }
+
+      if (typed) {
         // The first match lights up as the query changes, so Enter commits
         // without an arrow key first — which is also what makes the create row
         // reachable from the keyboard at all: a value the list does not have is
