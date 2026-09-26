@@ -1,6 +1,8 @@
 /// A surface that floats beside something rather than over everything.
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +59,7 @@ class PlassAnchoredPortal extends StatefulWidget {
     this.onEscape,
     this.anchorInside = false,
     this.anchorWidth = PlassAnchorWidth.free,
+    this.fitWidth = false,
     this.onSideResolved,
     super.key,
   });
@@ -119,6 +122,15 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// out of reads as a different control.
   final PlassAnchorWidth anchorWidth;
 
+  /// Whether the popup is held to the room it has on its side of the anchor.
+  ///
+  /// The room is measured once as the popup opens, after the flip: from where
+  /// the popup hangs to the edge of the screen it runs towards. A popup here
+  /// flips and never slides, so one wider than that room would run off the
+  /// screen. For a popup as wide as whatever the caller puts in it; the rest
+  /// keep the width they are given.
+  final bool fitWidth;
+
   /// Told which side the popup actually ended up on, once it is known.
   ///
   /// The popup usually has to draw something that points back at the anchor, and
@@ -156,6 +168,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
 
   /// How wide the anchor is, for a popup that has to match it.
   double? _anchorWidth;
+
+  /// How wide the popup may be on the side it opened to, for a popup held to
+  /// its room, and `null` until that has been measured.
+  double? _room;
 
   /// Answers Escape before anything around the popup does, so a popover opened
   /// in a modal closes itself and leaves the modal up.
@@ -247,7 +263,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         return;
       }
 
+      // Laid out at its own width first, which is the width the flip is
+      // decided against, and held to its room only once that is known.
       _side = widget.side;
+      _room = null;
       _portal.show();
       _fade.forward();
 
@@ -273,11 +292,13 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     final origin = anchor.localToGlobal(Offset.zero, ancestor: room);
     final box = origin & anchor.size;
     final side = _fit(box, popup.size, room.size);
+    final space = widget.fitWidth ? _roomOn(side, box, room.size) : null;
 
-    if (side != _side || anchor.size.width != _anchorWidth) {
+    if (side != _side || anchor.size.width != _anchorWidth || space != _room) {
       setState(() {
         _side = side;
         _anchorWidth = anchor.size.width;
+        _room = space;
       });
     }
 
@@ -318,6 +339,29 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
             ? PlassSide.right
             : PlassSide.left,
     };
+  }
+
+  /// How wide a popup on [side] of [anchor] can be before it runs off a screen
+  /// of [room]: from where it hangs to the edge it runs towards, as
+  /// [_anchors] places it.
+  double _roomOn(PlassSide side, Rect anchor, Size room) {
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+
+    final space = switch (side) {
+      PlassSide.left => anchor.left - widget.offset,
+      PlassSide.right => room.width - anchor.right - widget.offset,
+      PlassSide.top || PlassSide.bottom => switch (widget.align) {
+        // Centred on the anchor, it runs both ways, and the nearer edge is the
+        // one it reaches first.
+        PlassAlign.center => math.min(anchor.center.dx, room.width - anchor.center.dx) * 2,
+        // From the start of the line towards its end, which is the left under
+        // RTL, and from the end the other way.
+        PlassAlign.start => rtl ? anchor.right : room.width - anchor.left,
+        PlassAlign.end => rtl ? room.width - anchor.left : anchor.right,
+      },
+    };
+
+    return math.max(space, 0.0);
   }
 
   /// Where on the anchor the popup hangs from, and where on the popup that point
@@ -379,14 +423,17 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   Widget _buildPopup(BuildContext context) {
     final (targetAnchor, followerAnchor, standoff) = _anchors(Directionality.of(context));
 
+    final BoxConstraints width = switch (widget.anchorWidth) {
+      PlassAnchorWidth.free => const BoxConstraints(),
+      PlassAnchorWidth.atLeast => BoxConstraints(minWidth: _anchorWidth ?? 0),
+      PlassAnchorWidth.exact => BoxConstraints.tightFor(width: _anchorWidth),
+    };
+    final double? room = widget.fitWidth ? _room : null;
+
     Widget popup = FadeTransition(
       opacity: _opacity,
       child: ConstrainedBox(
-        constraints: switch (widget.anchorWidth) {
-          PlassAnchorWidth.free => const BoxConstraints(),
-          PlassAnchorWidth.atLeast => BoxConstraints(minWidth: _anchorWidth ?? 0),
-          PlassAnchorWidth.exact => BoxConstraints.tightFor(width: _anchorWidth),
-        },
+        constraints: room == null ? width : width.enforce(BoxConstraints(maxWidth: room)),
         // A press anywhere on the popup is the popup's, including one on a gap
         // between its parts, which would otherwise fall through to the page.
         child: Listener(

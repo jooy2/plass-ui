@@ -8,6 +8,10 @@ import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
+/// A line longer than a panel has room for beside an item at the end of an
+/// 800-wide row.
+const String _long = 'A description longer than an item at the end of a row has room for';
+
 List<PlNavigationMenuItem> menu({VoidCallback? onPricing, VoidCallback? onAnalytics}) {
   return <PlNavigationMenuItem>[
     PlNavigationMenuItem(
@@ -376,12 +380,10 @@ void main() {
         );
       });
 
-      testWidgets('stops at 560 and wraps a line longer than that', (WidgetTester tester) async {
+      testWidgets('has no width of its own where the screen has room', (WidgetTester tester) async {
         tester.view.physicalSize = const Size(1200, 600);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-
-        const String long = 'A description long enough that it cannot sit on one line in any panel';
 
         await tester.pumpWidget(
           host(
@@ -391,7 +393,7 @@ void main() {
                 PlNavigationMenuItem(
                   label: 'Product',
                   links: <PlNavigationMenuLink>[
-                    PlNavigationMenuLink(title: 'Analytics', description: long),
+                    PlNavigationMenuLink(title: 'Analytics', description: _long),
                   ],
                 ),
               ],
@@ -403,11 +405,62 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(sheetAround(tester, 'Analytics').width, 560);
-        expect(
-          tester.getRect(find.text(long)).height,
-          greaterThan(tester.getRect(find.text('Analytics')).height),
-        );
+        // One line, however long, as the React panel is: a cap of its own
+        // would wrap it with the screen still beside it.
+        final Rect line = tester.getRect(find.text(_long));
+
+        expect(line.width, greaterThan(560));
+        expect(sheetAround(tester, 'Analytics').right, greaterThan(line.right));
+        expect(sheetAround(tester, 'Analytics').right, lessThanOrEqualTo(1200));
+      });
+
+      testWidgets('wraps at the edge of the screen it opens towards', (WidgetTester tester) async {
+        for (final TextDirection direction in TextDirection.values) {
+          // The item is at the end of the line, so the panel, which hangs from
+          // the item's start, has the item's own width and little more.
+          await tester.pumpWidget(
+            host(
+              const Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: PlNavigationMenu(
+                  initialValue: 'Product',
+                  items: <PlNavigationMenuItem>[
+                    PlNavigationMenuItem(
+                      label: 'Product',
+                      links: <PlNavigationMenuLink>[
+                        PlNavigationMenuLink(title: 'Analytics', description: _long),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              width: 800,
+              height: 500,
+              overlay: true,
+              textDirection: direction,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final Rect item = tester.getRect(find.text('Product'));
+          final Rect sheet = sheetAround(tester, 'Analytics');
+
+          if (direction == TextDirection.rtl) {
+            expect(sheet.right, greaterThanOrEqualTo(item.right), reason: '$direction');
+            expect(sheet.left, moreOrLessEquals(0), reason: '$direction');
+          } else {
+            expect(sheet.left, lessThanOrEqualTo(item.left), reason: '$direction');
+            expect(sheet.right, moreOrLessEquals(800), reason: '$direction');
+          }
+
+          expect(
+            tester.getRect(find.text(_long)).height,
+            greaterThan(tester.getRect(find.text('Analytics')).height),
+            reason: '$direction',
+          );
+
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
       });
 
       testWidgets('stays on an 800-wide screen beside a rail', (WidgetTester tester) async {
