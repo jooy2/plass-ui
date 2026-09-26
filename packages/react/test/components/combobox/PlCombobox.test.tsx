@@ -605,6 +605,25 @@ describe('PlCombobox', () => {
 
       await expect.element(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
     });
+
+    it('offers no × on a disabled or read-only field', async () => {
+      const screen = await render(
+        <PlCombobox items={items} defaultValue="seoul" clearable disabled />
+      );
+
+      // A value to clear and a × asked for, so only the lock takes it away.
+      await expect.element(screen.getByRole('combobox')).toHaveValue('Seoul');
+      expect(screen.getByRole('button', { name: 'Clear' }).query()).toBeNull();
+
+      await screen.rerender(<PlCombobox items={items} defaultValue="seoul" clearable readOnly />);
+      await settle();
+
+      expect(screen.getByRole('button', { name: 'Clear' }).query()).toBeNull();
+
+      await screen.rerender(<PlCombobox items={items} defaultValue="seoul" clearable />);
+
+      await expect.element(screen.getByRole('button', { name: 'Clear' })).toBeEnabled();
+    });
   });
 
   describe('forms', () => {

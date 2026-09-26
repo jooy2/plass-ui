@@ -70,19 +70,14 @@ describe('the combobox stylesheet', () => {
     expect(hovered).toBe(rest);
   });
 
-  it('leaves the chevron and the × of a disabled field at the half its shell is drawn at', async () => {
-    const screen = await render(
-      <PlCombobox items={items} defaultValue="seoul" clearable disabled />
-    );
+  it('leaves the chevron of a disabled field at the half its shell is drawn at', async () => {
+    const screen = await render(<PlCombobox items={items} defaultValue="seoul" disabled />);
     const chevron = screen.getByRole('button', { name: 'Open' });
-    const clear = screen.getByRole('button', { name: 'Clear' });
 
     await expect.element(chevron).toBeDisabled();
-    await expect.element(clear).toBeDisabled();
 
-    // The shell already fades everything in it, so a fade of their own would
-    // draw them at a quarter, where a disabled `PlSelect`'s chevron is at half.
+    // The shell already fades everything in it, so a fade of its own would draw
+    // it at a quarter, where a disabled `PlSelect`'s chevron is at half.
     expect(getComputedStyle(chevron.element()).opacity).toBe('1');
-    expect(getComputedStyle(clear.element()).opacity).toBe('1');
   });
 });

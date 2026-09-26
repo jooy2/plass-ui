@@ -680,7 +680,9 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
               renderInput(false)
             )}
 
-            {clearable && !readOnly ? (
+            {/* Not on a locked field, as a chip's × is not: a × that cannot be
+                pressed is only something else to read past. */}
+            {clearable && !readOnly && !disabled ? (
               <BaseUICombobox.Clear aria-label={clearLabel} className={clearClasses}>
                 <CloseIcon />
               </BaseUICombobox.Clear>
