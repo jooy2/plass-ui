@@ -23,6 +23,8 @@ import {
   PlPagination,
   PlRadio,
   PlRadioGroup,
+  PlSegment,
+  PlSegmentedButton,
   PlStep,
   PlStepper,
   PlSwitch,
@@ -60,28 +62,32 @@ interface Fade {
  * between: the element's `::before`, or the element itself when `pseudo` is
  * empty. Read on `transitionrun`, from the transition's own keyframes, so
  * nothing has to sample a frame.
+ *
+ * `matches` records the fades of an element inside this one instead, for a layer
+ * that is not there yet when the recording starts. The event bubbles to it.
  */
-function recordFades(element: Element, pseudo: '::before' | '' = '::before'): Fade[] {
+function recordFades(
+  element: Element,
+  pseudo: '::before' | '' = '::before',
+  matches: (target: Element) => boolean = (target) => target === element
+): Fade[] {
   const fades: Fade[] = [];
 
   element.addEventListener('transitionrun', (raw) => {
     const event = raw as TransitionEvent;
+    const target = event.target as Element;
 
-    if (
-      event.target !== element ||
-      event.pseudoElement !== pseudo ||
-      event.propertyName !== 'opacity'
-    ) {
+    if (!matches(target) || event.pseudoElement !== pseudo || event.propertyName !== 'opacity') {
       return;
     }
 
-    const run = element.getAnimations({ subtree: true }).find((one) => {
+    const run = target.getAnimations({ subtree: true }).find((one) => {
       const effect = one.effect as KeyframeEffect;
 
       return (
         one instanceof CSSTransition &&
         one.transitionProperty === 'opacity' &&
-        effect.target === element &&
+        effect.target === target &&
         (effect.pseudoElement ?? '') === pseudo
       );
     });
@@ -386,6 +392,64 @@ describe('a fill that comes and goes with a state', () => {
     expect(Number(getComputedStyle(layerIn(second)).zIndex)).toBeLessThan(
       Number(getComputedStyle(second, '::before').zIndex)
     );
+  });
+
+  it('fades a solid segmented button’s tile in where the first choice lands', async () => {
+    const screen = await render(
+      <PlSegmentedButton aria-label="Period" variant="solid">
+        <PlSegment value="day">Day</PlSegment>
+        <PlSegment value="week">Week</PlSegment>
+      </PlSegmentedButton>
+    );
+    const group = screen.getByRole('radiogroup').element();
+    // Mounted by the first choice, so recorded from the set it lands in.
+    const tileOf = () => group.querySelector<HTMLElement>(':scope > span[aria-hidden="true"]');
+    const fades = recordFades(group, '::before', (target) => target === tileOf());
+
+    expect(tileOf()).toBeNull();
+
+    await screen.getByRole('radio', { name: 'Week' }).click();
+    await expect.element(screen.getByRole('radio', { name: 'Week' })).toBeChecked();
+    await expect.poll(() => fades).toEqual([{ from: 0, to: 1 }]);
+
+    const tile = tileOf() as HTMLElement;
+
+    await settle(tile);
+
+    expectLayerOnly(tile);
+    expect(Number(layerOf(tile).opacity)).toBe(1);
+
+    // Sliding to the next segment moves the tile and leaves its fill alone.
+    await screen.getByRole('radio', { name: 'Day' }).click();
+    await expect.element(screen.getByRole('radio', { name: 'Day' })).toBeChecked();
+    await frames();
+
+    expect(fades).toEqual([{ from: 0, to: 1 }]);
+    expect(Number(layerOf(tile).opacity)).toBe(1);
+  });
+
+  it('draws the tile a solid segmented button starts with already lit', async () => {
+    // Recorded from the page, since the tile is mounted with the set.
+    const fades = recordFades(document.body, '::before', (target) =>
+      target.matches('[role="radiogroup"] > span[aria-hidden="true"]')
+    );
+    const screen = await render(
+      <PlSegmentedButton aria-label="Period" variant="solid" defaultValue="week">
+        <PlSegment value="day">Day</PlSegment>
+        <PlSegment value="week">Week</PlSegment>
+      </PlSegmentedButton>
+    );
+    const tile = screen
+      .getByRole('radiogroup')
+      .element()
+      .querySelector(':scope > span[aria-hidden="true"]') as HTMLElement;
+
+    expectLayerOnly(tile);
+    expect(Number(layerOf(tile).opacity)).toBe(1);
+
+    await frames();
+
+    expect(fades).toEqual([]);
   });
 
   it('puts the gradient on at once under reduced motion', async () => {

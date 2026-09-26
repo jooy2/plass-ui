@@ -128,9 +128,15 @@ const troughClasses: Record<PlassVariant, string> = {
  * it — a key of tinted glass riding in a groove, which is the design language's
  * own sentence with nothing added. The other two lift a pane of clear glass
  * instead and leave the label in the accent.
+ *
+ * The gradient is a layer of its own, `.plass-fill`, lit once the tile has been
+ * placed under its first segment, so a first choice fades the fill in where it
+ * lands. As the tile's own background it arrived in one frame, since the tile is
+ * mounted by that choice and no browser eases a gradient in from nothing.
  */
 const tileClasses: Record<PlassVariant, string> = {
-  solid: '[background-image:var(--p-fill)] [box-shadow:var(--plass-shadow-1),var(--p-lift)]',
+  solid:
+    'plass-fill data-[placed]:[--p-fill-on:1] [box-shadow:var(--plass-shadow-1),var(--p-lift)]',
   glass: `${glassClasses} bg-(--plass-glass-press) [box-shadow:var(--plass-shadow-1),var(--plass-gloss-glass)]`,
   ghost: `${glassClasses} bg-(--plass-glass-press) [box-shadow:var(--plass-shadow-1),var(--plass-gloss-glass)]`
 };
@@ -278,6 +284,26 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
   const tileRef = React.useRef<HTMLSpanElement>(null);
 
   /**
+   * Whether the set has been committed. A tile drawn with it is lit from its
+   * first frame, as a ticked box is, and the attribute goes on as the tile is
+   * inserted, before anything can read a style off it. One that a first choice
+   * mounts later is lit by `measure`, which fades its fill in.
+   */
+  const committedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    committedRef.current = true;
+  }, []);
+
+  const attachTile = React.useCallback((node: HTMLSpanElement | null) => {
+    tileRef.current = node;
+
+    if (node && !committedRef.current) {
+      node.setAttribute('data-placed', '');
+    }
+  }, []);
+
+  /**
    * Writes the chosen segment's box onto the tile as four custom properties.
    *
    * Written straight to the element rather than held in state, the way
@@ -331,6 +357,10 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
     }
 
     tile.setAttribute('data-ready', '');
+    // Lights the fill of a `solid` tile a first choice mounted, which fades in
+    // from the first placement committed above without it. A tile the set was
+    // drawn with, and a later call, find it lit and change nothing.
+    tile.setAttribute('data-placed', '');
   }, []);
 
   // Before the browser paints, or the tile is visibly at nothing for a frame.
@@ -401,7 +431,7 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
               choice appear in place rather than fly in from the left edge. */}
         {value !== null && value !== undefined ? (
           <span
-            ref={tileRef}
+            ref={attachTile}
             aria-hidden="true"
             className={[
               'pointer-events-none absolute rounded-full',
