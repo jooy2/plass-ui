@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**456 of 477 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**476 of 493 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -68,6 +68,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 19    | `ea2d3a65..34d68477` | Answers first: the fieldset page, a table named by its caption, a window both maximized and minimized, a double tap on a Flutter window's bar, a bubble's z and a scatter chart's x, the navigation menu in `llms-full.txt` and a click after a hover. Then 411 to 426, every item left, with 424 closed as no longer reproducing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | 20    | `0dabc3e2..7b2a63a3` | Answers first: the fieldset page, the double click on a window's bar, the scatter chart's description and a carousel hidden in a tab. Then 427 to 439, every item left, with 429 asked before its commit was picked                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | 21    | `42f813ad..1393541f` | Answers first: the combobox page's `multiple` sentence, a vertical rail's panels and chevron, the number field stepper's opacity and a timeline span's name. Then 440 to 458, every item left, with 454 closed as no longer reproducing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 22    | `28ea5de0..44c9925a` | Answers first: the combobox's `multiple` JSDoc and the read-only combobox tests. Then 459 to 478, with 464 narrowed and 473's segmented tile picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -101,12 +102,14 @@ Batch 20 had no questions to ask at its start. It worked the four answers batch 
 
 Batch 21 had no questions to ask at its start. It worked the five answers batch 20 approved first and then the nineteen items left, 440 to 458, in nine worktrees at once, with item 457 in a tenth started from `main` once most of the others were on it, because it touched the ink of nearly every Flutter control; each was brought onto `main` one commit at a time with the changelog entries added there. Item 454 no longer reproduces: a read-only React `PlCombobox` opens its list by design, since Base UI's `readOnly` locks the value and not the interaction, so there is no press to refuse and no race. Item 441 was wider than written: `PageView.onPageChanged` reported every slide a travel passed, and its own slide a second time, on every travel and not only with a short `interval`. Item 458's `solid` `PlToggle` needed a real element, because both of its pseudo-elements carry the pointer light, so that part was asked before its commit was picked; the other controls fade their gradient through a new `.plass-fill` layer with no change to the DOM. Several answers and items rewrote an unreleased changelog entry rather than adding one: the vertical navigation menu, the timeline tooltip, the rolled-up window, the wrappers of item 438, the `multiple` combobox and the gradient fade. The Flutter suite was run on `main` after each pick that reached shared internals, and never while a pick was changing the files under it. The docs build compiled the Flutter demos again with `--force`, because the batch changed the package widely. Twenty-seven questions were asked, twenty-two while item 457 was being worked and five after it, and every one was answered with its recommendation: twenty-one bugs became items 459 to 479, item 461 was widened to every Flutter surface that ignores reduced motion, two changes wait below, and two stay as they are: a window whose border width a caller changes through `style`, and the point a tooltip's wedge is placed from. One number in a question was wrong: it said 26 of the 56 `PlassSurfaceBox` calls pass no `reduceMotion`, where 43 do, and item 461 has the right one. The size budget's "Everything" stands at +0.2 kB.
 
+Batch 22 had no questions to ask at its start. It worked the two changes batch 21 approved first and then twenty items, 459 to 478, in eight worktrees at once, with item 461 in a ninth started from `main` once the others were on it, because it reached nearly every Flutter surface; each was brought onto `main` one commit at a time with the changelog entries added there. Item 479 is left for the next batch. Every item reproduced, and several were wider than written: item 468 also caught `onValueChange(null)` for an empty single-value field whose text was emptied, item 471's resting pointer also lit the row a list opened under, item 475's sweep found forty transitions of their own in forty modules and item 461 fixed the default of `PlassSurfaceBox`, `plassStateFilter` and `PlassGlowLayer` rather than forty-three callers, each with a package test that catches the next component. Item 466 could not swap `Opacity` for `PlassFiltered` as it stood, because an `Opacity` at 0 leaves its child out of the semantics, so `PlassFiltered` gained `alwaysIncludeSemantics` and kept what a screen reader hears. Many items rewrote an unreleased changelog entry rather than adding one: the combobox, the navigation menu panel, the reduced-motion entries of both builds, the gradient fade, the ink easing and the wrappers of item 438. The Flutter suite was run on `main` after each pick that reached shared internals, and the docs build compiled the Flutter demos again with `--force`. Twenty-two questions were asked, twenty while item 461 was being worked and two after it, and every one was answered with its recommendation: item 464 was narrowed to a hidden, paused or detached app in a follow-up commit, item 473's segmented tile was picked, sixteen bugs became items 480 to 495, two changes wait below, and three stay as they are: an open `dismissible: false` popover keeps `Escape`, as Base UI does, the duration tokens keep their value under reduced motion, and a pagination page's glass edge comes back at once. The size budget's "Everything" stands at +0.8 kB.
+
 ## Waiting for an answer
 
-Asked through the prompt in batch 21. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
+Asked through the prompt in batch 22. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
 
-1. **The React combobox's `multiple` JSDoc.** Correct the JSDoc of `PlCombobox`, which still says a set of tags is built "without the field ever closing", to say what the combobox page says since batch 21: the list closes and empties the text after a row is taken from a filtered query, as Base UI 1.8.0 does, and stays open for a row taken with nothing typed.
-1. **A test that a read-only React `PlCombobox` opens.** Add tests that a read-only React combobox opens its list from the input and from the chevron, and that a row taken there leaves the value as it was, as its page documents. No behaviour changes.
+1. **A `PlNumberField` stepper eases both ways.** Remove `active:[transition-duration:0ms]` from the React stepper, which makes a press arrive at once and a release ease, against the design language's one duration in both directions; the Flutter stepper eases both ways since item 478.
+1. **Two React cleanups.** End the delay that takes `PlImage`'s blurred stand-in away under reduced motion, so it does not stay under a transparent picture for 150ms, and remove `PlNavigationMenu`'s `motion-reduce:[transition-property:opacity]`, which does nothing since item 475.
 
 ## Passed over and not yet asked
 
@@ -1407,102 +1410,102 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Problem: `background-image` is in the house transition, but no browser eases a gradient to or from `none`, so a `solid` `PlToggle`, `PlSwitch`, `PlCheckbox` or `PlRadioGroup` shows its gradient at once and drops it at once, where the Flutter controls fade it since item 429.
   - Proposal: Fade the gradient through a layer's `opacity`, as `PlProgressBox` already does, and correct the `transitionClasses` comment.
 
-- [ ] **459.** A closed Flutter popup's trigger keeps `Escape` from a `PlModal` round it (Bug · Flutter · Low)
+- [x] **459.** A closed Flutter popup's trigger keeps `Escape` from a `PlModal` round it (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/anchored.dart` (`_EscapeAction` and the `onEscape` dartdoc), `packages/flutter/lib/src/components/select/pl_select.dart` (its own `DismissIntent` action)
   - Problem: `PlassAnchoredPortal` keeps a disabled `DismissIntent` action while the popup is closed, on the understanding that the key then goes on to a modal, but Flutter's `Actions` lookup stops at the first action that maps the intent, enabled or not. So with the focus on the closed trigger of a `PlPopover`, `PlHoverCard`, `PlTooltip`, `PlMenu`, `PlNavigationMenu` item or picker, `Escape` never reaches the `PlModal` it sits in. `PlSelect` swallows it through its own action, which is always enabled. `PlCombobox` passes it on since item 444. Only the open case is tested.
   - Proposal: Map `DismissIntent` only while the popup is open, as `RawMenuAnchor` does, let a closed `PlSelect` hand the key on, correct the two comments, and test a closed trigger of each inside a `PlModal`.
 
-- [ ] **460.** A Flutter `PlPopover` or `PlHoverCard` wedge on a left or right edge is drawn on the far side under RTL (Bug · Flutter · Low)
+- [x] **460.** A Flutter `PlPopover` or `PlHoverCard` wedge on a left or right edge is drawn on the far side under RTL (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/wedge.dart`
   - Problem: The wedge and the sheet sit in a `Row` with no `textDirection`, so a right-to-left `Directionality` reverses them: the wedge lands on the edge away from the trigger and its 1px overlap points the wrong way. `PlassSide` is physical, so this happens for a `side` of left or right, and for a flip to one. Top and bottom are a `Column` and are fine.
   - Proposal: Give the `Row` `textDirection: TextDirection.ltr`, with an RTL test for both side edges.
 
-- [ ] **461.** Flutter surfaces and fills still ease under reduced motion (Bug · Flutter · Low)
+- [x] **461.** Flutter surfaces and fills still ease under reduced motion (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/calendar.dart` (the cell's `AnimatedContainer`), `packages/flutter/lib/src/components/stepper/pl_stepper.dart` (the hover and press wash), the 43 `PlassSurfaceBox` calls that pass no `reduceMotion`, among them the `PlMenubar` trigger, the `PlFloatingBottomNavigation` disc, the `PlNavigationMenu` panel links and the `PlCommandPalette` rows, and about 18 places that take `tokens.motionDuration` whatever the platform asks, among them `PlAnchor`, `PlBreadcrumb`, `PlList`, `PlTree`, `PlPanes`, `PlSidebar`, `PlGallery` and the `PlSelect` and `PlCombobox` chevrons
   - Problem: Each eases over `motionDuration` with animations turned off, where the other surfaces change at once, so a chosen day still fades into its gradient and a trigger's wash still fades in. `PlassSurfaceBox.reduceMotion` defaults to `false`, so a caller that leaves it out eases. The design-language page says since batch 21 that a fill arrives at once when less motion is asked for.
   - Proposal: Take `Duration.zero` under `MediaQuery.maybeDisableAnimationsOf` in every one of them that changes with a state, as item 455 did for the step bullet, and add a package test that finds a surface or an implicit animation that still eases. It is the Flutter twin of item 475.
 
-- [ ] **462.** The Flutter `PlPieChart` reads a slice worth nothing (Bug · Flutter · Low)
+- [x] **462.** The Flutter `PlPieChart` reads a slice worth nothing (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/pie_chart/pl_pie_chart.dart` (`_summary`)
   - Problem: The text a screen reader is handed skips only hidden slices and gaps, so a slice worth 0 is read as "Direct 0 · 0%". The React summary goes over the arcs, which leave a zero out, because nothing was drawn for it.
   - Proposal: Leave a slice worth 0 out of the reading, as React does.
 
-- [ ] **463.** An `autoPlay` `PlCarousel` moves on under a finger (Bug · Both · Low)
+- [x] **463.** An `autoPlay` `PlCarousel` moves on under a finger (Bug · Both · Low)
   - Location: `packages/flutter/lib/src/components/carousel/pl_carousel.dart`, `packages/react/src/components/carousel/PlCarousel.tsx`
   - Problem: The Flutter carousel pauses only for a mouse over it, so a tick that comes while a finger drags the strip takes the strip from the finger. The React one pauses on `pointerenter` and resumes on `pointerleave`, and a touch pan that the browser takes over sends `pointercancel` and `pointerleave`, so it may resume while the finger is still dragging. The React half is read from the code and the Pointer Events spec, not seen.
   - Proposal: Hold while a pointer is down on the track in both, and count a whole `interval` again from its release. Reproduce the React half first.
 
-- [ ] **464.** A Flutter `autoPlay` `PlCarousel` goes on turning while the app is in the background (Bug · Flutter · Low)
+- [x] **464.** A Flutter `autoPlay` `PlCarousel` goes on turning while the app is in the background (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/carousel/pl_carousel.dart`
   - Problem: Nothing watches the app's lifecycle, so a reader who comes back to the app finds it several slides on. The React carousel skips a tick while `document.hidden`, and the carousel page lists that as React-only.
   - Proposal: Hold while the app is not `resumed`, through `WidgetsBindingObserver`, keep the slide for a whole `interval` once it is, and move the page's line into the shared list.
 
-- [ ] **465.** Flutter keeps the animations of a hidden body running (Performance · Flutter · Low)
+- [x] **465.** Flutter keeps the animations of a hidden body running (Performance · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/window_pane/pl_window_pane.dart` (the minimized body's `Offstage`), `packages/flutter/lib/src/components/collapsible/pl_collapsible.dart` (a closed `keepMounted` body)
   - Problem: Both hide their body without `TickerMode`, which the library uses nowhere, so a spinner or an animation inside goes on asking for frames nobody sees. The React collapsible hides its body with `hidden`, which stops CSS animations.
   - Proposal: Wrap each body in a `TickerMode` that is always in the tree and is off while the body is hidden, with a test that a ticker inside stops.
 
-- [ ] **466.** Flutter entrance animations and `PlStack` keep an `Opacity` of 1 (Performance · Flutter · Low)
+- [x] **466.** Flutter entrance animations and `PlStack` keep an `Opacity` of 1 (Performance · Flutter · Low)
   - Location: `PlAnimateFade`, `PlAnimateAppear`, `PlAnimateZoom`, `PlAnimateSlide`, `PlAnimateGrow`, `PlAnimateRotate`, `PlAnimateSplit` (one per part), `PlAnimateHeadline`, `PlAnimateReveal` with `fade`, and `PlStack`'s front card when `opacityStep` is not 1
   - Problem: `PlassAnimateRun` goes on building at `t = 1` once an entrance has finished, and each of these wraps what it holds in an `Opacity`, which at 1 still makes an `OpacityLayer` of its own, as item 449 found for rows.
   - Proposal: Draw them through `PlassFiltered`, as item 449 did.
 
-- [ ] **467.** A Flutter `PlNavigationMenu` panel can run off the screen (Bug · Flutter · Low)
+- [x] **467.** A Flutter `PlNavigationMenu` panel can run off the screen (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/navigation_menu/pl_navigation_menu.dart` (`_Panel`), `packages/flutter/lib/src/internal/anchored.dart`
   - Problem: A panel is as wide as its links up to 560 since item 446, but a Flutter popup flips and never slides, on purpose, so a wide panel opened from a trigger near the edge of the screen runs past it. The React panel is capped at `--available-width` and has no 560. The comment item 446 added says "up to 560, as the React panel is", which reads as if React had the 560.
   - Proposal: Cap the panel at the room it has on its side of the anchor, measured when it opens, and drop the 560, so both builds follow one rule; correct the comment.
 
-- [ ] **468.** A React `PlCombobox` reports `null` on `Escape` when it holds nothing (Bug · React · Low)
+- [x] **468.** A React `PlCombobox` reports `null` on `Escape` when it holds nothing (Bug · React · Low)
   - Location: `packages/react/src/components/combobox/PlCombobox.tsx`
   - Problem: Base UI calls `onValueChange(null)` on `Escape` with the list closed whether or not there is a value, so a parent hears a change that is not one. The Flutter combobox passes the key on in that case since item 444 and calls nothing.
   - Proposal: Drop the call when the value is already empty, with a test.
 
-- [ ] **469.** A Flutter `PlCombobox` lights the first row that can be taken as the reader types (Bug · Flutter · Low)
+- [x] **469.** A Flutter `PlCombobox` lights the first row that can be taken as the reader types (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`_onQueryChanged`)
   - Problem: Typing lights `_next(-1, 1)`, which skips a disabled row. Base UI lights row 0 whatever it is, since its list navigation has no disabled indices, and item 445 made the arrow keys stop on a disabled row to match.
   - Proposal: Light row 0 as Base UI does, with a test.
 
-- [ ] **470.** A Flutter `PlCombobox` does not report the label it writes for a value set from outside (Bug · Flutter · Low)
+- [x] **470.** A Flutter `PlCombobox` does not report the label it writes for a value set from outside (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`didUpdateWidget`)
   - Problem: When a single-value combobox's `value` changes from outside, the field takes the new label but `onQueryChanged` is not called, where Base UI calls `onInputValueChange` with it. It cannot be called during the build.
   - Proposal: Report it after the frame, through the `_write` item 445 added.
 
-- [ ] **471.** A Flutter `PlCombobox` row under a resting pointer may take the light as the list scrolls (Bug · Flutter · Low)
+- [x] **471.** A Flutter `PlCombobox` row under a resting pointer may take the light as the list scrolls (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart`
   - Problem: A guess, not seen: with the pointer resting over the list, moving with the keys scrolls a new row under the pointer, whose enter may take the light from the row the keys chose. Base UI remembers whether the pointer or the keys moved last and ignores such an enter.
   - Proposal: Reproduce it first; if it reproduces, move the light only for a pointer that has moved.
 
-- [ ] **472.** A React inline `PlCalendar` draws its chosen day with no gradient (Bug · React · Low)
+- [x] **472.** A React inline `PlCalendar` draws its chosen day with no gradient (Bug · React · Low)
   - Location: `packages/react/src/components/calendar/PlCalendar.tsx`, `packages/react/src/internal/calendar.tsx`
   - Problem: The inline calendar takes `surfaceSlots`, which set no `--p-fill`, so the chosen day's fill is empty. A picker's calendar takes `popupSlots` and fills it, and so does the Flutter calendar.
   - Proposal: Give the chosen cell the fill slots, faded through `.plass-fill` as item 458 did for a picker's cell.
 
-- [ ] **473.** Three more React gradients arrive in one frame (Bug · React · Low)
+- [x] **473.** Three more React gradients arrive in one frame (Bug · React · Low)
   - Location: `packages/react/src/internal/steps.ts` (the step marker), `PlSegmentedButton` (the tile on a first choice), `PlPagination` (the current page)
   - Problem: Each is a `background-image` that comes and goes with a state, which no browser eases, where the Flutter controls fade theirs. The marker's pseudo-elements are free; a pagination page is a `PlButton` whose `variant` changes, so it has none.
   - Proposal: Fade each through a layer: `.plass-fill` on the marker and the tile where they have room, and an `aria-hidden` layer like the `solid` `PlToggle`'s (item 458) on the page.
 
-- [ ] **474.** A React read-only `PlCheckbox` shows no fill while indeterminate (Bug · React · Low)
+- [x] **474.** A React read-only `PlCheckbox` shows no fill while indeterminate (Bug · React · Low)
   - Location: `packages/react/src/components/checkbox/PlCheckbox.tsx` (`readOnlyClasses`)
   - Problem: The read-only classes fill a checked box but have no `data-[indeterminate]` line, where the rest and disabled classes have both, so a read-only indeterminate box is empty.
   - Proposal: Add the line, with a test.
 
-- [ ] **475.** React transitions outside the house transition still ease under reduced motion (Bug · React · Low)
+- [x] **475.** React transitions outside the house transition still ease under reduced motion (Bug · React · Low)
   - Location: colours in `internal/table.ts`, `internal/window.tsx`, the close buttons of `PlModal`, `PlDrawer`, `PlPopover` and `PlTour`, `PlTextLink`, `PlChatBubble`, `internal/chart-frame.tsx`, the `PlNumberField` stepper, `PlCombobox`, `PlDataTable`, `PlTextField`'s adornments, `PlFilePicker`, the shadows of `PlGallery` and `PlColorPicker`, and `PlCarousel`'s dots; movement in the `PlSwitch` thumb, the `PlTabs` indicator, the `PlSegmentedButton` tile and the `PlFloatingBottomNavigation` key
   - Problem: Item 456 ended the house transition under `prefers-reduced-motion`, but each of these writes its own transition and still eases over `--plass-duration`. Flutter takes `Duration.zero` in all of them.
   - Proposal: End each under reduced motion, and add a package test that finds a transition which does not.
 
-- [ ] **476.** Flutter marks whose ink follows only their variant still change it in one frame (Bug · Flutter · Low)
+- [x] **476.** Flutter marks whose ink follows only their variant still change it in one frame (Bug · Flutter · Low)
   - Location: `PlAlert`, `PlChatBubble`, `PlHighlight`, `PlToast`, `PlAppLogo`, and a `PlChip`'s count
   - Problem: Item 457 left these out of `PlassInk`: each has several colours derived from its variant, a chat bubble's link preview works its fill out of the ink, and the React build eases only some of them (an alert's title and icon and a bubble's read mark do not ease; a toast and an app logo have no transition at all).
   - Proposal: Check each colour against the React build and ease, through `PlassInk`, only those React eases.
 
-- [ ] **477.** A Flutter `PlPill` builds its content again when its variant changes (Bug · Flutter · Low)
+- [x] **477.** A Flutter `PlPill` builds its content again when its variant changes (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/pill/pl_pill.dart` (`plassStateFilter(lit: widget.variant == PlassVariant.solid)`)
   - Problem: `lit` changes the shape of the tree above the pill's content, so a change of `variant` builds everything in it again from scratch, a field in its `details` loses what was typed into it, and item 457 could not ease its ink.
   - Proposal: Keep the wrappers in the tree with only their settings changing, as item 438 did, then ease its ink through `PlassInk`.
 
-- [ ] **478.** Flutter fills that React eases change in one frame (Bug · Flutter · Low)
+- [x] **478.** Flutter fills that React eases change in one frame (Bug · Flutter · Low)
   - Location: `PlBottomNavigation` (an item), `PlSelect` and `PlCombobox` (a row's highlight), the `PlNumberField` stepper, `PlCodeBlock`'s buttons, `PlWindowPane`'s caption buttons, `PlHighlight`'s mark
   - Problem: The React house transition eases each fill, and Flutter switches it at once, so since item 457 the ink on it arrives later than the fill.
   - Proposal: Ease each fill over `motionDuration`, at once under reduced motion.
@@ -1511,3 +1514,83 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Location: `PlNumberField` (its adornment takes the accent on focus in Flutter only), `PlCombobox` (its chevron and × take the accent on hover in React only), `PlAnchor` (an unchosen row takes the foreground on hover in React only), `PlMenu` (a disabled row is muted in Flutter only), `PlTextLink` (its underline colour eases in React and changes at once in Flutter), `PlMenubar` and `PlNavigationMenu` (a `startIcon` does not take the trigger's colour in Flutter)
   - Problem: Found while working item 457. Each is the same control drawn in two colours, or changing colour two ways, depending on the build.
   - Proposal: Settle each on one answer, the React build's unless the design-language page says otherwise, with a test in the build that changes.
+
+- [ ] **480.** A press on a Flutter `PlModal`'s backdrop closes it past an open popup that refuses to be dismissed (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/modal/pl_modal.dart`, `packages/flutter/lib/src/internal/portal.dart`, `packages/flutter/lib/src/components/popover/pl_popover.dart`
+  - Problem: With a `dismissible: false` `PlPopover` open inside a modal, `Escape` is kept by the popover, as Base UI keeps it, but a press on the modal's backdrop still closes the modal and the popover with it. Base UI's `useDismiss` holds a parent back from an outside press as well while a child that refuses to close is open (`__outsidePressBubbles`).
+  - Proposal: Hold the backdrop press the same way while such a popup is open, with a test for the press and for `Escape` together.
+
+- [ ] **481.** Flutter leaves content at an opacity of 0 out of what a screen reader reads (Bug · Flutter · Low)
+  - Location: `PlAnimateFade`, `PlAnimateAppear`, `PlAnimateZoom`, `PlAnimateSlide`, `PlAnimateGrow`, `PlAnimateRotate`, `PlAnimateSplit`, `PlAnimateReveal` with `fade`, and `PlStack` (all through `PlassFiltered(alwaysIncludeSemantics: false)` since item 466)
+  - Problem: An entrance waiting for its `delay` or its trigger, a finished `PlassAnimateMode.exit` and a `PlStack` item at an `opacityStep` of 0 are left out of the semantics, where the Flutter animate-fade and animate-reveal pages say the content is still read and React's `opacity: 0` stays in the accessibility tree. A reader moving item by item cannot reach content that is waiting to come in.
+  - Proposal: Keep them in the semantics, as React does and the pages say, with `alwaysIncludeSemantics: true`; keep only `PlAnimateHeadline`'s lines that are not showing out of it.
+
+- [ ] **482.** A Flutter `solid` `PlSegmentedButton`'s tile appears in one frame on a first choice (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/segmented_button/pl_segmented_button.dart` (`_Riding`)
+  - Problem: The tile the first choice of an empty set mounts arrives with its gradient at once; only the label's ink eases. The React tile fades its gradient in there since batch 22.
+  - Proposal: Fade the tile's gradient in over `motionDuration` where the first choice lands, at once under reduced motion, and leave a tile the set is built with lit from the start, as React does.
+
+- [ ] **483.** `PlToast` and `PlAppLogo` change their colours two different ways (Bug · Both · Low)
+  - Location: `packages/react/src/components/toast/PlToast.tsx`, `packages/react/src/components/app-logo/PlAppLogo.tsx`, their Flutter twins
+  - Problem: React eases neither the fill nor the ink of a toast or an app logo's plate. Flutter eases the fill through `PlassSurfaceBox` and switches the ink at once, so a `solid` toast whose colour changes through `update` or `promise` writes its new ink over the old fill for 150ms.
+  - Proposal: Ease both, as their sibling `PlAlert` does: the house transition on the React toast and plate, and the ink through `PlassInk` in Flutter.
+
+- [ ] **484.** Two React transitions never run (Bug · React · Low)
+  - Location: `packages/react/src/internal/chart-frame.tsx` (`markTransitionClasses`), `packages/react/src/components/data-table/PlDataTable.tsx` (the sort mark)
+  - Problem: `markTransitionClasses` is three string literals joined with `''`, so Tailwind never sees the class and generates nothing for it; every line, scatter, bar, pie, heatmap and timeline mark changes at once, and the chart tests only check the class string. The data table's sort mark lists `transform` in its transition, but Tailwind v4's `rotate-180` sets the separate `rotate` property, so its flip never eases.
+  - Proposal: Write the chart class as one literal and ease `rotate` on the sort mark, each with a test that loads the stylesheet.
+
+- [ ] **485.** Two React fills are missing (Bug · React · Low)
+  - Location: `packages/react/src/components/how-to-steps/PlHowToSteps.tsx`, `packages/react/src/components/checkbox/PlCheckbox.tsx` (`disabledTickClasses`)
+  - Problem: `PlHowToSteps` takes `surfaceSlots` only, so its complete and current bullets have no `--p-fill` and no `--p-on-solid`: no gradient, and a number in the page's ink, where the Flutter bullets are filled and `PlStepper` and `PlTimeline` are. A disabled `indeterminate` `PlCheckbox` has no `data-[indeterminate]:[border-color:transparent]`, so its neutral edge stays on over the gradient.
+  - Proposal: Give `PlHowToSteps` the two slots `PlStepper` puts on its steps, and the house transition on its bullet; add the missing line to the disabled classes. A test each.
+
+- [ ] **486.** Three more places a Flutter `PlCombobox` differs from Base UI (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`_start`, `_onQueryChanged`, `didUpdateWidget`)
+  - Problem: Opening the list with an arrow key skips a disabled row, where Base UI's list has no disabled indices (a batch 21 test asserts the skip). Emptying the text lights row 0, where Base UI leaves the light where it was, or moves it to the first chosen row under `multiple`. A change to an option's label leaves the old label in a single-value field, where Base UI writes the new one (`syncInputAfterItemsOrLabelChange`).
+  - Proposal: Follow Base UI in all three, with a test each, and change the batch 21 test to match.
+
+- [ ] **487.** A Flutter `PlSelect` or `PlCommandPalette` row under a resting pointer may take the light as the list scrolls (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/select/pl_select.dart` (a row's `onEnter`), `packages/flutter/lib/src/components/command_palette/pl_command_palette.dart` (the same)
+  - Problem: Both light a row on `onEnter`, which a row that scrolls under a still pointer also receives, as item 471 found in `PlCombobox`, and `PlSelect` scrolls its list as the keys move. Not reproduced.
+  - Proposal: Reproduce it first; if it reproduces, light a row on `onHover`, as item 471 did.
+
+- [ ] **488.** A React `autoPlay` `PlCarousel` may turn at once when its tab comes back (Bug · React · Low)
+  - Location: `packages/react/src/components/carousel/PlCarousel.tsx`
+  - Problem: The carousel skips its turns while `document.hidden` but does not start its interval again when the tab is shown, so the first turn can come almost at once. A carousel shown again in a tab panel waits a whole `interval`, and so does the Flutter carousel since item 464.
+  - Proposal: Start the interval again on `visibilitychange`, and say on the carousel page that it waits a whole `interval` in both cases.
+
+- [ ] **489.** A Flutter popup is placed only once, as it opens (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/anchored.dart` (`_measure`, `_fit`, `_roomOn`)
+  - Problem: The flip and item 467's width limit are measured once per open, so a window resized while a popup is open neither flips it nor limits it again, and the height a width limit adds by wrapping lines is not part of the flip. React's Floating UI measures again as the window changes.
+  - Proposal: Measure again when the screen's size changes and after a width limit has taken effect, not on every scroll.
+
+- [ ] **490.** A Flutter `PlAnimateBlink` keeps an `Opacity` of 1 once a finite run ends (Performance · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/animate_blink/pl_animate_blink.dart`
+  - Problem: A blink with a finite count ends at an opacity of 1 and keeps its `Opacity`, which is a layer of its own, as item 466 found for the entrances.
+  - Proposal: Draw it through `PlassFiltered`, as item 466 did.
+
+- [ ] **491.** Three more Flutter trees change shape with a setting (Bug · Flutter · Low)
+  - Location: the entrances whose `fade` can change at run time (`PlAnimateAppear`, `PlAnimateZoom`, `PlAnimateSlide`, `PlAnimateGrow`, `PlAnimateRotate`, `PlAnimateReveal`, `PlAnimateSplit`), `PlAnimateHeadline` (a line that comes up or leaves), `PlChip` (`plassStateFilter(lit: onPressed != null)`)
+  - Problem: Each puts a wrapper in or takes one out as the setting changes, so what it holds is built again from scratch and loses its state, as items 438 and 477 found. The chip's is read from the code, not seen.
+  - Proposal: Keep each wrapper in the tree with only its settings changing, and add the cases to `test/package/content_state_test.dart`.
+
+- [ ] **492.** Five more places the two builds draw differently (Bug · Both · Low)
+  - Location: `PlAppLogo` (the Flutter mark takes no ink from its plate, and its glass plate's edge and ghost fill differ), `PlSelect` and `PlCombobox` (a highlighted row's fill is `family.soft` in Flutter and `--p-soft-hover` in React), `PlChatBubble` (the link card's hover fill eases in React only), `PlWindowPane` (the XP and Aero caption plates change their brightness on hover and press in React only), `PlAlert` (a bare glyph in `action` takes the alert's ink in React only)
+  - Problem: Found while working item 478. Each is one control drawn two ways depending on the build.
+  - Proposal: Settle each on one answer, the React build's unless the design-language page says otherwise, with a test in the build that changes.
+
+- [ ] **493.** A Flutter `PlPieChart` cannot be walked from the keyboard (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/pie_chart/pl_pie_chart.dart`
+  - Problem: The React pie takes the focus and walks its slices with the arrow keys, `Home`, `End` and `Escape`, announcing each in a live region, and batch 16 gave the Flutter line, bar, area, scatter and timeline charts the same walk, but the Flutter pie has none. The pie page says it is React-only.
+  - Proposal: Give the Flutter pie the walk the other Flutter charts have, and make the page's line about it shared.
+
+- [ ] **494.** The wash on a Flutter `PlPanes` or `PlSidebar` handle never eases (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/panes/pl_panes.dart`, `packages/flutter/lib/src/components/sidebar/pl_sidebar.dart` (the handle's `AnimatedContainer`)
+  - Problem: Each handle is an `AnimatedContainer(color: lit ? soft : null)`. A colour that goes from `null` to a value is switched rather than eased, and the `DecoratedBox` the container puts in for it changes the tree's shape, so the `PlPanes` handle's inner accent line is built again from scratch. The React handles ease their wash through the house transition.
+  - Proposal: Give each a `decoration: BoxDecoration(color: …)` that is always there, so the colour eases and the tree keeps its shape, at once under reduced motion.
+
+- [ ] **495.** A Flutter `PlCommandPalette` row changes its highlight in one frame (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/command_palette/pl_command_palette.dart`
+  - Problem: Only the highlighted row is wrapped in `_reveal.mark`, so each move of the highlight builds both rows again from scratch and their fill and ink change in one frame, as item 457 found for `PlSelect` and `PlCombobox`.
+  - Proposal: Wrap every row and switch `marked`, as item 457 did, so the rows keep what they hold and their fill and ink ease.
