@@ -135,7 +135,8 @@ const underlineClasses: Record<PlTextLinkUnderline, string> = {
 const transition = /* @__PURE__ */ [
   '[transition-property:color,text-decoration-color]',
   '[transition-duration:var(--plass-duration)]',
-  '[transition-timing-function:var(--plass-ease)]'
+  '[transition-timing-function:var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]'
 ].join(' ');
 
 const baseClasses = /* @__PURE__ */ [

@@ -254,6 +254,7 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
                   className={cx(
                     'flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg)',
                     '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+                    'motion-reduce:[transition-duration:0ms]',
                     'data-[panel-open]:rotate-180'
                   )}
                 >
@@ -280,6 +281,7 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
           className={cx(
             'h-(--collapsible-panel-height) overflow-hidden',
             '[transition:height_var(--plass-duration-slow)_var(--plass-ease)]',
+            'motion-reduce:[transition-duration:0ms]',
             'data-[starting-style]:h-0 data-[ending-style]:h-0'
           )}
         >

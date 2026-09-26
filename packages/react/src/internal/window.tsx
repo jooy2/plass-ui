@@ -851,6 +851,7 @@ export function PlWindowControls({
               // that is on it alone, against the set's own answer to the pointer.
               'group/control relative flex shrink-0 cursor-pointer items-center justify-center',
               '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease),filter_var(--plass-duration)_var(--plass-ease)]',
+              'motion-reduce:[transition-duration:0ms]',
               'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]',
               dots || circles ? 'rounded-full' : '',
               circles ? 'bg-(--p-window-hover)' : '',
@@ -914,7 +915,7 @@ export function PlWindowControls({
               className={cx(
                 'flex items-center justify-center',
                 dots
-                  ? 'opacity-0 [transition:opacity_var(--plass-duration)_var(--plass-ease)] group-hover/controls:opacity-100 group-focus-visible/control:opacity-100'
+                  ? 'opacity-0 [transition:opacity_var(--plass-duration)_var(--plass-ease)] motion-reduce:[transition-duration:0ms] group-hover/controls:opacity-100 group-focus-visible/control:opacity-100'
                   : ''
               )}
             >

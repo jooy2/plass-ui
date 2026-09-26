@@ -576,6 +576,7 @@ function ColorPanel({
                   'flex aspect-square items-center justify-center rounded-full border',
                   '[border-color:var(--plass-border)]',
                   '[transition:box-shadow_var(--plass-duration)_var(--plass-ease)]',
+                  'motion-reduce:[transition-duration:0ms]',
                   focusRingClasses,
                   '[outline:none]',
                   inert

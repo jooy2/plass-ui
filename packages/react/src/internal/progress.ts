@@ -195,7 +195,7 @@ export const fillClasses = `[background-image:var(--p-fill)] ${forcedFillClasses
 
 /** The bar's own duration, one step slower than a control's, so a fill reads as travel. */
 export const fillTransitionClasses =
-  '[transition:width_var(--plass-duration-slow)_var(--plass-ease)]';
+  '[transition:width_var(--plass-duration-slow)_var(--plass-ease)] motion-reduce:[transition-duration:0ms]';
 
 /**
  * `value` as a fraction of the range, or `null` when there is nothing to say.

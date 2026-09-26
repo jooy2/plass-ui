@@ -140,6 +140,7 @@ const insetClasses: Record<PlassSize, string> = {
  */
 const fadeClasses = /* @__PURE__ */ [
   '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

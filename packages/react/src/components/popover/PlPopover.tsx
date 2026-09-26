@@ -136,6 +136,7 @@ const popupClasses = /* @__PURE__ */ [
   // screen for the length of the transition, which is the one thing the house
   // style is against — and unlike a control, this one is full of text.
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -155,6 +156,7 @@ const closeButtonClasses = /* @__PURE__ */ [
   'rounded-full text-(--plass-muted-fg)',
   '[&_svg]:size-[1.1em] [&_svg]:shrink-0',
   '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'hover:bg-(--p-soft) hover:text-(--plass-fg)',
   focusRingClasses
 ].join(' ');

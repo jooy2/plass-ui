@@ -273,6 +273,7 @@ const sortButtonClasses = /* @__PURE__ */ cx(
   'font-semibold whitespace-nowrap text-inherit',
   '[background:none] [border:0] [padding:0] [margin:0] cursor-pointer',
   'hover:text-(--plass-fg) [transition:color_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   focusRingInsetClasses
 );
 
@@ -291,6 +292,7 @@ function SortMark({ direction }: { direction: PlDataTableSortDirection | null })
       className={cx(
         '[&_svg]:size-[1em] [&_svg]:shrink-0',
         '[transition:opacity_var(--plass-duration)_var(--plass-ease),transform_var(--plass-duration)_var(--plass-ease)]',
+        'motion-reduce:[transition-duration:0ms]',
         direction === null ? 'opacity-30' : 'opacity-100',
         direction === 'asc' ? 'rotate-180' : ''
       )}

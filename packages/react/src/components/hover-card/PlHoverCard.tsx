@@ -114,6 +114,7 @@ const popupClasses = /* @__PURE__ */ [
   // Opacity only, as everywhere else a surface full of text arrives: a popup
   // that slides in drags its own words across the screen.
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

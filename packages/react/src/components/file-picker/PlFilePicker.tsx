@@ -801,6 +801,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                         'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full',
                         'size-[1.3em] text-(--plass-muted-fg) opacity-70',
                         '[transition:opacity_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
+                        'motion-reduce:[transition-duration:0ms]',
                         '[&_svg]:size-[0.9em]',
                         'hover:text-(--plass-fg) hover:opacity-100 focus-visible:opacity-100',
                         focusRingClasses

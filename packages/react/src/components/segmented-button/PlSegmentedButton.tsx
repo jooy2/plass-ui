@@ -412,9 +412,9 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
               forcedFillClasses,
               '[transition-property:left,top,width,height]',
               '[transition-timing-function:var(--plass-ease)]',
-              // Nothing until the first measurement has landed; the house
-              // duration from then on.
-              '[transition-duration:0ms] data-[ready]:[transition-duration:var(--plass-duration)]'
+              // Nothing until the first measurement has landed, and nothing
+              // under reduced motion; the house duration from then on.
+              '[transition-duration:0ms] motion-safe:data-[ready]:[transition-duration:var(--plass-duration)]'
             ].join(' ')}
           />
         ) : null}

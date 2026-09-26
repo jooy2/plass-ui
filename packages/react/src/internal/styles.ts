@@ -509,6 +509,7 @@ export const chipRemoveClasses = /* @__PURE__ */ [
   'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
   'size-[1.15em] cursor-pointer opacity-70',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'hover:opacity-100 focus-visible:opacity-100',
   focusRingClasses,
   'disabled:cursor-not-allowed'

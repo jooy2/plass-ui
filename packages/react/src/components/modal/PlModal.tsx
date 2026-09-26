@@ -164,6 +164,7 @@ const popupClasses = /* @__PURE__ */ [
   // fast leaves a reader looking for what moved. The scrim under it takes the
   // same duration, so the two arrive as one thing.
   '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -171,6 +172,7 @@ const backdropClasses = /* @__PURE__ */ [
   'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
   '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
   '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -325,6 +327,7 @@ export function PlModal({
                       'rounded-full text-(--plass-muted-fg)',
                       '[&_svg]:size-[1.1em] [&_svg]:shrink-0',
                       '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
+                      'motion-reduce:[transition-duration:0ms]',
                       'hover:bg-(--p-soft) hover:text-(--plass-fg)',
                       focusRingClasses
                     ].join(' ')}

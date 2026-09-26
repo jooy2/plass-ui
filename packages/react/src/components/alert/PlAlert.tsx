@@ -229,6 +229,7 @@ export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertP
                 targetClasses,
                 'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
                 'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+                'motion-reduce:[transition-duration:0ms]',
                 'hover:opacity-100 focus-visible:opacity-100',
                 focusRingClasses
               ].join(' ')}

@@ -260,6 +260,7 @@ const popupClasses = /* @__PURE__ */ [
   '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]',
   '[outline:none]',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -281,6 +282,7 @@ const adornmentClasses = /* @__PURE__ */ [
   'inline-flex h-[1lh] shrink-0 cursor-pointer items-center justify-center',
   'rounded-(--plass-radius-xs) text-(--plass-muted-fg)',
   '[transition:color_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'hover:text-(--p-accent)',
   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:1px]',
   'disabled:cursor-not-allowed disabled:opacity-50'
@@ -666,6 +668,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
                   // glyph, not a label, and nothing about it resamples.
                   'flex items-center',
                   '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+                  'motion-reduce:[transition-duration:0ms]',
                   'data-[popup-open]:rotate-180'
                 )}
               >

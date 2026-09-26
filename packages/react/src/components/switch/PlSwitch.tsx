@@ -180,7 +180,8 @@ const thumbClasses = /* @__PURE__ */ [
   // Given a system colour in forced-colours mode, or the system paints it the
   // page's and the thumb disappears into the track.
   'forced-colors:[background-color:CanvasText] forced-colors:data-[checked]:[background-color:HighlightText]',
-  '[transition:inset-inline-start_var(--plass-duration)_var(--plass-ease)]'
+  '[transition:inset-inline-start_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]'
 ].join(' ');
 
 /**

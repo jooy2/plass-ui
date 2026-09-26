@@ -104,6 +104,7 @@ const backdropClasses = /* @__PURE__ */ [
   'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
   '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
   '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -120,6 +121,7 @@ const popupClasses = /* @__PURE__ */ [
   // At the slow duration, with the scrim: this one takes the page, and the
   // control duration on a surface that size is a cut rather than a fade.
   '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -172,6 +174,7 @@ const insetX: Record<PlassSize, string> = {
 const rowClasses = /* @__PURE__ */ [
   'flex cursor-pointer items-center gap-3 select-none',
   '[transition:background-color_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   // The highlight is Base UI's, and it is one thing rather than two: the pointer
   // and the arrow keys move the same mark, so a reader never has to work out
   // which of two highlighted rows Enter would run.

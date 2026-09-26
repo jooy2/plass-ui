@@ -303,6 +303,7 @@ const previewLinkClasses = /* @__PURE__ */ [
   'hover:[background-color:color-mix(in_oklab,currentColor_12%,transparent)]',
   '[transition-property:background-color] [transition-duration:var(--plass-duration)]',
   '[transition-timing-function:var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   focusRingClasses
 ].join(' ');
 
@@ -318,6 +319,7 @@ const previewLinkClasses = /* @__PURE__ */ [
 const actionsClasses = /* @__PURE__ */ [
   'shrink-0 opacity-0',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'group-hover/bubble:opacity-100 group-focus-within/bubble:opacity-100',
   '[@media(hover:none)]:opacity-100'
 ].join(' ');

@@ -112,7 +112,8 @@ const popupClasses = /* @__PURE__ */ [
   // Base UI sets this while the pointer is moving between grouped tooltips.
   // Fading in a tooltip that is meant to appear instantly is worse than not
   // fading at all — it reads as lag.
-  'data-[instant]:[transition-duration:0ms]'
+  'data-[instant]:[transition-duration:0ms]',
+  'motion-reduce:[transition-duration:0ms]'
 ].join(' ');
 
 /** A row's vertical padding, against the horizontal track `paddingXClasses` sets. */

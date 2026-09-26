@@ -35,6 +35,7 @@ import type { PlassColor, PlassDensity, PlassSize } from '../../types.js';
 const groupClasses = /* @__PURE__ */ [
   'h-(--collapsible-panel-height) overflow-hidden',
   '[transition:height_var(--plass-duration-slow)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:h-0 data-[ending-style]:h-0'
 ].join(' ');
 
@@ -296,6 +297,7 @@ const TreeRow = /* @__PURE__ */ React.memo(function TreeRow({
           className={cx(
             'flex shrink-0 items-center text-(--plass-muted-fg)',
             '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+            'motion-reduce:[transition-duration:0ms]',
             // A leaf keeps the twisty's space rather than losing it, so every
             // label at one level starts on the same edge.
             isBranch ? '' : 'invisible',

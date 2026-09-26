@@ -158,11 +158,11 @@ function useMeasuredWidth(ref: React.RefObject<HTMLElement | null>): number {
  * the bar, the scatter and the timeline snapped, and a dashboard holding two of
  * each showed both answers at once.
  */
-export const markTransitionClasses = [
+export const markTransitionClasses = `${[
   '[transition:opacity_var(--plass-duration)_var(--plass-ease),',
   'r_var(--plass-duration)_var(--plass-ease),',
   'scale_var(--plass-duration)_var(--plass-ease)]'
-].join('');
+].join('')} motion-reduce:[transition-duration:0ms]`;
 
 export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
   /**
@@ -482,6 +482,7 @@ function ChartLegendBar({
                   '[transition-property:background-color,color,opacity]',
                   '[transition-duration:var(--plass-duration)]',
                   '[transition-timing-function:var(--plass-ease)]',
+                  'motion-reduce:[transition-duration:0ms]',
                   'hover:bg-(--p-soft)',
                   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1',
                   // And a line through the name, which is the half of "off"
@@ -524,6 +525,7 @@ function ChartLegendBar({
               '[transition-property:background-color,color]',
               '[transition-duration:var(--plass-duration)]',
               '[transition-timing-function:var(--plass-ease)]',
+              'motion-reduce:[transition-duration:0ms]',
               'hover:bg-(--p-soft) hover:text-(--plass-fg)',
               'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-1'
             )}

@@ -623,7 +623,8 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
               // measurement actually writes.
               '[transition-property:left,top,width,height]',
               '[transition-duration:var(--plass-duration)]',
-              '[transition-timing-function:var(--plass-ease)]'
+              '[transition-timing-function:var(--plass-ease)]',
+              'motion-reduce:[transition-duration:0ms]'
             ].join(' ')}
           />
         </BaseUITabs.List>

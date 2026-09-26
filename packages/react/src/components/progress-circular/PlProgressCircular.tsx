@@ -130,7 +130,7 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
           // the arc starts, not something the ring does when its state changes.
           // Without it a determinate ring would fill from three o'clock.
           transform={`rotate(-90 ${centre} ${centre})`}
-          className="[transition:stroke-dashoffset_var(--plass-duration-slow)_var(--plass-ease)]"
+          className="[transition:stroke-dashoffset_var(--plass-duration-slow)_var(--plass-ease)] motion-reduce:[transition-duration:0ms]"
         />
       </svg>
 

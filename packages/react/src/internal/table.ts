@@ -63,7 +63,8 @@ export const tableStyle: React.CSSProperties = {
 
 export const rowClasses = /* @__PURE__ */ [
   '[--p-row:transparent]',
-  '[transition:background-color_var(--plass-duration)_var(--plass-ease)]'
+  '[transition:background-color_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]'
 ].join(' ');
 
 /**

@@ -295,7 +295,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
   // `1lh` keeps an adornment centred on the first line rather than on the whole
   // box, which is the only way it stays put when the control grows to 5 rows.
   const adornmentClasses =
-    'inline-flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg) transition-[color] duration-(--plass-duration) group-focus-within:text-(--p-accent)';
+    'inline-flex h-[1lh] shrink-0 items-center text-(--plass-muted-fg) transition-[color] duration-(--plass-duration) motion-reduce:[transition-duration:0ms] group-focus-within:text-(--p-accent)';
 
   // One element for both placements, so the label a reader clicks and the label
   // a screen reader reads are the same element wherever it is drawn. The notch

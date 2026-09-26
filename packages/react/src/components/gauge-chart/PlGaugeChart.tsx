@@ -396,15 +396,16 @@ export function PlGaugeChart({
                   pathLength="1"
                   strokeDasharray="1"
                   strokeDashoffset={1 - fraction}
-                  style={{
-                    // The slow duration and not the house one: what is moving
-                    // here is a quantity settling, which is the case that ladder
-                    // step exists for. The colour underneath it changes at the
-                    // house pace, because that is a state change and not a
-                    // journey.
-                    transition:
-                      'stroke-dashoffset var(--plass-duration-slow) var(--plass-ease), stroke var(--plass-duration) var(--plass-ease)'
-                  }}
+                  // The slow duration and not the house one: what is moving
+                  // here is a quantity settling, which is the case that ladder
+                  // step exists for. The colour underneath it changes at the
+                  // house pace, because that is a state change and not a
+                  // journey. A class rather than an inline style, so it can
+                  // arrive at once under reduced motion.
+                  className={cx(
+                    '[transition:stroke-dashoffset_var(--plass-duration-slow)_var(--plass-ease),stroke_var(--plass-duration)_var(--plass-ease)]',
+                    'motion-reduce:[transition-duration:0ms]'
+                  )}
                 />
               ) : null}
 

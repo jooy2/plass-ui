@@ -170,6 +170,7 @@ const popupClasses = /* @__PURE__ */ [
   '[box-shadow:var(--plass-shadow-3),var(--plass-gloss-glass)]',
   '[outline:none]',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -423,6 +424,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
                   // The chevron is the one thing here that may turn: it is a glyph,
                   // not a label, and nothing about it resamples.
                   '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+                  'motion-reduce:[transition-duration:0ms]',
                   'data-[popup-open]:rotate-180'
                 ].join(' ')}
               >

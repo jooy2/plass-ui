@@ -245,6 +245,7 @@ const inlineShadowClasses = '[box-shadow:var(--plass-gloss-glass)]';
  */
 const fadeClasses = /* @__PURE__ */ [
   '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -261,6 +262,7 @@ const closeButtonClasses = /* @__PURE__ */ [
   'rounded-full text-(--plass-muted-fg)',
   '[&_svg]:size-[1.1em] [&_svg]:shrink-0',
   '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'hover:bg-(--p-soft) hover:text-(--plass-fg)',
   focusRingClasses
 ].join(' ');

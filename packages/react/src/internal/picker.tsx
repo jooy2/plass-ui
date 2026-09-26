@@ -117,6 +117,7 @@ export const pickerPopupClasses = /* @__PURE__ */ [
   // Opacity only. A calendar that slid into place would move the cell the
   // pointer was already reaching for.
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

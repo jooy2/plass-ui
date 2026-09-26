@@ -705,6 +705,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
                     '[transition-property:width,background-color]',
                     '[transition-duration:var(--plass-duration)]',
                     '[transition-timing-function:var(--plass-ease)]',
+                    'motion-reduce:[transition-duration:0ms]',
                     dotIndex === index
                       ? `${dotClasses[size].current} bg-(--p-accent)`
                       : `${dotClasses[size].rest} bg-(--plass-border) group-hover:bg-(--p-accent)`

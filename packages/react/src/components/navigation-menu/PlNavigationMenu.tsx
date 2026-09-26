@@ -162,6 +162,7 @@ const popupClasses = /* @__PURE__ */ [
   // panel has been measured, which leaves the sheet `auto`.
   'w-(--p-panel-w) h-(--p-panel-h)',
   '[transition-duration:var(--plass-duration)] [transition-timing-function:var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 
@@ -169,8 +170,8 @@ const popupClasses = /* @__PURE__ */ [
  * What the sheet eases: its opacity always, and its size only while one panel
  * is following another. Opening at the size of what it opens with is not a
  * resize, and a panel that slid in would drag a page's worth of links across
- * the screen. Under reduced motion, and while Base UI holds the positioner
- * still for a window resize, the size arrives at once.
+ * the screen. Under reduced motion both arrive at once, and while Base UI holds
+ * the positioner still for a window resize the size does.
  */
 const popupFadeClasses = '[transition-property:opacity]';
 const popupResizeClasses = /* @__PURE__ */ [
@@ -343,7 +344,7 @@ export function PlNavigationMenuItem({
                 'flex items-center',
                 orientation === 'vertical'
                   ? '-rotate-90 rtl:rotate-90'
-                  : '[transition:rotate_var(--plass-duration)_var(--plass-ease)] data-[popup-open]:rotate-180'
+                  : '[transition:rotate_var(--plass-duration)_var(--plass-ease)] motion-reduce:[transition-duration:0ms] data-[popup-open]:rotate-180'
               )}
             >
               <ChevronIcon />

@@ -291,6 +291,7 @@ function ToastItem({
         // than a state change, and a toast the finger did not flick far enough
         // goes back the moment it lifts.
         '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+        'motion-reduce:[transition-duration:0ms]',
         'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
         // The one `transform` a toast writes, and a deliberate exception to
         // writing none. A toast flicked away has to fade from where the finger
@@ -342,6 +343,7 @@ function ToastItem({
             targetClasses,
             'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
             'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+            'motion-reduce:[transition-duration:0ms]',
             'hover:opacity-100 focus-visible:opacity-100',
             focusRingClasses
           ].join(' ')}

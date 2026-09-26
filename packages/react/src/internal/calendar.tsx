@@ -440,6 +440,7 @@ function Header({
       className={cx(
         'flex items-center text-(--plass-muted-fg)',
         '[transition:rotate_var(--plass-duration)_var(--plass-ease)]',
+        'motion-reduce:[transition-duration:0ms]',
         open && 'rotate-180'
       )}
     >

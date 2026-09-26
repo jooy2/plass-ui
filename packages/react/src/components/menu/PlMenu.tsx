@@ -216,6 +216,7 @@ const popupClasses = /* @__PURE__ */ [
   // Opacity only. A menu that slides in has moved the row you were already
   // reaching for, which is the one thing a menu must never do.
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'
 ].join(' ');
 

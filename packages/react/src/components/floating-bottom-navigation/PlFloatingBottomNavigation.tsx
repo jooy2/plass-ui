@@ -218,9 +218,9 @@ const keyClasses = /* @__PURE__ */ [
   'data-[quiet]:opacity-50 data-[quiet]:saturate-[0.35]',
   '[transition-property:left,top,width,height,opacity,filter]',
   '[transition-timing-function:var(--plass-ease)]',
-  // Nothing until the first measurement has landed; the house duration from
-  // then on.
-  '[transition-duration:0ms] data-[ready]:[transition-duration:var(--plass-duration)]'
+  // Nothing until the first measurement has landed, and nothing under reduced
+  // motion; the house duration from then on.
+  '[transition-duration:0ms] motion-safe:data-[ready]:[transition-duration:var(--plass-duration)]'
 ].join(' ');
 
 /**

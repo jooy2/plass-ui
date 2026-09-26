@@ -417,7 +417,8 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
                   caption === 'hover'
                     ? cx(
                         'opacity-0 group-hover/tile:opacity-100 group-focus-visible/tile:opacity-100',
-                        '[transition:opacity_var(--plass-duration)_var(--plass-ease)]'
+                        '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+                        'motion-reduce:[transition-duration:0ms]'
                       )
                     : ''
                 )
@@ -474,7 +475,8 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
             '[transition:box-shadow_var(--plass-duration)_var(--plass-ease)]',
             frameHoverClasses[hover],
             pictureHoverClasses[hover],
-            '[&_img]:[transition:opacity_var(--plass-duration)_var(--plass-ease),filter_var(--plass-duration)_var(--plass-ease),transform_var(--plass-duration)_var(--plass-ease)]'
+            '[&_img]:[transition:opacity_var(--plass-duration)_var(--plass-ease),filter_var(--plass-duration)_var(--plass-ease),transform_var(--plass-duration)_var(--plass-ease)]',
+            'motion-reduce:[transition-duration:0ms] motion-reduce:[&_img]:[transition-duration:0ms]'
           )}
         >
           {picture}

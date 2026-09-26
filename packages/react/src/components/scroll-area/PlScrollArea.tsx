@@ -161,6 +161,7 @@ export const PlScrollArea = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       // The lane fades rather than unmounting, so a bar that appears under the
       // pointer does not arrive as a jump. `always` is the same lane held open.
       '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
+      'motion-reduce:[transition-duration:0ms]',
       scrollbars === 'always'
         ? 'opacity-100'
         : 'opacity-0 data-[hovering]:opacity-100 data-[scrolling]:opacity-100',
