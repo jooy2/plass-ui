@@ -131,12 +131,7 @@ class PlAnimateSlide extends StatelessWidget {
         );
 
         return fade
-            ? PlassFiltered(
-                colorFilter: null,
-                opacity: t.clamp(0, 1),
-                alwaysIncludeSemantics: false,
-                child: moved,
-              )
+            ? PlassFiltered(colorFilter: null, opacity: t.clamp(0, 1), child: moved)
             : moved;
       },
     );

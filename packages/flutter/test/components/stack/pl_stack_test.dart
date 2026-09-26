@@ -38,6 +38,18 @@ void main() {
       );
     });
 
+    testWidgets('reads an item faded to nothing', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(host(PlStack(opacityStep: 0, children: _five(count: 3))));
+
+      // The two behind the front are drawn at 0, and still read, as the React
+      // build's `opacity` leaves them in the accessibility tree.
+      expect(semanticsLabels(tester), <String>['0', '1', '2']);
+
+      handle.dispose();
+    });
+
     group('the box', () {
       testWidgets('measures exactly what it draws, in all three directions', (
         WidgetTester tester,

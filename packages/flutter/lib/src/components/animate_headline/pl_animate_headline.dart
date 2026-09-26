@@ -327,7 +327,9 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   ///
   /// The ones that are not showing are drawn at zero opacity rather than taken
   /// out, which is what keeps the box as tall as the longest of them and stops
-  /// it resizing as the reel turns.
+  /// it resizing as the reel turns. They are left out of the semantics too, as
+  /// the React build hides them with `visibility`, so a screen reader is given
+  /// the line that is up rather than the set.
   Widget _line(int position, {required Curve curve, required bool still}) {
     final bool active = position == _active;
     final bool leaving = position == _leaving && !still;
@@ -350,10 +352,12 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
         // above it, which is the gesture the whole effect is named for.
         final double travel = active ? 1 - t : -t;
         final double opacity = still ? (active ? 1 : 0) : (active ? t : 1 - t);
+        // Read for the whole of the swap, at 0 as well, as the React build
+        // shows a line that is coming up or leaving from the first frame of
+        // the swap to the last.
         final Widget faded = PlassFiltered(
           colorFilter: null,
           opacity: opacity.clamp(0, 1),
-          alwaysIncludeSemantics: false,
           child: inner,
         );
 

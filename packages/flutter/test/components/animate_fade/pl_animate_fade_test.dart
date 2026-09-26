@@ -27,6 +27,42 @@ void main() {
       expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
     });
 
+    testWidgets('is read while it waits to come in', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(const PlAnimateFade(delay: Duration(seconds: 1), child: Text('Arriving'))),
+      );
+
+      // At 0 while it waits out its delay, and still read, as CSS `opacity: 0`
+      // leaves an element in the accessibility tree.
+      expect(opacityOf(tester), 0);
+      expect(semanticsLabels(tester), contains('Arriving'));
+
+      await tester.pumpAndSettle();
+      handle.dispose();
+    });
+
+    testWidgets('is read once an exit has gone', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          const PlAnimateFade(
+            mode: PlassAnimateMode.exit,
+            duration: Duration(milliseconds: 200),
+            child: Text('Leaving'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 0);
+      expect(semanticsLabels(tester), contains('Leaving'));
+
+      handle.dispose();
+    });
+
     testWidgets('holds its child at the start opacity on the first frame', (
       WidgetTester tester,
     ) async {

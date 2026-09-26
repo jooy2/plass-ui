@@ -422,9 +422,10 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// The builder goes on being called at that last frame for as long as the
 /// effect is on screen, so an effect draws its opacity through `PlassFiltered`
 /// rather than an [Opacity]: an [Opacity] at 1 is still a layer of its own,
-/// kept for nothing once an entrance has arrived. Its `alwaysIncludeSemantics`
-/// is `false`, which leaves the content out of the semantics at 0 as the
-/// [Opacity] did.
+/// kept for nothing once an entrance has arrived. What is drawn at 0 stays in
+/// the semantics, as CSS `opacity: 0` leaves an element in the accessibility
+/// tree: an entrance waiting for its delay or its trigger, and an exit that has
+/// gone, are still read, where an [Opacity] left them out.
 ///
 /// Under reduced motion nothing moves in between. `t` is `1` until the moment
 /// the run would have started, its delay included, and then wherever the last

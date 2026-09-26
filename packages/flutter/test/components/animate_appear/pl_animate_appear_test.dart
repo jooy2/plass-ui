@@ -30,6 +30,34 @@ void main() {
       expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
     });
 
+    testWidgets('reads every child while the set waits for its trigger', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(PlAnimateAppear(trigger: PlassAnimateTrigger.manual, children: _three)),
+      );
+
+      // Every child is drawn at 0 until the set is played, and every one is
+      // still read, as CSS `opacity: 0` leaves an element in the accessibility
+      // tree.
+      expect(
+        tester
+            .widgetList<PlassFiltered>(
+              find.descendant(
+                of: find.byType(PlAnimateAppear),
+                matching: find.byType(PlassFiltered),
+              ),
+            )
+            .map((PlassFiltered filtered) => filtered.opacity),
+        <double>[0, 0, 0],
+      );
+      expect(semanticsLabels(tester), containsAll(<String>['One', 'Two', 'Three']));
+
+      handle.dispose();
+    });
+
     testWidgets('drifts every child up from below over a short distance', (
       WidgetTester tester,
     ) async {

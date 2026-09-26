@@ -107,7 +107,6 @@ class PlAnimateFade extends StatelessWidget {
         return PlassFiltered(
           colorFilter: null,
           opacity: (from + (1 - from) * t).clamp(0, 1),
-          alwaysIncludeSemantics: false,
           child: inner,
         );
       },

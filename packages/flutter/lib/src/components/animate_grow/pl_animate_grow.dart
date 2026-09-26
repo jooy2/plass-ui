@@ -126,12 +126,7 @@ class PlAnimateGrow extends StatelessWidget {
         );
 
         return fade
-            ? PlassFiltered(
-                colorFilter: null,
-                opacity: t.clamp(0, 1),
-                alwaysIncludeSemantics: false,
-                child: scaled,
-              )
+            ? PlassFiltered(colorFilter: null, opacity: t.clamp(0, 1), child: scaled)
             : scaled;
       },
     );

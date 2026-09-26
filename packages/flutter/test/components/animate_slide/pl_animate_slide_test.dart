@@ -37,6 +37,31 @@ void main() {
       expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
     });
 
+    testWidgets('is read while it waits for its trigger', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(const PlAnimateSlide(trigger: PlassAnimateTrigger.manual, child: Text('Sliding'))),
+      );
+
+      // Drawn at 0 until it is played, and still read, as CSS `opacity: 0`
+      // leaves an element in the accessibility tree.
+      expect(
+        tester
+            .widget<PlassFiltered>(
+              find.descendant(
+                of: find.byType(PlAnimateSlide),
+                matching: find.byType(PlassFiltered),
+              ),
+            )
+            .opacity,
+        0,
+      );
+      expect(semanticsLabels(tester), contains('Sliding'));
+
+      handle.dispose();
+    });
+
     group('from', () {
       testWidgets('comes up from below by default, its own height away', (
         WidgetTester tester,

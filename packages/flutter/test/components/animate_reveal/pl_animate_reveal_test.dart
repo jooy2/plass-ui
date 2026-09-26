@@ -29,6 +29,37 @@ void main() {
       expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
     });
 
+    testWidgets('is read while it waits for its trigger', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          const PlAnimateReveal(
+            fade: true,
+            trigger: PlassAnimateTrigger.manual,
+            child: Text('Uncovered'),
+          ),
+        ),
+      );
+
+      // Drawn at 0 until it is played, and still read, as CSS `opacity: 0`
+      // leaves an element in the accessibility tree.
+      expect(
+        tester
+            .widget<PlassFiltered>(
+              find.descendant(
+                of: find.byType(PlAnimateReveal),
+                matching: find.byType(PlassFiltered),
+              ),
+            )
+            .opacity,
+        0,
+      );
+      expect(semanticsLabels(tester), contains('Uncovered'));
+
+      handle.dispose();
+    });
+
     testWidgets('paints nothing of itself before it runs', (WidgetTester tester) async {
       await tester.pumpWidget(
         host(

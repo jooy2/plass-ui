@@ -255,11 +255,12 @@ class PlStack extends StatelessWidget {
 
     if (opacityStep != 1) {
       // Painted straight onto the canvas at the front, rather than through an
-      // `Opacity` at 1, which would be a layer for the one item not faded.
+      // `Opacity` at 1, which would be a layer for the one item not faded. An
+      // item faded to nothing is still read, as the React build's `opacity`
+      // leaves it in the accessibility tree.
       dressed = PlassFiltered(
         colorFilter: null,
         opacity: math.pow(opacityStep, depth).toDouble().clamp(0, 1),
-        alwaysIncludeSemantics: false,
         child: dressed,
       );
     }

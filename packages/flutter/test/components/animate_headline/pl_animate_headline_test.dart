@@ -39,6 +39,40 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('reads both lines for the whole of a swap, and then the new one', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      // A rise short enough that the line coming up is inside the box on the
+      // first frame, rather than clipped out of it, and out of the semantics
+      // for that reason alone.
+      Widget headline(int index) => host(
+        PlAnimateHeadline(
+          index: index,
+          rise: 4,
+          duration: const Duration(milliseconds: 200),
+          children: _lines,
+        ),
+        width: 200,
+      );
+
+      await tester.pumpWidget(headline(0));
+      await tester.pumpWidget(headline(1));
+
+      // The first frame of the swap, with the line coming up still at 0: both
+      // are read, as the React build shows a line that is coming up or leaving
+      // from the first frame of the swap to the last.
+      expect(opacitiesOf(tester), <double>[1, 0, 0]);
+      expect(semanticsLabels(tester), <String>['faster', 'simpler']);
+
+      await tester.pumpAndSettle();
+
+      expect(semanticsLabels(tester), <String>['simpler']);
+
+      handle.dispose();
+    });
+
     testWidgets('keeps every line in the tree, in one cell', (WidgetTester tester) async {
       await tester.pumpWidget(host(PlAnimateHeadline(children: _lines), width: 200));
 

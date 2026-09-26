@@ -142,12 +142,7 @@ class PlAnimateRotate extends StatelessWidget {
         );
 
         return fade
-            ? PlassFiltered(
-                colorFilter: null,
-                opacity: t.clamp(0, 1),
-                alwaysIncludeSemantics: false,
-                child: turned,
-              )
+            ? PlassFiltered(colorFilter: null, opacity: t.clamp(0, 1), child: turned)
             : turned;
       },
     );

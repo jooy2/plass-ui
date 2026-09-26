@@ -220,12 +220,7 @@ class PlAnimateSplit extends StatelessWidget {
         final Widget moved = Transform.translate(offset: offset, child: inner);
 
         return fade
-            ? PlassFiltered(
-                colorFilter: null,
-                opacity: t.clamp(0, 1),
-                alwaysIncludeSemantics: false,
-                child: moved,
-              )
+            ? PlassFiltered(colorFilter: null, opacity: t.clamp(0, 1), child: moved)
             : moved;
       },
     );
