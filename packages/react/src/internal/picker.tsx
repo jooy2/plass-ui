@@ -92,7 +92,7 @@ export function popupSlots(color: PlassColor, elevation: PlassElevation): React.
 
 /** The trigger's box. A `PlTextField`'s shell, unchanged. */
 const triggerShellClasses = /* @__PURE__ */ [
-  'group relative flex w-full items-center select-none',
+  'relative flex w-full items-center select-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
   iconClasses
