@@ -588,6 +588,14 @@ final Map<String, _Case> _cases = <String, _Case>{
     ),
     read: _ownGlyph(PlassGlyphShape.close),
   ),
+  'PlAlert, a glyph in its action': _Case(
+    (bool on) => PlAlert(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      action: const _Glyph(),
+      child: const Text('Body'),
+    ),
+    read: _glyph,
+  ),
   // On `solid` the title and the glyph ride on the alert's own ink, so they
   // ease with it as the colour changes it.
   'solid PlAlert, its title': _Case(

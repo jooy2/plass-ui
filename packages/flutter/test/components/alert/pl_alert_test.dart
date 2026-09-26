@@ -6,6 +6,22 @@ import 'package:plass_ui/src/internal/icons.dart';
 
 import '../../support/host.dart';
 
+/// A glyph a caller hands the alert, recording the colour it is drawn in.
+class _Glyph extends StatelessWidget {
+  const _Glyph(this.name);
+
+  final String name;
+
+  static final Map<String, Color?> seen = <String, Color?>{};
+
+  @override
+  Widget build(BuildContext context) {
+    seen[name] = IconTheme.of(context).color;
+
+    return const SizedBox.square(dimension: 16);
+  }
+}
+
 void main() {
   group('PlAlert', () {
     group('shapes', () {
@@ -95,6 +111,45 @@ void main() {
 
         expect(sheet.color, PlassTokens.light().family(PlassColor.info).soft);
         expect(sheet.border, isNull);
+      });
+
+      testWidgets('draws a glyph a caller hands it in the colour of the words around it', (
+        WidgetTester tester,
+      ) async {
+        final tokens = PlassTokens.light();
+        final family = tokens.family(PlassColor.info);
+
+        for (final PlassVariant variant in PlassVariant.values) {
+          await tester.pumpWidget(
+            host(
+              PlAlert(
+                key: ValueKey<PlassVariant>(variant),
+                variant: variant,
+                title: const Row(children: <Widget>[_Glyph('title'), Text('Title')]),
+                action: const _Glyph('action'),
+                child: const Row(children: <Widget>[_Glyph('message'), Text('Message')]),
+              ),
+              width: 400,
+            ),
+          );
+
+          final bool solid = variant == PlassVariant.solid;
+
+          // As an `<svg>` drawn in `currentColor` takes the React alert's: the
+          // alert's own ink in the action, the accent in the title and the
+          // muted ink in the detail under it, all of them the ink on `solid`.
+          expect(_Glyph.seen['action'], solid ? family.onSolid : tokens.fg, reason: variant.name);
+          expect(
+            _Glyph.seen['title'],
+            solid ? family.onSolid : family.accent,
+            reason: variant.name,
+          );
+          expect(
+            _Glyph.seen['message'],
+            solid ? family.onSolid : tokens.mutedFg,
+            reason: variant.name,
+          );
+        }
       });
     });
 

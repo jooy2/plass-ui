@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A glyph a caller puts in a `PlAlert` takes the colour of the words round it, as in the React build.** One in `action` takes the alert's ink and eases with it, one in the title takes the title's accent on `glass` and `ghost`, and one in the detail under a title takes the muted ink. Each kept whatever colour the app around it had.
+
 - **A `PlWindowPane` caption plate on `windowsxp`, and the minimize and maximize plates on `windows7`, brighten under the pointer and dim under a press, as in the React build.** XP's plates did not answer the pointer at all, and Aero's changed only their fill. The brightness eases over `motionDuration` and changes at once under reduced motion.
 
 - **The row the pointer or the arrow keys light in a `PlSelect` or `PlCombobox` list is washed in the family's `softHover`, as in the React build.** It took the paler `soft`, so the highlight was a step fainter than the React one.

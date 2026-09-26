@@ -179,7 +179,12 @@ class PlAlert extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     leadingDistribution: TextLeadingDistribution.even,
                   ),
-                  child: title!,
+                  // A glyph in the title takes the title's colour, as it does
+                  // in the React build.
+                  child: IconTheme.merge(
+                    data: IconThemeData(color: accent),
+                    child: title!,
+                  ),
                 ),
               if (child != null)
                 // Under a title the message is supporting detail and steps back
@@ -187,7 +192,10 @@ class PlAlert extends StatelessWidget {
                 // reading text.
                 DefaultTextStyle.merge(
                   style: TextStyle(color: titled ? detail : null),
-                  child: child!,
+                  child: IconTheme.merge(
+                    data: IconThemeData(color: titled ? detail : null),
+                    child: child!,
+                  ),
                 ),
             ],
           ),
@@ -221,13 +229,13 @@ class PlAlert extends StatelessWidget {
         child: PlassSurfaceBox(
           surface: surface,
           borderRadius: BorderRadius.circular(tokens.radii[size]!),
-          // The message, the action's words and the × ease to a new ink with
-          // the fill, as the React build's `color` does under the house
-          // transition. Only the words: a glyph a caller puts in `action` keeps
-          // the colour it had.
+          // The message, the action and the × ease to a new ink with the fill,
+          // as the React build's `color` does under the house transition. A
+          // glyph a caller puts in `action` takes it too, as an `<svg>` drawn
+          // in `currentColor` does in the React alert, and one in the title or
+          // the message takes the colour of the words around it.
           child: PlassInk(
             color: surface.ink,
-            icons: false,
             child: DefaultTextStyle.merge(
               style: TextStyle(
                 fontSize: body.size,
