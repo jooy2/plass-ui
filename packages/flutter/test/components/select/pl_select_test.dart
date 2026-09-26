@@ -539,5 +539,29 @@ void main() {
         );
       });
     });
+
+    group('the highlight\'s fill', () {
+      testWidgets('washes the highlighted row in the family\'s hover tint', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Harness());
+
+        await tester.tap(_trigger());
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        final DecoratedBox fill = tester.widget<DecoratedBox>(
+          find.ancestor(of: _row('Tokyo'), matching: find.byType(DecoratedBox)).first,
+        );
+
+        // The React row's `--p-soft-hover`, whether the pointer or the arrow
+        // keys lit it.
+        expect(
+          (fill.decoration as BoxDecoration).color,
+          PlassTheme.of(tester.element(_row('Tokyo'))).family(PlassColor.primary).softHover,
+        );
+      });
+    });
   });
 }

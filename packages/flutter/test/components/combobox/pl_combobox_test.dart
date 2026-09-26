@@ -2094,5 +2094,36 @@ void main() {
         expect(find.text('City'), findsOneWidget);
       });
     });
+
+    group('the highlight\'s fill', () {
+      testWidgets('washes the highlighted row in the family\'s hover tint', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _more, value: null, onChanged: (String? _) {})),
+        );
+
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        final Finder row = find.descendant(
+          of: find.byType(SingleChildScrollView),
+          matching: find.text('Seoul'),
+        );
+        final DecoratedBox fill = tester.widget<DecoratedBox>(
+          find.ancestor(of: row, matching: find.byType(DecoratedBox)).first,
+        );
+
+        // The React row's `--p-soft-hover`, whether the pointer or the arrow
+        // keys lit it.
+        expect(_lit(tester), 'Seoul');
+        expect(
+          (fill.decoration as BoxDecoration).color,
+          PlassTheme.of(tester.element(row)).family(PlassColor.primary).softHover,
+        );
+      });
+    });
   });
 }
