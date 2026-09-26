@@ -14,7 +14,7 @@
  * with the design language, and a test that pins them turns a decision into a
  * failure. What is pinned here is that each piece reaches the next one.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
@@ -82,6 +82,13 @@ async function settle(element: HTMLElement): Promise<void> {
 }
 
 describe('the interaction light', () => {
+  // A control is rendered at the top of the page, which is where an earlier
+  // file can leave the real mouse. A bloom under it starts easing in, and a
+  // test that reads the light at rest would read it part of the way up.
+  beforeEach(async () => {
+    await commands.parkPointer();
+  });
+
   it('resolves a colour on a key, whose slots come from `controlSlots`', async () => {
     const screen = await render(<PlButton>Save</PlButton>);
     const key = screen.getByRole('button').element() as HTMLElement;
