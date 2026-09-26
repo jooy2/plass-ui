@@ -185,14 +185,15 @@ void paintLineSeries(
         }
 
         final Color ink = one[i].color ?? color;
+        // A pixel bigger under the crosshair, as the React marker's `r` is, and
+        // eased there with its column. A dot drawn only because its column is
+        // being read has nothing to grow from, so it arrives at that size, as
+        // a React marker put under the crosshair does.
+        final double r = radius + (dots ? layout.columnLit(i) : 1);
 
         canvas
-          ..drawCircle(
-            at,
-            radius + 1.5,
-            Paint()..color = layout.tokens.surface.withValues(alpha: alpha),
-          )
-          ..drawCircle(at, radius, Paint()..color = ink.withValues(alpha: alpha));
+          ..drawCircle(at, r + 1.5, Paint()..color = layout.tokens.surface.withValues(alpha: alpha))
+          ..drawCircle(at, r, Paint()..color = ink.withValues(alpha: alpha));
       }
     }
   }

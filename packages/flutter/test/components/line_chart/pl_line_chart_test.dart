@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 
@@ -1124,8 +1125,139 @@ void main() {
 
         expect(find.byType(PlLineChart), findsOneWidget);
       });
+
+      testWidgets('grows the markers under the crosshair by a pixel, over the house duration', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlLineChart(series: series, categories: months));
+
+        final double radius = markerRadii[PlassSize.md]!;
+
+        // Revenue's markers on January and on February, each a ring and a dot.
+        expect(_markerRadii(tester), <double>[radius + 1.5, radius, radius + 1.5, radius]);
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        // Onto January, the first column.
+        await mouse.moveTo(tester.getTopLeft(_plot()) + const Offset(2, 4));
+        await tester.pump();
+        // The clock starts on the frame after the change, as an animation's
+        // does.
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        // Halfway through, as far along as the house curve is by then, and
+        // February still at rest.
+        final double halfway = radius + PlassTokens.ease.transform(0.5);
+        final List<double> radii = _markerRadii(tester);
+
+        expect(radii[1], closeTo(halfway, 1e-6));
+        expect(radii[0], closeTo(halfway + 1.5, 1e-6));
+        expect(radii[1], lessThan(radius + 1));
+        expect(radii.sublist(2), <double>[radius + 1.5, radius]);
+
+        await tester.pumpAndSettle();
+
+        expect(_markerRadii(tester), <double>[radius + 2.5, radius + 1, radius + 1.5, radius]);
+
+        await mouse.moveTo(Offset.zero);
+        await tester.pumpAndSettle();
+
+        expect(_markerRadii(tester), <double>[radius + 1.5, radius, radius + 1.5, radius]);
+      });
+
+      testWidgets('grows them at once under reduced motion', (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(500, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          host(
+            PlLineChart(series: series, categories: months),
+            width: 500,
+            disableAnimations: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getTopLeft(_plot()) + const Offset(2, 4));
+        await tester.pump();
+
+        final double radius = markerRadii[PlassSize.md]!;
+
+        expect(_markerRadii(tester).sublist(0, 2), <double>[radius + 2.5, radius + 1]);
+        expect(tester.binding.transientCallbackCount, 0);
+      });
+
+      testWidgets('draws the one marker a line without them shows at its grown size', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: <PlassChartSeries>[series.first],
+            categories: months,
+            markers: PlChartMarkers.none,
+          ),
+        );
+
+        expect(_markerRadii(tester), isEmpty);
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getTopLeft(_plot()) + const Offset(2, 4));
+        await tester.pump();
+
+        // Nothing was there to grow from, so it is put there at its size, as
+        // the React marker is when the crosshair reaches its column.
+        final double radius = markerRadii[PlassSize.md]!;
+
+        expect(_markerRadii(tester), <double>[radius + 2.5, radius + 1]);
+
+        await tester.pumpAndSettle();
+      });
     });
   });
+}
+
+/// The plot's painter, which is the tallest `CustomPaint` with one.
+Finder _plot() {
+  return find
+      .byWidgetPredicate(
+        (Widget widget) =>
+            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+      )
+      .first;
+}
+
+/// The radii of the first series' first two markers as they are painted now,
+/// each its ring and then its dot, or of as many as there are.
+List<double> _markerRadii(WidgetTester tester) {
+  final _CircleCanvas canvas = _CircleCanvas();
+
+  tester.widget<CustomPaint>(_plot()).painter!.paint(canvas, tester.getSize(_plot()));
+
+  return canvas.radii.length > 4 ? canvas.radii.sublist(0, 4) : canvas.radii;
+}
+
+/// A canvas that keeps the radius of every circle painted on it, and drops
+/// everything else.
+class _CircleCanvas implements Canvas {
+  final List<double> radii = <double>[];
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) => radii.add(radius);
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
 }
 
 /// A canvas that keeps how many characters each piece of text painted on it
