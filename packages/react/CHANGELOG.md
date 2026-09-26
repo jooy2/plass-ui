@@ -70,6 +70,10 @@
 
 ### Fixed
 
+- **The chevron of a `PlCombobox` with a `label` is named by `openLabel`, `Open` by default.** Base UI pointed it at the field's label, which outranks an `aria-label`, so a screen reader announced the chevron by the field's name rather than by what it does, and `openLabel` had no effect there.
+
+- **The chevron and the clear × of a disabled `PlCombobox` are drawn at the half opacity of the field they sit in, as a `PlSelect` chevron is.** They faded to half a second time inside a field already at half, so they were drawn at a quarter.
+
 - **A `ghost` `PlBadge` is lifted by its `elevation`, as a `ghost` `PlAvatar` is.** The badge kept its own copy of the mark material, and that copy left the elevation shadow off `ghost`, so a ghost badge given an `elevation` still lay flat. `solid` and `glass` badges are unchanged.
 
 - **A `PlPieChart` whose tooltip is turned off takes no key, as every other chart.** With `tooltip={false}` or `mode: 'none'`, ← and → still lit a slice and faded the others, with no card and no live region to say which slice it was. The keys now go on to whatever the chart sits in, as they do on a line, bar, area, scatter, timeline or heatmap chart with its tooltip off.
@@ -78,7 +82,7 @@
 
 - **A `PlCombobox` that holds a value keeps what is typed into it as it renders again, under a parent that passes `items` inline and renders on every keystroke as much as with a value the list does not have.** The value was handed to Base UI as a row object made anew each time `items` was, and on every render for a value no option holds, and Base UI took each new object for a new value and wrote its label back over the query, so the field could not be typed into. It also dropped an error a `PlForm`'s `errors` had put on the field, with or without `multiple`, whenever the combobox rendered again. A renamed option's new label is still written into the field, but no longer over a query typed into the open list, as the Flutter combobox does.
 
-- **A disabled `PlCombobox` keeps its chevron and its clear × in the muted ink under the pointer.** Both turned to the family's accent as the pointer went over them, where a disabled field answers the pointer with nothing else, and the Flutter chevron stays muted.
+- **A disabled `PlCombobox` keeps its chevron and its clear × in the muted ink under the pointer, and so does a `PlNumberField` stepper that has run into `min` or `max` or sits in a disabled field.** Each turned to the family's accent as the pointer went over it, where a disabled control answers the pointer with nothing else, and the Flutter chevron and steppers stay muted.
 
 - **The first ← on a `PlPieChart` with no slice being read reaches the last slice.** It reached the second from the end, while the first → reached the first slice; the Flutter pie already started a walk backwards on the last.
 

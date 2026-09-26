@@ -288,7 +288,9 @@ const adornmentClasses = /* @__PURE__ */ [
   // chevron of a disabled field is no more lit than the field is.
   'enabled:hover:text-(--p-accent)',
   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:1px]',
-  'disabled:cursor-not-allowed disabled:opacity-50'
+  // No fade of their own: they are disabled only when the field is, and the
+  // shell they sit in is already drawn at half, as a `PlSelect`'s chevron is.
+  'disabled:cursor-not-allowed'
 ].join(' ');
 
 /**
@@ -684,7 +686,17 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
               </BaseUICombobox.Clear>
             ) : null}
 
-            <BaseUICombobox.Trigger aria-label={openLabel} className={adornmentClasses}>
+            <BaseUICombobox.Trigger
+              aria-label={openLabel}
+              // Base UI points the trigger at the field's label, for a combobox
+              // whose trigger is the field itself. Here it is a button beside
+              // the input, named by what it does, and an `aria-labelledby` would
+              // outrank the `aria-label`. Passing the key takes Base UI's value
+              // off, since the caller's props are merged last, and an
+              // `undefined` attribute is not rendered.
+              aria-labelledby={undefined}
+              className={adornmentClasses}
+            >
               <BaseUICombobox.Icon
                 className={cx(
                   // The chevron is the one thing here that may turn: it is a

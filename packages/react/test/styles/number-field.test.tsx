@@ -1,6 +1,7 @@
 /**
  * How a `PlNumberField` eases while a stepper is pressed and while the field
- * holds the focus, which only the stylesheet can answer.
+ * holds the focus, and what a stepper does under the pointer, which only the
+ * stylesheet can answer.
  *
  * The press is an `active:` tint on the stepper's own transition list and the
  * focus a `focus-within:` fill and edge on the shell's, so the assertions are on
@@ -11,8 +12,9 @@
  * lifts. No duration is asserted, only that the press and the focus get the one
  * the release and the blur get, and that reduced motion takes it away.
  */
+import type * as React from 'react';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { userEvent } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlNumberField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -113,5 +115,69 @@ describe('the number field stylesheet', () => {
         .transitionDuration.split(',')
         .every((one) => parseFloat(one) === 0)
     ).toBe(true);
+  });
+
+  describe('a stepper under the pointer', () => {
+    /**
+     * The stepper's glyph colour at rest and then with the pointer over it.
+     *
+     * The accent is a `:hover` colour on the stepper's own button, and a
+     * disabled button still matches `:hover`. Reduced motion puts the colour
+     * on at once, so nothing has to wait out the ease. No colour is asserted,
+     * only whether the pointer changes it.
+     */
+    async function stepperColours(
+      field: React.ReactElement,
+      name: string,
+      disabled: boolean
+    ): Promise<{ rest: string; hovered: string }> {
+      await commands.parkPointer();
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const screen = await render(field);
+      const stepper = screen.getByRole('button', { name });
+
+      if (disabled) {
+        await expect.element(stepper).toBeDisabled();
+      } else {
+        await expect.element(stepper).toBeEnabled();
+      }
+
+      const rest = getComputedStyle(stepper.element()).color;
+
+      await userEvent.hover(stepper);
+
+      return { rest, hovered: getComputedStyle(stepper.element()).color };
+    }
+
+    it('turns the glyph of a stepper that can be pressed to the accent', async () => {
+      const { rest, hovered } = await stepperColours(
+        <PlNumberField label="Guests" defaultValue={2} />,
+        'Increase',
+        false
+      );
+
+      expect(hovered).not.toBe(rest);
+    });
+
+    it('keeps the glyph of a stepper that has run into `min` in its muted ink', async () => {
+      const { rest, hovered } = await stepperColours(
+        <PlNumberField label="Guests" defaultValue={0} min={0} />,
+        'Decrease',
+        true
+      );
+
+      expect(hovered).toBe(rest);
+    });
+
+    it('keeps the glyph of a stepper in a disabled field in its muted ink', async () => {
+      const { rest, hovered } = await stepperColours(
+        <PlNumberField label="Guests" defaultValue={2} disabled />,
+        'Increase',
+        true
+      );
+
+      expect(hovered).toBe(rest);
+    });
   });
 });

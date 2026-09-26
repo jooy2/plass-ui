@@ -207,7 +207,11 @@ const stepperClasses = /* @__PURE__ */ [
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease),opacity_var(--plass-duration)_var(--plass-ease)]',
   'motion-reduce:[transition-duration:0ms]',
-  'hover:bg-(--p-soft) hover:text-(--p-accent)',
+  // `enabled:` because a disabled button still matches `:hover`, and a stepper
+  // that has run into `min`, or one in a disabled field, is no more lit than a
+  // disabled field is. The wash needs no guard: `disabled:bg-transparent`
+  // comes later in the generated sheet and wins.
+  'hover:bg-(--p-soft) enabled:hover:text-(--p-accent)',
   'active:bg-(--p-soft-press)',
   focusRingClasses,
   // A stepper that has run into `min` goes out like everything else that is

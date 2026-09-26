@@ -116,6 +116,30 @@ describe('PlCombobox', () => {
 
       expect(document.querySelector('.my-own-class')).not.toBeNull();
     });
+
+    it('names the chevron and the × of a labelled field by what they do', async () => {
+      const screen = await render(
+        <PlCombobox items={items} label="City" defaultValue="seoul" clearable />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Open', exact: true }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('button', { name: 'Clear', exact: true }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'City' }).query()).toBeNull();
+    });
+
+    it('names the chevron of a labelled field in the caller’s own words', async () => {
+      const screen = await render(
+        <PlCombobox items={items} label="City" openLabel="Show cities" />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Show cities', exact: true }))
+        .toBeInTheDocument();
+    });
   });
 
   describe('choosing', () => {
