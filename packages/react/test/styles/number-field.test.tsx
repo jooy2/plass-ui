@@ -1,7 +1,7 @@
 /**
  * How a `PlNumberField` eases while a stepper is pressed and while the field
- * holds the focus, and what a stepper does under the pointer, which only the
- * stylesheet can answer.
+ * holds the focus, what a stepper does under the pointer, and how far one that
+ * cannot step is faded, which only the stylesheet can answer.
  *
  * The press is an `active:` tint on the stepper's own transition list and the
  * focus a `focus-within:` fill and edge on the shell's, so the assertions are on
@@ -178,6 +178,54 @@ describe('the number field stylesheet', () => {
       );
 
       expect(hovered).toBe(rest);
+    });
+  });
+
+  describe('a stepper that cannot step', () => {
+    /** The shell the named field's input sits in, which carries its fade. */
+    function shellOf(screen: Awaited<ReturnType<typeof render>>, name: string): HTMLElement {
+      return screen.getByRole('textbox', { name }).element().parentElement as HTMLElement;
+    }
+
+    const opacityOf = (element: Element) => getComputedStyle(element).opacity;
+
+    it('leaves the steppers of a disabled field at the half its shell is drawn at', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const screen = await render(
+        <PlNumberField label="Guests" defaultValue={0} min={0} disabled />
+      );
+      const decrease = screen.getByRole('button', { name: 'Decrease' });
+      const increase = screen.getByRole('button', { name: 'Increase' });
+
+      await expect.element(decrease).toBeDisabled();
+      await expect.element(increase).toBeDisabled();
+
+      // The shell already fades everything in it, so a fade of their own
+      // would draw them at a quarter, the one at `min` included.
+      expect(Number(opacityOf(shellOf(screen, 'Guests')))).toBeLessThan(1);
+      expect(opacityOf(decrease.element())).toBe('1');
+      expect(opacityOf(increase.element())).toBe('1');
+    });
+
+    it('fades a stepper that has run into `min` in a live field as a disabled field is faded', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const screen = await render(
+        <>
+          <PlNumberField label="Guests" defaultValue={0} min={0} />
+          <PlNumberField label="Rooms" defaultValue={1} disabled />
+        </>
+      );
+      const decrease = screen.getByRole('button', { name: 'Decrease' }).first();
+      const increase = screen.getByRole('button', { name: 'Increase' }).first();
+
+      await expect.element(decrease).toBeDisabled();
+      await expect.element(increase).toBeEnabled();
+
+      expect(opacityOf(shellOf(screen, 'Guests'))).toBe('1');
+      expect(opacityOf(decrease.element())).toBe(opacityOf(shellOf(screen, 'Rooms')));
+      expect(opacityOf(increase.element())).toBe('1');
     });
   });
 });

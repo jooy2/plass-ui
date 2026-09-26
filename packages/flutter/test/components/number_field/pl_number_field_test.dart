@@ -115,7 +115,7 @@ void main() {
         expect(tester.getCenter(_minus()).dx, lessThan(tester.getCenter(find.text('5')).dx));
       });
 
-      testWidgets('dims a stepper only while it has nothing to step', (WidgetTester tester) async {
+      testWidgets('dims a stepper at its limit, and never twice', (WidgetTester tester) async {
         final int dim = Color.getAlphaFromOpacity(disabledOpacity);
 
         Iterable<int> alphas() {
@@ -125,7 +125,13 @@ void main() {
         Future<void> field({double value = 5, bool disabled = false}) async {
           await tester.pumpWidget(
             host(
-              PlNumberField(value: value, max: 10, disabled: disabled, onChanged: (double? _) {}),
+              PlNumberField(
+                value: value,
+                min: 0,
+                max: 10,
+                disabled: disabled,
+                onChanged: (double? _) {},
+              ),
               width: 320,
             ),
           );
@@ -137,13 +143,20 @@ void main() {
         await field();
         expect(alphas(), isEmpty, reason: 'available');
 
-        // At the top of the range the `+` goes out, and the `-` does not.
+        // At either end of the range the stepper that has run into it goes
+        // out, and the other one does not.
         await field(value: 10);
         expect(alphas(), <int>[dim], reason: 'at the top of the range');
+        await field(value: 0);
+        expect(alphas(), <int>[dim], reason: 'at the bottom of the range');
 
-        // A disabled field is dimmed as one, and both steppers in it with it.
+        // A disabled field is dimmed as one, and its steppers with it rather
+        // than a second time on their own, which would draw them at a quarter,
+        // the one at the end of the range included.
         await field(disabled: true);
-        expect(alphas(), <int>[dim, dim, dim], reason: 'disabled');
+        expect(alphas(), <int>[dim], reason: 'disabled');
+        await field(value: 10, disabled: true);
+        expect(alphas(), <int>[dim], reason: 'disabled at the top of the range');
       });
 
       testWidgets('keeps its adornments muted as it takes the focus', (WidgetTester tester) async {

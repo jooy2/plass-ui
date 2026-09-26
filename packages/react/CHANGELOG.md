@@ -74,7 +74,7 @@
 
 - **The chevron of a `PlCombobox` with a `label` is named by `openLabel`, `Open` by default.** Base UI pointed it at the field's label, which outranks an `aria-label`, so a screen reader announced the chevron by the field's name rather than by what it does, and `openLabel` had no effect there.
 
-- **The chevron and the clear × of a disabled `PlCombobox` are drawn at the half opacity of the field they sit in, as a `PlSelect` chevron is.** They faded to half a second time inside a field already at half, so they were drawn at a quarter.
+- **The chevron and the clear × of a disabled `PlCombobox`, and the steppers of a disabled `PlNumberField`, are drawn at the half opacity of the field they sit in, as a `PlSelect` chevron is.** Each faded to half a second time inside a field already at half, so they were drawn at a quarter. A stepper that has run into `min` or `max` in a field that is not disabled still fades to half on its own.
 
 - **A `ghost` `PlBadge` is lifted by its `elevation`, as a `ghost` `PlAvatar` is.** The badge kept its own copy of the mark material, and that copy left the elevation shadow off `ghost`, so a ghost badge given an `elevation` still lay flat. `solid` and `glass` badges are unchanged.
 

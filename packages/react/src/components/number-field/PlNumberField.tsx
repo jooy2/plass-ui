@@ -214,10 +214,19 @@ const stepperClasses = /* @__PURE__ */ [
   'hover:bg-(--p-soft) enabled:hover:text-(--p-accent)',
   'active:bg-(--p-soft-press)',
   focusRingClasses,
-  // A stepper that has run into `min` goes out like everything else that is
-  // unavailable here: the page shows through it, at the same half opacity.
-  'disabled:cursor-not-allowed disabled:bg-transparent disabled:opacity-50'
+  'disabled:cursor-not-allowed disabled:bg-transparent'
 ].join(' ');
+
+/**
+ * The fade of a stepper that has run into `min` or `max`, which goes out like
+ * everything else that is unavailable here: the page shows through it, at the
+ * same half opacity.
+ *
+ * Only in a field that is not disabled. Base UI disables a stepper both at its
+ * limit and in a disabled field, and the shell of a disabled field is already
+ * drawn at half, so a fade of its own would draw the stepper at a quarter.
+ */
+const stepperLimitClasses = 'disabled:opacity-50';
 
 /**
  * A field that only holds a number.
@@ -307,14 +316,16 @@ export function PlNumberField({
     none: padX
   };
 
+  const stepperClassName = cx(stepperClasses, !disabled && stepperLimitClasses);
+
   const decrement = (
-    <BaseUINumberField.Decrement aria-label={decrementLabel} className={stepperClasses}>
+    <BaseUINumberField.Decrement aria-label={decrementLabel} className={stepperClassName}>
       <MinusIcon />
     </BaseUINumberField.Decrement>
   );
 
   const increment = (
-    <BaseUINumberField.Increment aria-label={incrementLabel} className={stepperClasses}>
+    <BaseUINumberField.Increment aria-label={incrementLabel} className={stepperClassName}>
       <PlusIcon />
     </BaseUINumberField.Increment>
   );

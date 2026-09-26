@@ -790,6 +790,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
     Widget stepper(int direction) {
       final inert = !_editable || _atEdge(direction);
+      // Faded of its own only at its limit in a field that is not disabled: a
+      // disabled field is already drawn at half by the state filter round it,
+      // and a second fade would draw the stepper at a quarter.
+      final faded = !widget.disabled && _atEdge(direction);
       final box = scale.size * _stepperScale;
 
       return PlassInteractive(
@@ -857,12 +861,12 @@ class _PlNumberFieldState extends State<PlNumberField> {
               label: direction > 0
                   ? widget.incrementLabel ?? PlassTheme.labelsOf(context).increase
                   : widget.decrementLabel ?? PlassTheme.labelsOf(context).decrease,
-              // Painted straight onto the canvas while it can step, rather
+              // Painted straight onto the canvas while it is not faded, rather
               // than through an `Opacity` at 1, which is a layer all the same:
               // one on each stepper of every field on the screen, for nothing.
               child: PlassFiltered(
                 colorFilter: null,
-                opacity: inert ? disabledOpacity : 1,
+                opacity: faded ? disabledOpacity : 1,
                 child: button,
               ),
             ),
