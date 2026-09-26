@@ -514,10 +514,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     // In single mode the text *is* the chosen option's label, so a value handed
     // in from outside has to reach the field, and is reported as Base UI reports
-    // the label it writes. It is only written while the field is not focused:
-    // doing it mid-edit would take the query out from under somebody typing.
+    // the label it writes, focused or not. Not over a query the reader has typed
+    // into the list, though, where Base UI writes it too: the query is theirs
+    // until the list closes, and the list closing puts the label in.
     if (widget.value != oldWidget.value) {
-      if (!_focused) {
+      if (!_queryEdited) {
         _write(_labelOfValue(), later: true);
       }
 
@@ -526,8 +527,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     // A new label for the value it already holds is written in as well, as Base
     // UI's `syncInputAfterItemsOrLabelChange` writes it, over whatever the text
-    // says: not once the reader has typed a query into the list, which is
-    // theirs until the list closes.
+    // says, and on the same condition.
     final String label = _labelOfValue();
 
     if (label != _labelHeldBy(oldWidget) && !_queryEdited) {

@@ -1066,7 +1066,7 @@ void main() {
         expect(editor.controller.text, 'Seoul');
       });
 
-      testWidgets('writes a new label for a value handed in while the field had the focus', (
+      testWidgets('writes a value handed in to a focused field, until a query is typed', (
         WidgetTester tester,
       ) async {
         String value = 'seoul';
@@ -1094,15 +1094,40 @@ void main() {
 
         final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
 
-        // A value handed in while the field has the focus leaves its text alone.
+        // With the focus and the list closed.
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(find.byType(SingleChildScrollView), findsNothing);
+
+        update(() => value = 'lisbon');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Lisbon');
+
+        // And with the list open on every row, which it goes on listing.
         await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        update(() => value = 'seoul');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Seoul');
+        expect(_listed(tester), <String>['Seoul', 'Lisbon']);
+
+        // But not over a query the reader has typed, which stays theirs.
+        tester.testTextInput.enterText('Li');
         await tester.pumpAndSettle();
         update(() => value = 'lisbon');
         await tester.pumpAndSettle();
 
-        expect(editor.controller.text, 'Seoul');
+        expect(editor.controller.text, 'Li');
 
-        // Its option's new label is still written in, as nothing was typed.
+        // Closing the list spends it, and the field shows what it holds.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Lisbon');
+
+        // The new label of the option it holds is written in as well.
         update(() => lisbon = 'Lisboa');
         await tester.pumpAndSettle();
 
