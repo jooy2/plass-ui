@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -708,8 +709,13 @@ class _Toast extends StatelessWidget {
     final family = tokens.family(color);
     final solid = variant == PlassVariant.solid;
     final body = sheetBody[size]!;
-    final ink = solid ? family.onSolid : tokens.fg;
-    final accent = solid ? family.onSolid : family.accent;
+
+    // On `solid` the glyph, the title and the action ride on the toast's own
+    // ink, as they do in the React build, where they inherit the toast's
+    // `color`: they name no colour of their own and ease with the message when
+    // `update` changes the colour. On the other two the accent is their own and
+    // changes at once, as the React build's does.
+    final accent = solid ? null : family.accent;
 
     // A toast floats over the page, so — with the select's list, the modal's
     // sheet and the tooltip's plate — it carries a shadow. The two undyed
@@ -739,11 +745,19 @@ class _Toast extends StatelessWidget {
       ),
     };
 
-    final glyph =
-        toast.icon ??
-        (toast.showIcon
-            ? PlassGlyph(severityGlyph(color), size: body.size * iconScale, color: accent)
-            : null);
+    // A glyph a caller hands the toast takes the same colour and size as the
+    // severity's own mark, as it does in the React build.
+    final glyph = toast.icon != null || toast.showIcon
+        ? Builder(
+            builder: (BuildContext context) => IconTheme.merge(
+              data: IconThemeData(
+                color: accent ?? DefaultTextStyle.of(context).style.color,
+                size: body.size * iconScale,
+              ),
+              child: toast.icon ?? PlassGlyph(severityGlyph(color)),
+            ),
+          )
+        : null;
 
     /// A box one line high, so an adornment sits on the *first* line of a
     /// three-line message rather than in the middle of the whole box.
@@ -765,87 +779,97 @@ class _Toast extends StatelessWidget {
         child: PlassSurfaceBox(
           surface: surface,
           borderRadius: BorderRadius.circular(tokens.radii[size]!),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: sheetPaddingX[density]![size]!,
-              vertical: sheetPaddingY[density]![size]!,
-            ),
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: ink,
-                fontSize: body.size,
-                height: body.height,
-                leadingDistribution: TextLeadingDistribution.even,
+          // The message, the × and, on `solid`, the glyph, the title and the
+          // action ease to a new ink with the fill, as the React build's
+          // `color` does under the house transition. Only the words and the
+          // toast's own glyphs: a glyph a caller puts in the title or the
+          // message keeps the colour it had.
+          child: PlassInk(
+            color: surface.ink,
+            icons: false,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: sheetPaddingX[density]![size]!,
+                vertical: sheetPaddingY[density]![size]!,
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                spacing: sheetSectionGap[size]!,
-                children: <Widget>[
-                  if (glyph != null) line(glyph),
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: sheetHeaderGap[size]!,
-                      children: <Widget>[
-                        if (toast.title != null)
-                          DefaultTextStyle.merge(
-                            style: TextStyle(
-                              color: accent,
-                              fontSize: sheetTitle[size]!.size,
-                              height: sheetTitle[size]!.height,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            child: toast.title!,
-                          ),
-                        if (toast.description != null)
-                          DefaultTextStyle.merge(
-                            // Muted only under a title: a one-line toast *is* the
-                            // message, and a message written in the quiet ink is a
-                            // message that looks like a footnote.
-                            style: TextStyle(
-                              color: toast.title != null && !solid ? tokens.mutedFg : ink,
-                            ),
-                            child: toast.description!,
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (toast.actionLabel != null)
-                    line(
-                      PlassInteractive(
-                        onTap: () {
-                          toast.onAction?.call();
-                          onClose();
-                        },
-                        builder: (BuildContext context, PlassInteraction state) {
-                          return Semantics(
-                            container: true,
-                            button: true,
-                            child: DefaultTextStyle.merge(
+              child: DefaultTextStyle.merge(
+                style: TextStyle(
+                  fontSize: body.size,
+                  height: body.height,
+                  leadingDistribution: TextLeadingDistribution.even,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: sheetSectionGap[size]!,
+                  children: <Widget>[
+                    if (glyph != null) line(glyph),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: sheetHeaderGap[size]!,
+                        children: <Widget>[
+                          if (toast.title != null)
+                            DefaultTextStyle.merge(
                               style: TextStyle(
                                 color: accent,
-                                fontSize: metaText[size]!,
-                                fontWeight: FontWeight.w500,
-                                decoration: state.hovered ? TextDecoration.underline : null,
+                                fontSize: sheetTitle[size]!.size,
+                                height: sheetTitle[size]!.height,
+                                fontWeight: FontWeight.w600,
                               ),
-                              child: toast.actionLabel!,
+                              child: toast.title!,
                             ),
-                          );
-                        },
+                          if (toast.description != null)
+                            DefaultTextStyle.merge(
+                              // Muted only under a title: a one-line toast *is* the
+                              // message, and a message written in the quiet ink is a
+                              // message that looks like a footnote.
+                              style: TextStyle(
+                                color: toast.title != null && !solid ? tokens.mutedFg : null,
+                              ),
+                              child: toast.description!,
+                            ),
+                        ],
                       ),
                     ),
-                  line(
-                    PlassDismissButton(
-                      label: closeLabel,
-                      onPressed: onClose,
-                      size: body.size * _closeScale,
-                      color: ink,
-                      ring: solid ? family.onSolid : family.ring,
+                    if (toast.actionLabel != null)
+                      line(
+                        PlassInteractive(
+                          onTap: () {
+                            toast.onAction?.call();
+                            onClose();
+                          },
+                          builder: (BuildContext context, PlassInteraction state) {
+                            return Semantics(
+                              container: true,
+                              button: true,
+                              child: DefaultTextStyle.merge(
+                                style: TextStyle(
+                                  color: accent,
+                                  fontSize: metaText[size]!,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: state.hovered ? TextDecoration.underline : null,
+                                ),
+                                child: toast.actionLabel!,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    line(
+                      Builder(
+                        builder: (BuildContext context) => PlassDismissButton(
+                          label: closeLabel,
+                          onPressed: onClose,
+                          size: body.size * _closeScale,
+                          color: DefaultTextStyle.of(context).style.color,
+                          ring: solid ? family.onSolid : family.ring,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

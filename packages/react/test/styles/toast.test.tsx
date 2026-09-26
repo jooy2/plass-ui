@@ -1,6 +1,6 @@
 /**
- * Where a toast flicked away is while it fades, which only the stylesheet can
- * answer.
+ * Where a toast flicked away is while it fades, and how its ink moves when its
+ * colour changes, which only the stylesheet can answer.
  *
  * Base UI moves a toast with an inline `transform` while a finger drags it and
  * drops that transform the moment the finger lifts, keeping only the distance in
@@ -8,10 +8,11 @@
  * is a class, and without the real CSS loaded a class is a name and nothing
  * else. Loaded the way `back-top.test.tsx` loads it.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlToastProvider, usePlToast } from 'plass-ui';
+import { PlToastProvider, usePlToast, type PlToastOptions } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { emulateMedia } from '../support/media';
 import { moveMouseOntoPage } from '../support/pointer';
 
 let sheet: HTMLStyleElement;
@@ -94,5 +95,81 @@ describe('a toast on its way out', () => {
     await expect.poll(() => toast.hasAttribute('data-ending-style')).toBe(true);
 
     expect(getComputedStyle(toast).transform).toBe('none');
+  });
+});
+
+/** A solid toast that says it is saving, in [color], with an action. */
+const saving = (color: 'info' | 'warning'): PlToastOptions => ({
+  id: 'saving',
+  title: 'Saving',
+  variant: 'solid',
+  color,
+  timeout: 0,
+  actionLabel: 'Undo'
+});
+
+function Change() {
+  const toast = usePlToast();
+
+  return (
+    <>
+      <button type="button" onClick={() => toast.add(saving('info'))}>
+        Raise
+      </button>
+      <button type="button" onClick={() => toast.update('saving', saving('warning'))}>
+        Change
+      </button>
+    </>
+  );
+}
+
+describe('a toast whose colour changes', () => {
+  afterEach(async () => {
+    await emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  /**
+   * Raises an `info` toast, turns it `warning` with `update`, and hands back
+   * the colours of its message and its action straight afterwards, with the
+   * ink `warning` settles on.
+   */
+  async function change() {
+    const screen = await render(
+      <PlToastProvider>
+        <Change />
+        <span data-testid="probe" style={{ color: 'var(--plass-warning-on-solid)' }} />
+      </PlToastProvider>
+    );
+
+    await screen.getByRole('button', { name: 'Raise' }).click();
+    await expect.element(screen.getByText('Saving')).toBeInTheDocument();
+    await screen.getByRole('button', { name: 'Change' }).click();
+
+    const toast = document.querySelector<HTMLElement>('[role="dialog"]')!;
+    const action = screen.getByRole('button', { name: 'Undo' }).element();
+
+    await expect.poll(() => toast.style.getPropertyValue('--p-on-solid')).toContain('warning');
+
+    return {
+      message: getComputedStyle(toast).color,
+      action: getComputedStyle(action).color,
+      settled: getComputedStyle(screen.getByTestId('probe').element()).color
+    };
+  }
+
+  it('eases the ink of its message and its action to the new colour', async () => {
+    const { message, action, settled } = await change();
+
+    expect(message).not.toBe(settled);
+    expect(action).toBe(message);
+  });
+
+  it('changes the ink at once under reduced motion', async () => {
+    await emulateMedia({ reducedMotion: 'reduce' });
+
+    const { message, action, settled } = await change();
+
+    expect(message).toBe(settled);
+    expect(action).toBe(settled);
   });
 });

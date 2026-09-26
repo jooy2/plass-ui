@@ -241,6 +241,31 @@ const List<PlCommandItem> _commands = <PlCommandItem>[
   PlCommandItem(value: 'label', label: 'Label'),
 ];
 
+/// A toast raised on [message] with `on` false, then changed in place to
+/// [message] with `on` true, as `update` and `showFuture` change one.
+_Change _toast(PlToast Function(bool on) message) {
+  return (WidgetTester tester, bool on) async {
+    final PlToastController controller = PlToastProvider.of(_toastHost.currentContext!);
+
+    if (!on) {
+      controller.show(message(false));
+      await tester.pumpAndSettle();
+
+      return;
+    }
+
+    controller.update('toast', message(true));
+    await tester.pump();
+  };
+}
+
+/// The stack a toast is raised on, round a stand-in for the app.
+Widget _toastStack(bool _) {
+  return PlToastProvider(child: SizedBox(key: _toastHost, height: 300));
+}
+
+final GlobalKey _toastHost = GlobalKey();
+
 final GlobalKey _section = GlobalKey();
 final PlAnchorItem _heading = PlAnchorItem(target: _section, label: const Text('Label'));
 final FocusNode _textFocus = FocusNode();
@@ -573,6 +598,85 @@ final Map<String, _Case> _cases = <String, _Case>{
       child: const Text('Body'),
     ),
     read: _glyph,
+  ),
+  // A toast changes its colour or its variant when `update` or `showFuture`
+  // hands it a new message. On `solid` its glyph, its title and its action ride
+  // on its own ink.
+  'solid PlToast, its colour': _Case(
+    _toastStack,
+    change: _toast(
+      (bool on) => PlToast(
+        id: 'toast',
+        timeout: Duration.zero,
+        variant: PlassVariant.solid,
+        color: on ? PlassColor.warning : PlassColor.info,
+        description: const Text('Label'),
+      ),
+    ),
+  ),
+  'PlToast, its variant': _Case(
+    _toastStack,
+    change: _toast(
+      (bool on) => PlToast(
+        id: 'toast',
+        timeout: Duration.zero,
+        variant: on ? PlassVariant.solid : PlassVariant.glass,
+        description: const Text('Label'),
+      ),
+    ),
+  ),
+  'solid PlToast, its title': _Case(
+    _toastStack,
+    change: _toast(
+      (bool on) => PlToast(
+        id: 'toast',
+        timeout: Duration.zero,
+        variant: PlassVariant.solid,
+        color: on ? PlassColor.warning : PlassColor.info,
+        title: const Text('Label'),
+        description: const Text('Body'),
+      ),
+    ),
+  ),
+  'solid PlToast, its glyph': _Case(
+    _toastStack,
+    read: _glyph,
+    change: _toast(
+      (bool on) => PlToast(
+        id: 'toast',
+        timeout: Duration.zero,
+        variant: PlassVariant.solid,
+        color: on ? PlassColor.warning : PlassColor.info,
+        icon: const _Glyph(),
+        description: const Text('Body'),
+      ),
+    ),
+  ),
+  'solid PlToast, its action': _Case(
+    _toastStack,
+    change: _toast(
+      (bool on) => PlToast(
+        id: 'toast',
+        timeout: Duration.zero,
+        variant: PlassVariant.solid,
+        color: on ? PlassColor.warning : PlassColor.info,
+        description: const Text('Body'),
+        actionLabel: const Text('Label'),
+      ),
+    ),
+  ),
+  'solid PlToast, its ×': _Case(
+    _toastStack,
+    read: _ownGlyph(PlassGlyphShape.close),
+    change: _toast(
+      (bool on) => PlToast(
+        id: 'toast',
+        timeout: Duration.zero,
+        variant: PlassVariant.solid,
+        color: on ? PlassColor.warning : PlassColor.info,
+        description: const Text('Body'),
+      ),
+    ),
   ),
   'PlChatBubble, its variant': _Case(
     (bool on) => PlChatBubble(

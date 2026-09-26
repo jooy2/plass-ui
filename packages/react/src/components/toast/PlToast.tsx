@@ -20,7 +20,8 @@ import {
   sheetPaddingYClasses,
   sheetSectionGapClasses,
   sheetTitleClasses,
-  targetClasses
+  targetClasses,
+  transitionClasses
 } from '../../internal/styles.js';
 import type {
   PlassAlign,
@@ -285,13 +286,15 @@ function ToastItem({
         sheetBodyClasses[size],
         rootClasses[variant],
         iconClasses,
-        // Opacity, and only opacity — the same restraint the modal shows, and
-        // for the same reason: this is a box full of text. Base UI still moves
-        // it while a finger is dragging it, which is the reader's hand rather
-        // than a state change, and a toast the finger did not flick far enough
-        // goes back the moment it lifts.
-        '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
-        'motion-reduce:[transition-duration:0ms]',
+        // The house transition, which fades it in and out on its opacity and
+        // eases its fill, its edge, its shadow and its ink when `update` or
+        // `promise` changes its colour or its variant, as an alert's are.
+        // Nothing in it moves — the same restraint the modal shows, and for the
+        // same reason: this is a box full of text. Base UI still moves it while
+        // a finger is dragging it, which is the reader's hand rather than a
+        // state change, and a toast the finger did not flick far enough goes
+        // back the moment it lifts.
+        transitionClasses,
         'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
         // The one `transform` a toast writes, and a deliberate exception to
         // writing none. A toast flicked away has to fade from where the finger
@@ -329,7 +332,8 @@ function ToastItem({
         className={[
           'flex h-[1lh] shrink-0 cursor-pointer items-center rounded-full px-2',
           'font-medium underline-offset-2',
-          accent || 'text-(--p-on-solid)',
+          // On `solid` it takes the toast's own ink, so it eases with it.
+          accent || 'text-inherit',
           'hover:underline',
           focusRingClasses,
           metaTextClasses[size]

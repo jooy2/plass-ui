@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A `PlToast` whose colour or variant `update` or `promise` changes, and a `PlAppLogo` plate whose `color` or `variant` changes, ease to their new fill, edge, shadow and ink over `--plass-duration`, and change at once under reduced motion, as a `PlAlert` does.** The toast eased only its opacity and the plate nothing, so both took their new colours in one frame. A `solid` toast's action now takes the toast's own ink, so it eases with the words round it.
+
 - **A `PlHowToSteps` fills its done and current bullets with its family's gradient, with the number in the ink that goes on it, and eases them as `active` moves, as a `PlStepper` and a `PlTimeline` do.** Its bullets had no gradient, so a done or current step was a bare number in the page's ink, with only a halo round the current one, where the Flutter bullets are filled.
 
 - **A `PlNumberField` stepper eases its tint in as it is pressed, over the same `--plass-duration` it eases it out over as it is let go.** A press changed the tint in one frame and only the release eased it, where every other control eases both ways, and so does the Flutter stepper.

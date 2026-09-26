@@ -10,7 +10,8 @@ import {
   glassClasses,
   hasContent,
   metaTextClasses,
-  radiusClasses
+  radiusClasses,
+  transitionClasses
 } from '../../internal/styles.js';
 import type { PlassColor, PlassSize, PlassVariant } from '../../types.js';
 
@@ -189,7 +190,9 @@ export const PlAppLogo = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlApp
               className={cx(
                 'flex shrink-0 items-center justify-center overflow-hidden',
                 plated ? plateClasses[size] : markClasses[size],
-                plated ? plateVariantClasses[variant] : '',
+                // A plate eases its fill, its edge and its ink to a new colour
+                // or variant, as every other coloured surface does.
+                plated ? `${transitionClasses} ${plateVariantClasses[variant]}` : '',
                 shape === 'circle' ? 'rounded-full' : plated ? radiusClasses[size] : ''
               )}
             >
