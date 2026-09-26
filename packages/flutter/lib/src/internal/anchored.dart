@@ -44,6 +44,9 @@ enum PlassAnchorWidth {
 /// avoid, and a popup that creeps sideways as its anchor nears the edge is a
 /// popup whose arrow no longer points at anything.
 ///
+/// The side is decided as the popup opens and again whenever the screen
+/// changes size, and never on a scroll, which the layer link already follows.
+///
 /// Needs an [Overlay] above it, which `WidgetsApp` with a navigator and
 /// `MaterialApp` both provide.
 class PlassAnchoredPortal extends StatefulWidget {
@@ -124,11 +127,11 @@ class PlassAnchoredPortal extends StatefulWidget {
 
   /// Whether the popup is held to the room it has on its side of the anchor.
   ///
-  /// The room is measured once as the popup opens, after the flip: from where
-  /// the popup hangs to the edge of the screen it runs towards. A popup here
-  /// flips and never slides, so one wider than that room would run off the
-  /// screen. For a popup as wide as whatever the caller puts in it; the rest
-  /// keep the width they are given.
+  /// The room is measured after the flip, as the popup opens and again
+  /// whenever the screen changes size: from where the popup hangs to the edge
+  /// of the screen it runs towards. A popup here flips and never slides, so
+  /// one wider than that room would run off the screen. For a popup as wide as
+  /// whatever the caller puts in it; the rest keep the width they are given.
   final bool fitWidth;
 
   /// Told which side the popup actually ended up on, once it is known.
@@ -173,6 +176,18 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   /// its room, and `null` until that has been measured.
   double? _room;
 
+  /// How wide a popup held to its room is at its own width, measured as it
+  /// opens, before the room is known.
+  ///
+  /// A flip beside the anchor is decided against this rather than against the
+  /// width the popup is drawn at, because a popup held to the room on one side
+  /// always seems to fit there.
+  double? _ownWidth;
+
+  /// The size of the screen when it was last looked at, and `null` until the
+  /// popup first opens.
+  Size? _screen;
+
   /// Answers Escape before anything around the popup does, so a popover opened
   /// in a modal closes itself and leaves the modal up.
   late final _EscapeAction _escape = _EscapeAction(this);
@@ -199,6 +214,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
       // Read here as well as below, for the reason `PlassPortal` gives: a theme
       // that changed in the same frame as `open` reaches an update first.
       _syncMotion();
+      _watchScreen();
       widget.open ? _show() : _fade.reverse();
     }
   }
@@ -207,6 +223,31 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _syncMotion();
+    _watchScreen();
+  }
+
+  /// Measures an open popup again once the frame has laid it out, when the
+  /// screen has changed size and moved the anchor and the room round it.
+  ///
+  /// The size is watched from the first time the popup opens and not before:
+  /// a page can hold hundreds of popups that never open, a tooltip on every
+  /// button, and all of them would be rebuilt on every frame of a window being
+  /// resized.
+  void _watchScreen() {
+    if (!widget.open && _screen == null) {
+      return;
+    }
+
+    final screen = MediaQuery.maybeSizeOf(context);
+
+    if (screen != _screen) {
+      final resized = _screen != null;
+      _screen = screen;
+
+      if (resized && widget.open) {
+        _afterFrame(_measure);
+      }
+    }
   }
 
   /// Hands the fade the theme's duration and curve, or no duration at all for
@@ -272,12 +313,25 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
 
       // One more frame: the popup has to have been laid out once before there is
       // a size to decide the flip against.
-      _afterFrame(_measure);
+      _afterFrame(() => _measure(opening: true));
     });
   }
 
-  void _measure() {
-    if (!mounted || !widget.open) {
+  /// Decides the side, and the widths the popup is held to, from where the
+  /// anchor and the popup are laid out now.
+  ///
+  /// Run as the popup opens and when the screen changes size, and once more
+  /// after either has changed a width the popup is held to: a narrower popup
+  /// wraps its lines and grows taller, and a flip above or below the anchor is
+  /// decided against the height it grows to. That measure settles the side
+  /// rather than turning it back. A popup is held to the same room above the
+  /// anchor as below it, so it is as tall on either side, and a flip beside
+  /// the anchor is decided against [_ownWidth], which no room changes.
+  void _measure({bool opening = false}) {
+    // A popup held to its room is laid out at its own width as it opens, and
+    // only the measure that follows that layout may decide anything: one run
+    // in between would hold it to a room before its own width was known.
+    if (!mounted || !widget.open || (widget.fitWidth && _room == null && !opening)) {
       return;
     }
 
@@ -289,10 +343,20 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
       return;
     }
 
+    if (opening) {
+      _ownWidth = popup.size.width;
+    }
+
     final origin = anchor.localToGlobal(Offset.zero, ancestor: room);
     final box = origin & anchor.size;
-    final side = _fit(box, popup.size, room.size);
+    final size = widget.fitWidth
+        ? Size(_ownWidth ?? popup.size.width, popup.size.height)
+        : popup.size;
+    final side = _fit(box, size, room.size);
     final space = widget.fitWidth ? _roomOn(side, box, room.size) : null;
+    final widthChanged =
+        space != _room ||
+        (widget.anchorWidth != PlassAnchorWidth.free && anchor.size.width != _anchorWidth);
 
     if (side != _side || anchor.size.width != _anchorWidth || space != _room) {
       setState(() {
@@ -300,6 +364,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         _anchorWidth = anchor.size.width;
         _room = space;
       });
+    }
+
+    if (widthChanged) {
+      _afterFrame(_measure);
     }
 
     widget.onSideResolved?.call(side);
