@@ -164,4 +164,29 @@ void main() {
 
     expect(said(tester), 'Revenue: Jan 12; Feb 19; Mar 15');
   });
+
+  /// A series with nothing in it but a gap.
+  const List<PlassChartSeries> gaps = <PlassChartSeries>[
+    PlassChartSeries(data: <PlassChartDatum>[PlassChartDatum.gap()]),
+  ];
+
+  for (final (String name, Widget chart) in <(String, Widget)>[
+    ('line', const PlLineChart(series: gaps)),
+    ('bar', const PlBarChart(series: gaps)),
+    ('area', const PlAreaChart(series: gaps)),
+    ('scatter', const PlScatterChart(series: gaps)),
+    ('timeline', const PlTimelineChart(series: <PlassTimelineSeries>[])),
+  ]) {
+    testWidgets('an empty $name chart says nothing about the focus', (WidgetTester tester) async {
+      await pump(tester, chart);
+
+      expect(find.text('Nothing here'), findsOneWidget);
+      // Not a tab stop, and not announced as one either: a `focused` of false
+      // would still say the node could hold the focus.
+      expect(
+        tester.getSemantics(find.bySemanticsLabel(RegExp('^Chart'))),
+        isSemantics(isFocusable: false),
+      );
+    });
+  }
 }

@@ -3,7 +3,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -359,6 +359,9 @@ class _PlSidebarState extends State<PlSidebar> {
 
     if (widget.resizable) {
       panel = Stack(
+        // The handle's outer half hangs past the column, over the edge of the
+        // content beside it, as the React handle does, and is drawn there.
+        clipBehavior: Clip.none,
         children: <Widget>[
           Positioned.fill(child: panel),
           PositionedDirectional(
@@ -370,36 +373,129 @@ class _PlSidebarState extends State<PlSidebar> {
             start: side == PlassSidebarSide.start ? null : -_handleTrack / 2,
             end: side == PlassSidebarSide.start ? -_handleTrack / 2 : null,
             width: _handleTrack,
-            child: _ResizeHandle(
-              family: tokens.family(_color),
-              label: widget.resizeLabel ?? PlassTheme.labelsOf(context).sidebarResize,
-              outwards: side == PlassSidebarSide.start ? 1 : -1,
-              width: _width,
-              min: widget.minWidth,
-              max: widget.maxWidth,
-              onDrag: (double delta) => _resize(_width.value + delta, settled: false),
-              onSettle: () => widget.onResizeEnd?.call(_width.value),
-              // A key press is a whole gesture on its own — there is no "let
-              // go" to wait for, so the settled callback fires with it.
-              onNudge: (int steps) => _resize(_width.value + steps * _keyboardStep, settled: true),
+            child: _HandleMark(
+              child: _ResizeHandle(
+                family: tokens.family(_color),
+                label: widget.resizeLabel ?? PlassTheme.labelsOf(context).sidebarResize,
+                outwards: side == PlassSidebarSide.start ? 1 : -1,
+                width: _width,
+                min: widget.minWidth,
+                max: widget.maxWidth,
+                onDrag: (double delta) => _resize(_width.value + delta, settled: false),
+                onSettle: () => widget.onResizeEnd?.call(_width.value),
+                // A key press is a whole gesture on its own — there is no "let
+                // go" to wait for, so the settled callback fires with it.
+                onNudge: (int steps) =>
+                    _resize(_width.value + steps * _keyboardStep, settled: true),
+              ),
             ),
           ),
         ],
       );
     }
 
-    return Semantics(
-      role: SemanticsRole.complementary,
-      container: true,
-      explicitChildNodes: true,
-      label: widget.semanticLabel ?? PlassTheme.labelsOf(context).sidebar,
-      child: ValueListenableBuilder<double>(
-        valueListenable: _width,
-        builder: (BuildContext context, double width, Widget? child) =>
-            SizedBox(width: width, child: child),
-        child: panel,
+    return _HandleReach(
+      child: Semantics(
+        role: SemanticsRole.complementary,
+        container: true,
+        explicitChildNodes: true,
+        label: widget.semanticLabel ?? PlassTheme.labelsOf(context).sidebar,
+        child: ValueListenableBuilder<double>(
+          valueListenable: _width,
+          builder: (BuildContext context, double width, Widget? child) =>
+              SizedBox(width: width, child: child),
+          child: panel,
+        ),
       ),
     );
+  }
+}
+
+/// Goes round the whole sidebar, and takes a press on the half of the resize
+/// handle that hangs past the column as a press on the handle.
+///
+/// Two widgets rather than one, as `PlassTarget` is, because a box is only
+/// asked about a press inside its own size, and so is every box above it: the
+/// column, its region and the stack the handle stands in are all as wide as
+/// the column, so none of them would pass on a press past its edge. This is
+/// the outermost box of the sidebar, which whatever holds it asks about any
+/// press, and it hands one in the handle's outer half straight to the handle.
+///
+/// What holds the sidebar asks the boxes it holds in its own order, so a
+/// neighbour it asks first and that takes the press keeps it. A `Row` asks its
+/// last child first: a sidebar at the end of one is asked before the content
+/// beside it, and one at the start after it.
+class _HandleReach extends SingleChildRenderObjectWidget {
+  const _HandleReach({required Widget super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderHandleReach();
+}
+
+/// Marks the resize handle for the [_HandleReach] round it.
+class _HandleMark extends SingleChildRenderObjectWidget {
+  const _HandleMark({required Widget super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderHandleMark();
+}
+
+class _RenderHandleReach extends RenderProxyBox {
+  _RenderHandleMark? _handle;
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    final _RenderHandleMark? handle = _handle;
+
+    if (size.contains(position) || handle == null || !handle.hasSize) {
+      return super.hitTest(result, position: position);
+    }
+
+    final Matrix4 transform = handle.getTransformTo(this);
+
+    if (!MatrixUtils.transformRect(transform, Offset.zero & handle.size).contains(position)) {
+      return false;
+    }
+
+    final bool hit = result.addWithPaintTransform(
+      transform: transform,
+      position: position,
+      hitTest: (BoxHitTestResult result, Offset local) => handle.hitTest(result, position: local),
+    );
+
+    if (hit) {
+      result.add(BoxHitTestEntry(this, position));
+    }
+
+    return hit;
+  }
+}
+
+class _RenderHandleMark extends RenderProxyBox {
+  _RenderHandleReach? _reach;
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+
+    RenderObject? node = parent;
+
+    while (node != null && node is! _RenderHandleReach) {
+      node = node.parent;
+    }
+
+    _reach = node as _RenderHandleReach?;
+    _reach?._handle = this;
+  }
+
+  @override
+  void detach() {
+    if (_reach?._handle == this) {
+      _reach?._handle = null;
+    }
+
+    _reach = null;
+    super.detach();
   }
 }
 

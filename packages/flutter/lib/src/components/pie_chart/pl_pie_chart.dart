@@ -199,6 +199,17 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
   }
 
   @override
+  void didUpdateWidget(PlPieChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // A slice that is no longer there has nothing left to read, so the
+    // reading is let go rather than moved onto whichever slice took its place.
+    if (_active != null && _active! >= widget.data.length) {
+      _active = null;
+    }
+  }
+
+  @override
   void dispose() {
     _ease.dispose();
     _focus.dispose();

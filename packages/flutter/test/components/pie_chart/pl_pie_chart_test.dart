@@ -661,6 +661,72 @@ void main() {
         expect(tester.binding.transientCallbackCount, 0);
       });
 
+      testWidgets('lets go of a slice that is gone when it is built again with fewer', (
+        WidgetTester tester,
+      ) async {
+        List<PlassChartDatum> data = traffic;
+        late StateSetter setData;
+
+        await tabTo(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              setData = setState;
+
+              return PlPieChart(data: data, categories: sources);
+            },
+          ),
+        );
+
+        // The last slice, which the next build does not have.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pump();
+        expect(said(tester), 'Referral, 15 · 15%');
+
+        setData(() => data = traffic.sublist(0, 2));
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(said(tester), isEmpty);
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+
+        // And the walk starts again from the slices that are there.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), 'Search, 40 · 61.5%');
+
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets('keeps reading a slice that is still there when it is built again', (
+        WidgetTester tester,
+      ) async {
+        List<PlassChartDatum> data = traffic;
+        late StateSetter setData;
+
+        await tabTo(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              setData = setState;
+
+              return PlPieChart(data: data, categories: sources);
+            },
+          ),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), 'Search, 40 · 40%');
+
+        setData(() => data = traffic.sublist(0, 2));
+        await tester.pump();
+
+        expect(said(tester), 'Search, 40 · 61.5%');
+
+        await tester.pumpAndSettle();
+      });
+
       testWidgets('clears what it was reading when the focus leaves', (WidgetTester tester) async {
         await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
 

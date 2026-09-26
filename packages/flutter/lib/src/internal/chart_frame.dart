@@ -1554,9 +1554,11 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
       container: true,
       label: widget.semanticLabel ?? labels.chart,
       // The plot's tab stop, said on the node that carries the name, so a
-      // reader arriving by Tab hears what the chart is and what it says.
+      // reader arriving by Tab hears what the chart is and what it says. An
+      // empty chart says nothing about focus at all, as an empty pie does: a
+      // `focused` of false is still a claim that the node could hold it.
       focusable: !nothing,
-      focused: !nothing && _focus.hasFocus,
+      focused: nothing ? null : _focus.hasFocus,
       onFocus: nothing ? null : _focus.requestFocus,
       // The picture is a picture, so what a screen reader is handed is every
       // value in it: each visible series, then its categories and what it was

@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -230,6 +230,93 @@ void main() {
         expect(seen.last, closeTo(260, 2));
         expect(settled.single, closeTo(260, 2));
         expect(tester.getSize(find.byType(PlSidebar)).width, closeTo(260, 2));
+      });
+
+      testWidgets('widens the column on a drag from the half of the handle past its edge', (
+        WidgetTester tester,
+      ) async {
+        final List<double> settled = <double>[];
+
+        await tester.pumpWidget(
+          host(
+            column(
+              PlSidebar(
+                resizable: true,
+                width: 220,
+                onResizeEnd: settled.add,
+                child: const Text('Links'),
+              ),
+            ),
+            width: 500,
+            height: 400,
+          ),
+        );
+
+        // The handle is 8px wide and straddles the edge, so its outer half
+        // runs from the edge to 4px past it.
+        final Rect box = tester.getRect(find.byType(PlSidebar));
+        final TestGesture gesture = await tester.startGesture(
+          Offset(box.right + 3, box.center.dy),
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture.moveBy(const Offset(40, 0));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+
+        expect(settled.single, closeTo(260, 2));
+        expect(tester.getSize(find.byType(PlSidebar)).width, closeTo(260, 2));
+      });
+
+      testWidgets('draws the whole handle, the half past the edge included', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            column(const PlSidebar(resizable: true, width: 220, child: Text('Links'))),
+            width: 500,
+            height: 400,
+          ),
+        );
+
+        // Nothing round the handle clips it, so its wash and its focus ring
+        // are drawn across the edge rather than cut off at it.
+        expect(
+          tester
+              .renderObject<RenderStack>(
+                // The outermost, which the handle stands in.
+                find.descendant(of: find.byType(PlSidebar), matching: find.byType(Stack)).first,
+              )
+              .clipBehavior,
+          Clip.none,
+        );
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        final Rect box = tester.getRect(find.byType(PlSidebar));
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(Offset(box.right + 3, box.center.dy));
+        await tester.pumpAndSettle();
+
+        // The pointer on the outer half lights the wash, as it does on the
+        // inner half.
+        final Finder handle = find.descendant(
+          of: find.byType(PlSidebar),
+          matching: find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is MouseRegion && widget.cursor == SystemMouseCursors.resizeColumn,
+          ),
+        );
+        final BoxDecoration wash =
+            tester
+                    .widget<AnimatedContainer>(
+                      find.descendant(of: handle, matching: find.byType(AnimatedContainer)),
+                    )
+                    .decoration!
+                as BoxDecoration;
+
+        expect(wash.color, PlassTokens.light().family(PlassColor.primary).soft);
       });
 
       testWidgets('keeps a dragged width when the page around it rebuilds', (
