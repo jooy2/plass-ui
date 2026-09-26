@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Content unfolding from a point.
@@ -124,7 +125,14 @@ class PlAnimateGrow extends StatelessWidget {
           child: inner,
         );
 
-        return fade ? Opacity(opacity: t.clamp(0, 1), child: scaled) : scaled;
+        return fade
+            ? PlassFiltered(
+                colorFilter: null,
+                opacity: t.clamp(0, 1),
+                alwaysIncludeSemantics: false,
+                child: scaled,
+              )
+            : scaled;
       },
     );
   }

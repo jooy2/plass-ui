@@ -1,6 +1,9 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -18,6 +21,15 @@ List<Widget> get _three => const <Widget>[Text('One'), Text('Two'), Text('Three'
 
 void main() {
   group('PlAnimateAppear', () {
+    testWidgets('adds no opacity layer once it has arrived', (WidgetTester tester) async {
+      await tester.pumpWidget(host(PlAnimateAppear(children: _three)));
+      await tester.pumpAndSettle();
+
+      // Built at its last frame for as long as it is on screen, so an opacity
+      // of 1 kept as a layer would be a layer for nothing.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+    });
+
     testWidgets('drifts every child up from below over a short distance', (
       WidgetTester tester,
     ) async {
@@ -129,7 +141,7 @@ void main() {
       await tester.pumpWidget(host(PlAnimateAppear(fade: false, children: _three)));
 
       expect(
-        find.descendant(of: find.byType(PlAnimateAppear), matching: find.byType(Opacity)),
+        find.descendant(of: find.byType(PlAnimateAppear), matching: find.byType(PlassFiltered)),
         findsNothing,
       );
     });

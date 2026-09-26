@@ -200,7 +200,7 @@ const PlAnimateFade(
 ::: fw flutter
 
 - 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 아무것도 움직이지 않습니다. 효과가 원래 시작했을 시점까지는(`delay` 포함) 내용이 그냥 거기 있고, 그 시점부터 마지막 프레임을 보여 줍니다. 그래서 등장은 그대로 있고 `PlassAnimateMode.exit`인 widget은 이미 떠나 있습니다. 로딩 인디케이터와 정반대이고, 그 차이는 각자가 무슨 말을 하고 있는지에서 옵니다. 멈춘 spinner는 무언가 진행 중인지에 대해 거짓말을 하지만, 움직이지 않는 효과도 담고 있던 것은 다 전달했습니다.
-- widget은 자기 semantics를 붙이지 않습니다. 이미 자기가 무엇인지 알리는 내용을 감싼 `Opacity`일 뿐입니다.
+- widget은 자기 semantics를 붙이지 않습니다. 이미 자기가 무엇인지 알리는 내용을 투명도만 달리해 그릴 뿐입니다.
 - 여기 있는 어떤 것도 내용을 숨기는 방법이 아닙니다. `PlassAnimateMode.exit`인 widget도 트리에 그대로 있고 semantics에도 그대로 있습니다. 없어져야 한다면 빼세요.
 - `PlassAnimateTrigger.hover`는 안에 있는 것이 focus를 받을 때도 시작하므로, 키보드로 닿을 수 있는 것 위의 효과는 마우스를 쥐고 있지 않은 사람에게도 돕니다. widget 자체는 focus를 받지 않으므로, 그림에 건 hover 효과가 tab 순서에 멈출 곳을 더하지 않고 semantics 트리에 노드를 더하지도 않습니다.
 

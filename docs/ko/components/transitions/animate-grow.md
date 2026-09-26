@@ -147,7 +147,7 @@ const PlAnimateGrow(
 | React | Flutter | 이유 |
 | --- | --- | --- |
 | `origin`이 CSS `transform-origin` 문자열 | `Alignment` | 프레임워크에 이미 타입이 있고, `Alignment.topCenter`가 `'top'`보다 잘 읽힙니다. |
-| `fade`가 항상 opacity 레이어를 그림 | `fade`가 꺼지면 `Opacity` widget 자체가 없음 | 합성할 레이어가 하나 줄고, 하지 않는 일을 한다고 주장하는 것이 트리에 없습니다. |
+| `fade`가 항상 opacity 레이어를 그림 | `fade`가 꺼지면 투명도를 그리는 widget 자체가 없음 | 합성할 레이어가 하나 줄고, 하지 않는 일을 한다고 주장하는 것이 트리에 없습니다. |
 | `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in`은 Dart의 예약어입니다. |
 | `render` | — | Flutter에는 다형적 요소가 없습니다. |
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |

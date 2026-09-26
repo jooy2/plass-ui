@@ -1,20 +1,32 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
 /// The opacity the fade is actually painting with.
 double opacityOf(WidgetTester tester) {
   return tester
-      .widget<Opacity>(
-        find.descendant(of: find.byType(PlAnimateFade), matching: find.byType(Opacity)),
+      .widget<PlassFiltered>(
+        find.descendant(of: find.byType(PlAnimateFade), matching: find.byType(PlassFiltered)),
       )
       .opacity;
 }
 
 void main() {
   group('PlAnimateFade', () {
+    testWidgets('adds no opacity layer once it has arrived', (WidgetTester tester) async {
+      await tester.pumpWidget(host(const PlAnimateFade(child: Text('Arriving'))));
+      await tester.pumpAndSettle();
+
+      // Built at its last frame for as long as it is on screen, so an opacity
+      // of 1 kept as a layer would be a layer for nothing.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+    });
+
     testWidgets('holds its child at the start opacity on the first frame', (
       WidgetTester tester,
     ) async {

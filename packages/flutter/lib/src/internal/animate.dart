@@ -415,9 +415,16 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// One animation, from a start state to the widget's natural one.
 ///
 /// The builder is handed `t`, already curved and already flipped for [mode], so
-/// an effect is `Opacity(opacity: lerpDouble(from, 1, t))` and nothing more.
-/// `t` is `0` while the run is waiting to be triggered — the held first frame —
-/// and it stays wherever the last pass left it once the count runs out.
+/// a fade is an opacity of `lerpDouble(from, 1, t)` and nothing more. `t` is `0`
+/// while the run is waiting to be triggered — the held first frame — and it
+/// stays wherever the last pass left it once the count runs out.
+///
+/// The builder goes on being called at that last frame for as long as the
+/// effect is on screen, so an effect draws its opacity through `PlassFiltered`
+/// rather than an [Opacity]: an [Opacity] at 1 is still a layer of its own,
+/// kept for nothing once an entrance has arrived. Its `alwaysIncludeSemantics`
+/// is `false`, which leaves the content out of the semantics at 0 as the
+/// [Opacity] did.
 ///
 /// Under reduced motion nothing moves in between. `t` is `1` until the moment
 /// the run would have started, its delay included, and then wherever the last

@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Content travelling in from one edge.
@@ -129,7 +130,14 @@ class PlAnimateSlide extends StatelessWidget {
           child: inner ?? const SizedBox.shrink(),
         );
 
-        return fade ? Opacity(opacity: t.clamp(0, 1), child: moved) : moved;
+        return fade
+            ? PlassFiltered(
+                colorFilter: null,
+                opacity: t.clamp(0, 1),
+                alwaysIncludeSemantics: false,
+                child: moved,
+              )
+            : moved;
       },
     );
   }

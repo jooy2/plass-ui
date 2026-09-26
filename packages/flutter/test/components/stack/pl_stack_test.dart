@@ -1,6 +1,9 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -24,6 +27,17 @@ List<Offset> _offsets(WidgetTester tester, {int count = 5}) {
 
 void main() {
   group('PlStack', () {
+    testWidgets('adds no opacity layer for the item in front', (WidgetTester tester) async {
+      await tester.pumpWidget(host(PlStack(opacityStep: 0.5, children: _five(count: 3))));
+
+      // Only the two behind it are faded, so only they are layers: the one in
+      // front is at full strength, and a layer at 1 would be one for nothing.
+      expect(
+        tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha),
+        <int>[Color.getAlphaFromOpacity(0.25), Color.getAlphaFromOpacity(0.5)],
+      );
+    });
+
     group('the box', () {
       testWidgets('measures exactly what it draws, in all three directions', (
         WidgetTester tester,
@@ -251,7 +265,7 @@ void main() {
         await tester.pumpWidget(host(PlStack(children: _five())));
 
         expect(
-          find.descendant(of: find.byType(PlStack), matching: find.byType(Opacity)),
+          find.descendant(of: find.byType(PlStack), matching: find.byType(PlassFiltered)),
           findsNothing,
         );
         expect(
@@ -267,10 +281,10 @@ void main() {
         // does not also have to turn the depth round.
         expect(
           tester
-              .widgetList<Opacity>(
-                find.descendant(of: find.byType(PlStack), matching: find.byType(Opacity)),
+              .widgetList<PlassFiltered>(
+                find.descendant(of: find.byType(PlStack), matching: find.byType(PlassFiltered)),
               )
-              .map((Opacity opacity) => opacity.opacity),
+              .map((PlassFiltered opacity) => opacity.opacity),
           <double>[0.25, 0.5, 1],
         );
       });

@@ -90,6 +90,44 @@ void main() {
 
       expect(tester.layers.whereType<OpacityLayer>().single.alpha, Color.getAlphaFromOpacity(0.5));
     });
+
+    testWidgets('reads what it holds at 0 unless it is told to leave it out', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      Widget filtered(double opacity, {required bool always}) {
+        return host(
+          PlassFiltered(
+            colorFilter: null,
+            opacity: opacity,
+            alwaysIncludeSemantics: always,
+            child: const Text('Content'),
+          ),
+        );
+      }
+
+      // Read out at 0 by default, as CSS `opacity: 0` leaves an element.
+      await tester.pumpWidget(filtered(0, always: true));
+
+      expect(semanticsLabels(tester), contains('Content'));
+
+      // Left out at 0, as an `Opacity` leaves it, when a caller asks for that.
+      await tester.pumpWidget(filtered(0, always: false));
+
+      expect(semanticsLabels(tester), isNot(contains('Content')));
+
+      // And read again once it is painted at all.
+      await tester.pumpWidget(filtered(0.5, always: false));
+
+      expect(semanticsLabels(tester), contains('Content'));
+
+      await tester.pumpWidget(filtered(0, always: false));
+
+      expect(semanticsLabels(tester), isNot(contains('Content')));
+
+      handle.dispose();
+    });
   });
 
   group('PlassSurfaceBox', () {

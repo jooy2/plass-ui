@@ -200,7 +200,7 @@ A staggered set is [`PlAnimateAppear`](./animate-appear). The React build can wr
 ::: fw flutter
 
 - When the platform has animations turned off (`MediaQuery.disableAnimations`) nothing moves. Until the moment the effect would have started, `delay` included, the content is simply there; from then on it shows its last frame, so an entrance is there and a `PlassAnimateMode.exit` widget has left. That is the opposite of what the loading indicators do, and the difference is what each of them is saying: a spinner that stops is lying about whether anything is happening, while an effect that does not move has still delivered what it was carrying.
-- The widget adds no semantics of its own. It is an `Opacity` around content that already says what it is.
+- The widget adds no semantics of its own. It paints its content at an opacity and does nothing more, and the content already says what it is.
 - Nothing here is a way to hide content. A `PlassAnimateMode.exit` widget is still in the tree and still in the semantics; if it should be gone, take it out.
 - `PlassAnimateTrigger.hover` also starts when the focus lands on something inside it, so an effect on something keyboard-reachable runs for a reader who is not holding a mouse. The widget takes no focus of its own, so a hover effect on a picture adds no stop to the tab order and no node to the semantics tree.
 

@@ -1,6 +1,9 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -24,7 +27,9 @@ List<Rect> _rects(WidgetTester tester) {
 /// How much of [part] is drawn: the opacity of the fade around it.
 double _opacityOf(WidgetTester tester, String part) {
   return tester
-      .widget<Opacity>(find.ancestor(of: find.text(part), matching: find.byType(Opacity)).first)
+      .widget<PlassFiltered>(
+        find.ancestor(of: find.text(part), matching: find.byType(PlassFiltered)).first,
+      )
       .opacity;
 }
 
@@ -37,6 +42,15 @@ Future<void> _pump(WidgetTester tester, Widget child, {bool disableAnimations = 
 
 void main() {
   group('PlAnimateSplit', () {
+    testWidgets('adds no opacity layer once it has arrived', (WidgetTester tester) async {
+      await _pump(tester, const PlAnimateSplit(text: _line));
+      await tester.pumpAndSettle();
+
+      // Built at its last frame for as long as it is on screen, so an opacity
+      // of 1 kept as a layer would be a layer for nothing.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+    });
+
     group('the cut', () {
       testWidgets('is by word by default, with the gaps kept', (WidgetTester tester) async {
         await _pump(tester, const PlAnimateSplit(text: _line));

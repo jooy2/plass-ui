@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Content arriving from the middle of where it will end up.
@@ -106,7 +107,14 @@ class PlAnimateZoom extends StatelessWidget {
       builder: (BuildContext context, double t, Widget? inner) {
         final Widget scaled = Transform.scale(scale: from + (1 - from) * t, child: inner);
 
-        return fade ? Opacity(opacity: t.clamp(0, 1), child: scaled) : scaled;
+        return fade
+            ? PlassFiltered(
+                colorFilter: null,
+                opacity: t.clamp(0, 1),
+                alwaysIncludeSemantics: false,
+                child: scaled,
+              )
+            : scaled;
       },
     );
   }

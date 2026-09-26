@@ -128,7 +128,7 @@ What the effect is for. One thing on the screen, once, at the moment it becomes 
 | React | Flutter | Why |
 | --- | --- | --- |
 | `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in` is a reserved word in Dart. |
-| `fade` draws an always-present opacity layer | no `Opacity` widget at all when `fade` is off | One fewer layer to composite. |
+| `fade` draws an always-present opacity layer | no fading widget at all when `fade` is off | One fewer layer to composite. |
 | `render` | — | Flutter has no polymorphic element. |
 | `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
 | `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |

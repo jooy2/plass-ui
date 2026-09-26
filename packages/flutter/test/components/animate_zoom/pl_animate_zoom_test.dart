@@ -1,6 +1,9 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -16,6 +19,15 @@ double scaleOf(WidgetTester tester) => transformOf(tester).transform.storage[0];
 
 void main() {
   group('PlAnimateZoom', () {
+    testWidgets('adds no opacity layer once it has arrived', (WidgetTester tester) async {
+      await tester.pumpWidget(host(const PlAnimateZoom(child: Text('Landed'))));
+      await tester.pumpAndSettle();
+
+      // Built at its last frame for as long as it is on screen, so an opacity
+      // of 1 kept as a layer would be a layer for nothing.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+    });
+
     testWidgets('travels more than twice as far as a grow does', (WidgetTester tester) async {
       await tester.pumpWidget(host(const PlAnimateZoom(child: Text('Landed'))));
 
@@ -50,7 +62,7 @@ void main() {
       await tester.pumpWidget(host(const PlAnimateZoom(fade: false, child: Text('Landed'))));
 
       expect(
-        find.descendant(of: find.byType(PlAnimateZoom), matching: find.byType(Opacity)),
+        find.descendant(of: find.byType(PlAnimateZoom), matching: find.byType(PlassFiltered)),
         findsNothing,
       );
     });

@@ -147,7 +147,7 @@ The common use, and the one the defaults were chosen for: `origin="top"`, a shor
 | React | Flutter | Why |
 | --- | --- | --- |
 | `origin` as a CSS `transform-origin` string | `Alignment` | The framework already has the type, and `Alignment.topCenter` reads better than `'top'`. |
-| `fade` draws an always-present opacity layer | no `Opacity` widget at all when `fade` is off | One fewer layer to composite, and nothing in the tree claiming to be doing something it is not. |
+| `fade` draws an always-present opacity layer | no fading widget at all when `fade` is off | One fewer layer to composite, and nothing in the tree claiming to be doing something it is not. |
 | `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in` is a reserved word in Dart. |
 | `render` | — | Flutter has no polymorphic element. |
 | `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |

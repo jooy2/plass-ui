@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -253,8 +254,12 @@ class PlStack extends StatelessWidget {
     }
 
     if (opacityStep != 1) {
-      dressed = Opacity(
+      // Painted straight onto the canvas at the front, rather than through an
+      // `Opacity` at 1, which would be a layer for the one item not faded.
+      dressed = PlassFiltered(
+        colorFilter: null,
         opacity: math.pow(opacityStep, depth).toDouble().clamp(0, 1),
+        alwaysIncludeSemantics: false,
         child: dressed,
       );
     }

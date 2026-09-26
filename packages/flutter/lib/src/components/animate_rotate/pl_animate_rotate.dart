@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Content turning about a point.
@@ -140,7 +141,14 @@ class PlAnimateRotate extends StatelessWidget {
           child: inner,
         );
 
-        return fade ? Opacity(opacity: t.clamp(0, 1), child: turned) : turned;
+        return fade
+            ? PlassFiltered(
+                colorFilter: null,
+                opacity: t.clamp(0, 1),
+                alwaysIncludeSemantics: false,
+                child: turned,
+              )
+            : turned;
       },
     );
   }

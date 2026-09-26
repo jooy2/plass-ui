@@ -1,6 +1,9 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -25,6 +28,15 @@ Offset pixelsOf(WidgetTester tester) {
 
 void main() {
   group('PlAnimateSlide', () {
+    testWidgets('adds no opacity layer once it has arrived', (WidgetTester tester) async {
+      await tester.pumpWidget(host(const PlAnimateSlide(child: Text('Sliding'))));
+      await tester.pumpAndSettle();
+
+      // Built at its last frame for as long as it is on screen, so an opacity
+      // of 1 kept as a layer would be a layer for nothing.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+    });
+
     group('from', () {
       testWidgets('comes up from below by default, its own height away', (
         WidgetTester tester,
@@ -110,7 +122,7 @@ void main() {
       await tester.pumpWidget(host(const PlAnimateSlide(fade: false, child: Text('Arriving'))));
 
       expect(
-        find.descendant(of: find.byType(PlAnimateSlide), matching: find.byType(Opacity)),
+        find.descendant(of: find.byType(PlAnimateSlide), matching: find.byType(PlassFiltered)),
         findsNothing,
       );
     });

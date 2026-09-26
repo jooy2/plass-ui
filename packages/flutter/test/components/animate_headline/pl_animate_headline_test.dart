@@ -1,16 +1,19 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
 /// The opacity each line is drawn at, in order.
 List<double> opacitiesOf(WidgetTester tester) {
   return tester
-      .widgetList<Opacity>(
-        find.descendant(of: find.byType(PlAnimateHeadline), matching: find.byType(Opacity)),
+      .widgetList<PlassFiltered>(
+        find.descendant(of: find.byType(PlAnimateHeadline), matching: find.byType(PlassFiltered)),
       )
-      .map((Opacity layer) => layer.opacity)
+      .map((PlassFiltered layer) => layer.opacity)
       .toList();
 }
 
@@ -18,6 +21,24 @@ List<Widget> get _lines => const <Widget>[Text('faster'), Text('simpler'), Text(
 
 void main() {
   group('PlAnimateHeadline', () {
+    testWidgets('adds no opacity layer for the line that is up', (WidgetTester tester) async {
+      await tester.pumpWidget(host(PlAnimateHeadline(children: _lines), width: 200));
+
+      // The line that is up is drawn at 1 until the reel turns, and the others
+      // at 0, which is nothing painted and no layer either.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+    });
+
+    testWidgets('reads only the line that is up', (WidgetTester tester) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(host(PlAnimateHeadline(children: _lines), width: 200));
+
+      expect(semanticsLabels(tester), <String>['faster']);
+
+      handle.dispose();
+    });
+
     testWidgets('keeps every line in the tree, in one cell', (WidgetTester tester) async {
       await tester.pumpWidget(host(PlAnimateHeadline(children: _lines), width: 200));
 

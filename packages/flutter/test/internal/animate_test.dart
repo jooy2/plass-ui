@@ -6,14 +6,15 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../support/host.dart';
 
 /// The opacity the fade under test is painting with.
 double opacityOf(WidgetTester tester) {
   return tester
-      .widget<Opacity>(
-        find.descendant(of: find.byType(PlAnimateFade), matching: find.byType(Opacity)),
+      .widget<PlassFiltered>(
+        find.descendant(of: find.byType(PlAnimateFade), matching: find.byType(PlassFiltered)),
       )
       .opacity;
 }
@@ -312,8 +313,8 @@ void main() {
     /// nothing is clipped away. A reveal leaves by its clip and keeps its ink.
     bool drawn(WidgetTester tester, Finder of) {
       final bool faded = tester
-          .widgetList<Opacity>(find.descendant(of: of, matching: find.byType(Opacity)))
-          .any((Opacity opacity) => opacity.opacity == 0);
+          .widgetList<PlassFiltered>(find.descendant(of: of, matching: find.byType(PlassFiltered)))
+          .any((PlassFiltered opacity) => opacity.opacity == 0);
       final bool clipped = tester
           .widgetList<ClipRect>(find.descendant(of: of, matching: find.byType(ClipRect)))
           .any((ClipRect clip) => clip.clipper?.getClip(const Size(100, 100)).isEmpty ?? false);

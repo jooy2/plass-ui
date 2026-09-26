@@ -1,8 +1,11 @@
 import 'dart:math' as math;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -21,6 +24,15 @@ double degreesOf(WidgetTester tester) {
 
 void main() {
   group('PlAnimateRotate', () {
+    testWidgets('adds no opacity layer once it has arrived', (WidgetTester tester) async {
+      await tester.pumpWidget(host(const PlAnimateRotate(child: Text('Turning'))));
+      await tester.pumpAndSettle();
+
+      // Built at its last frame for as long as it is on screen, so an opacity
+      // of 1 kept as a layer would be a layer for nothing.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
+    });
+
     testWidgets('starts half a turn out and lands square', (WidgetTester tester) async {
       await tester.pumpWidget(
         host(const PlAnimateRotate(duration: Duration(milliseconds: 200), child: Text('Turning'))),
@@ -77,7 +89,7 @@ void main() {
       await tester.pumpWidget(host(const PlAnimateRotate(fade: false, child: Text('Turning'))));
 
       expect(
-        find.descendant(of: find.byType(PlAnimateRotate), matching: find.byType(Opacity)),
+        find.descendant(of: find.byType(PlAnimateRotate), matching: find.byType(PlassFiltered)),
         findsNothing,
       );
     });

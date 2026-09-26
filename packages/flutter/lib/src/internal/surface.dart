@@ -793,11 +793,17 @@ class _Lit extends StatelessWidget {
 ///
 /// At an opacity of 0 it paints nothing at all, as an [Opacity] does, rather
 /// than a layer that shows none of what is in it. What it holds is still laid
-/// out, still hit and still read out, as CSS `opacity: 0` leaves an element.
+/// out, still hit and still read out, as CSS `opacity: 0` leaves an element,
+/// unless [alwaysIncludeSemantics] says otherwise.
 class PlassFiltered extends SingleChildRenderObjectWidget {
   /// Paints [child] through [colorFilter] and at [opacity].
-  const PlassFiltered({required this.colorFilter, this.opacity = 1, super.child, super.key})
-    : assert(opacity >= 0 && opacity <= 1);
+  const PlassFiltered({
+    required this.colorFilter,
+    this.opacity = 1,
+    this.alwaysIncludeSemantics = true,
+    super.child,
+    super.key,
+  }) : assert(opacity >= 0 && opacity <= 1);
 
   /// The filter, or `null` to paint [child] in its own colours.
   final ColorFilter? colorFilter;
@@ -806,16 +812,28 @@ class PlassFiltered extends SingleChildRenderObjectWidget {
   /// applies `opacity` after `filter`.
   final double opacity;
 
+  /// Whether [child] is still read out at an opacity of 0.
+  ///
+  /// `false` leaves it out of the semantics while it paints nothing, which is
+  /// what an [Opacity] does by default, for a widget that took the place of
+  /// one and has to keep the reading it gave.
+  final bool alwaysIncludeSemantics;
+
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderFiltered(colorFilter: colorFilter, opacity: opacity);
+    return _RenderFiltered(
+      colorFilter: colorFilter,
+      opacity: opacity,
+      alwaysIncludeSemantics: alwaysIncludeSemantics,
+    );
   }
 
   @override
   void updateRenderObject(BuildContext context, RenderObject renderObject) {
     (renderObject as _RenderFiltered)
       ..colorFilter = colorFilter
-      ..opacity = opacity;
+      ..opacity = opacity
+      ..alwaysIncludeSemantics = alwaysIncludeSemantics;
   }
 
   @override
@@ -823,18 +841,31 @@ class PlassFiltered extends SingleChildRenderObjectWidget {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty<ColorFilter>('colorFilter', colorFilter, defaultValue: null))
-      ..add(DoubleProperty('opacity', opacity, defaultValue: 1.0));
+      ..add(DoubleProperty('opacity', opacity, defaultValue: 1.0))
+      ..add(
+        FlagProperty(
+          'alwaysIncludeSemantics',
+          value: alwaysIncludeSemantics,
+          ifFalse: 'left out of the semantics at 0',
+        ),
+      );
   }
 }
 
 class _RenderFiltered extends RenderProxyBox {
-  _RenderFiltered({required ColorFilter? colorFilter, required double opacity})
-    : _colorFilter = colorFilter,
-      _alpha = ui.Color.getAlphaFromOpacity(opacity);
+  _RenderFiltered({
+    required ColorFilter? colorFilter,
+    required double opacity,
+    required bool alwaysIncludeSemantics,
+  }) : _colorFilter = colorFilter,
+       _alpha = ui.Color.getAlphaFromOpacity(opacity),
+       _alwaysIncludeSemantics = alwaysIncludeSemantics;
 
   ColorFilter? _colorFilter;
 
   int _alpha;
+
+  bool _alwaysIncludeSemantics;
 
   /// The filter's layer while it sits inside the opacity's, which is then the
   /// one in [layer].
@@ -850,7 +881,20 @@ class _RenderFiltered extends RenderProxyBox {
     final alpha = ui.Color.getAlphaFromOpacity(value);
 
     if (alpha != _alpha) {
+      final bool wasShown = _alpha != 0;
+
       _change(() => _alpha = alpha);
+
+      if (wasShown != (_alpha != 0) && !_alwaysIncludeSemantics) {
+        markNeedsSemanticsUpdate();
+      }
+    }
+  }
+
+  set alwaysIncludeSemantics(bool value) {
+    if (value != _alwaysIncludeSemantics) {
+      _alwaysIncludeSemantics = value;
+      markNeedsSemanticsUpdate();
     }
   }
 
@@ -872,6 +916,15 @@ class _RenderFiltered extends RenderProxyBox {
 
   @override
   bool paintsChild(RenderBox child) => _alpha != 0;
+
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    final RenderBox? held = child;
+
+    if (held != null && (_alpha != 0 || _alwaysIncludeSemantics)) {
+      visitor(held);
+    }
+  }
 
   @override
   void paint(PaintingContext context, Offset offset) {

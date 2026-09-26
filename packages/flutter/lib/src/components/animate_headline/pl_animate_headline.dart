@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -336,7 +337,12 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
       child: widget.children[position],
       builder: (BuildContext context, Widget? inner) {
         if (!active && !leaving) {
-          return Opacity(opacity: 0, child: inner);
+          return PlassFiltered(
+            colorFilter: null,
+            opacity: 0,
+            alwaysIncludeSemantics: false,
+            child: inner,
+          );
         }
 
         final double t = curve.transform(_swap.value.clamp(0, 1));
@@ -344,7 +350,12 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
         // above it, which is the gesture the whole effect is named for.
         final double travel = active ? 1 - t : -t;
         final double opacity = still ? (active ? 1 : 0) : (active ? t : 1 - t);
-        final Widget faded = Opacity(opacity: opacity.clamp(0, 1), child: inner);
+        final Widget faded = PlassFiltered(
+          colorFilter: null,
+          opacity: opacity.clamp(0, 1),
+          alwaysIncludeSemantics: false,
+          child: inner,
+        );
 
         return widget.rise == null
             ? FractionalTranslation(translation: Offset(0, travel), child: faded)

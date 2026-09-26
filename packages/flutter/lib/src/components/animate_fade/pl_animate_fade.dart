@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Content arriving or leaving on opacity alone.
@@ -103,7 +104,12 @@ class PlAnimateFade extends StatelessWidget {
       ),
       child: child,
       builder: (BuildContext context, double t, Widget? inner) {
-        return Opacity(opacity: (from + (1 - from) * t).clamp(0, 1), child: inner);
+        return PlassFiltered(
+          colorFilter: null,
+          opacity: (from + (1 - from) * t).clamp(0, 1),
+          alwaysIncludeSemantics: false,
+          child: inner,
+        );
       },
     );
   }
