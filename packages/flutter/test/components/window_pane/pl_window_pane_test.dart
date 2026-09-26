@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/window.dart';
 
 import '../../support/host.dart';
+import '../../support/ticking.dart';
 
 /// A body that says whether it was kept or built again.
 class _Kept extends StatefulWidget {
@@ -405,6 +406,29 @@ void main() {
       // The bar stays where it is — a page has nowhere to send a window.
       expect(find.text('Notes'), findsOneWidget);
       expect(find.text('Body'), findsNothing);
+    });
+
+    testWidgets('stops the tickers in the body while it is rolled up', (WidgetTester tester) async {
+      Widget window({required bool minimized}) =>
+          PlWindowPane(title: const Text('Notes'), minimized: minimized, child: const Ticking());
+
+      await tester.pumpWidget(host(window(minimized: false), width: 420));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(ticksOf(tester), greaterThan(0));
+
+      // Off stage, the loop is not drawn, and it is not handed a frame either.
+      await tester.pumpWidget(host(window(minimized: true), width: 420));
+      await tester.pump(const Duration(seconds: 1));
+      final int rolled = ticksOf(tester);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(ticksOf(tester), rolled);
+      expect(tester.binding.hasScheduledFrame, isFalse);
+
+      // Brought back down, the same loop runs again.
+      await tester.pumpWidget(host(window(minimized: false), width: 420));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(ticksOf(tester), greaterThan(rolled));
     });
 
     testWidgets('keeps the rolled-up body in the tree, out of reach', (WidgetTester tester) async {

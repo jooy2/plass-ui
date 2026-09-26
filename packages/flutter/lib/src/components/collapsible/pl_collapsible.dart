@@ -226,8 +226,10 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
     _fold.addStatusListener(_onFold);
   }
 
+  // A kept-mounted panel stays, but it is rebuilt all the same: its tickers
+  // are switched off only once it has finished closing.
   void _onFold(AnimationStatus status) {
-    if (status == AnimationStatus.dismissed && !widget.keepMounted && mounted) {
+    if (status == AnimationStatus.dismissed && mounted) {
       setState(() {});
     }
   }
@@ -287,10 +289,13 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
         ? widget.triggerBuilder!(context, widget.open, _toggle)
         : _header(tokens, family, reduceMotion: reduceMotion, padX: padX, padY: padY);
 
+    // Something to see: open, or still folding shut.
+    final showing = widget.open || _fold.value > 0;
+
     // Kept in the tree only while there is something to see, unless the caller
     // asked otherwise: a `State` goes with its widget when it leaves the tree,
     // so a folded-away field forgets what was typed into it.
-    final built = widget.keepMounted || widget.open || _fold.value > 0;
+    final built = widget.keepMounted || showing;
 
     Widget panel = built && widget.child != null
         ? DefaultTextStyle.merge(
@@ -323,9 +328,17 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
     // closed: a wrapper that comes and goes changes the shape of the tree above
     // the content, and Flutter rebuilds a changed shape from scratch, which is
     // the `State` a kept-mounted panel is there to keep.
+    //
+    // The tickers go the same way, but not until the fold has finished: the
+    // content still moves while it is being folded away, and once it is gone a
+    // spinner in a kept-mounted panel would go on asking for frames nobody
+    // sees. They come back on as the panel starts to open.
     panel = ExcludeSemantics(
       excluding: !widget.open,
-      child: ExcludeFocus(excluding: !widget.open, child: panel),
+      child: ExcludeFocus(
+        excluding: !widget.open,
+        child: TickerMode(enabled: showing, child: panel),
+      ),
     );
 
     panel = PlassFold(factor: _foldFactor, child: panel);

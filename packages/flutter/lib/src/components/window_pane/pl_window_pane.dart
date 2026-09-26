@@ -388,25 +388,33 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     // Off stage, the body is still laid out, and at the height it had rather
     // than at whatever the rolled-up window leaves it: nothing inside moves,
     // and content that needs a bounded height, such as an `Expanded`, still
-    // has one when the window rolled up sits in a scrolling column.
+    // has one when the window rolled up sits in a scrolling column. Its
+    // tickers are switched off, or a spinner in it would go on asking for
+    // frames that are never drawn.
     final double? tall = _sized?.height ?? widget.height;
     final Widget body = ExcludeFocus(
       excluding: widget.minimized,
-      child: Offstage(
-        offstage: widget.minimized,
-        child: SizedBox(
-          height: widget.minimized && tall != null
-              ? math.max(0, tall - metrics.bar - metrics.frame * 2)
-              : null,
-          child: Container(
-            margin: EdgeInsets.fromLTRB(
-              metrics.band.side,
-              0,
-              metrics.band.side,
-              metrics.band.bottom,
+      child: TickerMode(
+        enabled: !widget.minimized,
+        child: Offstage(
+          offstage: widget.minimized,
+          child: SizedBox(
+            height: widget.minimized && tall != null
+                ? math.max(0, tall - metrics.bar - metrics.frame * 2)
+                : null,
+            child: Container(
+              margin: EdgeInsets.fromLTRB(
+                metrics.band.side,
+                0,
+                metrics.band.side,
+                metrics.band.bottom,
+              ),
+              color: paint.body,
+              child: PlassContentsGroup(
+                paints: true,
+                child: widget.child ?? const SizedBox.shrink(),
+              ),
             ),
-            color: paint.body,
-            child: PlassContentsGroup(paints: true, child: widget.child ?? const SizedBox.shrink()),
           ),
         ),
       ),

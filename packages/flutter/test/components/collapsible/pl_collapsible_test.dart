@@ -4,6 +4,7 @@ import 'package:plass_ui/plass_ui.dart';
 
 import '../../support/disposal.dart';
 import '../../support/host.dart';
+import '../../support/ticking.dart';
 
 /// A fold wired to a variable, which is how every caller uses one.
 class _Harness extends StatefulWidget {
@@ -262,6 +263,64 @@ void main() {
               .excluding,
           isTrue,
         );
+      });
+
+      testWidgets('stops the tickers in a kept panel once it has folded shut', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const _Harness(keepMounted: true, child: Ticking()), width: 360),
+        );
+
+        // Closed from the start: the loop inside is never handed a frame.
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(ticksOf(tester), 0);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+
+        // It runs from the first frame of the fold opening.
+        await tester.tap(find.text('Advanced'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(ticksOf(tester), greaterThan(0));
+        await tester.pump(const Duration(seconds: 1));
+
+        // And goes on running while the panel folds shut, since it is still
+        // being drawn.
+        await tester.tap(find.text('Advanced'));
+        await tester.pump();
+        final int folding = ticksOf(tester);
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(ticksOf(tester), greaterThan(folding));
+
+        // Until the fold has finished: then nothing is left to draw it into.
+        await tester.pump(const Duration(seconds: 1));
+        final int shut = ticksOf(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(ticksOf(tester), shut);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+      });
+
+      testWidgets('stops them at once when the fold is cut for reduced motion', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            const _Harness(keepMounted: true, child: Ticking()),
+            width: 360,
+            disableAnimations: true,
+          ),
+        );
+
+        await tester.tap(find.text('Advanced'));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.tap(find.text('Advanced'));
+        await tester.pump();
+
+        final int shut = ticksOf(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(ticksOf(tester), shut);
       });
 
       testWidgets('keeps what was typed into a kept panel through a close', (
