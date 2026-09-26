@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**493 of 504 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**504 of 514 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -70,6 +70,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 21    | `42f813ad..1393541f` | Answers first: the combobox page's `multiple` sentence, a vertical rail's panels and chevron, the number field stepper's opacity and a timeline span's name. Then 440 to 458, every item left, with 454 closed as no longer reproducing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | 22    | `28ea5de0..44c9925a` | Answers first: the combobox's `multiple` JSDoc and the read-only combobox tests. Then 459 to 478, with 464 narrowed and 473's segmented tile picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | 23    | `5548bbfb..9422def7` | Answers first: the `PlNumberField` stepper's press and two reduced-motion cleanups. Then 479 to 495, every item left, with 480 closed as no longer reproducing                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| 24    | `2bc0862d..2c9804b2` | Answers first: a field's adornments, a pie with its tooltip off, the focus easing both ways, the combobox page and a blink at 0. Then 496 to 506, every item left, with 506's React half left as it was                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -107,15 +108,13 @@ Batch 22 had no questions to ask at its start. It worked the two changes batch 2
 
 Batch 23 had no questions to ask at its start. It worked the two changes batch 22 approved first and then the seventeen items left, 479 to 495, in nine worktrees at once, each brought onto `main` one commit at a time with the changelog entries added there. Creating nine worktrees together failed once on git's own lock, and that worker was started again. Item 480 no longer reproduces, and its premise was the lead's own mistake: batch 22's question said Base UI holds a parent back from an outside press while a child that refuses to close is open, but `__outsidePressBubbles` defaults to `true`, so neither Base UI nor the Flutter modal holds it, and the two builds already agree. Item 486's first claim did not hold either, since Base UI also skips a disabled row when an arrow key opens a list with nothing chosen, so only its other two parts were changed. Item 493 matched the React pie, which takes ← and → round from end to end and no `Home` or `End`, rather than the item's wording. Two workers each added a `_press` helper to `test/package/ink_easing_test.dart`, which git merged without a conflict and the compiler refused; `b346e96c` renames one. Many items rewrote an unreleased changelog entry rather than adding one: the combobox, the pointer light on rows, the ink easing, the wrappers of item 438, the gradient fade, the reduced-motion entry, the navigation menu panel and the chart walk. Eighteen questions were asked at the end and every one was answered with its recommendation: eleven bugs became items 496 to 506, five changes wait below, and three stay as they are: a Flutter segmented tile easing a change of variant that the React one does not, a backdrop press that closes a modal with a popover that refuses to close, as Base UI does, and a headline's first frame of a swap. The size budget's "Everything" stands at +0.8 kB. After the push, Ubuntu and Windows Firefox failed `test/styles/interaction-light.test.tsx`, which the batch had not touched: its new files had moved it in its shard behind a file that leaves the real mouse at the top of the page, where Firefox eases a freshly drawn key's bloom in under a still pointer before the test reads it at rest. `9422def7` parks the mouse before each of its tests, and every CI job was green after it.
 
+Batch 24 had no questions to ask at its start. It worked the five changes batch 23 approved first and then the eleven items left, 496 to 506, in eight worktrees at once, each brought onto `main` one commit at a time with the changelog entries added there; all eight worktrees were created without a failure this time. Every item reproduced, and several were wider than written: item 499's value identity also broke a field holding a value no option has, and dropped a `PlForm` error under `multiple`, and was fixed through Base UI's own `Combobox.createItems` rather than a cache; item 498 now looks at the end of every frame an open popup is shown for what it was placed by, with every scroll between it and the screen taken out; and item 496 added a shared `PlassMarkEase` the chart painters read. Item 502 also rounded the XP and Aero caption buttons as React does. Item 506's React half turned the chip's `<button>` into a `<span role="button">`, which was asked before its commit was picked; the Prompter kept the native button, so only the Flutter half went in, as `becd14c6` on a branch of its own. The lead's instructions got one fact wrong: item 492 had washed only the Flutter select and combobox rows in `softHover`, not the command palette's, which the worker found; it is part of item 510. The changelog entries of the combobox, the popups, the ink, the wrappers, the gradient fade, the window captions, the alerts and the logo were rewritten rather than added to. After the picks the full React suite failed `test/package/reduced-motion.test.tsx`, whose `PlTextField` scene had nothing of its own left to ease once the adornments stopped easing; `2c9804b2` takes that scene out. Thirteen questions were asked at the end and every one was answered with its recommendation: ten bugs became items 507 to 516, one change waits below, and two stay as they are: the React `PlChip`, `PlPill` and `PlListItem` keep a native `<button>` at the cost of a remount when `onClick` comes or goes, and a controlled `multiple` combobox handed a new array on every render still loses a `PlForm` error, as Base UI does. The size budget's "Everything" stands at +0.8 kB.
+
 ## Waiting for an answer
 
-Asked through the prompt in batch 23. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
+Asked through the prompt in batch 24. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
 
-1. **A field's adornments stay muted as it takes the focus.** Keep a `PlTextField`'s adornments in the muted ink when the field is focused, in both builds, as a `PlNumberField`'s are since item 479 and as the design language says a glass field's colour reaches only its hairline, its ring and its caret, and correct the text-field page in both locales, which says an adornment goes to the accent.
-1. **A pie with its tooltip off takes no keys.** Make both pies ignore the arrow keys while the tooltip is `hidden` or its mode `none`, as the other charts do, and say so on the pie page as the line page does.
-1. **The focus eases in as it eases out.** Remove `focus-within:[transition-duration:0ms]` from the React `PlNumberField` shell and `focus:[transition-duration:0ms]` from the `PlOtpField` slots, as the stepper's press was in batch 23.
-1. **The combobox page names the rows a key opens on.** Correct the Flutter combobox page's "↓ opens the list on its first row, ↑ on its last", in both locales, to the first and the last row that can be taken, which is what both builds do.
-1. **A blink at an opacity of 0 is still read.** Keep a Flutter `PlAnimateBlink` in the semantics at 0, with `alwaysIncludeSemantics: true`, as the React blink and the entrances since item 481 are, and turn the test that pins the old behaviour round.
+1. **Three cleanups.** Remove the unused `group` class from the React `PlNumberField` shell; make the nine tests in `packages/flutter/test/components/data_table/pl_data_table_test.dart` that tap `find.text('Customer').first` tap the heading that can be hit, so they stop printing "would not hit test"; and drop the frame `PlassAnchoredPortal` spends drawing a popup at its own width as it opens, which item 498 made unneeded by reading that width from the popup's intrinsics.
 
 ## Passed over and not yet asked
 
@@ -1601,57 +1600,107 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Problem: Only the highlighted row is wrapped in `_reveal.mark`, so each move of the highlight builds both rows again from scratch and their fill and ink change in one frame, as item 457 found for `PlSelect` and `PlCombobox`.
   - Proposal: Wrap every row and switch `marked`, as item 457 did, so the rows keep what they hold and their fill and ink ease.
 
-- [ ] **496.** Flutter chart marks and a `PlDataTable` sort mark change in one frame (Bug · Flutter · Low)
+- [x] **496.** Flutter chart marks and a `PlDataTable` sort mark change in one frame (Bug · Flutter · Low)
   - Location: `pl_bar_chart.dart`, `internal/chart_line.dart`, `pl_scatter_chart.dart`, `pl_pie_chart.dart`, `pl_timeline_chart.dart` (the dim a legend entry or the crosshair puts on the other marks, a line's marker and a scatter mark growing), `pl_data_table.dart` (`_SortableHeader`'s mark)
   - Problem: Each is painted at once by a `CustomPainter` or turned with `quarterTurns`, where the React marks fade and grow over `--plass-duration` and the React sort mark turns since item 484.
   - Proposal: Ease each over `motionDuration`, at once under reduced motion, with a test in `test/package/reduced_motion_test.dart` and one that reads the halfway value.
 
-- [ ] **497.** A Flutter `solid` `PlSegmentedButton` built with a value may draw its label white on the bare groove for a frame (Bug · Flutter · Low)
+- [x] **497.** A Flutter `solid` `PlSegmentedButton` built with a value may draw its label white on the bare groove for a frame (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/segmented_button/pl_segmented_button.dart` (`_measure`, the tile's first placement)
   - Problem: Read from the code, not seen: the tile is placed by a measurement after the first frame, but the chosen segment takes the on-fill ink from the first frame, so white words may stand on the pale groove for a frame. The React button measures before it paints, with `useLayoutEffect`.
   - Proposal: Reproduce it first; if it reproduces, place the tile in the first frame or hold the ink back until it is placed.
 
-- [ ] **498.** A Flutter popup is not placed again as its content or its anchor moves (Bug · Flutter · Low)
+- [x] **498.** A Flutter popup is not placed again as its content or its anchor moves (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/anchored.dart`
   - Problem: Since item 489 a popup is placed again when the screen changes size, but not when its own content changes size while it is open, such as a `PlCombobox` list growing as the reader types, nor when a relayout moves its anchor. A `fitWidth` popup's width as it opened, `_ownWidth`, also goes stale then. React's Floating UI follows both through `autoUpdate`.
   - Proposal: Measure again when the popup's own size or its anchor's place changes, and not on every scroll.
 
-- [ ] **499.** A React `PlCombobox` holding a value puts its label back over what is typed whenever `items` is a new array (Bug · React · Medium)
+- [x] **499.** A React `PlCombobox` holding a value puts its label back over what is typed whenever `items` is a new array (Bug · React · Medium)
   - Location: `packages/react/src/components/combobox/PlCombobox.tsx` (`baseValue = entryFor(selection[0])`)
   - Problem: The entry handed to Base UI as the value is a new object whenever the options are worked out again, so Base UI's `handleSelectedValueChanged` writes the value's label into the field, with no check on whether the reader has typed a query. A parent that passes `items` inline and renders again on every keystroke, as `onInputValueChange={setQuery}` does, leaves a field that cannot be typed into. Seen in Chromium.
   - Proposal: Keep an entry's identity while its value and its label are unchanged, with a regression test for an inline `items` and a parent that renders on every keystroke.
 
-- [ ] **500.** Two more places a Flutter `PlCombobox` differs from Base UI (Bug · Flutter · Low)
+- [x] **500.** Two more places a Flutter `PlCombobox` differs from Base UI (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`_start`, the open on input)
   - Problem: Opening the list skips a chosen row that cannot be taken, where Base UI lights it, by a press and by ↓, and under `multiple` through `findSelectionIndex`. Emptying the whole text at once, for example by selecting it and deleting it, opens a closed list, where Base UI's `maybeOpenOnInput` does not open on empty or blank text.
   - Proposal: Follow Base UI in both, with a test each.
 
-- [ ] **501.** A React `PlAppLogo` plate is not drawn in the mark material `PlAvatar` and `PlBadge` use (Bug · React · Low)
+- [x] **501.** A React `PlAppLogo` plate is not drawn in the mark material `PlAvatar` and `PlBadge` use (Bug · React · Low)
   - Location: `packages/react/src/components/app-logo/PlAppLogo.tsx`
   - Problem: The React plate has no elevation on `solid`, a `--plass-glass-line` edge and no gloss on `glass`, and `--p-soft` on `ghost`, where the React avatar and badge and every Flutter mark, the logo's included, take the neutral edge, the gloss, an elevation of 1 and `--p-soft-press`. A glass plate with a white hairline disappears on a white header.
   - Proposal: Draw the React plate in the mark material the avatar and badge use, and update the tests that pin `bg-(--p-soft)`.
 
-- [ ] **502.** Flutter window caption buttons are drawn unlike the React ones (Bug · Flutter · Low)
+- [x] **502.** Flutter window caption buttons are drawn unlike the React ones (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/window_pane/pl_window_pane.dart` (`_WindowButton`, `_WindowColors`)
   - Problem: On `windows7` the minimize and maximize buttons also change their fill under the pointer in Flutter only, their resting face is 0.2 white with no gradient or inner edge where React's is 0.3 with both, and the close button's hover red is `E04343` where React's is `#e04a45`. On `windowsxp` React draws the plates with a gradient, an inner white edge and a wash on an inactive window, and Flutter draws none of them.
   - Proposal: Draw each as the React build does.
 
-- [ ] **503.** Three Flutter bugs found in batch 23 (Bug · Flutter · Low)
+- [x] **503.** Three Flutter bugs found in batch 23 (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/sidebar/pl_sidebar.dart` (the resize handle), `packages/flutter/lib/src/internal/chart_frame.dart` (an empty chart's semantics), `packages/flutter/lib/src/components/pie_chart/pl_pie_chart.dart` (`_active`)
   - Problem: A `PlSidebar` resize handle straddles the edge, but the `Stack` round it clips with `Clip.hardEdge` and hit-tests within its own size, so the outer half is neither drawn nor pressed, its wash and its focus ring are cut in half, and only 4px of the 8px target work. An empty line, bar, area, scatter or timeline chart is announced as focusable, because `focused: false` still sets `isFocusable`; the pie passes `null` there since item 493. A pie whose slice the pointer is reading throws a `RangeError` when it is built again with fewer slices, since nothing resets `_active`.
   - Proposal: Let the handle's outer half be drawn and pressed, pass `null` for an empty chart, and reset or clamp `_active` when the data changes, with a test each.
 
-- [ ] **504.** Four React bugs found in batch 23 (Bug · React · Low)
+- [x] **504.** Four React bugs found in batch 23 (Bug · React · Low)
   - Location: `PlCombobox` (the chevron of a disabled field), `PlPieChart` (the first ←), `PlHowToSteps` (the connector and the title), `PlCommandPalette` (a row's transition and fill)
   - Problem: A disabled combobox's chevron turns to the accent under the pointer, through a CSS `:hover` inside the disabled shell, where the design language gives a disabled control no light and the Flutter chevron stays muted. The first ← on a pie with nothing chosen lands on the second slice from the end rather than the last (`at = -1`, so `next = -2`). A `PlHowToSteps` connector and title have no house transition, so as `active` moves they change in one frame while the bullet eases, where `PlStepper` and `PlTimeline` put it on both. A `PlCommandPalette` row eases only `background-color`, not `color`, and washes its highlight in `--p-soft` where `PlSelect` and `PlMenu` take `--p-soft-hover`; the Flutter row eases both since item 495.
   - Proposal: Fix each, with a test each.
 
-- [ ] **505.** Four Flutter glyphs take a colour or a size the React ones do not (Bug · Flutter · Low)
+- [x] **505.** Four Flutter glyphs take a colour or a size the React ones do not (Bug · Flutter · Low)
   - Location: `PlMenubar` and `PlNavigationMenu` (a trigger's `startIcon`), `PlNavigationMenuLink` (its `startIcon`), `PlToast` (a glyph in the title, the description or the action), `PlAppLogo` with no plate
   - Problem: A trigger's `startIcon` is drawn at the ambient 24 where React's is 1.2em, 16.8 at `md`. A link's `startIcon` takes neither a colour nor a size, so a glyph with no colour of its own is the fallback black and cannot be seen on the dark theme. A glyph a caller puts in a toast's title, description or action keeps the ambient colour (`icons: false`), where item 492 fixed the same in `PlAlert`. A bare logo's mark takes the ambient colour, where React's takes the foreground.
   - Proposal: Draw each as the React build does.
 
-- [ ] **506.** Three more trees are built again when a setting changes (Bug · Both · Low)
+- [x] **506.** Three more trees are built again when a setting changes (Bug · Both · Low)
   - Location: `packages/flutter/lib/src/internal/animate.dart` (`translateBy`, used by `PlAnimateSlide`'s `distance` and `PlAnimateHeadline`'s `rise`), `packages/flutter/lib/src/components/panes/pl_panes.dart` (`_Handle`'s `FocusableActionDetector`, only while `resizable`), `packages/react/src/components/chip/PlChip.tsx` (`interactive ? <button>{label}</button> : label`)
   - Problem: A `distance` or a `rise` that goes between `null` and a number switches between a `FractionalTranslation` and a `Transform.translate`, a `PlPanes` handle puts its focus detector in or takes it out as `resizable` changes, and a React chip moves its label into or out of a `<button>` as `onClick` or `disabled` changes. Each builds or mounts what it holds again from scratch, so its state is lost.
   - Proposal: Keep the same wrappers whatever the setting, as items 438, 477 and 491 did, with a test in `test/package/content_state_test.dart` for the Flutter cases and a remount test for the chip.
+
+- [ ] **507.** A Flutter line chart's marker does not grow under the crosshair (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/chart_line.dart` (the active dot)
+  - Problem: The active marker is drawn at `radius`, where the React one is drawn at `radius + 1` and eases there since item 484, so the two builds differ by a pixel under the crosshair and nothing grows to ease.
+  - Proposal: Grow the active marker by 1 through the `PlassMarkEase` item 496 added, at once under reduced motion, with a halfway test.
+
+- [ ] **508.** A `PlSidebar` handle at the start of a `PlPageLayout` is still half hidden (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/page_layout/`, `packages/flutter/lib/src/components/sidebar/pl_sidebar.dart`
+  - Problem: Since item 503 a sidebar's resize handle draws and takes a press past the column's edge, but a parent still decides which child it asks first and paints last: a `Row` asks the content beside a start sidebar first and paints it later, so where that content takes a press, as a scroll view does, or paints over the edge, the handle's outer half is still covered. The React sidebar lifts its handle with `z-1`.
+  - Proposal: Have `PlPageLayout` paint and hit-test its sidebars above the main content, so a start sidebar's handle is whole there as an end sidebar's is.
+
+- [ ] **509.** A Flutter `PlCombobox` writes a renamed option's label on a different condition from Base UI (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`didUpdateWidget`)
+  - Problem: Since item 486 the field takes a renamed option's new label only while its text still equals the old label; Base UI, and the React combobox since item 499, write it unless a query has been typed since the list opened.
+  - Proposal: Gate the write on whether a query has been typed into the open list, as Base UI's `syncInputAfterItemsOrLabelChange` does, with a test.
+
+- [ ] **510.** Three more colours and easings differ between the builds (Bug · Both · Low)
+  - Location: `packages/flutter/lib/src/components/command_palette/pl_command_palette.dart` (a row's wash), `packages/flutter/lib/src/internal/steps.dart` (`PlassStepConnectorLine`) with the titles of `PlStepper` and `PlHowToSteps`, `packages/react/src/components/stepper/PlStepper.tsx` (the title), `packages/flutter/lib/src/components/heatmap_chart/pl_heatmap_chart.dart` (a cell's lift)
+  - Problem: The Flutter palette row still washes its highlight in `family.soft`, where the React row takes `--p-soft-hover` since item 504 and the Flutter select, menu and combobox take `softHover`. The Flutter step connectors and titles change in one frame, where the React how-to eases both since item 504, and the React stepper's title has no house transition either. The Flutter heatmap lifts a cell from 0.94 to 1 in one frame, where React eases it.
+  - Proposal: Wash the Flutter palette row in `softHover`, ease every step connector and title in both builds, and ease the heatmap cell through `PlassMarkEase`, each at once under reduced motion.
+
+- [ ] **511.** Three React field bugs found in batch 24 (Bug · React · Low)
+  - Location: `packages/react/src/components/number-field/PlNumberField.tsx` (`stepperClasses`), `packages/react/src/components/combobox/PlCombobox.tsx` (the chevron and the clear ×)
+  - Problem: A stepper that has run into `min`, or one in a disabled field, still turns its glyph to the accent under the pointer, since `hover:text-(--p-accent)` has no `enabled:`, the bug item 504 fixed on the combobox chevron. A disabled combobox's chevron and × carry `disabled:opacity-50` inside a shell already at half, so they are drawn at a quarter, where a `PlSelect` chevron is at half. A labelled combobox's chevron is named after the field, because Base UI's `aria-labelledby` on the trigger beats the `aria-label` `openLabel` gives it.
+  - Proposal: Light the stepper only while it is enabled, take the second opacity off, and name the chevron by `openLabel`, with a test each.
+
+- [ ] **512.** Three more glyphs are coloured or sized unlike the other build (Bug · Both · Low)
+  - Location: the Flutter `PlSelect`, `PlCombobox` and picker fields (`startIcon`), `packages/react/src/components/navigation-menu/PlNavigationMenu.tsx` (`PlNavigationMenuLink`'s `startIcon`), the Flutter `PlAlert` and `PlToast` (a caller's glyph)
+  - Problem: The Flutter fields put their `startIcon` in a muted `IconTheme` only, so a `Text` there keeps the page's ink, where React mutes the words too. The React link's glyph is sized against the page's font rather than the link's `size`, 19.2 in a 24 box at `sm` and `md` alike, where the Flutter link's follows its title since item 505. A glyph in a Flutter alert or toast is drawn at the ambient 24, where React's `iconClasses` draw it at 1.2em.
+  - Proposal: Mute the words as well in the Flutter fields, size the React link's glyph by its `size`, and size a Flutter alert's and toast's glyphs at 1.2 times their text.
+
+- [ ] **513.** `PlBadge` is not drawn in the mark material in either build (Bug · Both · Low)
+  - Location: `packages/flutter/lib/src/components/badge/pl_badge.dart`, `packages/react/src/components/badge/PlBadge.tsx`
+  - Problem: The Flutter badge draws through `controlSurface` rather than `markSurface`, so its `glass` edge is the white `glassLine` and a `ghost` badge has no fill at rest. The React badge keeps its own copy of the mark classes rather than the `markRestClasses` item 501 shared, and its copy leaves `--p-elev` off `ghost`, so a ghost badge ignores `elevation`.
+  - Proposal: Draw the Flutter badge through `markSurface` and the React badge through `markRestClasses`.
+
+- [ ] **514.** A Flutter `PlFloatingBottomNavigation` built with a value may draw its glyph white on the bar for a frame (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/floating_bottom_navigation/pl_floating_bottom_navigation.dart`
+  - Problem: Read from the code, not seen: the chosen disc's glyph takes the on-fill ink from the first frame, but the key is placed after it, so a white glyph may stand on the bar for a frame, as item 497 found in `PlSegmentedButton`.
+  - Proposal: Reproduce it first; if it reproduces, hold the ink back until the key is placed, as item 497 did.
+
+- [ ] **515.** Flutter window buttons differ from the React ones in four more ways (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/window_pane/pl_window_pane.dart`, `packages/flutter/lib/src/internal/window.dart`
+  - Problem: A `square` close button looks its red up by its shape rather than its system, so `windows10` and `windows8` turn `#c42b1c` under the pointer where React turns `#e81123`. The `macos` and `macosx` lights keep their colour on a window that is not in front, where React draws them in the foreground at 22%; their marks are at 0.6 where React's are 0.55; and `macosx` has no radial highlight or inner edges. A React close button also turns red under a touch press with no hover, where the Flutter `square` and Aero ones turn only under the pointer.
+  - Proposal: Draw each as the React build does.
+
+- [ ] **516.** A Flutter chart being read throws when it is built again with fewer categories (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/chart_frame.dart` (`_activeIndex`)
+  - Problem: A line, bar, area, scatter or timeline chart read by a key and then built again with fewer categories throws a `RangeError`, because nothing clears `_activeIndex`, the bug item 503 fixed in the pie.
+  - Proposal: Let go of an index that is no longer there when the data changes, as item 503 did, with a test.
