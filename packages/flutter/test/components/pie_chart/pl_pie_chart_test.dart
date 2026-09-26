@@ -588,24 +588,41 @@ void main() {
         expect(find.byType(PlassChartTooltipCard), findsNothing);
       });
 
-      testWidgets('says nothing and shows no card when its tooltip is off', (
-        WidgetTester tester,
-      ) async {
-        await tabTo(
-          tester,
-          const PlPieChart(
-            data: traffic,
-            categories: sources,
-            tooltip: PlChartTooltip(hidden: true),
-          ),
-        );
+      for (final (String name, PlChartTooltip tooltip) in <(String, PlChartTooltip)>[
+        ('hidden', const PlChartTooltip(hidden: true)),
+        ('in mode none', const PlChartTooltip(mode: PlassChartTooltipMode.none)),
+      ]) {
+        testWidgets('leaves the keys alone and says nothing when its tooltip is $name', (
+          WidgetTester tester,
+        ) async {
+          await tabTo(tester, PlPieChart(data: traffic, categories: sources, tooltip: tooltip));
 
-        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
-        await tester.pump();
+          // Neither arrow lights a slice, so both go on to whatever the chart
+          // sits in, as on every other chart with its tooltip off.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+          await tester.pump();
 
-        expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion), findsNothing);
-        expect(find.byType(PlassChartTooltipCard), findsNothing);
-      });
+          expect(
+            tester.getSemantics(find.bySemanticsLabel('Chart')),
+            isSemantics(label: 'Chart', isFocusable: true, isFocused: true),
+          );
+
+          final canvas = RecordingCanvas();
+          final Finder disc = find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+          );
+
+          tester.widget<CustomPaint>(disc.first).painter!.paint(canvas, tester.getSize(disc.first));
+
+          expect(canvas.fills.length, 4);
+          expect(canvas.fills.every((Paint paint) => paint.color.a == 1), isTrue);
+          expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion), findsNothing);
+          expect(find.byType(PlassChartTooltipCard), findsNothing);
+        });
+      }
 
       testWidgets('is a tab stop only while there is something on it', (WidgetTester tester) async {
         await _pump(

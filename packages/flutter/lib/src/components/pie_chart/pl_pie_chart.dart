@@ -302,11 +302,11 @@ class _PlPieChartState extends State<PlPieChart> {
            since a disc has none. The same list the pointer is tested against,
            so a key can never reach a slice a pointer could not.
 
-           It does not ask `quiet`, as the React pie's does not: with the card
-           turned off a key still lights the slice it reaches, and only the
-           card and the live region say nothing. */
+           With the card turned off there is nothing to read, as on every other
+           chart, so no key is taken and every one goes on to what the chart
+           sits in. */
         KeyEventResult onKey(FocusNode node, KeyEvent event) {
-          if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+          if (quiet || (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
             return KeyEventResult.ignored;
           }
 

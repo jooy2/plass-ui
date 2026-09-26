@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
+import { commands } from 'vitest/browser';
 import { PlPieChart } from 'plass-ui';
 
 const SOURCES = ['Search', 'Social', 'Direct', 'Referral'];
@@ -309,6 +310,46 @@ describe('PlPieChart', () => {
         ).toEqual(['40 · 40%']);
       }
     );
+
+    it.each([
+      ['false', false],
+      ["{ mode: 'none' }", { mode: 'none' }]
+    ] as const)('takes no key and lights no slice when its tooltip is %s', async (_, tooltip) => {
+      // Off the legend, whose entry an earlier test may have left the mouse
+      // on, and which dims the other slices without a key.
+      await commands.parkPointer();
+
+      const screen = await render(
+        <PlPieChart
+          label="Traffic"
+          categories={SOURCES}
+          data={[40, 25, 20, 15]}
+          tooltip={tooltip}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Traffic' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      for (const key of ['ArrowRight', 'ArrowLeft']) {
+        const press = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+
+        plot.element().dispatchEvent(press);
+
+        expect(press.defaultPrevented).toBe(false);
+      }
+
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      expect(slices(plot.element()).map((slice) => slice.getAttribute('opacity'))).toEqual([
+        '1',
+        '1',
+        '1',
+        '1'
+      ]);
+      expect(screen.container.querySelector('[role="status"]')).toBeNull();
+    });
 
     it('still hands a custom card the slice with its name', async () => {
       const screen = await render(

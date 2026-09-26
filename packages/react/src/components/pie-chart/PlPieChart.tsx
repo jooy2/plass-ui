@@ -338,6 +338,13 @@ export function PlPieChart({
         onPointerLeave={() => setActive(null)}
         onBlur={() => setActive(null)}
         onKeyDown={(event) => {
+          // With the tooltip off there is nothing to read, as on every other
+          // chart, so no key is taken and every one goes on to what the chart
+          // sits in.
+          if (tooltipOff) {
+            return;
+          }
+
           if (event.key === 'Escape' && active !== null) {
             // Only while a slice is being read, as on every other chart: with
             // nothing to clear, the key belongs to the sheet the chart sits in,

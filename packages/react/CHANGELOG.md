@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlPieChart` whose tooltip is turned off takes no key, as every other chart.** With `tooltip={false}` or `mode: 'none'`, ← and → still lit a slice and faded the others, with no card and no live region to say which slice it was. The keys now go on to whatever the chart sits in, as they do on a line, bar, area, scatter, timeline or heatmap chart with its tooltip off.
+
 - **A `PlAppLogo` plate is drawn in the material a `PlAvatar` is, as in the Flutter build.** It rests at an elevation of 1 on every variant, a `glass` plate takes the neutral `--plass-border` edge and the gloss along its top, and a `ghost` plate takes `--p-soft-press`. A `glass` plate had a white edge that disappeared on a white header and no gloss, a `solid` one had no drop shadow under its tinted one, and a `ghost` one took the paler `--p-soft`.
 
 - **A `PlCombobox` that holds a value keeps what is typed into it as it renders again, under a parent that passes `items` inline and renders on every keystroke as much as with a value the list does not have.** The value was handed to Base UI as a row object made anew each time `items` was, and on every render for a value no option holds, and Base UI took each new object for a new value and wrote its label back over the query, so the field could not be typed into. It also dropped an error a `PlForm`'s `errors` had put on the field, with or without `multiple`, whenever the combobox rendered again. A renamed option's new label is still written into the field, but no longer over a query typed into the open list, as the Flutter combobox does.
