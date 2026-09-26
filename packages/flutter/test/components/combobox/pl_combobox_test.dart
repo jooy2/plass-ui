@@ -841,6 +841,69 @@ void main() {
         expect(typed, <String>['lis', '']);
       });
 
+      testWidgets('reports the label a value from outside writes, once the frame is over', (
+        WidgetTester tester,
+      ) async {
+        final List<String> typed = <String>[];
+        String? value = 'seoul';
+        List<String> values = const <String>['seoul'];
+        late StateSetter update;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                update = setState;
+
+                // A caller that keeps the query in its own state, which it
+                // cannot set while it is being built.
+                void follow(String query) => setState(() => typed.add(query));
+
+                return Column(
+                  children: <Widget>[
+                    PlCombobox<String>(
+                      options: _cities,
+                      value: value,
+                      onChanged: (String? next) => setState(() => value = next),
+                      onQueryChanged: follow,
+                      clearable: true,
+                    ),
+                    PlCombobox<String>.multiple(
+                      options: _cities,
+                      values: values,
+                      onChanged: (List<String> next) => setState(() => values = next),
+                      onQueryChanged: follow,
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+
+        final EditableText editor = tester.widget<EditableText>(find.byType(EditableText).first);
+
+        update(() => value = 'lisbon');
+        await tester.pump();
+
+        expect(editor.controller.text, 'Lisbon');
+        expect(typed, <String>['Lisbon']);
+
+        // A `multiple` field's text is its query, which the set leaves alone.
+        typed.clear();
+        update(() => values = const <String>['seoul', 'lisbon']);
+        await tester.pumpAndSettle();
+        expect(typed, isEmpty);
+
+        // A value the field wrote itself has been reported already.
+        await tester.tap(_adornment('Clear'));
+        await tester.pumpAndSettle();
+
+        expect(value, isNull);
+        expect(editor.controller.text, isEmpty);
+        expect(typed, <String>['']);
+      });
+
       testWidgets('says so when nothing matched and nothing may be added', (
         WidgetTester tester,
       ) async {

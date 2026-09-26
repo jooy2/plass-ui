@@ -487,11 +487,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     }
 
     // In single mode the text *is* the chosen option's label, so a value handed
-    // in from outside has to reach the field. It is only written while the field
-    // is not focused: doing it mid-edit would take the query out from under
-    // somebody typing.
+    // in from outside has to reach the field, and is reported as Base UI reports
+    // the label it writes. It is only written while the field is not focused:
+    // doing it mid-edit would take the query out from under somebody typing.
     if (!widget.multiple && !_focused && widget.value != oldWidget.value) {
-      _text.text = _labelOfValue();
+      _write(_labelOfValue(), later: true);
     }
   }
 
@@ -565,7 +565,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// Base UI reports every change to its input's text and not only what was
   /// typed, so a caller that follows the query is not left with one the field
   /// no longer shows.
-  void _write(String text) {
+  ///
+  /// A write made while the combobox is being built, [later], is reported once
+  /// the frame is over, where a caller can answer it with a `setState`. By then
+  /// text that has moved on has been reported by whatever moved it.
+  void _write(String text, {bool later = false}) {
     if (_text.text == text) {
       return;
     }
@@ -576,7 +580,18 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
     );
-    widget.onQueryChanged?.call(text);
+
+    if (!later) {
+      widget.onQueryChanged?.call(text);
+
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted && _text.text == text) {
+        widget.onQueryChanged?.call(text);
+      }
+    });
   }
 
   /// The rows the list is currently showing.
