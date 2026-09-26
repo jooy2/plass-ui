@@ -177,9 +177,9 @@ class PlBadge extends StatelessWidget {
 
   /// What the marker is made of.
   ///
-  /// Said the way a *control* says it: the marker is the thing being coloured,
-  /// so its sheet takes the tint. [PlassVariant.ghost] is the one to reach for on
-  /// a busy surface — a soft tinted mark that reports without shouting.
+  /// Said the way a *mark* says it: the marker is the thing being coloured, so
+  /// its sheet takes the tint. [PlassVariant.ghost] is the one to reach for on a
+  /// busy surface — a soft tinted mark that reports without shouting.
   final PlassVariant variant;
 
   /// The marker's own ladder — 14 to 24px, well below the control heights.
@@ -229,7 +229,9 @@ class PlBadge extends StatelessWidget {
     final asDot = dot || empty;
     final hidden = invisible || (empty && !dot);
 
-    final surface = controlSurface(tokens, family, variant: variant, elevation: elevation);
+    // A marker is the thing being coloured and is never pressed, so it is drawn
+    // in the mark material a `PlAvatar` and a `PlAppLogo` plate share.
+    final surface = markSurface(tokens, family, variant: variant, elevation: elevation);
 
     Widget marker = _marker(context, tokens, surface, asDot: asDot, hidden: hidden);
 

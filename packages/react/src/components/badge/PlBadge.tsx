@@ -4,9 +4,8 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import {
   controlSlots,
-  forcedFieldEdgeClasses,
-  glassClasses,
   hasContent,
+  markRestClasses,
   srOnlyClasses,
   transitionClasses
 } from '../../internal/styles.js';
@@ -15,8 +14,7 @@ import type {
   PlassDensity,
   PlassElevation,
   PlassSize,
-  PlassStyleProps,
-  PlassVariant
+  PlassStyleProps
 } from '../../types.js';
 
 /**
@@ -180,29 +178,6 @@ const circleInsetClasses: Record<PlassCorner, string> = {
   'bottom-end': 'mb-[7%] me-[7%]'
 };
 
-/**
- * The three materials, said the way a *control* says them: the marker is the
- * thing being coloured, so its sheet takes the tint.
- *
- * `solid` carries the gradient and the tinted lift and no gloss line, exactly as
- * a filled `PlButton` does. `ghost` is the one to reach for on a busy surface —
- * a soft tinted mark that reports without shouting.
- */
-const variantClasses: Record<PlassVariant, string> = {
-  solid: /* @__PURE__ */ [
-    'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),var(--p-lift)]',
-    forcedFieldEdgeClasses
-  ].join(' '),
-  glass: /* @__PURE__ */ [
-    glassClasses,
-    'border text-(--p-accent) bg-(--plass-glass)',
-    '[border-color:var(--plass-border)]',
-    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
-  ].join(' '),
-  ghost: 'text-(--p-accent) bg-(--p-soft-press)'
-};
-
 /** `99+`, but only for a value a `+` means anything on. */
 function capContent(content: React.ReactNode, max: number): React.ReactNode {
   return typeof content === 'number' && content > max ? `${max}+` : content;
@@ -264,7 +239,9 @@ export const PlBadge = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlBadge
       'font-semibold tabular-nums whitespace-nowrap',
       badgeRadiusClasses,
       transitionClasses,
-      variantClasses[variant],
+      // A marker is the thing being coloured and is never pressed, so it is
+      // drawn in the mark material a PlAvatar and a PlAppLogo plate share.
+      markRestClasses[variant],
       asDot
         ? dotSizeClasses[size]
         : [

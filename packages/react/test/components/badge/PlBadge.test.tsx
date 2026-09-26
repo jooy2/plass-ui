@@ -107,6 +107,29 @@ describe('PlBadge', () => {
     });
   });
 
+  describe('the material', () => {
+    function marker(): HTMLElement {
+      return document.querySelector<HTMLElement>('.badge-under-test')!;
+    }
+
+    it('lifts a ghost badge by its elevation, as a ghost avatar is lifted', async () => {
+      await render(
+        <PlBadge variant="ghost" elevation={2} content={3} className="badge-under-test" />
+      );
+
+      expect(marker().classList.contains('bg-(--p-soft-press)')).toBe(true);
+      expect(marker().classList.contains('[box-shadow:var(--p-elev)]')).toBe(true);
+      expect(marker().style.getPropertyValue('--p-elev')).toBe('var(--plass-shadow-2)');
+    });
+
+    it('edges a glass badge with the neutral hairline rather than the white one', async () => {
+      await render(<PlBadge variant="glass" content={3} className="badge-under-test" />);
+
+      expect(marker().classList.contains('[border-color:var(--plass-border)]')).toBe(true);
+      expect(marker().className).not.toContain('--plass-glass-line');
+    });
+  });
+
   describe('rendering', () => {
     it('keeps caller-supplied class names alongside its own', async () => {
       const screen = await render(<PlBadge content={1} className="my-own-class" />);

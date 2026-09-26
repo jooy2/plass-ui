@@ -865,8 +865,8 @@ export const sheetRestClasses: Record<PlassVariant, string> = {
 
 /**
  * The material of a **mark**: a surface that is the thing being coloured and
- * is never pressed — a PlAvatar, a PlAppLogo's plate. The Flutter build's
- * `markSurface` is the same answer.
+ * is never pressed — a PlAvatar, a PlBadge, a PlAppLogo's plate. The Flutter
+ * build's `markSurface` is the same answer.
  *
  * It sits between a control and a sheet. The sheet takes the tint the way a
  * control's does, because a portrait of one person and a product's icon are

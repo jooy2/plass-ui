@@ -76,6 +76,8 @@
 
 ### Fixed
 
+- **A `PlBadge` is drawn in the material a `PlAvatar` is, as in the React build.** A `glass` badge takes the neutral `border` edge, and a `ghost` badge rests on the family's `softPress` wash and is lifted by its `elevation`. The badge was drawn as a control, so a `glass` one had the white `glassLine` edge, which disappears on a white card or header, and a `ghost` one had no fill and no shadow at rest, which left its count floating on the page. `solid` badges are unchanged.
+
 - **The whole of a `PlSidebar` resize handle is drawn and can be pressed, the half past the column's edge included.** The handle straddles the edge, but the column clipped it and only asked about a press inside itself, so its wash and its focus ring were cut in half and only the inner 4px of its 8px track took a drag. What holds the sidebar still decides which of its children it asks first, so the content beside a sidebar at the start of a `Row` keeps a press it takes.
 
 - **A `PlPieChart` built again with fewer slices while one is being read lets go of it.** It threw a `RangeError` looking up a slice that was no longer there. A slice that is still there is still read.

@@ -120,6 +120,68 @@ void main() {
       });
     });
 
+    group('the material', () {
+      testWidgets('edges a glass badge with the neutral hairline rather than the white one', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const PlBadge(count: 3, variant: PlassVariant.glass)));
+
+        final tokens = PlassTokens.light();
+        final edge = decorationWhere(
+          tester,
+          find.byType(PlBadge),
+          (BoxDecoration decoration) => decoration.border != null,
+        );
+
+        expect((edge.border! as Border).top.color, tokens.border);
+        expect((edge.border! as Border).top.color, isNot(tokens.glassLine));
+      });
+
+      testWidgets('keeps a wash under a ghost badge and a ghost dot at rest', (
+        WidgetTester tester,
+      ) async {
+        final wash = PlassTokens.light().family(PlassColor.primary).softPress;
+
+        await tester.pumpWidget(host(const PlBadge(count: 3, variant: PlassVariant.ghost)));
+
+        expect(
+          decorationWhere(
+            tester,
+            find.byType(PlBadge),
+            (BoxDecoration decoration) => decoration.color != null,
+          ).color,
+          wash,
+        );
+
+        await tester.pumpWidget(host(const PlBadge(dot: true, variant: PlassVariant.ghost)));
+
+        expect(
+          decorationWhere(
+            tester,
+            find.byType(PlBadge),
+            (BoxDecoration decoration) => decoration.color != null,
+          ).color,
+          wash,
+        );
+      });
+
+      testWidgets('lifts a ghost badge by its elevation, as a ghost avatar is lifted', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const PlBadge(count: 3, variant: PlassVariant.ghost, elevation: 2)),
+        );
+
+        final lift = decorationWhere(
+          tester,
+          find.byType(PlBadge),
+          (BoxDecoration decoration) => decoration.boxShadow?.isNotEmpty ?? false,
+        );
+
+        expect(lift.boxShadow, PlassTokens.light().elevation(2));
+      });
+    });
+
     group('accessibility', () {
       testWidgets('reads the sentence rather than the number', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();

@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `ghost` `PlBadge` is lifted by its `elevation`, as a `ghost` `PlAvatar` is.** The badge kept its own copy of the mark material, and that copy left the elevation shadow off `ghost`, so a ghost badge given an `elevation` still lay flat. `solid` and `glass` badges are unchanged.
+
 - **A `PlPieChart` whose tooltip is turned off takes no key, as every other chart.** With `tooltip={false}` or `mode: 'none'`, ← and → still lit a slice and faded the others, with no card and no live region to say which slice it was. The keys now go on to whatever the chart sits in, as they do on a line, bar, area, scatter, timeline or heatmap chart with its tooltip off.
 
 - **A `PlAppLogo` plate is drawn in the material a `PlAvatar` is, as in the Flutter build.** It rests at an elevation of 1 on every variant, a `glass` plate takes the neutral `--plass-border` edge and the gloss along its top, and a `ghost` plate takes `--p-soft-press`. A `glass` plate had a white edge that disappeared on a white header and no gloss, a `solid` one had no drop shadow under its tinted one, and a `ghost` one took the paler `--p-soft`.
