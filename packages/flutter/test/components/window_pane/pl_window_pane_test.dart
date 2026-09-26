@@ -96,6 +96,26 @@ bool _focusIsOn(String name) {
           .isNotEmpty;
 }
 
+/// How much of [control]'s mark is showing, as the fade over it stands.
+///
+/// A traffic light keeps its mark in the tree and fades it, so the mark is
+/// always there to be found.
+double _markShown(WidgetTester tester, PlWindowControl control) {
+  final Finder mark = find.byWidgetPredicate(
+    (Widget widget) =>
+        widget is CustomPaint &&
+        widget.painter is PlWindowGlyphPainter &&
+        (widget.painter! as PlWindowGlyphPainter).control == control,
+  );
+
+  expect(mark, findsOneWidget, reason: '${control.name} keeps its mark');
+
+  return tester
+      .widget<FadeTransition>(find.ancestor(of: mark, matching: find.byType(FadeTransition)).first)
+      .opacity
+      .value;
+}
+
 void main() {
   group('PlWindowPane', () {
     testWidgets('names the window after its title', (WidgetTester tester) async {
@@ -1228,18 +1248,23 @@ void main() {
           (Widget widget) =>
               widget is CustomPaint && widget.foregroundPainter is PlassFocusRingPainter,
         );
-        final Finder marks = find.byWidgetPredicate(
-          (Widget widget) => widget is CustomPaint && widget.painter is PlWindowGlyphPainter,
-        );
 
         // Traffic lights at rest are three dots with no mark on them.
         expect(rings, findsNothing);
-        expect(marks, findsNothing);
+
+        for (final PlWindowControl control in PlWindowControl.values) {
+          expect(_markShown(tester, control), 0, reason: control.name);
+        }
 
         await tabTo(tester, 'Close');
+        await tester.pumpAndSettle();
 
         expect(rings, findsOneWidget);
-        expect(marks, findsOneWidget);
+        // The ring is on one light, and so is the mark. Lighting the other two
+        // would say the pointer is over the set, which it is not.
+        expect(_markShown(tester, PlWindowControl.close), 1);
+        expect(_markShown(tester, PlWindowControl.minimize), 0);
+        expect(_markShown(tester, PlWindowControl.maximize), 0);
       });
     });
 
@@ -1731,6 +1756,211 @@ void main() {
           expect(lightInsets(tester, control), isNull, reason: control.name);
         }
       });
+
+      testWidgets(
+        'light every traffic light\'s mark while the pointer is over the set, easing it',
+        (WidgetTester tester) async {
+          await _pump(tester, const PlWindowPane(os: PlWindowOs.macos, title: Text('Notes')));
+
+          final PlassTokens tokens = PlassTheme.of(tester.element(find.byType(PlWindowPane)));
+          final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+          await mouse.addPointer(location: Offset.zero);
+          addTearDown(mouse.removePointer);
+          await tester.pump();
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            expect(_markShown(tester, control), 0, reason: control.name);
+          }
+
+          // On one light, and all three answer, part of the way at half the
+          // house duration, as the React marks' `opacity` eases.
+          await mouse.moveTo(tester.getCenter(lightNamed(PlWindowControl.close)));
+          await tester.pump();
+          await tester.pump(tokens.motionDuration ~/ 2);
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            expect(
+              _markShown(tester, control),
+              moreOrLessEquals(tokens.motionEase.transform(0.5), epsilon: 0.01),
+              reason: control.name,
+            );
+          }
+
+          await tester.pumpAndSettle();
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            expect(_markShown(tester, control), 1, reason: control.name);
+          }
+
+          // Between two lights is still over the set.
+          final Rect close = tester.getRect(lightNamed(PlWindowControl.close));
+          final Rect minimize = tester.getRect(lightNamed(PlWindowControl.minimize));
+
+          await mouse.moveTo(Offset((close.right + minimize.left) / 2, close.center.dy));
+          await tester.pumpAndSettle();
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            expect(_markShown(tester, control), 1, reason: control.name);
+          }
+
+          // Off the set, and all three go again.
+          await mouse.moveTo(Offset.zero);
+          await tester.pumpAndSettle();
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            expect(_markShown(tester, control), 0, reason: control.name);
+          }
+        },
+      );
+
+      testWidgets('light the traffic lights\' marks at once under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        tester.view.physicalSize = const Size(600, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          host(
+            const PlWindowPane(os: PlWindowOs.macosx, title: Text('Notes')),
+            width: 420,
+            disableAnimations: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await mouse.addPointer(location: Offset.zero);
+        addTearDown(mouse.removePointer);
+        await tester.pump();
+
+        await mouse.moveTo(tester.getCenter(lightNamed(PlWindowControl.maximize)));
+        await tester.pump();
+
+        for (final PlWindowControl control in PlWindowControl.values) {
+          expect(_markShown(tester, control), 1, reason: control.name);
+        }
+
+        await mouse.moveTo(Offset.zero);
+        await tester.pump();
+
+        for (final PlWindowControl control in PlWindowControl.values) {
+          expect(_markShown(tester, control), 0, reason: control.name);
+        }
+      });
+
+      testWidgets(
+        'rest a GNOME button at the hover wash and deepen it under the pointer and a press',
+        (WidgetTester tester) async {
+          for (final bool accent in <bool>[false, true]) {
+            await _pump(
+              tester,
+              PlWindowPane(os: PlWindowOs.linux, title: const Text('Notes'), accent: accent),
+            );
+
+            final Color ink = PlassTheme.of(tester.element(find.byType(PlWindowPane))).fg;
+            // `--p-window-hover` and `--p-window-press`: the page's ink at 9% and
+            // 16%, or white at 0.18 and 0.28 on an `accent` bar.
+            final Color hover = accent ? const Color(0x2EFFFFFF) : ink.withValues(alpha: 0.09);
+            final Color press = accent ? const Color(0x47FFFFFF) : ink.withValues(alpha: 0.16);
+
+            for (final PlWindowControl control in PlWindowControl.values) {
+              final String reason = '${control.name}${accent ? ', accent' : ''}';
+
+              expect(lightFace(tester, control).first.color, hover, reason: reason);
+
+              final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+              await mouse.addPointer(location: Offset.zero);
+              await mouse.moveTo(tester.getCenter(lightNamed(control)));
+              await tester.pumpAndSettle();
+
+              expect(lightFace(tester, control).first.color, press, reason: reason);
+
+              await mouse.removePointer();
+              await tester.pumpAndSettle();
+
+              expect(lightFace(tester, control).first.color, hover, reason: reason);
+
+              // A finger, which brings no hover with it.
+              final TestGesture finger = await tester.startGesture(
+                tester.getCenter(lightNamed(control)),
+              );
+
+              await tester.pump(kPressTimeout);
+              await tester.pumpAndSettle();
+
+              expect(lightFace(tester, control).first.color, press, reason: reason);
+
+              await finger.cancel();
+              await tester.pumpAndSettle();
+            }
+          }
+        },
+      );
+
+      testWidgets(
+        'wash a square minimize and maximize deeper under a press than under the pointer',
+        (WidgetTester tester) async {
+          for (final bool accent in <bool>[false, true]) {
+            await _pump(
+              tester,
+              PlWindowPane(os: PlWindowOs.windows11, title: const Text('Notes'), accent: accent),
+            );
+
+            final Color ink = PlassTheme.of(tester.element(find.byType(PlWindowPane))).fg;
+            final Color hover = accent ? const Color(0x2EFFFFFF) : ink.withValues(alpha: 0.09);
+            final Color press = accent ? const Color(0x47FFFFFF) : ink.withValues(alpha: 0.16);
+
+            for (final PlWindowControl control in <PlWindowControl>[
+              PlWindowControl.minimize,
+              PlWindowControl.maximize,
+            ]) {
+              final String reason = '${control.name}${accent ? ', accent' : ''}';
+              final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+              await mouse.addPointer(location: Offset.zero);
+              await mouse.moveTo(tester.getCenter(captionMark(control)));
+              await tester.pumpAndSettle();
+
+              expect(captionFace(tester, control).first.color, hover, reason: reason);
+
+              // Pressed with the pointer on it: the press is what shows, as the
+              // React button's `active:` comes after its `hover:`.
+              await mouse.down(tester.getCenter(captionMark(control)));
+              await tester.pump(kPressTimeout);
+              await tester.pumpAndSettle();
+
+              expect(captionFace(tester, control).first.color, press, reason: reason);
+
+              await mouse.cancel();
+              await mouse.removePointer();
+              await tester.pumpAndSettle();
+
+              // And by a finger, which brings no hover with it.
+              final TestGesture finger = await tester.startGesture(
+                tester.getCenter(captionMark(control)),
+              );
+
+              await tester.pump(kPressTimeout);
+              await tester.pumpAndSettle();
+
+              expect(captionFace(tester, control).first.color, press, reason: reason);
+
+              await finger.cancel();
+              await tester.pumpAndSettle();
+
+              expect(
+                captionFace(tester, control).first.color,
+                const Color(0x00000000),
+                reason: reason,
+              );
+            }
+          }
+        },
+      );
     });
 
     group('a double tap on the title bar', () {

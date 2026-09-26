@@ -567,6 +567,12 @@ final Map<String, _Case> _cases = <String, _Case>{
     (bool on) => const PlWindowPane(os: PlWindowOs.windows11, title: Text('Notes')),
     change: _hover(() => _caption(PlWindowControl.close)),
   ),
+  // Found by its name rather than by its mark, which a traffic light at rest
+  // does not show.
+  'PlWindowPane, the traffic lights\' marks under the pointer': _Case(
+    (bool on) => const PlWindowPane(os: PlWindowOs.macos, title: Text('Notes')),
+    change: _hover(() => find.bySemanticsLabel('Close')),
+  ),
   'PlCarousel, as the slide moves': _Case(
     (bool on) => PlCarousel(
       value: on ? 1 : 0,

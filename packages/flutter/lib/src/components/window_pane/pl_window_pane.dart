@@ -660,27 +660,30 @@ class _PlWindowPaneState extends State<PlWindowPane> {
   }) {
     // The set as a whole, the gaps between the buttons included, as the React
     // build's group keeps a double click in it from reaching the bar.
-    final Widget buttons = Listener(
-      behavior: HitTestBehavior.opaque,
-      onPointerDown: _claim,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          for (int i = 0; i < order.length; i += 1) ...<Widget>[
-            if (i > 0) SizedBox(width: metrics.gap),
-            _WindowButton(
-              os: widget.os,
-              control: order[i],
-              chrome: chrome,
-              metrics: metrics,
-              colors: colors,
-              maximized: widget.maximized,
-              active: widget.active,
-              label: _labelFor(order[i], labels),
-              onPressed: () => _press(order[i]),
-            ),
+    final Widget buttons = _WindowControlSet(
+      builder: (bool pointed) => Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: _claim,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            for (int i = 0; i < order.length; i += 1) ...<Widget>[
+              if (i > 0) SizedBox(width: metrics.gap),
+              _WindowButton(
+                os: widget.os,
+                control: order[i],
+                chrome: chrome,
+                metrics: metrics,
+                colors: colors,
+                maximized: widget.maximized,
+                active: widget.active,
+                pointed: pointed,
+                label: _labelFor(order[i], labels),
+                onPressed: () => _press(order[i]),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
 
@@ -887,6 +890,9 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       // ink white on hover, and a fill mixed out of that ink would turn white
       // with it — a close button that disappears at the moment it is aimed at.
       hover: onDark ? const Color(0x2EFFFFFF) : tokens.fg.withValues(alpha: 0.09),
+      // A step deeper, for a press, and for the pointer on a GNOME button,
+      // which already wears the hover wash at rest.
+      press: onDark ? const Color(0x47FFFFFF) : tokens.fg.withValues(alpha: 0.16),
       accent: palette.accent,
       ring: palette.ring,
     );
@@ -902,6 +908,7 @@ class _WindowColors {
     required this.band,
     required this.line,
     required this.hover,
+    required this.press,
     required this.accent,
     required this.ring,
   });
@@ -912,6 +919,7 @@ class _WindowColors {
   final Color band;
   final Color line;
   final Color hover;
+  final Color press;
   final Color accent;
 
   /// The focus ring on a caption button.
@@ -922,6 +930,44 @@ class _WindowColors {
 /// plate's `brightness(110%)` is. Pressed, it takes a control's own
 /// [pressBrightness], as the React plate's `brightness(95%)` does.
 const double _plateHoverBrightness = 1.1;
+
+/// The caption buttons as one set, which knows whether the pointer is over it.
+///
+/// The traffic lights show their marks while the pointer is anywhere over the
+/// three, the gaps between them included, as the React set's `group/controls`
+/// does: the three are one control in three parts. As tall as the bar, as the
+/// React set stretches across it, and the buttons centred in it.
+class _WindowControlSet extends StatefulWidget {
+  const _WindowControlSet({required this.builder});
+
+  /// The buttons, told whether the pointer is over the set.
+  final Widget Function(bool pointed) builder;
+
+  @override
+  State<_WindowControlSet> createState() => _WindowControlSetState();
+}
+
+class _WindowControlSetState extends State<_WindowControlSet> {
+  bool _pointed = false;
+
+  void _point(bool pointed) {
+    if (pointed != _pointed) {
+      setState(() => _pointed = pointed);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (PointerEnterEvent event) => _point(true),
+      onExit: (PointerExitEvent event) => _point(false),
+      child: SizedBox(
+        height: double.infinity,
+        child: Center(child: widget.builder(_pointed)),
+      ),
+    );
+  }
+}
 
 /// One caption button.
 ///
@@ -938,6 +984,7 @@ class _WindowButton extends StatelessWidget {
     required this.colors,
     required this.maximized,
     required this.active,
+    required this.pointed,
     required this.label,
     required this.onPressed,
   });
@@ -955,6 +1002,10 @@ class _WindowButton extends StatelessWidget {
   /// Whether the window is the one in front, which an XP plate says by its
   /// colour as the bar under it does, and a traffic light by having one.
   final bool active;
+
+  /// Whether the pointer is over the set this button is one of, which lights
+  /// every traffic light's mark at once.
+  final bool pointed;
 
   final String label;
   final VoidCallback onPressed;
@@ -1014,42 +1065,54 @@ class _WindowButton extends StatelessWidget {
             radius = const BorderRadius.vertical(bottom: Radius.circular(3));
             finish = aeroFinish;
           case PlWindowControlShape.circle:
-            fill = over ? colors.hover : colors.hover.withValues(alpha: 0.5);
+            // A GNOME button is a disc at rest, and a deeper one under the
+            // pointer or a press.
+            fill = over || state.pressed ? colors.press : colors.hover;
             radius = BorderRadius.circular(width);
           case PlWindowControlShape.square:
             if (alarm != null) {
               fill = alarm;
               ink = const Color(0xFFFFFFFF);
+            } else if (state.pressed) {
+              // Ahead of the hover, as the React button's `active:` comes after
+              // its `hover:`: a press with the pointer on it is still a press.
+              fill = colors.press;
             } else if (over) {
               fill = colors.hover;
             }
         }
 
-        // A traffic light shows its mark only under the pointer, which is what
-        // makes three coloured dots read as three dots rather than as three
-        // icons. A keyboard that reaches one shows its mark too, or a ring around
-        // a blank dot would not say which of the three it is.
-        final bool showGlyph = switch (chrome.shape) {
-          PlWindowControlShape.dot || PlWindowControlShape.glossDot => over || state.focusVisible,
-          _ => true,
-        };
+        Widget mark = PlassInk(
+          color: ink,
+          child: Builder(
+            builder: (BuildContext context) => CustomPaint(
+              size: Size.square(metrics.glyph),
+              painter: PlWindowGlyphPainter(
+                control: control,
+                maximized: maximized,
+                chrome: chrome,
+                ink: IconTheme.of(context).color!,
+              ),
+            ),
+          ),
+        );
 
-        Widget? mark = showGlyph
-            ? PlassInk(
-                color: ink,
-                child: Builder(
-                  builder: (BuildContext context) => CustomPaint(
-                    size: Size.square(metrics.glyph),
-                    painter: PlWindowGlyphPainter(
-                      control: control,
-                      maximized: maximized,
-                      chrome: chrome,
-                      ink: IconTheme.of(context).color!,
-                    ),
-                  ),
-                ),
-              )
-            : null;
+        // A traffic light holds its mark back until something points at it,
+        // which is what makes three coloured dots read as three dots rather
+        // than as three icons. The pointer anywhere over the set lights all
+        // three, and a keyboard that reaches one lights that one, or a ring
+        // around a blank dot would not say which of the three it is. The mark
+        // fades in and out over the house duration, as the React mark's
+        // `opacity` does, so it stays in the tree while it is hidden.
+        if (chrome.shape == PlWindowControlShape.dot ||
+            chrome.shape == PlWindowControlShape.glossDot) {
+          mark = AnimatedOpacity(
+            opacity: pointed || state.focusVisible ? 1 : 0,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
+            child: mark,
+          );
+        }
 
         // The gloss and the edge lie over the face and under the mark, as the
         // React button's `background-image` and inset `box-shadow` lie over its
