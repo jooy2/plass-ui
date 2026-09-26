@@ -106,12 +106,12 @@ class PlAnimateBlink extends StatelessWidget {
         // Painted straight onto the canvas at full strength, rather than
         // through an `Opacity`, which is still a layer of its own at 1: the
         // builder goes on being called at the last frame once a count has run
-        // out, and at the first while the pulse waits for its trigger. Left out
-        // of the semantics at 0, as that `Opacity` left it.
+        // out, and at the first while the pulse waits for its trigger. Still
+        // read at 0, as CSS `opacity: 0` leaves the React blink, so a floor of
+        // 0 does not take the words out of the semantics once a cycle.
         return PlassFiltered(
           colorFilter: null,
           opacity: (min + (1 - min) * (t * 2 - 1).abs()).clamp(0, 1),
-          alwaysIncludeSemantics: false,
           child: inner,
         );
       },

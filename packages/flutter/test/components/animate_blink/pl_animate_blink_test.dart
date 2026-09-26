@@ -46,7 +46,7 @@ void main() {
       expect(opacityOf(tester), 1);
     });
 
-    testWidgets('is left out of the semantics at a floor of 0, as it was', (
+    testWidgets('is still read at a floor of 0, as the React blink is', (
       WidgetTester tester,
     ) async {
       final SemanticsHandle handle = tester.ensureSemantics();
@@ -67,8 +67,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 200));
 
+      // Drawn at nothing, and still where a reader moving item by item finds
+      // it, as CSS `opacity: 0` leaves an element.
       expect(opacityOf(tester), 0);
-      expect(semanticsLabels(tester), isNot(contains('Recording')));
+      expect(semanticsLabels(tester), contains('Recording'));
 
       await tester.pumpAndSettle();
 
@@ -76,6 +78,7 @@ void main() {
 
       handle.dispose();
     });
+
     testWidgets('starts full, so a run that ends leaves the widget as it found it', (
       WidgetTester tester,
     ) async {

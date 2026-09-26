@@ -829,8 +829,7 @@ class PlassFiltered extends SingleChildRenderObjectWidget {
   /// `false` leaves it out of the semantics while it paints nothing, which is
   /// what an [Opacity] does by default, for content drawn at 0 because it is
   /// not what is being said at the moment, such as a headline's lines that are
-  /// not up, and for a widget that took the place of an [Opacity] and keeps
-  /// the reading it gave.
+  /// not up.
   final bool alwaysIncludeSemantics;
 
   @override
