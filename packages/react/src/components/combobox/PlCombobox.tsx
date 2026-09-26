@@ -95,7 +95,9 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   items: readonly PlComboboxOption[];
   /**
    * Whether more than one value may be held. The chosen ones become chips
-   * inside the field, and the input goes on filtering after each.
+   * inside the field, and the input goes on filtering after each. A row taken
+   * from a filtered list closes the list and empties the text, as Base UI does;
+   * a row taken with nothing typed leaves the list open for the next one.
    * @default false
    */
   multiple?: Multiple;
@@ -313,8 +315,9 @@ function toArray(value: unknown): PlComboboxValue[] {
  * itself, offered as the last row rather than committed silently on blur.
  *
  * With `multiple` the chosen values become PlChips inside the field and the
- * input goes on filtering after each one, so a set of tags is built without the
- * field ever closing.
+ * input goes on filtering after each one. A row taken from a filtered list
+ * closes the list and empties the text, which is how Base UI 1.8.0 behaves,
+ * and a row taken with nothing typed leaves the list open for the next one.
  *
  * Base UI owns everything hard about this: the filtering and its collator, the
  * popup's positioning and flipping, the `combobox`/`listbox` wiring, arrow-key
