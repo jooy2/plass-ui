@@ -20,6 +20,7 @@ import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/table.dart';
 import 'package:plass_ui/src/internal/text.dart';
 import 'package:plass_ui/src/theme/theme.dart';
+import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
 
 export 'package:plass_ui/src/internal/data_table.dart' show PlassSort, PlassSortDirection;
@@ -872,20 +873,32 @@ class _SortableHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PlassTokens tokens = PlassTheme.of(context);
+    final Duration motion = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : tokens.motionDuration;
+
     final Widget heading = Row(
       mainAxisSize: MainAxisSize.min,
       spacing: 4,
       children: <Widget>[
         Flexible(child: child),
-        // Straight onto the canvas once the column is sorted, rather than
-        // through an `Opacity` at 1, which is a layer all the same.
-        PlassFiltered(
-          colorFilter: null,
-          opacity: direction == null ? 0.3 : 1,
-          child: PlassGlyph(
-            PlassGlyphShape.chevron,
-            size: 12,
-            quarterTurns: direction == PlassSortDirection.asc ? 2 : 0,
+        // Faint until the column is sorted, and turned to point up for an
+        // ascending sort, both eased over the house duration as the React
+        // mark's `opacity` and `rotate` are, and at once under reduced motion.
+        TweenAnimationBuilder<double>(
+          tween: Tween<double>(end: direction == null ? 0.3 : 1),
+          duration: motion,
+          curve: tokens.motionEase,
+          // Straight onto the canvas once the column is sorted, rather than
+          // through an `Opacity` at 1, which is a layer all the same.
+          builder: (BuildContext context, double opacity, Widget? mark) =>
+              PlassFiltered(colorFilter: null, opacity: opacity, child: mark),
+          child: AnimatedRotation(
+            turns: direction == PlassSortDirection.asc ? 0.5 : 0,
+            duration: motion,
+            curve: tokens.motionEase,
+            child: const PlassGlyph(PlassGlyphShape.chevron, size: 12),
           ),
         ),
       ],

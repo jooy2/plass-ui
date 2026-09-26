@@ -18,6 +18,34 @@ final List<PlassChartSeries> spend = <PlassChartSeries>[
   PlassChartSeries(name: 'Q2', data: <PlassChartDatum>[_at(12, 40), _at(26, 35)]),
 ];
 
+/// Paints the plot as it stands now.
+RecordingCanvas _paintScatter(WidgetTester tester) {
+  final canvas = RecordingCanvas();
+  final Finder plot = find.byWidgetPredicate(
+    (Widget widget) => widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+  );
+
+  tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+  return canvas;
+}
+
+/// The alpha of every mark's fill, in the order they were painted.
+List<double> _fillAlphas(WidgetTester tester) {
+  return <double>[for (final Paint paint in _paintScatter(tester).fills) paint.color.a];
+}
+
+/// How wide the fill of the mark furthest to the start is drawn now.
+double _firstMarkWidth(WidgetTester tester) {
+  final RecordingCanvas canvas = _paintScatter(tester);
+  final List<Rect> fills = <Rect>[
+    for (int i = 0; i < canvas.paints.length; i += 1)
+      if (canvas.paints[i].style == PaintingStyle.fill) canvas.paths[i].getBounds(),
+  ]..sort((Rect a, Rect b) => a.center.dx.compareTo(b.center.dx));
+
+  return fills.first.width;
+}
+
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(500, 700);
   tester.view.devicePixelRatio = 1;
@@ -371,6 +399,70 @@ void main() {
       }
 
       expect(find.text('Q1'), findsWidgets);
+    });
+
+    testWidgets('grows the mark a key reaches over the house duration', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(tester, afterFocusStop(before, PlScatterChart(series: spend)));
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      // The first point is the one furthest to the start, at an x of 10.
+      final double rest = _firstMarkWidth(tester);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      // The clock starts on the frame after the change, as an animation's does.
+      await tester.pump();
+      await tester.pump(PlassTokens.duration ~/ 2);
+
+      final double halfway = _firstMarkWidth(tester);
+
+      await tester.pumpAndSettle();
+
+      final double grown = _firstMarkWidth(tester);
+
+      expect(grown, greaterThan(rest));
+      expect(halfway, closeTo(rest + (grown - rest) * PlassTokens.ease.transform(0.5), 1e-3));
+      expect(halfway, lessThan(grown));
+    });
+
+    testWidgets('fades the other series as a legend entry is pointed at, over the house duration', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlScatterChart(series: spend));
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Q2')));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(PlassTokens.duration ~/ 2);
+
+      final List<double> halfway = _fillAlphas(tester);
+      final double along = PlassTokens.ease.transform(0.5);
+
+      // Q1's three marks on their way down, and Q2's two where they were.
+      expect(halfway.where((double alpha) => alpha < 1), <Matcher>[
+        for (int i = 0; i < 3; i += 1) closeTo(1 - 0.72 * along, 1e-6),
+      ]);
+      expect(halfway.where((double alpha) => alpha == 1), hasLength(2));
+
+      await tester.pumpAndSettle();
+
+      expect(
+        _fillAlphas(tester).where((double alpha) => alpha < 1),
+        everyElement(closeTo(0.28, 1e-6)),
+      );
     });
 
     testWidgets('reads a point\'s own label in place of its y', (WidgetTester tester) async {

@@ -86,7 +86,8 @@ void paintLineSeries(
 
     final List<ChartValue> one = layout.values[s];
     final Color color = layout.colors[s];
-    final double alpha = dimmedByHover(layout.hovered, s, layout.visible) ? 0.28 : 1.0;
+    // Faded while the legend points at another series, and eased there.
+    final double alpha = layout.seriesOpacity(s);
 
     final tops = <Offset?>[
       for (int i = 0; i < layout.count; i += 1)

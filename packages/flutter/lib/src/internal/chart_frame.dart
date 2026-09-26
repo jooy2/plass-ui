@@ -17,6 +17,7 @@
 library;
 
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -28,6 +29,7 @@ import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/mark_ease.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -383,6 +385,7 @@ class PlassChartLayout {
     this.categoryScale,
     this.marks = const <PlassChartMark>[],
     this.activeMark,
+    this.ease,
   });
 
   /// Where the marks may be drawn.
@@ -444,6 +447,29 @@ class PlassChartLayout {
 
   /// The one the pointer is on, or `null`.
   final PlassChartMark? activeMark;
+
+  /// How far each mark has eased towards what [hovered], [activeIndex] and
+  /// [activeMark] say, or `null` to draw every mark in its state at once.
+  final PlassMarkEase? ease;
+
+  /// How far [series] has faded while the legend points at another, from `0`
+  /// to `1`: [dimmedByHover], eased.
+  double faded(int series) =>
+      ease?.of(_fadeKey(series)) ?? (dimmedByHover(hovered, series, visible) ? 1 : 0);
+
+  /// The opacity [series] is drawn at: whole, or 0.28 while the legend points
+  /// at another, and on the way between the two while it eases.
+  double seriesOpacity(int series) => lerpDouble(1, 0.28, faded(series))!;
+
+  /// How far the column at [index] has come up under the crosshair, from `0`
+  /// to `1`.
+  double columnLit(int index) => ease?.of(_columnKey(index)) ?? (index == activeIndex ? 1 : 0);
+
+  /// How far the mark of [series] at [index] has come up as the pointer or a
+  /// key reached it, from `0` to `1`.
+  double markLit(int series, int index) =>
+      ease?.of(_markKey(series, index)) ??
+      (activeMark?.series == series && activeMark?.index == index ? 1 : 0);
 
   /// How many categories there are.
   int get count => categories.length;
@@ -524,8 +550,18 @@ class PlassChartLayout {
         categoryScale: categoryScale,
         marks: built,
         activeMark: active,
+        ease: ease,
       );
 }
+
+/// What a series fading for the legend is called in a [PlassMarkEase].
+Object _fadeKey(int series) => ('fade', series);
+
+/// What a column coming up under the crosshair is called there.
+Object _columnKey(int index) => ('column', index);
+
+/// And a mark the pointer or a key reached.
+Object _markKey(int series, int index) => ('mark', series, index);
 
 /// Draws the marks a particular chart is made of.
 typedef PlassChartMarkPainter = void Function(Canvas canvas, PlassChartLayout layout);
@@ -706,7 +742,8 @@ class PlassCartesianChart extends StatefulWidget {
   State<PlassCartesianChart> createState() => _PlassCartesianChartState();
 }
 
-class _PlassCartesianChartState extends State<PlassCartesianChart> {
+class _PlassCartesianChartState extends State<PlassCartesianChart>
+    with SingleTickerProviderStateMixin {
   /// Which series are switched off: the ones that started `hidden`, then
   /// whatever the reader toggled in the legend.
   ///
@@ -717,6 +754,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   @override
   void initState() {
     super.initState();
+
+    _ease = PlassMarkEase(this);
 
     for (int i = 0; i < widget.series.length; i += 1) {
       if (widget.series[i].hidden) {
@@ -759,8 +798,14 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
   List<bool>? _saidVisible;
   PlDateNames? _saidNames;
 
+  /// How far each series has faded for the legend, and each column or mark
+  /// has come up for the pointer or a key, eased over the house duration as
+  /// the React marks' `opacity`, `r` and `scale` are.
+  late final PlassMarkEase _ease;
+
   @override
   void dispose() {
+    _ease.dispose();
     _pointer.dispose();
     _focus.dispose();
     super.dispose();
@@ -1047,6 +1092,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
           hovered: _hovered,
           tokens: tokens,
           categoryScale: categoryScale,
+          ease: _ease,
         );
 
         /* `nearest` is the one mode that changes how the press is *read* rather
@@ -1075,6 +1121,23 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         final PlassChartLayout layout = built.isEmpty && active == null
             ? base
             : base.withMarks(built, active);
+
+        // Every mark eases to what it is now: the series the legend fades, the
+        // column under the crosshair and the mark the pointer or a key is on.
+        // At once when the platform asks for less movement, as the React marks
+        // change under `prefers-reduced-motion`.
+        _ease.aim(
+          <Object>{
+            for (int i = 0; i < visible.length; i += 1)
+              if (dimmedByHover(_hovered, i, visible)) _fadeKey(i),
+            if (_activeIndex != null) _columnKey(_activeIndex!),
+            if (active != null) _markKey(active.series, active.index),
+          },
+          duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+              ? Duration.zero
+              : tokens.motionDuration,
+          curve: tokens.motionEase,
+        );
 
         /// Which mark the press is nearest, or `null` when it is near none.
         PlassChartMark? nearest(Offset local) {
@@ -1337,6 +1400,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                   CustomPaint(
                     size: Size(width, height),
                     painter: _FramePainter(
+                      repaint: _ease,
                       layout: layout,
                       tokens: tokens,
                       fontSize: fontSize,
@@ -1596,6 +1660,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 /// The grid, the axes and — last — the marks the chart is actually about.
 class _FramePainter extends CustomPainter {
   const _FramePainter({
+    required Listenable repaint,
     required this.layout,
     required this.tokens,
     required this.fontSize,
@@ -1609,7 +1674,7 @@ class _FramePainter extends CustomPainter {
     required this.references,
     required this.textDirection,
     required this.paintMarks,
-  });
+  }) : super(repaint: repaint);
 
   final PlassChartLayout layout;
   final PlassTokens tokens;

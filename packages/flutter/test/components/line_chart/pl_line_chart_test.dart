@@ -10,6 +10,7 @@ import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 
+import '../../support/canvas.dart';
 import '../../support/host.dart';
 
 final List<PlassChartSeries> series = <PlassChartSeries>[
@@ -314,6 +315,99 @@ void main() {
           tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha),
           <int>[Color.getAlphaFromOpacity(0.4)],
         );
+      });
+
+      testWidgets('fades the other series as an entry is pointed at, over the house duration', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlLineChart(series: series, categories: months));
+
+        /// The alpha each line is stroked at now, in the order of the series.
+        List<double> lineAlphas() {
+          final canvas = RecordingCanvas();
+          final Finder plot = find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+          );
+
+          tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+          return <double>[
+            for (final Paint paint in canvas.paints)
+              if (paint.style == PaintingStyle.stroke) paint.color.a,
+          ];
+        }
+
+        expect(lineAlphas(), <double>[1, 1]);
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Cost')));
+        await tester.pump();
+        // The clock starts on the frame after the change, as an animation's
+        // does.
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        // Halfway through, as far along as the house curve is by then.
+        final List<double> halfway = lineAlphas();
+
+        expect(halfway.first, closeTo(1 - 0.72 * PlassTokens.ease.transform(0.5), 1e-6));
+        expect(halfway.first, greaterThan(0.28));
+        expect(halfway.last, 1);
+
+        await tester.pumpAndSettle();
+
+        // A paint keeps its colour in single precision.
+        expect(lineAlphas(), <Matcher>[closeTo(0.28, 1e-6), equals(1)]);
+
+        await mouse.moveTo(Offset.zero);
+        await tester.pumpAndSettle();
+
+        expect(lineAlphas(), <double>[1, 1]);
+      });
+
+      testWidgets('fades the other series at once under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        tester.view.physicalSize = const Size(500, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          host(
+            PlLineChart(series: series, categories: months),
+            width: 500,
+            disableAnimations: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Cost')));
+        await tester.pump();
+
+        final canvas = RecordingCanvas();
+        final Finder plot = find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+        );
+
+        tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+        expect(
+          <double>[
+            for (final Paint paint in canvas.paints)
+              if (paint.style == PaintingStyle.stroke) paint.color.a,
+          ],
+          <Matcher>[closeTo(0.28, 1e-6), equals(1)],
+        );
+        expect(tester.binding.transientCallbackCount, 0);
       });
 
       testWidgets('leaves a series alone when the legend is not interactive', (

@@ -35,6 +35,18 @@ const List<PlassChartDatum> labelled = <PlassChartDatum>[
   PlassChartDatum(15),
 ];
 
+/// The alpha every slice is filled at now, in the order they are drawn.
+List<double> _sliceAlphas(WidgetTester tester) {
+  final canvas = RecordingCanvas();
+  final Finder disc = find.byWidgetPredicate(
+    (Widget widget) => widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+  );
+
+  tester.widget<CustomPaint>(disc.first).painter!.paint(canvas, tester.getSize(disc.first));
+
+  return <double>[for (final Paint paint in canvas.fills) paint.color.a];
+}
+
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(500, 700);
   tester.view.devicePixelRatio = 1;
@@ -572,6 +584,81 @@ void main() {
         // A sheet the chart sits in still gets the key it closes on.
         expect(await tester.sendKeyEvent(LogicalKeyboardKey.escape), isFalse);
         expect(await tester.sendKeyEvent(LogicalKeyboardKey.keyA), isFalse);
+      });
+
+      testWidgets('fades the other slices over the house duration as a key reaches one', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        // The clock starts on the frame after the change, as an animation's
+        // does.
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        // The slice being read stays whole, and the other three are halfway
+        // along the house curve to the fade.
+        expect(_sliceAlphas(tester), <Matcher>[
+          equals(1),
+          for (int i = 0; i < 3; i += 1) closeTo(1 - 0.68 * PlassTokens.ease.transform(0.5), 1e-6),
+        ]);
+
+        await tester.pumpAndSettle();
+
+        expect(_sliceAlphas(tester), <Matcher>[
+          equals(1),
+          for (int i = 0; i < 3; i += 1) closeTo(0.32, 1e-6),
+        ]);
+
+        // And back from where they stand once the reading is cleared.
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        expect(
+          _sliceAlphas(tester).skip(1),
+          everyElement(closeTo(0.32 + 0.68 * PlassTokens.ease.transform(0.5), 1e-6)),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(_sliceAlphas(tester), everyElement(1));
+      });
+
+      testWidgets('fades the other slices at once under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+
+        addTearDown(before.dispose);
+        tester.view.physicalSize = const Size(500, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(before, const PlPieChart(data: traffic, categories: sources)),
+            width: 500,
+            disableAnimations: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(_sliceAlphas(tester), <Matcher>[
+          equals(1),
+          for (int i = 0; i < 3; i += 1) closeTo(0.32, 1e-6),
+        ]);
+        expect(tester.binding.transientCallbackCount, 0);
       });
 
       testWidgets('clears what it was reading when the focus leaves', (WidgetTester tester) async {

@@ -76,6 +76,8 @@
 
 ### Fixed
 
+- **The marks of a line, area, bar, scatter, pie and timeline chart fade and grow over `motionDuration`, and a `PlDataTable` sort mark turns and brightens, as in the React build.** A series faded for a legend entry pointed at another, a bar or a span came up under the crosshair or a key, a scatter mark grew a pixel and a pie faded the slices it was not reading, each in one frame, and a sort mark flipped and brightened at once. Each now eases there and back, and changes at once under reduced motion. What a chart draws at rest is unchanged.
+
 - **A `startIcon` on a `PlMenubar` or `PlNavigationMenu` trigger, or on a `PlNavigationMenuLink`, is sized off the words beside it, and a link's is drawn in the foreground.** A trigger's glyph is 1.2× the trigger's type size, 16.8 at `md`, as in the React build, and a link's is 1.2× its title's, centred on the title's first line. Both were drawn at the 24 an icon has with nothing around it, and a link's glyph took no colour either, so one with no colour of its own was the fallback black and could not be seen on the dark theme.
 
 - **A glyph a caller puts in a `PlAlert` or a `PlToast` takes the colour of the words round it, as in the React build.** One in the title takes the title's accent on `glass` and `ghost`, one in the detail under a title takes the muted ink, one in an alert's `action` takes the alert's ink and one in a toast's action the accent the action is written in, and on `solid` each takes the surface's ink and eases with it. Each kept whatever colour the app around it had.

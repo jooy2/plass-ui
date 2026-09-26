@@ -2,6 +2,7 @@
 library;
 
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/widgets.dart';
 
@@ -355,8 +356,6 @@ class PlTimelineChart extends StatelessWidget {
         continue;
       }
 
-      final bool active =
-          layout.activeMark?.series == mark.series && layout.activeMark?.index == mark.index;
       final double half = mark.rx ?? mark.r;
       final double thickness = (mark.ry ?? mark.r) * 2;
 
@@ -377,7 +376,9 @@ class PlTimelineChart extends StatelessWidget {
         ),
         Paint()
           ..color = (one.color == null ? colors[mark.series] : tokens.family(one.color!).accent)
-              .withValues(alpha: active ? 1 : 0.92),
+              // A shade under whole until the pointer or a key reaches the
+              // span, and eased up to it and back.
+              .withValues(alpha: lerpDouble(0.92, 1, layout.markLit(mark.series, mark.index))!),
       );
     }
   }

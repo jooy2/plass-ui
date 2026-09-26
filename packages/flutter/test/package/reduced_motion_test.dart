@@ -159,6 +159,28 @@ Widget _toaster() {
   );
 }
 
+/// Two series with names a legend entry can be found by.
+const List<PlassChartSeries> _twoSeries = <PlassChartSeries>[
+  PlassChartSeries(
+    name: 'Revenue',
+    data: <PlassChartDatum>[PlassChartDatum(12), PlassChartDatum(19), PlassChartDatum(15)],
+  ),
+  PlassChartSeries(
+    name: 'Cost',
+    data: <PlassChartDatum>[PlassChartDatum(8), PlassChartDatum(11), PlassChartDatum(9)],
+  ),
+];
+
+/// A chart's plot, whose middle is over a column or a span.
+Finder _plot() {
+  return find
+      .byWidgetPredicate(
+        (Widget widget) =>
+            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+      )
+      .first;
+}
+
 final GlobalKey _section = GlobalKey();
 final PlAnchorItem _heading = PlAnchorItem(target: _section, label: const Text('Label'));
 final FocusNode _otpFocus = FocusNode();
@@ -595,6 +617,66 @@ final Map<String, _Case> _cases = <String, _Case>{
       items: <PlMenuEntry>[PlMenuItem(label: 'New', onPressed: () {})],
     ),
     change: _tap(() => find.text('Trigger')),
+  ),
+  'PlLineChart, a series as another legend entry is pointed at': _Case(
+    (bool on) => PlLineChart(series: _twoSeries),
+    change: _hover(() => find.bySemanticsLabel('Cost')),
+  ),
+  'PlBarChart, a series as another legend entry is pointed at': _Case(
+    (bool on) => PlBarChart(series: _twoSeries),
+    change: _hover(() => find.bySemanticsLabel('Cost')),
+  ),
+  'PlBarChart, a column under the pointer': _Case(
+    (bool on) => PlBarChart(series: _twoSeries),
+    change: _hover(_plot),
+  ),
+  'PlScatterChart, a series as another legend entry is pointed at': _Case(
+    (bool on) => PlScatterChart(series: _twoSeries),
+    change: _hover(() => find.bySemanticsLabel('Cost')),
+  ),
+  'PlPieChart, the slices as a legend entry is pointed at': _Case(
+    (bool on) => const PlPieChart(
+      data: <PlassChartDatum>[PlassChartDatum(3), PlassChartDatum(2)],
+      categories: <PlassChartCategory>[
+        PlassChartCategory.text('Revenue'),
+        PlassChartCategory.text('Cost'),
+      ],
+    ),
+    change: _hover(() => find.bySemanticsLabel('Cost')),
+  ),
+  'PlTimelineChart, a span under the pointer': _Case(
+    (bool on) => PlTimelineChart(
+      series: <PlassTimelineSeries>[
+        PlassTimelineSeries(
+          name: 'Build',
+          data: <PlassTimelinePoint>[
+            PlassTimelinePoint(
+              start: PlassChartCategory.date(DateTime(2026)),
+              end: PlassChartCategory.date(DateTime(2026, 12, 31)),
+            ),
+          ],
+        ),
+      ],
+    ),
+    change: _hover(_plot),
+  ),
+  'PlDataTable, its sort mark as the column is sorted': _Case(
+    (bool on) => PlDataTable<String>(
+      rows: const <String>['Seoul', 'Busan'],
+      rowKey: (String row, int _) => row,
+      columns: <PlDataTableColumn<String>>[
+        PlDataTableColumn<String>(
+          key: 'name',
+          header: const Text('Name'),
+          sortable: true,
+          value: (String row) => row,
+          cell: (String row, int _) => Text(row),
+        ),
+      ],
+    ),
+    // The pinned band's copy of the heading, which is the one on top once the
+    // table has settled.
+    change: _tap(() => find.text('Name').last),
   ),
 };
 

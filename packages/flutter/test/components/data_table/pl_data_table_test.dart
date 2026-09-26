@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -278,6 +279,86 @@ void main() {
           tester.layers.whereType<OpacityLayer>().map((OpacityLayer layer) => layer.alpha),
           <int>[Color.getAlphaFromOpacity(0.3)],
         );
+      });
+
+      testWidgets(
+        'turns the mark of the column it sorts and brings it up over the house duration',
+        (WidgetTester tester) async {
+          await tester.pumpWidget(host(table(), width: 640));
+          await tester.pumpAndSettle();
+
+          /// How opaque every sort mark is and how far it has turned, heading by
+          /// heading, the pinned band's copy included.
+          List<(double, double)> sortMarks() {
+            return <(double, double)>[
+              for (final Element mark in find.byType(AnimatedRotation).evaluate())
+                (
+                  mark.findAncestorWidgetOfExactType<PlassFiltered>()!.opacity,
+                  tester
+                      .widget<RotationTransition>(
+                        find.descendant(
+                          of: find.byElementPredicate((Element one) => one == mark),
+                          matching: find.byType(RotationTransition),
+                        ),
+                      )
+                      .turns
+                      .value,
+                ),
+            ];
+          }
+
+          // Customer and Total, both faint and pointing down.
+          expect(sortMarks().toSet(), <(double, double)>{(0.3, 0)});
+
+          // The pinned band's copy, which is the heading on top once the table
+          // has settled.
+          await tester.tap(find.text('Customer').last);
+          await tester.pump();
+          // The clock starts on the frame after the change, as an animation's
+          // does.
+          await tester.pump();
+          await tester.pump(PlassTokens.duration ~/ 2);
+
+          final double along = PlassTokens.ease.transform(0.5);
+          final List<(double, double)> halfway = sortMarks();
+
+          // The customer's mark halfway to whole and halfway round to point up,
+          // and the total's where it was.
+          expect(halfway.where(((double, double) one) => one != (0.3, 0.0)), isNotEmpty);
+
+          for (final (double opacity, double turns) in halfway) {
+            if (opacity == 0.3) {
+              expect(turns, 0);
+
+              continue;
+            }
+
+            expect(opacity, closeTo(0.3 + 0.7 * along, 1e-9));
+            expect(turns, closeTo(0.5 * along, 1e-9));
+          }
+
+          await tester.pumpAndSettle();
+
+          expect(sortMarks().toSet(), <(double, double)>{(1, 0.5), (0.3, 0)});
+        },
+      );
+
+      testWidgets('turns the mark of the column it sorts at once under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(table(), width: 640, disableAnimations: true));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Customer').last);
+        await tester.pump();
+
+        final List<double> opacities = <double>[
+          for (final Element mark in find.byType(AnimatedRotation).evaluate())
+            mark.findAncestorWidgetOfExactType<PlassFiltered>()!.opacity,
+        ];
+
+        expect(opacities, contains(1));
+        expect(tester.binding.transientCallbackCount, 0);
       });
 
       testWidgets('leaves a column that did not ask to be sortable alone', (

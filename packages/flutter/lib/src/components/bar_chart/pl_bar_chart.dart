@@ -2,6 +2,7 @@
 library;
 
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/widgets.dart';
 
@@ -279,7 +280,8 @@ class PlBarChart extends StatelessWidget {
     for (int lane = 0; lane < drawn.length; lane += 1) {
       final int s = drawn[lane];
       final List<ChartValue> one = layout.values[s];
-      final double alpha = dimmedByHover(layout.hovered, s, layout.visible) ? 0.28 : 1.0;
+      // Faded while the legend points at another series, and eased there.
+      final double alpha = layout.seriesOpacity(s);
       final bool Function(int) labelled = labelledPoints(one, valueLabels);
 
       for (int category = 0; category < layout.count && category < one.length; category += 1) {
@@ -340,10 +342,14 @@ class PlBarChart extends StatelessWidget {
                 value >= 0 ? PlBarEnd.up : PlBarEnd.down,
               );
 
+        // A shade under whole until the crosshair reaches the column, and
+        // eased up to it and back.
         canvas.drawPath(
           path,
           Paint()
-            ..color = ink.withValues(alpha: (category == layout.activeIndex ? 1 : 0.92) * alpha),
+            ..color = ink.withValues(
+              alpha: lerpDouble(0.92, 1, layout.columnLit(category))! * alpha,
+            ),
         );
 
         if (labelled(category)) {

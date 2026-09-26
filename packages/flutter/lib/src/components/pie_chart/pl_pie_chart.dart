@@ -2,6 +2,7 @@
 library;
 
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
 import 'package:plass_ui/src/internal/date.dart';
+import 'package:plass_ui/src/internal/mark_ease.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -175,7 +177,7 @@ class PlPieChart extends StatefulWidget {
   State<PlPieChart> createState() => _PlPieChartState();
 }
 
-class _PlPieChartState extends State<PlPieChart> {
+class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateMixin {
   /// Which slices the reader has switched off in the legend.
   final Set<int> _off = <int>{};
 
@@ -186,8 +188,19 @@ class _PlPieChartState extends State<PlPieChart> {
   /// reason `PlassChartTabStop` gives.
   final FocusNode _focus = FocusNode(debugLabel: 'PlPieChart');
 
+  /// How far each slice has faded, eased over the house duration as the React
+  /// slice's `opacity` is, keyed by its place in the data.
+  late final PlassMarkEase _ease;
+
+  @override
+  void initState() {
+    super.initState();
+    _ease = PlassMarkEase(this);
+  }
+
   @override
   void dispose() {
+    _ease.dispose();
     _focus.dispose();
     super.dispose();
   }
@@ -238,6 +251,23 @@ class _PlPieChartState extends State<PlPieChart> {
     }
 
     final bool nothing = total <= 0;
+
+    // A slice fades while a legend entry points at another, or while another
+    // is being read, and eases there and back. At once when the platform asks
+    // for less movement, as the React slices change under
+    // `prefers-reduced-motion`.
+    _ease.aim(
+      <Object>{
+        for (int i = 0; i < slices.length; i += 1)
+          if (visible[i] &&
+              (dimmedByHover(_hovered, i, visible) || (_active != null && _active != i)))
+            i,
+      },
+      duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+          ? Duration.zero
+          : tokens.motionDuration,
+      curve: tokens.motionEase,
+    );
 
     final Widget plot = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -363,6 +393,7 @@ class _PlPieChartState extends State<PlPieChart> {
                   CustomPaint(
                     size: Size(width, height),
                     painter: _PiePainter(
+                      ease: _ease,
                       arcs: arcs,
                       colors: colors,
                       own: values,
@@ -638,7 +669,8 @@ class _Arc {
 }
 
 class _PiePainter extends CustomPainter {
-  const _PiePainter({
+  _PiePainter({
+    required this.ease,
     required this.arcs,
     required this.colors,
     required this.own,
@@ -653,7 +685,10 @@ class _PiePainter extends CustomPainter {
     required this.shares,
     required this.fontSize,
     required this.surface,
-  });
+  }) : super(repaint: ease);
+
+  /// How far each slice has faded, by its place in the data.
+  final PlassMarkEase ease;
 
   final List<_Arc> arcs;
   final List<Color> colors;
@@ -666,6 +701,10 @@ class _PiePainter extends CustomPainter {
   /// The gap between two slices in degrees, or `null` to work it out from the
   /// 2px the library puts between any two marks.
   final double? padAngle;
+
+  /// What is being read and what the legend points at. The fade is read off
+  /// [ease], and these are here for [shouldRepaint]: a change of either is a
+  /// new picture even when nothing eases, under reduced motion.
   final int? active;
   final int? hovered;
 
@@ -685,9 +724,6 @@ class _PiePainter extends CustomPainter {
     final double pad = padAngle ?? (outer > 0 ? math.min(4, markGap / outer * 180 / math.pi) : 0);
 
     for (final _Arc arc in arcs) {
-      final bool dimmed =
-          dimmedByHover(hovered, arc.index, visible) || (active != null && active != arc.index);
-
       // The pad is taken off both ends and never off a slice narrower than two
       // of it, or a one-degree sliver inverts and draws the whole circle
       // instead of nothing.
@@ -696,7 +732,7 @@ class _PiePainter extends CustomPainter {
 
       canvas.drawPath(
         arcPath(centreX, centreY, outer, inner, arc.start + room, arc.end - room),
-        Paint()..color = color.withValues(alpha: dimmed ? 0.32 : 1),
+        Paint()..color = color.withValues(alpha: lerpDouble(1, 0.32, ease.of(arc.index))!),
       );
     }
 
@@ -744,6 +780,7 @@ class _PiePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_PiePainter old) =>
+      old.ease != ease ||
       old.arcs != arcs ||
       old.colors != colors ||
       old.active != active ||

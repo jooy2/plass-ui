@@ -383,10 +383,10 @@ class PlScatterChart extends StatelessWidget {
 
     for (final PlassChartMark mark in painted) {
       final ChartValue value = layout.values[mark.series][mark.index];
-      final bool dimmed = dimmedByHover(layout.hovered, mark.series, layout.visible);
-      final bool active =
-          layout.activeMark?.series == mark.series && layout.activeMark?.index == mark.index;
-      final double r = active && mark.r > 0 ? mark.r + 1 : mark.r;
+      // A pixel bigger under the crosshair, grown and shrunk over the house
+      // duration as the React mark's `scale` is. Only the size eases: where
+      // the mark stands is data, and moves at once.
+      final double r = mark.r > 0 ? mark.r + layout.markLit(mark.series, mark.index) : mark.r;
       final Path path = markPath(shapeOf(mark.series), mark.centre.dx, mark.centre.dy, r);
 
       // The ring is the surface showing through, not a stroke drawn around the
@@ -407,7 +407,7 @@ class PlScatterChart extends StatelessWidget {
           path,
           Paint()
             ..color = (value.color ?? layout.colors[mark.series]).withValues(
-              alpha: dimmed ? 0.28 : 1,
+              alpha: layout.seriesOpacity(mark.series),
             ),
         );
     }

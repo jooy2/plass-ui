@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show Paragraph;
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -27,6 +28,19 @@ const List<PlassChartCategory> regions = <PlassChartCategory>[
   PlassChartCategory.text('Asia'),
   PlassChartCategory.text('Americas'),
 ];
+
+/// The alpha every bar is filled at now, series by series and then column by
+/// column, as the painter draws them.
+List<double> _barAlphas(WidgetTester tester) {
+  final canvas = RecordingCanvas();
+  final Finder plot = find.byWidgetPredicate(
+    (Widget widget) => widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+  );
+
+  tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+  return <double>[for (final Paint paint in canvas.fills) paint.color.a];
+}
 
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(500, 700);
@@ -355,6 +369,80 @@ void main() {
       await tester.pump();
       expect(said(), 'Europe, This year: 42, Last year: 35');
       expect(find.byType(PlassChartTooltipCard), findsOneWidget);
+    });
+
+    testWidgets('lifts the column a key reaches over the house duration', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(tester, afterFocusStop(before, PlBarChart(series: series, categories: regions)));
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      expect(_barAlphas(tester), everyElement(closeTo(0.92, 1e-6)));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      // The clock starts on the frame after the change, as an animation's does.
+      await tester.pump();
+      await tester.pump(PlassTokens.duration ~/ 2);
+
+      // Series by series and then column by column: Europe's two bars are
+      // halfway up on the house curve, and the rest are where they were.
+      final List<double> halfway = _barAlphas(tester);
+      final double along = PlassTokens.ease.transform(0.5);
+
+      expect(halfway[0], closeTo(0.92 + 0.08 * along, 1e-6));
+      expect(halfway[3], closeTo(0.92 + 0.08 * along, 1e-6));
+      expect(halfway[0], lessThan(1));
+      expect(<double>[
+        halfway[1],
+        halfway[2],
+        halfway[4],
+        halfway[5],
+      ], everyElement(closeTo(0.92, 1e-6)));
+
+      await tester.pumpAndSettle();
+
+      expect(_barAlphas(tester), <Matcher>[
+        equals(1),
+        closeTo(0.92, 1e-6),
+        closeTo(0.92, 1e-6),
+        equals(1),
+        closeTo(0.92, 1e-6),
+        closeTo(0.92, 1e-6),
+      ]);
+    });
+
+    testWidgets('fades the other series as a legend entry is pointed at, over the house duration', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlBarChart(series: series, categories: regions));
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Last year')));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(PlassTokens.duration ~/ 2);
+
+      final List<double> halfway = _barAlphas(tester);
+      final double along = PlassTokens.ease.transform(0.5);
+
+      expect(halfway.take(3), everyElement(closeTo(0.92 * (1 - 0.72 * along), 1e-6)));
+      expect(halfway.first, greaterThan(0.92 * 0.28));
+      expect(halfway.skip(3), everyElement(closeTo(0.92, 1e-6)));
+
+      await tester.pumpAndSettle();
+
+      expect(_barAlphas(tester).take(3), everyElement(closeTo(0.92 * 0.28, 1e-6)));
     });
 
     testWidgets('writes a bar of a series with no name on its card by its colour and value', (

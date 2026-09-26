@@ -26,6 +26,30 @@ List<PlassTimelineSeries> _plan() => <PlassTimelineSeries>[
   ),
 ];
 
+/// The alpha every span is filled at now, in the order they were written.
+List<double> _spanAlphas(WidgetTester tester) {
+  final _SpanCanvas canvas = _SpanCanvas();
+  final Finder plot = find.byWidgetPredicate(
+    (Widget widget) => widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+  );
+
+  tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+
+  return canvas.alphas;
+}
+
+/// A canvas that keeps the alpha of every rounded box a span is drawn as, and
+/// drops everything else.
+class _SpanCanvas implements Canvas {
+  final List<double> alphas = <double>[];
+
+  @override
+  void drawRRect(RRect rrect, Paint paint) => alphas.add(paint.color.a);
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
+}
+
 Future<void> _pump(WidgetTester tester, Widget child) async {
   tester.view.physicalSize = const Size(600, 700);
   tester.view.devicePixelRatio = 1;
@@ -308,6 +332,43 @@ void main() {
 
         expect(said(), reading, reason: '$key');
       }
+    });
+
+    testWidgets('brings the span a key reaches up to whole over the house duration', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(before, PlTimelineChart(series: _plan(), semanticLabel: 'Plan')),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      expect(_spanAlphas(tester), everyElement(closeTo(0.92, 1e-6)));
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      // The clock starts on the frame after the change, as an animation's does.
+      await tester.pump();
+      await tester.pump(PlassTokens.duration ~/ 2);
+
+      // Wireframes, the first span, halfway along the house curve, and the
+      // other two where they were.
+      expect(_spanAlphas(tester), <Matcher>[
+        closeTo(0.92 + 0.08 * PlassTokens.ease.transform(0.5), 1e-6),
+        closeTo(0.92, 1e-6),
+        closeTo(0.92, 1e-6),
+      ]);
+
+      await tester.pumpAndSettle();
+
+      expect(_spanAlphas(tester), <Matcher>[equals(1), closeTo(0.92, 1e-6), closeTo(0.92, 1e-6)]);
     });
 
     testWidgets('heads the card with a span that names itself, with its row beside the swatch', (
