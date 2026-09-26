@@ -283,7 +283,9 @@ const adornmentClasses = /* @__PURE__ */ [
   'rounded-(--plass-radius-xs) text-(--plass-muted-fg)',
   '[transition:color_var(--plass-duration)_var(--plass-ease)]',
   'motion-reduce:[transition-duration:0ms]',
-  'hover:text-(--p-accent)',
+  // `enabled:` because a disabled button still matches `:hover`, and the
+  // chevron of a disabled field is no more lit than the field is.
+  'enabled:hover:text-(--p-accent)',
   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:1px]',
   'disabled:cursor-not-allowed disabled:opacity-50'
 ].join(' ');

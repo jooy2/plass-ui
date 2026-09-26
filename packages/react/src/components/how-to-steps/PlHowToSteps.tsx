@@ -262,7 +262,8 @@ export const PlHowToStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlHow
               className={cx(
                 'mt-1 w-0 flex-1 border-s-2',
                 connectorStyleClasses[connector],
-                connectorColorClasses[status]
+                connectorColorClasses[status],
+                transitionClasses
               )}
             />
           ) : null}
@@ -271,7 +272,12 @@ export const PlHowToStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlHow
         <div className="min-w-0 flex-1 pb-0.5">
           {hasContent(title) ? (
             <div
-              className={cx('font-semibold', sheetTitleClasses[size], titleStatusClasses[status])}
+              className={cx(
+                'font-semibold',
+                sheetTitleClasses[size],
+                titleStatusClasses[status],
+                transitionClasses
+              )}
             >
               {title}
             </div>

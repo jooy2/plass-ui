@@ -70,6 +70,14 @@
 
 ### Fixed
 
+- **A disabled `PlCombobox` keeps its chevron and its clear × in the muted ink under the pointer.** Both turned to the family's accent as the pointer went over them, where a disabled field answers the pointer with nothing else, and the Flutter chevron stays muted.
+
+- **The first ← on a `PlPieChart` with no slice being read reaches the last slice.** It reached the second from the end, while the first → reached the first slice; the Flutter pie already started a walk backwards on the last.
+
+- **A `PlHowToSteps` eases the line under a step and the step's title to their new colours as `active` moves, over `--plass-duration`, and changes them at once under reduced motion.** Both changed in one frame while the bullet beside them eased.
+
+- **A `PlCommandPalette` row eases its ink with its wash as the highlight reaches it and leaves it, and washes in the family's `--p-soft-hover`, as a `PlSelect` and a `PlMenu` row do.** The ink changed in one frame while the wash eased, and the wash was the paler `--p-soft`.
+
 - **A `PlToast` whose colour or variant `update` or `promise` changes, and a `PlAppLogo` plate whose `color` or `variant` changes, ease to their new fill, edge, shadow and ink over `--plass-duration`, and change at once under reduced motion, as a `PlAlert` does.** The toast eased only its opacity and the plate nothing, so both took their new colours in one frame. A `solid` toast's action now takes the toast's own ink, so it eases with the words round it.
 
 - **A `PlHowToSteps` fills its done and current bullets with its family's gradient, with the number in the ink that goes on it, and eases them as `active` moves, as a `PlStepper` and a `PlTimeline` do.** Its bullets had no gradient, so a done or current step was a bare number in the page's ink, with only a halo round the current one, where the Flutter bullets are filled.

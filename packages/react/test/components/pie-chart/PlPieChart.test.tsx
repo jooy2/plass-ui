@@ -208,6 +208,22 @@ describe('PlPieChart', () => {
       await expect.poll(() => status.textContent).toContain('Referral');
     });
 
+    it('starts a walk backwards on the last slice', async () => {
+      const screen = await render(
+        <PlPieChart label="Traffic" categories={SOURCES} data={[40, 25, 20, 15]} />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Traffic' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      const status = screen.container.querySelector('[role="status"]') as HTMLElement;
+
+      arrow(plot.element(), 'ArrowLeft');
+      await expect.poll(() => status.textContent).toContain('Referral');
+      expect(status.textContent).not.toContain('Direct');
+    });
+
     it('keeps an Escape that clears a reading from what it sits in, and lets it through otherwise', async () => {
       // Both ways a sheet hears the key: a handler on an element around the
       // chart, and a listener on the document, which is where Base UI's

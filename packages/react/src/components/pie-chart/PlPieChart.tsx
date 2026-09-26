@@ -361,9 +361,16 @@ export function PlPieChart({
           }
 
           const at = active === null ? -1 : order.indexOf(active);
-          const next = event.key === 'ArrowRight' ? at + 1 : at - 1;
+          const forward = event.key === 'ArrowRight';
+          // Nothing read yet: forward starts at the first, and back at the last.
+          const next =
+            at === -1
+              ? forward
+                ? 0
+                : order.length - 1
+              : (at + (forward ? 1 : -1) + order.length) % order.length;
 
-          setActive(order[(next + order.length) % order.length]);
+          setActive(order[next]);
           event.preventDefault();
         }}
         className={cx(
