@@ -4,6 +4,7 @@ library;
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
@@ -181,6 +182,16 @@ class _PlPieChartState extends State<PlPieChart> {
   int? _active;
   int? _hovered;
 
+  /// The plot's own tab stop, which the arrow keys walk. Held here for the
+  /// reason `PlassChartTabStop` gives.
+  final FocusNode _focus = FocusNode(debugLabel: 'PlPieChart');
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
 
   /// A number as every chart writes it: in the caller's `format`, or compactly
@@ -226,6 +237,8 @@ class _PlPieChartState extends State<PlPieChart> {
       }
     }
 
+    final bool nothing = total <= 0;
+
     final Widget plot = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final double width = constraints.maxWidth.isFinite ? constraints.maxWidth : height;
@@ -242,7 +255,7 @@ class _PlPieChartState extends State<PlPieChart> {
         final double centreY = semi ? math.min(height, height / 2 + outer / 2) : height / 2;
         final double inner = outer * (widget.innerRadius ?? _holes[widget.shape]!).clamp(0.0, 0.95);
 
-        if (total <= 0 || outer <= 0) {
+        if (nothing || outer <= 0) {
           return SizedBox(
             width: width,
             height: height,
@@ -284,7 +297,51 @@ class _PlPieChartState extends State<PlPieChart> {
           }
         }
 
-        return MouseRegion(
+        /* The walk, over the slices that have an arc, in the order they are
+           drawn: clockwise from the first, and round again past either end,
+           since a disc has none. The same list the pointer is tested against,
+           so a key can never reach a slice a pointer could not.
+
+           It does not ask `quiet`, as the React pie's does not: with the card
+           turned off a key still lights the slice it reaches, and only the
+           card and the live region say nothing. */
+        KeyEventResult onKey(FocusNode node, KeyEvent event) {
+          if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
+            return KeyEventResult.ignored;
+          }
+
+          final LogicalKeyboardKey key = event.logicalKey;
+
+          if (key == LogicalKeyboardKey.escape && _active != null) {
+            // Only while a slice is being read. With nothing to clear, the key
+            // belongs to whatever the chart sits in — a sheet, a dialog — and
+            // swallowing it would leave that unable to close.
+            setState(() => _active = null);
+
+            return KeyEventResult.handled;
+          }
+
+          // Physical keys, as on every other chart: the slices run clockwise
+          // in every locale, and so does the walk round them.
+          if (key != LogicalKeyboardKey.arrowRight && key != LogicalKeyboardKey.arrowLeft) {
+            return KeyEventResult.ignored;
+          }
+
+          final List<int> order = <int>[for (final _Arc arc in arcs) arc.index];
+          final int at = _active == null ? -1 : order.indexOf(_active!);
+          final bool forward = key == LogicalKeyboardKey.arrowRight;
+
+          // Nothing read yet: forward starts at the first, and back at the last.
+          final int next = at == -1
+              ? (forward ? 0 : order.length - 1)
+              : (at + (forward ? 1 : -1) + order.length) % order.length;
+
+          setState(() => _active = order[next]);
+
+          return KeyEventResult.handled;
+        }
+
+        final Widget drawing = MouseRegion(
           onHover: (PointerHoverEvent event) => move(event.localPosition),
           onExit: (PointerExitEvent _) {
             if (_active != null) {
@@ -339,26 +396,58 @@ class _PlPieChartState extends State<PlPieChart> {
                       start: 0,
                       end: 0,
                       top: 8,
-                      child: Align(
-                        child: PlassChartTooltipCard(
-                          tokens: tokens,
-                          size: size,
-                          heading: slices[_active!].name ?? '',
-                          children: <Widget>[
-                            _Readout(
-                              color: values[_active!].color ?? colors[_active!],
-                              text: _said(values[_active!], total),
-                              tokens: tokens,
-                              size: size,
-                            ),
-                          ],
+                      // The card is the half a reader sees, and the readout
+                      // below is the half they hear. Left on the tree as well,
+                      // it would be read a second time, into the name of
+                      // whatever node holds the plot.
+                      child: ExcludeSemantics(
+                        child: Align(
+                          child: PlassChartTooltipCard(
+                            tokens: tokens,
+                            size: size,
+                            heading: slices[_active!].name ?? '',
+                            children: <Widget>[
+                              _Readout(
+                                color: values[_active!].color ?? colors[_active!],
+                                text: _said(values[_active!], total),
+                                tokens: tokens,
+                                size: size,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+                    ),
+                  if (!quiet)
+                    PlassChartReadout(
+                      said: _active == null
+                          ? ''
+                          : _reading(slices[_active!], values[_active!], total),
                     ),
                 ],
               ),
             ),
           ),
+        );
+
+        // A tab stop whenever there is something drawn, as the React build's
+        // picture is. Its semantics are declared on the chart's own node below.
+        return PlassChartTabStop(
+          focusNode: _focus,
+          tokens: tokens,
+          onKeyEvent: onKey,
+          onFocusChange: (bool has) {
+            // The chart's own node says whether it holds the focus, so it is
+            // built again either way; and leaving the chart clears what was
+            // being read, rather than leaving the last slice standing in the
+            // readout forever.
+            setState(() {
+              if (!has) {
+                _active = null;
+              }
+            });
+          },
+          child: drawing,
         );
       },
     );
@@ -390,6 +479,13 @@ class _PlPieChartState extends State<PlPieChart> {
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? labels.chart,
+      // The plot's tab stop, said on the node that carries the name, so a
+      // reader arriving by Tab hears what the chart is and what it says. An
+      // empty chart says nothing about focus at all: a `focused` of false is
+      // still a claim that the node could hold it.
+      focusable: !nothing,
+      focused: nothing ? null : _focus.hasFocus,
+      onFocus: nothing ? null : _focus.requestFocus,
       // The picture is a picture. What a screen reader is handed instead is
       // every slice and its share, which is the reading a sighted reader takes
       // from the angles.
@@ -485,6 +581,16 @@ class _PlPieChartState extends State<PlPieChart> {
   /// it: the point's own `label` when it carries one, as on every other chart
   /// and in the React build, and its value and share when it does not.
   String _said(ChartValue value, double total) => value.label ?? _share(value.value ?? 0, total);
+
+  /// What the live region says for the slice being read: its name, then what
+  /// it is worth, which is the card's heading and its one row. The name is
+  /// said once, as it is written once, rather than beside the value as well.
+  String _reading(PlassChartSeries slice, ChartValue value, double total) {
+    final String said = _said(value, total);
+    final String? name = slice.name;
+
+    return name == null || name.isEmpty ? said : '$name, $said';
+  }
 
   /// Whether a slice gets an arc: one the legend has not switched off, and
   /// with a value that is there and is not zero, which would be an angle of

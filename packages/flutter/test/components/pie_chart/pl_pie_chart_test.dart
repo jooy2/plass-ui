@@ -2,9 +2,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+
+import 'package:plass_ui/src/internal/chart_frame.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/canvas.dart';
 import '../../support/host.dart';
@@ -357,6 +361,266 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('·'), findsNothing);
+    });
+
+    group('the keyboard', () {
+      /// Puts the chart after a focus stop of its own and arrives on it by Tab,
+      /// having done [first] to it.
+      Future<void> tabTo(
+        WidgetTester tester,
+        Widget chart, {
+        Future<void> Function()? first,
+        TextDirection textDirection = TextDirection.ltr,
+      }) async {
+        final FocusNode before = FocusNode();
+
+        addTearDown(before.dispose);
+        tester.view.physicalSize = const Size(500, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          host(afterFocusStop(before, chart), width: 500, textDirection: textDirection),
+        );
+        await tester.pumpAndSettle();
+        await first?.call();
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+      }
+
+      /// What the live region is saying.
+      String said(WidgetTester tester) {
+        return find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label;
+      }
+
+      /// Presses each key in turn and checks what is said after it.
+      Future<void> walk(WidgetTester tester, List<(LogicalKeyboardKey, String)> steps) async {
+        for (final (LogicalKeyboardKey key, String reading) in steps) {
+          await tester.sendKeyEvent(key);
+          await tester.pump();
+
+          expect(said(tester), reading, reason: '$key');
+        }
+      }
+
+      testWidgets('is a tab stop, and says nothing until a key moves', (WidgetTester tester) async {
+        await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
+
+        final SemanticsNode chart = tester.getSemantics(find.bySemanticsLabel('Chart'));
+
+        expect(chart, isSemantics(label: 'Chart', isFocusable: true, isFocused: true));
+        expect(said(tester), isEmpty);
+      });
+
+      testWidgets('walks the slices with the arrow keys, round past either end', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
+
+        await walk(tester, <(LogicalKeyboardKey, String)>[
+          (LogicalKeyboardKey.arrowRight, 'Search, 40 · 40%'),
+          (LogicalKeyboardKey.arrowRight, 'Social, 25 · 25%'),
+          (LogicalKeyboardKey.arrowLeft, 'Search, 40 · 40%'),
+          (LogicalKeyboardKey.arrowLeft, 'Referral, 15 · 15%'),
+          (LogicalKeyboardKey.arrowRight, 'Search, 40 · 40%'),
+        ]);
+
+        // Home and End are not the pie's, as they are not the React pie's:
+        // they go on to whatever the chart sits in and leave the reading.
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.home), isFalse);
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.end), isFalse);
+        await tester.pump();
+        expect(said(tester), 'Search, 40 · 40%');
+      });
+
+      testWidgets('starts from the last slice when the first key goes back', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
+
+        await walk(tester, <(LogicalKeyboardKey, String)>[
+          (LogicalKeyboardKey.arrowLeft, 'Referral, 15 · 15%'),
+        ]);
+      });
+
+      testWidgets('walks the same way round in a right-to-left locale', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(
+          tester,
+          const PlPieChart(data: traffic, categories: sources),
+          textDirection: TextDirection.rtl,
+        );
+
+        // The slices run clockwise whichever way the words do.
+        await walk(tester, <(LogicalKeyboardKey, String)>[
+          (LogicalKeyboardKey.arrowRight, 'Search, 40 · 40%'),
+          (LogicalKeyboardKey.arrowRight, 'Social, 25 · 25%'),
+        ]);
+      });
+
+      testWidgets('passes over a slice with no arc: a gap, a zero, and one switched off', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(
+          tester,
+          const PlPieChart(
+            data: <PlassChartDatum>[
+              PlassChartDatum(40),
+              PlassChartDatum.gap(),
+              PlassChartDatum(0),
+              PlassChartDatum(60),
+              PlassChartDatum(20),
+            ],
+            categories: <PlassChartCategory>[...sources, PlassChartCategory.text('Email')],
+          ),
+          first: () async {
+            await tester.tap(find.bySemanticsLabel('Email'));
+            await tester.pumpAndSettle();
+          },
+        );
+
+        await walk(tester, <(LogicalKeyboardKey, String)>[
+          (LogicalKeyboardKey.arrowRight, 'Search, 40 · 40%'),
+          (LogicalKeyboardKey.arrowRight, 'Referral, 60 · 60%'),
+          (LogicalKeyboardKey.arrowRight, 'Search, 40 · 40%'),
+        ]);
+      });
+
+      testWidgets('says a slice by its own label when it carries one', (WidgetTester tester) async {
+        await tabTo(tester, const PlPieChart(data: labelled, categories: sources));
+
+        await walk(tester, <(LogicalKeyboardKey, String)>[
+          (LogicalKeyboardKey.arrowRight, 'Search, About two in five'),
+          (LogicalKeyboardKey.arrowRight, 'Social, 25 · 25%'),
+        ]);
+      });
+
+      testWidgets('stands the card on the slice a key reached, and keeps it off the tree', (
+        WidgetTester tester,
+      ) async {
+        // No legend, which is when the plot and the chart are one node and a
+        // card on the tree would be read into its name.
+        await tabTo(
+          tester,
+          const PlPieChart(data: traffic, categories: sources, legend: PlChartLegend(hidden: true)),
+        );
+
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(find.byType(PlassChartTooltipCard), findsOneWidget);
+        expect(find.text('Search'), findsOneWidget);
+        expect(find.text('40 · 40%'), findsOneWidget);
+        // Said once, by the live region, rather than read into the chart's
+        // name as well.
+        expect(said(tester), 'Search, 40 · 40%');
+        expect(tester.getSemantics(find.bySemanticsLabel(RegExp('^Chart'))).label, 'Chart');
+      });
+
+      testWidgets('says the slice a press reached as well', (WidgetTester tester) async {
+        await _pump(tester, const PlPieChart(data: traffic, categories: sources, height: 240));
+
+        await tester.tapAt(
+          tester.getCenter(find.byType(CustomPaint).first) + const Offset(30, -50),
+        );
+        await tester.pumpAndSettle();
+
+        expect(said(tester), 'Search, 40 · 40%');
+      });
+
+      testWidgets('draws the ring only while the keyboard holds it', (WidgetTester tester) async {
+        // No legend, so there is no entry whose own ring could be the one
+        // found once the focus moves on.
+        await tabTo(
+          tester,
+          const PlPieChart(data: traffic, categories: sources, legend: PlChartLegend(hidden: true)),
+        );
+
+        bool ringed() => tester
+            .widgetList<CustomPaint>(find.byType(CustomPaint))
+            .any((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter);
+
+        expect(ringed(), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(ringed(), isFalse);
+      });
+
+      testWidgets('clears on Escape, and lets Escape through when there is nothing to clear', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), isNotEmpty);
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.escape), isTrue);
+        await tester.pump();
+
+        expect(said(tester), isEmpty);
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+
+        // A sheet the chart sits in still gets the key it closes on.
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.escape), isFalse);
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.keyA), isFalse);
+      });
+
+      testWidgets('clears what it was reading when the focus leaves', (WidgetTester tester) async {
+        await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        expect(said(tester), isNotEmpty);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(said(tester), isEmpty);
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+      });
+
+      testWidgets('says nothing and shows no card when its tooltip is off', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(
+          tester,
+          const PlPieChart(
+            data: traffic,
+            categories: sources,
+            tooltip: PlChartTooltip(hidden: true),
+          ),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(find.semantics.byFlag(SemanticsFlag.isLiveRegion), findsNothing);
+        expect(find.byType(PlassChartTooltipCard), findsNothing);
+      });
+
+      testWidgets('is a tab stop only while there is something on it', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          const PlPieChart(
+            data: <PlassChartDatum>[PlassChartDatum(0), PlassChartDatum(0)],
+            categories: sources,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel(RegExp('^Chart'))),
+          isSemantics(isFocusable: false),
+        );
+      });
     });
   });
 }

@@ -731,14 +731,10 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
 
   /// The plot's own tab stop, which the arrow keys walk.
   ///
-  /// Held here rather than made by the `Focus` below, because that widget is
+  /// Held here rather than made by the tab stop below, because that widget is
   /// rebuilt with every column the pointer crosses and a node made in `build`
   /// would be a new node — and the focus would fall off the chart — each time.
   final FocusNode _focus = FocusNode(debugLabel: 'PlassCartesianChart');
-
-  /// Whether the ring is drawn: the plot holds the focus, and it arrived from
-  /// the keyboard rather than from a press.
-  bool _focusVisible = false;
 
   /// Whether what is being read was reached by a key rather than by the
   /// pointer.
@@ -1438,7 +1434,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
                     ValueListenableBuilder<Offset?>(
                       valueListenable: _pointer,
                       builder: (BuildContext context, Offset? pointer, Widget? _) =>
-                          _Readout(said: readout(pointer)),
+                          PlassChartReadout(said: readout(pointer)),
                     ),
                 ],
               ),
@@ -1447,19 +1443,15 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
         );
 
         // A tab stop whenever there is something drawn, as the React build's
-        // picture is. Its semantics are declared on the chart's own node below
-        // rather than here: the plot is a node of its own, for the press and
-        // the drag it answers, and a focus landing on that one would land on a
-        // node with no name.
-        return Focus(
+        // picture is. Its semantics are declared on the chart's own node below.
+        return PlassChartTabStop(
           focusNode: _focus,
-          includeSemantics: false,
+          tokens: tokens,
           onKeyEvent: onKey,
           onFocusChange: (bool has) {
-            setState(() {
-              _focusVisible =
-                  has && FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
-            });
+            // The chart's own node says whether it holds the focus, so it is
+            // built again either way.
+            setState(() {});
 
             // Leaving the chart clears what was being read, rather than
             // leaving the last column standing in the readout forever.
@@ -1467,20 +1459,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart> {
               onLeave();
             }
           },
-          child: CustomPaint(
-            foregroundPainter: _focusVisible
-                ? PlassFocusRingPainter(
-                    color: tokens.family(PlassColor.primary).ring,
-                    borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
-                    // Held off the drawing rather than flush with it, as the
-                    // React build's `outline-offset-2` is: the plot has no edge
-                    // of its own for the ring to thicken, and one laid on the
-                    // axis labels would read as a border drawn round them.
-                    offset: 2,
-                  )
-                : null,
-            child: drawing,
-          ),
+          child: drawing,
         );
       },
     );
@@ -2297,6 +2276,84 @@ String _itemReading(String? name, ChartValue entry, String Function(double) writ
   return name == null ? said : '$name: $said';
 }
 
+/// A chart's plot as a tab stop: the focus the arrow keys walk from, and the
+/// ring drawn round the drawing while the keyboard holds it.
+///
+/// Every chart the keys walk stands on one of these, so the ring is the same
+/// ring on a pie as on a line and arrives the same way: from a key, never from
+/// a press. The semantics are the chart's to declare, on its own node rather
+/// than here: the plot is a node of its own, for the press and the drag it
+/// answers, and a focus landing on that one would land on a node with no name.
+class PlassChartTabStop extends StatefulWidget {
+  /// Makes [child] a tab stop.
+  const PlassChartTabStop({
+    required this.focusNode,
+    required this.tokens,
+    required this.onKeyEvent,
+    required this.onFocusChange,
+    required this.child,
+    super.key,
+  });
+
+  /// The node, held by the chart rather than made here: the chart is built
+  /// again with every column or slice the pointer crosses, and a node made in
+  /// `build` would be a new node, and the focus would fall off the chart, each
+  /// time.
+  final FocusNode focusNode;
+
+  /// The palette in scope, which the ring takes its colour and corner from.
+  final PlassTokens tokens;
+
+  /// The walk.
+  final FocusOnKeyEventCallback onKeyEvent;
+
+  /// Told as the focus arrives and as it leaves.
+  final ValueChanged<bool> onFocusChange;
+
+  /// The drawing.
+  final Widget child;
+
+  @override
+  State<PlassChartTabStop> createState() => _PlassChartTabStopState();
+}
+
+class _PlassChartTabStopState extends State<PlassChartTabStop> {
+  /// Whether the ring is drawn: the plot holds the focus, and it arrived from
+  /// the keyboard rather than from a press.
+  bool _ringed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      focusNode: widget.focusNode,
+      includeSemantics: false,
+      onKeyEvent: widget.onKeyEvent,
+      onFocusChange: (bool has) {
+        setState(() {
+          _ringed = has && FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+        });
+
+        widget.onFocusChange(has);
+      },
+      child: CustomPaint(
+        foregroundPainter: _ringed
+            ? PlassFocusRingPainter(
+                color: widget.tokens.family(PlassColor.primary).ring,
+                borderRadius: BorderRadius.circular(widget.tokens.radii[PlassSize.xs]!),
+                // Held off the drawing rather than flush with it, as the React
+                // build's `outline-offset-2` is: the plot has no edge of its
+                // own for the ring to thicken, and one laid on the axis labels
+                // or on the rim of a disc would read as a border drawn round
+                // them.
+                offset: 2,
+              )
+            : null,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
 /// What the pointer or the arrow keys have reached, said rather than drawn.
 ///
 /// The card is a picture of the reading and is kept off the semantics tree, so
@@ -2308,9 +2365,14 @@ String _itemReading(String? name, ChartValue entry, String Function(double) writ
 /// A pixel square rather than nothing at all: a node with no size is taken
 /// off the tree, and a region that comes and goes is one a browser does not
 /// announce the first time it arrives.
-class _Readout extends StatelessWidget {
-  const _Readout({required this.said});
+///
+/// Every chart the keys walk says its reading through one of these, a pie as
+/// much as a line.
+class PlassChartReadout extends StatelessWidget {
+  /// Says [said].
+  const PlassChartReadout({required this.said, super.key});
 
+  /// What is being read, or empty when nothing is.
   final String said;
 
   @override
@@ -2391,11 +2453,11 @@ class _Tooltip extends StatelessWidget {
       at: at,
       gap: 14,
       before: at.dx > layout.plot.left + layout.plot.width * 0.6,
-      // The card is the half a reader sees. The half they hear is `_Readout`,
-      // and a card left on the semantics tree as well was merged into the
-      // name of whatever node held the plot — on a chart with no legend, the
-      // chart's own, which then read "Chart, Jan, Revenue, 12" to anyone who
-      // came back to it.
+      // The card is the half a reader sees. The half they hear is
+      // `PlassChartReadout`, and a card left on the semantics tree as well was
+      // merged into the name of whatever node held the plot — on a chart with
+      // no legend, the chart's own, which then read "Chart, Jan, Revenue, 12"
+      // to anyone who came back to it.
       child: ExcludeSemantics(
         child: PlassChartTooltipCard(tokens: tokens, size: size, heading: heading, children: rows),
       ),
