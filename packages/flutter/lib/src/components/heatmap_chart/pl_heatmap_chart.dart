@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
@@ -135,13 +136,17 @@ class PlHeatmapChart extends StatefulWidget {
 }
 
 class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProviderStateMixin {
-  /// Which cell the pointer is on, by its two coordinates.
+  /// Which cell the pointer or the arrow keys are on, by its two coordinates.
   ///
   /// The coordinates and not the placed cell: the cells are laid out afresh on
   /// every build, so holding one would mean comparing a new instance against an
   /// old one — which is never equal, and which made a second press on the same
   /// cell fail to dismiss its readout.
   ({int row, int index})? _active;
+
+  /// The plot's own tab stop, which the arrow keys walk. Held here for the
+  /// reason `PlassChartTabStop` gives.
+  final FocusNode _focus = FocusNode(debugLabel: 'PlHeatmapChart');
 
   /// How far each cell has come up to whole, eased over the house duration as
   /// the React cell's `opacity` is, keyed by its two coordinates.
@@ -156,6 +161,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
   @override
   void dispose() {
     _ease.dispose();
+    _focus.dispose();
     super.dispose();
   }
 
@@ -318,7 +324,80 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
             }
           }
 
-          return MouseRegion(
+          // Both coordinates, which is what a cell *is*. What it is worth then
+          // has only the number left to carry.
+          final String heading = shown == null
+              ? ''
+              : '${rowNames[shown.row]} · ${_cellName(shown.value, shown.index, columnNames, names)}';
+          final String worth = shown == null
+              ? ''
+              : shown.value.label ?? _write(shown.value.value ?? 0);
+
+          /* The walk, over the cells in the order they are laid out: row by
+             row on a grid, with the gaps left out, and largest first on a
+             treemap, as they are packed. The same list the pointer is tested
+             against, so a key can never reach a cell a pointer could not. It
+             stops at either end rather than going round, as the React walk
+             does: a grid has corners, where a disc has none.
+
+             With the card turned off there is nothing to read, as on every
+             other chart, so no key is taken and every one goes on to what the
+             chart sits in. */
+          KeyEventResult onKey(FocusNode node, KeyEvent event) {
+            if (quiet || cells.isEmpty || (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
+              return KeyEventResult.ignored;
+            }
+
+            // Physical keys, as on every other chart: the grid is drawn the
+            // same way round in every locale, and so is the walk across it.
+            final LogicalKeyboardKey key = event.logicalKey;
+            final bool down = key == LogicalKeyboardKey.arrowDown;
+            final bool up = key == LogicalKeyboardKey.arrowUp;
+            // Read off the state rather than off this build, so a second key
+            // pressed before the chart is built again moves on from the first.
+            final ({int row, int index})? now = _active;
+            final int at = now == null
+                ? -1
+                : cells.indexWhere((_Cell cell) => cell.row == now.row && cell.index == now.index);
+
+            void go(_Cell cell) => setState(() => _active = (row: cell.row, index: cell.index));
+
+            if (grid && at != -1 && (down || up)) {
+              /* A row down or up, in the same column. The cells are listed row
+                 by row with the gaps left out, so the first one past this cell
+                 that way in the same column is in the nearest row that has
+                 one: a gap is stepped over, and the edge of the grid keeps the
+                 cell. */
+              final int step = down ? 1 : -1;
+              int next = at + step;
+
+              while (next >= 0 && next < cells.length && cells[next].index != cells[at].index) {
+                next += step;
+              }
+
+              if (next >= 0 && next < cells.length) {
+                go(cells[next]);
+              }
+            } else if (key == LogicalKeyboardKey.arrowRight || down) {
+              // One cell on, and the last cell keeps the reading. A treemap has
+              // no rows, so ↓ and ↑ walk it as → and ← do. With nothing read
+              // yet, forward starts at the first cell and back at the last.
+              go(cells[math.min(cells.length - 1, at + 1)]);
+            } else if (key == LogicalKeyboardKey.arrowLeft || up) {
+              go(cells[math.max(0, (at == -1 ? cells.length : at) - 1)]);
+            } else if (key == LogicalKeyboardKey.escape && now != null) {
+              // Only while a cell is being read. With nothing to clear, the key
+              // belongs to whatever the chart sits in — a sheet, a dialog — and
+              // swallowing it would leave that unable to close.
+              setState(() => _active = null);
+            } else {
+              return KeyEventResult.ignored;
+            }
+
+            return KeyEventResult.handled;
+          }
+
+          final Widget drawing = MouseRegion(
             onHover: (PointerHoverEvent event) {
               if (quiet) {
                 return;
@@ -372,31 +451,56 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
                     PlassChartTooltipPlacement(
                       at: Offset(shown.rect.center.dx, shown.rect.top + 12),
                       gap: 12,
-                      child: PlassChartTooltipCard(
-                        tokens: tokens,
-                        size: size,
-                        // Both coordinates, which is what a cell *is*. The row
-                        // underneath then has only the number left to carry.
-                        heading:
-                            '${rowNames[_active!.row]} · ${_cellName(shown.value, _active!.index, columnNames, names)}',
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(
-                              shown.value.label ?? _write(shown.value.value ?? 0),
-                              style: TextStyle(
-                                fontSize: metaText[size]!,
-                                fontWeight: FontWeight.w600,
-                                color: tokens.fg,
+                      // The card is the half a reader sees, and the readout
+                      // below is the half they hear. Left on the tree as well,
+                      // it would be read a second time, into the name of the
+                      // chart's own node.
+                      child: ExcludeSemantics(
+                        child: PlassChartTooltipCard(
+                          tokens: tokens,
+                          size: size,
+                          heading: heading,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                worth,
+                                style: TextStyle(
+                                  fontSize: metaText[size]!,
+                                  fontWeight: FontWeight.w600,
+                                  color: tokens.fg,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+                  if (!quiet) PlassChartReadout(said: shown == null ? '' : '$heading, $worth'),
                 ],
               ),
             ),
+          );
+
+          // A tab stop whenever there is something drawn, as the React build's
+          // picture is. Its semantics are declared on the chart's own node
+          // below.
+          return PlassChartTabStop(
+            focusNode: _focus,
+            tokens: tokens,
+            onKeyEvent: onKey,
+            onFocusChange: (bool has) {
+              // The chart's own node says whether it holds the focus, so it is
+              // built again either way; and leaving the chart clears what was
+              // being read, rather than leaving the last cell standing in the
+              // readout forever.
+              setState(() {
+                if (!has) {
+                  _active = null;
+                }
+              });
+            },
+            child: drawing,
           );
         },
       ),
@@ -428,6 +532,13 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
     return Semantics(
       container: true,
       label: widget.semanticLabel ?? labels.chart,
+      // The plot's tab stop, said on the node that carries the name, so a
+      // reader arriving by Tab hears what the chart is and what it says. An
+      // empty chart says nothing about focus at all, as an empty pie does: a
+      // `focused` of false is still a claim that the node could hold it.
+      focusable: !nothing,
+      focused: nothing ? null : _focus.hasFocus,
+      onFocus: nothing ? null : _focus.requestFocus,
       // Every cell, because a heatmap has no line to describe the shape of.
       value: _summary(values, rowNames, columnNames, names),
       child: below
