@@ -75,7 +75,6 @@ import {
   PlTable,
   PlTabPanel,
   PlTabs,
-  PlTextField,
   PlTextLink,
   PlToastProvider,
   PlTooltip,
@@ -525,10 +524,6 @@ const scenes: Record<string, Scene> = {
         <PlTabPanel value="billing">Your cards.</PlTabPanel>
       </PlTabs>
     )
-  },
-  PlTextField: {
-    modules: ['src/components/text-field/PlTextField.tsx'],
-    render: () => <PlTextField label="Search" startIcon={<span>S</span>} />
   },
   PlTextLink: {
     modules: ['src/components/text-link/PlTextLink.tsx'],
