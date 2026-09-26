@@ -570,19 +570,31 @@ class _Preview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.sm]!);
+    final tokens = PlassTheme.of(context);
+    final radius = BorderRadius.circular(tokens.radii[PlassSize.sm]!);
     final ink = DefaultTextStyle.of(context).style.color!;
+    final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return PlassInteractive(
       onTap: preview.onPressed,
       interactive: preview.onPressed != null,
       cursor: preview.onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       builder: (BuildContext context, PlassInteraction state) {
-        Widget card = DecoratedBox(
-          decoration: BoxDecoration(
-            color: colorMix(ink, state.hovered ? 12 : 7),
-            border: Border.all(color: colorMix(ink, 18), width: hairline),
-            borderRadius: radius,
+        // The wash eases as the pointer arrives and leaves, as the React card's
+        // `background-color` does, and at once under reduced motion. Only how
+        // much of the ink it takes is eased here: the ink itself is read on
+        // every frame, so the card still follows the bubble's own change.
+        Widget card = TweenAnimationBuilder<double>(
+          tween: Tween<double>(end: state.hovered ? 12 : 7),
+          duration: still ? Duration.zero : tokens.motionDuration,
+          curve: tokens.motionEase,
+          builder: (BuildContext context, double wash, Widget? child) => DecoratedBox(
+            decoration: BoxDecoration(
+              color: colorMix(ink, wash),
+              border: Border.all(color: colorMix(ink, 18), width: hairline),
+              borderRadius: radius,
+            ),
+            child: child,
           ),
           child: PlassContentsGroup(
             paints: true,

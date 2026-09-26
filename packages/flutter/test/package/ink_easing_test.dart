@@ -831,6 +831,13 @@ final Map<String, _Case> _cases = <String, _Case>{
     read: _surfaceFill(() => find.text('Label')),
     change: _pressKey(LogicalKeyboardKey.arrowDown),
   ),
+  'PlChatBubble, the fill of its link card under the pointer': _Case(
+    (bool on) => PlChatBubble(
+      preview: PlChatBubbleLinkPreview(description: const Text('Label'), onPressed: () {}),
+    ),
+    read: _fill(() => find.text('Label')),
+    change: _hover(() => find.text('Label')),
+  ),
   'PlNumberField, the fill of a stepper under the pointer': _Case(
     (bool on) => PlNumberField(value: 4, onChanged: (num? _) {}),
     read: _fill(
