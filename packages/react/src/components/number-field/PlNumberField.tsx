@@ -207,7 +207,7 @@ const stepperClasses = /* @__PURE__ */ [
   '[&_svg]:size-[0.9em] [&_svg]:shrink-0',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease),opacity_var(--plass-duration)_var(--plass-ease)]',
-  'active:[transition-duration:0ms] motion-reduce:[transition-duration:0ms]',
+  'motion-reduce:[transition-duration:0ms]',
   'hover:bg-(--p-soft) hover:text-(--p-accent)',
   'active:bg-(--p-soft-press)',
   focusRingClasses,
