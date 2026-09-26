@@ -170,13 +170,14 @@ const popupClasses = /* @__PURE__ */ [
  * What the sheet eases: its opacity always, and its size only while one panel
  * is following another. Opening at the size of what it opens with is not a
  * resize, and a panel that slid in would drag a page's worth of links across
- * the screen. Under reduced motion both arrive at once, and while Base UI holds
- * the positioner still for a window resize the size does.
+ * the screen. Under reduced motion both arrive at once, since `popupClasses`
+ * ends the durations there, and while Base UI holds the positioner still for a
+ * window resize the size does.
  */
 const popupFadeClasses = '[transition-property:opacity]';
 const popupResizeClasses = /* @__PURE__ */ [
   '[transition-property:opacity,width,height]',
-  'motion-reduce:[transition-property:opacity] in-data-[instant]:[transition-property:opacity]'
+  'in-data-[instant]:[transition-property:opacity]'
 ].join(' ');
 
 /**

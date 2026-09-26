@@ -717,8 +717,10 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
      * fades in on top of it, and it is taken away in one step once that fade has
      * run, so the two are never both half there with the page showing through.
      * Written inline, so a gallery's own transition on its pictures cannot turn
-     * the step back into a cross-fade. Gone entirely on a failure, which the
-     * fallback reports instead.
+     * the step back into a cross-fade. The wait is `--p-hold`, which is the
+     * fade's own length and nothing under reduced motion, where the picture
+     * arrives at once and so does the step. Gone entirely on a failure, which
+     * the fallback reports instead.
      */
     const standInLayer =
       standIn === null || standInUrl === undefined || status === 'error' ? null : (
@@ -727,13 +729,17 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           alt=""
           aria-hidden="true"
           draggable={false}
-          className={cx('pointer-events-none block select-none', fitClasses[fit])}
+          className={cx(
+            'pointer-events-none block select-none',
+            '[--p-hold:var(--plass-duration)] motion-reduce:[--p-hold:0ms]',
+            fitClasses[fit]
+          )}
           style={{
             ...layerStyle(quarters, flip, standInBlur * 2),
             objectPosition: placed,
             filter: tint === '' && standInBlur === 0 ? undefined : `${tint}blur(${standInBlur}px)`,
             ...(status === 'loaded'
-              ? { opacity: 0, transition: 'opacity 0ms linear var(--plass-duration)' }
+              ? { opacity: 0, transition: 'opacity 0ms linear var(--p-hold)' }
               : null)
           }}
         />

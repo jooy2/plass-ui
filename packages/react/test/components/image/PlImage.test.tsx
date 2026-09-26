@@ -546,7 +546,7 @@ describe('PlImage', () => {
 
       // Opaque for as long as the fade takes, then gone without a cross-fade.
       expect(standIn()!.style.opacity).toBe('0');
-      expect(standIn()!.style.transition).toBe('opacity 0ms linear var(--plass-duration)');
+      expect(standIn()!.style.transition).toBe('opacity 0ms linear var(--p-hold)');
     });
 
     it('is opaque while the picture is on its way', async () => {
