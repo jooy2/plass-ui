@@ -1126,6 +1126,43 @@ void main() {
         expect(find.byType(PlLineChart), findsOneWidget);
       });
 
+      testWidgets('draws the dot a pixel inside the marker radius and the ring a pixel outside', (
+        WidgetTester tester,
+      ) async {
+        for (final PlassSize size in PlassSize.values) {
+          await _pump(tester, PlLineChart(series: series, categories: months, size: size));
+
+          // The React marker is a circle of the radius stroked 2px wide in the
+          // surface over its fill, so the colour shows to a pixel inside the
+          // radius and the ring runs from there to a pixel outside it.
+          final double radius = markerRadii[size]!;
+
+          expect(_markerRadii(tester), <double>[
+            radius + 1,
+            radius - 1,
+            radius + 1,
+            radius - 1,
+          ], reason: size.name);
+
+          final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+          await mouse.addPointer(location: Offset.zero);
+          await mouse.moveTo(tester.getTopLeft(_plot()) + const Offset(2, 4));
+          await tester.pumpAndSettle();
+
+          // And the same about a radius a pixel larger under the crosshair.
+          expect(_markerRadii(tester), <double>[
+            radius + 2,
+            radius,
+            radius + 1,
+            radius - 1,
+          ], reason: size.name);
+
+          await mouse.removePointer();
+          await tester.pumpAndSettle();
+        }
+      });
+
       testWidgets('grows the markers under the crosshair by a pixel, over the house duration', (
         WidgetTester tester,
       ) async {
@@ -1134,7 +1171,7 @@ void main() {
         final double radius = markerRadii[PlassSize.md]!;
 
         // Revenue's markers on January and on February, each a ring and a dot.
-        expect(_markerRadii(tester), <double>[radius + 1.5, radius, radius + 1.5, radius]);
+        expect(_markerRadii(tester), <double>[radius + 1, radius - 1, radius + 1, radius - 1]);
 
         final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
 
@@ -1153,19 +1190,19 @@ void main() {
         final double halfway = radius + PlassTokens.ease.transform(0.5);
         final List<double> radii = _markerRadii(tester);
 
-        expect(radii[1], closeTo(halfway, 1e-6));
-        expect(radii[0], closeTo(halfway + 1.5, 1e-6));
-        expect(radii[1], lessThan(radius + 1));
-        expect(radii.sublist(2), <double>[radius + 1.5, radius]);
+        expect(radii[1], closeTo(halfway - 1, 1e-6));
+        expect(radii[0], closeTo(halfway + 1, 1e-6));
+        expect(radii[1], lessThan(radius));
+        expect(radii.sublist(2), <double>[radius + 1, radius - 1]);
 
         await tester.pumpAndSettle();
 
-        expect(_markerRadii(tester), <double>[radius + 2.5, radius + 1, radius + 1.5, radius]);
+        expect(_markerRadii(tester), <double>[radius + 2, radius, radius + 1, radius - 1]);
 
         await mouse.moveTo(Offset.zero);
         await tester.pumpAndSettle();
 
-        expect(_markerRadii(tester), <double>[radius + 1.5, radius, radius + 1.5, radius]);
+        expect(_markerRadii(tester), <double>[radius + 1, radius - 1, radius + 1, radius - 1]);
       });
 
       testWidgets('grows them at once under reduced motion', (WidgetTester tester) async {
@@ -1191,7 +1228,7 @@ void main() {
 
         final double radius = markerRadii[PlassSize.md]!;
 
-        expect(_markerRadii(tester).sublist(0, 2), <double>[radius + 2.5, radius + 1]);
+        expect(_markerRadii(tester).sublist(0, 2), <double>[radius + 2, radius]);
         expect(tester.binding.transientCallbackCount, 0);
       });
 
@@ -1220,7 +1257,7 @@ void main() {
         // the React marker is when the crosshair reaches its column.
         final double radius = markerRadii[PlassSize.md]!;
 
-        expect(_markerRadii(tester), <double>[radius + 2.5, radius + 1]);
+        expect(_markerRadii(tester), <double>[radius + 2, radius]);
 
         await tester.pumpAndSettle();
       });
@@ -1321,7 +1358,7 @@ void main() {
 
         // Revenue's February marker and Cost's, one above the other, each at the
         // size a marker under the crosshair is, and no crosshair.
-        expect(painted.radii, <double>[radius + 2.5, radius + 1, radius + 2.5, radius + 1]);
+        expect(painted.radii, <double>[radius + 2, radius, radius + 2, radius]);
         expect(painted.centres[0].dx, painted.centres[2].dx);
         expect(painted.centres[0].dy, lessThan(painted.centres[2].dy));
         expect(painted.downRules, 0);

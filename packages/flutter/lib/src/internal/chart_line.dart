@@ -191,9 +191,19 @@ void paintLineSeries(
         // a React marker put under the crosshair does.
         final double r = radius + (dots ? layout.columnLit(i) : 1);
 
+        // The ring is the surface showing through, `markGap` wide and centred
+        // on the marker's edge, which is where the React marker's stroke lies
+        // over its fill: the dot is half the gap inside `r` and the ring runs
+        // to half the gap outside it. Painted as two discs with the dot on top
+        // rather than as a stroke over the dot, so a faded marker has no band
+        // where a translucent ring lies over a translucent dot.
         canvas
-          ..drawCircle(at, r + 1.5, Paint()..color = layout.tokens.surface.withValues(alpha: alpha))
-          ..drawCircle(at, r, Paint()..color = ink.withValues(alpha: alpha));
+          ..drawCircle(
+            at,
+            r + markGap / 2,
+            Paint()..color = layout.tokens.surface.withValues(alpha: alpha),
+          )
+          ..drawCircle(at, r - markGap / 2, Paint()..color = ink.withValues(alpha: alpha));
       }
     }
   }
