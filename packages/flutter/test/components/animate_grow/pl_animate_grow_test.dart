@@ -112,12 +112,21 @@ void main() {
       testWidgets('draws no opacity layer at all when the fade is off', (
         WidgetTester tester,
       ) async {
-        await tester.pumpWidget(host(const PlAnimateGrow(fade: false, child: Text('Unfolding'))));
-
-        expect(
-          find.descendant(of: find.byType(PlAnimateGrow), matching: find.byType(PlassFiltered)),
-          findsNothing,
+        await tester.pumpWidget(
+          host(
+            const PlAnimateGrow(
+              fade: false,
+              duration: Duration(milliseconds: 200),
+              child: Text('Unfolding'),
+            ),
+          ),
         );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Halfway through the run and at full strength, which is painted
+        // straight onto the canvas.
+        expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
       });
     });
 

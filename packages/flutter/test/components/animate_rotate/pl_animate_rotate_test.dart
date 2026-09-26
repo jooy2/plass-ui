@@ -111,12 +111,21 @@ void main() {
     });
 
     testWidgets('draws no opacity layer at all for a continuous spin', (WidgetTester tester) async {
-      await tester.pumpWidget(host(const PlAnimateRotate(fade: false, child: Text('Turning'))));
-
-      expect(
-        find.descendant(of: find.byType(PlAnimateRotate), matching: find.byType(PlassFiltered)),
-        findsNothing,
+      await tester.pumpWidget(
+        host(
+          const PlAnimateRotate(
+            fade: false,
+            duration: Duration(milliseconds: 200),
+            child: Text('Turning'),
+          ),
+        ),
       );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Halfway through the run and at full strength, which is painted
+      // straight onto the canvas.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
     });
 
     testWidgets('turns out of place on the same curve run backwards', (WidgetTester tester) async {

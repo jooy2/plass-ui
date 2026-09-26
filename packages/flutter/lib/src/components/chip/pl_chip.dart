@@ -163,27 +163,12 @@ class PlChip extends StatelessWidget {
     final radius = BorderRadius.circular(tokens.radii[step]!);
     final interactive = onPressed != null && !disabled;
 
-    if (onPressed == null) {
-      return _shell(
-        context,
-        tokens: tokens,
-        family: family,
-        step: step,
-        height: height,
-        fontSize: fontSize,
-        radius: radius,
-        reduceMotion: reduceMotion,
-        state: const PlassInteraction(),
-        focusVisible: false,
-        padded: true,
-      );
-    }
-
-    // The same widgets above the label whether the chip is disabled or not,
-    // with the difference in their flags: a chip wrapped only while it could
-    // be pressed would be built again from scratch as `disabled` changed. A
-    // disabled chip takes no focus and claims no tap, so a press on it
-    // reaches whatever is around it, and it is not announced as a button.
+    // The same widgets above the label whether the chip is pressable, disabled
+    // or neither, with the difference in their flags: a chip wrapped only
+    // while it could be pressed would be built again from scratch as
+    // `disabled` changed, or as `onPressed` came or went. A chip that cannot be
+    // pressed takes no focus and claims no tap, so a press on it reaches
+    // whatever is around it, and it is not announced as a button.
     return PlassInteractive(
       onTap: onPressed,
       enabled: interactive,
@@ -359,13 +344,15 @@ class PlChip extends StatelessWidget {
       ),
     );
 
+    // Lit whether the chip is pressable or not, for the same reason. A chip
+    // that cannot be pressed is handed no hover and no press, so it stays at
+    // full brightness.
     chip = plassStateFilter(
       child: chip,
       disabled: disabled,
       hovered: state.hovered,
       pressed: state.pressed,
       reduceMotion: reduceMotion,
-      lit: onPressed != null,
     );
 
     // Always there, with only the painter coming and going. A ring wrapped

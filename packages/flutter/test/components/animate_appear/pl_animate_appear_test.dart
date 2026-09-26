@@ -166,12 +166,22 @@ void main() {
     });
 
     testWidgets('draws no opacity layers at all when the fade is off', (WidgetTester tester) async {
-      await tester.pumpWidget(host(PlAnimateAppear(fade: false, children: _three)));
-
-      expect(
-        find.descendant(of: find.byType(PlAnimateAppear), matching: find.byType(PlassFiltered)),
-        findsNothing,
+      await tester.pumpWidget(
+        host(
+          PlAnimateAppear(
+            fade: false,
+            duration: const Duration(milliseconds: 200),
+            stagger: Duration.zero,
+            children: _three,
+          ),
+        ),
       );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Halfway through the run and at full strength, which is painted
+      // straight onto the canvas.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
     });
 
     testWidgets('runs down the list by default and across when asked', (WidgetTester tester) async {

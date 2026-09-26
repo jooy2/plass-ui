@@ -330,34 +330,36 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   /// it resizing as the reel turns. They are left out of the semantics too, as
   /// the React build hides them with `visibility`, so a screen reader is given
   /// the line that is up rather than the set.
+  ///
+  /// Every line is wrapped in the same widgets, whether it is up, on its way
+  /// or not showing, and only their settings change. A line that was wrapped
+  /// only while it came up or left changed the shape of the tree above it, and
+  /// Flutter builds a changed shape again from scratch.
   Widget _line(int position, {required Curve curve, required bool still}) {
     final bool active = position == _active;
     final bool leaving = position == _leaving && !still;
+    final bool shown = active || leaving;
 
     return AnimatedBuilder(
       animation: _swap,
       child: widget.children[position],
       builder: (BuildContext context, Widget? inner) {
-        if (!active && !leaving) {
-          return PlassFiltered(
-            colorFilter: null,
-            opacity: 0,
-            alwaysIncludeSemantics: false,
-            child: inner,
-          );
-        }
-
         final double t = curve.transform(_swap.value.clamp(0, 1));
         // Coming up from below, or leaving upward: one line replacing the one
         // above it, which is the gesture the whole effect is named for.
-        final double travel = active ? 1 - t : -t;
-        final double opacity = still ? (active ? 1 : 0) : (active ? t : 1 - t);
+        final double travel = !shown ? 0 : (active ? 1 - t : -t);
+        final double opacity = !shown
+            ? 0
+            : still
+            ? 1
+            : (active ? t : 1 - t);
         // Read for the whole of the swap, at 0 as well, as the React build
         // shows a line that is coming up or leaving from the first frame of
-        // the swap to the last.
+        // the swap to the last, and not read at all while it is not showing.
         final Widget faded = PlassFiltered(
           colorFilter: null,
           opacity: opacity.clamp(0, 1),
+          alwaysIncludeSemantics: shown,
           child: inner,
         );
 

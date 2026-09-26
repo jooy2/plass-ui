@@ -125,9 +125,11 @@ class PlAnimateGrow extends StatelessWidget {
           child: inner,
         );
 
-        return fade
-            ? PlassFiltered(colorFilter: null, opacity: t.clamp(0, 1), child: scaled)
-            : scaled;
+        // In the tree whether it fades or not, at full strength when it does
+        // not, which is painted straight onto the canvas. A wrapper that came
+        // and went with `fade` changed the shape of the tree above what it
+        // holds, and Flutter builds a changed shape again from scratch.
+        return PlassFiltered(colorFilter: null, opacity: fade ? t.clamp(0, 1) : 1, child: scaled);
       },
     );
   }

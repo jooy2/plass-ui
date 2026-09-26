@@ -1,14 +1,16 @@
 // That a control drawn on a `PlassSurfaceBox` keeps what it holds as it is made
-// read-only and disabled, and as its variant changes.
+// read-only and disabled, and as its variant changes, and that a chip and an
+// effect keep what they hold as a setting changes.
 //
 // Each of those changes how a control looks and what it does: the gloss of a
 // glass surface goes, the interaction light is put out, a pressable chip stops
-// being pressable, a number field puts its steppers away and a `solid` surface
-// starts answering the pointer with a brightness. None of that may change the
-// shape of the tree above what the control holds, because Flutter builds a
-// changed shape again from scratch — a stateful slot would start over, and an
-// editor would come back as a new one. What is checked here is the content's
-// own `State`, kept across all of them, on every variant of every control.
+// being pressable, a number field puts its steppers away, a `solid` surface
+// starts answering the pointer with a brightness, an entrance stops fading and
+// a headline's line comes up. None of that may change the shape of the tree
+// above what the control holds, because Flutter builds a changed shape again
+// from scratch — a stateful slot would start over, and an editor would come
+// back as a new one. What is checked here is the content's own `State`, kept
+// across all of them, on every variant of every control.
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -146,6 +148,51 @@ final Map<String, _Control> _controls = <String, _Control>{
   ),
 };
 
+/// A widget built with one of its settings on or off, and what in it has to
+/// survive the setting changing.
+class _Setting {
+  const _Setting(this.build, {this.held});
+
+  final Widget Function(bool on) build;
+
+  /// What has to survive, or `null` for a [_Probe].
+  final Finder? held;
+}
+
+/// Settings that put a wrapper round what a widget holds to work, or stand it
+/// down: the press and the brightness of a chip that is handed `onPressed`, the
+/// fade of an entrance, and the travel and the fade of a headline's line as it
+/// comes up and leaves.
+final Map<String, _Setting> _settings = <String, _Setting>{
+  'PlChip, its onPressed': _Setting(
+    (bool on) => PlChip(onPressed: on ? () {} : null, child: const _Probe()),
+  ),
+  'PlAnimateAppear, its fade': _Setting(
+    (bool on) => PlAnimateAppear(fade: on, children: const <Widget>[_Probe()]),
+  ),
+  'PlAnimateZoom, its fade': _Setting((bool on) => PlAnimateZoom(fade: on, child: const _Probe())),
+  'PlAnimateSlide, its fade': _Setting(
+    (bool on) => PlAnimateSlide(fade: on, child: const _Probe()),
+  ),
+  'PlAnimateGrow, its fade': _Setting((bool on) => PlAnimateGrow(fade: on, child: const _Probe())),
+  'PlAnimateRotate, its fade': _Setting(
+    (bool on) => PlAnimateRotate(fade: on, child: const _Probe()),
+  ),
+  'PlAnimateReveal, its fade': _Setting(
+    (bool on) => PlAnimateReveal(fade: on, child: const _Probe()),
+  ),
+  // Its parts are its own words, with no `State` of their own, so what has to
+  // survive is the element a word is drawn by.
+  'PlAnimateSplit, its fade': _Setting(
+    (bool on) => PlAnimateSplit(text: 'Ship it', fade: on),
+    held: find.textContaining('Ship'),
+  ),
+  'PlAnimateHeadline, a line coming up and leaving': _Setting(
+    (bool on) =>
+        PlAnimateHeadline(index: on ? 1 : 0, children: const <Widget>[Text('faster'), _Probe()]),
+  ),
+};
+
 /// A control with a field in it, on one variant.
 typedef _Holding = Widget Function(PlassVariant variant);
 
@@ -168,6 +215,28 @@ final Map<String, _Holding> _holders = <String, _Holding>{
 };
 
 void main() {
+  group('what a widget holds as a setting changes', () {
+    _settings.forEach((String name, _Setting setting) {
+      testWidgets('survives $name going on and off', (WidgetTester tester) async {
+        final Finder held = setting.held ?? find.byType(_Probe);
+
+        Widget build(bool on) => host(setting.build(on), width: 320);
+
+        await tester.pumpWidget(build(false));
+        await tester.pumpAndSettle();
+
+        final Element element = tester.element(held);
+
+        for (final bool on in <bool>[true, false]) {
+          await tester.pumpWidget(build(on));
+          await tester.pumpAndSettle();
+
+          expect(tester.element(held), same(element), reason: on ? 'on' : 'off again');
+        }
+      });
+    });
+  });
+
   group('what a control holds as its variant changes', () {
     _holders.forEach((String name, _Holding build) {
       testWidgets('survives a $name going through every variant', (WidgetTester tester) async {

@@ -147,14 +147,19 @@ void main() {
 
     group('fade', () {
       testWidgets('changes no colour unless it is asked to', (WidgetTester tester) async {
-        await tester.pumpWidget(host(const PlAnimateReveal(child: Text('Uncovered')), width: 200));
+        await tester.pumpWidget(
+          host(
+            const PlAnimateReveal(duration: Duration(milliseconds: 200), child: Text('Uncovered')),
+            width: 200,
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
 
         // The whole reason to reach for a reveal is that the ink does not move
-        // and does not change.
-        expect(
-          find.descendant(of: find.byType(PlAnimateReveal), matching: find.byType(PlassFiltered)),
-          findsNothing,
-        );
+        // and does not change: halfway through the wipe it is at full strength,
+        // which is painted straight onto the canvas.
+        expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
       });
 
       testWidgets('fades behind the wipe when both are wanted', (WidgetTester tester) async {

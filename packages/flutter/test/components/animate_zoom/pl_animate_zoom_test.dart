@@ -81,12 +81,21 @@ void main() {
     });
 
     testWidgets('draws no opacity layer at all when the fade is off', (WidgetTester tester) async {
-      await tester.pumpWidget(host(const PlAnimateZoom(fade: false, child: Text('Landed'))));
-
-      expect(
-        find.descendant(of: find.byType(PlAnimateZoom), matching: find.byType(PlassFiltered)),
-        findsNothing,
+      await tester.pumpWidget(
+        host(
+          const PlAnimateZoom(
+            fade: false,
+            duration: Duration(milliseconds: 200),
+            child: Text('Landed'),
+          ),
+        ),
       );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Halfway through the run and at full strength, which is painted
+      // straight onto the canvas.
+      expect(tester.layers.whereType<OpacityLayer>(), isEmpty);
     });
 
     testWidgets('falls away on the same curve run backwards', (WidgetTester tester) async {

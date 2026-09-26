@@ -128,7 +128,7 @@ const PlAnimateZoom(
 | React | Flutter | 이유 |
 | --- | --- | --- |
 | `mode="in" \| "out"` | `PlassAnimateMode.enter` / `.exit` | `in`은 Dart의 예약어입니다. |
-| `fade`가 항상 opacity 레이어를 그림 | `fade`가 꺼지면 투명도를 그리는 widget 자체가 없음 | 합성할 레이어가 하나 줄어듭니다. |
+| `fade`가 항상 opacity 레이어를 그림 | `fade`가 꺼지면 opacity 레이어가 없음 | 합성할 레이어가 하나 줄어듭니다. |
 | `render` | — | Flutter에는 다형적 요소가 없습니다. |
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
