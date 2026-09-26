@@ -891,6 +891,14 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
             for (int i = 0; i < count; i += 1) categoryAt(i, widget.categories, values),
           ];
 
+    // A column that is no longer there has nothing left to read, so the reading
+    // is let go rather than kept for a column the data may bring back, as a pie
+    // lets go of a slice. Here rather than when the widget changes, because how
+    // many columns there are is known only once the axis has been worked out.
+    if (_activeIndex != null && _activeIndex! >= count) {
+      _activeIndex = null;
+    }
+
     final ChartExtent? extent = extentOf(shown, stacked: widget.stacked);
     final bool nothing = extent == null;
 
@@ -920,6 +928,9 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
             : MediaQuery.sizeOf(context).width;
 
         if (nothing) {
+          // Nothing is drawn, so there is no mark left to read either.
+          _activeMark = null;
+
           return SizedBox(
             height: height,
             // The caller's widget as it is — a `Text.rich`, an icon over a
@@ -1118,6 +1129,14 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
                     mark!.series == _activeMark!.series && mark.index == _activeMark!.index,
                 orElse: () => null,
               );
+
+        // A mark that is no longer drawn is let go for the same reason as a
+        // column, rather than read again once the data brings one back to its
+        // place.
+        if (active == null) {
+          _activeMark = null;
+        }
+
         final PlassChartLayout layout = built.isEmpty && active == null
             ? base
             : base.withMarks(built, active);

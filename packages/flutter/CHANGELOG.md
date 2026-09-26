@@ -82,7 +82,7 @@
 
 - **The whole of a `PlSidebar` resize handle is drawn and can be pressed, the half past the column's edge included.** The handle straddles the edge, but the column clipped it and only asked about a press inside itself, so its wash and its focus ring were cut in half and only the inner 4px of its 8px track took a drag. What holds the sidebar still decides which of its children it asks first, so the content beside a sidebar at the start of a `Row` keeps a press it takes.
 
-- **A `PlPieChart` built again with fewer slices while one is being read lets go of it.** It threw a `RangeError` looking up a slice that was no longer there. A slice that is still there is still read.
+- **A line, bar, area, scatter, timeline or pie chart built again with less data while a column, a mark or a slice of it is being read lets go of what is no longer there.** A line, bar, area or pie chart threw a `RangeError` looking up a column or a slice past the end, and a scatter, a timeline or a `nearest` tooltip held on to a mark that was gone and read it again once the data brought one back to its place. A column, a mark or a slice that is still there is still read.
 
 - **The marks of a line, area, bar, scatter, pie and timeline chart fade and grow over `motionDuration`, and a `PlDataTable` sort mark turns and brightens, as in the React build.** A series faded for a legend entry pointed at another, a bar or a span came up under the crosshair or a key, a scatter mark grew a pixel and a pie faded the slices it was not reading, each in one frame, and a sort mark flipped and brightened at once. Each now eases there and back, and changes at once under reduced motion. What a chart draws at rest is unchanged.
 
