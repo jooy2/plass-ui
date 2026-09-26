@@ -386,9 +386,14 @@ class _Trigger extends StatelessWidget {
               children: <Widget>[
                 // The glyph, the word and the chevron ease to a new ink with
                 // the wash, as the React trigger's `color` does, and a glyph
-                // takes it as one in the React trigger takes its
-                // `currentColor`. A glyph handed a colour of its own keeps it.
-                if (item.startIcon != null) PlassInk(color: ink, child: item.startIcon!),
+                // takes it, at 1.2× the word's type size, as one in the React
+                // trigger takes its `currentColor` and `1.2em`. A glyph handed
+                // a colour or a size of its own keeps it.
+                if (item.startIcon != null)
+                  IconTheme.merge(
+                    data: IconThemeData(size: fontSize * iconScale),
+                    child: PlassInk(color: ink, child: item.startIcon!),
+                  ),
                 PlassInk(
                   color: ink,
                   child: Text(
@@ -609,7 +614,20 @@ class _Link extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: gap[size]!,
             children: <Widget>[
-              ?link.startIcon,
+              // In the row's ink and at 1.2× the title's type size, centred on
+              // the title's first line, as a glyph in the React link takes the
+              // link's `currentColor` and `1.2em` in a box one line high. A
+              // glyph handed a colour or a size of its own keeps it.
+              if (link.startIcon != null)
+                SizedBox(
+                  height: title.line,
+                  child: Center(
+                    child: IconTheme.merge(
+                      data: IconThemeData(color: tokens.fg, size: title.size * iconScale),
+                      child: link.startIcon!,
+                    ),
+                  ),
+                ),
               Flexible(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

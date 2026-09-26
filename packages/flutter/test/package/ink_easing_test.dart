@@ -677,6 +677,19 @@ final Map<String, _Case> _cases = <String, _Case>{
       ),
     ),
   ),
+  'solid PlToast, a glyph in its message': _Case(
+    _toastStack,
+    read: _glyph,
+    change: _toast(
+      (bool on) => PlToast(
+        id: 'toast',
+        timeout: Duration.zero,
+        variant: PlassVariant.solid,
+        color: on ? PlassColor.warning : PlassColor.info,
+        description: const Row(children: <Widget>[_Glyph(), Text('Body')]),
+      ),
+    ),
+  ),
   'solid PlToast, its ×': _Case(
     _toastStack,
     read: _ownGlyph(PlassGlyphShape.close),

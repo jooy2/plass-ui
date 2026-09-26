@@ -717,6 +717,10 @@ class _Toast extends StatelessWidget {
     // changes at once, as the React build's does.
     final accent = solid ? null : family.accent;
 
+    // Muted only under a title: a one-line toast *is* the message, and a
+    // message written in the quiet ink is a message that looks like a footnote.
+    final detail = toast.title != null && !solid ? tokens.mutedFg : null;
+
     // A toast floats over the page, so — with the select's list, the modal's
     // sheet and the tooltip's plate — it carries a shadow. The two undyed
     // materials are the glass at its most opaque, for the reason the modal's
@@ -781,12 +785,12 @@ class _Toast extends StatelessWidget {
           borderRadius: BorderRadius.circular(tokens.radii[size]!),
           // The message, the × and, on `solid`, the glyph, the title and the
           // action ease to a new ink with the fill, as the React build's
-          // `color` does under the house transition. Only the words and the
-          // toast's own glyphs: a glyph a caller puts in the title or the
-          // message keeps the colour it had.
+          // `color` does under the house transition. A glyph a caller puts in
+          // the title, the message or the action takes the colour of the
+          // words around it, as an `<svg>` drawn in `currentColor` does in the
+          // React toast.
           child: PlassInk(
             color: surface.ink,
-            icons: false,
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: sheetPaddingX[density]![size]!,
@@ -818,17 +822,18 @@ class _Toast extends StatelessWidget {
                                 height: sheetTitle[size]!.height,
                                 fontWeight: FontWeight.w600,
                               ),
-                              child: toast.title!,
+                              child: IconTheme.merge(
+                                data: IconThemeData(color: accent),
+                                child: toast.title!,
+                              ),
                             ),
                           if (toast.description != null)
                             DefaultTextStyle.merge(
-                              // Muted only under a title: a one-line toast *is* the
-                              // message, and a message written in the quiet ink is a
-                              // message that looks like a footnote.
-                              style: TextStyle(
-                                color: toast.title != null && !solid ? tokens.mutedFg : null,
+                              style: TextStyle(color: detail),
+                              child: IconTheme.merge(
+                                data: IconThemeData(color: detail),
+                                child: toast.description!,
                               ),
-                              child: toast.description!,
                             ),
                         ],
                       ),
@@ -851,7 +856,10 @@ class _Toast extends StatelessWidget {
                                   fontWeight: FontWeight.w500,
                                   decoration: state.hovered ? TextDecoration.underline : null,
                                 ),
-                                child: toast.actionLabel!,
+                                child: IconTheme.merge(
+                                  data: IconThemeData(color: accent),
+                                  child: toast.actionLabel!,
+                                ),
                               ),
                             );
                           },

@@ -76,13 +76,15 @@
 
 ### Fixed
 
-- **A glyph a caller puts in a `PlAlert` takes the colour of the words round it, as in the React build.** One in `action` takes the alert's ink and eases with it, one in the title takes the title's accent on `glass` and `ghost`, and one in the detail under a title takes the muted ink. Each kept whatever colour the app around it had.
+- **A `startIcon` on a `PlMenubar` or `PlNavigationMenu` trigger, or on a `PlNavigationMenuLink`, is sized off the words beside it, and a link's is drawn in the foreground.** A trigger's glyph is 1.2× the trigger's type size, 16.8 at `md`, as in the React build, and a link's is 1.2× its title's, centred on the title's first line. Both were drawn at the 24 an icon has with nothing around it, and a link's glyph took no colour either, so one with no colour of its own was the fallback black and could not be seen on the dark theme.
+
+- **A glyph a caller puts in a `PlAlert` or a `PlToast` takes the colour of the words round it, as in the React build.** One in the title takes the title's accent on `glass` and `ghost`, one in the detail under a title takes the muted ink, one in an alert's `action` takes the alert's ink and one in a toast's action the accent the action is written in, and on `solid` each takes the surface's ink and eases with it. Each kept whatever colour the app around it had.
 
 - **A `PlWindowPane` caption plate on `windowsxp`, and the minimize and maximize plates on `windows7`, brighten under the pointer and dim under a press, as in the React build.** XP's plates did not answer the pointer at all, and Aero's changed only their fill. The brightness eases over `motionDuration` and changes at once under reduced motion.
 
 - **The row the pointer or the arrow keys light in a `PlSelect` or `PlCombobox` list is washed in the family's `softHover`, as in the React build.** It took the paler `soft`, so the highlight was a step fainter than the React one.
 
-- **A glyph on a `PlAppLogo` plate is drawn in the plate's ink, as in the React build.** The mark took no colour from its plate, so a glyph drawn in the ambient colour kept whatever colour the app around it had, often a dark glyph on a filled plate. It now takes the colour on the fill on `solid` and the family's accent on `glass` and `ghost`, and eases to a new one with the fill.
+- **A glyph on a `PlAppLogo` is drawn in its plate's ink, or in the foreground on a bare mark, as in the React build.** The mark took no colour from its plate, so a glyph drawn in the ambient colour kept whatever colour the app around it had, often a dark glyph on a filled plate. It now takes the colour on the fill on `solid` and the family's accent on `glass` and `ghost`, and eases to a new one with the fill. A bare mark, which kept the app's colour too, takes the foreground the name beside it is written in.
 
 - **A glyph handed to a `PlToast` as `icon` is drawn in the colour and at the size of the severity's own glyph, as in the React build.** It was placed as it came, in whatever colour and size the app around it had.
 

@@ -122,6 +122,33 @@ void main() {
           );
         }
       });
+
+      testWidgets('draws a bare mark in the foreground the name is written in', (
+        WidgetTester tester,
+      ) async {
+        for (final Brightness brightness in Brightness.values) {
+          await tester.pumpWidget(
+            host(
+              PlAppLogo(
+                key: ValueKey<Brightness>(brightness),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[_Glyph(), Text('Acme')],
+                ),
+              ),
+              brightness: brightness,
+            ),
+          );
+
+          final Color fg = PlassTokens.of(brightness).fg;
+
+          // The colour `currentColor` resolves to on the React logo, whose
+          // root is written in `--plass-fg`, rather than whatever the app
+          // around it has: the fallback black on the dark theme.
+          expect(_Glyph.seen, fg, reason: brightness.name);
+          expect(styleOf(tester, 'Acme').color, fg, reason: brightness.name);
+        }
+      });
     });
 
     group('the words', () {

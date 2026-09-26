@@ -93,6 +93,22 @@ class _KeptState extends State<_Kept> {
   Widget build(BuildContext context) => Text(widget.label);
 }
 
+/// A glyph a caller hands the toast, recording the colour it is drawn in.
+class _ToastGlyph extends StatelessWidget {
+  const _ToastGlyph(this.name);
+
+  final String name;
+
+  static final Map<String, Color?> seen = <String, Color?>{};
+
+  @override
+  Widget build(BuildContext context) {
+    seen[name] = IconTheme.of(context).color;
+
+    return const SizedBox.square(dimension: 16);
+  }
+}
+
 void main() {
   group('PlToast', () {
     group('raising', () {
@@ -607,6 +623,88 @@ void main() {
 
         await tester.pump(const Duration(seconds: 6));
         await tester.pumpAndSettle();
+      });
+    });
+
+    group('drawing', () {
+      testWidgets('draws a glyph a caller hands it in the colour of the words around it', (
+        WidgetTester tester,
+      ) async {
+        final tokens = PlassTokens.light();
+        final family = tokens.family(PlassColor.info);
+
+        for (final PlassVariant variant in PlassVariant.values) {
+          final controller = await _provider(tester);
+
+          controller.show(
+            PlToast(
+              id: variant.name,
+              timeout: Duration.zero,
+              variant: variant,
+              color: PlassColor.info,
+              title: const Row(children: <Widget>[_ToastGlyph('title'), Text('Title')]),
+              description: const Row(children: <Widget>[_ToastGlyph('message'), Text('Message')]),
+              actionLabel: const Row(children: <Widget>[_ToastGlyph('action'), Text('Undo')]),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final bool solid = variant == PlassVariant.solid;
+
+          // As an `<svg>` drawn in `currentColor` takes the React toast's: the
+          // accent in the title and the action, and the muted ink in the detail
+          // under a title, all of them the toast's own ink on `solid`.
+          expect(
+            _ToastGlyph.seen['title'],
+            solid ? family.onSolid : family.accent,
+            reason: variant.name,
+          );
+          expect(
+            _ToastGlyph.seen['message'],
+            solid ? family.onSolid : tokens.mutedFg,
+            reason: variant.name,
+          );
+          expect(
+            _ToastGlyph.seen['action'],
+            solid ? family.onSolid : family.accent,
+            reason: variant.name,
+          );
+
+          controller.close(variant.name);
+          await tester.pumpAndSettle();
+        }
+      });
+
+      testWidgets('draws a glyph in a message with no title in the toast s own ink', (
+        WidgetTester tester,
+      ) async {
+        final tokens = PlassTokens.light();
+        final family = tokens.family(PlassColor.info);
+
+        for (final PlassVariant variant in PlassVariant.values) {
+          final controller = await _provider(tester);
+
+          controller.show(
+            PlToast(
+              id: variant.name,
+              timeout: Duration.zero,
+              variant: variant,
+              color: PlassColor.info,
+              description: const Row(children: <Widget>[_ToastGlyph('message'), Text('Message')]),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          // A one-line toast *is* the message, so its glyph is not muted.
+          expect(
+            _ToastGlyph.seen['message'],
+            variant == PlassVariant.solid ? family.onSolid : tokens.fg,
+            reason: variant.name,
+          );
+
+          controller.close(variant.name);
+          await tester.pumpAndSettle();
+        }
       });
     });
 

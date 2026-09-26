@@ -439,9 +439,14 @@ class _Word extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: gap[size]!,
               children: <Widget>[
-                // In the word's ink, as a glyph in the React trigger takes its
-                // `currentColor`. A glyph handed a colour of its own keeps it.
-                if (menu.startIcon != null) PlassInk(color: ink, child: menu.startIcon!),
+                // In the word's ink and at 1.2× its type size, as a glyph in the
+                // React trigger takes its `currentColor` and `1.2em`. A glyph
+                // handed a colour or a size of its own keeps it.
+                if (menu.startIcon != null)
+                  IconTheme.merge(
+                    data: IconThemeData(size: fontSize * iconScale),
+                    child: PlassInk(color: ink, child: menu.startIcon!),
+                  ),
                 Center(
                   // Eased with the wash as the menu opens and closes, as the
                   // React trigger's `color` is.

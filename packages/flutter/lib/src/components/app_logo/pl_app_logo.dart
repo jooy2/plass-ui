@@ -173,9 +173,20 @@ class PlAppLogo extends StatelessWidget {
     } else {
       // A height and no width: a wordmark is wider than it is tall, and cropping
       // it to a square is the failure this widget is here to avoid.
+      //
+      // Not tinted, but not left in whatever colour the app around it has
+      // either: a glyph drawn in the ambient colour takes the foreground the
+      // name beside it is written in, as an `<svg>` drawn in `currentColor`
+      // does in the React build.
       mark = SizedBox(
         height: height,
-        child: FittedBox(fit: BoxFit.contain, child: child),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: tokens.fg),
+          child: IconTheme.merge(
+            data: IconThemeData(color: tokens.fg),
+            child: FittedBox(fit: BoxFit.contain, child: child),
+          ),
+        ),
       );
     }
 

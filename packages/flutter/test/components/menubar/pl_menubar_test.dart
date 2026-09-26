@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -103,6 +104,36 @@ void main() {
         );
 
         expect(tester.getSize(find.byType(PlMenubar)).height, entry.value);
+      }
+    });
+
+    testWidgets('draws a startIcon at 1.2× the type size of its word', (WidgetTester tester) async {
+      for (final PlassSize size in PlassSize.values) {
+        await tester.pumpWidget(
+          host(
+            loose(
+              PlMenubar(
+                size: size,
+                menus: const <PlMenubarMenu>[
+                  PlMenubarMenu(
+                    label: 'File',
+                    startIcon: Icon(IconData(0x41)),
+                    items: <PlMenuEntry>[PlMenuItem(label: 'New')],
+                  ),
+                ],
+              ),
+            ),
+            width: 500,
+            height: 300,
+            overlay: true,
+          ),
+        );
+
+        // As the React trigger's `1.2em` sizes a glyph off its label, rather
+        // than at the 24 an icon is drawn at with nothing around it.
+        final double side = controlText[size]! * iconScale;
+
+        expect(tester.getSize(find.byType(Icon)), Size(side, side), reason: size.name);
       }
     });
 

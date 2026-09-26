@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
@@ -574,6 +575,88 @@ void main() {
           expect(decoration.boxShadow ?? const <BoxShadow>[], isEmpty);
         }
       });
+
+      testWidgets('draws an item s startIcon at 1.2× the type size of its word', (
+        WidgetTester tester,
+      ) async {
+        for (final PlassSize size in PlassSize.values) {
+          await tester.pumpWidget(
+            host(
+              PlNavigationMenu(
+                size: size,
+                items: <PlNavigationMenuItem>[
+                  PlNavigationMenuItem(
+                    label: 'Pricing',
+                    startIcon: const Icon(IconData(0x41)),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+              width: 600,
+              height: 400,
+              overlay: true,
+            ),
+          );
+
+          // As the React trigger's `1.2em` sizes a glyph off its label, rather
+          // than at the 24 an icon is drawn at with nothing around it.
+          final double side = controlText[size]! * iconScale;
+
+          expect(tester.getSize(find.byType(Icon)), Size(side, side), reason: size.name);
+        }
+      });
+
+      testWidgets(
+        'draws a link s startIcon in the row s ink, sized off its title and on its line',
+        (WidgetTester tester) async {
+          for (final PlassSize size in PlassSize.values) {
+            await tester.pumpWidget(
+              host(
+                PlNavigationMenu(
+                  size: size,
+                  initialValue: 'Product',
+                  items: const <PlNavigationMenuItem>[
+                    PlNavigationMenuItem(
+                      label: 'Product',
+                      links: <PlNavigationMenuLink>[
+                        PlNavigationMenuLink(
+                          title: 'Analytics',
+                          description: 'Numbers over time',
+                          startIcon: Icon(IconData(0x41)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                // The dark theme, where a glyph left in the fallback black is a
+                // glyph nobody can see.
+                brightness: Brightness.dark,
+                width: 600,
+                height: 400,
+                overlay: true,
+              ),
+            );
+            await tester.pumpAndSettle();
+
+            final Finder glyph = find.byType(Icon);
+            final double side = controlTextLeading[size]!.size * iconScale;
+
+            // As a glyph in the React link takes the link's `currentColor` and
+            // `1.2em`, centred in a box one line of the title high.
+            expect(
+              IconTheme.of(tester.element(glyph)).color,
+              PlassTokens.dark().fg,
+              reason: size.name,
+            );
+            expect(tester.getSize(glyph), Size(side, side), reason: size.name);
+            expect(
+              tester.getCenter(glyph).dy,
+              tester.getCenter(find.text('Analytics')).dy,
+              reason: size.name,
+            );
+          }
+        },
+      );
 
       testWidgets('is never dyed, whatever colour it is given', (WidgetTester tester) async {
         await tester.pumpWidget(
