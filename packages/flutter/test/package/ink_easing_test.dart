@@ -352,6 +352,25 @@ final Map<String, _Case> _cases = <String, _Case>{
       return IconTheme.of(tester.element(find.byWidget(silhouette))).color!;
     },
   ),
+  'PlPill, its variant': _Case(
+    (bool on) =>
+        PlPill(variant: on ? PlassVariant.solid : PlassVariant.glass, title: const Text('Label')),
+  ),
+  'PlPill, its description': _Case(
+    (bool on) => PlPill(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      title: const Text('Title'),
+      description: const Text('Label'),
+    ),
+  ),
+  'PlPill, its leading glyph': _Case(
+    (bool on) => PlPill(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      title: const Text('Title'),
+      startIcon: const _Glyph(),
+    ),
+    read: _glyph,
+  ),
   'PlKbd, its variant': _Case(
     (bool on) =>
         PlKbd(variant: on ? PlassVariant.solid : PlassVariant.glass, child: const Text('Label')),

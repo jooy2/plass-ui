@@ -1,13 +1,14 @@
 // That a control drawn on a `PlassSurfaceBox` keeps what it holds as it is made
-// read-only and disabled.
+// read-only and disabled, and as its variant changes.
 //
-// Both states change how a control looks and what it does: the gloss of a glass
-// surface goes, the interaction light is put out, a pressable chip stops being
-// pressable and a number field puts its steppers away. None of that may change
-// the shape of the tree above what the control holds, because Flutter builds a
+// Each of those changes how a control looks and what it does: the gloss of a
+// glass surface goes, the interaction light is put out, a pressable chip stops
+// being pressable, a number field puts its steppers away and a `solid` surface
+// starts answering the pointer with a brightness. None of that may change the
+// shape of the tree above what the control holds, because Flutter builds a
 // changed shape again from scratch — a stateful slot would start over, and an
 // editor would come back as a new one. What is checked here is the content's
-// own `State`, kept across both, on every variant of every control.
+// own `State`, kept across all of them, on every variant of every control.
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -145,7 +146,58 @@ final Map<String, _Control> _controls = <String, _Control>{
   ),
 };
 
+/// A control with a field in it, on one variant.
+typedef _Holding = Widget Function(PlassVariant variant);
+
+/// Controls that hold what a caller hands them, each with a field in it that
+/// has to keep what was typed as the variant changes.
+final Map<String, _Holding> _holders = <String, _Holding>{
+  'PlPill': (PlassVariant variant) => PlPill(
+    variant: variant,
+    expanded: true,
+    title: const Text('Title'),
+    details: const PlTextField(fullWidth: true),
+  ),
+  'pressable PlPill': (PlassVariant variant) => PlPill(
+    variant: variant,
+    expanded: true,
+    title: const Text('Title'),
+    details: const PlTextField(fullWidth: true),
+    onPressed: () {},
+  ),
+};
+
 void main() {
+  group('what a control holds as its variant changes', () {
+    _holders.forEach((String name, _Holding build) {
+      testWidgets('survives a $name going through every variant', (WidgetTester tester) async {
+        Widget holder(PlassVariant variant) => host(build(variant), width: 320, overlay: true);
+
+        await tester.pumpWidget(holder(PlassVariant.values.first));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(EditableText), 'Seoul');
+        await tester.pump();
+
+        final State held = tester.state(find.byType(EditableText));
+
+        for (final PlassVariant variant in <PlassVariant>[
+          ...PlassVariant.values.skip(1),
+          PlassVariant.values.first,
+        ]) {
+          await tester.pumpWidget(holder(variant));
+          await tester.pumpAndSettle();
+
+          expect(tester.state(find.byType(EditableText)), same(held), reason: variant.name);
+          expect(
+            tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+            'Seoul',
+            reason: variant.name,
+          );
+        }
+      });
+    });
+  });
+
   group('what a control holds', () {
     _controls.forEach((String name, _Control control) {
       for (final PlassVariant variant in PlassVariant.values) {

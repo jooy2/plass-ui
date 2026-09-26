@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/fold.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -288,14 +289,21 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
                   child: SizedBox(
                     width: iconSize[_size]!,
                     height: iconSize[_size]!,
-                    child: IconTheme.merge(
-                      data: IconThemeData(color: surface.ink, size: iconSize[_size]!),
-                      child: Center(child: widget.startIcon!),
+                    // A glyph takes the ink the words are drawn in at this
+                    // moment, so it eases with them when the variant changes.
+                    child: Builder(
+                      builder: (BuildContext context) => IconTheme.merge(
+                        data: IconThemeData(
+                          color: DefaultTextStyle.of(context).style.color,
+                          size: iconSize[_size]!,
+                        ),
+                        child: Center(child: widget.startIcon!),
+                      ),
                     ),
                   ),
                 ),
               if (widget.title != null || widget.description != null || widget.child != null)
-                Flexible(child: _middle(tokens, surface.ink)),
+                Flexible(child: _middle()),
               if (widget.endIcon != null) _outsidePress(widget.endIcon!, interactive: interactive),
             ],
           ),
@@ -330,12 +338,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
         );
 
         Widget pill = DefaultTextStyle.merge(
-          style: TextStyle(
-            color: surface.ink,
-            fontSize: text,
-            height: 1.2,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: text, height: 1.2, fontWeight: FontWeight.w500),
           // Stretched so the row and the panel under it are one width — and
           // the constraints are asked first, because there is not always a
           // width to stretch to.
@@ -385,6 +388,12 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           ),
         );
 
+        // The words ease to a new ink with the fill when the variant changes,
+        // as the React shell's `color` does under the house transition. Only
+        // the words: a glyph a caller puts in `endIcon` keeps the colour it
+        // had, and the leading glyph reads the eased ink for itself.
+        pill = PlassInk(color: surface.ink, icons: false, child: pill);
+
         pill = PlassSurfaceBox(
           surface: surface,
           borderRadius: corner,
@@ -401,15 +410,23 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           child: pill,
         );
 
+        // Lit whatever the variant, and handed the pointer only on a `solid`
+        // pill, the one variant whose hover and press are a brightness. A
+        // filter that was lit only while the pill was `solid` changed the
+        // shape of the tree above what it holds whenever the variant changed,
+        // and Flutter builds a changed shape from scratch, so a field in
+        // `details` lost what was typed into it.
+        //
+        // Not narrowed to a pressable pill either: on a pill that is not
+        // pressable it is handed no hover and no press, so it stays at full
+        // brightness.
+        final lit = widget.variant == PlassVariant.solid;
+
         pill = plassStateFilter(
           child: pill,
-          hovered: state.hovered,
-          pressed: state.pressed,
+          hovered: lit && state.hovered,
+          pressed: lit && state.pressed,
           reduceMotion: reduceMotion,
-          // Not narrowed to a pressable pill: the filter is a wrapper, and on a
-          // pill that is not pressable it is handed no hover and no press, so
-          // it stays at full brightness.
-          lit: widget.variant == PlassVariant.solid,
         );
 
         // Switched off by leaving out its painter rather than the widget that
@@ -460,7 +477,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
   /// The middle: centred in its own column rather than run on from the glyph,
   /// and padded well clear of both neighbours — the pill is a frame and this is
   /// what is in it.
-  Widget _middle(PlassTokens tokens, Color ink) {
+  Widget _middle() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: _centerPadding[_density]![_size]!),
       child: Column(
@@ -476,17 +493,25 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
               child: widget.title!,
             ),
           if (widget.description != null)
-            DefaultTextStyle.merge(
-              style: TextStyle(
-                color: ink.withValues(alpha: ink.a * _descriptionInk),
-                fontSize: metaText[_size]!,
-                fontWeight: FontWeight.w400,
-              ),
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              child: widget.description!,
+            // Mixed from the ink the title is drawn in at this moment, as the
+            // React build mixes `currentColor`, so it eases with the title.
+            Builder(
+              builder: (BuildContext context) {
+                final ink = DefaultTextStyle.of(context).style.color!;
+
+                return DefaultTextStyle.merge(
+                  style: TextStyle(
+                    color: ink.withValues(alpha: ink.a * _descriptionInk),
+                    fontSize: metaText[_size]!,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  child: widget.description!,
+                );
+              },
             ),
           if (widget.child != null) widget.child!,
         ],
