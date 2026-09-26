@@ -463,6 +463,24 @@ void main() {
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
       });
 
+      testWidgets('keeps playing in a window that is showing but has lost the focus', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(() => tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed));
+
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+        await tester.pump();
+
+        // Inactive is a window the reader can still see, as a browser window
+        // that has lost the focus is, and the React carousel goes on there.
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(_harness(tester).reported, <int>[1]);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
       testWidgets('starts stopped for a reader who asked for stillness', (
         WidgetTester tester,
       ) async {

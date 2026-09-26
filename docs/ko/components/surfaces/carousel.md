@@ -137,7 +137,7 @@ PlCarousel(
 
 - `onChanged`가 있어야 합니다. 위젯이 controlled라서 아무도 듣고 있지 않은 캐러셀에는 넘길 것이 없고, 타이머도 버튼도 생기지 않습니다.
 - Flutter에는 위젯을 트리에 둔 채 가리는 방법이 브라우저보다 많고, 그 모두를 숨겨진 것으로 봅니다. `Offstage`나 `Visibility`, `IndexedStack`이 숨길 때, `TickerMode`가 꺼졌을 때(다른 route가 위에 올라온 화면이 그렇습니다), 넓이가 없는 clip 안에 있을 때(마운트된 채로 닫힌 `PlCollapsible`이 그렇습니다), 크기가 없는 상자 안에 있을 때입니다.
-- 앱은 `resumed`가 아닌 모든 lifecycle 상태에서 배경에 있는 것으로 봅니다. 포커스를 잃은 창도 여기에 들어갑니다. 다시 `resumed`가 되면 떠날 때의 슬라이드에 `interval` 한 번을 온전히 머문 뒤에 넘어갑니다.
+- 앱이 배경에 있다고 보는 것은 lifecycle 상태가 `hidden`, `paused`, `detached`일 때뿐입니다. 보이기는 하지만 포커스를 잃은 창은 `inactive`이고, 포커스를 잃은 브라우저 창에서처럼 캐러셀은 거기서 계속 넘어갑니다. 앱이 다시 보이면 떠날 때의 슬라이드에 `interval` 한 번을 온전히 머문 뒤에 넘어갑니다.
 
 :::
 

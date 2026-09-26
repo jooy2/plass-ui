@@ -137,7 +137,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 - It needs `onChanged`. The widget is controlled, so a carousel nothing is listening to has nothing to advance, and neither the timer nor the button is there.
 - Flutter has more ways than a browser to keep a widget in the tree out of sight, and each of them counts as hidden: an `Offstage`, a `Visibility` or an `IndexedStack` that hides it; a `TickerMode` that is off, which is what a route something has been pushed over is under; a clip with no area, which is what a closed `PlCollapsible` that keeps it mounted folds it into; and a box of no size.
-- The app counts as in the background in every lifecycle state but `resumed`, a window that has lost the focus included. Once it is resumed, the carousel holds the slide it was left on for a whole `interval` before it moves on.
+- The app counts as in the background only while it is `hidden`, `paused` or `detached`. A window that is showing but has lost the focus is `inactive`, and the carousel goes on playing there, as it does in a browser window that has lost the focus. Once the app is back in sight, the carousel holds the slide it was left on for a whole `interval` before it moves on.
 
 :::
 
