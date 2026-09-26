@@ -130,12 +130,37 @@ describe('a fill that comes and goes with a state', () => {
       ]);
   });
 
-  it('fades a half-set checkbox’s gradient in as well', async () => {
-    const screen = await render(<PlCheckbox label="Everything" indeterminate />);
-    const tick = screen.getByRole('checkbox').element();
+  it('fills a half-set checkbox as a ticked one, live, read-only or disabled', async () => {
+    const screen = await render(
+      <>
+        {(['live', 'read-only', 'disabled'] as const).map((state) => (
+          <div key={state}>
+            <PlCheckbox
+              label={`Half ${state}`}
+              indeterminate
+              readOnly={state === 'read-only'}
+              disabled={state === 'disabled'}
+            />
+            <PlCheckbox
+              label={`Ticked ${state}`}
+              defaultChecked
+              readOnly={state === 'read-only'}
+              disabled={state === 'disabled'}
+            />
+          </div>
+        ))}
+      </>
+    );
 
-    expectLayerOnly(tick);
-    expect(Number(layerOf(tick).opacity)).toBe(1);
+    for (const state of ['live', 'read-only', 'disabled']) {
+      const half = screen.getByRole('checkbox', { name: `Half ${state}` }).element();
+      const ticked = screen.getByRole('checkbox', { name: `Ticked ${state}` }).element();
+
+      expectLayerOnly(half);
+      expect(Number(layerOf(half).opacity), state).toBe(1);
+      // The dash takes the ink a tick does on the gradient.
+      expect(getComputedStyle(half).color, state).toBe(getComputedStyle(ticked).color);
+    }
   });
 
   it('fades a radio’s gradient from the option it leaves to the one it takes', async () => {

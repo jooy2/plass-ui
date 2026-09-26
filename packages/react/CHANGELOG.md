@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A read-only `PlCheckbox` that is `indeterminate` is filled with its family's gradient, as a live or disabled half-set box is.** It was left as clear glass, with its dash in the page's ink.
+
 - **An `autoPlay` `PlCarousel` holds still while a finger is down on its strip, and for a whole `interval` once the finger lifts.** It paused only while a pointer was over the frame, and a browser that takes a touch over to scroll the strip reports that pointer as cancelled and gone while the finger is still dragging, so the next turn pulled the strip from under the finger. Every touch that starts on the strip now holds it until the last one lifts.
 
 - **A `PlCombobox` that holds nothing says nothing when `Escape` is pressed with its list closed, or when the text of a single-value field is emptied.** Both called `onValueChange` with `null`, or with an empty array under `multiple`, so a parent heard a change that was not one, where the Flutter combobox calls nothing. A field that holds a value is still emptied by `Escape`, and says so once.
