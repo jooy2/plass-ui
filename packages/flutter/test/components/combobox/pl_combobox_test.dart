@@ -994,6 +994,121 @@ void main() {
         expect(typed.last, 'Se');
       });
 
+      testWidgets('writes a new label over text emptied in one go, which is not a query', (
+        WidgetTester tester,
+      ) async {
+        String seoul = 'Seoul';
+        late StateSetter update;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                update = setState;
+
+                // A parent that keeps its value when the text is emptied.
+                return PlCombobox<String>(
+                  options: <PlComboboxOption<String>>[
+                    PlComboboxOption<String>(value: 'seoul', label: seoul),
+                    ..._cities.skip(1),
+                  ],
+                  value: 'seoul',
+                  onChanged: (String? _) {},
+                );
+              },
+            ),
+          ),
+        );
+
+        final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
+
+        // With the list closed.
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        expect(find.byType(SingleChildScrollView), findsNothing);
+
+        update(() => seoul = 'Seoul City');
+        await tester.pump();
+
+        expect(editor.controller.text, 'Seoul City');
+
+        // And with it open on every row, which it goes on listing.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        update(() => seoul = 'Seoul Special City');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Seoul Special City');
+        expect(_listed(tester), <String>['Seoul Special City', 'Lisbon', 'Quito']);
+
+        // A query the reader has typed is theirs until the list closes, even
+        // once they have deleted it.
+        tester.testTextInput.enterText('Se');
+        await tester.pumpAndSettle();
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+        update(() => seoul = 'Soul');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, isEmpty);
+
+        // Closing the list spends it.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        expect(editor.controller.text, 'Soul');
+
+        update(() => seoul = 'Seoul');
+        await tester.pump();
+
+        expect(editor.controller.text, 'Seoul');
+      });
+
+      testWidgets('writes a new label for a value handed in while the field had the focus', (
+        WidgetTester tester,
+      ) async {
+        String value = 'seoul';
+        String lisbon = 'Lisbon';
+        late StateSetter update;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                update = setState;
+
+                return PlCombobox<String>(
+                  options: <PlComboboxOption<String>>[
+                    _cities.first,
+                    PlComboboxOption<String>(value: 'lisbon', label: lisbon),
+                  ],
+                  value: value,
+                  onChanged: (String? _) {},
+                );
+              },
+            ),
+          ),
+        );
+
+        final EditableText editor = tester.widget<EditableText>(find.byType(EditableText));
+
+        // A value handed in while the field has the focus leaves its text alone.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        update(() => value = 'lisbon');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Seoul');
+
+        // Its option's new label is still written in, as nothing was typed.
+        update(() => lisbon = 'Lisboa');
+        await tester.pumpAndSettle();
+
+        expect(editor.controller.text, 'Lisboa');
+      });
+
       testWidgets('says so when nothing matched and nothing may be added', (
         WidgetTester tester,
       ) async {

@@ -460,10 +460,15 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// Which row the keyboard is on. `-1` is none.
   int _highlighted = -1;
 
-  /// Whether the reader has changed the text since the list last opened.
+  /// Whether the reader has typed a query into the list since it last opened:
+  /// text with something in it, as Base UI's `queryChangedAfterOpen` counts
+  /// one. Deleting it again does not undo that; the list closing, and the text
+  /// going back to what the field holds, does.
   ///
   /// Until they do, the text of a single-value field is the chosen row's label,
-  /// which is not a query, and the list shows every row, as Base UI's does.
+  /// or text emptied in one go, neither of which is a query: the list shows
+  /// every row, and a new label for the value it holds is written in, as Base
+  /// UI's are.
   bool _queryEdited = false;
 
   /// The rows, and the query they were worked out for.
@@ -520,12 +525,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     }
 
     // A new label for the value it already holds is written in as well, as Base
-    // UI writes it, while the text is still the old label: not once the reader
-    // has typed a query into the list, which is theirs until the list closes.
-    final String was = _labelHeldBy(oldWidget);
+    // UI's `syncInputAfterItemsOrLabelChange` writes it, over whatever the text
+    // says: not once the reader has typed a query into the list, which is
+    // theirs until the list closes.
     final String label = _labelOfValue();
 
-    if (label != was && _text.text == was && !(_open && _queryEdited)) {
+    if (label != _labelHeldBy(oldWidget) && !_queryEdited) {
       _write(label, later: true);
     }
   }
@@ -582,7 +587,13 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// than on the ones the query had left. Nothing is committed on the way out:
   /// that is the whole point of `onCreate` being a row you take rather than a
   /// thing that happens.
-  void _putTextBack() => _write(_labelOfValue());
+  void _putTextBack() {
+    // The query is spent, and so are the rows it filtered, which are kept by
+    // their text alone.
+    _queryEdited = false;
+    _rowsCache = null;
+    _write(_labelOfValue());
+  }
 
   /// Writes [text] into the field and reports it through `onQueryChanged`, as
   /// Base UI reports every change to its input's text and not only what was
@@ -835,7 +846,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final bool typed = query.trim().isNotEmpty;
 
     setState(() {
-      _queryEdited = true;
+      // Text emptied, or left blank, is not a query, as Base UI counts none.
+      _queryEdited = _queryEdited || typed;
       // Text typed into a closed list opens it, and text emptied or left blank
       // does not, as Base UI's `maybeOpenOnInput` opens only on a query with
       // something in it. An open list stays open either way.
