@@ -861,7 +861,11 @@ export function PlWindowControls({
               // generated stylesheet, which is not something a component may
               // depend on.
               danger
-                ? 'hover:bg-(--p-window-danger) hover:text-white active:bg-(--p-window-danger)'
+                ? // The press says white as well as the hover: Tailwind puts
+                  // `hover:` behind `(hover: hover)`, so a finger, which brings
+                  // no hover with it, would otherwise draw the bar's ink on the
+                  // red.
+                  'hover:bg-(--p-window-danger) hover:text-white active:bg-(--p-window-danger) active:text-white'
                 : dots
                   ? ''
                   : plates

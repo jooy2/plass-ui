@@ -1,7 +1,8 @@
 /**
- * What a macOS traffic light shows, where the move handle lies, and how tall a
+ * What a macOS traffic light shows, where the move handle lies, how tall a
  * window is once it is rolled up, in its box or from its first render, or
- * resized as short as it goes, which the stylesheet decides.
+ * resized as short as it goes, and what a close button turns under a finger,
+ * which the stylesheet decides.
  *
  * The mark is held back with `opacity` and brought out by a hover on the set and
  * by the focus on one light, so nothing about it can be read off the markup —
@@ -11,8 +12,8 @@
  * `marquee.test.tsx` loads it, and the assertions are a mark that is there or
  * is not and a box that matches another, never a shade or a size.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { cdp, commands, server, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlWindowPane } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -330,5 +331,62 @@ describe('the macOS traffic lights', () => {
     // A ring is on one light. Lighting the other two would say the pointer is
     // over the set, which it is not.
     expect(shown(minimize)).toBe(false);
+  });
+});
+
+describe('a close button pressed on a touch screen', () => {
+  // Touch is emulated through the DevTools protocol, which is Chromium's. It is
+  // what takes `(hover: hover)` away, and with it every `hover:` utility, so a
+  // press is all that is left to turn the button.
+  const emulated = it.runIf(server.browser === 'chromium');
+
+  const setTouch = (enabled: boolean) =>
+    cdp().send('Emulation.setTouchEmulationEnabled', { enabled, maxTouchPoints: 1 });
+
+  afterEach(async () => {
+    if (server.browser === 'chromium') {
+      await setTouch(false);
+    }
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  emulated('draws its mark white on the red while it is held', async () => {
+    // Read the moment the press lands, so the colours are asked to arrive at
+    // once rather than over `--plass-duration`.
+    await emulateMedia({ reducedMotion: 'reduce' });
+    await setTouch(true);
+
+    expect(window.matchMedia('(hover: hover)').matches).toBe(false);
+
+    const screen = await render(
+      <PlWindowPane os="windows11" title="Notes">
+        Body
+      </PlWindowPane>
+    );
+    const close = screen.getByRole('button', { name: 'Close' }).element() as HTMLElement;
+    const rest = getComputedStyle(close).backgroundColor;
+    let held: { active: boolean; fill: string; ink: string } | undefined;
+
+    close.addEventListener(
+      'pointerdown',
+      () => {
+        setTimeout(() => {
+          held = {
+            active: close.matches(':active'),
+            fill: getComputedStyle(close).backgroundColor,
+            ink: getComputedStyle(close).color
+          };
+        }, 0);
+      },
+      { once: true }
+    );
+
+    // Held for a moment, and read in the first task after it lands.
+    await userEvent.click(close, { delay: 250 });
+
+    expect(held?.active).toBe(true);
+    expect(held?.fill).not.toBe(rest);
+    expect(held?.ink).toBe('rgb(255, 255, 255)');
   });
 });

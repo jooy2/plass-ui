@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlWindowPane` close button pressed on a touch screen draws its × white on the red, as in the Flutter build.** A press turned the button red, but only the pointer's hover turned its × white, and a finger brings no hover with it, so a touch press drew the title bar's own ink on the red.
+
 - **A `PlNavigationMenuLink`'s `startIcon` follows the link's `size`: 1.2em of its title, in a box one of the title's lines high, as in the Flutter build.** It was measured against the page's font, so on a 16px page it was 19.2px in a 24px box whatever the link's `size`, larger than the title at `sm` and `md` and lower than its first line.
 
 - **The chevron of a `PlCombobox` with a `label` is named by `openLabel`, `Open` by default.** Base UI pointed it at the field's label, which outranks an `aria-label`, so a screen reader announced the chevron by the field's name rather than by what it does, and `openLabel` had no effect there.
