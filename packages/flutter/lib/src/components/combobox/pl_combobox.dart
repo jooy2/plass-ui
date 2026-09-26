@@ -798,8 +798,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       // The first match lights up as the query changes, so Enter commits without
       // an arrow key first — which is also what makes the create row reachable
       // from the keyboard at all: a value the list does not have is the only
-      // match there is.
-      _highlighted = _next(-1, 1);
+      // match there is. The first row, whether or not it can be taken, as Base
+      // UI lights it and as the arrow keys stop on it.
+      _highlighted = _rows.isEmpty ? -1 : 0;
     });
     _reveal.reveal(_scroll, _highlighted, _rows.length);
   }

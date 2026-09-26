@@ -971,6 +971,42 @@ void main() {
         expect(_lit(tester), 'Quito');
       });
 
+      testWidgets('lights the first row as the text changes, even one that cannot be taken', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> taken = <String?>[];
+
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: _more, value: null, onChanged: taken.add)),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+
+        // Quito, which cannot be taken, and Porto under it.
+        tester.testTextInput.enterText('to');
+        await tester.pumpAndSettle();
+        expect(_listed(tester), <String>['Quito', 'Porto']);
+        expect(_lit(tester), 'Quito');
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(taken, isEmpty);
+
+        // The only row there is, all the same.
+        tester.testTextInput.enterText('qu');
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Quito');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(_lit(tester), 'Quito');
+
+        tester.testTextInput.enterText('por');
+        await tester.pumpAndSettle();
+        expect(_lit(tester), 'Porto');
+      });
+
       testWidgets('follows the pointer onto any row, and goes out as it leaves them', (
         WidgetTester tester,
       ) async {
