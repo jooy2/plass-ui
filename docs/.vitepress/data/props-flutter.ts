@@ -4967,8 +4967,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'bool',
       default: 'false',
       description: {
-        ko: '스스로 넘어가고, 프레임 위에 멈춤·시작 버튼이 생깁니다. hover 중이거나 띠에 손가락이 닿아 있을 때, 트리에 남은 채 숨겨졌을 때 잠시 멈추고, 포커스가 들어오거나 화살표나 점을 누르면 버튼으로 다시 시작할 때까지 멈춥니다. reduced motion에서는 멈춘 채로 시작합니다. onChanged가 있어야 합니다',
-        en: 'Advances on its own, with a button over the frame that stops and starts it. Pauses on hover, under a finger on the strip and while it is hidden but still in the tree; stops once the focus comes in or an arrow or a dot is pressed, until the button starts it again. Starts stopped for reduced motion, and needs onChanged'
+        ko: '스스로 넘어가고, 프레임 위에 멈춤·시작 버튼이 생깁니다. hover 중이거나 띠에 손가락이 닿아 있을 때, 앱이 resumed가 아닐 때, 트리에 남은 채 숨겨졌을 때 잠시 멈추고, 포커스가 들어오거나 화살표나 점을 누르면 버튼으로 다시 시작할 때까지 멈춥니다. reduced motion에서는 멈춘 채로 시작합니다. onChanged가 있어야 합니다',
+        en: 'Advances on its own, with a button over the frame that stops and starts it. Pauses on hover, under a finger on the strip, while the app is not resumed and while it is hidden but still in the tree; stops once the focus comes in or an arrow or a dot is pressed, until the button starts it again. Starts stopped for reduced motion, and needs onChanged'
       }
     }),
     from('PlCarousel', 'interval', {

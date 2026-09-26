@@ -118,15 +118,16 @@ class PlCarousel extends StatefulWidget {
   ///
   /// Off by default and deliberately so: a carousel that moves while it is being
   /// read is the most complained-about pattern there is. It pauses while the
-  /// pointer is over it, while a finger is down on the strip, and while it is
+  /// pointer is over it, while a finger is down on the strip, while the app is
+  /// in any lifecycle state but [AppLifecycleState.resumed], and while it is
   /// hidden but still in the tree: off stage, under a [Visibility] or a
   /// [TickerMode] that hides it, clipped to nothing or laid out with no size.
-  /// Once the finger lifts, or it is shown again, it holds the slide it is on
-  /// for a whole [interval]. It **stops** once the focus comes into it or an
-  /// arrow or a dot is pressed, and stays stopped until the button starts it
-  /// again. For a reader who has asked for reduced motion it starts stopped. And
-  /// it needs [onChanged] — a frozen carousel has nothing to advance, and no
-  /// button.
+  /// Once the finger lifts, the app is resumed or it is shown again, it holds
+  /// the slide it is on for a whole [interval]. It **stops** once the focus
+  /// comes into it or an arrow or a dot is pressed, and stays stopped until the
+  /// button starts it again. For a reader who has asked for reduced motion it
+  /// starts stopped. And it needs [onChanged] — a frozen carousel has nothing
+  /// to advance, and no button.
   final bool autoPlay;
 
   /// How long each slide is held.
@@ -233,6 +234,14 @@ class _PlCarouselState extends State<PlCarousel> {
   /// the finger, so each one holds it as the pointer over the frame does.
   final Set<int> _pressed = <int>{};
 
+  /// Whether the app is anywhere but in front of the reader: in the background,
+  /// behind a system sheet, or in a window that has lost the focus. A carousel
+  /// that went on turning there would be several slides on when the reader
+  /// came back.
+  bool _away = false;
+
+  late final AppLifecycleListener _lifecycle;
+
   /// Whether the tree above says the carousel is not being shown: a
   /// [TickerMode] that is off, which is what a route something has been pushed
   /// over is under, or a [Visibility] that hides it, which is what an
@@ -287,6 +296,10 @@ class _PlCarouselState extends State<PlCarousel> {
   void initState() {
     super.initState();
     _toggleFocus.addListener(_focusMoved);
+
+    final AppLifecycleState? state = WidgetsBinding.instance.lifecycleState;
+    _away = state != null && state != AppLifecycleState.resumed;
+    _lifecycle = AppLifecycleListener(onStateChange: _lifecycleChanged);
   }
 
   int get _count => widget.children.length;
@@ -334,6 +347,7 @@ class _PlCarouselState extends State<PlCarousel> {
   @override
   void dispose() {
     _timer?.cancel();
+    _lifecycle.dispose();
     _pages.dispose();
     _toggleFocus
       ..removeListener(_focusMoved)
@@ -396,12 +410,14 @@ class _PlCarouselState extends State<PlCarousel> {
     _timer = null;
 
     // Every one of these is a way an auto-playing carousel goes wrong: it moves
-    // under the pointer or a finger, it moves once the reader has stopped it —
-    // or, before they have said, for a reader who asked for stillness — or it
-    // moves with nothing to report the move to.
+    // under the pointer or a finger, it moves while the app is not in front of
+    // the reader, it moves once the reader has stopped it — or, before they
+    // have said, for a reader who asked for stillness — or it moves with
+    // nothing to report the move to.
     if (!widget.autoPlay ||
         _hovered ||
         _pressed.isNotEmpty ||
+        _away ||
         _stopped ||
         _count < 2 ||
         widget.onChanged == null) {
@@ -471,6 +487,20 @@ class _PlCarouselState extends State<PlCarousel> {
     }
 
     _hovered = hovered;
+    _restart();
+  }
+
+  /// Holds the strip while the app is away, and starts the timer over once it
+  /// is back, so the slide the reader left is held for a whole
+  /// [PlCarousel.interval] rather than for whatever was left of one.
+  void _lifecycleChanged(AppLifecycleState state) {
+    final away = state != AppLifecycleState.resumed;
+
+    if (away == _away) {
+      return;
+    }
+
+    _away = away;
     _restart();
   }
 

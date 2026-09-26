@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **An `autoPlay` `PlCarousel` waits on its slide while the app is not in front of the reader, as the React carousel waits in a background tab.** Nothing watched the app's lifecycle, so the timer went on calling `onChanged` in the background and a reader who came back found the carousel several slides on. It now holds in every lifecycle state but `resumed`, and once the app is resumed it keeps the slide for a whole `interval` before it moves on.
+
 - **An `autoPlay` `PlCarousel` holds still while a finger is down on its strip, and for a whole `interval` once it lifts.** It paused only for a mouse over the frame, so a turn that came while a finger was dragging the strip pulled the strip from under it. Every pointer that lands on the strip now holds it until it lifts.
 
 - **A `PlCombobox` row lights only for a pointer that moves over it, as in the React build.** A row lit as soon as it came under the pointer. With the pointer resting on the list, arrow keys that scrolled the list moved the light off the row they had reached and onto the row that slid under the pointer, and a list opening under a resting pointer lit the row it landed on, so `Enter` took that row instead.

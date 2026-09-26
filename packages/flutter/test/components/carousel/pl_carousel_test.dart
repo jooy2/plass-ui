@@ -428,6 +428,41 @@ void main() {
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
       });
 
+      testWidgets('holds while the app is in the background, and for a whole interval after', (
+        WidgetTester tester,
+      ) async {
+        // The binding outlives the test, and so would a lifecycle left paused.
+        addTearDown(() => tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed));
+
+        await tester.pumpWidget(host(const _Harness(autoPlay: true), width: 360));
+        await tester.pump();
+
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+
+        // Three and a half intervals.
+        await tester.pump(const Duration(milliseconds: 700));
+
+        expect(_harness(tester).reported, isEmpty);
+
+        // Back halfway through an interval, which a timer that went on running
+        // would end a hundred milliseconds later.
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 190));
+
+        expect(_harness(tester).reported, isEmpty);
+
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(_harness(tester).reported.first, 1);
+
+        await tester.pumpWidget(host(const SizedBox.shrink(), width: 360));
+      });
+
       testWidgets('starts stopped for a reader who asked for stillness', (
         WidgetTester tester,
       ) async {
