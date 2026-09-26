@@ -61,6 +61,10 @@ class PlassWedged extends StatelessWidget {
 
     // The wedge sits a hairline *inside* the sheet's edge, so the two overlap
     // and the sheet's own line runs into the wedge's rather than crossing it.
+    //
+    // A row runs left to right whatever the reader's direction, because the
+    // side is a side of the screen: a row that followed the text would put
+    // the wedge on the edge away from the trigger under RTL.
     return switch (side) {
       PlassSide.top => Column(
         mainAxisSize: MainAxisSize.min,
@@ -78,6 +82,7 @@ class PlassWedged extends StatelessWidget {
       ),
       PlassSide.left => Row(
         mainAxisSize: MainAxisSize.min,
+        textDirection: TextDirection.ltr,
         children: <Widget>[
           child,
           Transform.translate(offset: const Offset(-1, 0), child: turned),
@@ -85,6 +90,7 @@ class PlassWedged extends StatelessWidget {
       ),
       PlassSide.right => Row(
         mainAxisSize: MainAxisSize.min,
+        textDirection: TextDirection.ltr,
         children: <Widget>[
           Transform.translate(offset: const Offset(1, 0), child: turned),
           child,
