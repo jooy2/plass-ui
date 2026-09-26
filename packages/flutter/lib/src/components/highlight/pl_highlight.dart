@@ -5,6 +5,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/typography/pl_typography.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -275,21 +276,35 @@ class PlHighlight extends StatelessWidget {
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: _markPadding),
-          child: Text(
-            matched,
-            // The paragraph already scales the widgets inside it by the
-            // reader's text size, so a scale here as well would draw the mark
-            // at that size twice over.
-            textScaler: TextScaler.noScaling,
-            style: base.copyWith(
-              color: ink,
-              fontWeight: weight != null ? _weights[weight!] : null,
-              decoration: underline ? TextDecoration.underline : null,
-              // Under the descenders rather than through them, which is the
-              // whole difference between an underline and a strikethrough that
-              // missed.
-              decorationThickness: underline ? 2 : null,
-              decorationColor: underline ? ink : null,
+          // The word and its underline ease to a new ink with the mark's fill,
+          // as the React build's `color` does under the house transition. The
+          // word's style is written out in full rather than merged, so it
+          // reads the eased ink for itself.
+          child: PlassInk(
+            color: ink,
+            icons: false,
+            child: Builder(
+              builder: (BuildContext context) {
+                final shown = DefaultTextStyle.of(context).style.color;
+
+                return Text(
+                  matched,
+                  // The paragraph already scales the widgets inside it by the
+                  // reader's text size, so a scale here as well would draw the
+                  // mark at that size twice over.
+                  textScaler: TextScaler.noScaling,
+                  style: base.copyWith(
+                    color: shown,
+                    fontWeight: weight != null ? _weights[weight!] : null,
+                    decoration: underline ? TextDecoration.underline : null,
+                    // Under the descenders rather than through them, which is
+                    // the whole difference between an underline and a
+                    // strikethrough that missed.
+                    decorationThickness: underline ? 2 : null,
+                    decorationColor: underline ? shown : null,
+                  ),
+                );
+              },
             ),
           ),
         ),

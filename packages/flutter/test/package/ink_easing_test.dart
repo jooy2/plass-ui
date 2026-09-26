@@ -68,15 +68,16 @@ _Read _words(String text) {
 /// The colour the glyph a caller handed the control is drawn in.
 Color _glyph(WidgetTester tester) => _Glyph.seen!;
 
-/// The colour one of the library's own glyphs is drawn in, which it takes from
-/// the icon theme around it.
+/// The colour one of the library's own glyphs is drawn in: the one it is
+/// handed, or else the one it takes from the icon theme around it.
 _Read _ownGlyph(PlassGlyphShape shape) {
   return (WidgetTester tester) {
     final Finder glyph = find.byWidgetPredicate(
       (Widget widget) => widget is PlassGlyph && widget.shape == shape,
     );
 
-    return IconTheme.of(tester.element(glyph.first)).color!;
+    return tester.widget<PlassGlyph>(glyph.first).color ??
+        IconTheme.of(tester.element(glyph.first)).color!;
   };
 }
 
@@ -374,6 +375,98 @@ final Map<String, _Case> _cases = <String, _Case>{
   'PlKbd, its variant': _Case(
     (bool on) =>
         PlKbd(variant: on ? PlassVariant.solid : PlassVariant.glass, child: const Text('Label')),
+  ),
+  'PlAlert, its variant': _Case(
+    (bool on) =>
+        PlAlert(variant: on ? PlassVariant.solid : PlassVariant.glass, child: const Text('Label')),
+  ),
+  'PlAlert, its ×': _Case(
+    (bool on) => PlAlert(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      onClose: () {},
+      child: const Text('Body'),
+    ),
+    read: _ownGlyph(PlassGlyphShape.close),
+  ),
+  // On `solid` the title and the glyph ride on the alert's own ink, so they
+  // ease with it as the colour changes it.
+  'solid PlAlert, its title': _Case(
+    (bool on) => PlAlert(
+      color: on ? PlassColor.warning : PlassColor.info,
+      variant: PlassVariant.solid,
+      title: const Text('Label'),
+      child: const Text('Body'),
+    ),
+  ),
+  'solid PlAlert, its glyph': _Case(
+    (bool on) => PlAlert(
+      color: on ? PlassColor.warning : PlassColor.info,
+      variant: PlassVariant.solid,
+      icon: const _Glyph(),
+      child: const Text('Body'),
+    ),
+    read: _glyph,
+  ),
+  'PlChatBubble, its variant': _Case(
+    (bool on) => PlChatBubble(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      child: const Text('Label'),
+    ),
+  ),
+  'PlChatBubble, its typing dots': _Case(
+    (bool on) => PlChatBubble(variant: on ? PlassVariant.solid : PlassVariant.glass, typing: true),
+    // Their light comes and goes in a loop, so only the ink under it is read.
+    read: (WidgetTester tester) {
+      final DecoratedBox dot = tester.widget<DecoratedBox>(
+        find
+            .byWidgetPredicate(
+              (Widget widget) =>
+                  widget is DecoratedBox &&
+                  widget.decoration is BoxDecoration &&
+                  (widget.decoration as BoxDecoration).shape == BoxShape.circle,
+            )
+            .first,
+      );
+
+      return (dot.decoration as BoxDecoration).color!.withValues(alpha: 1);
+    },
+    endless: true,
+  ),
+  'PlChatBubble, its link card': _Case(
+    (bool on) => PlChatBubble(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      preview: const PlChatBubbleLinkPreview(description: Text('Label')),
+    ),
+    read: (WidgetTester tester) {
+      final DecoratedBox card = tester.widget<DecoratedBox>(
+        find.ancestor(of: find.text('Label'), matching: find.byType(DecoratedBox)).first,
+      );
+
+      return (card.decoration as BoxDecoration).color!;
+    },
+  ),
+  'PlChatBubble, the words on its link card': _Case(
+    (bool on) => PlChatBubble(
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      preview: const PlChatBubbleLinkPreview(description: Text('Label')),
+    ),
+  ),
+  'PlHighlight, its variant': _Case(
+    (bool on) => PlHighlight(
+      'A Label here',
+      query: 'Label',
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+    ),
+  ),
+  'PlHighlight, its underline': _Case(
+    (bool on) => PlHighlight(
+      'A Label here',
+      query: 'Label',
+      underline: true,
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+    ),
+    read: (WidgetTester tester) =>
+        tester.renderObject<RenderParagraph>(find.text('Label').last).text.style!.decorationColor!,
   ),
   'PlSelect, a row the arrow keys reach': _Case(
     (bool on) => PlSelect<int>(

@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -321,28 +322,36 @@ class PlChatBubble extends StatelessWidget {
           if (hasBody)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: padding.dx, vertical: padding.dy),
-              child: DefaultTextStyle.merge(
-                style: TextStyle(
-                  color: ink,
-                  fontSize: body.size,
-                  height: body.height,
-                  leadingDistribution: TextLeadingDistribution.even,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 8,
-                  children: <Widget>[
-                    if (typing)
-                      _TypingDots(
-                        color: ink,
-                        line: body.line,
-                        label: typingLabel ?? PlassTheme.labelsOf(context).typing,
-                      )
-                    else
-                      ?child,
-                    if (preview != null) _Preview(preview: preview!, ink: ink, ring: family.ring),
-                  ],
+              // The message, the typing dots and the link card ease to a new ink
+              // with the fill, as the React build's `color` does under the
+              // house transition: the dots and the card read the ink the words
+              // are drawn in at this moment rather than being handed the one
+              // they are easing to. Only the words: a glyph a caller puts in
+              // the message keeps the colour it had.
+              child: PlassInk(
+                color: ink,
+                icons: false,
+                child: DefaultTextStyle.merge(
+                  style: TextStyle(
+                    fontSize: body.size,
+                    height: body.height,
+                    leadingDistribution: TextLeadingDistribution.even,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 8,
+                    children: <Widget>[
+                      if (typing)
+                        _TypingDots(
+                          line: body.line,
+                          label: typingLabel ?? PlassTheme.labelsOf(context).typing,
+                        )
+                      else
+                        ?child,
+                      if (preview != null) _Preview(preview: preview!, ring: family.ring),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -463,10 +472,11 @@ class PlChatBubble extends StatelessWidget {
 /// Colour only, like every other indeterminate indicator in the library — the
 /// dots never move, so a bubble being typed into does not bounce in a thread
 /// somebody is reading.
+///
+/// Drawn in the ink the words around them are drawn in.
 class _TypingDots extends StatefulWidget {
-  const _TypingDots({required this.color, required this.line, required this.label});
+  const _TypingDots({required this.line, required this.label});
 
-  final Color color;
   final double line;
   final String label;
 
@@ -504,6 +514,7 @@ class _TypingDotsState extends State<_TypingDots> with SingleTickerProviderState
   @override
   Widget build(BuildContext context) {
     final dot = widget.line * _dotScale;
+    final color = DefaultTextStyle.of(context).style.color!;
 
     return Semantics(
       container: true,
@@ -526,7 +537,7 @@ class _TypingDotsState extends State<_TypingDots> with SingleTickerProviderState
 
                   return DecoratedBox(
                     decoration: BoxDecoration(
-                      color: widget.color.withValues(alpha: widget.color.a * lit),
+                      color: color.withValues(alpha: color.a * lit),
                       shape: BoxShape.circle,
                     ),
                     child: SizedBox.square(dimension: dot),
@@ -548,16 +559,19 @@ class _TypingDotsState extends State<_TypingDots> with SingleTickerProviderState
 /// one: on `solid` the text is white and the card is a white wash, on `glass`
 /// the text is the page's ink and the card is a grey one. A fixed token would be
 /// invisible against one of the two.
+///
+/// The ink is the one the words around it are drawn in, read here rather than
+/// handed down, so the card eases with them when the bubble changes its variant.
 class _Preview extends StatelessWidget {
-  const _Preview({required this.preview, required this.ink, required this.ring});
+  const _Preview({required this.preview, required this.ring});
 
   final PlChatBubbleLinkPreview preview;
-  final Color ink;
   final Color ring;
 
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.sm]!);
+    final ink = DefaultTextStyle.of(context).style.color!;
 
     return PlassInteractive(
       onTap: preview.onPressed,

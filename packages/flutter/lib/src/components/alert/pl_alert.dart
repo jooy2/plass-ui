@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -120,18 +121,22 @@ class PlAlert extends StatelessWidget {
     final titled = title != null;
 
     final surface = _surface(tokens, family);
+    final solid = variant == PlassVariant.solid;
 
     // On `solid` the surface already carries the family, so the glyph and the
-    // title ride on it as one ink. On the other two the surface is only faintly
+    // title ride on it as one ink: they name no colour of their own and take
+    // the message's, easing with it, as they do in the React build, where they
+    // inherit the alert's `color`. On the other two the surface is only faintly
     // tinted: the message has to stay ordinary reading text, and the accent is
-    // spent on the two things that say which kind of alert this is.
-    final accent = variant == PlassVariant.solid ? surface.ink : family.accent;
+    // spent on the two things that say which kind of alert this is. That
+    // accent is their own and changes at once, as the React build's does.
+    final accent = solid ? null : family.accent;
 
     // The detail line under a title drops to the muted ink, the same step a
     // field's description takes. On a filled surface there is no muted ink to
     // drop to — the page's grey is invisible on a gradient — so the ink stays
     // and the title does the separating with its weight.
-    final detail = variant == PlassVariant.solid ? surface.ink : tokens.mutedFg;
+    final detail = solid ? null : tokens.mutedFg;
 
     // The glyph and the action centre on the *first line* of text whatever the
     // type scale turns out to be, so a one-line alert looks centred and a
@@ -149,9 +154,14 @@ class PlAlert extends StatelessWidget {
       children: <Widget>[
         if (showIcon)
           onFirstLine(
-            IconTheme.merge(
-              data: IconThemeData(color: accent, size: body.size * iconScale),
-              child: icon ?? PlassGlyph(severityGlyph(color), color: accent),
+            Builder(
+              builder: (BuildContext context) => IconTheme.merge(
+                data: IconThemeData(
+                  color: accent ?? DefaultTextStyle.of(context).style.color,
+                  size: body.size * iconScale,
+                ),
+                child: icon ?? PlassGlyph(severityGlyph(color)),
+              ),
             ),
           ),
         Expanded(
@@ -176,7 +186,7 @@ class PlAlert extends StatelessWidget {
                 // to the muted ink. On its own it *is* the alert, and stays
                 // reading text.
                 DefaultTextStyle.merge(
-                  style: TextStyle(color: titled ? detail : surface.ink),
+                  style: TextStyle(color: titled ? detail : null),
                   child: child!,
                 ),
             ],
@@ -185,12 +195,14 @@ class PlAlert extends StatelessWidget {
         if (action != null) onFirstLine(action!),
         if (onClose != null)
           onFirstLine(
-            PlassDismissButton(
-              label: closeLabel ?? PlassTheme.labelsOf(context).dismiss,
-              onPressed: onClose,
-              size: body.size * dismissScale,
-              color: surface.ink,
-              ring: family.ring,
+            Builder(
+              builder: (BuildContext context) => PlassDismissButton(
+                label: closeLabel ?? PlassTheme.labelsOf(context).dismiss,
+                onPressed: onClose,
+                size: body.size * dismissScale,
+                color: DefaultTextStyle.of(context).style.color,
+                ring: family.ring,
+              ),
             ),
           ),
       ],
@@ -209,19 +221,26 @@ class PlAlert extends StatelessWidget {
         child: PlassSurfaceBox(
           surface: surface,
           borderRadius: BorderRadius.circular(tokens.radii[size]!),
-          child: DefaultTextStyle.merge(
-            style: TextStyle(
-              color: surface.ink,
-              fontSize: body.size,
-              height: body.height,
-              leadingDistribution: TextLeadingDistribution.even,
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: sheetPaddingX[density]![size]!,
-                vertical: sheetPaddingY[density]![size]!,
+          // The message, the action's words and the × ease to a new ink with
+          // the fill, as the React build's `color` does under the house
+          // transition. Only the words: a glyph a caller puts in `action` keeps
+          // the colour it had.
+          child: PlassInk(
+            color: surface.ink,
+            icons: false,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                fontSize: body.size,
+                height: body.height,
+                leadingDistribution: TextLeadingDistribution.even,
               ),
-              child: content,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: sheetPaddingX[density]![size]!,
+                  vertical: sheetPaddingY[density]![size]!,
+                ),
+                child: content,
+              ),
             ),
           ),
         ),
