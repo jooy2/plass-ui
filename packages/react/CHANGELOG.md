@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A line, bar, area, scatter or pie chart lets go of the legend entry the pointer or the focus is on when it is rendered again without that entry.** The entry's button was removed without reporting a leave, so its series stayed hovered: every remaining entry was drawn faded once the last series went, every series but the one that took the place of a middle one was faded, and the other series faded again once the data brought a series back to that place, wherever the pointer was by then.
+
 - **A `PlWindowPane` close button pressed on a touch screen draws its × white on the red, as in the Flutter build.** A press turned the button red, but only the pointer's hover turned its × white, and a finger brings no hover with it, so a touch press drew the title bar's own ink on the red.
 
 - **A `PlNavigationMenuLink`'s `startIcon` follows the link's `size`: 1.2em of its title, in a box one of the title's lines high, as in the Flutter build.** It was measured against the page's font, so on a 16px page it was 19.2px in a 24px box whatever the link's `size`, larger than the title at `sm` and `md` and lower than its first line.

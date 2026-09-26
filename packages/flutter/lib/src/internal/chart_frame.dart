@@ -768,6 +768,18 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
     }
   }
 
+  @override
+  void didUpdateWidget(PlassCartesianChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // An entry taken out of the legend from under the pointer reports no exit,
+    // so it is let go here, rather than held until the data brings a series
+    // back to its place and every other series fades for it.
+    if (_hovered != null && !legendHasEntry(widget.legend, widget.series.length, _hovered!)) {
+      _hovered = null;
+    }
+  }
+
   int? _activeIndex;
   int? _hovered;
   PlassChartMark? _activeMark;
@@ -1951,6 +1963,19 @@ class _FramePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_FramePainter old) => true;
+}
+
+/// Whether the legend of a chart with [count] series, drawn under [legend], has
+/// an entry at [index] that the pointer can be resting on.
+///
+/// A chart asks when it is built again, because an entry taken out from under
+/// the pointer does not say so: a `MouseRegion` that is unmounted while it is
+/// hovered never calls `onExit`. The legend is drawn from two series up, and
+/// its entries answer the pointer only while it is `interactive`. They are not
+/// keyed, so an entry whose series went is the same region showing the series
+/// that took its place, and that one still reports the pointer leaving it.
+bool legendHasEntry(PlChartLegend legend, int count, int index) {
+  return !legend.hidden && legend.interactive && count >= 2 && index < count;
 }
 
 /// The row of names under the plot.

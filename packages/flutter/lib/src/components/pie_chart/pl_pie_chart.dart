@@ -207,6 +207,12 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
     if (_active != null && _active! >= widget.data.length) {
       _active = null;
     }
+
+    // And a legend entry taken out from under the pointer, which reports no
+    // exit, so that the other slices are not left faded for it.
+    if (_hovered != null && !legendHasEntry(widget.legend, widget.data.length, _hovered!)) {
+      _hovered = null;
+    }
   }
 
   @override

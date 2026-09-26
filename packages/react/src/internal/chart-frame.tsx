@@ -246,13 +246,24 @@ interface Visibility {
 }
 
 /**
+ * The key a series' legend entry is rendered under: its name, or its place in
+ * the array when it has none.
+ */
+function entryKey(one: PlassChartSeries, index: number): string {
+  return String(one.name ?? index);
+}
+
+/**
  * Which series are drawn, and which one the pointer is resting on in the legend.
  *
  * Keyed by index into the array as it was passed, which is what keeps a hidden
  * series from renumbering the ones after it. The colours come off the same
  * index, so hiding Europe leaves Asia exactly the colour it was.
+ *
+ * `listed` is whether the legend is drawn with entries that answer the pointer
+ * and the focus, which is where the hovered one comes from.
  */
-function useVisibility(series: readonly PlassChartSeries[]): Visibility {
+function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Visibility {
   const [hidden, setHidden] = React.useState<ReadonlySet<number>>(() => {
     const initial = new Set<number>();
 
@@ -265,7 +276,22 @@ function useVisibility(series: readonly PlassChartSeries[]): Visibility {
     return initial;
   });
 
-  const [hovered, setHovered] = React.useState<number | null>(null);
+  /* The hovered entry, held by the key it is rendered under rather than by its
+     place. A button taken out of the legend while the pointer or the focus is
+     on it reports no leave and no blur, so one that is no longer there is let
+     go in the render that takes it out, rather than going on fading every
+     other series for an entry that is gone, or for the one that took its
+     place. An entry that has only moved is the same button, and says when it
+     is left. */
+  const [hoveredKey, setHoveredKey] = React.useState<string | null>(null);
+  const hovered =
+    hoveredKey === null || !listed
+      ? -1
+      : series.findIndex((one, index) => entryKey(one, index) === hoveredKey);
+
+  if (hoveredKey !== null && hovered === -1) {
+    setHoveredKey(null);
+  }
 
   const toggle = React.useCallback((index: number) => {
     setHidden((current) => {
@@ -283,9 +309,10 @@ function useVisibility(series: readonly PlassChartSeries[]): Visibility {
 
   return {
     visible: series.map((_, index) => !hidden.has(index)),
-    hovered,
+    hovered: hovered === -1 ? null : hovered,
     toggle,
-    setHovered
+    setHovered: (index) =>
+      setHoveredKey(index === null || !series[index] ? null : entryKey(series[index], index))
   };
 }
 
@@ -464,7 +491,7 @@ function ChartLegendBar({
         );
 
         return (
-          <li key={one.name ?? index} className="min-w-0">
+          <li key={entryKey(one, index)} className="min-w-0">
             {interactive ? (
               <button
                 type="button"
@@ -1159,7 +1186,16 @@ export function CartesianChart({
   const tableId = React.useId();
   const summaryId = React.useId();
 
-  const visibility = useVisibility(series);
+  const legendOptions: PlassChartLegend =
+    legend === false
+      ? { interactive: false }
+      : legend === true || legend === undefined
+        ? {}
+        : legend;
+  const showLegend = legend === true || (legend !== false && series.length > 1);
+  const legendSide = legendOptions.side ?? 'bottom';
+
+  const visibility = useVisibility(series, showLegend && legendOptions.interactive !== false);
   const [columnIndex, setColumnIndex] = React.useState<number | null>(null);
   /** Which entry of `markList` the pointer is on — the other way to be active. */
   const [markIndex, setMarkIndex] = React.useState<number | null>(null);
@@ -1767,15 +1803,6 @@ export function CartesianChart({
     : (horizontal
         ? scale.fraction(items[0]?.value ?? 0)
         : categoryPx(activeIndex ?? 0) / Math.max(1, categoryLength)) > 0.6;
-
-  const legendOptions: PlassChartLegend =
-    legend === false
-      ? { interactive: false }
-      : legend === true || legend === undefined
-        ? {}
-        : legend;
-  const showLegend = legend === true || (legend !== false && series.length > 1);
-  const legendSide = legendOptions.side ?? 'bottom';
 
   const context: CartesianContext = {
     ...layout,

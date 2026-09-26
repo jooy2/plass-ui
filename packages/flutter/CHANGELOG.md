@@ -76,6 +76,8 @@
 
 ### Fixed
 
+- **A line, bar, area, scatter or pie chart lets go of the legend entry under the pointer when it is built again without that entry.** An entry taken out from under the pointer, with its series or with the whole legend once fewer than two series were left, stayed hovered, so once the data brought a series back to that place every other series faded for it, wherever the pointer was by then.
+
 - **A `PlWindowPane`'s traffic lights show all three marks while the pointer is over the set, fading them in and out, and a `linux` or square caption button answers a press, as in the React build.** A traffic light showed its mark only while the pointer was on that light, and at once. The pointer anywhere over the three, the gaps between them included, now shows all three, a light the keyboard reaches still shows its own alone, and each mark eases in and out over the house duration, or arrives at once under reduced motion. A `linux` button rested at the page's ink at 50%, darker than the 9% it turned under the pointer; it now rests at 9% and deepens to 16% under the pointer and while it is pressed. A square minimize or maximize button showed no press, and nothing at all under a finger; it now deepens from 9% to 16% while it is pressed. On an `accent` title bar the two washes are white at 18% and 28%.
 
 - **A line or area chart's marker is drawn at the size of the React one, at rest and under the crosshair.** Its dot filled the whole marker radius, a pixel larger than the React dot, and the ring of the surface around it ran 1.5px past that, where the React ring is 2px wide and ends a pixel past the radius.

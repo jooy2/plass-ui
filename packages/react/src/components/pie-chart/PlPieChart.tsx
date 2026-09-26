@@ -177,7 +177,16 @@ export function PlPieChart({
     [values, categories, data, locale]
   );
 
-  const visibility = useVisibility(slices);
+  const legendOptions: PlassChartLegend =
+    legend === false
+      ? { interactive: false }
+      : legend === true || legend === undefined
+        ? {}
+        : legend;
+  const showLegend = legend !== false && slices.length > 1;
+  const legendSide = legendOptions.side ?? 'bottom';
+
+  const visibility = useVisibility(slices, showLegend && legendOptions.interactive !== false);
   const [active, setActive] = React.useState<number | null>(null);
 
   const colors = slices.map((slice, index) => seriesColor(slice, index));
@@ -191,15 +200,6 @@ export function PlPieChart({
   const semi = shape === 'semi';
   const plotHeight = typeof height === 'number' ? height : plotHeights[size];
   const fontSize = chartFontSizes[size];
-
-  const legendOptions: PlassChartLegend =
-    legend === false
-      ? { interactive: false }
-      : legend === true || legend === undefined
-        ? {}
-        : legend;
-  const showLegend = legend !== false && slices.length > 1;
-  const legendSide = legendOptions.side ?? 'bottom';
 
   const tooltipOptions: PlassChartTooltip =
     tooltip === false ? { mode: 'none' } : tooltip === true || tooltip === undefined ? {} : tooltip;
