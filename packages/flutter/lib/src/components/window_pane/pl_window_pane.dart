@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
@@ -914,6 +915,11 @@ class _WindowColors {
   final Color ring;
 }
 
+/// How much brighter a caption plate is drawn under the pointer, as the React
+/// plate's `brightness(110%)` is. Pressed, it takes a control's own
+/// [pressBrightness], as the React plate's `brightness(95%)` does.
+const double _plateHoverBrightness = 1.1;
+
 /// One caption button.
 ///
 /// A [PlassInteractive] like every other pressable in the library, so it is a
@@ -1027,6 +1033,33 @@ class _WindowButton extends StatelessWidget {
                 )
               : null,
         );
+
+        // A plate is already carrying its own colour, so what the pointer
+        // changes is how bright that colour is, as the React plate's
+        // `brightness()` does: XP's three plates, and Aero's two that are not
+        // the close button, which turns red instead. Eased with the fill.
+        final bool plated =
+            chrome.shape == PlWindowControlShape.plate ||
+            (chrome.shape == PlWindowControlShape.aero && !closing);
+
+        if (plated) {
+          face = TweenAnimationBuilder<double>(
+            tween: Tween<double>(
+              end: state.pressed
+                  ? pressBrightness
+                  : over
+                  ? _plateHoverBrightness
+                  : 1,
+            ),
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
+            builder: (BuildContext context, double brightness, Widget? child) => PlassFiltered(
+              colorFilter: brightness == 1 ? null : brightnessFilter(brightness),
+              child: child,
+            ),
+            child: face,
+          );
+        }
 
         face = CustomPaint(
           foregroundPainter: state.focusVisible

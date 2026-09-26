@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A `PlWindowPane` caption plate on `windowsxp`, and the minimize and maximize plates on `windows7`, brighten under the pointer and dim under a press, as in the React build.** XP's plates did not answer the pointer at all, and Aero's changed only their fill. The brightness eases over `motionDuration` and changes at once under reduced motion.
+
 - **The row the pointer or the arrow keys light in a `PlSelect` or `PlCombobox` list is washed in the family's `softHover`, as in the React build.** It took the paler `soft`, so the highlight was a step fainter than the React one.
 
 - **A glyph on a `PlAppLogo` plate is drawn in the plate's ink, as in the React build.** The mark took no colour from its plate, so a glyph drawn in the ambient colour kept whatever colour the app around it had, often a dark glyph on a filled plate. It now takes the colour on the fill on `solid` and the family's accent on `glass` and `ghost`, and eases to a new one with the fill.

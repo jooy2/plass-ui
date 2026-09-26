@@ -1,11 +1,14 @@
-import 'package:flutter/gestures.dart' show kDoubleTapTimeout;
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kDoubleTapTimeout;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
+import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/window.dart';
 
 import '../../support/host.dart';
@@ -1234,6 +1237,122 @@ void main() {
 
         expect(rings, findsOneWidget);
         expect(marks, findsOneWidget);
+      });
+    });
+
+    group('caption plates under the pointer', () {
+      /// The caption button drawing [control]'s mark.
+      Finder caption(PlWindowControl control) {
+        return find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint &&
+              widget.painter is PlWindowGlyphPainter &&
+              (widget.painter! as PlWindowGlyphPainter).control == control,
+        );
+      }
+
+      /// The filter the button drawing [control]'s mark is painted through,
+      /// or `null` while it is painted in its own colours.
+      ColorFilter? filter(WidgetTester tester, PlWindowControl control) {
+        final Finder filtered = find.ancestor(
+          of: caption(control),
+          matching: find.byType(PlassFiltered),
+        );
+
+        return filtered.evaluate().isEmpty
+            ? null
+            : tester.widget<PlassFiltered>(filtered.first).colorFilter;
+      }
+
+      /// A mouse, resting in the corner of the screen.
+      Future<TestGesture> mouseInCorner(WidgetTester tester) async {
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await mouse.addPointer(location: Offset.zero);
+        addTearDown(mouse.removePointer);
+        await tester.pump();
+
+        return mouse;
+      }
+
+      testWidgets('brighten an XP plate, the close one too, and dim it under a press', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const PlWindowPane(os: PlWindowOs.windowsxp, title: Text('Notes')));
+
+        final TestGesture mouse = await mouseInCorner(tester);
+
+        for (final PlWindowControl control in PlWindowControl.values) {
+          expect(filter(tester, control), isNull, reason: control.name);
+
+          await mouse.moveTo(tester.getCenter(caption(control)));
+          await tester.pump();
+          // Eased, as the React plate's `filter` is.
+          await tester.pump(PlassTokens.light().motionDuration ~/ 2);
+
+          expect(filter(tester, control), isNotNull, reason: control.name);
+          expect(filter(tester, control), isNot(brightnessFilter(1.1)), reason: control.name);
+
+          await tester.pumpAndSettle();
+
+          expect(filter(tester, control), brightnessFilter(1.1), reason: control.name);
+
+          await mouse.down(tester.getCenter(caption(control)));
+          await tester.pumpAndSettle();
+
+          expect(filter(tester, control), brightnessFilter(pressBrightness), reason: control.name);
+
+          // Let go without pressing it, and move off.
+          await mouse.cancel();
+          await mouse.moveTo(Offset.zero);
+          await tester.pumpAndSettle();
+        }
+      });
+
+      testWidgets('brighten Aero\'s minimize and maximize, and turn its close red instead', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const PlWindowPane(os: PlWindowOs.windows7, title: Text('Notes')));
+
+        final TestGesture mouse = await mouseInCorner(tester);
+
+        for (final PlWindowControl control in <PlWindowControl>[
+          PlWindowControl.minimize,
+          PlWindowControl.maximize,
+        ]) {
+          await mouse.moveTo(tester.getCenter(caption(control)));
+          await tester.pumpAndSettle();
+
+          expect(filter(tester, control), brightnessFilter(1.1), reason: control.name);
+        }
+
+        await mouse.moveTo(tester.getCenter(caption(PlWindowControl.close)));
+        await tester.pumpAndSettle();
+
+        expect(filter(tester, PlWindowControl.maximize), isNull);
+        expect(filter(tester, PlWindowControl.close), isNull);
+      });
+
+      testWidgets('brighten a plate at once under reduced motion', (WidgetTester tester) async {
+        tester.view.physicalSize = const Size(600, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+
+        await tester.pumpWidget(
+          host(
+            const PlWindowPane(os: PlWindowOs.windowsxp, title: Text('Notes')),
+            width: 420,
+            disableAnimations: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await mouseInCorner(tester);
+
+        await mouse.moveTo(tester.getCenter(caption(PlWindowControl.minimize)));
+        await tester.pump();
+
+        expect(filter(tester, PlWindowControl.minimize), brightnessFilter(1.1));
       });
     });
 
