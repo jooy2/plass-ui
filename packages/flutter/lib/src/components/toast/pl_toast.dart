@@ -391,9 +391,18 @@ class _PlToastProviderState extends State<PlToastProvider>
       return id;
     }
 
+    // The duration `build` gives every fade, set here as well because this
+    // one starts before the next build: a fade that started over the theme's
+    // duration keeps it, and under less movement the toast has to arrive at
+    // once.
     final entry = _Entry(
       toast: toast._named(id),
-      fade: AnimationController(vsync: this, duration: PlassTheme.of(context).motionDuration),
+      fade: AnimationController(
+        vsync: this,
+        duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+            ? Duration.zero
+            : PlassTheme.of(context).motionDuration,
+      ),
     );
 
     setState(() => _entries.add(entry));

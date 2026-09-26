@@ -452,7 +452,9 @@ class _ResizeHandleState extends State<_ResizeHandle> {
     final bool rtl = Directionality.of(context) == TextDirection.rtl;
 
     Widget mark = AnimatedContainer(
-      duration: tokens.motionDuration,
+      duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+          ? Duration.zero
+          : tokens.motionDuration,
       curve: tokens.motionEase,
       color: lit ? widget.family.soft : null,
     );

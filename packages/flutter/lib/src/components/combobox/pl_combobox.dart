@@ -1125,7 +1125,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
               child: Center(
                 child: AnimatedRotation(
                   turns: turns,
-                  duration: tokens.motionDuration,
+                  duration: reduceMotion ? Duration.zero : tokens.motionDuration,
                   curve: tokens.motionEase,
                   child: PlassGlyph(shape, size: glyph, color: tokens.mutedFg),
                 ),

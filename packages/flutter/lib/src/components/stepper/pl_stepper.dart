@@ -412,7 +412,9 @@ class _Step extends StatelessWidget {
               ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
               : null,
           child: AnimatedContainer(
-            duration: tokens.motionDuration,
+            duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+                ? Duration.zero
+                : tokens.motionDuration,
             curve: tokens.motionEase,
             decoration: BoxDecoration(color: washed ? family.soft : null, borderRadius: radius),
             child: PlassContentsGroup(paints: washed, child: content),

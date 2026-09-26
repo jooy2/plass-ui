@@ -154,7 +154,7 @@ class PlassSurfaceBox extends StatelessWidget {
     this.glowVisible = false,
     this.flash,
     this.flashVisible = false,
-    this.reduceMotion = false,
+    this.reduceMotion,
     this.animate = true,
     this.duration,
     super.key,
@@ -184,8 +184,14 @@ class PlassSurfaceBox extends StatelessWidget {
   /// Whether the flash is lit.
   final bool flashVisible;
 
-  /// Whether the platform has asked for less movement.
-  final bool reduceMotion;
+  /// Whether the platform has asked for less movement, or `null` to ask it:
+  /// [MediaQueryData.disableAnimations] where the box is built.
+  ///
+  /// Under less movement a change of surface arrives at once and the light
+  /// goes out at once, as every surface in the React build does under
+  /// `prefers-reduced-motion`. `null` rather than a `false` default, so a box
+  /// whose caller says nothing still answers the platform.
+  final bool? reduceMotion;
 
   /// Whether a change of surface is eased. `false` for a box whose colours are
   /// already being animated by something outside it.
@@ -201,6 +207,7 @@ class PlassSurfaceBox extends StatelessWidget {
     final tokens = PlassTheme.of(context);
     final glow = this.glow;
     final flash = this.flash;
+    final reduceMotion = this.reduceMotion ?? MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final motion = animate && !reduceMotion ? duration ?? tokens.motionDuration : Duration.zero;
 
     Widget box = Stack(
@@ -697,13 +704,17 @@ PlassSurface fieldSurface(
 /// `readOnly`, a hover or a press would change the shape of the tree above the
 /// content, and Flutter builds a changed shape from scratch: what the surface
 /// holds would be built again, and a field in it would lose what was typed.
+///
+/// [reduceMotion] is whether the platform has asked for less movement, which
+/// puts the brightness on at once. `null` asks the platform where the filter is
+/// built, as a [PlassSurfaceBox] does.
 Widget plassStateFilter({
   required Widget child,
   bool disabled = false,
   bool readOnly = false,
   bool hovered = false,
   bool pressed = false,
-  bool reduceMotion = false,
+  bool? reduceMotion,
   bool lit = true,
 }) {
   final saturation = disabled
@@ -756,16 +767,17 @@ class _Lit extends StatelessWidget {
   final double brightness;
   final ColorFilter? drained;
   final double opacity;
-  final bool reduceMotion;
+  final bool? reduceMotion;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
+    final still = reduceMotion ?? MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(end: brightness),
-      duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+      duration: still ? Duration.zero : tokens.motionDuration,
       curve: tokens.motionEase,
       child: child,
       // In the tree at rest and while drained too, with only its settings

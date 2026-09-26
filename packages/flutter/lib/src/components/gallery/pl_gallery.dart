@@ -577,6 +577,11 @@ class _PlGalleryState extends State<PlGallery> {
     final bool shown = widget.caption != PlGalleryCaption.none && words;
     final bool over =
         widget.caption == PlGalleryCaption.overlay || widget.caption == PlGalleryCaption.hover;
+    // The zoom, the dim, the lift and a hover caption arrive at once when the
+    // platform asks for less movement.
+    final Duration motion = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : tokens.motionDuration;
 
     Widget frame(bool lit) {
       /* Held back until the tile is within a screen of the view, because a
@@ -617,11 +622,11 @@ class _PlGalleryState extends State<PlGallery> {
           children: <Widget>[
             AnimatedScale(
               scale: widget.hover == PlGalleryHover.zoom && lit ? 1.06 : 1,
-              duration: tokens.motionDuration,
+              duration: motion,
               curve: tokens.motionEase,
               child: AnimatedOpacity(
                 opacity: widget.hover == PlGalleryHover.dim && lit ? 0.82 : 1,
-                duration: tokens.motionDuration,
+                duration: motion,
                 curve: tokens.motionEase,
                 child: picture,
               ),
@@ -633,7 +638,7 @@ class _PlGalleryState extends State<PlGallery> {
                 bottom: 0,
                 child: AnimatedOpacity(
                   opacity: widget.caption == PlGalleryCaption.hover && !lit ? 0 : 1,
-                  duration: tokens.motionDuration,
+                  duration: motion,
                   curve: tokens.motionEase,
                   child: _legend(item, size, tokens, over: true),
                 ),
@@ -685,7 +690,7 @@ class _PlGalleryState extends State<PlGallery> {
                 ? PlassFocusRingPainter(color: tokens.family(_color).ring, borderRadius: radius)
                 : null,
             child: AnimatedContainer(
-              duration: tokens.motionDuration,
+              duration: motion,
               curve: tokens.motionEase,
               decoration: BoxDecoration(
                 borderRadius: radius,

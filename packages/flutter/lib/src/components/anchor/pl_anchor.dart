@@ -327,7 +327,9 @@ class _Row extends StatelessWidget {
             : null;
 
         return AnimatedContainer(
-          duration: tokens.motionDuration,
+          duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+              ? Duration.zero
+              : tokens.motionDuration,
           curve: tokens.motionEase,
           padding: EdgeInsetsDirectional.only(
             start: 8 + item.depth * _indent,

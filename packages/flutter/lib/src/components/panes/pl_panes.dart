@@ -403,6 +403,9 @@ class _HandleState extends State<_Handle> {
     final tokens = PlassTheme.of(context);
     final bool lit = widget.resizable && (_hovered || _dragging || _focusVisible);
     final bool rtl = Directionality.of(context) == TextDirection.rtl;
+    final Duration motion = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : tokens.motionDuration;
 
     // What is *drawn* is the hairline; what can be **grabbed** is the track
     // around it — the same split a scrollbar makes between the two.
@@ -411,7 +414,7 @@ class _HandleState extends State<_Handle> {
         width: widget.horizontal ? hairline : null,
         height: widget.horizontal ? null : hairline,
         child: AnimatedContainer(
-          duration: tokens.motionDuration,
+          duration: motion,
           curve: tokens.motionEase,
           color: lit ? widget.family.accent : widget.rest,
         ),
@@ -422,7 +425,7 @@ class _HandleState extends State<_Handle> {
       width: widget.horizontal ? widget.track : double.infinity,
       height: widget.horizontal ? double.infinity : widget.track,
       child: AnimatedContainer(
-        duration: tokens.motionDuration,
+        duration: motion,
         curve: tokens.motionEase,
         color: lit ? widget.family.soft : null,
         child: mark,

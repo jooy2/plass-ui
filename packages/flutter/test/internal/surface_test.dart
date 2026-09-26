@@ -300,4 +300,89 @@ void main() {
       });
     }
   });
+
+  // A caller that says nothing about reduced motion gets the platform's
+  // answer, so the next surface is right without being told; one that says
+  // something is taken at its word.
+  group('less movement', () {
+    final PlassTokens tokens = PlassTokens.light();
+
+    Widget box({required bool disableAnimations, bool? reduceMotion}) {
+      return host(
+        SizedBox(
+          width: 200,
+          height: 40,
+          child: PlassSurfaceBox(
+            surface: PlassSurface(fill: tokens.glass, ink: tokens.fg),
+            borderRadius: BorderRadius.circular(12),
+            glow: const Color(0x33FFFFFF),
+            reduceMotion: reduceMotion,
+            child: plassStateFilter(reduceMotion: reduceMotion, child: const _Probe()),
+          ),
+        ),
+        disableAnimations: disableAnimations,
+      );
+    }
+
+    /// How long a change of fill, a change of brightness and the bloom going
+    /// out take in the box on screen.
+    ({Duration fill, Duration brightness, Duration light}) lengths(WidgetTester tester) {
+      return (
+        fill: tester.widgetList<AnimatedContainer>(find.byType(AnimatedContainer)).first.duration,
+        brightness: tester
+            .widget<TweenAnimationBuilder<double>>(find.byType(TweenAnimationBuilder<double>))
+            .duration,
+        light: tester
+            .widget<AnimatedOpacity>(
+              find.descendant(
+                of: find.byType(PlassGlowLayer),
+                matching: find.byType(AnimatedOpacity),
+              ),
+            )
+            .duration,
+      );
+    }
+
+    testWidgets('eases a surface with animations on', (WidgetTester tester) async {
+      await tester.pumpWidget(box(disableAnimations: false));
+
+      expect(lengths(tester), (
+        fill: tokens.motionDuration,
+        brightness: tokens.motionDuration,
+        light: PlassTokens.glowDuration,
+      ));
+    });
+
+    testWidgets('changes a surface at once when the platform asks and the caller does not say', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(box(disableAnimations: true));
+
+      // The light goes out in a millisecond rather than none, so it is either
+      // on the surface or it is not.
+      expect(lengths(tester), (
+        fill: Duration.zero,
+        brightness: Duration.zero,
+        light: const Duration(milliseconds: 1),
+      ));
+    });
+
+    testWidgets('takes a caller at its word over the platform', (WidgetTester tester) async {
+      await tester.pumpWidget(box(disableAnimations: true, reduceMotion: false));
+
+      expect(lengths(tester), (
+        fill: tokens.motionDuration,
+        brightness: tokens.motionDuration,
+        light: PlassTokens.glowDuration,
+      ));
+
+      await tester.pumpWidget(box(disableAnimations: false, reduceMotion: true));
+
+      expect(lengths(tester), (
+        fill: Duration.zero,
+        brightness: Duration.zero,
+        light: const Duration(milliseconds: 1),
+      ));
+    });
+  });
 }

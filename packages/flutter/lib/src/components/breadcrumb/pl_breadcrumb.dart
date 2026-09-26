@@ -323,6 +323,7 @@ class _Step extends StatelessWidget {
     final interactive = item.onPressed != null && !current && !item.disabled;
     final radius = BorderRadius.circular(tokens.radii[_stepRadiusScale[size]!]!);
     final line = controlText[size]! * 1.4;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     Widget slot(Widget content) {
       return SizedBox(
@@ -367,7 +368,7 @@ class _Step extends StatelessWidget {
       final bool washed = interactive && state.hovered;
 
       content = AnimatedContainer(
-        duration: tokens.motionDuration,
+        duration: reduceMotion ? Duration.zero : tokens.motionDuration,
         curve: tokens.motionEase,
         decoration: BoxDecoration(color: washed ? family.soft : null, borderRadius: radius),
         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -441,7 +442,9 @@ class _Fold extends StatelessWidget {
       onTap: onPressed,
       builder: (BuildContext context, PlassInteraction state) {
         Widget mark = AnimatedContainer(
-          duration: tokens.motionDuration,
+          duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+              ? Duration.zero
+              : tokens.motionDuration,
           curve: tokens.motionEase,
           decoration: BoxDecoration(
             color: state.hovered ? family.soft : null,

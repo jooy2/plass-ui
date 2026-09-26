@@ -721,7 +721,7 @@ class _TreeRow extends StatelessWidget {
               : null;
 
           Widget surface = AnimatedContainer(
-            duration: tokens.motionDuration,
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
             curve: tokens.motionEase,
             decoration: BoxDecoration(color: fill, borderRadius: radius),
             child: PlassContentsGroup(paints: fill != null, child: content),

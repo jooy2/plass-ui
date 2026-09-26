@@ -255,8 +255,12 @@ class _PlassCalendarCellState extends State<PlassCalendarCell> {
       ink = widget.muted ? tokens.mutedFg : tokens.fg;
     }
 
+    // At once when the platform asks for less movement, as every surface is:
+    // a chosen day puts its gradient on in the frame it is chosen.
+    final bool still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
     Widget cell = AnimatedContainer(
-      duration: tokens.motionDuration,
+      duration: still ? Duration.zero : tokens.motionDuration,
       curve: tokens.motionEase,
       width: widget.width ?? side,
       height: side,
@@ -707,7 +711,9 @@ class _PlassCalendarState extends State<PlassCalendar> {
     Widget disclosure(bool open) {
       return AnimatedRotation(
         turns: open ? 0.5 : 0,
-        duration: tokens.motionDuration,
+        duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+            ? Duration.zero
+            : tokens.motionDuration,
         curve: tokens.motionEase,
         child: PlassGlyph(
           PlassGlyphShape.chevron,

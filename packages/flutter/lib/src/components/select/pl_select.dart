@@ -437,7 +437,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
                   // glyph, not a label, and nothing about it resamples.
                   AnimatedRotation(
                     turns: _open ? 0.5 : 0,
-                    duration: tokens.motionDuration,
+                    duration: reduceMotion ? Duration.zero : tokens.motionDuration,
                     curve: tokens.motionEase,
                     child: PlassGlyph(
                       PlassGlyphShape.chevron,

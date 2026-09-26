@@ -270,6 +270,7 @@ class PlListItem extends StatelessWidget {
     final tokens = PlassTheme.of(context);
     final family = tokens.family(scope.color);
     final interactive = onPressed != null && !disabled;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -286,7 +287,7 @@ class PlListItem extends StatelessWidget {
                       button: true,
                       selected: selected,
                       onTap: onPressed,
-                      child: _body(tokens, family, scope, state: state),
+                      child: _body(tokens, family, scope, state: state, reduceMotion: reduceMotion),
                     );
                   },
                 )
@@ -294,7 +295,13 @@ class PlListItem extends StatelessWidget {
                   container: true,
                   enabled: !disabled,
                   selected: selected,
-                  child: _body(tokens, family, scope, state: const PlassInteraction()),
+                  child: _body(
+                    tokens,
+                    family,
+                    scope,
+                    state: const PlassInteraction(),
+                    reduceMotion: reduceMotion,
+                  ),
                 ),
         ),
         if (action != null)
@@ -311,6 +318,7 @@ class PlListItem extends StatelessWidget {
     PlassColorFamily family,
     _PlListScope scope, {
     required PlassInteraction state,
+    required bool reduceMotion,
   }) {
     final size = scope.size;
     final body = sheetBody[size]!;
@@ -404,7 +412,7 @@ class PlListItem extends StatelessWidget {
     );
 
     Widget surface = AnimatedContainer(
-      duration: tokens.motionDuration,
+      duration: reduceMotion ? Duration.zero : tokens.motionDuration,
       curve: tokens.motionEase,
       decoration: BoxDecoration(color: fill, borderRadius: radius),
       child: PlassContentsGroup(paints: fill != null, child: content),

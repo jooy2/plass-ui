@@ -38,7 +38,7 @@ class PlassGlowLayer extends StatelessWidget {
     required this.duration,
     this.curve,
     this.instant = false,
-    this.reduceMotion = false,
+    this.reduceMotion,
     super.key,
   });
 
@@ -68,11 +68,15 @@ class PlassGlowLayer extends StatelessWidget {
   /// Someone who has asked for less movement is asking for state changes to
   /// *arrive*, not to be taken away. The light still appears; it stops easing,
   /// so it is either on the control or it is not.
-  final bool reduceMotion;
+  ///
+  /// `null` asks the platform: [MediaQueryData.disableAnimations] where the
+  /// layer is built.
+  final bool? reduceMotion;
 
   @override
   Widget build(BuildContext context) {
-    final out = reduceMotion ? const Duration(milliseconds: 1) : duration;
+    final still = reduceMotion ?? MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final out = still ? const Duration(milliseconds: 1) : duration;
 
     return IgnorePointer(
       child: AnimatedOpacity(
