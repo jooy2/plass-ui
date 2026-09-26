@@ -284,6 +284,9 @@ const sortButtonClasses = /* @__PURE__ */ cx(
  * because a heading that becomes pressable when the pointer arrives is a
  * heading nobody presses. The unsorted state is faint and the sorted one is
  * not, which is a change of weight rather than an appearance.
+ *
+ * The flip eases `rotate`, not `transform`: `rotate-180` sets the individual
+ * property, and a transition on `transform` never sees it change.
  */
 function SortMark({ direction }: { direction: PlDataTableSortDirection | null }) {
   return (
@@ -291,7 +294,7 @@ function SortMark({ direction }: { direction: PlDataTableSortDirection | null })
       aria-hidden="true"
       className={cx(
         '[&_svg]:size-[1em] [&_svg]:shrink-0',
-        '[transition:opacity_var(--plass-duration)_var(--plass-ease),transform_var(--plass-duration)_var(--plass-ease)]',
+        '[transition:opacity_var(--plass-duration)_var(--plass-ease),rotate_var(--plass-duration)_var(--plass-ease)]',
         'motion-reduce:[transition-duration:0ms]',
         direction === null ? 'opacity-30' : 'opacity-100',
         direction === 'asc' ? 'rotate-180' : ''

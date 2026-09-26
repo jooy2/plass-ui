@@ -157,12 +157,15 @@ function useMeasuredWidth(ref: React.RefObject<HTMLElement | null>): number {
  * Only the pie and the heatmap ever moved on any of this. The line, the area,
  * the bar, the scatter and the timeline snapped, and a dashboard holding two of
  * each showed both answers at once.
+ *
+ * The declaration is one string literal, however long, because Tailwind finds
+ * a class by reading the source text. Pieced together from three strings, it
+ * was a class the stylesheet never had, and every mark snapped.
  */
-export const markTransitionClasses = `${[
-  '[transition:opacity_var(--plass-duration)_var(--plass-ease),',
-  'r_var(--plass-duration)_var(--plass-ease),',
-  'scale_var(--plass-duration)_var(--plass-ease)]'
-].join('')} motion-reduce:[transition-duration:0ms]`;
+export const markTransitionClasses = /* @__PURE__ */ [
+  '[transition:opacity_var(--plass-duration)_var(--plass-ease),r_var(--plass-duration)_var(--plass-ease),scale_var(--plass-duration)_var(--plass-ease)]',
+  'motion-reduce:[transition-duration:0ms]'
+].join(' ');
 
 export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
   /**
