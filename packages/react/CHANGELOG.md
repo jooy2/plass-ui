@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A line, bar or area chart lets go of the column it is reading, and a scatter, a timeline or a chart whose tooltip is in `nearest` mode of the mark it is reading, once it is rendered again without it, as in the Flutter build.** A column past the end was kept, with its crosshair drawn past the plot, and read again once the data grew back, and a mark was held by its place among the marks, so the reading moved onto whichever mark took that place. A column or a mark that is still there is still read.
+
 - **A line, bar, area, scatter or pie chart lets go of the legend entry the pointer or the focus is on when it is rendered again without that entry.** The entry's button was removed without reporting a leave, so its series stayed hovered: every remaining entry was drawn faded once the last series went, every series but the one that took the place of a middle one was faded, and the other series faded again once the data brought a series back to that place, wherever the pointer was by then.
 
 - **A `PlWindowPane` close button pressed on a touch screen draws its × white on the red, as in the Flutter build.** A press turned the button red, but only the pointer's hover turned its × white, and a finger brings no hover with it, so a touch press drew the title bar's own ink on the red.

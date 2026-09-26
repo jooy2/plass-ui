@@ -924,6 +924,15 @@ export interface ChartMark {
 }
 
 /**
+ * Which mark `mark` is, as a reading holds on to it: its series and its own
+ * place in that series, which name the same mark in whatever list a render
+ * builds, where its place in the list does not.
+ */
+function markKey(mark: ChartMark): string {
+  return `${mark.series}:${mark.index}`;
+}
+
+/**
  * One mark per drawn value, for a chart whose marks sit in a grid.
  *
  * `tooltip={{ mode: 'nearest' }}` is the only thing that asks for these. A
@@ -1197,8 +1206,8 @@ export function CartesianChart({
 
   const visibility = useVisibility(series, showLegend && legendOptions.interactive !== false);
   const [columnIndex, setColumnIndex] = React.useState<number | null>(null);
-  /** Which entry of `markList` the pointer is on — the other way to be active. */
-  const [markIndex, setMarkIndex] = React.useState<number | null>(null);
+  /** Which mark the pointer or a key is on, by `markKey` — the other way to be active. */
+  const [heldMark, setHeldMark] = React.useState<string | null>(null);
   /** Where the pointer is along the value axis. `null` when it arrived by key. */
   const [pointer, setPointer] = React.useState<number | null>(null);
 
@@ -1674,21 +1683,36 @@ export function CartesianChart({
   /* Which mark is being read, and the two ways of arriving at one. A chart with
      marks is walked mark by mark; a chart without them is walked column by
      column, and `activeIndex` is then the column. */
-  const activeMark = markIndex === null ? null : (markList[markIndex] ?? null);
+  const activeAt =
+    heldMark === null ? -1 : markList.findIndex((mark) => markKey(mark) === heldMark);
+  const activeMark = activeAt === -1 ? null : markList[activeAt];
   const activeIndex = markBuilder ? (activeMark ? activeMark.index : null) : columnIndex;
   const walkLength = markBuilder ? markList.length : count;
 
   const clearActive = () => {
     setColumnIndex(null);
-    setMarkIndex(null);
+    setHeldMark(null);
     setPointer(null);
   };
+
+  /* A column past the end, or a mark that is no longer drawn, has nothing left
+     to read, so the reading is let go rather than kept for a column or a mark
+     the data may bring back. A mark is held by its series and its place in
+     that series rather than by where it sits in `markList`, so one that is
+     still drawn goes on being read, and the reading never moves onto whichever
+     mark took its place. Let go in the render that finds it gone, and React
+     renders again before anything is painted. */
+  if ((columnIndex !== null && columnIndex >= count) || (heldMark !== null && !activeMark)) {
+    clearActive();
+  }
 
   const goTo = (at: number | null) => {
     const bounded = at === null ? null : Math.min(walkLength - 1, Math.max(0, at));
 
     if (markBuilder) {
-      setMarkIndex(bounded);
+      const mark = bounded === null ? undefined : markList[bounded];
+
+      setHeldMark(mark ? markKey(mark) : null);
     } else {
       setColumnIndex(bounded);
     }
@@ -1697,7 +1721,7 @@ export function CartesianChart({
   const step = (delta: number) => {
     setPointer(null);
 
-    const current = markBuilder ? markIndex : columnIndex;
+    const current = markBuilder ? (activeAt === -1 ? null : activeAt) : columnIndex;
 
     goTo((current ?? (delta > 0 ? -1 : walkLength)) + delta);
   };
@@ -1714,7 +1738,7 @@ export function CartesianChart({
       goTo(0);
     } else if (event.key === 'End') {
       goTo(walkLength - 1);
-    } else if (event.key === 'Escape' && (columnIndex !== null || markIndex !== null)) {
+    } else if (event.key === 'Escape' && (columnIndex !== null || heldMark !== null)) {
       // Only while something is being read. With nothing to clear, the key
       // belongs to whatever the chart sits in — a sheet, a dialog — and
       // swallowing it would leave that unable to close. With something to
@@ -1881,7 +1905,9 @@ export function CartesianChart({
           }
 
           if (markBuilder) {
-            setMarkIndex(nearestMark(event.clientX, event.clientY));
+            const at = nearestMark(event.clientX, event.clientY);
+
+            setHeldMark(at === null ? null : markKey(markList[at]));
           } else {
             setColumnIndex(indexAt(event.clientX, event.clientY));
           }
