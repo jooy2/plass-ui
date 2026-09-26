@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,6 +45,11 @@ Future<void> pumpUntilTile(WidgetTester tester) async {
   }
 
   fail('the tile never arrived');
+}
+
+/// The colour the words [text] are drawn in.
+Color inkOf(WidgetTester tester, String text) {
+  return tester.renderObject<RenderParagraph>(find.text(text)).text.style!.color!;
 }
 
 /// The gradient the tile riding in the groove is drawn in, or `null` while it
@@ -204,6 +210,29 @@ void main() {
         await pumpUntilTile(tester);
 
         expect(tileFill(tester), familyFill(tester));
+      });
+
+      testWidgets('the label the set is built with takes the ink on the fill only with the tile', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(solidSet('board'), width: 480));
+
+        final Color onFill = PlassTheme.of(
+          tester.element(find.byType(PlSegmentedButton<String>)),
+        ).family(PlassColor.primary).onSolid;
+
+        // The tile is placed by a measurement, so the first frame is drawn
+        // without it: the chosen words stand on the pale groove there, and the
+        // white written on the fill would be lost on it.
+        expect(find.byType(AnimatedPositioned), findsNothing);
+        expect(inkOf(tester, 'Board'), isNot(onFill));
+
+        await pumpUntilTile(tester);
+
+        // The tile arrives with its fill whole, and the words take the ink on
+        // it in the same frame rather than easing to it over the gradient.
+        expect(tileFill(tester), familyFill(tester));
+        expect(inkOf(tester, 'Board'), onFill);
       });
 
       testWidgets('a solid one has its fill at once under reduced motion', (

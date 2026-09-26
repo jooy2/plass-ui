@@ -184,6 +184,14 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
   /// where it lands.
   bool _fadeIn = false;
 
+  /// Whether the chosen segment takes the ink on the tile at once in this
+  /// frame rather than easing to it.
+  ///
+  /// True for the one frame that places the tile the set is built with: that
+  /// tile arrives with its fill whole, so words easing to the ink on it would
+  /// stand grey on the gradient for the length of the change.
+  bool _inkAtOnce = false;
+
   @override
   FocusNode? get callerStop => widget.focusNode;
 
@@ -250,13 +258,22 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
     _measured = true;
 
     if (next != _tile) {
+      final bool arrivesLit = _tile == null && next != null && first;
+
       setState(() {
         if (_tile == null) {
           _fadeIn = !first;
         }
 
+        _inkAtOnce = arrivesLit;
         _tile = next;
       });
+
+      if (arrivesLit) {
+        // Runs after the frame this `setState` asks for, so only that frame's
+        // build reads it.
+        WidgetsBinding.instance.addPostFrameCallback((Duration _) => _inkAtOnce = false);
+      }
     }
   }
 
@@ -352,6 +369,8 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
           key: _keys[index],
           segment: widget.segments[index],
           chosen: index == chosen,
+          onTile: index == chosen && _tile != null,
+          inkAtOnce: _inkAtOnce,
           size: _size,
           density: _density,
           variant: widget.variant,
@@ -520,6 +539,8 @@ class _Tile<T> extends StatelessWidget {
   const _Tile({
     required this.segment,
     required this.chosen,
+    required this.onTile,
+    required this.inkAtOnce,
     required this.size,
     required this.density,
     required this.variant,
@@ -536,7 +557,24 @@ class _Tile<T> extends StatelessWidget {
   });
 
   final PlSegment<T> segment;
+
+  /// Whether this is the segment that is taken, which is what it reports.
   final bool chosen;
+
+  /// Whether it is taken and the tile is in the groove to stand on, which is
+  /// what it is drawn as.
+  ///
+  /// The tile is placed by a measurement after the frame that builds the set,
+  /// or the frame that makes the first choice of an empty one, so a chosen
+  /// segment stands on the bare groove for that frame. It keeps the ink and
+  /// the light of a segment standing there until the tile arrives, rather
+  /// than writing the white that belongs on a `solid` fill on the pale groove.
+  final bool onTile;
+
+  /// Whether the ink changes at once rather than easing, for the frame the
+  /// tile the set is built with arrives with its fill whole.
+  final bool inkAtOnce;
+
   final PlassSize size;
   final PlassDensity density;
   final PlassVariant variant;
@@ -571,7 +609,7 @@ class _Tile<T> extends StatelessWidget {
         builder: (BuildContext context, PlassInteraction state) {
           final ink = disabled
               ? tokens.mutedFg
-              : chosen
+              : onTile
               ? (variant == PlassVariant.solid ? family.onSolid : family.accent)
               : state.hovered
               ? tokens.fg
@@ -596,6 +634,7 @@ class _Tile<T> extends StatelessWidget {
                   // `solid` segment does not write white on the trough first.
                   child: PlassInk(
                     color: ink,
+                    duration: inkAtOnce ? Duration.zero : null,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -615,7 +654,8 @@ class _Tile<T> extends StatelessWidget {
           // the segment is standing rather than what the set is made of — a
           // chosen one rides the tile, which on `solid` is a coloured fill and
           // takes white light; an unchosen one sits on the trough, which is a
-          // sheet, and white light on a near-white sheet is invisible.
+          // sheet, and white light on a near-white sheet is invisible. So does
+          // a chosen one the tile has not reached yet.
           if (onPressed != null && !disabled) {
             body = ClipRRect(
               borderRadius: BorderRadius.circular(height),
@@ -626,7 +666,7 @@ class _Tile<T> extends StatelessWidget {
                       child: PlassGlowLayer(
                         pointer: state.pointer,
                         visible: state.hovered,
-                        color: chosen ? tokens.glow(family, variant) : tokens.fieldGlow(family),
+                        color: onTile ? tokens.glow(family, variant) : tokens.fieldGlow(family),
                         radius: glowRadius,
                         duration: PlassTokens.glowDuration,
                         reduceMotion: reduceMotion,
@@ -639,7 +679,7 @@ class _Tile<T> extends StatelessWidget {
                       child: PlassGlowLayer(
                         pointer: state.pointer,
                         visible: state.pressed,
-                        color: chosen ? tokens.flash(family, variant) : tokens.fieldFlash(family),
+                        color: onTile ? tokens.flash(family, variant) : tokens.fieldFlash(family),
                         radius: flashRadius,
                         duration: PlassTokens.flashDuration,
                         curve: PlassTokens.flashEase,
