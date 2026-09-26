@@ -58,6 +58,8 @@
 
 ### Changed
 
+- **A `PlTextField`'s `startIcon` and `endIcon` stay muted while the field is focused, as a `PlNumberField`'s do.** They eased to the family's accent as the field took the focus, which dyed the content of a glass field that the family otherwise reaches only at its edge, its ring and its caret. The focus still shows on those three.
+
 - **A `readOnly` `PlCombobox` opens its list to be looked through, as it does in the React build.** A read-only field never opened, so the options it held a choice between could not be seen. The list now opens on a press, on the chevron and with the arrow keys, and a row taken there changes nothing.
 
 - **A press on a `PlCombobox` field opens its list, as it does in the React build.** A press focused the field and left the list shut until something was typed or the chevron was pressed. It now opens the list as well, on the text and around it, so the field is the chevron's equivalent control, since the chevron keeps the size it is drawn at. A disabled field stays shut.

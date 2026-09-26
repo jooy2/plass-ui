@@ -200,7 +200,7 @@ floating label variant는 없습니다. floating label은 캐럿이 들어올 �
 
 ### startIcon과 endIcon
 
-행이 아니라 글자를 기준으로 크기가 정해집니다. 컨트롤 안이 아니라 shell에 붙으며 컨트롤의 focus에 반응합니다. 필드가 focus되면 adornment가 muted에서 accent 색으로 바뀝니다.
+행이 아니라 글자를 기준으로 크기가 정해집니다. 컨트롤 안이 아니라 shell에 붙고, 필드가 focus되어도 muted 색에서 바뀌지 않습니다.
 
 adornment는 컨트롤의 **첫 줄**을 기준으로 가운데 정렬되므로, multiline 필드가 늘어나도 자리를 지킵니다.
 

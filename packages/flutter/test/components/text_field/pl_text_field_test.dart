@@ -14,6 +14,20 @@ BoxDecoration shellOf(WidgetTester tester) {
   );
 }
 
+/// A glyph a caller hands the field, recording the colour it is drawn in.
+class _Glyph extends StatelessWidget {
+  const _Glyph();
+
+  static Color? seen;
+
+  @override
+  Widget build(BuildContext context) {
+    seen = IconTheme.of(context).color;
+
+    return const SizedBox.square(dimension: 16);
+  }
+}
+
 void main() {
   group('PlTextField', () {
     group('rendering', () {
@@ -100,6 +114,35 @@ void main() {
         await tester.pumpWidget(host(const PlTextField(fullWidth: true), width: 300));
 
         expect((shellOf(tester).border! as Border).top.color, PlassTokens.light().border);
+      });
+    });
+
+    group('startIcon and endIcon', () {
+      testWidgets('keep the muted ink as the field takes the focus', (WidgetTester tester) async {
+        final FocusNode focus = FocusNode();
+        addTearDown(focus.dispose);
+        _Glyph.seen = null;
+
+        await tester.pumpWidget(
+          host(
+            PlTextField(focusNode: focus, startIcon: const _Glyph(), endIcon: const Text('kg')),
+            width: 320,
+          ),
+        );
+
+        final Color muted = PlassTokens.light().mutedFg;
+
+        expect(_Glyph.seen, muted);
+        expect(styleOf(tester, 'kg').color, muted);
+
+        focus.requestFocus();
+        await tester.pumpAndSettle();
+
+        // The focus is answered by the edge, the ring and the caret, and the
+        // glass field's colour stops there.
+        expect(focus.hasFocus, isTrue);
+        expect(_Glyph.seen, muted);
+        expect(styleOf(tester, 'kg').color, muted);
       });
     });
 

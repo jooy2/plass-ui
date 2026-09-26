@@ -46,6 +46,8 @@
 
 ### Changed
 
+- **A `PlTextField`'s `startIcon`, `endIcon` and loading spinner stay muted while the field is focused, as a `PlNumberField`'s adornments do.** They turned to the family's accent as the field took the focus, which dyed the content of a glass field that the family otherwise reaches only at its edge, its ring and its caret. The focus still shows on those three.
+
 - **A `PlScatterChart` card and its live region write a bubble's `z` after its y, in brackets.** The size was left to be read off the bubble, and was written only in the table under the chart. It now follows the y through the chart's `format`, or compactly without one, "10, Q1: 22 (5)", and follows a point's own `label` too, since a label stands in for the y alone.
 
 - **A `PlConfirmProvider` sheet draws no × any more, as the Flutter one never has.** A question is answered by its own buttons, which say what each answer does, and while it is `dismissible`, Escape and a press outside still answer no.

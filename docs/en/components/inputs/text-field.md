@@ -200,7 +200,7 @@ There is no `resize`. A textarea's drag handle is the browser's, and Flutter has
 
 ### startIcon and endIcon
 
-Sized against the text rather than against the row. They sit on the shell rather than inside the control, and they answer its focus. An adornment goes from muted to the accent colour when the field is focused.
+Sized against the text rather than against the row. They sit on the shell rather than inside the control, and they stay in the muted colour when the field is focused.
 
 An adornment is centred on the control's **first line**, so it stays where it is when a multiline field grows.
 

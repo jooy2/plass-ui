@@ -450,10 +450,6 @@ final Map<String, _Case> _cases = <String, _Case>{
     read: _words('Copy'),
     change: _hover(() => find.text('Copy')),
   ),
-  'PlTextField, an adornment as it takes the focus': _Case(
-    (bool on) => PlTextField(focusNode: _textFocus, startIcon: const Text('Label')),
-    change: _focus(_textFocus),
-  ),
   'PlCombobox, its chevron under the pointer': _Case(
     (bool on) => PlCombobox<int>(
       value: 0,
@@ -858,6 +854,13 @@ final Map<String, _Case> _cases = <String, _Case>{
         (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.plus,
       ),
     ),
+  ),
+  // An adornment keeps the muted ink as the field takes the focus, so what the
+  // focus eases there is the glass under it.
+  'PlTextField, its fill as it takes the focus': _Case(
+    (bool on) => PlTextField(focusNode: _textFocus, startIcon: const Text('Label')),
+    read: _surfaceFill(() => find.text('Label')),
+    change: _focus(_textFocus),
   ),
   'PlCodeBlock, the fill of its copy button under the pointer': _Case(
     (bool on) => const PlCodeBlock(code: 'print(1);'),

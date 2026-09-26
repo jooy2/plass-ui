@@ -6,7 +6,6 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
-import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -345,18 +344,18 @@ class _PlTextFieldState extends State<PlTextField> {
 
     // A box the height of one line keeps an adornment centred on the first line
     // rather than on the whole box, which is the only way it stays put when the
-    // control grows to five rows.
+    // control grows to five rows. Muted whether or not the field holds the
+    // focus: the family reaches the edge, the ring and the caret, and stops.
     Widget adornment(Widget slot) {
-      final ink = _focused ? family.accent : tokens.mutedFg;
-
       return SizedBox(
         height: scale.line,
         child: Center(
           child: IconTheme.merge(
-            data: IconThemeData(size: scale.size * iconScale),
-            // Eased as the focus arrives and leaves, as the React adornment's
-            // `color` is.
-            child: PlassInk(color: ink, child: slot),
+            data: IconThemeData(color: tokens.mutedFg, size: scale.size * iconScale),
+            child: DefaultTextStyle.merge(
+              style: TextStyle(color: tokens.mutedFg),
+              child: slot,
+            ),
           ),
         ),
       );
