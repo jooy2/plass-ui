@@ -1,14 +1,16 @@
 // That every control whose words or glyphs change colour with its state eases
-// that colour as its fill eases.
+// that colour as its fill eases, and that the fill under them eases where the
+// React build eases it.
 //
 // The React build's house transition eases `color` with the fill, so a label
 // changes colour as its surface does. A Flutter control that hands its label a
 // new colour changes it in one frame instead, and over a fill that is still
 // easing, the label takes its new colour on the old surface for the length of
-// the transition. What is checked here is the colour actually drawn: part of the
-// way along halfway through the change, exactly the new colour once it has
+// the transition; a fill that changes in one frame leaves an eased label
+// arriving after it. What is checked here is the colour actually drawn: part of
+// the way along halfway through the change, exactly the new colour once it has
 // settled, and the new colour at once under reduced motion. A control added
-// later with an ink of its own belongs in this list.
+// later with an ink or a fill of its own belongs in this list.
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +18,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/window.dart';
 
 import '../support/host.dart';
 
@@ -79,6 +82,28 @@ _Read _ownGlyph(PlassGlyphShape shape) {
     return tester.widget<PlassGlyph>(glyph.first).color ??
         IconTheme.of(tester.element(glyph.first)).color!;
   };
+}
+
+/// The fill of the nearest box painted round what [target] finds, and a clear
+/// colour while it paints none.
+_Read _fill(Finder Function() target) {
+  return (WidgetTester tester) {
+    final DecoratedBox box = tester.widget<DecoratedBox>(
+      find.ancestor(of: target(), matching: find.byType(DecoratedBox)).first,
+    );
+
+    return (box.decoration as BoxDecoration).color ?? const Color(0x00000000);
+  };
+}
+
+/// A window's caption button, drawing its mark.
+Finder _caption(PlWindowControl control) {
+  return find.byWidgetPredicate(
+    (Widget widget) =>
+        widget is CustomPaint &&
+        widget.painter is PlWindowGlyphPainter &&
+        (widget.painter! as PlWindowGlyphPainter).control == control,
+  );
 }
 
 /// A mouse, put in the corner and then moved onto the control.
@@ -497,6 +522,91 @@ final Map<String, _Case> _cases = <String, _Case>{
         (Widget widget) => widget is Semantics && widget.properties.label == 'Open',
       ),
     ),
+  ),
+  // The fills those inks sit on, which the React house transition eases too.
+  'PlBottomNavigation, an item\'s fill': _Case(
+    (bool on) => PlBottomNavigation<int>(
+      value: on ? 1 : 0,
+      onChanged: (int _) {},
+      safeArea: false,
+      items: const <PlBottomNavigationItem<int>>[
+        PlBottomNavigationItem<int>(value: 0, label: 'Other'),
+        PlBottomNavigationItem<int>(value: 1, label: 'Label'),
+      ],
+    ),
+    read: _fill(() => find.text('Label')),
+  ),
+  'PlSelect, the fill of a row the arrow keys reach': _Case(
+    (bool on) => PlSelect<int>(
+      value: 0,
+      onChanged: (int? _) {},
+      options: const <PlSelectOption<int>>[
+        PlSelectOption<int>(value: 0, label: Text('Other')),
+        PlSelectOption<int>(value: 1, label: Text('Label')),
+      ],
+    ),
+    read: _fill(() => find.text('Label').last),
+    change: _highlight(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.chevron,
+      ),
+    ),
+  ),
+  'PlCombobox, the fill of a row the arrow keys reach': _Case(
+    (bool on) => PlCombobox<int>(
+      value: 0,
+      onChanged: (int? _) {},
+      options: const <PlComboboxOption<int>>[
+        PlComboboxOption<int>(value: 0, label: 'Other'),
+        PlComboboxOption<int>(value: 1, label: 'Label'),
+      ],
+    ),
+    read: _fill(() => find.text('Label').last),
+    change: _highlight(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is Semantics && widget.properties.label == 'Open',
+      ),
+    ),
+  ),
+  'PlNumberField, the fill of a stepper under the pointer': _Case(
+    (bool on) => PlNumberField(value: 4, onChanged: (num? _) {}),
+    read: _fill(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.plus,
+      ),
+    ),
+    change: _hover(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.plus,
+      ),
+    ),
+  ),
+  'PlCodeBlock, the fill of its copy button under the pointer': _Case(
+    (bool on) => const PlCodeBlock(code: 'print(1);'),
+    read: _fill(() => find.text('Copy')),
+    change: _hover(() => find.text('Copy')),
+  ),
+  'PlWindowPane, the fill of a caption button under the pointer': _Case(
+    (bool on) => const PlWindowPane(os: PlWindowOs.windows11, title: Text('Notes')),
+    read: _fill(() => _caption(PlWindowControl.close)),
+    change: _hover(() => _caption(PlWindowControl.close)),
+  ),
+  'PlWindowPane, the mark of a caption button under the pointer': _Case(
+    (bool on) => const PlWindowPane(os: PlWindowOs.windows11, title: Text('Notes')),
+    read: (WidgetTester tester) =>
+        (tester.widget<CustomPaint>(_caption(PlWindowControl.close)).painter!
+                as PlWindowGlyphPainter)
+            .ink,
+    change: _hover(() => _caption(PlWindowControl.close)),
+  ),
+  'PlHighlight, the fill of its mark': _Case(
+    (bool on) => PlHighlight(
+      'A Label here',
+      query: 'Label',
+      color: on ? PlassColor.danger : PlassColor.warning,
+      variant: PlassVariant.glass,
+    ),
+    read: _fill(() => find.text('Label').last),
   ),
 };
 

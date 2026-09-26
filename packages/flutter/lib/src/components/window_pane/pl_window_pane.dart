@@ -13,6 +13,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -940,6 +941,9 @@ class _WindowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PlassTokens tokens = PlassTheme.of(context);
+    final bool reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
     return PlassInteractive(
       onTap: onPressed,
       builder: (BuildContext context, PlassInteraction state) {
@@ -996,19 +1000,29 @@ class _WindowButton extends StatelessWidget {
           _ => true,
         };
 
-        Widget face = Container(
+        // The fill and the mark ease under the pointer, as the React button's
+        // `background-color` and `color` do: a close button's white mark
+        // arrives with its red rather than ahead of it.
+        Widget face = AnimatedContainer(
+          duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+          curve: tokens.motionEase,
           width: width,
           height: metrics.control.height,
           decoration: BoxDecoration(color: fill, borderRadius: radius, border: edge),
           alignment: Alignment.center,
           child: showGlyph
-              ? CustomPaint(
-                  size: Size.square(metrics.glyph),
-                  painter: PlWindowGlyphPainter(
-                    control: control,
-                    maximized: maximized,
-                    chrome: chrome,
-                    ink: ink,
+              ? PlassInk(
+                  color: ink,
+                  child: Builder(
+                    builder: (BuildContext context) => CustomPaint(
+                      size: Size.square(metrics.glyph),
+                      painter: PlWindowGlyphPainter(
+                        control: control,
+                        maximized: maximized,
+                        chrome: chrome,
+                        ink: IconTheme.of(context).color!,
+                      ),
+                    ),
                   ),
                 )
               : null,

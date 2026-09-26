@@ -796,7 +796,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
               ? family.accent
               : tokens.mutedFg;
 
-          Widget button = DecoratedBox(
+          // Eased with the ink, as the React stepper's `background-color` is.
+          Widget button = AnimatedContainer(
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
             decoration: BoxDecoration(
               color: inert
                   ? null

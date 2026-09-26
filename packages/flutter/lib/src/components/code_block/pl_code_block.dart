@@ -1192,7 +1192,9 @@ class _BarButtonState extends State<_BarButton> {
   Widget build(BuildContext context) {
     final palette = widget.palette;
     final double meta = metaText[widget.size]!;
-    final BorderRadius radius = BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.xs]!);
+    final PlassTokens tokens = PlassTheme.of(context);
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[PlassSize.xs]!);
+    final bool reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return Semantics(
       button: true,
@@ -1209,7 +1211,11 @@ class _BarButtonState extends State<_BarButton> {
           final bool lit = state.hovered || state.pressed || widget.pressed == true;
           final Color ink = lit ? palette.foreground : palette.dim;
 
-          Widget button = Container(
+          // The wash eases with the ink, as the React button's
+          // `background-color` does under the house transition.
+          Widget button = AnimatedContainer(
+            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+            curve: tokens.motionEase,
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             decoration: BoxDecoration(color: lit ? palette.hover : null, borderRadius: radius),
             // Eased under the pointer, as the React button's `color` is. The

@@ -151,13 +151,14 @@ class PlHighlight extends StatelessWidget {
     final family = tokens.family(color);
     final base = DefaultTextStyle.of(context).style.merge(style);
     final pattern = _pattern;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return Text.rich(
       TextSpan(
         style: style,
         children: pattern == null
             ? <InlineSpan>[TextSpan(text: text)]
-            : _mark(pattern, base, family, tokens),
+            : _mark(pattern, base, family, tokens, reduceMotion: reduceMotion),
       ),
       textAlign: align,
       maxLines: lines,
@@ -198,8 +199,9 @@ class PlHighlight extends StatelessWidget {
     RegExp pattern,
     TextStyle base,
     PlassColorFamily family,
-    PlassTokens tokens,
-  ) {
+    PlassTokens tokens, {
+    required bool reduceMotion,
+  }) {
     final spans = <InlineSpan>[];
     var cursor = 0;
 
@@ -224,7 +226,7 @@ class PlHighlight extends StatelessWidget {
         spans.add(TextSpan(text: text.substring(cursor, match.start)));
       }
 
-      spans.add(_markSpan(match.group(0)!, base, family, tokens));
+      spans.add(_markSpan(match.group(0)!, base, family, tokens, reduceMotion: reduceMotion));
       cursor = match.end;
     }
 
@@ -254,18 +256,24 @@ class PlHighlight extends StatelessWidget {
   /// surface: a gradient on `solid`, a hairline on `glass`, a fillet on both.
   /// The cost is that a marked phrase does not break across lines, which the
   /// page says.
+  ///
+  /// Its fill, its edge and its ink ease when the variant or the colour
+  /// changes, as the React mark's do under the house transition.
   InlineSpan _markSpan(
     String matched,
     TextStyle base,
     PlassColorFamily family,
-    PlassTokens tokens,
-  ) {
+    PlassTokens tokens, {
+    required bool reduceMotion,
+  }) {
     final ink = variant == PlassVariant.solid ? family.onSolid : family.accent;
 
     return WidgetSpan(
       alignment: PlaceholderAlignment.baseline,
       baseline: TextBaseline.alphabetic,
-      child: DecoratedBox(
+      child: AnimatedContainer(
+        duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+        curve: tokens.motionEase,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_markRadius),
           gradient: variant == PlassVariant.solid ? family.fill : null,

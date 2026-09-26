@@ -738,7 +738,13 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           child: PlassFiltered(
             colorFilter: null,
             opacity: option.disabled ? disabledOpacity : 1,
-            child: DecoratedBox(
+            // Eased as the highlight arrives and leaves, with the ink, as the
+            // React row's `background-color` is.
+            child: AnimatedContainer(
+              duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+                  ? Duration.zero
+                  : tokens.motionDuration,
+              curve: tokens.motionEase,
               decoration: BoxDecoration(
                 color: lit ? family.soft : null,
                 borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),

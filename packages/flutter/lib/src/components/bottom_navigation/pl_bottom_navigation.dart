@@ -281,6 +281,7 @@ class PlBottomNavigation<T> extends StatelessWidget {
         (labels == PlBottomNavigationLabels.selected && selected);
 
     final BorderRadius radius = BorderRadius.circular(tokens.radii[size]!);
+    final bool reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
     return PlassInteractive(
       enabled: interactive,
@@ -336,7 +337,11 @@ class PlBottomNavigation<T> extends StatelessWidget {
           ),
         );
 
-        content = DecoratedBox(
+        // Eased with the ink, as the React item's `background-color` is under
+        // the house transition.
+        content = AnimatedContainer(
+          duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+          curve: tokens.motionEase,
           decoration: BoxDecoration(color: wash, borderRadius: radius),
           child: PlassContentsGroup(
             paints: wash != null,
