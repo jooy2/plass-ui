@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -247,6 +248,72 @@ void main() {
 
         expect(row.top, greaterThanOrEqualTo(list.top));
         expect(row.bottom, lessThanOrEqualTo(list.bottom));
+      });
+
+      testWidgets('keeps the row the keys chose as the list scrolls under a resting pointer', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        final List<String> seen = <String>[];
+
+        await tester.pumpWidget(
+          host(
+            _Host(
+              items: many,
+              shortcut: 'Mod+K',
+              onSelect: (PlCommandItem item) => seen.add(item.value),
+            ),
+            width: 700,
+            height: 500,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.text('Command 2')));
+        await tester.pump();
+
+        // Down from the row the pointer lit, past the foot of the list, which
+        // scrolls other rows under the pointer as it follows the keys.
+        for (int i = 0; i < 15; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+        }
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(seen, <String>['c17']);
+
+        // Nor does a list opening under it light the row it lands on.
+        seen.clear();
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(seen, <String>['c0']);
+
+        // A pointer that moves again lights the row it is on.
+        seen.clear();
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        await tester.pumpAndSettle();
+        await mouse.moveTo(tester.getCenter(find.text('Command 5')));
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(seen, <String>['c5']);
+
+        debugDefaultTargetPlatformOverride = null;
       });
     });
 

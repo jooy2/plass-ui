@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -308,6 +309,69 @@ void main() {
 
         expect(row.top, greaterThanOrEqualTo(list.top));
         expect(row.bottom, lessThanOrEqualTo(list.bottom));
+      });
+
+      testWidgets('keeps the row the keys chose as the list scrolls under a resting pointer', (
+        WidgetTester tester,
+      ) async {
+        final List<int?> taken = <int?>[];
+
+        await tester.pumpWidget(
+          host(
+            PlSelect<int>(
+              options: <PlSelectOption<int>>[
+                for (int i = 0; i < 30; i += 1)
+                  PlSelectOption<int>(value: i, label: Text('Row $i')),
+              ],
+              value: null,
+              onChanged: taken.add,
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(_trigger());
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(_row('Row 2')));
+        await tester.pump();
+
+        // Down from the row the pointer lit, past the foot of the list, which
+        // scrolls other rows under the pointer as it follows the keys.
+        for (int i = 0; i < 15; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+        }
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(taken, <int?>[17]);
+
+        // Nor does a list opening under it light the row it lands on. With
+        // nothing chosen, the list opens on its first row.
+        taken.clear();
+        await tester.tap(_trigger());
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(taken, <int?>[0]);
+
+        // A pointer that moves again lights the row it is on.
+        taken.clear();
+        await tester.tap(_trigger());
+        await tester.pumpAndSettle();
+        await mouse.moveTo(tester.getCenter(_row('Row 5')));
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        expect(taken, <int?>[5]);
       });
 
       testWidgets('Escape closes without choosing', (WidgetTester tester) async {

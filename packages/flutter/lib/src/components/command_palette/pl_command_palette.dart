@@ -643,7 +643,12 @@ class _Row extends StatelessWidget {
     return MergeSemantics(
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
-        onEnter: (PointerEnterEvent event) => onHover(),
+        // Only a pointer that moves lights a row, as Base UI lights one on a
+        // pointer move and never for a pointer at rest. A row the keys scroll
+        // under a resting pointer, or a palette that opens under one, is
+        // entered all the same, and an enter would take the light from where
+        // the keys or the opening put it.
+        onHover: (PointerHoverEvent event) => onHover(),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: onRun,

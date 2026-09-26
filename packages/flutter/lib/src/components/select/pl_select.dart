@@ -718,7 +718,12 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
     // reason the highlight is a number here rather than a hover state per row.
     final Widget row = MouseRegion(
       cursor: option.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.click,
-      onEnter: (_) {
+      // Only a pointer that moves lights a row, as Base UI lights one on a
+      // pointer move and never for a pointer at rest. A row the keys scroll
+      // under a resting pointer, or a list that opens under one, is entered
+      // all the same, and an enter would take the light from where the keys
+      // or the opening put it.
+      onHover: (_) {
         if (!option.disabled && _highlighted != index) {
           setState(() => _highlighted = index);
         }
