@@ -12,8 +12,8 @@
  * `marquee.test.tsx` loads it, and the assertions are a mark that is there or
  * is not and a box that matches another, never a shade or a size.
  */
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { cdp, commands, server, userEvent } from 'vitest/browser';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlWindowPane } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -335,58 +335,58 @@ describe('the macOS traffic lights', () => {
 });
 
 describe('a close button pressed on a touch screen', () => {
-  // Touch is emulated through the DevTools protocol, which is Chromium's. It is
-  // what takes `(hover: hover)` away, and with it every `hover:` utility, so a
-  // press is all that is left to turn the button.
-  const emulated = it.runIf(server.browser === 'chromium');
+  // A finger brings no hover, and Tailwind puts every `hover:` utility inside
+  // `@media (hover: hover)`, so a press is all that is left to turn the button.
+  // Taking the hover away in a test means emulating touch, which on a headless
+  // Linux Chromium never gives back the mouse Playwright launched it with, and
+  // every hover test after it in the shard then fails. So the rule is read out
+  // of the stylesheet instead: a press on its own, outside any hover query,
+  // has to write the mark white.
+  type Found = { rule: CSSStyleRule; underHover: boolean };
 
-  const setTouch = (enabled: boolean) =>
-    cdp().send('Emulation.setTouchEmulationEnabled', { enabled, maxTouchPoints: 1 });
+  function rulesFor(escaped: string, rules: CSSRuleList, underHover = false): Found[] {
+    const found: Found[] = [];
 
-  afterEach(async () => {
-    if (server.browser === 'chromium') {
-      await setTouch(false);
+    for (const rule of Array.from(rules)) {
+      if (rule instanceof CSSStyleRule) {
+        if (rule.selectorText.includes(escaped)) {
+          found.push({ rule, underHover });
+        }
+      } else if (rule instanceof CSSGroupingRule) {
+        const hover =
+          underHover || (rule instanceof CSSMediaRule && rule.conditionText.includes('hover'));
+
+        found.push(...rulesFor(escaped, rule.cssRules, hover));
+      }
     }
 
-    await emulateMedia({ reducedMotion: 'no-preference' });
-  });
+    return found;
+  }
 
-  emulated('draws its mark white on the red while it is held', async () => {
-    // Read the moment the press lands, so the colours are asked to arrive at
-    // once rather than over `--plass-duration`.
-    await emulateMedia({ reducedMotion: 'reduce' });
-    await setTouch(true);
-
-    expect(window.matchMedia('(hover: hover)').matches).toBe(false);
-
+  it('draws its mark white on the red while it is held', async () => {
     const screen = await render(
       <PlWindowPane os="windows11" title="Notes">
         Body
       </PlWindowPane>
     );
     const close = screen.getByRole('button', { name: 'Close' }).element() as HTMLElement;
-    const rest = getComputedStyle(close).backgroundColor;
-    let held: { active: boolean; fill: string; ink: string } | undefined;
 
-    close.addEventListener(
-      'pointerdown',
-      () => {
-        setTimeout(() => {
-          held = {
-            active: close.matches(':active'),
-            fill: getComputedStyle(close).backgroundColor,
-            ink: getComputedStyle(close).color
-          };
-        }, 0);
-      },
-      { once: true }
+    expect(close.classList.contains('active:bg-(--p-window-danger)')).toBe(true);
+    expect(close.classList.contains('active:text-white')).toBe(true);
+
+    const pressed = rulesFor('active\\:text-white', sheet.sheet!.cssRules).filter(
+      (one) => one.rule.selectorText.includes(':active') && !one.underHover
     );
 
-    // Held for a moment, and read in the first task after it lands.
-    await userEvent.click(close, { delay: 250 });
+    expect(pressed.length).toBeGreaterThan(0);
 
-    expect(held?.active).toBe(true);
-    expect(held?.fill).not.toBe(rest);
-    expect(held?.ink).toBe('rgb(255, 255, 255)');
+    // The colour the rule writes, resolved against the page's own tokens.
+    const probe = document.createElement('span');
+    probe.style.color = pressed[0].rule.style.color;
+    document.body.append(probe);
+    const ink = getComputedStyle(probe).color;
+    probe.remove();
+
+    expect(ink).toBe('rgb(255, 255, 255)');
   });
 });
