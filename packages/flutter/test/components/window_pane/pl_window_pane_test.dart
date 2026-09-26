@@ -1356,6 +1356,158 @@ void main() {
       });
     });
 
+    // Each face is checked against the React button's own values, from
+    // `controlFace` and `closeHover` in `src/internal/window.tsx`.
+    group('caption faces', () {
+      /// The caption button drawing [control]'s mark.
+      Finder captionMark(PlWindowControl control) {
+        return find.byWidgetPredicate(
+          (Widget widget) =>
+              widget is CustomPaint &&
+              widget.painter is PlWindowGlyphPainter &&
+              (widget.painter! as PlWindowGlyphPainter).control == control,
+        );
+      }
+
+      /// What the button drawing [control]'s mark paints under the mark: its
+      /// face, then the finish over the face where it has one.
+      List<BoxDecoration> captionFace(WidgetTester tester, PlWindowControl control) {
+        final Finder button = find
+            .ancestor(of: captionMark(control), matching: find.byType(PlassInteractive))
+            .first;
+
+        return tester
+            .widgetList<DecoratedBox>(
+              find.descendant(of: button, matching: find.byType(DecoratedBox)),
+            )
+            .map((DecoratedBox box) => box.decoration as BoxDecoration)
+            .toList();
+      }
+
+      /// The colour [control]'s mark is drawn in.
+      Color captionInk(WidgetTester tester, PlWindowControl control) {
+        return (tester.widget<CustomPaint>(captionMark(control)).painter! as PlWindowGlyphPainter)
+            .ink;
+      }
+
+      // `linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(255 255 255 /
+      // 0.08) 52%, rgb(255 255 255 / 0.3))` and `inset 0 0 0 1px rgb(255 255
+      // 255 / 0.55)`.
+      const Gradient aeroGloss = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: <Color>[Color(0x99FFFFFF), Color(0x14FFFFFF), Color(0x4DFFFFFF)],
+        stops: <double>[0, 0.52, 1],
+      );
+      final Border aeroEdge = Border.all(color: const Color(0x8CFFFFFF));
+
+      // `linear-gradient(180deg, rgb(255 255 255 / 0.5), rgb(255 255 255 /
+      // 0.05) 55%, rgb(0 0 0 / 0.14))` and `inset 0 0 0 1px rgb(255 255 255 /
+      // 0.4)`.
+      const Gradient plateGloss = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: <Color>[Color(0x80FFFFFF), Color(0x0DFFFFFF), Color(0x24000000)],
+        stops: <double>[0, 0.55, 1],
+      );
+      final Border plateEdge = Border.all(color: const Color(0x66FFFFFF));
+
+      testWidgets('draw each of Aero\'s buttons as white glass with a gloss and an edge', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const PlWindowPane(os: PlWindowOs.windows7, title: Text('Notes')));
+
+        for (final PlWindowControl control in PlWindowControl.values) {
+          final List<BoxDecoration> face = captionFace(tester, control);
+
+          expect(face, hasLength(2), reason: control.name);
+          // `rgb(255 255 255 / 0.3)`, rounded `0 0 3px 3px`.
+          expect(face.first.color, const Color(0x4DFFFFFF), reason: control.name);
+          expect(
+            face.first.borderRadius,
+            const BorderRadius.vertical(bottom: Radius.circular(3)),
+            reason: control.name,
+          );
+          expect(face.last.gradient, aeroGloss, reason: control.name);
+          expect(face.last.border, aeroEdge, reason: control.name);
+        }
+      });
+
+      testWidgets('keep the face of Aero\'s minimize and maximize under the pointer, '
+          'and turn its close red under the gloss', (WidgetTester tester) async {
+        await _pump(tester, const PlWindowPane(os: PlWindowOs.windows7, title: Text('Notes')));
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await mouse.addPointer(location: Offset.zero);
+        addTearDown(mouse.removePointer);
+
+        for (final PlWindowControl control in <PlWindowControl>[
+          PlWindowControl.minimize,
+          PlWindowControl.maximize,
+        ]) {
+          await mouse.moveTo(tester.getCenter(captionMark(control)));
+          await tester.pumpAndSettle();
+
+          // What the pointer changes on these two is how bright they are.
+          expect(captionFace(tester, control).first.color, const Color(0x4DFFFFFF));
+        }
+
+        await mouse.moveTo(tester.getCenter(captionMark(PlWindowControl.close)));
+        await tester.pumpAndSettle();
+
+        final List<BoxDecoration> close = captionFace(tester, PlWindowControl.close);
+
+        // `#e04a45`, with the mark white on it.
+        expect(close.first.color, const Color(0xFFE04A45));
+        expect(close.last.gradient, aeroGloss);
+        expect(captionInk(tester, PlWindowControl.close), const Color(0xFFFFFFFF));
+      });
+
+      testWidgets(
+        'draw XP\'s plates with a gloss and an edge, washed out behind the front window',
+        (WidgetTester tester) async {
+          // `#4b85d4` for minimize and maximize, and `#cf4b36` for close.
+          const Map<PlWindowControl, Color> own = <PlWindowControl, Color>{
+            PlWindowControl.minimize: Color(0xFF4B85D4),
+            PlWindowControl.maximize: Color(0xFF4B85D4),
+            PlWindowControl.close: Color(0xFFCF4B36),
+          };
+
+          await _pump(tester, const PlWindowPane(os: PlWindowOs.windowsxp, title: Text('Notes')));
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            final List<BoxDecoration> face = captionFace(tester, control);
+
+            expect(face, hasLength(2), reason: control.name);
+            expect(face.first.color, own[control], reason: control.name);
+            // One more than the box in the glyph, as the React plate is.
+            expect(face.first.borderRadius, BorderRadius.circular(4), reason: control.name);
+            expect(face.last.gradient, plateGloss, reason: control.name);
+            expect(face.last.border, plateEdge, reason: control.name);
+          }
+
+          await _pump(
+            tester,
+            const PlWindowPane(os: PlWindowOs.windowsxp, title: Text('Notes'), active: false),
+          );
+
+          for (final PlWindowControl control in PlWindowControl.values) {
+            final List<BoxDecoration> face = captionFace(tester, control);
+
+            // `color-mix(in oklab, <plate> 45%, #c6c9ce)`, mixed the way the bar
+            // under it is washed out.
+            expect(
+              face.first.color,
+              Color.lerp(own[control], const Color(0xFFC6C9CE), 0.55),
+              reason: control.name,
+            );
+            expect(face.last.gradient, plateGloss, reason: control.name);
+          }
+        },
+      );
+    });
+
     group('a double tap on the title bar', () {
       const Set<PlWindowControl> all = <PlWindowControl>{
         PlWindowControl.minimize,

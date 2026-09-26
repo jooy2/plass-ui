@@ -673,6 +673,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
               metrics: metrics,
               colors: colors,
               maximized: widget.maximized,
+              active: widget.active,
               label: _labelFor(order[i], labels),
               onPressed: () => _press(order[i]),
             ),
@@ -841,7 +842,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     // what XP did to Luna blue and what Aqua did to its stripes.
     final Color? painted = own == null
         ? null
-        : (widget.active ? own.fill : Color.lerp(own.fill, const Color(0xFFC6C9CE), 0.55)!);
+        : (widget.active ? own.fill : Color.lerp(own.fill, paintedWash, 0.55)!);
 
     final PlassColorFamily palette = tokens.family(family);
     final Color bar = dyed ? palette.solid : (painted ?? plain);
@@ -933,6 +934,7 @@ class _WindowButton extends StatelessWidget {
     required this.metrics,
     required this.colors,
     required this.maximized,
+    required this.active,
     required this.label,
     required this.onPressed,
   });
@@ -942,6 +944,11 @@ class _WindowButton extends StatelessWidget {
   final PlWindowMetrics metrics;
   final _WindowColors colors;
   final bool maximized;
+
+  /// Whether the window is the one in front, which an XP plate says by its
+  /// colour as the bar under it does.
+  final bool active;
+
   final String label;
   final VoidCallback onPressed;
 
@@ -966,7 +973,7 @@ class _WindowButton extends StatelessWidget {
         Color fill = const Color(0x00000000);
         Color ink = colors.barFg;
         BorderRadius radius = BorderRadius.zero;
-        Border? edge;
+        PlWindowFinish? finish;
 
         switch (chrome.shape) {
           case PlWindowControlShape.dot:
@@ -977,16 +984,23 @@ class _WindowButton extends StatelessWidget {
             ink = const Color(0x99000000);
             radius = BorderRadius.circular(width);
           case PlWindowControlShape.plate:
-            fill = plateColors[control]!;
+            // A plate on a window behind the front one washes out with the bar
+            // it sits on.
+            fill = active
+                ? plateColors[control]!
+                : Color.lerp(plateColors[control]!, paintedWash, 0.55)!;
             ink = const Color(0xFFFFFFFF);
-            radius = BorderRadius.circular(3);
+            radius = BorderRadius.circular(chrome.boxRadius + 1);
+            finish = plateFinish;
           case PlWindowControlShape.aero:
-            fill = over
-                ? (closing ? const Color(0xFFE04343) : const Color(0x66FFFFFF))
-                : const Color(0x33FFFFFF);
+            // Only the close button changes its face under the pointer; the
+            // other two brighten the face they have.
+            fill = closing && over ? closeHover[PlWindowOs.windows7]! : aeroFace;
             ink = closing && over ? const Color(0xFFFFFFFF) : colors.barFg;
-            radius = const BorderRadius.vertical(bottom: Radius.circular(4));
-            edge = Border.all(color: const Color(0x40FFFFFF));
+            // Rounded where it leaves the window and square where it meets the
+            // edge it is hanging from.
+            radius = const BorderRadius.vertical(bottom: Radius.circular(3));
+            finish = aeroFinish;
           case PlWindowControlShape.circle:
             fill = over ? colors.hover : colors.hover.withValues(alpha: 0.5);
             radius = BorderRadius.circular(width);
@@ -1006,6 +1020,37 @@ class _WindowButton extends StatelessWidget {
           _ => true,
         };
 
+        Widget? mark = showGlyph
+            ? PlassInk(
+                color: ink,
+                child: Builder(
+                  builder: (BuildContext context) => CustomPaint(
+                    size: Size.square(metrics.glyph),
+                    painter: PlWindowGlyphPainter(
+                      control: control,
+                      maximized: maximized,
+                      chrome: chrome,
+                      ink: IconTheme.of(context).color!,
+                    ),
+                  ),
+                ),
+              )
+            : null;
+
+        // The gloss and the edge lie over the face and under the mark, as the
+        // React button's `background-image` and inset `box-shadow` lie over its
+        // `background-color`, so a close button turning red keeps its gloss.
+        if (finish != null) {
+          mark = DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: finish.image,
+              borderRadius: radius,
+              border: Border.all(color: finish.edge),
+            ),
+            child: Center(child: mark),
+          );
+        }
+
         // The fill and the mark ease under the pointer, as the React button's
         // `background-color` and `color` do: a close button's white mark
         // arrives with its red rather than ahead of it.
@@ -1014,24 +1059,9 @@ class _WindowButton extends StatelessWidget {
           curve: tokens.motionEase,
           width: width,
           height: metrics.control.height,
-          decoration: BoxDecoration(color: fill, borderRadius: radius, border: edge),
+          decoration: BoxDecoration(color: fill, borderRadius: radius),
           alignment: Alignment.center,
-          child: showGlyph
-              ? PlassInk(
-                  color: ink,
-                  child: Builder(
-                    builder: (BuildContext context) => CustomPaint(
-                      size: Size.square(metrics.glyph),
-                      painter: PlWindowGlyphPainter(
-                        control: control,
-                        maximized: maximized,
-                        chrome: chrome,
-                        ink: IconTheme.of(context).color!,
-                      ),
-                    ),
-                  ),
-                )
-              : null,
+          child: mark,
         );
 
         // A plate is already carrying its own colour, so what the pointer

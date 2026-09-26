@@ -679,6 +679,51 @@ const Map<PlWindowControl, Color> plateColors = <PlWindowControl, Color>{
   PlWindowControl.maximize: Color(0xFF4B85D4),
 };
 
+/// What a painted bar, and an XP plate on it, wash out towards on a window that
+/// is not in front: 55% of the way from their own colour.
+const Color paintedWash = Color(0xFFC6C9CE);
+
+/// The finish over a button's face: a gloss laid over its colour and a white
+/// edge cut just inside it, both under the mark.
+@immutable
+class PlWindowFinish {
+  /// Creates a finish.
+  const PlWindowFinish(this.image, this.edge);
+
+  /// The gloss, top to bottom.
+  final Gradient image;
+
+  /// The edge, one logical pixel wide, inside the button.
+  final Color edge;
+}
+
+/// XP's plates: bright at the top, clear through the middle and a shade darker
+/// at the foot, which is what makes a flat blue square read as a button.
+const PlWindowFinish plateFinish = PlWindowFinish(
+  LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: <Color>[Color(0x80FFFFFF), Color(0x0DFFFFFF), Color(0x24000000)],
+    stops: <double>[0, 0.55, 1],
+  ),
+  Color(0x66FFFFFF),
+);
+
+/// The face of each of Aero's buttons at rest: a pane of white glass over the
+/// caption's own.
+const Color aeroFace = Color(0x4DFFFFFF);
+
+/// And its gloss, which comes back up at the foot as the caption's does.
+const PlWindowFinish aeroFinish = PlWindowFinish(
+  LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: <Color>[Color(0x99FFFFFF), Color(0x14FFFFFF), Color(0x4DFFFFFF)],
+    stops: <double>[0, 0.52, 1],
+  ),
+  Color(0x8CFFFFFF),
+);
+
 /// What each system turns the close button when the pointer is on it.
 const Map<PlWindowOs, Color?> closeHover = <PlWindowOs, Color?>{
   PlWindowOs.macos: null,
@@ -686,7 +731,7 @@ const Map<PlWindowOs, Color?> closeHover = <PlWindowOs, Color?>{
   PlWindowOs.windows11: Color(0xFFC42B1C),
   PlWindowOs.windows10: Color(0xFFE81123),
   PlWindowOs.windows8: Color(0xFFE81123),
-  PlWindowOs.windows7: Color(0xFFE04343),
+  PlWindowOs.windows7: Color(0xFFE04A45),
   PlWindowOs.windowsxp: null,
   PlWindowOs.linux: null,
 };
