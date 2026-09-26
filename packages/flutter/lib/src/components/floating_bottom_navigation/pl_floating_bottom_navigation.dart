@@ -219,6 +219,17 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
   /// Where the key is, in the row's own coordinates.
   Rect? _rect;
 
+  /// Whether the row has been measured once.
+  bool _measured = false;
+
+  /// Whether the current disc takes the ink on the key at once in this frame
+  /// rather than easing to it.
+  ///
+  /// True for the one frame that places the key the bar is built with: that
+  /// key arrives with its fill whole, so a glyph easing to the ink on it would
+  /// stand grey on the gradient for the length of the change.
+  bool _inkAtOnce = false;
+
   int get _chosen => widget.value == null
       ? -1
       : widget.items.indexWhere(
@@ -264,9 +275,23 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
     final next = disc != null && row != null && disc.hasSize && row.hasSize
         ? (disc.localToGlobal(Offset.zero, ancestor: row) & disc.size)
         : null;
+    final bool first = !_measured;
+
+    _measured = true;
 
     if (next != _rect) {
-      setState(() => _rect = next);
+      final bool arrivesLit = _rect == null && next != null && first;
+
+      setState(() {
+        _inkAtOnce = arrivesLit;
+        _rect = next;
+      });
+
+      if (arrivesLit) {
+        // Runs after the frame this `setState` asks for, so only that frame's
+        // build reads it.
+        WidgetsBinding.instance.addPostFrameCallback((Duration _) => _inkAtOnce = false);
+      }
     }
   }
 
@@ -374,6 +399,13 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
     // drawn as current, as `PlBottomNavigation` already does.
     final interactive = !unavailable && widget.onChanged != null;
     final selected = widget.value != null && widget.value == item.value;
+    // What the disc is drawn as, where `selected` is what it reports. The key
+    // is placed by a measurement after the frame that builds the bar, or the
+    // frame that makes the first choice of an empty one, so the current disc
+    // stands on the bare bar for that frame. It keeps the ink of a disc
+    // standing there until the key arrives, rather than writing the white that
+    // belongs on the key's fill on the pale capsule.
+    final onKey = selected && !unavailable && _rect != null;
     final round = BorderRadius.circular(disc / 2);
 
     return PlassInteractive(
@@ -386,7 +418,7 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
         // No surface of its own on the current disc. What is under its glyph is
         // the key, which belongs to the bar; a disc that drew a fill of its own
         // would be a second key appearing wherever the first had just left.
-        final PlassSurface surface = selected && !unavailable
+        final PlassSurface surface = onKey
             ? PlassSurface(ink: family.onSolid)
             : PlassSurface(
                 fill: unavailable
@@ -404,9 +436,11 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
             surface: surface,
             borderRadius: round,
             // The glyph eases to a new ink as the key arrives under it or
-            // leaves, as the React disc's `color` does.
+            // leaves, as the React disc's `color` does, except in the frame the
+            // key the bar is built with arrives, when it takes it at once.
             child: PlassInk(
               color: surface.ink,
+              duration: _inkAtOnce ? Duration.zero : null,
               child: Center(
                 child: item.icon == null
                     ? const SizedBox.shrink()

@@ -443,6 +443,31 @@ void main() {
         );
       });
 
+      testWidgets('is under the glyph the bar is built with before it takes the ink on it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const PlFloatingBottomNavigation<String>(items: _items, value: 'home'), width: 360),
+        );
+
+        final Color onFill = PlassTheme.of(
+          tester.element(find.byType(PlFloatingBottomNavigation<String>)),
+        ).family(PlassColor.primary).onSolid;
+
+        // The key is placed by a measurement, so the first frame is drawn
+        // without it: the current glyph stands on the pale capsule there, and
+        // the white written on the key would be lost on it.
+        expect(find.byType(AnimatedPositioned), findsNothing);
+        expect(_glyphInk(tester), isNot(onFill));
+
+        await tester.pump();
+
+        // The key arrives with its fill whole, and the glyph takes the ink on
+        // it in the same frame rather than easing to it over the gradient.
+        expect(find.byType(AnimatedPositioned), findsOneWidget);
+        expect(_glyphInk(tester), onFill);
+      });
+
       testWidgets('goes out with the destination it is under', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

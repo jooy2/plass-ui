@@ -76,6 +76,8 @@
 
 ### Fixed
 
+- **The glyph of the current destination of a `PlFloatingBottomNavigation` built with a `value` turns white only once its key is under it.** The glyph took the white it wears on the key from the first frame, while the key is placed by a measurement after it, so for that frame it stood white on the pale capsule. It now keeps the ink of a destination on the bare bar until the key arrives, and takes the white in the same frame, as the React bar paints its key and its glyph together.
+
 - **Words in the `startIcon` of a `PlSelect`, `PlCombobox`, `PlDatePicker`, `PlDateRangePicker`, `PlDateTimePicker`, `PlTimePicker` or `PlTreeSelect` are drawn in the muted ink, as a glyph there is and as in the React build.** Only a glyph took the muted colour, so a `Text` there, such as a currency sign, kept the colour of the page around the field, where a `PlTextField` or a `PlNumberField` mutes both.
 
 - **A `PlBadge` is drawn in the material a `PlAvatar` is, as in the React build.** A `glass` badge takes the neutral `border` edge, and a `ghost` badge rests on the family's `softPress` wash and is lifted by its `elevation`. The badge was drawn as a control, so a `glass` one had the white `glassLine` edge, which disappears on a white card or header, and a `ghost` one had no fill and no shadow at rest, which left its count floating on the page. `solid` badges are unchanged.
