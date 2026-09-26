@@ -162,19 +162,30 @@ class PlTextLink extends StatelessWidget {
         final lined =
             underline == PlTextLinkUnderline.always ||
             (underline == PlTextLinkUnderline.hover && state.hovered);
+        final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
-        Widget label = DefaultTextStyle.merge(
-          style: TextStyle(
-            color: ink,
-            fontSize: scale?.size,
-            height: scale?.height,
-            decoration: lined ? TextDecoration.underline : TextDecoration.none,
-            decorationThickness: _underlineWidth,
-            // The line rests at 45% of whatever the text is and goes to the full
-            // colour under the pointer.
-            decorationColor: state.hovered ? ink : ink.withValues(alpha: ink.a * _underlineRest),
-          ),
+        // The line rests at 45% of whatever the text is and goes to the full
+        // colour under the pointer, eased from wherever it is over the theme's
+        // motion duration, as the React link's `text-decoration-color` is, and
+        // at once when the platform asks for less movement.
+        Widget label = TweenAnimationBuilder<double>(
+          tween: Tween<double>(end: state.hovered ? 1 : _underlineRest),
+          duration: still ? Duration.zero : tokens.motionDuration,
+          curve: tokens.motionEase,
           child: child,
+          builder: (BuildContext context, double strength, Widget? child) {
+            return DefaultTextStyle.merge(
+              style: TextStyle(
+                color: ink,
+                fontSize: scale?.size,
+                height: scale?.height,
+                decoration: lined ? TextDecoration.underline : TextDecoration.none,
+                decorationThickness: _underlineWidth,
+                decorationColor: ink.withValues(alpha: ink.a * strength),
+              ),
+              child: child!,
+            );
+          },
         );
 
         if (marked || startIcon != null) {

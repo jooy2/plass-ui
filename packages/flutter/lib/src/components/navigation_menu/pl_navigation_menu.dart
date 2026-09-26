@@ -384,10 +384,11 @@ class _Trigger extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: gap[size]!,
               children: <Widget>[
-                ?item.startIcon,
-                // The word and the chevron ease to a new ink with the wash, as
-                // the React trigger's `color` does. Each is inked on its own so
-                // a `startIcon` keeps the colour it is drawn in.
+                // The glyph, the word and the chevron ease to a new ink with
+                // the wash, as the React trigger's `color` does, and a glyph
+                // takes it as one in the React trigger takes its
+                // `currentColor`. A glyph handed a colour of its own keeps it.
+                if (item.startIcon != null) PlassInk(color: ink, child: item.startIcon!),
                 PlassInk(
                   color: ink,
                   child: Text(

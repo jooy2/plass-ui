@@ -145,6 +145,38 @@ void main() {
         await field(disabled: true);
         expect(alphas(), <int>[dim, dim, dim], reason: 'disabled');
       });
+
+      testWidgets('keeps its adornments muted as it takes the focus', (WidgetTester tester) async {
+        final FocusNode focus = FocusNode();
+        addTearDown(focus.dispose);
+
+        await tester.pumpWidget(
+          host(
+            PlNumberField(
+              value: 5,
+              onChanged: (double? _) {},
+              focusNode: focus,
+              startIcon: const Text(r'$'),
+              endIcon: const Text('kg'),
+            ),
+            width: 320,
+          ),
+        );
+
+        final Color muted = PlassTokens.light().mutedFg;
+
+        expect(styleOf(tester, r'$').color, muted);
+        expect(styleOf(tester, 'kg').color, muted);
+
+        focus.requestFocus();
+        await tester.pumpAndSettle();
+
+        // The focus is answered by the edge, the ring and the caret, as the
+        // React field answers it.
+        expect(focus.hasFocus, isTrue);
+        expect(styleOf(tester, r'$').color, muted);
+        expect(styleOf(tester, 'kg').color, muted);
+      });
     });
 
     group('stepping', () {

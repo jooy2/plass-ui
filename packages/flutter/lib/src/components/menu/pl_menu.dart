@@ -875,14 +875,14 @@ class _PlMenuState extends State<PlMenu> {
               opacity: available ? 1 : disabledOpacity,
               child: Padding(
                 padding: _rowPadding[_density]![_size]!,
+                // The same ink whether or not the row can be chosen, as the
+                // React row's is: a disabled row says so with the half
+                // opacity round it, which is what `disabled` is everywhere in
+                // the library, rather than with a second colour.
                 child: _rowBody(
                   tokens,
                   entry,
-                  ink: !available
-                      ? tokens.mutedFg
-                      : accented
-                      ? family.accent
-                      : tokens.fg,
+                  ink: accented ? family.accent : tokens.fg,
                   family: family,
                   scale: scale,
                 ),

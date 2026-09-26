@@ -142,6 +142,18 @@ _Change _focus(FocusNode node) {
   };
 }
 
+/// A press on the control, which opens what it opens.
+_Change _press(Finder Function() target) {
+  return (WidgetTester tester, bool on) async {
+    if (!on) {
+      return;
+    }
+
+    await tester.tap(target());
+    await tester.pump();
+  };
+}
+
 /// Opens a popup list on its chosen row, then moves the highlight to the next
 /// row with the arrow keys.
 _Change _highlight(Finder Function() opener) {
@@ -161,7 +173,6 @@ _Change _highlight(Finder Function() opener) {
 final GlobalKey _section = GlobalKey();
 final PlAnchorItem _heading = PlAnchorItem(target: _section, label: const Text('Label'));
 final FocusNode _textFocus = FocusNode();
-final FocusNode _numberFocus = FocusNode();
 
 final Map<String, _Case> _cases = <String, _Case>{
   'glass PlButton, disabled': _Case(
@@ -347,14 +358,74 @@ final Map<String, _Case> _cases = <String, _Case>{
     (bool on) => PlTextField(focusNode: _textFocus, startIcon: const Text('Label')),
     change: _focus(_textFocus),
   ),
-  'PlNumberField, an adornment as it takes the focus': _Case(
-    (bool on) => PlNumberField(
-      value: 4,
-      onChanged: (num? _) {},
-      focusNode: _numberFocus,
-      startIcon: const Text('Label'),
+  'PlCombobox, its chevron under the pointer': _Case(
+    (bool on) => PlCombobox<int>(
+      value: 0,
+      onChanged: (int? _) {},
+      options: const <PlComboboxOption<int>>[PlComboboxOption<int>(value: 0, label: 'Other')],
     ),
-    change: _focus(_numberFocus),
+    read: _ownGlyph(PlassGlyphShape.chevron),
+    change: _hover(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.chevron,
+      ),
+    ),
+  ),
+  'PlCombobox, its × under the pointer': _Case(
+    (bool on) => PlCombobox<int>(
+      value: 0,
+      onChanged: (int? _) {},
+      clearable: true,
+      options: const <PlComboboxOption<int>>[PlComboboxOption<int>(value: 0, label: 'Other')],
+    ),
+    read: _ownGlyph(PlassGlyphShape.close),
+    change: _hover(
+      () => find.byWidgetPredicate(
+        (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.close,
+      ),
+    ),
+  ),
+  'PlAnchor, a row under the pointer': _Case(
+    (bool on) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        PlAnchor(items: <PlAnchorItem>[_heading]),
+        SizedBox(key: _section, height: 10),
+      ],
+    ),
+    change: _hover(() => find.text('Label')),
+  ),
+  'PlTextLink, its underline under the pointer': _Case(
+    (bool on) => PlTextLink(onPressed: () {}, child: const Text('Label')),
+    read: (WidgetTester tester) =>
+        tester.renderObject<RenderParagraph>(find.text('Label')).text.style!.decorationColor!,
+    change: _hover(() => find.text('Label')),
+  ),
+  'PlMenubar, its startIcon as the menu opens': _Case(
+    (bool on) => const PlMenubar(
+      menus: <PlMenubarMenu>[
+        PlMenubarMenu(
+          label: 'Label',
+          startIcon: _Glyph(),
+          items: <PlMenuEntry>[PlMenuItem(label: 'Row')],
+        ),
+      ],
+    ),
+    read: _glyph,
+    change: _press(() => find.text('Label')),
+  ),
+  'PlNavigationMenu, its startIcon': _Case(
+    (bool on) => PlNavigationMenu(
+      items: <PlNavigationMenuItem>[
+        PlNavigationMenuItem(
+          label: 'Label',
+          startIcon: const _Glyph(),
+          selected: on,
+          onPressed: () {},
+        ),
+      ],
+    ),
+    read: _glyph,
   ),
   // A mark changes its ink only with its variant or its colour, and its fill
   // eases between the two as a control's does.

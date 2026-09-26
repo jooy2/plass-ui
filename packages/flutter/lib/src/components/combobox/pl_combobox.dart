@@ -1118,8 +1118,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           behavior: HitTestBehavior.opaque,
           excludeFromSemantics: true,
           onTap: onTap,
-          child: MouseRegion(
+          child: _Adornment(
             cursor: onTap == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
+            muted: tokens.mutedFg,
+            accent: onTap == null ? null : family.accent,
             child: SizedBox(
               height: scale.line,
               child: Center(
@@ -1127,7 +1129,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                   turns: turns,
                   duration: reduceMotion ? Duration.zero : tokens.motionDuration,
                   curve: tokens.motionEase,
-                  child: PlassGlyph(shape, size: glyph, color: tokens.mutedFg),
+                  child: PlassGlyph(shape, size: glyph),
                 ),
               ),
             ),
@@ -1551,3 +1553,53 @@ const Map<PlassSize, double> _chipInset = <PlassSize, double>{
 
 /// How much room the caret keeps for itself among the chips.
 const double _queryWidth = 72;
+
+/// The chevron or the ×, in the muted ink at rest and in the family's accent
+/// under the pointer, eased between the two, as the React field's are.
+class _Adornment extends StatefulWidget {
+  const _Adornment({
+    required this.cursor,
+    required this.muted,
+    required this.accent,
+    required this.child,
+  });
+
+  final MouseCursor cursor;
+
+  /// The ink at rest.
+  final Color muted;
+
+  /// The ink under the pointer, or `null` for one that does nothing when
+  /// pressed, which keeps the muted ink.
+  final Color? accent;
+
+  final Widget child;
+
+  @override
+  State<_Adornment> createState() => _AdornmentState();
+}
+
+class _AdornmentState extends State<_Adornment> {
+  bool _hovered = false;
+
+  void _hover(bool hovered) {
+    if (_hovered != hovered) {
+      setState(() => _hovered = hovered);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Color? accent = widget.accent;
+
+    return MouseRegion(
+      cursor: widget.cursor,
+      onEnter: (PointerEnterEvent event) => _hover(true),
+      onExit: (PointerExitEvent event) => _hover(false),
+      child: PlassInk(
+        color: _hovered && accent != null ? accent : widget.muted,
+        child: widget.child,
+      ),
+    );
+  }
+}

@@ -180,6 +180,30 @@ void main() {
         ]);
       });
 
+      testWidgets('draws an unavailable row in the ink of one that is available', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            menu(<PlMenuEntry>[
+              const PlMenuItem(label: 'Cut', disabled: true),
+              const PlMenuItem(label: 'Delete', color: PlassColor.danger, disabled: true),
+              PlMenuItem(label: 'Copy', onPressed: () {}),
+            ]),
+            overlay: true,
+          ),
+        );
+        await openMenu(tester);
+
+        final PlassTokens tokens = PlassTokens.light();
+
+        // The half opacity round it says it cannot be chosen, as it does on
+        // every disabled control, and the words keep their own colour.
+        expect(styleOf(tester, 'Cut').color, tokens.fg);
+        expect(styleOf(tester, 'Cut').color, styleOf(tester, 'Copy').color);
+        expect(styleOf(tester, 'Delete').color, tokens.family(PlassColor.danger).accent);
+      });
+
       testWidgets('carries a shortcut and a description', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(

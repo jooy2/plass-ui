@@ -347,10 +347,15 @@ class _Row extends StatelessWidget {
           child: PlassContentsGroup(
             paints: fill != null,
             // Eased with the rule and the wash as the reader moves through
-            // the document, as the React row's `color` is. Only the words: a
-            // glyph in a label keeps the colour it had.
+            // the document, and with the wash as the pointer arrives on a row
+            // that is not lit, as the React row's `color` is. Only the words:
+            // a glyph in a label keeps the colour it had.
             child: PlassInk(
-              color: lit ? family.accent : tokens.mutedFg,
+              color: lit
+                  ? family.accent
+                  : state.hovered
+                  ? tokens.fg
+                  : tokens.mutedFg,
               icons: false,
               child: DefaultTextStyle.merge(
                 style: TextStyle(

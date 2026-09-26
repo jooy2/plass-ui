@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **Six controls take the colours the React build gives them.** A `PlNumberField` adornment stays muted as the field takes the focus, where it turned to the accent. A `PlCombobox` chevron and × turn to the accent under the pointer, and an unchosen `PlAnchor` row to the foreground, where both stayed muted. A disabled `PlMenu` row keeps its own ink under the half opacity rather than turning muted as well. A `PlTextLink` underline eases to its full colour under the pointer and back, where it changed in one frame. A `startIcon` on a `PlMenubar` or `PlNavigationMenu` trigger takes the trigger's ink, the accent while its menu is open or its item is `selected`, where it kept the icon colour around it. Each change eases over `motionDuration`, and happens at once under reduced motion.
+
 - **A `PlPieChart` slice worth 0 is left out of the text a screen reader is handed, as in the React build.** The reading skipped only hidden slices and gaps, so a slice worth nothing was read as "Direct 0 · 0%" where no slice was drawn, and a pie whose every slice was 0 read each of them out under its empty box.
 
 - **The wedge of a `PlPopover` or `PlHoverCard` on a `left` or `right` side points at the trigger under RTL.** A right-to-left page drew it on the far edge of the sheet, pointing back into it, for a `side` of `left` or `right` and for a popup that flipped to one.

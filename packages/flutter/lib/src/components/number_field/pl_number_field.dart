@@ -651,17 +651,19 @@ class _PlNumberFieldState extends State<PlNumberField> {
             child: widget.label!,
           );
 
+    // Muted whether or not the field holds the focus, as the React number
+    // field's adornments are: the focus is answered by the edge, the ring and
+    // the caret.
     Widget adornment(Widget slot) {
-      final ink = _focused ? family.accent : tokens.mutedFg;
-
       return SizedBox(
         height: scale.line,
         child: Center(
           child: IconTheme.merge(
-            data: IconThemeData(size: scale.size * iconScale),
-            // Eased as the focus arrives and leaves, as the React adornment's
-            // `color` is.
-            child: PlassInk(color: ink, child: slot),
+            data: IconThemeData(color: tokens.mutedFg, size: scale.size * iconScale),
+            child: DefaultTextStyle.merge(
+              style: TextStyle(color: tokens.mutedFg),
+              child: slot,
+            ),
           ),
         ),
       );
