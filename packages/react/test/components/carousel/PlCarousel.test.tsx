@@ -233,6 +233,44 @@ describe('PlCarousel', () => {
       }
     });
 
+    it('holds the slide for a whole interval once the tab is back', async () => {
+      const interval = 600;
+      const turns: number[] = [];
+      const onValueChange = () => turns.push(performance.now());
+
+      await render(
+        <PlCarousel autoPlay interval={interval} onValueChange={onValueChange}>
+          {slides}
+        </PlCarousel>
+      );
+
+      const started = performance.now();
+
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+
+      try {
+        document.dispatchEvent(new Event('visibilitychange'));
+        // Back most of an interval after the one it went into the background
+        // in started, so an interval that ran on behind the tab would turn it
+        // almost at once.
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.max(0, started + interval - 100 - performance.now()))
+        );
+      } finally {
+        delete (document as { hidden?: boolean }).hidden;
+      }
+
+      turns.length = 0;
+
+      const shownAt = performance.now();
+
+      document.dispatchEvent(new Event('visibilitychange'));
+      await expect.poll(() => turns.length, { timeout: interval * 4 }).toBeGreaterThan(0);
+
+      // The margin is for the clock the browser rounds.
+      expect(turns[0] - shownAt).toBeGreaterThanOrEqual(interval - 10);
+    });
+
     describe('hidden in a tab panel', () => {
       /** The box a tab panel that is not selected, or a closed disclosure, hides it in. */
       function Tab({

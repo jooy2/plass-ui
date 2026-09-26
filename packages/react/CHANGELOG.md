@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **An `autoPlay` `PlCarousel` holds the slide it is on for a whole `interval` once its browser tab comes back from the background.** It held still while the tab was hidden, but the interval went on running behind it, so the first turn could come a moment after the page was back in sight. Coming back now starts the interval over, as it does when a hidden tab panel shows the carousel again.
+
 - **Every chart mark fades as a legend entry or the crosshair points at it, and a line's marker and a scatter mark grow under the crosshair, over `--plass-duration`.** The class that eases them was pieced together out of three strings, so the stylesheet never had a rule for it. Every line, area, bar, scatter, pie, heatmap and timeline mark changed in one frame. Under reduced motion they still change at once.
 
 - **The sort mark of a `PlDataTable` heading turns over as the column changes direction.** Its transition named `transform`, but `rotate-180` sets the separate `rotate` property, so the mark flipped in one frame.

@@ -119,7 +119,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 - A button in the top corner of the frame stops it and starts it again. It is the first thing a keyboard reaches, and its name says what pressing it does: "Stop slide show" while it plays, "Start slide show" once it has stopped.
 - It **pauses** while the pointer is over it, and carries on when the pointer leaves.
 - It pauses while a finger is down on the strip, dragging it or not. Once the finger lifts, it holds the slide the strip settles on for a whole `interval` before it moves on.
-- It pauses while it is in the background: in a browser tab that is not showing, or in an app that is not in front of the reader.
+- It pauses while it is in the background: in a browser tab that is not showing, or in an app that is not in front of the reader. Back in sight, it holds the slide it was left on for a whole `interval` before it moves on.
 - It pauses while it is hidden but still mounted. Shown again, it holds the slide it was hidden on for a whole `interval` before it moves on.
 - It **stops** once the focus comes into it, which is the important one: a keyboard reader who has tabbed into a slide is reading it. It stays stopped until the button starts it again, whether or not the focus or the pointer has left since. The button is the one place the focus can land without stopping it.
 - A press on an arrow or a dot stops it as well, whether or not the press moves the focus. Once the button has started it again, pressing the arrows and the dots does not stop it.
@@ -137,7 +137,7 @@ On by default: the arrows wrap from the last slide back to the first. Turn it of
 
 - It needs `onChanged`. The widget is controlled, so a carousel nothing is listening to has nothing to advance, and neither the timer nor the button is there.
 - Flutter has more ways than a browser to keep a widget in the tree out of sight, and each of them counts as hidden: an `Offstage`, a `Visibility` or an `IndexedStack` that hides it; a `TickerMode` that is off, which is what a route something has been pushed over is under; a clip with no area, which is what a closed `PlCollapsible` that keeps it mounted folds it into; and a box of no size.
-- The app counts as in the background only while it is `hidden`, `paused` or `detached`. A window that is showing but has lost the focus is `inactive`, and the carousel goes on playing there, as it does in a browser window that has lost the focus. Once the app is back in sight, the carousel holds the slide it was left on for a whole `interval` before it moves on.
+- The app counts as in the background only while it is `hidden`, `paused` or `detached`. A window that is showing but has lost the focus is `inactive`, and the carousel goes on playing there, as it does in a browser window that has lost the focus.
 
 :::
 

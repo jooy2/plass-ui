@@ -232,9 +232,10 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     // which Firefox throws for that, reads the old slide rather than the reader
     // landing on one.
     const hidden = React.useRef(false);
-    // The times the track has had its width back. The `autoPlay` interval
-    // starts over on each, so a carousel shown again holds the slide it was
-    // hidden on for a whole `interval` before it moves on, rather than for
+    // The times the carousel has been shown again: its track has had its width
+    // back, or the page has come back from a background tab. The `autoPlay`
+    // interval starts over on each, so a carousel shown again holds the slide it
+    // was hidden on for a whole `interval` before it moves on, rather than for
     // whatever was left of one that went on running while it was hidden. Kept
     // twice: the ref is raised in the frame the width comes back in and the
     // state a render later, and an interval started before the ref was raised
@@ -429,6 +430,26 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
     React.useEffect(() => {
       goRef.current = go;
     });
+
+    // A page back from a background tab is shown again too. The interval went on
+    // behind the tab, skipping every turn, and its next one could come a moment
+    // after the page is back in sight.
+    React.useEffect(() => {
+      if (!playing) {
+        return;
+      }
+
+      const handleVisibility = () => {
+        if (!document.hidden) {
+          shownAgainRef.current += 1;
+          setShownAgain(shownAgainRef.current);
+        }
+      };
+
+      document.addEventListener('visibilitychange', handleVisibility);
+
+      return () => document.removeEventListener('visibilitychange', handleVisibility);
+    }, [playing]);
 
     // Started again when the last finger lifts, so the slide it let go of is
     // held for a whole `interval`.
