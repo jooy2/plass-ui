@@ -1098,6 +1098,64 @@ void main() {
         expect(_inList('Lisbon'), findsOneWidget);
       });
 
+      testWidgets('keeps the row the keys chose as the list scrolls under a resting pointer', (
+        WidgetTester tester,
+      ) async {
+        final List<int?> taken = <int?>[];
+
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<int>(
+              options: <PlComboboxOption<int>>[
+                for (int i = 0; i < 30; i += 1) PlComboboxOption<int>(value: i, label: 'Option $i'),
+              ],
+              value: null,
+              onChanged: taken.add,
+            ),
+          ),
+        );
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.text('Option 2')));
+        await tester.pump();
+
+        // Down from the row the pointer lit, past the foot of the list, which
+        // scrolls other rows under the pointer as it follows the keys.
+        for (int i = 0; i < 15; i += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+        }
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, <int?>[17]);
+
+        // Nor does a list opening under it light the row it lands on.
+        taken.clear();
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, isEmpty);
+
+        // A pointer that moves again lights the row it is on.
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        await mouse.moveTo(tester.getCenter(find.text('Option 5')));
+        await tester.pump();
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, <int?>[5]);
+      });
+
       testWidgets('opens a `multiple` list on its first chosen row, and keeps the row just taken', (
         WidgetTester tester,
       ) async {

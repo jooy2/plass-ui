@@ -209,7 +209,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - **The keys stay on the field**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Enter</kbd> takes the highlighted row, or closes the list when no row is lit, and <kbd>Escape</kbd> closes without taking one. The list is the field's list, not a second place to be.
 - With the list closed, <kbd>Escape</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.
 - The first match lights up as the query changes, so <kbd>Enter</kbd> commits without an arrow key first, which is also what makes the create row reachable from the keyboard at all.
-- The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row. The pointer leaving a row puts its light out.
+- The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row. The pointer lights a row only by moving onto it, so a row the keys scroll under a resting pointer leaves the light where the keys put it. The pointer leaving a row puts its light out.
 - The list opens with the chosen row lit, or with `multiple` the first chosen row down the list, and a row just taken, or taken back out, stays lit. With nothing chosen, <kbd>↓</kbd> opens the list on its first row, <kbd>↑</kbd> on its last, and a press opens it with no row lit.
 - A row that cannot be taken stays in the list and is announced as unavailable. The highlight stops on it like any other row, and <kbd>Enter</kbd> there takes nothing.
 - Each chip's × is named after its chip.
