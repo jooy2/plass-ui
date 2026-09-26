@@ -864,6 +864,40 @@ export const sheetRestClasses: Record<PlassVariant, string> = {
 };
 
 /**
+ * The material of a **mark**: a surface that is the thing being coloured and
+ * is never pressed — a PlAvatar, a PlAppLogo's plate. The Flutter build's
+ * `markSurface` is the same answer.
+ *
+ * It sits between a control and a sheet. The sheet takes the tint the way a
+ * control's does, because a portrait of one person and a product's icon are
+ * each about the thing they are coloured for, and unlike a PlCard's. But there
+ * is no pointer to answer, so there is no hover ladder, and the glass edge is
+ * the neutral `--plass-border` rather than the sheet's white
+ * `--plass-glass-line`: a mark is very often laid on something opaque, a
+ * header or a card, where white light on a cut edge draws no edge at all.
+ *
+ * `solid` carries no gloss line, for the reason a filled PlButton carries none:
+ * the gradient is the form. `ghost` keeps a wash at rest rather than being
+ * bare, which is the difference between a mark and a control: a ghost button
+ * has nothing until the pointer arrives, and a ghost mark with nothing under it
+ * is a glyph floating on the page.
+ */
+export const markRestClasses: Record<PlassVariant, string> = {
+  solid: /* @__PURE__ */ [
+    'text-(--p-on-solid) [background-image:var(--p-fill)]',
+    '[box-shadow:var(--p-elev),var(--p-lift)]',
+    forcedFieldEdgeClasses
+  ].join(' '),
+  glass: /* @__PURE__ */ [
+    glassClasses,
+    'border text-(--p-accent) bg-(--plass-glass)',
+    '[border-color:var(--plass-border)]',
+    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
+  ].join(' '),
+  ghost: 'text-(--p-accent) bg-(--p-soft-press) [box-shadow:var(--p-elev)]'
+};
+
+/**
  * The shell a field-shaped control is drawn on — a PlTextField's box and a
  * Select's trigger, which have to be indistinguishable or a form looks like two
  * different forms stacked on each other.

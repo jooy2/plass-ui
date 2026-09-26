@@ -53,8 +53,10 @@ describe('PlAppLogo', () => {
         </PlAppLogo>
       );
 
-      expect(frame().classList.contains('bg-(--p-soft)')).toBe(true);
-      expect(logo().style.getPropertyValue('--p-soft')).toBe('var(--plass-success-soft)');
+      expect(frame().classList.contains('bg-(--p-soft-press)')).toBe(true);
+      expect(logo().style.getPropertyValue('--p-soft-press')).toBe(
+        'var(--plass-success-soft-press)'
+      );
     });
   });
 

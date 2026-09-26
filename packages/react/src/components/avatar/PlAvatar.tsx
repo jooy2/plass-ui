@@ -7,9 +7,8 @@ import {
   controlHeightClasses,
   controlSlots,
   controlSquareClasses,
-  forcedFieldEdgeClasses,
-  glassClasses,
   hasContent,
+  markRestClasses,
   pictureSlotClasses,
   radiusClasses,
   srOnlyClasses,
@@ -119,29 +118,6 @@ const initialsTextClasses: Record<PlassSize, string> = {
   md: 'text-[0.8125rem]',
   lg: 'text-[1rem]',
   xl: 'text-[1.1875rem]'
-};
-
-/**
- * The three materials, said the way a *control* says them: an avatar **is** the
- * thing being coloured — a portrait of one particular person — so its sheet
- * takes the tint, exactly as a `PlAlert`'s does and unlike a `PlCard`'s.
- *
- * `solid` carries no gloss line, for the reason a filled `PlButton` carries
- * none: the gradient is the form.
- */
-const variantClasses: Record<PlassVariant, string> = {
-  solid: /* @__PURE__ */ [
-    'text-(--p-on-solid) [background-image:var(--p-fill)]',
-    '[box-shadow:var(--p-elev),var(--p-lift)]',
-    forcedFieldEdgeClasses
-  ].join(' '),
-  glass: /* @__PURE__ */ [
-    glassClasses,
-    'border text-(--p-accent) bg-(--plass-glass)',
-    '[border-color:var(--plass-border)]',
-    '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]'
-  ].join(' '),
-  ghost: 'text-(--p-accent) bg-(--p-soft-press) [box-shadow:var(--p-elev)]'
 };
 
 const baseClasses = /* @__PURE__ */ [
@@ -265,7 +241,7 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
       controlSquareClasses[size],
       initialsTextClasses[size],
       shape === 'circle' ? 'rounded-full' : radiusClasses[size],
-      variantClasses[variant],
+      markRestClasses[variant],
       className ?? ''
     ]
       .filter(Boolean)

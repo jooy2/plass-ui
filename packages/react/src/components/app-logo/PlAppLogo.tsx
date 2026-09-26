@@ -6,9 +6,8 @@ import { useDefaults } from '../../internal/defaults.js';
 import {
   controlSlots,
   cx,
-  forcedFieldEdgeClasses,
-  glassClasses,
   hasContent,
+  markRestClasses,
   metaTextClasses,
   radiusClasses,
   transitionClasses
@@ -107,13 +106,6 @@ const gapClasses: Record<PlassSize, string> = {
   xl: 'gap-3.5'
 };
 
-/** What a plate is made of, per variant. The same three materials as everywhere. */
-const plateVariantClasses: Record<PlassVariant, string> = {
-  solid: `[background-image:var(--p-fill)] text-(--p-on-solid) [box-shadow:var(--p-lift)] ${forcedFieldEdgeClasses}`,
-  glass: `${glassClasses} bg-(--plass-glass) text-(--p-accent) border [border-color:var(--plass-glass-line)]`,
-  ghost: 'bg-(--p-soft) text-(--p-accent)'
-};
-
 /**
  * A product's mark, and its name beside it.
  *
@@ -190,9 +182,10 @@ export const PlAppLogo = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlApp
               className={cx(
                 'flex shrink-0 items-center justify-center overflow-hidden',
                 plated ? plateClasses[size] : markClasses[size],
-                // A plate eases its fill, its edge and its ink to a new colour
-                // or variant, as every other coloured surface does.
-                plated ? `${transitionClasses} ${plateVariantClasses[variant]}` : '',
+                // A plate is a mark, drawn in the material a `PlAvatar` is,
+                // and eases its fill, its edge and its ink to a new colour or
+                // variant, as every other coloured surface does.
+                plated ? `${transitionClasses} ${markRestClasses[variant]}` : '',
                 shape === 'circle' ? 'rounded-full' : plated ? radiusClasses[size] : ''
               )}
             >
