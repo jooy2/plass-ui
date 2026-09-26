@@ -252,6 +252,106 @@ describe('PlCombobox', () => {
     });
   });
 
+  describe('emptying', () => {
+    it('says nothing on Escape when a combobox holds nothing', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(<PlCombobox items={items} onValueChange={onValueChange} />);
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('says nothing on Escape when a controlled combobox holds nothing', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} value={null} onValueChange={onValueChange} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('says nothing on Escape when a `multiple` combobox holds nothing', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} multiple onValueChange={onValueChange} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('says nothing on Escape when a controlled `multiple` combobox holds nothing', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} multiple value={[]} onValueChange={onValueChange} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('empties a held value on Escape and says so once', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} defaultValue="seoul" onValueChange={onValueChange} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange).toHaveBeenCalledWith(null);
+      await expect.element(screen.getByRole('combobox')).toHaveValue('');
+    });
+
+    it('asks a controlled parent to empty its value on Escape, once', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} value="seoul" onValueChange={onValueChange} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange).toHaveBeenCalledWith(null);
+    });
+
+    it('empties a held set of chips on Escape and says so once', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox
+          items={items}
+          multiple
+          defaultValue={['seoul', 'lisbon']}
+          onValueChange={onValueChange}
+        />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange).toHaveBeenCalledWith([]);
+      await expect.element(screen.getByText('Seoul')).not.toBeInTheDocument();
+    });
+
+    it('says nothing when the text of a combobox that holds nothing is emptied', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} allowCustom={false} onValueChange={onValueChange} />
+      );
+
+      await screen.getByRole('combobox').fill('lis');
+      await screen.getByRole('combobox').fill('');
+
+      await expect.element(screen.getByRole('combobox')).toHaveValue('');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
+
   describe('states', () => {
     it('disables the input', async () => {
       const screen = await render(<PlCombobox items={items} disabled />);

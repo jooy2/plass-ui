@@ -558,6 +558,15 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         value={baseValue}
         onValueChange={(next) => {
           const chosen = next === null ? [] : Array.isArray(next) ? next : [next];
+
+          // Base UI empties the value whether or not it holds anything: on
+          // Escape with the list closed, and in single mode as the text is
+          // emptied. Nothing held before and nothing after is not a change, so
+          // the parent is not told of one.
+          if (chosen.length === 0 && selection.length === 0) {
+            return;
+          }
+
           commit(chosen.map((entry) => entry.value));
         }}
         // The text is Base UI's to own, not ours: in single mode it is the
