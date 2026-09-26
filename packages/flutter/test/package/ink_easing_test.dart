@@ -106,8 +106,48 @@ Finder _caption(PlWindowControl control) {
   );
 }
 
+/// The track between two regions that the pointer resizes them with.
+Finder _resizeHandle() {
+  return find.byWidgetPredicate(
+    (Widget widget) =>
+        widget is MouseRegion &&
+        (widget.cursor == SystemMouseCursors.resizeColumn ||
+            widget.cursor == SystemMouseCursors.resizeRow),
+  );
+}
+
+/// The wash a resize handle paints across its whole track, and a clear colour
+/// while it paints none.
+Color _handleWash(WidgetTester tester) {
+  final Size track = tester.getSize(_resizeHandle());
+
+  for (final Element box
+      in find.descendant(of: _resizeHandle(), matching: find.byType(DecoratedBox)).evaluate()) {
+    if (box.size == track) {
+      return ((box.widget as DecoratedBox).decoration as BoxDecoration).color ??
+          const Color(0x00000000);
+    }
+  }
+
+  return const Color(0x00000000);
+}
+
+/// The hairline down the middle of a `PlPanes` handle, inside its wash.
+Color _handleLine(WidgetTester tester) {
+  final DecoratedBox line = tester.widget<DecoratedBox>(
+    find.descendant(of: _resizeHandle(), matching: find.byType(DecoratedBox)).last,
+  );
+
+  return (line.decoration as BoxDecoration).color!;
+}
+
 /// A mouse, put in the corner and then moved onto the control.
 _Change _hover(Finder Function() target) {
+  return _hoverAt((WidgetTester tester) => tester.getCenter(target()));
+}
+
+/// A mouse, put in the corner and then moved onto the point [at] gives.
+_Change _hoverAt(Offset Function(WidgetTester tester) at) {
   late TestGesture mouse;
 
   return (WidgetTester tester, bool on) async {
@@ -120,7 +160,7 @@ _Change _hover(Finder Function() target) {
       return;
     }
 
-    await mouse.moveTo(tester.getCenter(target()));
+    await mouse.moveTo(at(tester));
     await tester.pump();
   };
 }
@@ -678,6 +718,49 @@ final Map<String, _Case> _cases = <String, _Case>{
       variant: PlassVariant.glass,
     ),
     read: _fill(() => find.text('Label').last),
+  ),
+  'PlPanes, the wash of a handle under the pointer': _Case(
+    (bool on) => const SizedBox(
+      height: 120,
+      child: PlPanes(
+        panes: <PlPane>[
+          PlPane(child: Text('One')),
+          PlPane(child: Text('Two')),
+        ],
+      ),
+    ),
+    read: _handleWash,
+    change: _hover(_resizeHandle),
+  ),
+  // The line lights with the wash round it, and eases only while the wash
+  // keeps the tree above it the same shape.
+  'PlPanes, the line in a handle under the pointer': _Case(
+    (bool on) => const SizedBox(
+      height: 120,
+      child: PlPanes(
+        panes: <PlPane>[
+          PlPane(child: Text('One')),
+          PlPane(child: Text('Two')),
+        ],
+      ),
+    ),
+    read: _handleLine,
+    change: _hover(_resizeHandle),
+  ),
+  'PlSidebar, the wash of its handle under the pointer': _Case(
+    (bool on) => const Align(
+      alignment: Alignment.centerLeft,
+      child: SizedBox(
+        height: 120,
+        child: PlSidebar(resizable: true, width: 200, child: Text('Links')),
+      ),
+    ),
+    read: _handleWash,
+    // The handle straddles the sidebar's edge, and only the half inside it is
+    // hit.
+    change: _hoverAt(
+      (WidgetTester tester) => tester.getCenter(_resizeHandle()) - const Offset(2, 0),
+    ),
   ),
 };
 

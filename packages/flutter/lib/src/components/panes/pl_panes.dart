@@ -421,13 +421,18 @@ class _HandleState extends State<_Handle> {
       ),
     );
 
+    // The wash is a decoration that is always there, with only its colour
+    // changing, so it eases in and out as the React handle's does. A `color`
+    // that went from nothing to the wash was switched rather than eased, and
+    // the box it put in round the line moved the line deeper in the tree,
+    // which built it again from scratch, so the line did not ease either.
     mark = SizedBox(
       width: widget.horizontal ? widget.track : double.infinity,
       height: widget.horizontal ? double.infinity : widget.track,
       child: AnimatedContainer(
         duration: motion,
         curve: tokens.motionEase,
-        color: lit ? widget.family.soft : null,
+        decoration: BoxDecoration(color: lit ? widget.family.soft : null),
         child: mark,
       ),
     );

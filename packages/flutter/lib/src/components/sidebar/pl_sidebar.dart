@@ -451,12 +451,15 @@ class _ResizeHandleState extends State<_ResizeHandle> {
     final bool lit = _hovered || _dragging || _focusVisible;
     final bool rtl = Directionality.of(context) == TextDirection.rtl;
 
+    // A decoration that is always there, with only its colour changing, so the
+    // wash eases in and out as the React handle's does. A `color` that went
+    // from nothing to the wash was switched rather than eased.
     Widget mark = AnimatedContainer(
       duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
           ? Duration.zero
           : tokens.motionDuration,
       curve: tokens.motionEase,
-      color: lit ? widget.family.soft : null,
+      decoration: BoxDecoration(color: lit ? widget.family.soft : null),
     );
 
     mark = CustomPaint(
