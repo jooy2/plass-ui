@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/types.dart';
 
 /// Content pulsing between full opacity and a floor.
@@ -101,7 +102,18 @@ class PlAnimateBlink extends StatelessWidget {
       builder: (BuildContext context, double t, Widget? inner) {
         // Full at both ends and faint in the middle, so a run that ends leaves
         // the widget exactly as it found it.
-        return Opacity(opacity: (min + (1 - min) * (t * 2 - 1).abs()).clamp(0, 1), child: inner);
+        //
+        // Painted straight onto the canvas at full strength, rather than
+        // through an `Opacity`, which is still a layer of its own at 1: the
+        // builder goes on being called at the last frame once a count has run
+        // out, and at the first while the pulse waits for its trigger. Left out
+        // of the semantics at 0, as that `Opacity` left it.
+        return PlassFiltered(
+          colorFilter: null,
+          opacity: (min + (1 - min) * (t * 2 - 1).abs()).clamp(0, 1),
+          alwaysIncludeSemantics: false,
+          child: inner,
+        );
       },
     );
   }
