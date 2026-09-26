@@ -68,6 +68,8 @@
 
 ### Fixed
 
+- **A `PlHowToSteps` fills its done and current bullets with its family's gradient, with the number in the ink that goes on it, and eases them as `active` moves, as a `PlStepper` and a `PlTimeline` do.** Its bullets had no gradient, so a done or current step was a bare number in the page's ink, with only a halo round the current one, where the Flutter bullets are filled.
+
 - **A `PlNumberField` stepper eases its tint in as it is pressed, over the same `--plass-duration` it eases it out over as it is let go.** A press changed the tint in one frame and only the release eased it, where every other control eases both ways, and so does the Flutter stepper.
 
 - **An `autoPlay` `PlCarousel` holds the slide it is on for a whole `interval` once its browser tab comes back from the background.** It held still while the tab was hidden, but the interval went on running behind it, so the first turn could come a moment after the page was back in sight. Coming back now starts the interval over, as it does when a hidden tab panel shows the carousel again.
@@ -78,7 +80,7 @@
 
 - **A `PlCalendar` draws its chosen day in its family's gradient, as a picker's calendar does.** The inline calendar set no fill for the chosen cell, so the day it held showed only as a bolder number in the page's ink.
 
-- **A read-only `PlCheckbox` that is `indeterminate` is filled with its family's gradient, as a live or disabled half-set box is.** It was left as clear glass, with its dash in the page's ink.
+- **A read-only `PlCheckbox` that is `indeterminate` is filled with its family's gradient, as a live or disabled half-set box is, and a disabled one drops its edge over the gradient, as a disabled ticked box does.** A read-only half-set box was left as clear glass, with its dash in the page's ink, and a disabled one kept its neutral edge drawn round its gradient.
 
 - **An `autoPlay` `PlCarousel` holds still while a finger is down on its strip, and for a whole `interval` once the finger lifts.** It paused only while a pointer was over the frame, and a browser that takes a touch over to scroll the strip reports that pointer as cancelled and gone while the finger is still dragging, so the next turn pulled the strip from under the finger. Every touch that starts on the strip now holds it until the last one lifts.
 

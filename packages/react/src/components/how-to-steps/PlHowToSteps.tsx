@@ -20,7 +20,8 @@ import {
   iconClasses,
   sheetBodyClasses,
   sheetTitleClasses,
-  surfaceSlots
+  surfaceSlots,
+  transitionClasses
 } from '../../internal/styles.js';
 import type { PlassColor, PlassDensity, PlassSize } from '../../types.js';
 
@@ -224,7 +225,17 @@ export const PlHowToStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlHow
         ref={ref}
         aria-current={status === 'current' ? 'step' : undefined}
         className={cx('relative flex', bulletGapClasses[size], className)}
-        style={surfaceSlots(color, 0)}
+        style={
+          {
+            ...surfaceSlots(color, 0),
+            // A container's slots leave the sheet undyed, which is right for
+            // the ground a bullet sits on, but a bullet is the thing being
+            // coloured, so the two fills it needs are put back, as a
+            // `PlStepper` step puts them back.
+            '--p-fill': `var(--plass-${color}-fill)`,
+            '--p-on-solid': `var(--plass-${color}-on-solid)`
+          } as React.CSSProperties
+        }
         {...props}
       >
         <div className="flex flex-col items-center self-stretch">
@@ -234,7 +245,8 @@ export const PlHowToStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlHow
               'flex shrink-0 items-center justify-center rounded-full font-semibold',
               'text-[0.7em] leading-none',
               iconClasses,
-              bulletStatusClasses[status]
+              bulletStatusClasses[status],
+              transitionClasses
             )}
             style={{ width: bullet, height: bullet }}
           >

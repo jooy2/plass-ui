@@ -20,6 +20,8 @@ import {
   PlCalendar,
   PlCheckbox,
   PlDatePicker,
+  PlHowToStep,
+  PlHowToSteps,
   PlPagination,
   PlRadio,
   PlRadioGroup,
@@ -178,8 +180,12 @@ describe('a fill that comes and goes with a state', () => {
 
       expectLayerOnly(half);
       expect(Number(layerOf(half).opacity), state).toBe(1);
-      // The dash takes the ink a tick does on the gradient.
+      // The dash takes the ink a tick does on the gradient, and the neutral
+      // edge goes clear over it as a tick's does.
       expect(getComputedStyle(half).color, state).toBe(getComputedStyle(ticked).color);
+      expect(getComputedStyle(half).borderTopColor, state).toBe(
+        getComputedStyle(ticked).borderTopColor
+      );
     }
   });
 
@@ -360,6 +366,71 @@ describe('a fill that comes and goes with a state', () => {
     // fading out does not shrink as the ring arrives.
     expect(Number(layerOf(shipped).opacity)).toBe(0);
     expect(layerOf(shipped).borderTopWidth).toBe(getComputedStyle(shipped).borderTopWidth);
+  });
+
+  it('fills a how-to guide’s done and current bullets with the ink a stepper’s take', async () => {
+    const screen = await render(
+      <>
+        <PlHowToSteps active={1} data-testid="guide">
+          <PlHowToStep title="Install" />
+          <PlHowToStep title="Sign in" />
+          <PlHowToStep title="Deploy" />
+        </PlHowToSteps>
+        <PlStepper defaultActive={1} linear={false}>
+          {[<PlStep key="account" label="Account" />, <PlStep key="verify" label="Verify" />]}
+        </PlStepper>
+      </>
+    );
+    // The bullet is the first thing in a step, and hidden from the name.
+    const [done, current, upcoming] = Array.from(
+      screen.getByTestId('guide').element().querySelectorAll(':scope > li'),
+      (step) => step.querySelector('span[aria-hidden="true"]') as HTMLElement
+    );
+    const stepperBullet = screen
+      .getByRole('button', { name: 'Account' })
+      .element()
+      .querySelector('span[aria-hidden="true"]') as HTMLElement;
+
+    for (const bullet of [done, current]) {
+      expectLayerOnly(bullet);
+      expect(Number(layerOf(bullet).opacity)).toBe(1);
+      expect(getComputedStyle(bullet).color).toBe(getComputedStyle(stepperBullet).color);
+    }
+
+    expect(Number(layerOf(upcoming).opacity)).toBe(0);
+  });
+
+  it('fades a how-to guide’s bullet in, and eases its ink, as `active` reaches it', async () => {
+    const guide = (active: number) => (
+      <PlHowToSteps active={active} data-testid="guide">
+        <PlHowToStep title="Install" />
+        <PlHowToStep title="Sign in" />
+      </PlHowToSteps>
+    );
+    const screen = await render(guide(0));
+    const bullet = screen
+      .getByTestId('guide')
+      .element()
+      .querySelectorAll(':scope > li')[1]
+      .querySelector('span[aria-hidden="true"]') as HTMLElement;
+    const fades = recordFades(bullet);
+    const inked: string[] = [];
+
+    bullet.addEventListener('transitionrun', (raw) => {
+      const event = raw as TransitionEvent;
+
+      if (event.target === bullet && event.pseudoElement === '') {
+        inked.push(event.propertyName);
+      }
+    });
+
+    // Read before the change, which is also what gives the change a style to
+    // ease from.
+    expect(Number(layerOf(bullet).opacity)).toBe(0);
+
+    await screen.rerender(guide(1));
+    await expect.poll(() => fades).toEqual([{ from: 0, to: 1 }]);
+    await expect.poll(() => inked).toContain('color');
   });
 
   it('fades the current page’s gradient from the page it leaves to the one it takes', async () => {

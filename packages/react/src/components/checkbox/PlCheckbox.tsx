@@ -135,6 +135,7 @@ const disabledTickClasses = /* @__PURE__ */ [
   'data-[checked]:[--p-fill-on:1] data-[checked]:text-(--p-on-solid)',
   'data-[checked]:[border-color:transparent]',
   'data-[indeterminate]:[--p-fill-on:1] data-[indeterminate]:text-(--p-on-solid)',
+  'data-[indeterminate]:[border-color:transparent]',
   forcedDisabledCheckedClasses,
   'forced-colors:data-[indeterminate]:[background-color:GrayText]',
   'forced-colors:data-[indeterminate]:[color:Canvas]'
