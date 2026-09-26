@@ -1224,6 +1224,110 @@ void main() {
 
         await tester.pumpAndSettle();
       });
+
+      testWidgets('grows every series\' marker in the column of the mark read in nearest mode', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: months,
+            tooltip: const PlChartTooltip(mode: PlassChartTooltipMode.nearest),
+          ),
+        );
+
+        // A ring and a dot per marker, Revenue's four and then Cost's four, so
+        // February's are the third pair of each.
+        final _CircleCanvas rest = _paintPlot(tester);
+        const List<int> february = <int>[2, 3, 10, 11];
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        // Beside Revenue's February point, and far from Cost's.
+        await mouse.moveTo(tester.getTopLeft(_plot()) + rest.centres[2] + const Offset(1, 1));
+        await tester.pump();
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        final double along = PlassTokens.ease.transform(0.5);
+        final List<double> halfway = _paintPlot(tester).radii;
+
+        for (int i = 0; i < rest.radii.length; i += 1) {
+          final double grown = february.contains(i) ? along : 0;
+
+          expect(halfway[i], closeTo(rest.radii[i] + grown, 1e-6), reason: 'circle $i');
+        }
+
+        await tester.pumpAndSettle();
+
+        final _CircleCanvas settled = _paintPlot(tester);
+
+        for (int i = 0; i < rest.radii.length; i += 1) {
+          final double grown = february.contains(i) ? 1 : 0;
+
+          expect(settled.radii[i], rest.radii[i] + grown, reason: 'circle $i');
+        }
+
+        // A mark is read on its own, so there is no crosshair, and the card is
+        // still that one mark's.
+        expect(settled.downRules, 0);
+
+        final List<String> lines = tester
+            .widgetList<Text>(
+              find.descendant(of: find.byType(PlassChartTooltipCard), matching: find.byType(Text)),
+            )
+            .map((Text text) => text.data!)
+            .toList();
+
+        expect(lines, <String>['Feb', 'Revenue', '19']);
+      });
+
+      testWidgets('draws the markers in the column of the mark read on a line without them', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+
+        addTearDown(before.dispose);
+        await _pump(
+          tester,
+          afterFocusStop(
+            before,
+            PlLineChart(
+              series: series,
+              categories: months,
+              markers: PlChartMarkers.none,
+              tooltip: const PlChartTooltip(mode: PlassChartTooltipMode.nearest),
+            ),
+          ),
+        );
+
+        expect(_paintPlot(tester).radii, isEmpty);
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        // Revenue's January and then its February.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        final double radius = markerRadii[PlassSize.md]!;
+        final _CircleCanvas painted = _paintPlot(tester);
+
+        // Revenue's February marker and Cost's, one above the other, each at the
+        // size a marker under the crosshair is, and no crosshair.
+        expect(painted.radii, <double>[radius + 2.5, radius + 1, radius + 2.5, radius + 1]);
+        expect(painted.centres[0].dx, painted.centres[2].dx);
+        expect(painted.centres[0].dy, lessThan(painted.centres[2].dy));
+        expect(painted.downRules, 0);
+
+        await tester.pumpAndSettle();
+      });
     });
   });
 }
@@ -1238,23 +1342,43 @@ Finder _plot() {
       .first;
 }
 
-/// The radii of the first series' first two markers as they are painted now,
-/// each its ring and then its dot, or of as many as there are.
-List<double> _markerRadii(WidgetTester tester) {
+/// The plot as it is painted now.
+_CircleCanvas _paintPlot(WidgetTester tester) {
   final _CircleCanvas canvas = _CircleCanvas();
 
   tester.widget<CustomPaint>(_plot()).painter!.paint(canvas, tester.getSize(_plot()));
 
-  return canvas.radii.length > 4 ? canvas.radii.sublist(0, 4) : canvas.radii;
+  return canvas;
 }
 
-/// A canvas that keeps the radius of every circle painted on it, and drops
-/// everything else.
+/// The radii of the first series' first two markers as they are painted now,
+/// each its ring and then its dot, or of as many as there are.
+List<double> _markerRadii(WidgetTester tester) {
+  final List<double> radii = _paintPlot(tester).radii;
+
+  return radii.length > 4 ? radii.sublist(0, 4) : radii;
+}
+
+/// A canvas that keeps every circle painted on it and counts the rules drawn
+/// straight down, which on a chart whose columns stand upright is only ever the
+/// crosshair, and drops everything else.
 class _CircleCanvas implements Canvas {
+  final List<Offset> centres = <Offset>[];
   final List<double> radii = <double>[];
+  int downRules = 0;
 
   @override
-  void drawCircle(Offset c, double radius, Paint paint) => radii.add(radius);
+  void drawCircle(Offset c, double radius, Paint paint) {
+    centres.add(c);
+    radii.add(radius);
+  }
+
+  @override
+  void drawLine(Offset p1, Offset p2, Paint paint) {
+    if (p1.dx == p2.dx) {
+      downRules += 1;
+    }
+  }
 
   @override
   void noSuchMethod(Invocation invocation) {}

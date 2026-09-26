@@ -419,6 +419,44 @@ void main() {
       ]);
     });
 
+    testWidgets('lifts the column of the bar a key reaches in nearest mode', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+
+      addTearDown(before.dispose);
+      await _pump(
+        tester,
+        afterFocusStop(
+          before,
+          PlBarChart(
+            series: series,
+            categories: regions,
+            tooltip: const PlChartTooltip(mode: PlassChartTooltipMode.nearest),
+          ),
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      // This year's Europe bar, the first mark.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // The whole of Europe comes up, as the React column does for the bar
+      // being read, and the rest stay where they were.
+      expect(_barAlphas(tester), <Matcher>[
+        equals(1),
+        closeTo(0.92, 1e-6),
+        closeTo(0.92, 1e-6),
+        equals(1),
+        closeTo(0.92, 1e-6),
+        closeTo(0.92, 1e-6),
+      ]);
+    });
+
     testWidgets('fades the other series as a legend entry is pointed at, over the house duration', (
       WidgetTester tester,
     ) async {

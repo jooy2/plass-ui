@@ -429,7 +429,8 @@ class PlassChartLayout {
   /// How much of a category's slot the marks in it may take.
   final PlassDensity density;
 
-  /// The category under the pointer, or `null`.
+  /// The category being read, or `null`: the column under the pointer or a
+  /// key, or the one the mark being read stands in.
   final int? activeIndex;
 
   /// The series the legend is being hovered over, or `null`.
@@ -461,8 +462,7 @@ class PlassChartLayout {
   /// at another, and on the way between the two while it eases.
   double seriesOpacity(int series) => lerpDouble(1, 0.28, faded(series))!;
 
-  /// How far the column at [index] has come up under the crosshair, from `0`
-  /// to `1`.
+  /// How far the column at [index] has come up as it is read, from `0` to `1`.
   double columnLit(int index) => ease?.of(_columnKey(index)) ?? (index == activeIndex ? 1 : 0);
 
   /// How far the mark of [series] at [index] has come up as the pointer or a
@@ -529,7 +529,11 @@ class PlassChartLayout {
   /// Where the baseline is along the value axis.
   double get zeroPx => valuePx(math.min(math.max(0, scale.min), scale.max));
 
-  /// A copy carrying the marks that were built from it.
+  /// A copy carrying the marks that were built from it and the one of them
+  /// being read, whose category becomes the column being read, as the React
+  /// frame's `activeIndex` is its active mark's index. That is what grows every
+  /// series' marker in that column of a line in `nearest` mode, and lifts that
+  /// column of a bar chart.
   PlassChartLayout withMarks(List<PlassChartMark> built, PlassChartMark? active) =>
       PlassChartLayout(
         plot: plot,
@@ -544,7 +548,7 @@ class PlassChartLayout {
         inset: inset,
         horizontal: horizontal,
         density: density,
-        activeIndex: activeIndex,
+        activeIndex: active?.index ?? activeIndex,
         hovered: hovered,
         tokens: tokens,
         categoryScale: categoryScale,
@@ -1142,14 +1146,14 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
             : base.withMarks(built, active);
 
         // Every mark eases to what it is now: the series the legend fades, the
-        // column under the crosshair and the mark the pointer or a key is on.
+        // column being read and the mark the pointer or a key is on.
         // At once when the platform asks for less movement, as the React marks
         // change under `prefers-reduced-motion`.
         _ease.aim(
           <Object>{
             for (int i = 0; i < visible.length; i += 1)
               if (dimmedByHover(_hovered, i, visible)) _fadeKey(i),
-            if (_activeIndex != null) _columnKey(_activeIndex!),
+            if (layout.activeIndex != null) _columnKey(layout.activeIndex!),
             if (active != null) _markKey(active.series, active.index),
           },
           duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
@@ -1915,8 +1919,10 @@ class _FramePainter extends CustomPainter {
     }
 
     // The crosshair goes under the marks, so a line is never drawn over by the
-    // thing pointing at it.
-    if (layout.activeIndex != null && layout.count > 0) {
+    // thing pointing at it. Not for the column a mark being read stands in: a
+    // crosshair says 'these numbers all belong to this column', and a mark is
+    // read on its own.
+    if (layout.activeIndex != null && layout.activeMark == null && layout.count > 0) {
       final double at = layout.categoryPx(layout.activeIndex!);
 
       canvas.drawLine(

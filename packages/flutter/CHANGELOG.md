@@ -76,6 +76,8 @@
 
 ### Fixed
 
+- **A line, area or bar chart in `nearest` mode lights the column of the mark it is reading, as in the React build.** Every series' marker in that column grows by a pixel, and a line without markers shows them there, where no marker grew and none was drawn; a bar chart brings that column's bars up as it does under the crosshair or a key, where none came up. There is still no crosshair, and the card still names the one mark.
+
 - **The steppers of a disabled `PlNumberField` are drawn at the half opacity of the field they sit in, as a `PlSelect` or `PlCombobox` chevron is.** Each faded to half a second time inside a field already at half, so they were drawn at a quarter. A stepper that has run into `min` or `max` in a field that is not disabled still fades to half on its own.
 
 - **A popup is first drawn where it is placed.** With animations off, a `PlPopover`, `PlPopconfirm`, `PlHoverCard`, `PlTooltip`, `PlMenu`, `PlMenubar` menu, `PlNavigationMenu` panel, `PlSelect`, `PlCombobox`, `PlTreeSelect` or date, time or colour picker was drawn for one frame on the side of its trigger it was asked for and at its own width, before it flipped to the side with room and was held to its trigger's width or to its room. With animations on as well, a list held to its field's width or a `PlNavigationMenu` panel held to its room whose lines wrap there was drawn for a frame on the side its unwrapped height fitted, and a popup opened again while it was still fading out jumped for a frame to the side it was asked for and to its own width. It is now laid out once before it is drawn, already at its trigger's width and its room, so the first frame a reader sees is the one it was placed for.
