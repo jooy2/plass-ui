@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -155,10 +156,16 @@ class PlAppLogo extends StatelessWidget {
           borderRadius: shape == PlAppLogoShape.circle
               ? BorderRadius.circular(height)
               : BorderRadius.circular(tokens.radii[size]!),
-          child: Center(
-            child: SizedBox.square(
-              dimension: height * _inset,
-              child: FittedBox(child: child),
+          // A glyph drawn in the ambient colour takes the plate's ink, as an
+          // `<svg>` drawn in `currentColor` does in the React build, and eases
+          // to a new one with the fill.
+          child: PlassInk(
+            color: surface.ink,
+            child: Center(
+              child: SizedBox.square(
+                dimension: height * _inset,
+                child: FittedBox(child: child),
+              ),
             ),
           ),
         ),

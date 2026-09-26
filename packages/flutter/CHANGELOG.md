@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A glyph on a `PlAppLogo` plate is drawn in the plate's ink, as in the React build.** The mark took no colour from its plate, so a glyph drawn in the ambient colour kept whatever colour the app around it had, often a dark glyph on a filled plate. It now takes the colour on the fill on `solid` and the family's accent on `glass` and `ghost`, and eases to a new one with the fill.
+
 - **A glyph handed to a `PlToast` as `icon` is drawn in the colour and at the size of the severity's own glyph, as in the React build.** It was placed as it came, in whatever colour and size the app around it had.
 
 - **What an entrance, a `PlStack` item or a `PlAnimateHeadline` line draws at an opacity of 0 is still read by a screen reader, as in the React build.** `PlAnimateFade`, `PlAnimateAppear`, `PlAnimateZoom`, `PlAnimateSlide`, `PlAnimateGrow`, `PlAnimateRotate` and a fading `PlAnimateReveal` left what they hold out of the semantics while it was drawn at 0, so content waiting for its `delay` or its trigger, and a `PlassAnimateMode.exit` that had gone, could not be reached by a reader moving item by item, and neither could the items an `opacityStep` of 0 faded to nothing. They are read, as the pages already said. A headline line coming up or leaving is read for the whole of its swap, and the lines that are not showing are still left out.

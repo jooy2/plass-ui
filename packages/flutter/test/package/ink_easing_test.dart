@@ -564,6 +564,14 @@ final Map<String, _Case> _cases = <String, _Case>{
     ),
     read: _glyph,
   ),
+  'PlAppLogo, the mark on its plate': _Case(
+    (bool on) => PlAppLogo(
+      shape: PlAppLogoShape.plate,
+      variant: on ? PlassVariant.solid : PlassVariant.glass,
+      child: const _Glyph(),
+    ),
+    read: _glyph,
+  ),
   'PlKbd, its variant': _Case(
     (bool on) =>
         PlKbd(variant: on ? PlassVariant.solid : PlassVariant.glass, child: const Text('Label')),

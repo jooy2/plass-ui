@@ -4,6 +4,20 @@ import 'package:plass_ui/plass_ui.dart';
 
 import '../../support/host.dart';
 
+/// A glyph drawn in the ambient colour, recording the colour it is handed.
+class _Glyph extends StatelessWidget {
+  const _Glyph();
+
+  static Color? seen;
+
+  @override
+  Widget build(BuildContext context) {
+    seen = IconTheme.of(context).color;
+
+    return const SizedBox.square(dimension: 16);
+  }
+}
+
 /// A mark that is wider than it is tall, which is what a wordmark is.
 class _Mark extends StatelessWidget {
   const _Mark();
@@ -78,6 +92,35 @@ void main() {
           (decoration.gradient! as LinearGradient).colors.first,
           PlassTheme.of(tester.element(find.byType(PlAppLogo))).family(PlassColor.success).solid,
         );
+      });
+    });
+
+    group('the ink', () {
+      testWidgets('draws a glyph on a plate in the plate\'s ink', (WidgetTester tester) async {
+        for (final PlassVariant variant in PlassVariant.values) {
+          await _pump(
+            tester,
+            PlAppLogo(
+              key: ValueKey<PlassVariant>(variant),
+              shape: PlAppLogoShape.plate,
+              variant: variant,
+              color: PlassColor.success,
+              child: const _Glyph(),
+            ),
+          );
+
+          final PlassColorFamily family = PlassTheme.of(
+            tester.element(find.byType(PlAppLogo)),
+          ).family(PlassColor.success);
+
+          // The ink `currentColor` resolves to on the React plate: the one on
+          // the fill on `solid`, and the family's accent on the other two.
+          expect(
+            _Glyph.seen,
+            variant == PlassVariant.solid ? family.onSolid : family.accent,
+            reason: variant.name,
+          );
+        }
       });
     });
 
