@@ -227,7 +227,7 @@ _Change _highlight(Finder Function() opener) {
 
 /// A key pressed at a control that is already in its first state, as an open
 /// `PlCommandPalette` is, which hears the keys wherever the focus is.
-_Change _press(LogicalKeyboardKey key) {
+_Change _pressKey(LogicalKeyboardKey key) {
   return (WidgetTester tester, bool on) async {
     if (on) {
       await tester.sendKeyEvent(key);
@@ -667,7 +667,7 @@ final Map<String, _Case> _cases = <String, _Case>{
   ),
   'PlCommandPalette, a row the arrow keys reach': _Case(
     (bool on) => const PlCommandPalette(open: true, items: _commands),
-    change: _press(LogicalKeyboardKey.arrowDown),
+    change: _pressKey(LogicalKeyboardKey.arrowDown),
   ),
   // The fills those inks sit on, which the React house transition eases too.
   'PlBottomNavigation, an item\'s fill': _Case(
@@ -717,7 +717,7 @@ final Map<String, _Case> _cases = <String, _Case>{
   'PlCommandPalette, the fill of a row the arrow keys reach': _Case(
     (bool on) => const PlCommandPalette(open: true, items: _commands),
     read: _surfaceFill(() => find.text('Label')),
-    change: _press(LogicalKeyboardKey.arrowDown),
+    change: _pressKey(LogicalKeyboardKey.arrowDown),
   ),
   'PlNumberField, the fill of a stepper under the pointer': _Case(
     (bool on) => PlNumberField(value: 4, onChanged: (num? _) {}),
