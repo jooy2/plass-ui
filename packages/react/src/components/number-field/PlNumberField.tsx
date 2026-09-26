@@ -179,7 +179,7 @@ export interface PlNumberFieldProps
 
 /** The shell is a `PlTextField`'s, to the pixel — see `fieldRestClasses`. */
 const shellBaseClasses = /* @__PURE__ */ [
-  'group relative flex w-full cursor-text items-center',
+  'relative flex w-full cursor-text items-center',
   '[-webkit-tap-highlight-color:transparent]',
   transitionClasses,
   iconClasses
