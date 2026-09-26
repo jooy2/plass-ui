@@ -411,7 +411,7 @@ class _PlPieChartState extends State<PlPieChart> {
 
     return <_Arc>[
       for (int i = 0; i < values.length; i += 1)
-        if (visible[i] && values[i].value != null && values[i].value != 0)
+        if (_drawn(values[i], visible[i]))
           () {
             final double share = values[i].value!.abs() / total;
             final _Arc arc = _Arc(i, angle, angle + share * sweep, share);
@@ -486,7 +486,14 @@ class _PlPieChartState extends State<PlPieChart> {
   /// and in the React build, and its value and share when it does not.
   String _said(ChartValue value, double total) => value.label ?? _share(value.value ?? 0, total);
 
-  /// Every visible slice and what it is worth.
+  /// Whether a slice gets an arc: one the legend has not switched off, and
+  /// with a value that is there and is not zero, which would be an angle of
+  /// nothing.
+  bool _drawn(ChartValue value, bool visible) => visible && value.value != null && value.value != 0;
+
+  /// Every slice that is drawn and what it is worth. The same slices as the
+  /// arcs, as in the React build, so a slice worth nothing is not read out
+  /// where nothing was drawn for it.
   String _summary(
     List<PlassChartSeries> slices,
     List<ChartValue> values,
@@ -496,7 +503,7 @@ class _PlPieChartState extends State<PlPieChart> {
     final parts = <String>[];
 
     for (int i = 0; i < slices.length; i += 1) {
-      if (!visible[i] || values[i].value == null) {
+      if (!_drawn(values[i], visible[i])) {
         continue;
       }
 

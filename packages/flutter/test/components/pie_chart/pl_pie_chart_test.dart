@@ -139,17 +139,27 @@ void main() {
 
       final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel('Chart'));
 
-      expect(node.value, contains('Search'));
-      expect(node.value, isNot(contains('Social')));
+      // Only the slices that have an angle, as in the React build: a slice
+      // worth nothing is not read as "Direct 0 · 0%".
+      expect(node.value, 'Search 40 · 40%, Referral 60 · 60%');
     });
 
     testWidgets('says nothing is there when the total is zero', (WidgetTester tester) async {
       await _pump(
         tester,
-        const PlPieChart(data: <PlassChartDatum>[PlassChartDatum(0), PlassChartDatum(0)]),
+        const PlPieChart(
+          data: <PlassChartDatum>[PlassChartDatum(0), PlassChartDatum(0)],
+          categories: sources,
+        ),
       );
 
       expect(find.text('Nothing here'), findsOneWidget);
+
+      // And reads no slice out either, since none of them was drawn. The
+      // words in the empty box join the chart's own name.
+      final SemanticsNode node = tester.getSemantics(find.bySemanticsLabel(RegExp('^Chart')));
+
+      expect(node.value, isEmpty);
     });
 
     testWidgets('puts the caller content in the hole of a donut', (WidgetTester tester) async {

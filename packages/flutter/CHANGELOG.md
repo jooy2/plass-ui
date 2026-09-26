@@ -74,6 +74,8 @@
 
 ### Fixed
 
+- **A `PlPieChart` slice worth 0 is left out of the text a screen reader is handed, as in the React build.** The reading skipped only hidden slices and gaps, so a slice worth nothing was read as "Direct 0 · 0%" where no slice was drawn, and a pie whose every slice was 0 read each of them out under its empty box.
+
 - **The wedge of a `PlPopover` or `PlHoverCard` on a `left` or `right` side points at the trigger under RTL.** A right-to-left page drew it on the far edge of the sheet, pointing back into it, for a `side` of `left` or `right` and for a popup that flipped to one.
 
 - **`Escape` on the closed trigger of a `PlPopover`, `PlPopconfirm`, `PlHoverCard`, `PlTooltip`, `PlMenu`, `PlMenubar` menu, `PlNavigationMenu` item, `PlSelect`, `PlTreeSelect` or date, time or colour picker goes on to the `PlModal` or page round it.** The trigger kept the key while its popup was closed, so a reader whose focus was on one could not close the modal from the keyboard. An open popup still takes `Escape` first and leaves the modal up, and an open `PlPopover` with `dismissible: false` still keeps it.
