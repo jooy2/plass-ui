@@ -11,6 +11,51 @@ const List<PlSegment<String>> views = <PlSegment<String>>[
   PlSegment<String>(value: 'calendar', label: Text('Calendar')),
 ];
 
+/// A `solid` set starting on [initial], which takes whatever is pressed.
+Widget solidSet(String? initial) {
+  String? value = initial;
+
+  return StatefulBuilder(
+    builder: (BuildContext context, StateSetter setState) => PlSegmentedButton<String>(
+      segments: views,
+      value: value,
+      variant: PlassVariant.solid,
+      onChanged: (String next) => setState(() => value = next),
+    ),
+  );
+}
+
+/// The gradient a `solid` tile of the set's family is drawn in at rest.
+Gradient familyFill(WidgetTester tester) {
+  return PlassTheme.of(
+    tester.element(find.byType(PlSegmentedButton<String>)),
+  ).family(PlassColor.primary).fill;
+}
+
+/// Pumps a frame at a time until the tile is in the groove, which is the frame
+/// after the one that chose a segment.
+Future<void> pumpUntilTile(WidgetTester tester) async {
+  for (var frame = 0; frame < 10; frame += 1) {
+    if (find.byType(AnimatedPositioned).evaluate().isNotEmpty) {
+      return;
+    }
+
+    await tester.pump(const Duration(milliseconds: 16));
+  }
+
+  fail('the tile never arrived');
+}
+
+/// The gradient the tile riding in the groove is drawn in, or `null` while it
+/// paints none.
+Gradient? tileFill(WidgetTester tester) {
+  final DecoratedBox tile = tester.widget<DecoratedBox>(
+    find.descendant(of: find.byType(AnimatedPositioned), matching: find.byType(DecoratedBox)),
+  );
+
+  return (tile.decoration as BoxDecoration).gradient;
+}
+
 void main() {
   group('PlSegmentedButton', () {
     group('rendering', () {
@@ -112,6 +157,66 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(AnimatedPositioned), findsNothing);
+      });
+
+      testWidgets('a solid one fades its fill in where the first choice of an empty set lands', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(solidSet(null), width: 480));
+        await tester.pumpAndSettle();
+
+        final Gradient fill = familyFill(tester);
+        final double whole = fill.colors.first.a;
+
+        await tester.tap(find.text('Board'));
+
+        // How opaque the fill is on every frame the tile is drawn, until it has
+        // long settled.
+        final List<double> seen = <double>[];
+
+        for (var frame = 0; frame < 20; frame += 1) {
+          await tester.pump(const Duration(milliseconds: 16));
+
+          if (find.byType(AnimatedPositioned).evaluate().isNotEmpty) {
+            seen.add(tileFill(tester)?.colors.first.a ?? 0);
+          }
+        }
+
+        expect(seen, isNotEmpty);
+        expect(seen.first, lessThan(whole), reason: 'the tile arrived with its fill whole');
+        expect(
+          seen.any((double alpha) => alpha > 0 && alpha < whole),
+          isTrue,
+          reason: 'the fill was never part of the way in: $seen',
+        );
+
+        await tester.pumpAndSettle();
+
+        // At rest it is the family's own gradient, exactly.
+        expect(tileFill(tester), fill);
+      });
+
+      testWidgets('a solid one the set is built with has its fill from its first frame', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(solidSet('board'), width: 480));
+
+        await pumpUntilTile(tester);
+
+        expect(tileFill(tester), familyFill(tester));
+      });
+
+      testWidgets('a solid one has its fill at once under reduced motion', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(solidSet(null), width: 480, disableAnimations: true));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Board'));
+
+        await pumpUntilTile(tester);
+
+        expect(tileFill(tester), familyFill(tester));
       });
     });
 

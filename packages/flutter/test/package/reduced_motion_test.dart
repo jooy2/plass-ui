@@ -475,6 +475,17 @@ final Map<String, _Case> _cases = <String, _Case>{
       ],
     ),
   ),
+  'solid PlSegmentedButton, as the first choice of an empty set lands': _Case(
+    (bool on) => PlSegmentedButton<int>(
+      variant: PlassVariant.solid,
+      value: on ? 1 : null,
+      onChanged: (int _) {},
+      segments: const <PlSegment<int>>[
+        PlSegment<int>(value: 0, label: Text('One')),
+        PlSegment<int>(value: 1, label: Text('Two')),
+      ],
+    ),
+  ),
   'PlBottomNavigation, as the chosen item moves': _Case(
     (bool on) => PlBottomNavigation<int>(
       value: on ? 1 : 0,

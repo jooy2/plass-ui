@@ -173,6 +173,17 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
 
   Rect? _tile;
 
+  /// Whether the set has been measured once.
+  bool _measured = false;
+
+  /// Whether the tile in the groove fades its fill in as it arrives.
+  ///
+  /// A tile placed by the set's first measurement is the one the set is built
+  /// with, and is lit from its first frame, as a ticked box is. One that a
+  /// choice places later, the first choice of an empty set, fades its fill in
+  /// where it lands.
+  bool _fadeIn = false;
+
   @override
   FocusNode? get callerStop => widget.focusNode;
 
@@ -234,9 +245,18 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
     final next = segment != null && trough != null && segment.hasSize && trough.hasSize
         ? (segment.localToGlobal(Offset.zero, ancestor: trough) & segment.size)
         : null;
+    final bool first = !_measured;
+
+    _measured = true;
 
     if (next != _tile) {
-      setState(() => _tile = next);
+      setState(() {
+        if (_tile == null) {
+          _fadeIn = !first;
+        }
+
+        _tile = next;
+      });
     }
   }
 
@@ -371,7 +391,12 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
             top: _tile!.top,
             width: _tile!.width,
             height: _tile!.height,
-            child: _Riding(variant: widget.variant, family: family, tokens: tokens),
+            child: _Riding(
+              variant: widget.variant,
+              family: family,
+              tokens: tokens,
+              fadeIn: _fadeIn,
+            ),
           ),
         // The tile is painted before every segment, so one group round them
         // hands the chosen one a read with the tile in it — on a `ghost` set as
@@ -424,25 +449,67 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
 /// it — a key of tinted glass riding in a groove, which is the design language's
 /// own sentence with nothing added. The other two lift a pane of clear glass
 /// instead and leave the label in the accent.
-class _Riding extends StatelessWidget {
-  const _Riding({required this.variant, required this.family, required this.tokens});
+///
+/// The gradient is lit once the tile has been placed under its first segment,
+/// so a first choice fades the fill in where it lands, and at once under
+/// reduced motion. Painted from the tile's first frame, it arrived in one frame,
+/// since that choice is what puts the tile in the groove, while the ink on the
+/// segment eased.
+class _Riding extends StatefulWidget {
+  const _Riding({
+    required this.variant,
+    required this.family,
+    required this.tokens,
+    required this.fadeIn,
+  });
 
   final PlassVariant variant;
   final PlassColorFamily family;
   final PlassTokens tokens;
 
+  /// Whether the fill fades in as the tile arrives rather than being there from
+  /// its first frame. Read once, when the tile is placed.
+  final bool fadeIn;
+
+  @override
+  State<_Riding> createState() => _RidingState();
+}
+
+class _RidingState extends State<_Riding> {
+  /// Whether the fill is on. A tile that fades in is placed with it off and lit
+  /// after that frame, so the fill eases in from nothing rather than arriving
+  /// with the tile.
+  late bool _lit = !widget.fadeIn;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (!_lit) {
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+        if (mounted) {
+          setState(() => _lit = true);
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
+    final tokens = widget.tokens;
+    final family = widget.family;
+    final solid = widget.variant == PlassVariant.solid;
+    final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+
+    return AnimatedContainer(
+      duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+      curve: tokens.motionEase,
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.circular(999),
-        gradient: variant == PlassVariant.solid ? family.fill : null,
-        color: variant == PlassVariant.solid ? null : tokens.glassPress,
-        boxShadow: <BoxShadow>[
-          ...tokens.elevation(1),
-          if (variant == PlassVariant.solid) tokens.lift(family),
-        ],
+        gradient: solid && (_lit || reduceMotion) ? family.fill : null,
+        color: solid ? null : tokens.glassPress,
+        boxShadow: <BoxShadow>[...tokens.elevation(1), if (solid) tokens.lift(family)],
       ),
     );
   }
