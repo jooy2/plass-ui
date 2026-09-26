@@ -116,12 +116,39 @@ void main() {
     });
 
     testWidgets('measures its own size when nobody gave a distance', (WidgetTester tester) async {
-      await tester.pumpWidget(host(const PlAnimateSlide(child: Text('Arriving'))));
-
-      expect(
-        find.descendant(of: find.byType(PlAnimateSlide), matching: find.byType(Transform)),
-        findsNothing,
+      await tester.pumpWidget(
+        host(const PlAnimateSlide(duration: Duration(milliseconds: 200), child: Text('Arriving'))),
       );
+
+      final Rect start = tester.getRect(find.text('Arriving'));
+
+      await tester.pumpAndSettle();
+
+      final Rect rest = tester.getRect(find.text('Arriving'));
+
+      // Its own height below where it rests, and no pixels on top of that.
+      expect(start.top - rest.top, moreOrLessEquals(rest.height));
+      expect(start.left, rest.left);
+      expect(pixelsOf(tester), Offset.zero);
+    });
+
+    testWidgets('travels only the distance it was given', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(
+          const PlAnimateSlide(
+            distance: 40,
+            duration: Duration(milliseconds: 200),
+            child: Text('Arriving'),
+          ),
+        ),
+      );
+
+      final Rect start = tester.getRect(find.text('Arriving'));
+
+      await tester.pumpAndSettle();
+
+      expect(start.top - tester.getRect(find.text('Arriving')).top, moreOrLessEquals(40));
+      expect(fractionOf(tester), Offset.zero);
     });
 
     testWidgets('leaves by the edge it would have come from', (WidgetTester tester) async {

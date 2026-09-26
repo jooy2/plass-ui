@@ -237,25 +237,30 @@ void main() {
     testWidgets('travels one line height unless a rise says otherwise', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(host(PlAnimateHeadline(children: _lines), width: 200));
+      /// How far below where it rests the second line starts as it comes up.
+      Future<double> travel({double? rise}) async {
+        Widget build(int index) =>
+            host(PlAnimateHeadline(index: index, rise: rise, children: _lines), width: 200);
 
-      expect(
-        find.descendant(
-          of: find.byType(PlAnimateHeadline),
-          matching: find.byType(FractionalTranslation),
-        ),
-        findsWidgets,
-      );
+        await tester.pumpWidget(build(0));
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(build(1));
 
-      await tester.pumpWidget(host(PlAnimateHeadline(rise: 24, children: _lines), width: 200));
+        final double start = tester.getRect(find.text('simpler')).top;
 
-      expect(
-        find.descendant(
-          of: find.byType(PlAnimateHeadline),
-          matching: find.byType(FractionalTranslation),
-        ),
-        findsNothing,
-      );
+        await tester.pumpAndSettle();
+
+        return start - tester.getRect(find.text('simpler')).top;
+      }
+
+      final double own = await travel();
+
+      expect(own, moreOrLessEquals(tester.getSize(find.text('simpler')).height));
+
+      // A new headline, so the swap starts from the first line again.
+      await tester.pumpWidget(const SizedBox());
+
+      expect(await travel(rise: 24), moreOrLessEquals(24));
     });
 
     testWidgets('clips, so a line on its way out does not show past the box', (

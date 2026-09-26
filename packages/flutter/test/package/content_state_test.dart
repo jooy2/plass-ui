@@ -161,8 +161,9 @@ class _Setting {
 
 /// Settings that put a wrapper round what a widget holds to work, or stand it
 /// down: the press and the brightness of a chip that is handed `onPressed`, the
-/// fade of an entrance, and the travel and the fade of a headline's line as it
-/// comes up and leaves.
+/// fade of an entrance, the travel and the fade of a headline's line as it
+/// comes up and leaves, the travel of a slide or a headline as it goes between
+/// a distance of its own and none, and the keyboard of a handle between panes.
 final Map<String, _Setting> _settings = <String, _Setting>{
   'PlChip, its onPressed': _Setting(
     (bool on) => PlChip(onPressed: on ? () {} : null, child: const _Probe()),
@@ -190,6 +191,30 @@ final Map<String, _Setting> _settings = <String, _Setting>{
   'PlAnimateHeadline, a line coming up and leaving': _Setting(
     (bool on) =>
         PlAnimateHeadline(index: on ? 1 : 0, children: const <Widget>[Text('faster'), _Probe()]),
+  ),
+  // A distance of its own is a count of pixels, and none is the content's own
+  // size, which is a fraction of it.
+  'PlAnimateSlide, its distance': _Setting(
+    (bool on) => PlAnimateSlide(distance: on ? 24 : null, child: const _Probe()),
+  ),
+  'PlAnimateHeadline, its rise': _Setting(
+    (bool on) =>
+        PlAnimateHeadline(rise: on ? 12 : null, children: const <Widget>[_Probe(), Text('faster')]),
+  ),
+  // A handle holds nothing of the caller's, so what has to survive is its own
+  // line, which eases its colour as the pointer and the focus come and go.
+  'PlPanes, its resizable': _Setting(
+    (bool on) => SizedBox(
+      height: 200,
+      child: PlPanes(
+        resizable: on,
+        panes: const <PlPane>[
+          PlPane(child: SizedBox.expand()),
+          PlPane(child: SizedBox.expand()),
+        ],
+      ),
+    ),
+    held: find.descendant(of: find.byType(PlPanes), matching: find.byType(AnimatedContainer)).first,
   ),
 };
 

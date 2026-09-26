@@ -759,17 +759,21 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 /// Moves [child] by [offset] logical pixels, or by [fraction] of its own size
 /// when no explicit distance was given.
 ///
-/// Two widgets rather than one because a fraction of the widget's own size is
-/// only knowable at paint time, and [FractionalTranslation] is the framework's
-/// answer to exactly that. Neither is a [Transform] on a *control*: what moves
-/// here is content a caller asked to have moved.
+/// Two widgets because a fraction of the widget's own size is only knowable at
+/// paint time, and [FractionalTranslation] is the framework's answer to exactly
+/// that. Both are always there, one of them moving by nothing, so a distance
+/// that comes or goes changes neither the shape of the tree above [child] nor
+/// what Flutter keeps of it; a translation paints no layer of its own. Neither
+/// is a [Transform] on a *control*: what moves here is content a caller asked
+/// to have moved.
 Widget translateBy({
   required Offset offset,
   required Offset fraction,
   required bool useFraction,
   required Widget child,
 }) {
-  return useFraction
-      ? FractionalTranslation(translation: fraction, child: child)
-      : Transform.translate(offset: offset, child: child);
+  return FractionalTranslation(
+    translation: useFraction ? fraction : Offset.zero,
+    child: Transform.translate(offset: useFraction ? Offset.zero : offset, child: child),
+  );
 }

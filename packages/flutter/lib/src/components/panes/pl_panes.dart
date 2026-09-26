@@ -474,32 +474,36 @@ class _HandleState extends State<_Handle> {
       ),
     );
 
-    if (widget.resizable) {
-      handle = FocusableActionDetector(
-        includeFocusSemantics: false,
-        onShowFocusHighlight: (bool value) {
-          if (_focusVisible != value) {
-            setState(() => _focusVisible = value);
-          }
-        },
-        shortcuts: const <ShortcutActivator, Intent>{
-          SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(1),
-          SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1),
-          SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(-1),
-        },
-        actions: <Type, Action<Intent>>{
-          _NudgeIntent: CallbackAction<_NudgeIntent>(
-            onInvoke: (_NudgeIntent intent) {
-              final int steps = widget.horizontal && rtl ? -intent.steps : intent.steps;
-              widget.onNudge(steps);
-              return null;
-            },
-          ),
-        },
-        child: handle,
-      );
-    }
+    // In the tree whether the split can be resized or not, and only enabled
+    // while it can, which is what takes the handle out of the tab order. Put in
+    // only while `resizable` held, it changed the shape of the tree above the
+    // line, and Flutter built the line again from scratch, so its colour
+    // switched rather than eased as the setting changed under the pointer.
+    handle = FocusableActionDetector(
+      enabled: widget.resizable,
+      includeFocusSemantics: false,
+      onShowFocusHighlight: (bool value) {
+        if (_focusVisible != value) {
+          setState(() => _focusVisible = value);
+        }
+      },
+      shortcuts: const <ShortcutActivator, Intent>{
+        SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1),
+        SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(1),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1),
+        SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(-1),
+      },
+      actions: <Type, Action<Intent>>{
+        _NudgeIntent: CallbackAction<_NudgeIntent>(
+          onInvoke: (_NudgeIntent intent) {
+            final int steps = widget.horizontal && rtl ? -intent.steps : intent.steps;
+            widget.onNudge(steps);
+            return null;
+          },
+        ),
+      },
+      child: handle,
+    );
 
     // Flutter's semantics tree has no `separator` role and no `valuenow`, so a
     // handle is what it actually is to a screen reader: a control with a value

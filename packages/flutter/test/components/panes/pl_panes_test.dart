@@ -1,6 +1,8 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
 
@@ -22,6 +24,11 @@ double heightOf(WidgetTester tester, String name) =>
 
 /// The handle between the panes, of which every test here has one or two.
 Finder handles() => find.byType(GestureDetector);
+
+/// A focus ring being drawn.
+final Finder _ring = find.byWidgetPredicate(
+  (Widget widget) => widget is CustomPaint && widget.foregroundPainter is PlassFocusRingPainter,
+);
 
 void main() {
   group('PlPanes', () {
@@ -219,6 +226,100 @@ void main() {
         await tester.pump();
 
         expect(widthOf(tester, 'a'), 200);
+      });
+    });
+
+    group('the keyboard', () {
+      setUp(() {
+        FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+      });
+
+      tearDown(() {
+        FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic;
+      });
+
+      /// A split after a focus stop of its own, which the test starts from.
+      Widget split(FocusNode before, {required bool resizable}) {
+        return host(
+          afterFocusStop(
+            before,
+            SizedBox(
+              width: 408,
+              height: 200,
+              child: PlPanes(resizable: resizable, panes: <PlPane>[pane('a'), pane('b')]),
+            ),
+          ),
+          width: 408,
+        );
+      }
+
+      testWidgets('moves the boundary a step at a time with the arrows', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(split(before, resizable: true));
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(_ring, findsOneWidget);
+        expect(widthOf(tester, 'a'), closeTo(216, 0.001));
+      });
+
+      testWidgets('lets the focus go, and its ring with it, once the split is a layout', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(split(before, resizable: true));
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(_ring, findsOneWidget);
+
+        await tester.pumpWidget(split(before, resizable: false));
+        await tester.pumpAndSettle();
+
+        expect(_ring, findsNothing);
+
+        // Out of the tab order, so Tab from the stop before it does not land
+        // on it, and the arrows move nothing.
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(_ring, findsNothing);
+        expect(widthOf(tester, 'a'), 200);
+      });
+
+      testWidgets('takes the focus again once it can be resized again', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(split(before, resizable: false));
+        await tester.pumpWidget(split(before, resizable: true));
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+
+        expect(_ring, findsOneWidget);
+        expect(widthOf(tester, 'a'), closeTo(216, 0.001));
       });
     });
 

@@ -332,9 +332,10 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   /// the line that is up rather than the set.
   ///
   /// Every line is wrapped in the same widgets, whether it is up, on its way
-  /// or not showing, and only their settings change. A line that was wrapped
-  /// only while it came up or left changed the shape of the tree above it, and
-  /// Flutter builds a changed shape again from scratch.
+  /// or not showing, and with a `rise` or without one, and only their settings
+  /// change. A line that was wrapped only while it came up or left changed the
+  /// shape of the tree above it, and Flutter builds a changed shape again from
+  /// scratch.
   Widget _line(int position, {required Curve curve, required bool still}) {
     final bool active = position == _active;
     final bool leaving = position == _leaving && !still;
@@ -363,9 +364,14 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
           child: inner,
         );
 
-        return widget.rise == null
-            ? FractionalTranslation(translation: Offset(0, travel), child: faded)
-            : Transform.translate(offset: Offset(0, travel * widget.rise!), child: faded);
+        // A line's own height when there is no `rise`, and that many pixels
+        // when there is one, through the same two widgets either way.
+        return translateBy(
+          offset: Offset(0, travel * (widget.rise ?? 0)),
+          fraction: Offset(0, travel),
+          useFraction: widget.rise == null,
+          child: faded,
+        );
       },
     );
   }
