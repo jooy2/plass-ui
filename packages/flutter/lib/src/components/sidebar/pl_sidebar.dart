@@ -424,7 +424,8 @@ class _PlSidebarState extends State<PlSidebar> {
 /// What holds the sidebar asks the boxes it holds in its own order, so a
 /// neighbour it asks first and that takes the press keeps it. A `Row` asks its
 /// last child first: a sidebar at the end of one is asked before the content
-/// beside it, and one at the start after it.
+/// beside it, and one at the start after it. A [PlPageLayout] asks both of its
+/// sidebars before its content, and paints them after it.
 class _HandleReach extends SingleChildRenderObjectWidget {
   const _HandleReach({required Widget super.child});
 

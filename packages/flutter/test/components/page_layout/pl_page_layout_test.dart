@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -267,6 +268,194 @@ void main() {
       });
     });
 
+    group('a resizable sidebar', () {
+      testWidgets(
+        'widens a start column on a drag from the half of its handle over a scroll view',
+        (WidgetTester tester) async {
+          final List<double> settled = <double>[];
+
+          await tester.pumpWidget(
+            host(_Resizable(onResizeEnd: settled.add), width: 800, height: 600),
+          );
+
+          // The handle is 8px wide and straddles the edge, so its outer half
+          // lies over the start of the scroll view beside the column, which
+          // takes a press anywhere in it.
+          final Rect box = tester.getRect(find.byType(PlSidebar).first);
+          final TestGesture gesture = await tester.startGesture(
+            Offset(box.right + 3, box.center.dy),
+            kind: PointerDeviceKind.mouse,
+          );
+          await gesture.moveBy(const Offset(40, 0));
+          await tester.pump();
+          await gesture.up();
+          await tester.pump();
+
+          expect(settled, hasLength(1));
+          expect(settled.single, closeTo(260, 2));
+          expect(tester.getSize(find.byType(PlSidebar).first).width, closeTo(260, 2));
+        },
+      );
+
+      testWidgets('and under RTL, where the start column is on the right', (
+        WidgetTester tester,
+      ) async {
+        final List<double> settled = <double>[];
+
+        await tester.pumpWidget(
+          host(
+            _Resizable(onResizeEnd: settled.add),
+            width: 800,
+            height: 600,
+            textDirection: TextDirection.rtl,
+          ),
+        );
+
+        final Rect box = tester.getRect(find.byType(PlSidebar).first);
+        final TestGesture gesture = await tester.startGesture(
+          Offset(box.left - 3, box.center.dy),
+          kind: PointerDeviceKind.mouse,
+        );
+        await gesture.moveBy(const Offset(-40, 0));
+        await tester.pump();
+        await gesture.up();
+        await tester.pump();
+
+        expect(settled, hasLength(1));
+        expect(settled.single, closeTo(260, 2));
+      });
+
+      testWidgets('draws a start column\'s handle over the content beside it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Resizable(), width: 800, height: 600));
+
+        // Lit from its inner half, which only the column holds, so the wash is
+        // there whichever of the two is asked about a pointer first.
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        final Rect box = tester.getRect(find.byType(PlSidebar).first);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(Offset(box.right - 2, box.center.dy));
+        await tester.pumpAndSettle();
+
+        final Color wash = PlassTokens.light().family(PlassColor.primary).soft;
+
+        // The wash runs 4px past the edge, over the content's fill, and is
+        // painted after it rather than under it.
+        expect(
+          tester.renderObject(find.byType(PlPageLayout)),
+          paints
+            ..something(_fills(_contentFill))
+            ..something(_fills(wash)),
+        );
+      });
+
+      testWidgets('keeps the size and the place of every part, in both directions', (
+        WidgetTester tester,
+      ) async {
+        for (final TextDirection direction in TextDirection.values) {
+          await tester.pumpWidget(
+            host(
+              const _Resizable(headerSpan: PlPageLayoutSpan.content),
+              width: 800,
+              height: 600,
+              textDirection: direction,
+            ),
+          );
+
+          final bool rtl = direction == TextDirection.rtl;
+          final Rect header = tester.getRect(find.text('Header'));
+
+          expect(
+            tester.getRect(find.byType(PlSidebar).first),
+            Rect.fromLTWH(rtl ? 580 : 0, 0, 220, 600),
+          );
+          expect(header.left, 220);
+          expect(header.right, 580);
+          expect(
+            tester.getRect(find.byKey(const Key('content'))),
+            Rect.fromLTRB(220, header.bottom, 580, 600),
+          );
+          expect(
+            tester.getRect(find.byType(PlSidebar).last),
+            Rect.fromLTWH(rtl ? 0 : 580, 0, 220, 600),
+          );
+        }
+      });
+
+      testWidgets(
+        'reads and tabs through the start column, the content and the end column in order',
+        (WidgetTester tester) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+          final FocusNode nav = FocusNode(debugLabel: 'nav');
+          final FocusNode body = FocusNode(debugLabel: 'body');
+          final FocusNode outline = FocusNode(debugLabel: 'outline');
+
+          addTearDown(nav.dispose);
+          addTearDown(body.dispose);
+          addTearDown(outline.dispose);
+
+          // Once as an app reads it, in the order the stops sit on screen, and
+          // once in the order they are built.
+          for (final FocusTraversalPolicy policy in <FocusTraversalPolicy>[
+            ReadingOrderTraversalPolicy(),
+            WidgetOrderTraversalPolicy(),
+          ]) {
+            await tester.pumpWidget(
+              host(
+                FocusTraversalGroup(
+                  policy: policy,
+                  child: _Resizable(nav: nav, body: body, outline: outline),
+                ),
+                width: 800,
+                height: 600,
+              ),
+            );
+
+            expect(_readingOrder(tester), <String>[
+              'Header',
+              'Navigation',
+              'Links',
+              'Resize sidebar',
+              'Page',
+              'Body',
+              'Outline',
+              'Contents',
+            ]);
+
+            nav.requestFocus();
+            await tester.pump();
+
+            final List<FocusNode> stops = <FocusNode>[];
+
+            for (int i = 0; i < 5; i++) {
+              stops.add(FocusManager.instance.primaryFocus!);
+              FocusManager.instance.primaryFocus!.nextFocus();
+              await tester.pump();
+            }
+
+            // The handle is a stop of its own, between the column's links and
+            // the content.
+            expect(
+              <FocusNode>[stops[0], stops[2], stops[3], stops[4]],
+              <FocusNode>[nav, body, outline, nav],
+            );
+            expect(
+              find.descendant(
+                of: find.byType(PlSidebar).first,
+                matching: find.byElementPredicate((Element element) => element == stops[1].context),
+              ),
+              findsOneWidget,
+            );
+          }
+
+          handle.dispose();
+        },
+      );
+    });
+
     group('the drawers', () {
       testWidgets('holds the open state itself and hands it back', (WidgetTester tester) async {
         await tester.pumpWidget(
@@ -311,6 +500,89 @@ void main() {
       });
     });
   });
+}
+
+/// What the scroll view beside the columns is filled with.
+const Color _contentFill = Color(0xFF123456);
+
+/// A layout with a resizable start column, a scroll view that fills the band
+/// to its edges, and a plain end column.
+class _Resizable extends StatelessWidget {
+  const _Resizable({
+    this.onResizeEnd,
+    this.headerSpan = PlPageLayoutSpan.full,
+    this.nav,
+    this.body,
+    this.outline,
+  });
+
+  final ValueChanged<double>? onResizeEnd;
+  final PlPageLayoutSpan headerSpan;
+  final FocusNode? nav;
+  final FocusNode? body;
+  final FocusNode? outline;
+
+  @override
+  Widget build(BuildContext context) {
+    return PlPageLayout(
+      collapseBelow: null,
+      headerSpan: headerSpan,
+      header: const Text('Header'),
+      mainSemanticLabel: 'Page',
+      sidebar: PlSidebar(
+        resizable: true,
+        width: 220,
+        semanticLabel: 'Navigation',
+        onResizeEnd: onResizeEnd,
+        child: Focus(focusNode: nav, child: const Text('Links')),
+      ),
+      endSidebar: PlSidebar(
+        width: 220,
+        semanticLabel: 'Outline',
+        child: Focus(focusNode: outline, child: const Text('Contents')),
+      ),
+      child: SingleChildScrollView(
+        key: const Key('content'),
+        child: ColoredBox(
+          color: _contentFill,
+          child: Focus(
+            focusNode: body,
+            child: const SizedBox(height: 1200, child: Text('Body')),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Matches a rectangle filled with [color], after any number of other calls.
+///
+/// Compared as 8-bit channels, because a [Paint] hands its colour back through
+/// single-precision storage.
+PaintPatternPredicate _fills(Color color) {
+  return (Symbol method, List<dynamic> arguments) =>
+      method == #drawRect && (arguments[1] as Paint).color.toARGB32() == color.toARGB32();
+}
+
+/// Every label on the semantics tree, in the order a screen reader reads it.
+List<String> _readingOrder(WidgetTester tester) {
+  final List<String> labels = <String>[];
+
+  void visit(SemanticsNode node) {
+    if (node.label.isNotEmpty) {
+      labels.add(node.label);
+    }
+
+    for (final SemanticsNode child in node.debugListChildrenInOrder(
+      DebugSemanticsDumpOrder.traversalOrder,
+    )) {
+      visit(child);
+    }
+  }
+
+  visit(tester.binding.renderViews.first.debugSemantics!);
+
+  return labels;
 }
 
 /// A stand-in for a sidebar: it reports what the layout told it and can ask to

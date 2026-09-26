@@ -1,7 +1,7 @@
 /// The skeleton a screen is hung on.
 library;
 
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/page_layout.dart';
@@ -177,8 +177,7 @@ class _PlPageLayoutState extends State<PlPageLayout> {
       ],
     );
 
-    final Widget band = Row(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final Widget band = _Band(
       children: <Widget>[
         if (sidebar != null) PlassSidebarSideScope(side: PlassSidebarSide.start, child: sidebar),
         Expanded(child: main),
@@ -214,5 +213,98 @@ class _PlPageLayoutState extends State<PlPageLayout> {
         );
       },
     );
+  }
+}
+
+/// The band between the bars: the sidebars and the content, laid out, read and
+/// tabbed through in that order as a [Row] would, but painted and asked about a
+/// pointer with the sidebars above the content.
+///
+/// A sidebar's resize handle straddles its inner edge, so half of it lies over
+/// the content, and over a header or a footer that spans only the content. A
+/// [Row] paints its children in order and asks the last one about a pointer
+/// first, which would put the content over a start sidebar's handle: a fill
+/// would cover the outer half, and a scroll view would take a press there
+/// before the handle was asked. Only the order of painting and of asking
+/// differs from a [Row], never the order of the children, because that is the
+/// order a screen reader reads them in and the Tab key visits them in.
+///
+/// A glass sidebar's blur reads what was painted before it, so the content
+/// beside either sidebar reaches the inner edge of its blur.
+class _Band extends Row {
+  const _Band({required super.children}) : super(crossAxisAlignment: CrossAxisAlignment.stretch);
+
+  @override
+  RenderFlex createRenderObject(BuildContext context) {
+    return _RenderBand(
+      mainAxisAlignment: mainAxisAlignment,
+      mainAxisSize: mainAxisSize,
+      crossAxisAlignment: crossAxisAlignment,
+      textDirection: getEffectiveTextDirection(context),
+      verticalDirection: verticalDirection,
+      textBaseline: textBaseline,
+      clipBehavior: clipBehavior,
+      spacing: spacing,
+    );
+  }
+}
+
+class _RenderBand extends RenderFlex {
+  _RenderBand({
+    required super.mainAxisAlignment,
+    required super.mainAxisSize,
+    required super.crossAxisAlignment,
+    required super.textDirection,
+    required super.verticalDirection,
+    required super.textBaseline,
+    required super.clipBehavior,
+    required super.spacing,
+  });
+
+  /// Whether [child] is a sidebar: the content is the one child with a flex.
+  static bool _isSidebar(RenderBox child) => ((child.parentData! as FlexParentData).flex ?? 0) == 0;
+
+  // `RenderFlex.paint` paints its children through this, clipped or not.
+  @override
+  void defaultPaint(PaintingContext context, Offset offset) {
+    for (final bool sidebars in const <bool>[false, true]) {
+      RenderBox? child = firstChild;
+
+      while (child != null) {
+        final FlexParentData data = child.parentData! as FlexParentData;
+
+        if (_isSidebar(child) == sidebars) {
+          context.paintChild(child, data.offset + offset);
+        }
+
+        child = data.nextSibling;
+      }
+    }
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    for (final bool sidebars in const <bool>[true, false]) {
+      RenderBox? child = lastChild;
+
+      while (child != null) {
+        final RenderBox box = child;
+        final FlexParentData data = box.parentData! as FlexParentData;
+
+        if (_isSidebar(box) == sidebars &&
+            result.addWithPaintOffset(
+              offset: data.offset,
+              position: position,
+              hitTest: (BoxHitTestResult result, Offset local) =>
+                  box.hitTest(result, position: local),
+            )) {
+          return true;
+        }
+
+        child = data.previousSibling;
+      }
+    }
+
+    return false;
   }
 }
