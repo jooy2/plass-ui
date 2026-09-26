@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/hot_keys/pl_hot_keys.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 // The same vocabulary [PlHotKeys] draws, read rather than written.
 import 'package:plass_ui/src/internal/keys.dart';
@@ -517,7 +518,9 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
         onRun: () => _run(rows[index]),
       );
 
-      return index == highlighted ? _reveal.mark(index: index, child: row) : row;
+      // Every row is marked, lit or not, so a row keeps its place in the tree as
+      // the highlight moves and its fill and ink ease rather than starting over.
+      return _reveal.mark(index: index, marked: index == highlighted, child: row);
     }
 
     // A list that cannot fit is built as it scrolls, so a palette of thousands
@@ -604,11 +607,17 @@ class _Row extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Text(
-                  item.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: ink, fontSize: text.size, height: text.height),
+                // Eased as the highlight arrives and leaves, with the fill under
+                // it. Only the label: the description keeps its muted ink.
+                PlassInk(
+                  color: ink,
+                  icons: false,
+                  child: Text(
+                    item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: text.size, height: text.height),
+                  ),
                 ),
                 if (item.description != null)
                   Text(

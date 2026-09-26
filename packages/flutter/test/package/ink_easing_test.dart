@@ -18,6 +18,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/window.dart';
 
 import '../support/host.dart';
@@ -93,6 +94,20 @@ _Read _fill(Finder Function() target) {
     );
 
     return (box.decoration as BoxDecoration).color ?? const Color(0x00000000);
+  };
+}
+
+/// The fill of the nearest `PlassSurfaceBox` round what [target] finds, which
+/// is painted beside what the box holds rather than round it: the box's own
+/// shadows are its first decoration, and its fill the second.
+_Read _surfaceFill(Finder Function() target) {
+  return (WidgetTester tester) {
+    final Finder box = find.ancestor(of: target(), matching: find.byType(PlassSurfaceBox)).first;
+    final DecoratedBox fill = tester
+        .widgetList<DecoratedBox>(find.descendant(of: box, matching: find.byType(DecoratedBox)))
+        .elementAt(1);
+
+    return (fill.decoration as BoxDecoration).color ?? const Color(0x00000000);
   };
 }
 
@@ -209,6 +224,22 @@ _Change _highlight(Finder Function() opener) {
     await tester.pump();
   };
 }
+
+/// A key pressed at a control that is already in its first state, as an open
+/// `PlCommandPalette` is, which hears the keys wherever the focus is.
+_Change _press(LogicalKeyboardKey key) {
+  return (WidgetTester tester, bool on) async {
+    if (on) {
+      await tester.sendKeyEvent(key);
+      await tester.pump();
+    }
+  };
+}
+
+const List<PlCommandItem> _commands = <PlCommandItem>[
+  PlCommandItem(value: 'other', label: 'Other'),
+  PlCommandItem(value: 'label', label: 'Label'),
+];
 
 final GlobalKey _section = GlobalKey();
 final PlAnchorItem _heading = PlAnchorItem(target: _section, label: const Text('Label'));
@@ -634,6 +665,10 @@ final Map<String, _Case> _cases = <String, _Case>{
       ),
     ),
   ),
+  'PlCommandPalette, a row the arrow keys reach': _Case(
+    (bool on) => const PlCommandPalette(open: true, items: _commands),
+    change: _press(LogicalKeyboardKey.arrowDown),
+  ),
   // The fills those inks sit on, which the React house transition eases too.
   'PlBottomNavigation, an item\'s fill': _Case(
     (bool on) => PlBottomNavigation<int>(
@@ -678,6 +713,11 @@ final Map<String, _Case> _cases = <String, _Case>{
         (Widget widget) => widget is Semantics && widget.properties.label == 'Open',
       ),
     ),
+  ),
+  'PlCommandPalette, the fill of a row the arrow keys reach': _Case(
+    (bool on) => const PlCommandPalette(open: true, items: _commands),
+    read: _surfaceFill(() => find.text('Label')),
+    change: _press(LogicalKeyboardKey.arrowDown),
   ),
   'PlNumberField, the fill of a stepper under the pointer': _Case(
     (bool on) => PlNumberField(value: 4, onChanged: (num? _) {}),
