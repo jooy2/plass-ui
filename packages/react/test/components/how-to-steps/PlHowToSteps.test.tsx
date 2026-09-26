@@ -128,9 +128,7 @@ describe('PlHowToSteps', () => {
         </PlHowToSteps>
       );
 
-      expect(steps()[0].querySelector('span')!.className).toContain(
-        '[background-image:var(--p-fill)]'
-      );
+      expect(steps()[0].querySelector('span')!.className).toContain('[--p-fill-on:1]');
     });
   });
 

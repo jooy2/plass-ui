@@ -194,6 +194,20 @@ const ellipsisClasses: Record<PlassSize, string> = {
 };
 
 /**
+ * Where a page's gradient is drawn: a layer of its own inside the button, which
+ * fades in as the page becomes the current one and out as it stops being it.
+ * The page is a `PlButton` whose `variant` turns to `solid` and back, and set as
+ * its own background the gradient arrived in one frame and left in one, since
+ * no browser eases a gradient to or from nothing; the button's two
+ * pseudo-elements are already the light. So the button's own background is
+ * turned off, inline because nothing else outranks the variant's class, and the
+ * layer is lit wherever the page is `solid`. See `.plass-fill` in `styles.css`.
+ */
+const fillLayerClasses = 'plass-fill-layer';
+
+const pageStyle: React.CSSProperties = { backgroundImage: 'none' };
+
+/**
  * A row of page numbers.
  *
  * Every button in it is a real `PlButton`, which is the point: a pagination is
@@ -428,12 +442,18 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
                   disabled={disabled}
                   aria-label={pageLabel(slot)}
                   aria-current={slot === current ? 'page' : undefined}
-                  className="tabular-nums"
+                  className={
+                    slot === current || variant === 'solid'
+                      ? 'tabular-nums [--p-fill-on:1]'
+                      : 'tabular-nums'
+                  }
+                  style={pageStyle}
                   onClick={(event) => press(event, slot)}
                   // The page being read stays a link, marked `aria-current`, so
                   // the press that made it current keeps the focus on it.
                   {...linkProps(slot, false)}
                 >
+                  <span aria-hidden="true" className={fillLayerClasses} />
                   {slot}
                 </PlButton>
               </li>

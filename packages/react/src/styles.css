@@ -941,13 +941,13 @@
 /* ---------------------------------------------------------------------------
  * A fill that comes and goes with a state
  *
- * A `solid` toggle, a tick, a radio's ring, a switch's track and a chosen day
- * are glass, a groove or nothing while they are off and the family's gradient
- * while they are on, and no browser eases a gradient to or from nothing. Set
- * on the element itself, the gradient arrived in one frame and left in one. So
- * it is a layer of its own, there in both states and faded by its opacity,
- * which is the one thing about it a browser can ease — the way a
- * `PlProgressBox` plate breathes.
+ * A `solid` toggle, a tick, a radio's ring, a switch's track, a chosen day, a
+ * step's bullet and the current page are glass, a groove or nothing while they
+ * are off and the family's gradient while they are on, and no browser eases a
+ * gradient to or from nothing. Set on the element itself, the gradient arrived
+ * in one frame and left in one. So it is a layer of its own, there in both
+ * states and faded by its opacity, which is the one thing about it a browser
+ * can ease — the way a `PlProgressBox` plate breathes.
  *
  * The component says when it is on with `--p-fill-on`, 0 or 1, from the state
  * variants that used to set the gradient, and a control with an edge says how
@@ -988,10 +988,10 @@
 
 /*
  * The same layer as an element, for a control whose two pseudo-elements are
- * already the light: a `solid` `PlToggle`. The bloom is the `::before` of the
- * same surface, which comes first, so the fill goes one step further down to
- * stay under it. The surface's `.plass-glow` gives both depths a box of their
- * own.
+ * already the light: a `solid` `PlToggle` and a `PlPagination` page. The bloom
+ * is the `::before` of the same surface, which comes first, so the fill goes
+ * one step further down to stay under it. The surface's `.plass-glow` gives
+ * both depths a box of their own.
  */
 .plass-fill-layer {
   z-index: -2;

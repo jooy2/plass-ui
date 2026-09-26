@@ -3,12 +3,13 @@
  * stylesheet can answer.
  *
  * No browser eases a gradient to or from `none`, so a tick, a radio's ring, a
- * switch's track and a chosen day paint theirs on a layer of their own,
- * `.plass-fill`'s `::before`, and a `solid` toggle on `.plass-fill-layer`, an
- * element, and fade its opacity. Written on the element
- * itself, the gradient arrived in one frame and left in one, and a class-list
- * assertion cannot tell the two apart, so this file loads `src/standalone.css`
- * the way `card.test.tsx` does and records the transitions that actually run.
+ * switch's track, a chosen day and a step's bullet paint theirs on a layer of
+ * their own, `.plass-fill`'s `::before`, and a `solid` toggle and a current page
+ * on `.plass-fill-layer`, an element, and fade its opacity. Written on the
+ * element itself, the gradient arrived in one frame and left in one, and a
+ * class-list assertion cannot tell the two apart, so this file loads
+ * `src/standalone.css` the way `card.test.tsx` does and records the transitions
+ * that actually run.
  *
  * No duration is asserted, only that the layer eases between off and on, and
  * that under reduced motion it does not.
@@ -19,9 +20,14 @@ import {
   PlCalendar,
   PlCheckbox,
   PlDatePicker,
+  PlPagination,
   PlRadio,
   PlRadioGroup,
+  PlStep,
+  PlStepper,
   PlSwitch,
+  PlTimeline,
+  PlTimelineItem,
   PlToggle
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -288,6 +294,98 @@ describe('a fill that comes and goes with a state', () => {
         { from: 0, to: 1 },
         { from: 1, to: 0 }
       ]);
+  });
+
+  it('fades a step’s bullet in as the stepper reaches it and out as it leaves', async () => {
+    const screen = await render(
+      <PlStepper defaultActive={0} linear={false}>
+        {[<PlStep key="account" label="Account" />, <PlStep key="verify" label="Verify" />]}
+      </PlStepper>
+    );
+    // The bullet is the first thing in the step's button, and hidden from the name.
+    const bullet = (name: string) =>
+      screen
+        .getByRole('button', { name })
+        .element()
+        .querySelector('span[aria-hidden="true"]') as HTMLElement;
+    const account = bullet('Account');
+    const verify = bullet('Verify');
+    const reached = recordFades(verify);
+    const passed = recordFades(account);
+
+    expectLayerOnly(account);
+    expect(Number(layerOf(account).opacity)).toBe(1);
+    expect(Number(layerOf(verify).opacity)).toBe(0);
+
+    await screen.getByRole('button', { name: 'Verify' }).click();
+    await expect.poll(() => reached).toEqual([{ from: 0, to: 1 }]);
+    await settle(verify);
+
+    expectLayerOnly(verify);
+    // A step left behind stays filled, so nothing about its fill moves.
+    expect(passed).toEqual([]);
+
+    await screen.getByRole('button', { name: 'Account' }).click();
+    await expect
+      .poll(() => reached)
+      .toEqual([
+        { from: 0, to: 1 },
+        { from: 1, to: 0 }
+      ]);
+  });
+
+  it('fills a timeline’s bullet under the ring it wears while upcoming', async () => {
+    const screen = await render(
+      <PlTimeline active={0}>
+        {[
+          <PlTimelineItem key="ordered" title="Ordered" />,
+          <PlTimelineItem key="shipped" title="Shipped" />
+        ]}
+      </PlTimeline>
+    );
+    // The bullets, which are round, and not the lines between them.
+    const [ordered, shipped] = Array.from(
+      screen.container.querySelectorAll<HTMLElement>('li span[aria-hidden="true"].rounded-full')
+    );
+
+    expectLayerOnly(ordered);
+    expect(Number(layerOf(ordered).opacity)).toBe(1);
+    // Off, and laid out under the ring rather than inside it, so a bullet
+    // fading out does not shrink as the ring arrives.
+    expect(Number(layerOf(shipped).opacity)).toBe(0);
+    expect(layerOf(shipped).borderTopWidth).toBe(getComputedStyle(shipped).borderTopWidth);
+  });
+
+  it('fades the current page’s gradient from the page it leaves to the one it takes', async () => {
+    const screen = await render(<PlPagination count={5} defaultPage={1} />);
+    const first = screen.getByRole('button', { name: 'Page 1' }).element();
+    const second = screen.getByRole('button', { name: 'Page 2' }).element();
+    const layerIn = (element: Element) => element.querySelector('.plass-fill-layer') as HTMLElement;
+
+    // The page paints no gradient of its own, which would arrive at once.
+    expect(getComputedStyle(first).backgroundImage).toBe('none');
+
+    const left = recordFades(layerIn(first), '');
+    const taken = recordFades(layerIn(second), '');
+
+    expect(getComputedStyle(layerIn(first)).backgroundImage).toContain('linear-gradient');
+    expect(Number(getComputedStyle(layerIn(first)).opacity)).toBe(1);
+    expect(Number(getComputedStyle(layerIn(second)).opacity)).toBe(0);
+
+    await screen.getByRole('button', { name: 'Page 2' }).click();
+    await expect
+      .element(screen.getByRole('button', { name: 'Page 2' }))
+      .toHaveAttribute('aria-current', 'page');
+    await expect.poll(() => taken).toEqual([{ from: 0, to: 1 }]);
+    await expect.poll(() => left).toEqual([{ from: 1, to: 0 }]);
+    await settle(layerIn(second));
+
+    // Nor does the page taking it, and its layer sits under the bloom, which is
+    // the page's own `::before`.
+    expect(getComputedStyle(second).backgroundImage).toBe('none');
+    expect(Number(getComputedStyle(layerIn(second)).zIndex)).toBeLessThan(
+      Number(getComputedStyle(second, '::before').zIndex)
+    );
   });
 
   it('puts the gradient on at once under reduced motion', async () => {

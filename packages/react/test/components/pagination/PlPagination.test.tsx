@@ -64,6 +64,34 @@ describe('PlPagination', () => {
       );
     });
 
+    it('draws the current page’s fill on a hidden layer, lit on that page alone', async () => {
+      const screen = await render(<PlPagination count={3} defaultPage={2} />);
+
+      for (const page of [1, 2, 3]) {
+        const button = screen.getByRole('button', { name: `Page ${page}` }).element();
+
+        // A layer of its own, so the fill can fade as the current page moves.
+        expect(button.querySelector('.plass-fill-layer')).toHaveAttribute('aria-hidden', 'true');
+        expect(button.textContent).toBe(String(page));
+
+        if (page === 2) {
+          expect(button).toHaveClass('[--p-fill-on:1]');
+        } else {
+          expect(button).not.toHaveClass('[--p-fill-on:1]');
+        }
+      }
+    });
+
+    it('lights every page of a solid row', async () => {
+      const screen = await render(<PlPagination count={3} variant="solid" />);
+
+      for (const page of [1, 2, 3]) {
+        expect(screen.getByRole('button', { name: `Page ${page}` }).element()).toHaveClass(
+          '[--p-fill-on:1]'
+        );
+      }
+    });
+
     it('keeps the slot count constant as the window slides', async () => {
       // Counted off the DOM rather than by role: an ellipsis is `aria-hidden`,
       // so the number of *listitems* is exactly what changes here.

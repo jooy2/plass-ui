@@ -73,15 +73,24 @@ export const bulletGapClasses: Record<PlassSize, string> = {
  * in the neutral hairline rather than the sheet's white one, the same call a
  * checkbox's edge makes: a bullet is small enough that its edge *is* the object,
  * and white light on a translucent pane disappears on a light card.
+ *
+ * The gradient is a layer of its own, `.plass-fill`, which every state carries
+ * and the two filled ones light, so a step the sequence reaches fades its fill
+ * in and a step it leaves fades it out. As the bullet's own background it
+ * arrived in one frame and left in one, since no browser eases a gradient to or
+ * from nothing. The layer reaches under the `upcoming` ring, which is there at
+ * once while the fill is still fading out. `relative` holds the layer inside
+ * the bullet in a component that does not position the bullet itself.
  */
+const bulletFillClasses = 'plass-fill relative';
+
 export const bulletStatusClasses: Record<PlassStepStatus, string> = {
   // In forced-colours mode the gradient and the halo both go, so the two filled
   // bullets are filled with the system's highlight and the current one keeps a
   // ring outside it.
-  complete: `[background-image:var(--p-fill)] text-(--p-on-solid) ${forcedFillClasses}`,
-  current: `[background-image:var(--p-fill)] text-(--p-on-solid) [box-shadow:0_0_0_0.25rem_var(--p-soft)] ${forcedFillClasses} forced-colors:[outline:2px_solid_Highlight] forced-colors:[outline-offset:2px]`,
-  upcoming:
-    'border-2 bg-(--plass-surface) text-(--plass-muted-fg) [border-color:var(--plass-border)]'
+  complete: `${bulletFillClasses} [--p-fill-on:1] text-(--p-on-solid) ${forcedFillClasses}`,
+  current: `${bulletFillClasses} [--p-fill-on:1] text-(--p-on-solid) [box-shadow:0_0_0_0.25rem_var(--p-soft)] ${forcedFillClasses} forced-colors:[outline:2px_solid_Highlight] forced-colors:[outline-offset:2px]`,
+  upcoming: `${bulletFillClasses} [--p-fill-edge:2px] border-2 bg-(--plass-surface) text-(--plass-muted-fg) [border-color:var(--plass-border)]`
 };
 
 /**
