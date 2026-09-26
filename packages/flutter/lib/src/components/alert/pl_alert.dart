@@ -179,10 +179,10 @@ class PlAlert extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     leadingDistribution: TextLeadingDistribution.even,
                   ),
-                  // A glyph in the title takes the title's colour, as it does
-                  // in the React build.
+                  // A glyph in the title takes the title's colour, and 1.2×
+                  // its type size, as it does in the React build.
                   child: IconTheme.merge(
-                    data: IconThemeData(color: accent),
+                    data: IconThemeData(color: accent, size: sheetTitle[size]!.size * iconScale),
                     child: title!,
                   ),
                 ),
@@ -193,14 +193,22 @@ class PlAlert extends StatelessWidget {
                 DefaultTextStyle.merge(
                   style: TextStyle(color: titled ? detail : null),
                   child: IconTheme.merge(
-                    data: IconThemeData(color: titled ? detail : null),
+                    data: IconThemeData(color: titled ? detail : null, size: body.size * iconScale),
                     child: child!,
                   ),
                 ),
             ],
           ),
         ),
-        if (action != null) onFirstLine(action!),
+        // A bare glyph here is drawn at 1.2× the message's type size, as an
+        // `<svg>` in the React alert's action is.
+        if (action != null)
+          onFirstLine(
+            IconTheme.merge(
+              data: IconThemeData(size: body.size * iconScale),
+              child: action!,
+            ),
+          ),
         if (onClose != null)
           onFirstLine(
             Builder(

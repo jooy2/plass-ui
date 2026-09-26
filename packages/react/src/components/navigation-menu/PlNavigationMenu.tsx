@@ -262,8 +262,13 @@ export const PlNavigationMenuLink = /* @__PURE__ */ React.forwardRef<
       )}
       {...props}
     >
+      {/* On the title's type, so the glyph is `1.2em` of the link's own size
+          and its box is one of the title's lines, rather than both being
+          measured against the page's font. */}
       {hasContent(startIcon) ? (
-        <span className="flex h-[1lh] shrink-0 items-center">{startIcon}</span>
+        <span className={cx('flex h-[1lh] shrink-0 items-center', controlTextLeadingClasses[size])}>
+          {startIcon}
+        </span>
       ) : null}
       <span className="flex min-w-0 flex-col gap-0.5">
         <span className={cx('font-medium', controlTextLeadingClasses[size])}>{title}</span>

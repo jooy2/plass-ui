@@ -332,10 +332,15 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
                 mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
                 spacing: gap[size]!,
                 children: <Widget>[
+                  // Muted, the words as well as the glyph, as a text field's
+                  // adornment is and as the React field's is.
                   if (widget.startIcon != null)
                     IconTheme.merge(
                       data: IconThemeData(color: tokens.mutedFg, size: scale.size * iconScale),
-                      child: widget.startIcon!,
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(color: tokens.mutedFg),
+                        child: widget.startIcon!,
+                      ),
                     ),
                   if (widget.fullWidth)
                     Expanded(child: _value(tokens, scale))

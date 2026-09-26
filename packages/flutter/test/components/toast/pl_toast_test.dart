@@ -54,9 +54,14 @@ Future<void> _raise(WidgetTester tester) async {
 
 /// Pumps a provider with nothing under it, under [tokens] when there are any,
 /// and hands back its controller.
-Future<PlToastController> _provider(WidgetTester tester, {PlassTokens? tokens}) async {
+Future<PlToastController> _provider(
+  WidgetTester tester, {
+  PlassTokens? tokens,
+  PlassSize? size,
+}) async {
   late PlToastController controller;
   final Widget provider = PlToastProvider(
+    size: size,
     child: Builder(
       builder: (BuildContext context) {
         controller = PlToastProvider.of(context);
@@ -101,9 +106,12 @@ class _ToastGlyph extends StatelessWidget {
 
   static final Map<String, Color?> seen = <String, Color?>{};
 
+  static final Map<String, double?> sizes = <String, double?>{};
+
   @override
   Widget build(BuildContext context) {
     seen[name] = IconTheme.of(context).color;
+    sizes[name] = IconTheme.of(context).size;
 
     return const SizedBox.square(dimension: 16);
   }
@@ -671,6 +679,40 @@ void main() {
           );
 
           controller.close(variant.name);
+          await tester.pumpAndSettle();
+        }
+      });
+
+      testWidgets('draws a glyph a caller hands it at 1.2 times the words around it', (
+        WidgetTester tester,
+      ) async {
+        for (final PlassSize size in PlassSize.values) {
+          final controller = await _provider(tester, size: size);
+
+          controller.show(
+            PlToast(
+              id: size.name,
+              timeout: Duration.zero,
+              icon: const _ToastGlyph('icon'),
+              title: const Row(children: <Widget>[_ToastGlyph('title'), Text('Title')]),
+              description: const Row(children: <Widget>[_ToastGlyph('message'), Text('Message')]),
+              actionLabel: const Row(children: <Widget>[_ToastGlyph('action'), Text('Undo')]),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final double title = styleOf(tester, 'Title').fontSize!;
+          final double message = styleOf(tester, 'Message').fontSize!;
+          final double action = styleOf(tester, 'Undo').fontSize!;
+
+          // As an `<svg>` at `1.2em` is in the React toast, against the type
+          // of the words it sits among.
+          expect(_ToastGlyph.sizes['icon'], closeTo(message * 1.2, 0.001), reason: size.name);
+          expect(_ToastGlyph.sizes['title'], closeTo(title * 1.2, 0.001), reason: size.name);
+          expect(_ToastGlyph.sizes['message'], closeTo(message * 1.2, 0.001), reason: size.name);
+          expect(_ToastGlyph.sizes['action'], closeTo(action * 1.2, 0.001), reason: size.name);
+
+          controller.close(size.name);
           await tester.pumpAndSettle();
         }
       });

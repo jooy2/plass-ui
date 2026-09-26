@@ -1196,13 +1196,18 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
         spacing: gap[size]!,
         children: <Widget>[
+          // Muted, the words as well as the glyph, as a text field's
+          // adornment is and as the React field's is.
           if (widget.startIcon != null)
             SizedBox(
               height: scale.line,
               child: Center(
                 child: IconTheme.merge(
                   data: IconThemeData(color: tokens.mutedFg, size: glyph),
-                  child: widget.startIcon!,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(color: tokens.mutedFg),
+                    child: widget.startIcon!,
+                  ),
                 ),
               ),
             ),

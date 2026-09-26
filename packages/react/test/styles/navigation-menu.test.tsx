@@ -623,3 +623,65 @@ describe("a PlNavigationMenu item's chevron", () => {
     }
   });
 });
+
+describe("a PlNavigationMenuLink's startIcon", () => {
+  beforeEach(async () => {
+    // A pointer left over the row by an earlier file would open a panel.
+    await commands.parkPointer();
+  });
+
+  /** An open panel of one link with a glyph, at `size`. */
+  function glyphNav(size: 'sm' | 'md') {
+    return (
+      <PlNavigationMenu size={size} value="product">
+        <PlNavigationMenuItem label="Product" value="product">
+          <PlNavigationMenuLink
+            href="/a"
+            title="Analytics"
+            startIcon={<svg data-glyph viewBox="0 0 24 24" />}
+          />
+        </PlNavigationMenuItem>
+      </PlNavigationMenu>
+    );
+  }
+
+  /** The glyph's side and its box's height, beside the title's type size and line. */
+  function measure() {
+    const glyph = link('/a')!.querySelector<SVGElement>('[data-glyph]')!;
+    // The innermost span holding the words, inside the column that holds them.
+    const title = [...link('/a')!.querySelectorAll('span')]
+      .filter((span) => span.textContent === 'Analytics')
+      .at(-1)!;
+    const type = getComputedStyle(title);
+
+    return {
+      side: glyph.getBoundingClientRect().width,
+      box: glyph.parentElement!.getBoundingClientRect().height,
+      font: Number.parseFloat(type.fontSize),
+      line: Number.parseFloat(type.lineHeight)
+    };
+  }
+
+  it("is 1.2em of the link's own type, in a box one of its title's lines high", async () => {
+    const sides: number[] = [];
+
+    for (const size of ['sm', 'md'] as const) {
+      const screen = await render(glyphNav(size));
+
+      await expect.poll(() => link('/a')?.checkVisibility()).toBe(true);
+
+      const { side, box, font, line } = measure();
+
+      // 15.6 in an 18px box at `sm` and 16.8 in a 20px box at `md`, as the
+      // Flutter link's glyph follows its title, rather than 19.2 in a 24px box
+      // at both, measured against the page.
+      expect(side, size).toBeCloseTo(font * 1.2, 1);
+      expect(box, size).toBeCloseTo(line, 1);
+      sides.push(side);
+
+      await screen.unmount();
+    }
+
+    expect(sides[0]).toBeLessThan(sides[1]);
+  });
+});

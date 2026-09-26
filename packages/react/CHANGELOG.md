@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlNavigationMenuLink`'s `startIcon` follows the link's `size`: 1.2em of its title, in a box one of the title's lines high, as in the Flutter build.** It was measured against the page's font, so on a 16px page it was 19.2px in a 24px box whatever the link's `size`, larger than the title at `sm` and `md` and lower than its first line.
+
 - **The chevron of a `PlCombobox` with a `label` is named by `openLabel`, `Open` by default.** Base UI pointed it at the field's label, which outranks an `aria-label`, so a screen reader announced the chevron by the field's name rather than by what it does, and `openLabel` had no effect there.
 
 - **The chevron and the clear × of a disabled `PlCombobox` are drawn at the half opacity of the field they sit in, as a `PlSelect` chevron is.** They faded to half a second time inside a field already at half, so they were drawn at a quarter.

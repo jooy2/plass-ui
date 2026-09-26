@@ -6,7 +6,8 @@ import 'package:plass_ui/src/internal/icons.dart';
 
 import '../../support/host.dart';
 
-/// A glyph a caller hands the alert, recording the colour it is drawn in.
+/// A glyph a caller hands the alert, recording the colour and the size it is
+/// drawn at.
 class _Glyph extends StatelessWidget {
   const _Glyph(this.name);
 
@@ -14,9 +15,12 @@ class _Glyph extends StatelessWidget {
 
   static final Map<String, Color?> seen = <String, Color?>{};
 
+  static final Map<String, double?> sizes = <String, double?>{};
+
   @override
   Widget build(BuildContext context) {
     seen[name] = IconTheme.of(context).color;
+    sizes[name] = IconTheme.of(context).size;
 
     return const SizedBox.square(dimension: 16);
   }
@@ -149,6 +153,39 @@ void main() {
             solid ? family.onSolid : tokens.mutedFg,
             reason: variant.name,
           );
+        }
+      });
+    });
+
+    group('size', () {
+      testWidgets('draws a glyph a caller hands it at 1.2 times the words around it', (
+        WidgetTester tester,
+      ) async {
+        for (final PlassSize size in PlassSize.values) {
+          await tester.pumpWidget(
+            host(
+              PlAlert(
+                key: ValueKey<PlassSize>(size),
+                size: size,
+                icon: const _Glyph('icon'),
+                title: const Row(children: <Widget>[_Glyph('title'), Text('Title')]),
+                action: const _Glyph('action'),
+                child: const Row(children: <Widget>[_Glyph('message'), Text('Message')]),
+              ),
+              width: 400,
+            ),
+          );
+
+          final double title = styleOf(tester, 'Title').fontSize!;
+          final double message = styleOf(tester, 'Message').fontSize!;
+
+          // As an `<svg>` at `1.2em` is in the React alert: the glyph at the
+          // start and the one in the action against the message's type, and
+          // the one in the title against the title's.
+          expect(_Glyph.sizes['icon'], closeTo(message * 1.2, 0.001), reason: size.name);
+          expect(_Glyph.sizes['title'], closeTo(title * 1.2, 0.001), reason: size.name);
+          expect(_Glyph.sizes['message'], closeTo(message * 1.2, 0.001), reason: size.name);
+          expect(_Glyph.sizes['action'], closeTo(message * 1.2, 0.001), reason: size.name);
         }
       });
     });

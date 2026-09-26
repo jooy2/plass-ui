@@ -787,8 +787,8 @@ class _Toast extends StatelessWidget {
           // action ease to a new ink with the fill, as the React build's
           // `color` does under the house transition. A glyph a caller puts in
           // the title, the message or the action takes the colour of the
-          // words around it, as an `<svg>` drawn in `currentColor` does in the
-          // React toast.
+          // words around it, and 1.2× their type size, as an `<svg>` drawn in
+          // `currentColor` at `1.2em` does in the React toast.
           child: PlassInk(
             color: surface.ink,
             child: Padding(
@@ -823,7 +823,10 @@ class _Toast extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                               child: IconTheme.merge(
-                                data: IconThemeData(color: accent),
+                                data: IconThemeData(
+                                  color: accent,
+                                  size: sheetTitle[size]!.size * iconScale,
+                                ),
                                 child: toast.title!,
                               ),
                             ),
@@ -831,7 +834,7 @@ class _Toast extends StatelessWidget {
                             DefaultTextStyle.merge(
                               style: TextStyle(color: detail),
                               child: IconTheme.merge(
-                                data: IconThemeData(color: detail),
+                                data: IconThemeData(color: detail, size: body.size * iconScale),
                                 child: toast.description!,
                               ),
                             ),
@@ -857,7 +860,10 @@ class _Toast extends StatelessWidget {
                                   decoration: state.hovered ? TextDecoration.underline : null,
                                 ),
                                 child: IconTheme.merge(
-                                  data: IconThemeData(color: accent),
+                                  data: IconThemeData(
+                                    color: accent,
+                                    size: metaText[size]! * iconScale,
+                                  ),
                                   child: toast.actionLabel!,
                                 ),
                               ),
