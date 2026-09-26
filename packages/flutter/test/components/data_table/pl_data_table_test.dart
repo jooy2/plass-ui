@@ -59,6 +59,12 @@ List<String> customers(WidgetTester tester) {
       .toList();
 }
 
+/// The Customer heading a press can reach. That is the pinned band's copy,
+/// which is built after the grid and lies over the grid's own heading once
+/// the table has measured its columns, and the grid's own before then, while
+/// it is the only one.
+Finder customerHeading() => find.text('Customer').last;
+
 Widget table({
   List<PlDataTableColumn<Invoice>>? columns,
   List<Invoice> data = rows,
@@ -143,7 +149,7 @@ void main() {
       testWidgets('sorts a column ascending on the first press', (WidgetTester tester) async {
         await tester.pumpWidget(host(table(), width: 640));
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
 
         expect(customers(tester), <String>['Acme', 'Globex', 'Initech']);
@@ -170,13 +176,13 @@ void main() {
       ) async {
         await tester.pumpWidget(host(table(), width: 640));
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         expect(customers(tester), <String>['Initech', 'Globex', 'Acme']);
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         expect(customers(tester), <String>['Initech', 'Acme', 'Globex']);
       });
@@ -194,11 +200,11 @@ void main() {
           host(table(data: const <Invoice>[Invoice('INV-04', '', 10), ...rows]), width: 640),
         );
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         expect(invoices(), <String>['INV-01', 'INV-02', 'INV-03', 'INV-04']);
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         expect(invoices(), <String>['INV-03', 'INV-02', 'INV-01', 'INV-04']);
       });
@@ -214,7 +220,7 @@ void main() {
         ];
 
         await tester.pumpWidget(host(table(data: data), width: 640));
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
 
         final List<String> ids = tester
@@ -246,7 +252,7 @@ void main() {
         final SemanticsHandle handle = tester.ensureSemantics();
 
         await tester.pumpWidget(host(table(), width: 640));
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
 
         // Flutter's semantics have no sort direction, so the heading carries the
@@ -387,11 +393,11 @@ void main() {
 
         await tester.pumpWidget(host(table(columns: columns), width: 400));
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         expect(customers(tester), <String>['Acme', 'Globex', 'Initech']);
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         expect(customers(tester), <String>['Initech', 'Globex', 'Acme']);
       });
@@ -420,7 +426,7 @@ void main() {
 
         expect(customers(tester), <String>['Initech', 'Globex', 'Acme']);
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
 
         expect(called, isTrue);
@@ -453,14 +459,14 @@ void main() {
 
         // Ascending, descending, and then off, fed back through the parent.
         for (var press = 0; press < 3; press += 1) {
-          await tester.tap(find.text('Customer').first);
+          await tester.tap(customerHeading());
           await tester.pumpAndSettle();
         }
 
         expect(sort, isNull);
         expect(customers(tester), <String>['Initech', 'Acme', 'Globex']);
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         expect(customers(tester), <String>['Acme', 'Globex', 'Initech']);
 
@@ -477,7 +483,7 @@ void main() {
           host(table(manual: const <PlDataTableStage>[PlDataTableStage.sort]), width: 640),
         );
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
 
         expect(customers(tester), <String>['Initech', 'Acme', 'Globex']);
@@ -631,7 +637,9 @@ void main() {
         await tester.pumpAndSettle();
         expect(keys, hasLength(3));
 
-        await tester.tap(find.byType(PlCheckbox).first);
+        // The pinned band's box by now, which is built after every row and lies
+        // over the grid's own.
+        await tester.tap(find.byType(PlCheckbox).last);
         await tester.pumpAndSettle();
         expect(keys, isEmpty);
       });
@@ -696,7 +704,7 @@ void main() {
           ),
         );
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         // Acme, drawn first and second in `rows`.
         await tester.tap(find.byType(PlCheckbox).at(1));
@@ -785,7 +793,7 @@ void main() {
           ),
         );
 
-        await tester.tap(find.text('Customer').first);
+        await tester.tap(customerHeading());
         await tester.pumpAndSettle();
         asked.clear();
         // A rebuild, so the sorted rows are asked about again.
