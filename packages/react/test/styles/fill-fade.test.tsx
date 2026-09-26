@@ -15,7 +15,15 @@
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlCheckbox, PlDatePicker, PlRadio, PlRadioGroup, PlSwitch, PlToggle } from 'plass-ui';
+import {
+  PlCalendar,
+  PlCheckbox,
+  PlDatePicker,
+  PlRadio,
+  PlRadioGroup,
+  PlSwitch,
+  PlToggle
+} from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import { fullDate } from '../support/dates';
 import { emulateMedia } from '../support/media';
@@ -218,6 +226,31 @@ describe('a fill that comes and goes with a state', () => {
 
     expectLayerOnly(before);
     expect(Number(layerOf(before).opacity)).toBe(1);
+
+    await screen.getByRole('gridcell', { name: fullDate(july18) }).click();
+    await expect
+      .element(screen.getByRole('gridcell', { name: fullDate(july18) }))
+      .toHaveAttribute('aria-selected', 'true');
+    await expect.poll(() => taken).toEqual([{ from: 0, to: 1 }]);
+    await expect.poll(() => left).toEqual([{ from: 1, to: 0 }]);
+  });
+
+  it('fills the chosen day of a calendar on the page, and fades it as the choice moves', async () => {
+    const july15 = new Date(2026, 6, 15);
+    const july18 = new Date(2026, 6, 18);
+    const screen = await render(
+      <PlCalendar locale="en-GB" defaultValue={july15} data-testid="calendar" />
+    );
+    const before = screen.getByRole('gridcell', { name: fullDate(july15) }).element();
+    const after = screen.getByRole('gridcell', { name: fullDate(july18) }).element();
+    const sheet = screen.getByTestId('calendar').element();
+    const left = recordFades(before);
+    const taken = recordFades(after);
+
+    expectLayerOnly(before);
+    expect(Number(layerOf(before).opacity)).toBe(1);
+    // The fill is the chosen day's alone: the sheet round it stays undyed.
+    expect(getComputedStyle(sheet).backgroundImage).toBe('none');
 
     await screen.getByRole('gridcell', { name: fullDate(july18) }).click();
     await expect

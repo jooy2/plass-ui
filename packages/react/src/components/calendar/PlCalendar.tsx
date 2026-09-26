@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
-import { popupPaddingClasses } from '../../internal/picker.js';
+import { popupPaddingClasses, popupSlots } from '../../internal/picker.js';
 import { useFormReport } from '../../internal/form.js';
 import { inertProps } from '../../internal/inert.js';
 import {
@@ -22,8 +22,7 @@ import {
   cx,
   disabledClasses,
   radiusClasses,
-  sheetRestClasses,
-  surfaceSlots
+  sheetRestClasses
 } from '../../internal/styles.js';
 import type {
   PlassColor,
@@ -242,7 +241,9 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
           disabled ? disabledClasses[variant] : '',
           className
         )}
-        style={{ ...surfaceSlots(color, elevation), ...style }}
+        // A picker's popup without the popup: an undyed sheet, and the family's
+        // fill for the one cell that wears it, the chosen day.
+        style={{ ...popupSlots(color, elevation), ...style }}
         {...props}
       >
         <Calendar

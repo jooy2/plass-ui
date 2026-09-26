@@ -74,6 +74,9 @@ import type {
  * filled token in the library that has to be found without being read, which is
  * the day you picked. So the sheet stays clear glass and the family arrives in
  * the two fill slots the chosen cell reads.
+ *
+ * A `PlCalendar` is the same sheet set on the page instead of in a popup, and
+ * takes the same slots for the same reason.
  */
 export function popupSlots(color: PlassColor, elevation: PlassElevation): React.CSSProperties {
   return {

@@ -33,6 +33,19 @@ describe('PlCalendar', () => {
 
       await expect.element(screen.getByRole('gridcell', { name: fullDate(JULY_15) })).toBeVisible();
     });
+
+    it('hands its chosen day the family’s fill and the ink that goes on it', async () => {
+      const screen = await render(
+        <PlCalendar locale="en-GB" color="success" defaultValue={JULY_15} data-testid="cal" />
+      );
+      const sheet = screen.getByTestId('cal').element() as HTMLElement;
+
+      expect(sheet.style.getPropertyValue('--p-fill')).toBe('var(--plass-success-fill)');
+      expect(sheet.style.getPropertyValue('--p-on-solid')).toBe('var(--plass-success-on-solid)');
+      expect(screen.getByRole('gridcell', { name: fullDate(JULY_15) }).element()).toHaveClass(
+        '[--p-fill-on:1]'
+      );
+    });
   });
 
   describe('choosing a day', () => {
