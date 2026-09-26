@@ -354,6 +354,23 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
     const headerSlot = hasContent(header) ? header : null;
     const footerSlot = hasContent(footer) ? footer : null;
 
+    // A bar that spans only the content lies beside the sidebars, and the outer
+    // half of a sidebar's resize handle lies over the bar's edge. A pinned bar is
+    // `z-20`, and a sidebar is a stacking context of its own, sticky or glass,
+    // so the handle's own `z-1` cannot reach above the bar. The band lifts its
+    // sidebars over the column beside them instead, as the Flutter build paints
+    // them after it, and is a layer of its own while it does: the lift stops at
+    // the band, so a full-width bar, the bar of a page this layout scrolls under
+    // and a portal all stay above a sidebar.
+    //
+    // Only while a bar is beside a sidebar, because the layer also holds what
+    // floats in the page, a `fixed` button among it, under a full-width bar
+    // that is pinned, and a layout with nothing to lift has no reason to.
+    const layered =
+      (hasContent(sidebar) || hasContent(endSidebar)) &&
+      ((headerSpan === 'content' && headerSlot !== null) ||
+        (footerSpan === 'content' && footerSlot !== null));
+
     return (
       <PlPageLayoutContext.Provider value={context}>
         <div
@@ -402,7 +419,18 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
 
           {headerSpan === 'full' ? headerSlot : null}
 
-          <div className={cx('flex w-full flex-1', fills ? 'min-h-0' : '')}>
+          <div
+            className={cx(
+              'flex w-full flex-1',
+              fills ? 'min-h-0' : '',
+              // `z-1` rather than `relative`, which would move what an
+              // absolutely placed element in the page is placed against; a flex
+              // item takes a `z-index` unpositioned. `21` clears a sticky bar's
+              // `20` and stays under a fixed one's `30`, which spans the window
+              // over the sidebars anyway.
+              layered ? 'z-1 [&>aside]:z-21' : ''
+            )}
+          >
             {hasContent(sidebar) ? (
               <PlassSidebarSideContext.Provider value="start">
                 {sidebar}
