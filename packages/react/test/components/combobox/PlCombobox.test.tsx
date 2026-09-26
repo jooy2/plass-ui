@@ -266,6 +266,61 @@ describe('PlCombobox', () => {
       expect(screen.getByRole('combobox').element()).toHaveValue('Seoul');
     });
 
+    it('opens a read-only list from the input, to be looked through', async () => {
+      const screen = await render(<PlCombobox items={items} readOnly defaultValue="seoul" />);
+
+      await screen.getByRole('combobox').click();
+
+      await expect.element(screen.getByRole('option', { name: 'Lisbon' })).toBeInTheDocument();
+    });
+
+    it('opens a read-only list from the chevron', async () => {
+      const screen = await render(<PlCombobox items={items} readOnly defaultValue="seoul" />);
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+
+      await expect.element(screen.getByRole('option', { name: 'Lisbon' })).toBeInTheDocument();
+    });
+
+    it('leaves a read-only value as it was when a row is taken', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} readOnly defaultValue="seoul" onValueChange={onValueChange} />
+      );
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+      await screen.getByRole('option', { name: 'Lisbon' }).click();
+      // Base UI answers a press on the frame after it, so the row has had its
+      // chance to be taken before anything is read.
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('combobox').element()).toHaveValue('Seoul');
+    });
+
+    it('leaves a read-only set of chips as it was when a row is taken', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox
+          items={items}
+          multiple
+          readOnly
+          defaultValue={['seoul']}
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+      await screen.getByRole('option', { name: 'Lisbon' }).click();
+      await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('option', { name: 'Lisbon' }).element()).toHaveAttribute(
+        'aria-selected',
+        'false'
+      );
+    });
+
     it('offers a × only when asked', async () => {
       const screen = await render(<PlCombobox items={items} defaultValue="seoul" />);
 
