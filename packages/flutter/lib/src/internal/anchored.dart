@@ -46,7 +46,9 @@ enum PlassAnchorWidth {
 ///
 /// The side is decided as the popup opens, and again whenever the screen
 /// changes size, the popup's own size changes, or a relayout moves or resizes
-/// the anchor, and never on a scroll, which the layer link already follows.
+/// the anchor, and never on a scroll, which the layer link already follows. A
+/// popup going up is laid out once before it is drawn, so the first frame it
+/// is seen in is the one it was placed for.
 ///
 /// Needs an [Overlay] above it, which `WidgetsApp` with a navigator and
 /// `MaterialApp` both provide.
@@ -194,6 +196,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   /// frame.
   bool _watching = false;
 
+  /// Whether the popup is laid out and not drawn, which it is from the frame
+  /// it goes up until the measure after that frame has placed it.
+  bool _hidden = false;
+
   /// Answers Escape before anything around the popup does, so a popover opened
   /// in a modal closes itself and leaves the modal up.
   late final _EscapeAction _escape = _EscapeAction(this);
@@ -318,21 +324,67 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         return;
       }
 
-      // Laid out at its own width first, and held to its room only once that
-      // is known.
-      _side = widget.side;
-      _room = null;
-      _placed = null;
-      _portal.show();
+      // A popup still going out is drawn where it was placed, and stays there
+      // until the measure below says otherwise.
+      if (!_portal.isShowing) {
+        _side = widget.side;
+        _placed = null;
+        _hidden = true;
+        _fromAnchor();
+        _portal.show();
+      }
+
       _fade.forward();
 
       // One more frame: the popup has to have been laid out once before there is
-      // a size to decide the flip against.
+      // a size to decide the flip against. It is not drawn in that frame, so the
+      // first frame it is seen in is the one it was placed for.
       _afterFrame(() {
         _measure();
         _watch();
       });
     });
+  }
+
+  /// Holds a popup that is going up to what its anchor says about its width,
+  /// before it is first laid out: the anchor's width, and the room it has on
+  /// the side it is asked for.
+  ///
+  /// Above or below the anchor the room is the same on either side, so the
+  /// popup is laid out at the width it keeps and its first measure decides
+  /// the flip against the height it has there. Beside the anchor, the room on
+  /// the other side is taken up once a flip is decided, which it is against
+  /// the popup's own width and not the room's.
+  void _fromAnchor() {
+    final seen = _anchorOnScreen();
+
+    if (seen == null) {
+      _room = null;
+
+      return;
+    }
+
+    final (:anchor, :room, :box) = seen;
+
+    _anchorWidth = anchor.size.width;
+    _room = widget.fitWidth ? _roomOn(_side, box, room.size) : null;
+  }
+
+  /// The anchor and the screen as they are laid out now, with where the anchor
+  /// is on the screen, or `null` while either has not been laid out.
+  ({RenderBox anchor, RenderBox room, Rect box})? _anchorOnScreen() {
+    final anchor = _anchorKey.currentContext?.findRenderObject() as RenderBox?;
+    final room = Overlay.maybeOf(context)?.context.findRenderObject() as RenderBox?;
+
+    if (anchor == null || room == null || !anchor.attached || !anchor.hasSize || !room.hasSize) {
+      return null;
+    }
+
+    return (
+      anchor: anchor,
+      room: room,
+      box: anchor.localToGlobal(Offset.zero, ancestor: room) & anchor.size,
+    );
   }
 
   /// The anchor, the popup and the screen as they are laid out now, with what
@@ -343,30 +395,23 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   ({RenderBox anchor, RenderBox popup, RenderBox room, Rect box, _Placed placed})? _look({
     bool collect = false,
   }) {
-    final anchorContext = _anchorKey.currentContext;
-    final anchor = anchorContext?.findRenderObject() as RenderBox?;
+    final seen = _anchorOnScreen();
     final popup = _popupKey.currentContext?.findRenderObject() as RenderBox?;
-    final overlay = Overlay.maybeOf(context);
-    final room = overlay?.context.findRenderObject() as RenderBox?;
 
-    if (anchorContext == null ||
-        overlay == null ||
-        anchor == null ||
-        popup == null ||
-        room == null ||
-        !anchor.attached ||
-        !popup.attached ||
-        !anchor.hasSize ||
-        !popup.hasSize ||
-        !room.hasSize) {
+    if (seen == null || popup == null || !popup.attached || !popup.hasSize) {
       return null;
     }
 
-    if (collect) {
-      _scrollables = _scrollablesBetween(anchorContext, overlay.context);
-    }
+    final (:anchor, :room, :box) = seen;
 
-    final box = anchor.localToGlobal(Offset.zero, ancestor: room) & anchor.size;
+    if (collect) {
+      final anchorContext = _anchorKey.currentContext;
+      final overlay = Overlay.maybeOf(context);
+
+      if (anchorContext != null && overlay != null) {
+        _scrollables = _scrollablesBetween(anchorContext, overlay.context);
+      }
+    }
 
     // A popup held to its room is decided against the width it would be at
     // its own width, within the anchor's and the screen's.
@@ -457,6 +502,12 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     final seen = _look(collect: true);
 
     if (seen == null) {
+      // Drawn where it is rather than never, which a popup nothing can be
+      // measured round would otherwise be.
+      if (_hidden) {
+        setState(() => _hidden = false);
+      }
+
       return;
     }
 
@@ -467,8 +518,9 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     final side = _fit(box, size, room.size);
     final space = widget.fitWidth ? _roomOn(side, box, room.size) : null;
 
-    if (side != _side || anchor.size.width != _anchorWidth || space != _room) {
+    if (_hidden || side != _side || anchor.size.width != _anchorWidth || space != _room) {
       setState(() {
+        _hidden = false;
         _side = side;
         _anchorWidth = anchor.size.width;
         _room = space;
@@ -600,7 +652,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     final double? room = widget.fitWidth ? _room : null;
 
     Widget popup = FadeTransition(
-      opacity: _opacity,
+      // Not drawn while it waits to be placed. The fade starts at nothing
+      // anyway, but under reduced motion it starts at full, which would show
+      // the popup where it was laid out before it was placed.
+      opacity: _hidden ? kAlwaysDismissedAnimation : _opacity,
       child: ConstrainedBox(
         constraints: room == null ? width : width.enforce(BoxConstraints(maxWidth: room)),
         // A press anywhere on the popup is the popup's, including one on a gap

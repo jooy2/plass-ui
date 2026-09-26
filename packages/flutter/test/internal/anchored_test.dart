@@ -90,17 +90,75 @@ const Widget wrapping = Wrap(
 
 /// A window of [size] with [child] in it: the view the tree is drawn into, and
 /// the `MediaQuery` that says how big it is, as a real window's does.
-Widget window(WidgetTester tester, Size size, Widget child) {
+Widget window(WidgetTester tester, Size size, Widget child, {bool disableAnimations = false}) {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
 
   return Directionality(
     textDirection: TextDirection.ltr,
     child: MediaQuery(
-      data: MediaQueryData(size: size),
+      data: MediaQueryData(size: size, disableAnimations: disableAnimations),
       child: Overlay.wrap(child: child),
     ),
   );
+}
+
+/// Adds the size [child] is painted at to [sizes] every time it is painted.
+///
+/// A popup faded to nothing is not painted at all, so the first size here is
+/// the popup as a reader first sees it.
+Widget painted(List<Size> sizes, Widget child) {
+  return CustomPaint(painter: _Painted(sizes), child: child);
+}
+
+class _Painted extends CustomPainter {
+  _Painted(this.sizes);
+
+  final List<Size> sizes;
+
+  @override
+  void paint(Canvas canvas, Size size) => sizes.add(size);
+
+  @override
+  bool shouldRepaint(_Painted oldDelegate) => false;
+}
+
+/// Where the popup is on the first frame it is painted after [anchored] opens
+/// it in an 800 by 600 window, and where it is once every measure has run.
+Future<({Rect first, Rect settled})> drawnAsItOpens(
+  WidgetTester tester,
+  Widget Function({required bool open}) anchored, {
+  required List<Size> sizes,
+  bool disableAnimations = true,
+}) async {
+  Widget tree({required bool open}) {
+    return window(
+      tester,
+      const Size(800, 600),
+      anchored(open: open),
+      disableAnimations: disableAnimations,
+    );
+  }
+
+  // Closed at first, so the anchor has been laid out before the popup opens,
+  // as it has when a reader presses it.
+  await tester.pumpWidget(tree(open: false));
+  await tester.pumpWidget(tree(open: true));
+
+  Rect? first;
+
+  for (var frame = 0; frame < 10; frame += 1) {
+    if (sizes.isNotEmpty) {
+      first = tester.getRect(find.byKey(popupKey));
+      break;
+    }
+
+    await tester.pump(const Duration(milliseconds: 16));
+  }
+
+  await tester.pumpAndSettle();
+
+  return (first: first!, settled: tester.getRect(find.byKey(popupKey)));
 }
 
 /// Where the anchor and the popup are once [size] has been laid out and every
@@ -706,6 +764,182 @@ void main() {
 
         expect(resolved, hasLength(measured));
         expect(tester.getRect(find.byKey(popupKey)), placed.popup);
+      });
+    });
+
+    // Under reduced motion unless a test says otherwise, where no fade starts
+    // the popup at nothing and every frame it is drawn in is seen.
+    group('drawn as it opens', () {
+      testWidgets('draws a popup on the side it flips to from the first frame', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        final List<Size> sizes = <Size>[];
+
+        // 60 below the anchor, where the popup needs 80.
+        final drawn = await drawnAsItOpens(tester, ({required bool open}) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 500),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: PlassAnchoredPortal(
+                open: open,
+                side: PlassSide.bottom,
+                offset: 0,
+                popup: painted(sizes, const SizedBox(key: popupKey, width: 200, height: 80)),
+                child: const SizedBox(key: anchorKey, width: 100, height: 40),
+              ),
+            ),
+          );
+        }, sizes: sizes);
+
+        expect(drawn.settled.bottom, 500);
+        expect(drawn.first, drawn.settled);
+      });
+
+      testWidgets('draws a popup held to its room at that width from the first frame', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        final List<Size> sizes = <Size>[];
+
+        // At the end of the line, so the room is the anchor's own width.
+        final drawn = await drawnAsItOpens(tester, ({required bool open}) {
+          return Align(
+            alignment: AlignmentDirectional.topEnd,
+            child: PlassAnchoredPortal(
+              open: open,
+              side: PlassSide.bottom,
+              align: PlassAlign.start,
+              offset: 8,
+              fitWidth: true,
+              popup: painted(sizes, const SizedBox(key: popupKey, width: 600, height: 40)),
+              child: const SizedBox(key: anchorKey, width: 100, height: 40),
+            ),
+          );
+        }, sizes: sizes);
+
+        expect(drawn.settled.width, 100);
+        expect(drawn.first, drawn.settled);
+      });
+
+      testWidgets('draws a popup as wide as its anchor from the first frame', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        final List<Size> sizes = <Size>[];
+
+        final drawn = await drawnAsItOpens(tester, ({required bool open}) {
+          return Padding(
+            padding: const EdgeInsets.only(top: 100),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: PlassAnchoredPortal(
+                open: open,
+                side: PlassSide.bottom,
+                offset: 0,
+                anchorWidth: PlassAnchorWidth.exact,
+                popup: painted(sizes, const SizedBox(key: popupKey, width: 200, height: 80)),
+                child: const SizedBox(key: anchorKey, width: 100, height: 40),
+              ),
+            ),
+          );
+        }, sizes: sizes);
+
+        expect(drawn.settled.width, 100);
+        expect(drawn.first, drawn.settled);
+      });
+
+      testWidgets('draws a popup its room wraps on the side that has room for it, faded or not', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        for (final bool disableAnimations in <bool>[false, true]) {
+          final List<Size> sizes = <Size>[];
+
+          // 30 below the anchor: room for one row, and 200 across it, which
+          // wraps the popup onto three.
+          final drawn = await drawnAsItOpens(
+            tester,
+            ({required bool open}) {
+              return Padding(
+                padding: const EdgeInsets.only(left: 600, top: 530),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: PlassAnchoredPortal(
+                    open: open,
+                    side: PlassSide.bottom,
+                    align: PlassAlign.start,
+                    offset: 0,
+                    fitWidth: true,
+                    popup: painted(sizes, wrapping),
+                    child: const SizedBox(key: anchorKey, width: 100, height: 40),
+                  ),
+                ),
+              );
+            },
+            sizes: sizes,
+            disableAnimations: disableAnimations,
+          );
+
+          expect(drawn.settled, const Rect.fromLTWH(600, 470, 200, 60));
+          expect(drawn.first, drawn.settled, reason: 'disableAnimations: $disableAnimations');
+        }
+      });
+
+      testWidgets('leaves a popup opened again as it fades out where it was', (
+        WidgetTester tester,
+      ) async {
+        addTearDown(tester.view.reset);
+
+        final List<Size> sizes = <Size>[];
+
+        Widget tree({required bool open}) {
+          return window(
+            tester,
+            const Size(800, 600),
+            Align(
+              alignment: AlignmentDirectional.topEnd,
+              child: PlassAnchoredPortal(
+                open: open,
+                side: PlassSide.bottom,
+                align: PlassAlign.start,
+                offset: 8,
+                fitWidth: true,
+                popup: painted(sizes, const SizedBox(key: popupKey, width: 600, height: 40)),
+                child: const SizedBox(key: anchorKey, width: 100, height: 40),
+              ),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(tree(open: true));
+        await tester.pumpAndSettle();
+
+        final Rect settled = tester.getRect(find.byKey(popupKey));
+
+        expect(settled.width, 100);
+
+        // A third of the way out, and still to be seen.
+        await tester.pumpWidget(tree(open: false));
+        await tester.pump(const Duration(milliseconds: 50));
+        sizes.clear();
+
+        await tester.pumpWidget(tree(open: true));
+
+        for (var frame = 0; frame < 5; frame += 1) {
+          await tester.pump(const Duration(milliseconds: 16));
+
+          expect(tester.getRect(find.byKey(popupKey)), settled, reason: 'frame $frame');
+        }
+
+        await tester.pumpAndSettle();
+
+        expect(sizes, everyElement(settled.size));
       });
     });
   });
