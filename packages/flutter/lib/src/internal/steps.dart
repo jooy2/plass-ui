@@ -213,14 +213,27 @@ class PlassStepConnectorLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: horizontal
-          ? const Size(double.infinity, stepConnectorWidth)
-          : const Size(stepConnectorWidth, double.infinity),
-      painter: _ConnectorPainter(style: style, color: color, horizontal: horizontal),
-      child: SizedBox(
-        width: horizontal ? double.infinity : stepConnectorWidth,
-        height: horizontal ? stepConnectorWidth : double.infinity,
+    // Eased to its new colour as the step it leaves is reached or left, with
+    // the bullet beside it, as the React line eases its `border-color`. The
+    // painter reads the eased colour off the icon theme, as a window's caption
+    // mark does.
+    return PlassInk(
+      color: color,
+      child: Builder(
+        builder: (BuildContext context) => CustomPaint(
+          size: horizontal
+              ? const Size(double.infinity, stepConnectorWidth)
+              : const Size(stepConnectorWidth, double.infinity),
+          painter: _ConnectorPainter(
+            style: style,
+            color: IconTheme.of(context).color!,
+            horizontal: horizontal,
+          ),
+          child: SizedBox(
+            width: horizontal ? double.infinity : stepConnectorWidth,
+            height: horizontal ? stepConnectorWidth : double.infinity,
+          ),
+        ),
       ),
     );
   }

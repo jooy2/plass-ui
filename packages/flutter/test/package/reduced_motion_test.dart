@@ -660,6 +660,10 @@ final Map<String, _Case> _cases = <String, _Case>{
     ),
     change: _hover(_plot),
   ),
+  'PlHeatmapChart, a cell under the pointer': _Case(
+    (bool on) => PlHeatmapChart(series: _twoSeries),
+    change: _hover(_plot),
+  ),
   'PlDataTable, its sort mark as the column is sorted': _Case(
     (bool on) => PlDataTable<String>(
       rows: const <String>['Seoul', 'Busan'],

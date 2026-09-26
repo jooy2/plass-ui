@@ -634,8 +634,13 @@ class _Row extends StatelessWidget {
       ),
     );
 
+    // The family's hover tint, as the React row's `--p-soft-hover` is and as a
+    // `PlSelect` or a `PlMenu` row is washed.
     row = PlassSurfaceBox(
-      surface: PlassSurface(fill: highlighted && !item.disabled ? family.soft : null, ink: ink),
+      surface: PlassSurface(
+        fill: highlighted && !item.disabled ? family.softHover : null,
+        ink: ink,
+      ),
       borderRadius: BorderRadius.circular(tokens.radii[size]!),
       child: row,
     );

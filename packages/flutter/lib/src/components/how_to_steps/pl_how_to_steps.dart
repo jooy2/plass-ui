@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/steps.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -213,19 +214,25 @@ class _Step extends StatelessWidget {
       spacing: 4,
       children: <Widget>[
         if (step.title != null)
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: switch (status) {
-                PlassStepStatus.complete => tokens.fg,
-                PlassStepStatus.current => family.accent,
-                PlassStepStatus.upcoming => tokens.mutedFg,
-              },
-              fontSize: sheetTitle[size]!.size,
-              height: sheetTitle[size]!.height,
-              fontWeight: FontWeight.w600,
-              leadingDistribution: TextLeadingDistribution.even,
+          // Eased to its new ink as the guide reaches or leaves the step, with
+          // the bullet beside it, as the React title eases its `color`. Only
+          // the words: a glyph in the title keeps the colour it had.
+          PlassInk(
+            color: switch (status) {
+              PlassStepStatus.complete => tokens.fg,
+              PlassStepStatus.current => family.accent,
+              PlassStepStatus.upcoming => tokens.mutedFg,
+            },
+            icons: false,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                fontSize: sheetTitle[size]!.size,
+                height: sheetTitle[size]!.height,
+                fontWeight: FontWeight.w600,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
+              child: step.title!,
             ),
-            child: step.title!,
           ),
         if (step.child != null)
           DefaultTextStyle.merge(

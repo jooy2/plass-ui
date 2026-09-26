@@ -18,6 +18,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/steps.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/internal/window.dart';
 
@@ -145,6 +146,30 @@ Color _handleWash(WidgetTester tester) {
   }
 
   return const Color(0x00000000);
+}
+
+/// The colour the line from the first step of a sequence is painted in.
+Color _stepLine(WidgetTester tester) {
+  final Finder line = find
+      .descendant(of: find.byType(PlassStepConnectorLine).first, matching: find.byType(CustomPaint))
+      .first;
+  final _LineCanvas canvas = _LineCanvas();
+
+  tester.widget<CustomPaint>(line).painter!.paint(canvas, tester.getSize(line));
+
+  return canvas.colours.first;
+}
+
+/// A canvas that keeps the colour of every line drawn on it, and drops
+/// everything else.
+class _LineCanvas implements Canvas {
+  final List<Color> colours = <Color>[];
+
+  @override
+  void drawLine(Offset p1, Offset p2, Paint paint) => colours.add(paint.color);
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
 }
 
 /// The hairline down the middle of a `PlPanes` handle, inside its wash.
@@ -409,6 +434,72 @@ final Map<String, _Case> _cases = <String, _Case>{
       ],
     ),
     read: _words('2'),
+  ),
+  // The title and the line beside the bullet, which the React build eases with
+  // it.
+  'PlStepper, the title of a step the sequence reaches': _Case(
+    (bool on) => PlStepper(
+      active: on ? 1 : 0,
+      onActiveChanged: (int _) {},
+      linear: false,
+      steps: const <PlStep>[
+        PlStep(label: Text('One')),
+        PlStep(label: Text('Two')),
+      ],
+    ),
+    read: _words('Two'),
+  ),
+  'PlStepper, the line from a step the sequence passes': _Case(
+    (bool on) => PlStepper(
+      active: on ? 1 : 0,
+      onActiveChanged: (int _) {},
+      linear: false,
+      steps: const <PlStep>[
+        PlStep(label: Text('One')),
+        PlStep(label: Text('Two')),
+      ],
+    ),
+    read: _stepLine,
+  ),
+  'PlHowToSteps, the title of a step the guide reaches': _Case(
+    (bool on) => PlHowToSteps(
+      active: on ? 1 : 0,
+      steps: const <PlHowToStep>[
+        PlHowToStep(title: Text('One')),
+        PlHowToStep(title: Text('Two')),
+      ],
+    ),
+    read: _words('Two'),
+  ),
+  'PlHowToSteps, the line from a step the guide passes': _Case(
+    (bool on) => PlHowToSteps(
+      active: on ? 1 : 0,
+      steps: const <PlHowToStep>[
+        PlHowToStep(title: Text('One')),
+        PlHowToStep(title: Text('Two')),
+      ],
+    ),
+    read: _stepLine,
+  ),
+  'PlTimeline, the title of an item the sequence reaches': _Case(
+    (bool on) => PlTimeline(
+      active: on ? 1 : 0,
+      items: const <PlTimelineItem>[
+        PlTimelineItem(title: Text('One')),
+        PlTimelineItem(title: Text('Two')),
+      ],
+    ),
+    read: _words('Two'),
+  ),
+  'PlTimeline, the line from an item the sequence passes': _Case(
+    (bool on) => PlTimeline(
+      active: on ? 1 : 0,
+      items: const <PlTimelineItem>[
+        PlTimelineItem(title: Text('One')),
+        PlTimelineItem(title: Text('Two')),
+      ],
+    ),
+    read: _stepLine,
   ),
   'PlCalendar': _Case(
     (bool on) => PlCalendar(

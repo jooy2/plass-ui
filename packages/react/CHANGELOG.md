@@ -88,7 +88,7 @@
 
 - **The first ← on a `PlPieChart` with no slice being read reaches the last slice.** It reached the second from the end, while the first → reached the first slice; the Flutter pie already started a walk backwards on the last.
 
-- **A `PlHowToSteps` eases the line under a step and the step's title to their new colours as `active` moves, over `--plass-duration`, and changes them at once under reduced motion.** Both changed in one frame while the bullet beside them eased.
+- **A `PlHowToSteps` step's title and the line under it, and a `PlStepper` step's title, ease to their new colours as `active` moves, over `--plass-duration`, and change at once under reduced motion.** Each changed in one frame while the bullet beside it eased.
 
 - **A `PlCommandPalette` row eases its ink with its wash as the highlight reaches it and leaves it, and washes in the family's `--p-soft-hover`, as a `PlSelect` and a `PlMenu` row do.** The ink changed in one frame while the wash eased, and the wash was the paler `--p-soft`.
 

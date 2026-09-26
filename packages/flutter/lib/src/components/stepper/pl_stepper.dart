@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/steps.dart';
@@ -327,19 +328,25 @@ class _Step extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         if (step.label != null)
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: switch (status) {
-                PlassStepStatus.complete => tokens.fg,
-                PlassStepStatus.current => family.accent,
-                PlassStepStatus.upcoming => tokens.mutedFg,
-              },
-              fontWeight: FontWeight.w600,
-              fontSize: sheetTitle[size]!.size,
-              height: sheetTitle[size]!.height,
-              leadingDistribution: TextLeadingDistribution.even,
+          // Eased to its new ink as the sequence reaches or leaves the step,
+          // with the bullet beside it, as the React title eases its `color`.
+          // Only the words: a glyph in the label keeps the colour it had.
+          PlassInk(
+            color: switch (status) {
+              PlassStepStatus.complete => tokens.fg,
+              PlassStepStatus.current => family.accent,
+              PlassStepStatus.upcoming => tokens.mutedFg,
+            },
+            icons: false,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: sheetTitle[size]!.size,
+                height: sheetTitle[size]!.height,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
+              child: step.label!,
             ),
-            child: step.label!,
           ),
         if (step.description != null)
           DefaultTextStyle.merge(

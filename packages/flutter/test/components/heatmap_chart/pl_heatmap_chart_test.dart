@@ -25,14 +25,33 @@ const List<PlassChartCategory> hours = <PlassChartCategory>[
   PlassChartCategory.text('18'),
 ];
 
-Future<void> _pump(WidgetTester tester, Widget child) async {
+Future<void> _pump(WidgetTester tester, Widget child, {bool disableAnimations = false}) async {
   tester.view.physicalSize = const Size(500, 700);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
-  await tester.pumpWidget(host(child, width: 500));
+  await tester.pumpWidget(host(child, width: 500, disableAnimations: disableAnimations));
   await tester.pumpAndSettle();
 }
+
+/// The alpha every cell is filled at now, in the order they are drawn.
+List<double> _cellAlphas(WidgetTester tester) {
+  final _CellCanvas canvas = _CellCanvas();
+  final Finder plot = find
+      .byWidgetPredicate(
+        (Widget widget) =>
+            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+      )
+      .first;
+
+  tester.widget<CustomPaint>(plot).painter!.paint(canvas, tester.getSize(plot));
+
+  return canvas.alphas;
+}
+
+/// How many of [alphas] are [alpha].
+int _count(List<double> alphas, double alpha) =>
+    alphas.where((double one) => (one - alpha).abs() < 1e-6).length;
 
 void main() {
   group('PlHeatmapChart', () {
@@ -222,6 +241,68 @@ void main() {
       expect(find.textContaining(' · '), findsNothing);
     });
 
+    testWidgets('brings the cell under the press up to whole over the house duration', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlHeatmapChart(series: week, categories: hours, height: 240));
+
+      final Rect plot = tester.getRect(find.byType(CustomPaint).first);
+      final Offset inside = Offset(plot.left + plot.width * 0.45, plot.top + plot.height * 0.17);
+      final int cells = _cellAlphas(tester).length;
+
+      expect(_count(_cellAlphas(tester), 0.94), cells);
+
+      await tester.tapAt(inside);
+      await tester.pump();
+      // The clock starts on the frame after the change, as an animation's does.
+      await tester.pump();
+      await tester.pump(PlassTokens.duration ~/ 2);
+
+      // The cell being read halfway along the house curve, and the rest where
+      // they were.
+      final double up = 0.94 + 0.06 * PlassTokens.ease.transform(0.5);
+
+      expect(_count(_cellAlphas(tester), up), 1);
+      expect(_count(_cellAlphas(tester), 0.94), cells - 1);
+
+      await tester.pumpAndSettle();
+
+      expect(_count(_cellAlphas(tester), 1), 1);
+      expect(_count(_cellAlphas(tester), 0.94), cells - 1);
+
+      // And back from where it stands once the reading is taken down.
+      await tester.tapAt(inside);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(PlassTokens.duration ~/ 2);
+
+      expect(_count(_cellAlphas(tester), 1 - 0.06 * PlassTokens.ease.transform(0.5)), 1);
+
+      await tester.pumpAndSettle();
+
+      expect(_count(_cellAlphas(tester), 0.94), cells);
+    });
+
+    testWidgets('brings the cell under the press up to whole at once under reduced motion', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        PlHeatmapChart(series: week, categories: hours, height: 240),
+        disableAnimations: true,
+      );
+
+      final Rect plot = tester.getRect(find.byType(CustomPaint).first);
+      final int cells = _cellAlphas(tester).length;
+
+      await tester.tapAt(Offset(plot.left + plot.width * 0.45, plot.top + plot.height * 0.17));
+      await tester.pump();
+
+      expect(_count(_cellAlphas(tester), 1), 1);
+      expect(_count(_cellAlphas(tester), 0.94), cells - 1);
+      expect(tester.binding.transientCallbackCount, 0);
+    });
+
     testWidgets('thins the column names by one stride, taken from the widest of them', (
       WidgetTester tester,
     ) async {
@@ -279,6 +360,18 @@ void main() {
       }
     });
   });
+}
+
+/// A canvas that keeps the alpha of every rounded box a cell is drawn as, and
+/// drops everything else.
+class _CellCanvas implements Canvas {
+  final List<double> alphas = <double>[];
+
+  @override
+  void drawRRect(RRect rrect, Paint paint) => alphas.add(paint.color.a);
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
 }
 
 /// A canvas that keeps the box of every piece of text painted on it, and drops

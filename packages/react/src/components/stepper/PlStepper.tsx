@@ -328,7 +328,12 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
     <span className={cx('flex min-w-0 flex-col', horizontal ? 'items-center text-center' : '')}>
       <span
         id={stepper ? `${stepper.baseId}-${index}` : undefined}
-        className={cx('font-semibold', sheetTitleClasses[size], titleStatusClasses[resolved])}
+        className={cx(
+          'font-semibold',
+          sheetTitleClasses[size],
+          titleStatusClasses[resolved],
+          transitionClasses
+        )}
       >
         {label}
       </span>

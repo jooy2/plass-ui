@@ -2,6 +2,7 @@
 library;
 
 import 'dart:math' as math;
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
 import 'package:plass_ui/src/internal/date.dart';
+import 'package:plass_ui/src/internal/mark_ease.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
@@ -132,7 +134,7 @@ class PlHeatmapChart extends StatefulWidget {
   State<PlHeatmapChart> createState() => _PlHeatmapChartState();
 }
 
-class _PlHeatmapChartState extends State<PlHeatmapChart> {
+class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProviderStateMixin {
   /// Which cell the pointer is on, by its two coordinates.
   ///
   /// The coordinates and not the placed cell: the cells are laid out afresh on
@@ -140,6 +142,22 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
   /// old one — which is never equal, and which made a second press on the same
   /// cell fail to dismiss its readout.
   ({int row, int index})? _active;
+
+  /// How far each cell has come up to whole, eased over the house duration as
+  /// the React cell's `opacity` is, keyed by its two coordinates.
+  late final PlassMarkEase _ease;
+
+  @override
+  void initState() {
+    super.initState();
+    _ease = PlassMarkEase(this);
+  }
+
+  @override
+  void dispose() {
+    _ease.dispose();
+    super.dispose();
+  }
 
   /// A number as every chart writes it: in the caller's `format`, or compactly
   /// without one.
@@ -199,6 +217,17 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
     final List<Color> ink = widget.scale == PlChartScaleKind.diverging
         ? tokens.chartDivergingOn
         : tokens.chartSequentialOn;
+
+    // The cell being read comes up to whole and goes back as the reading moves
+    // on, easing both ways. At once when the platform asks for less movement,
+    // as the React cells change under `prefers-reduced-motion`.
+    _ease.aim(
+      <Object>{?_active},
+      duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+          ? Duration.zero
+          : tokens.motionDuration,
+      curve: tokens.motionEase,
+    );
 
     final Widget plot = SizedBox(
       height: plotHeight,
@@ -314,6 +343,7 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> {
                   CustomPaint(
                     size: Size(width, plotHeight),
                     painter: _HeatmapPainter(
+                      ease: _ease,
                       cells: cells,
                       grid: grid,
                       rowTexts: rowTexts,
@@ -557,7 +587,8 @@ class _Cell {
 }
 
 class _HeatmapPainter extends CustomPainter {
-  const _HeatmapPainter({
+  _HeatmapPainter({
+    required this.ease,
     required this.cells,
     required this.grid,
     required this.rowTexts,
@@ -580,7 +611,10 @@ class _HeatmapPainter extends CustomPainter {
     required this.labelled,
     required this.active,
     required this.write,
-  });
+  }) : super(repaint: ease);
+
+  /// How far each cell has come up to whole, by its two coordinates.
+  final PlassMarkEase ease;
 
   final List<_Cell> cells;
   final bool grid;
@@ -606,6 +640,10 @@ class _HeatmapPainter extends CustomPainter {
   final PlChartScaleKind scale;
   final double midpoint;
   final bool labelled;
+
+  /// The cell being read. How whole it is drawn is read off [ease], and this is
+  /// here for [shouldRepaint]: a change of it is a new picture even when
+  /// nothing eases, under reduced motion.
   final _Cell? active;
   final String Function(double) write;
 
@@ -647,7 +685,7 @@ class _HeatmapPainter extends CustomPainter {
       }
 
       final int step = rampStep(cell.value.value ?? 0, from, to, scale, midpoint: midpoint);
-      final bool on = active?.row == cell.row && active?.index == cell.index;
+      final double lift = ease.of((row: cell.row, index: cell.index));
       final Rect box = Rect.fromLTWH(
         cell.rect.left + markGap / 2,
         cell.rect.top + markGap / 2,
@@ -660,7 +698,8 @@ class _HeatmapPainter extends CustomPainter {
           box,
           Radius.circular(math.min(_cellRadius, math.min(w / 2, h / 2))),
         ),
-        Paint()..color = (cell.value.color ?? ramp[step]).withValues(alpha: on ? 1 : 0.94),
+        Paint()
+          ..color = (cell.value.color ?? ramp[step]).withValues(alpha: lerpDouble(0.94, 1, lift)!),
       );
 
       /* A tile says what it is and a cell says how much. On the grid the two
@@ -742,6 +781,7 @@ class _HeatmapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_HeatmapPainter old) =>
+      old.ease != ease ||
       old.cells != cells ||
       old.active != active ||
       old.ramp != ramp ||

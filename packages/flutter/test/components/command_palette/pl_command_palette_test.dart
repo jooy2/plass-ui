@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -88,6 +89,25 @@ void main() {
 
       expect(find.text('Put it on the clipboard'), findsOneWidget);
       expect(find.byType(PlHotKeys), findsOneWidget);
+    });
+
+    testWidgets('washes the highlighted row in the family s hover tint', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+      await tester.pumpAndSettle();
+
+      final PlassColorFamily family = PlassTokens.light().family(PlassColor.primary);
+      // The first row, which the palette opens on.
+      final List<Color?> fills = decorationsOf(
+        tester,
+        find.ancestor(of: find.text('New document'), matching: find.byType(PlassSurfaceBox)).first,
+      ).map((BoxDecoration decoration) => decoration.color).toList();
+
+      // As a `PlSelect` or a `PlMenu` row is, and as the React row's
+      // `--p-soft-hover` is, rather than the paler resting tint.
+      expect(fills, contains(family.softHover));
+      expect(fills, isNot(contains(family.soft)));
     });
 
     testWidgets('shows the placeholder until something is typed', (WidgetTester tester) async {
