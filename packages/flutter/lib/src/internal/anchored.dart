@@ -94,8 +94,10 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// the anchor or inside the popup. Falls back to [onDismiss].
   ///
   /// Separate because a tooltip closes on Escape without taking outside presses:
-  /// it is not a barrier. With neither, Escape is left to whatever is around the
-  /// popup.
+  /// it is not a barrier. With neither, Escape does nothing while the popup is
+  /// open and goes no further, so a modal under a popup that refuses to be
+  /// dismissed stays up too. While the popup is closed, Escape goes on to
+  /// whatever is around it, a modal or a page that binds it too.
   final VoidCallback? onEscape;
 
   /// Whether a press on the anchor counts as a press inside the popup.
@@ -358,7 +360,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
         SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
       },
       child: Actions(
-        actions: <Type, Action<Intent>>{DismissIntent: _escape},
+        actions: <Type, Action<Intent>>{if (widget.open) DismissIntent: _escape},
         child: CompositedTransformTarget(
           link: _link,
           child: OverlayPortal(
@@ -440,11 +442,14 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   }
 }
 
-/// Escape, for as long as the popup is open and something is listening.
+/// Escape, for as long as the popup is open.
 ///
-/// Disabled rather than absent while it is closed, so the key goes on to a
-/// modal or a page that binds it too, and the tree under the anchor is not
-/// rebuilt every time the popup opens.
+/// Mapped only for that long, as `RawMenuAnchor` maps its own, rather than
+/// mapped and disabled while the popup is closed: the search for an intent's
+/// action stops at the first one that maps it, enabled or not, so a disabled
+/// action here would keep the key from a modal or a page that binds it too.
+/// Only the map changes and the `Actions` widget stays, so the tree under the
+/// anchor is not rebuilt every time the popup opens.
 class _EscapeAction extends Action<DismissIntent> {
   _EscapeAction(this._state);
 
@@ -453,7 +458,7 @@ class _EscapeAction extends Action<DismissIntent> {
   VoidCallback? get _callback => _state.widget.onEscape ?? _state.widget.onDismiss;
 
   @override
-  bool isEnabled(DismissIntent intent) => _state.widget.open && _callback != null;
+  bool isEnabled(DismissIntent intent) => _state.widget.open;
 
   @override
   Object? invoke(DismissIntent intent) {

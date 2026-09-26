@@ -529,13 +529,17 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
               return null;
             },
           ),
-          DismissIntent: CallbackAction<DismissIntent>(
-            onInvoke: (DismissIntent intent) {
-              _close();
+          // Only while the list is open, so a closed trigger hands Escape on to
+          // a modal it sits in: an action that maps the intent stops the
+          // search for one, whatever it does with it.
+          if (_open)
+            DismissIntent: CallbackAction<DismissIntent>(
+              onInvoke: (DismissIntent intent) {
+                _close();
 
-              return null;
-            },
-          ),
+                return null;
+              },
+            ),
         },
         // Nearer the focused node than the list's own shortcuts above it, so a
         // caller who binds `Escape` or an arrow takes it from the list. Enter is
