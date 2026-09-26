@@ -345,7 +345,9 @@ class _PlTextFieldState extends State<PlTextField> {
     // A box the height of one line keeps an adornment centred on the first line
     // rather than on the whole box, which is the only way it stays put when the
     // control grows to five rows. Muted whether or not the field holds the
-    // focus: the family reaches the edge, the ring and the caret, and stops.
+    // focus: the family reaches the edge, the ring and the caret, and stops. A
+    // word in it is set in the value's type and line, as the React adornment
+    // inherits the shell's.
     Widget adornment(Widget slot) {
       return SizedBox(
         height: scale.line,
@@ -353,7 +355,12 @@ class _PlTextFieldState extends State<PlTextField> {
           child: IconTheme.merge(
             data: IconThemeData(color: tokens.mutedFg, size: scale.size * iconScale),
             child: DefaultTextStyle.merge(
-              style: TextStyle(color: tokens.mutedFg),
+              style: TextStyle(
+                color: tokens.mutedFg,
+                fontSize: scale.size,
+                height: scale.height,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
               child: slot,
             ),
           ),

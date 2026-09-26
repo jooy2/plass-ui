@@ -653,7 +653,8 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
     // Muted whether or not the field holds the focus, as the React number
     // field's adornments are: the focus is answered by the edge, the ring and
-    // the caret.
+    // the caret. A word in one is set in the value's type and line, as the
+    // React adornment inherits the shell's.
     Widget adornment(Widget slot) {
       return SizedBox(
         height: scale.line,
@@ -661,7 +662,12 @@ class _PlNumberFieldState extends State<PlNumberField> {
           child: IconTheme.merge(
             data: IconThemeData(color: tokens.mutedFg, size: scale.size * iconScale),
             child: DefaultTextStyle.merge(
-              style: TextStyle(color: tokens.mutedFg),
+              style: TextStyle(
+                color: tokens.mutedFg,
+                fontSize: scale.size,
+                height: scale.height,
+                leadingDistribution: TextLeadingDistribution.even,
+              ),
               child: slot,
             ),
           ),
