@@ -1,6 +1,8 @@
+import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { PlCombobox, type PlComboboxOption } from 'plass-ui';
+import { PlCombobox, PlForm, type PlComboboxOption, type PlComboboxValue } from 'plass-ui';
 import { press } from '../../support/keys';
 
 const items: PlComboboxOption[] = [
@@ -8,6 +10,56 @@ const items: PlComboboxOption[] = [
   { value: 'lisbon', label: 'Lisbon' },
   { value: 'quito', label: 'Quito', disabled: true }
 ];
+
+/**
+ * Types at the end of what the field already holds.
+ *
+ * Focused directly rather than through a click, so the caret is not wherever
+ * the pointer happened to land in the text, and Firefox is not asked to take a
+ * focus the runner's frame does not hand it.
+ */
+async function typeAtEnd(input: HTMLInputElement, text: string) {
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+  await userEvent.keyboard(text);
+}
+
+/**
+ * Waits out the frame Base UI answers on, for a check that something stayed
+ * as it was. A check that retries would pass on the old state before it went.
+ */
+function settle() {
+  return new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
+}
+
+const heldCities: PlComboboxValue[] = ['seoul'];
+
+/**
+ * A parent that renders again on every keystroke, with its options written
+ * inline, so each render hands the combobox a new `items` array holding the
+ * same options.
+ */
+function Rerendering({
+  initial,
+  controlled
+}: {
+  initial: PlComboboxValue | null;
+  controlled: boolean;
+}) {
+  const [, setQuery] = React.useState('');
+  const [value, setValue] = React.useState(initial);
+
+  return (
+    <PlCombobox
+      items={[
+        { value: 'seoul', label: 'Seoul' },
+        { value: 'lisbon', label: 'Lisbon' }
+      ]}
+      {...(controlled ? { value, onValueChange: setValue } : { defaultValue: initial })}
+      onInputValueChange={setQuery}
+    />
+  );
+}
 
 describe('PlCombobox', () => {
   describe('rendering', () => {
@@ -249,6 +301,105 @@ describe('PlCombobox', () => {
       await screen.getByRole('button', { name: 'Remove Seoul' }).click();
 
       await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith(['lisbon']));
+    });
+  });
+
+  describe('rendering again', () => {
+    it('keeps what is typed into a field holding a value while inline `items` change', async () => {
+      const screen = await render(<Rerendering initial="seoul" controlled />);
+      const input = screen.getByRole('combobox').element() as HTMLInputElement;
+
+      await typeAtEnd(input, 'xy');
+      await settle();
+
+      expect(input).toHaveValue('Seoulxy');
+    });
+
+    it('keeps what is typed into an uncontrolled field while inline `items` change', async () => {
+      const screen = await render(<Rerendering initial="seoul" controlled={false} />);
+      const input = screen.getByRole('combobox').element() as HTMLInputElement;
+
+      await typeAtEnd(input, 'xy');
+      await settle();
+
+      expect(input).toHaveValue('Seoulxy');
+    });
+
+    it('keeps what is typed into a field holding a value the list does not have', async () => {
+      const screen = await render(<PlCombobox items={items} defaultValue="Osaka" />);
+      const input = screen.getByRole('combobox').element() as HTMLInputElement;
+
+      await typeAtEnd(input, 'xy');
+      await settle();
+
+      expect(input).toHaveValue('Osakaxy');
+    });
+
+    it('writes the new label of a renamed option into the field', async () => {
+      const renamed = [{ value: 'seoul', label: 'Seoul City' }, ...items.slice(1)];
+      const screen = await render(<PlCombobox items={items} defaultValue="seoul" />);
+
+      await screen.rerender(<PlCombobox items={renamed} defaultValue="seoul" />);
+
+      await expect.element(screen.getByRole('combobox')).toHaveValue('Seoul City');
+    });
+
+    it('leaves a query typed into the open list when its option is renamed', async () => {
+      const renamed = [{ value: 'seoul', label: 'Seoul City' }, ...items.slice(1)];
+      const screen = await render(<PlCombobox items={items} defaultValue="seoul" />);
+      const input = screen.getByRole('combobox').element() as HTMLInputElement;
+
+      await typeAtEnd(input, 'x');
+      await expect.element(screen.getByRole('listbox')).toBeInTheDocument();
+
+      await screen.rerender(<PlCombobox items={renamed} defaultValue="seoul" />);
+      await settle();
+
+      expect(input).toHaveValue('Seoulx');
+    });
+
+    it('names a chip after the new label of a renamed option', async () => {
+      const renamed = [{ value: 'seoul', label: 'Seoul City' }, ...items.slice(1)];
+      const screen = await render(<PlCombobox items={items} multiple defaultValue={['seoul']} />);
+
+      await screen.rerender(<PlCombobox items={renamed} multiple defaultValue={['seoul']} />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Remove Seoul City' }))
+        .toBeInTheDocument();
+    });
+
+    it.each([
+      [
+        'a value the list does not have',
+        () => <PlCombobox items={items} name="city" defaultValue="Osaka" />
+      ],
+      [
+        'an uncontrolled `multiple` value',
+        () => <PlCombobox items={items} name="city" multiple defaultValue={['seoul']} />
+      ],
+      [
+        'a controlled `multiple` value',
+        () => (
+          <PlCombobox
+            items={items}
+            name="city"
+            multiple
+            value={heldCities}
+            onValueChange={() => {}}
+          />
+        )
+      ]
+    ])('keeps a form’s error on %s when the parent renders again', async (_, field) => {
+      const errors = { city: 'That city is full.' };
+      const screen = await render(<PlForm errors={errors}>{field()}</PlForm>);
+
+      await expect.element(screen.getByText('That city is full.')).toBeInTheDocument();
+
+      await screen.rerender(<PlForm errors={errors}>{field()}</PlForm>);
+      await settle();
+
+      expect(screen.getByText('That city is full.').query()).not.toBeNull();
     });
   });
 

@@ -192,9 +192,10 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
 }
 
 /**
- * What Base UI holds. The public value is a string or a number; the object is
- * what carries the label the input and the filter need, plus the flag that says
- * "this row is offering a value the list does not have".
+ * One row of the list. What Base UI holds as the value is the row's `value`
+ * itself, a string or a number, and the object is what carries the label the
+ * input and the filter need, plus the flag that says "this row is offering a
+ * value the list does not have".
  */
 interface Entry {
   value: PlComboboxValue;
@@ -300,13 +301,22 @@ const adornmentClasses = /* @__PURE__ */ [
  */
 const clearClasses = /* @__PURE__ */ cx(targetClasses, adornmentClasses);
 
-/** Always an array inside, however the caller spells it. */
+const nothing: PlComboboxValue[] = [];
+
+/**
+ * Always an array inside, however the caller spells it.
+ *
+ * An array is passed on as it came rather than copied, and nothing is always
+ * the same empty one. With `multiple` this is the value Base UI holds, and
+ * Base UI takes a new array for a new value: it clears the field's error from
+ * a `PlForm` and runs its validation again each time it sees one.
+ */
 function toArray(value: unknown): PlComboboxValue[] {
   if (value === null || value === undefined) {
-    return [];
+    return nothing;
   }
 
-  return Array.isArray(value) ? (value.slice() as PlComboboxValue[]) : [value as PlComboboxValue];
+  return Array.isArray(value) ? (value as PlComboboxValue[]) : [value as PlComboboxValue];
 }
 
 /**
@@ -451,11 +461,21 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
     [options, customValue]
   );
 
-  const baseValue = isMultiple
-    ? selection.map(entryFor)
-    : selection.length > 0
-      ? entryFor(selection[0])
-      : null;
+  // Base UI is handed the rows as a collection, so the value it holds is the
+  // value itself rather than the row. Base UI takes a value that is a new object
+  // for a new value and writes its label into the field, over whatever has been
+  // typed there; a row is a new object each time `items` is, and a string or a
+  // number is not. A renamed option's new label reaches the field the way Base
+  // UI writes any new label, which is not over a query typed into the open list.
+  const collection = React.useMemo(
+    () =>
+      BaseUICombobox.createItems(listItems, {
+        getValue: (entry) => entry.value,
+        getLabel: (entry) => entry.label
+      }),
+    [listItems]
+  );
+  const baseValue = isMultiple ? selection : (selection[0] ?? null);
 
   function commit(next: PlComboboxValue[]) {
     if (value === undefined) {
@@ -554,14 +574,14 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
     >
       {hasContent(label) && !notched ? labelNode : null}
 
-      <BaseUICombobox.Root<Entry, boolean>
+      <BaseUICombobox.Root<PlComboboxValue, boolean, Entry>
         id={id}
         name={name}
-        items={listItems}
+        items={collection}
         multiple={isMultiple}
         value={baseValue}
         onValueChange={(next) => {
-          const chosen = next === null ? [] : Array.isArray(next) ? next : [next];
+          const chosen = toArray(next);
 
           // Base UI empties the value whether or not it holds anything: on
           // Escape with the list closed, and in single mode as the text is
@@ -571,7 +591,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
             return;
           }
 
-          commit(chosen.map((entry) => entry.value));
+          commit(chosen);
         }}
         // The text is Base UI's to own, not ours: in single mode it is the
         // chosen option's label, which has to be there from the first paint, and
@@ -589,9 +609,10 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         // the keyboard at all: a value the list does not have is the only match
         // there is, so it is the one Enter lands on.
         autoHighlight
-        itemToStringLabel={(entry) => entry.label}
-        itemToStringValue={(entry) => String(entry.value)}
-        isItemEqualToValue={(a, b) => a.value === b.value}
+        // The collection labels a value from its row, so this labels only a
+        // value no row holds, a custom one.
+        itemToStringLabel={String}
+        itemToStringValue={String}
         limit={limit}
         disabled={disabled}
         readOnly={readOnly}
@@ -620,9 +641,9 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
             {isMultiple ? (
               <BaseUICombobox.Chips className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
                 <BaseUICombobox.Value>
-                  {(chosen: Entry[]) => (
+                  {(chosen: PlComboboxValue[]) => (
                     <React.Fragment>
-                      {chosen.map((entry) => (
+                      {chosen.map(entryFor).map((entry) => (
                         <BaseUICombobox.Chip
                           key={String(entry.value)}
                           render={
@@ -699,7 +720,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
                 {(entry: Entry) => (
                   <BaseUICombobox.Item
                     key={`${entry.custom ? 'custom:' : ''}${String(entry.value)}`}
-                    value={entry}
+                    value={entry.value}
                     disabled={entry.disabled}
                     className={itemClasses}
                   >

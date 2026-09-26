@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlCombobox` that holds a value keeps what is typed into it as it renders again, under a parent that passes `items` inline and renders on every keystroke as much as with a value the list does not have.** The value was handed to Base UI as a row object made anew each time `items` was, and on every render for a value no option holds, and Base UI took each new object for a new value and wrote its label back over the query, so the field could not be typed into. It also dropped an error a `PlForm`'s `errors` had put on the field, with or without `multiple`, whenever the combobox rendered again. A renamed option's new label is still written into the field, but no longer over a query typed into the open list, as the Flutter combobox does.
+
 - **A disabled `PlCombobox` keeps its chevron and its clear × in the muted ink under the pointer.** Both turned to the family's accent as the pointer went over them, where a disabled field answers the pointer with nothing else, and the Flutter chevron stays muted.
 
 - **The first ← on a `PlPieChart` with no slice being read reaches the last slice.** It reached the second from the end, while the first → reached the first slice; the Flutter pie already started a walk backwards on the last.
