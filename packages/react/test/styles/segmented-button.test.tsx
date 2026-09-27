@@ -1,6 +1,7 @@
 /**
- * How faded a `PlSegmentedButton`'s segments are drawn, and whether they take
- * the pointer light, which only the stylesheet can answer.
+ * How faded a `PlSegmentedButton`'s segments are drawn, whether they take the
+ * pointer light, and what their labels do under the pointer, which only the
+ * stylesheet can answer.
  *
  * A disabled set fades itself, and Base UI marks every segment in it disabled
  * as well, so the assertion is on the opacity a segment is drawn at with every
@@ -9,7 +10,7 @@
  * segment is drawn through: the one a disabled set is drawn at, and never two.
  */
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlFieldset, PlSegment, PlSegmentedButton } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -139,5 +140,78 @@ describe('the segmented button stylesheet', () => {
     );
     expect(getComputedStyle(segment('Day'), '::before').content).not.toBe('none');
     expect(getComputedStyle(segment('Week'), '::before').content).toBe('none');
+  });
+
+  describe('a label under the pointer', () => {
+    /**
+     * The named segment's label colour at rest and then with the pointer over
+     * it. Reduced motion, asked for before each test, puts the colour on at
+     * once. No colour is asserted, only whether the pointer changes it.
+     */
+    async function labelColours(name: string): Promise<{ rest: string; hovered: string }> {
+      const rest = getComputedStyle(segment(name)).color;
+
+      await userEvent.hover(segment(name));
+
+      return { rest, hovered: getComputedStyle(segment(name)).color };
+    }
+
+    it('darkens the label of a segment that can be pressed', async () => {
+      await render(
+        <PlSegmentedButton aria-label="Period" defaultValue="day">
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+        </PlSegmentedButton>
+      );
+
+      const { rest, hovered } = await labelColours('Week');
+
+      expect(hovered).not.toBe(rest);
+    });
+
+    it('keeps the chosen segment’s label in the colour of its tile', async () => {
+      await render(
+        <PlSegmentedButton aria-label="Period" defaultValue="day" variant="solid">
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+        </PlSegmentedButton>
+      );
+
+      const { rest, hovered } = await labelColours('Day');
+
+      expect(hovered).toBe(rest);
+    });
+
+    it('keeps the label of a segment disabled on its own in its muted ink', async () => {
+      await render(
+        <PlSegmentedButton aria-label="Period" defaultValue="day">
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week" disabled>
+            Week
+          </PlSegment>
+        </PlSegmentedButton>
+      );
+
+      expect(segment('Week')).toHaveAttribute('data-disabled');
+
+      const { rest, hovered } = await labelColours('Week');
+
+      expect(hovered).toBe(rest);
+    });
+
+    it('keeps the labels of a disabled set in their muted ink', async () => {
+      await render(
+        <PlSegmentedButton aria-label="Period" defaultValue="day" disabled>
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+        </PlSegmentedButton>
+      );
+
+      expect(segment('Week')).toHaveAttribute('data-disabled');
+
+      const { rest, hovered } = await labelColours('Week');
+
+      expect(hovered).toBe(rest);
+    });
   });
 });

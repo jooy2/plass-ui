@@ -225,7 +225,12 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           // so only the second case has anything to say.
           'not-data-[checked]:[--p-glow:var(--p-soft)]',
           'not-data-[checked]:[--p-flash:var(--p-soft-hover)]',
-          'text-(--plass-muted-fg) hover:text-(--plass-fg)',
+          // Darkened under the pointer only while the segment can be pressed:
+          // Base UI marks a disabled segment, and every segment of a disabled
+          // set, with `data-disabled`, and a disabled one still matches
+          // `:hover`. The guard makes the rule outrank the chosen label's
+          // colour, so it names the unchosen segments as well.
+          'text-(--plass-muted-fg) not-data-[checked]:not-data-[disabled]:hover:text-(--plass-fg)',
           checkedTextClasses[variant],
           forcedCheckedTextClasses,
           // Inset rather than offset — an offset ring on a segment inside a groove
