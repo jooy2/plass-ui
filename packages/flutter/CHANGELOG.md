@@ -78,6 +78,8 @@
 
 ### Fixed
 
+- **The segments of a disabled `PlSegmentedButton` and the chips of a disabled `multiple` `PlCombobox` are drained once, with the set or the field they sit in.** Each was drained a second time inside a set or a field already drained, so they were drawn at a quarter of their opacity and hard to read. A chip in a disabled field keeps the look of a disabled chip, and a segment disabled on its own in a set that is not disabled, like a `PlChip` disabled anywhere else, is still drained on its own.
+
 - **A `PlPieChart` goes on reading the slice it is on when it is built again without a slice ahead of it.** The slice being read was held by its place, so when a slice before it left the data, the card and the live region read whichever slice moved into that place, and a slice read as it left handed its reading to the slice that moved in. It is now held by its name, as a slice switched off in the legend is, and the reading is let go once no slice drawn has that name. The React build makes the same change.
 
 - **Two series of the same name in a chart's legend, or two slices of the same name in a `PlPieChart`'s, are switched off one at a time.** A series switched off was held by its name alone, so switching off either of two series of one name switched off both, and a series named "1" was held by the same key as an unnamed series in the second place. A repeated name is now told apart by how many series before it have that name, and a name never meets a place. The React build makes the same change.

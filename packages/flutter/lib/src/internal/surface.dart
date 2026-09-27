@@ -748,6 +748,31 @@ Widget plassStateFilter({
   );
 }
 
+/// Whether a surface around the widgets below is already drawn at a disabled
+/// control's fade, the half opacity and the drained colour [plassStateFilter]
+/// puts on it.
+///
+/// A control disabled together with that surface draws the look of a disabled
+/// control without the fade, which would draw it at a quarter. A disabled
+/// `multiple` `PlCombobox` hands it to its chips, and a `PlChip` disabled
+/// anywhere else still fades on its own. The React build hands the same answer
+/// down through a context of its own.
+class PlassFadedScope extends InheritedWidget {
+  /// Wraps what a faded surface holds.
+  const PlassFadedScope({required this.faded, required super.child, super.key});
+
+  /// Whether the surface around the widgets below is drawn faded.
+  final bool faded;
+
+  /// Whether a faded surface is around [context].
+  static bool fadedOf(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PlassFadedScope>()?.faded ?? false;
+  }
+
+  @override
+  bool updateShouldNotify(PlassFadedScope oldWidget) => faded != oldWidget.faded;
+}
+
 /// The brightness a lit surface answers the pointer with, eased over the
 /// theme's duration and curve, or [drained] in its place while the surface is
 /// unavailable.

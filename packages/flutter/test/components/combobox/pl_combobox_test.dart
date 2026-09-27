@@ -96,6 +96,26 @@ String? _lit(WidgetTester tester) {
   return lit.evaluate().isEmpty ? null : tester.widget<Text>(lit).data;
 }
 
+/// The opacity [finder] is painted at, every fade above it multiplied in.
+double _opacityOf(WidgetTester tester, Finder finder) {
+  return tester
+      .widgetList<PlassFiltered>(find.ancestor(of: finder, matching: find.byType(PlassFiltered)))
+      .fold(1, (double opacity, PlassFiltered filtered) => opacity * filtered.opacity);
+}
+
+/// How many filters above [finder] drain its colour.
+int _drainsOf(WidgetTester tester, Finder finder) {
+  return tester
+      .widgetList<PlassFiltered>(find.ancestor(of: finder, matching: find.byType(PlassFiltered)))
+      .where((PlassFiltered filtered) => filtered.colorFilter != null)
+      .length;
+}
+
+/// The colour the words [text] are drawn in.
+Color _inkOf(WidgetTester tester, String text) {
+  return tester.renderObject<RenderParagraph>(find.text(text)).text.style!.color!;
+}
+
 /// Puts a combobox on screen with an overlay for its list to go into.
 Widget _host(Widget child) => host(SizedBox(width: 320, child: child), overlay: true, width: 420);
 
@@ -1637,6 +1657,85 @@ void main() {
         expect(find.byType(PlChip), findsNWidgets(2));
         expect(find.text('Seoul'), findsOneWidget);
         expect(find.text('Lisbon'), findsOneWidget);
+      });
+
+      testWidgets('draws the chips of a disabled field at the one fade the field is drawn at', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              options: _cities,
+              values: const <String>['seoul', 'lisbon'],
+              onChanged: (List<String> _) {},
+              disabled: true,
+            ),
+          ),
+        );
+
+        // The field's own fade, and not a second one of the chip's, which
+        // would draw it at a quarter.
+        for (final String city in <String>['Seoul', 'Lisbon']) {
+          expect(_opacityOf(tester, find.text(city)), disabledOpacity);
+          expect(_drainsOf(tester, find.text(city)), 1);
+        }
+      });
+
+      testWidgets('still draws the chips of a disabled field as a disabled chip is drawn', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const PlChip(disabled: true, child: Text('Draft')),
+                PlCombobox<String>.multiple(
+                  options: _cities,
+                  values: const <String>['seoul'],
+                  onChanged: (List<String> _) {},
+                  disabled: true,
+                ),
+                PlCombobox<String>.multiple(
+                  options: _cities,
+                  values: const <String>['lisbon'],
+                  onChanged: (List<String> _) {},
+                ),
+              ],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The neutral ink of a disabled chip, not the accent a live one takes.
+        expect(_inkOf(tester, 'Seoul'), _inkOf(tester, 'Draft'));
+        expect(_inkOf(tester, 'Seoul'), isNot(_inkOf(tester, 'Lisbon')));
+      });
+
+      testWidgets('draws the chips of a live field unfaded', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              options: _cities,
+              values: const <String>['seoul', 'lisbon'],
+              onChanged: (List<String> _) {},
+            ),
+          ),
+        );
+
+        for (final String city in <String>['Seoul', 'Lisbon']) {
+          expect(_opacityOf(tester, find.text(city)), 1);
+          expect(_drainsOf(tester, find.text(city)), 0);
+        }
+      });
+
+      testWidgets('still fades a chip disabled on its own, outside a field', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(_host(const PlChip(disabled: true, child: Text('Draft'))));
+
+        expect(_opacityOf(tester, find.text('Draft')), disabledOpacity);
+        expect(_drainsOf(tester, find.text('Draft')), 1);
       });
 
       testWidgets('reports the whole set', (WidgetTester tester) async {

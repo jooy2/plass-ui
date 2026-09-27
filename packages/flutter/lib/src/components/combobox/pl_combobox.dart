@@ -1167,16 +1167,22 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final chips = widget.multiple && widget.values.isNotEmpty
         ? <Widget>[
             for (final value in widget.values)
-              PlChip(
-                size: size,
-                color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
-                density: PlassDensity.compact,
-                disabled: _disabled,
-                deleteLabel: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(
-                  _labelOf(value),
+              // The shell already fades what it holds while the field is
+              // disabled, so the chip, disabled with it, keeps the disabled
+              // look without a fade of its own.
+              PlassFadedScope(
+                faded: _disabled,
+                child: PlChip(
+                  size: size,
+                  color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
+                  density: PlassDensity.compact,
+                  disabled: _disabled,
+                  deleteLabel: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(
+                    _labelOf(value),
+                  ),
+                  onDeleted: widget.readOnly || _disabled || !_usable ? null : () => _remove(value),
+                  child: Text(_labelOf(value)),
                 ),
-                onDeleted: widget.readOnly || _disabled || !_usable ? null : () => _remove(value),
-                child: Text(_labelOf(value)),
               ),
           ]
         : const <Widget>[];

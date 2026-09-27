@@ -346,10 +346,12 @@ class PlChip extends StatelessWidget {
 
     // Lit whether the chip is pressable or not, for the same reason. A chip
     // that cannot be pressed is handed no hover and no press, so it stays at
-    // full brightness.
+    // full brightness. A chip disabled with a field that is already drawn
+    // faded, as a disabled `PlCombobox` draws its chips, keeps the disabled
+    // look without a fade of its own.
     chip = plassStateFilter(
       child: chip,
-      disabled: disabled,
+      disabled: disabled && !PlassFadedScope.fadedOf(context),
       hovered: state.hovered,
       pressed: state.pressed,
       reduceMotion: reduceMotion,

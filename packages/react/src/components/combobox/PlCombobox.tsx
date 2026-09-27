@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { FadedContext, useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { Combobox as BaseUICombobox } from '@base-ui/react/combobox';
@@ -644,39 +644,44 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
 
             {isMultiple ? (
               <BaseUICombobox.Chips className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-                <BaseUICombobox.Value>
-                  {(chosen: PlComboboxValue[]) => (
-                    <React.Fragment>
-                      {chosen.map(entryFor).map((entry) => (
-                        <BaseUICombobox.Chip
-                          key={String(entry.value)}
-                          render={
-                            <PlChip
-                              variant="glass"
-                              size={size}
-                              color={family}
-                              density="compact"
-                              disabled={disabled}
-                              endIcon={
-                                readOnly || disabled ? null : (
-                                  <BaseUICombobox.ChipRemove
-                                    aria-label={removeLabel(entry.label)}
-                                    className={chipRemoveClasses}
-                                  >
-                                    <CloseIcon />
-                                  </BaseUICombobox.ChipRemove>
-                                )
-                              }
-                            />
-                          }
-                        >
-                          {entry.label}
-                        </BaseUICombobox.Chip>
-                      ))}
-                      {renderInput(chosen.length > 0)}
-                    </React.Fragment>
-                  )}
-                </BaseUICombobox.Value>
+                {/* The shell already fades what it holds while the field is
+                    disabled, so the chips, disabled with it, keep the disabled
+                    look without a fade of their own. */}
+                <FadedContext.Provider value={disabled}>
+                  <BaseUICombobox.Value>
+                    {(chosen: PlComboboxValue[]) => (
+                      <React.Fragment>
+                        {chosen.map(entryFor).map((entry) => (
+                          <BaseUICombobox.Chip
+                            key={String(entry.value)}
+                            render={
+                              <PlChip
+                                variant="glass"
+                                size={size}
+                                color={family}
+                                density="compact"
+                                disabled={disabled}
+                                endIcon={
+                                  readOnly || disabled ? null : (
+                                    <BaseUICombobox.ChipRemove
+                                      aria-label={removeLabel(entry.label)}
+                                      className={chipRemoveClasses}
+                                    >
+                                      <CloseIcon />
+                                    </BaseUICombobox.ChipRemove>
+                                  )
+                                }
+                              />
+                            }
+                          >
+                            {entry.label}
+                          </BaseUICombobox.Chip>
+                        ))}
+                        {renderInput(chosen.length > 0)}
+                      </React.Fragment>
+                    )}
+                  </BaseUICombobox.Value>
+                </FadedContext.Provider>
               </BaseUICombobox.Chips>
             ) : (
               renderInput(false)

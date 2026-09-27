@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { FadedContext } from '../../internal/form.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
@@ -12,6 +13,7 @@ import {
   controlSlots,
   controlTextClasses,
   disabledClasses,
+  disabledLookClasses,
   focusRingClasses,
   forcedEdgeClasses,
   gapClasses,
@@ -212,6 +214,10 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
 
+    // A chip disabled with a field that is already drawn faded, as a disabled
+    // `PlCombobox` draws its chips, keeps the disabled look without a fade of
+    // its own.
+    const faded = React.useContext(FadedContext);
     const interactive = Boolean(onClick) && !disabled;
     const deleteId = React.useId();
     const textId = React.useId();
@@ -226,7 +232,7 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
       radiusClasses[step],
       // An if/else rather than stacked variants: two Tailwind classes of equal
       // specificity resolve by their order in the generated stylesheet.
-      disabled ? disabledClasses[variant] : restClasses[variant],
+      disabled ? (faded ? disabledLookClasses : disabledClasses)[variant] : restClasses[variant],
       !disabled && selected ? selectedClasses[variant] : '',
       // The interaction light, on the shell rather than on the pressable label
       // inside it: what the reader sees and aims at is the whole token.

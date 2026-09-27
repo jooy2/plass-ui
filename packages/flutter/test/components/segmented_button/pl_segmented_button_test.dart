@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/glow.dart';
+import 'package:plass_ui/src/internal/scales.dart';
+import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
 
@@ -60,6 +63,21 @@ Gradient? tileFill(WidgetTester tester) {
   );
 
   return (tile.decoration as BoxDecoration).gradient;
+}
+
+/// The opacity [finder] is painted at, every fade above it multiplied in.
+double opacityOf(WidgetTester tester, Finder finder) {
+  return tester
+      .widgetList<PlassFiltered>(find.ancestor(of: finder, matching: find.byType(PlassFiltered)))
+      .fold(1, (double opacity, PlassFiltered filtered) => opacity * filtered.opacity);
+}
+
+/// How many filters above [finder] drain its colour.
+int drainsOf(WidgetTester tester, Finder finder) {
+  return tester
+      .widgetList<PlassFiltered>(find.ancestor(of: finder, matching: find.byType(PlassFiltered)))
+      .where((PlassFiltered filtered) => filtered.colorFilter != null)
+      .length;
 }
 
 void main() {
@@ -303,6 +321,87 @@ void main() {
 
         await tester.tap(find.text('Board'));
         expect(chosen, isNull);
+      });
+    });
+
+    group('disabled', () {
+      testWidgets('draws the segments of a disabled set at the one fade the set is drawn at', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlSegmentedButton<String>(
+              segments: views,
+              value: 'list',
+              onChanged: (String _) {},
+              disabled: true,
+            ),
+            width: 480,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The set's own fade, and not a second one of each segment's, which
+        // would draw it at a quarter.
+        for (final String label in <String>['List', 'Board', 'Calendar']) {
+          expect(opacityOf(tester, find.text(label)), disabledOpacity);
+          expect(drainsOf(tester, find.text(label)), 1);
+        }
+
+        expect(find.byType(PlassGlowLayer), findsNothing);
+      });
+
+      testWidgets('draws the segments of a set in a disabled fieldset at that one fade too', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlFieldset(
+              disabled: true,
+              children: <Widget>[
+                PlSegmentedButton<String>(
+                  segments: const <PlSegment<String>>[
+                    PlSegment<String>(value: 'list', label: Text('List')),
+                    PlSegment<String>(value: 'board', label: Text('Board'), disabled: true),
+                  ],
+                  value: 'list',
+                  onChanged: (String _) {},
+                ),
+              ],
+            ),
+            width: 480,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        for (final String label in <String>['List', 'Board']) {
+          expect(opacityOf(tester, find.text(label)), disabledOpacity);
+          expect(drainsOf(tester, find.text(label)), 1);
+        }
+      });
+
+      testWidgets('fades a segment disabled on its own in a live set, once', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlSegmentedButton<String>(
+              segments: const <PlSegment<String>>[
+                PlSegment<String>(value: 'list', label: Text('List')),
+                PlSegment<String>(value: 'board', label: Text('Board'), disabled: true),
+              ],
+              value: 'list',
+              onChanged: (String _) {},
+            ),
+            width: 480,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(opacityOf(tester, find.text('List')), 1);
+        expect(drainsOf(tester, find.text('List')), 0);
+        expect(opacityOf(tester, find.text('Board')), disabledOpacity);
+        expect(drainsOf(tester, find.text('Board')), 1);
       });
     });
 

@@ -382,6 +382,10 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
           tokens: tokens,
           height: height,
           disabled: _disabled || widget.segments[index].disabled,
+          // Faded of its own only in a set that is not disabled: a disabled set
+          // is already drawn at half by the state filter round it, and a second
+          // fade would draw its segments at a quarter.
+          faded: !_disabled && widget.segments[index].disabled,
           readOnly: widget.readOnly,
           onPressed: _interactive && !widget.segments[index].disabled
               ? () => widget.onChanged!(widget.segments[index].value)
@@ -552,6 +556,7 @@ class _Tile<T> extends StatelessWidget {
     required this.tokens,
     required this.height,
     required this.disabled,
+    required this.faded,
     required this.readOnly,
     required this.onPressed,
     required this.focusable,
@@ -586,6 +591,11 @@ class _Tile<T> extends StatelessWidget {
   final PlassTokens tokens;
   final double height;
   final bool disabled;
+
+  /// Whether it fades on its own, which it does only while it alone is
+  /// disabled in a set that is not.
+  final bool faded;
+
   final bool readOnly;
   final VoidCallback? onPressed;
   final bool focusable;
@@ -651,7 +661,7 @@ class _Tile<T> extends StatelessWidget {
             ),
           );
 
-          body = plassStateFilter(child: body, disabled: disabled, lit: false);
+          body = plassStateFilter(child: body, disabled: faded, lit: false);
 
           // The interaction light, on the segment and not on the groove: a
           // groove is not pressed, the tile in it is. Its colour follows where

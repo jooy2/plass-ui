@@ -68,6 +68,18 @@ export function useFormReport(name: string | undefined, read: () => unknown, ena
 export const FieldsetDisabledContext = /* @__PURE__ */ React.createContext(false);
 
 /**
+ * Whether a surface around the caller is already drawn at a disabled control's
+ * fade, the half opacity and the drained colour of `disabledClasses`.
+ *
+ * A control disabled together with that surface draws the look of a disabled
+ * control without the fade, which would draw it at a quarter. A disabled
+ * `multiple` `PlCombobox` hands it to its chips, and a `PlChip` disabled
+ * anywhere else still fades on its own. The Flutter build hands the same answer
+ * down through `PlassFadedScope`.
+ */
+export const FadedContext = /* @__PURE__ */ React.createContext(false);
+
+/**
  * A control's `disabled`, with a disabled `PlFieldset` around it counted in, so
  * a control in one draws itself exactly as it would with `disabled` of its own.
  */

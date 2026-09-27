@@ -43,13 +43,19 @@ interface SegmentedButtonContextValue {
   size: PlassSize;
   density: PlassDensity;
   fullWidth: boolean;
+  /**
+   * Whether the whole set is disabled, which fades the set and takes every
+   * segment's light with it.
+   */
+  disabled: boolean;
 }
 
 const SegmentedButtonContext = /* @__PURE__ */ React.createContext<SegmentedButtonContextValue>({
   variant: 'glass',
   size: 'md',
   density: 'default',
-  fullWidth: false
+  fullWidth: false,
+  disabled: false
 });
 
 export interface PlSegmentedButtonProps
@@ -170,8 +176,17 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
     },
     ref
   ) {
-    const { variant, size, density, fullWidth } = React.useContext(SegmentedButtonContext);
+    const {
+      variant,
+      size,
+      density,
+      fullWidth,
+      disabled: setDisabled
+    } = React.useContext(SegmentedButtonContext);
     const disabled = useDisabled(disabledProp);
+    // Base UI disables every segment of a disabled set, and the set puts out
+    // their light as well as its own.
+    const lit = !disabled && !setDisabled;
 
     return (
       <BaseUIRadio.Root
@@ -201,7 +216,7 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           iconClasses,
           // The interaction light. It is on the segment and not on the groove,
           // because a groove is not pressed — the tile in it is.
-          disabled ? '' : 'plass-glow',
+          lit ? 'plass-glow' : '',
           // And its colour follows where the segment is standing rather than
           // what the set is made of. A chosen segment rides the tile, which on
           // `solid` is a coloured fill and takes white light; an unchosen one
@@ -216,14 +231,18 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           // Inset rather than offset — an offset ring on a segment inside a groove
           // is drawn on top of its neighbours.
           focusRingInsetClasses,
-          'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+          'data-[disabled]:cursor-not-allowed',
+          // Faded of its own only in a set that is not disabled: a disabled set
+          // is already drawn at half, and a second fade would draw its
+          // segments at a quarter.
+          setDisabled ? '' : 'data-[disabled]:opacity-50',
           'data-[readonly]:cursor-default',
           fullWidth ? 'flex-1' : '',
           className ?? ''
         ]
           .filter(Boolean)
           .join(' ')}
-        onPointerMove={glowPointerMove(!disabled, onPointerMove)}
+        onPointerMove={glowPointerMove(lit, onPointerMove)}
         {...props}
       >
         {hasContent(startIcon) ? (
@@ -395,8 +414,8 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
   }, [measure]);
 
   const context = React.useMemo(
-    () => ({ variant, size, density, fullWidth }),
-    [variant, size, density, fullWidth]
+    () => ({ variant, size, density, fullWidth, disabled }),
+    [variant, size, density, fullWidth, disabled]
   );
 
   return (

@@ -789,6 +789,28 @@ export const forcedDisabledCheckedClasses = /* @__PURE__ */ [
   'forced-colors:data-[checked]:[color:Canvas]'
 ].join(' ');
 
+/** The fade of a disabled control: most of the saturation gone, and half the opacity. */
+const disabledFadeClasses = 'opacity-50 saturate-[0.35]';
+
+/**
+ * `disabledClasses` without the fade, for a control disabled together with a
+ * surface around it that is already drawn at that fade, such as a chip in a
+ * disabled `PlCombobox`. It keeps the look of a disabled control, and a fade of
+ * its own would draw it at a quarter.
+ */
+export const disabledLookClasses: Record<PlassVariant, string> = {
+  solid: /* @__PURE__ */ [
+    'cursor-not-allowed text-(--p-on-solid) [background-image:var(--p-fill)] shadow-none',
+    'forced-colors:border forced-colors:[border-color:GrayText]'
+  ].join(' '),
+  glass: /* @__PURE__ */ [
+    glassClasses,
+    'cursor-not-allowed border text-(--plass-fg) bg-(--plass-glass)',
+    '[border-color:var(--plass-border)] shadow-none'
+  ].join(' '),
+  ghost: 'cursor-not-allowed bg-transparent text-(--p-accent)'
+};
+
 /**
  * Disabled is **the light going out.** The key keeps its shape, its colour and
  * its place in the layout, and stops catching any light: no gloss, no tinted
@@ -802,18 +824,9 @@ export const forcedDisabledCheckedClasses = /* @__PURE__ */ [
  * the axis.
  */
 export const disabledClasses: Record<PlassVariant, string> = {
-  solid: /* @__PURE__ */ [
-    'cursor-not-allowed text-(--p-on-solid) [background-image:var(--p-fill)]',
-    'opacity-50 saturate-[0.35] shadow-none',
-    'forced-colors:border forced-colors:[border-color:GrayText]'
-  ].join(' '),
-  glass: /* @__PURE__ */ [
-    glassClasses,
-    'cursor-not-allowed border text-(--plass-fg) bg-(--plass-glass)',
-    '[border-color:var(--plass-border)]',
-    'opacity-50 saturate-[0.35] shadow-none'
-  ].join(' '),
-  ghost: 'cursor-not-allowed bg-transparent text-(--p-accent) opacity-50 saturate-[0.35]'
+  solid: `${disabledLookClasses.solid} ${disabledFadeClasses}`,
+  glass: `${disabledLookClasses.glass} ${disabledFadeClasses}`,
+  ghost: `${disabledLookClasses.ghost} ${disabledFadeClasses}`
 };
 
 /**
