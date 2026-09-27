@@ -760,6 +760,11 @@ class _Tile<T> extends StatelessWidget {
             child: body,
           );
 
+          // Said on the segment's own node, which is in here, and only on the
+          // segment that holds the set's stop: the others are behind an
+          // `ExcludeFocus` and take no focus.
+          final focus = plassFocusSemanticsOf(context);
+
           return Semantics(
             container: true,
             inMutuallyExclusiveGroup: true,
@@ -768,6 +773,8 @@ class _Tile<T> extends StatelessWidget {
             // and only the tap action goes.
             enabled: !disabled,
             readOnly: readOnly,
+            focused: focus.focused,
+            onFocus: focus.onFocus,
             onTap: onPressed,
             child: body,
           );

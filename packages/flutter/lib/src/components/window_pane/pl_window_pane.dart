@@ -1278,9 +1278,14 @@ class _WindowButton extends StatelessWidget {
           child: face,
         );
 
+        // Said on the button's own node, which is in here.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           button: true,
           label: label,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           // The gesture underneath is kept off the tree, so the node carries the
           // press itself, as every other caller of `PlassInteractive` does.
           onTap: onPressed,

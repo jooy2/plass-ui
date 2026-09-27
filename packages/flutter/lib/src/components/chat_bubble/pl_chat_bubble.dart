@@ -666,9 +666,14 @@ class _Preview extends StatelessWidget {
           child: card,
         );
 
+        // Said on the card's own node, which is in here.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           link: preview.onPressed != null,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: preview.onPressed,
           child: card,
         );

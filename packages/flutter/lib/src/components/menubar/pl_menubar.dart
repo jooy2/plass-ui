@@ -512,12 +512,20 @@ class _Word extends StatelessWidget {
           child: word,
         );
 
+        // Said on the word's own node, which is in here, and nothing while the
+        // menu is disabled, which is when it takes no focus. A word that is
+        // not the bar's stop is skipped by Tab but still takes the focus from
+        // the arrow keys, so it says it can.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           role: SemanticsRole.menuItem,
           button: true,
           enabled: !disabled,
           expanded: open,
           label: menu.label,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: disabled ? null : onPressed,
           // The label is said once, by the node — the word under it would
           // otherwise arrive as a second copy of itself.

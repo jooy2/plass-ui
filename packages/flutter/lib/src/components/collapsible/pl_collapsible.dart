@@ -484,11 +484,17 @@ class _PlCollapsibleState extends State<PlCollapsible> with SingleTickerProvider
           child: row,
         );
 
+        // Said on the header's own node, which is in here, and nothing while
+        // it cannot be pressed, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           button: true,
           expanded: widget.open,
           enabled: _interactive,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: _interactive ? _toggle : null,
           child: row,
         );

@@ -314,6 +314,10 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           child: row,
         );
 
+        // Said on the pill's own node below, and nothing while the pill cannot
+        // be pressed, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         // The middle is the pressable part and `endIcon` is not, so the
         // trailing slot is not inside what answers a press — the same shape a
         // chip uses, and for the same reason: a control inside another
@@ -333,6 +337,8 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
           button: interactive ? true : null,
           enabled: interactive ? true : null,
           expanded: interactive && widget.details != null ? widget.expanded : null,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: widget.onPressed,
           child: row,
         );

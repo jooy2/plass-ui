@@ -87,6 +87,10 @@ class PlassDismissButton extends StatelessWidget {
           ),
         );
 
+        // Said on the button's own node, which is in here, and nothing while
+        // it has nothing to do, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return PlassTarget(
           child: Semantics(
             // A node of its own, and not an annotation folded into whatever it
@@ -97,6 +101,8 @@ class PlassDismissButton extends StatelessWidget {
             button: true,
             label: label,
             enabled: onPressed != null,
+            focused: focus.focused,
+            onFocus: focus.onFocus,
             onTap: onPressed,
             child: mark,
           ),

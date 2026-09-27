@@ -188,11 +188,17 @@ class PlChip extends StatelessWidget {
       focusNode: focusNode,
       autofocus: autofocus,
       builder: (BuildContext context, PlassInteraction state) {
+        // Said on the chip's own node, which is in here, and nothing while the
+        // chip cannot be pressed, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: pressable,
           button: pressable ? true : null,
           selected: pressable ? selected : null,
           enabled: pressable ? !disabled : null,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: interactive ? onPressed : null,
           child: _shell(
             context,

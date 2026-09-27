@@ -678,7 +678,17 @@ class _Link extends StatelessWidget {
           child: row,
         );
 
-        return Semantics(link: true, button: false, onTap: choose, child: row);
+        // Said on the link's own node, which is in here.
+        final focus = plassFocusSemanticsOf(context);
+
+        return Semantics(
+          link: true,
+          button: false,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
+          onTap: choose,
+          child: row,
+        );
       },
     );
   }

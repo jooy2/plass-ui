@@ -228,10 +228,15 @@ class PlTextLink extends StatelessWidget {
           child: label,
         );
 
+        // Said on the link's own node, which is in here.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           link: true,
           enabled: onPressed != null,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: onPressed,
           // Drawn for nobody and read to everybody: the arrow says "leaves the
           // app" only to a reader who can see it.

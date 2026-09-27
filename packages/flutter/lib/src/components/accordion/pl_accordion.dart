@@ -536,11 +536,17 @@ class _SectionState<T> extends State<_Section<T>> with SingleTickerProviderState
           child: row,
         );
 
+        // Said on the header's own node, which is in here, and nothing while
+        // the section is disabled, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           button: true,
           expanded: open,
           enabled: !disabled,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: disabled ? null : onToggle,
           child: row,
         );

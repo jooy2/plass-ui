@@ -369,11 +369,17 @@ class PlBottomNavigation<T> extends StatelessWidget {
           child: content,
         );
 
+        // Said on the item's own node, which is in here, and nothing while it
+        // is unavailable, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           button: true,
           enabled: interactive,
           selected: selected,
           label: item.label,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: interactive ? () => onChanged?.call(item.value) : null,
           child: ExcludeSemantics(child: content),
         );

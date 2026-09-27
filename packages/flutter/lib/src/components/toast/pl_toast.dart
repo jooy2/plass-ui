@@ -853,9 +853,14 @@ class _Toast extends StatelessWidget {
                         PlassInteractive(
                           onTap: act,
                           builder: (BuildContext context, PlassInteraction state) {
+                            // Said on the action's own node, which is in here.
+                            final focus = plassFocusSemanticsOf(context);
+
                             return Semantics(
                               container: true,
                               button: true,
+                              focused: focus.focused,
+                              onFocus: focus.onFocus,
                               // `PlassInteractive` keeps its press off the
                               // semantics tree, so the tap a screen reader,
                               // Switch Access or Voice Access makes is

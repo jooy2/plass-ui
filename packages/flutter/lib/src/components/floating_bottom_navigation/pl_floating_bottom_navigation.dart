@@ -469,12 +469,18 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
           child: content,
         );
 
+        // Said on the item's own node, which is in here, and nothing while it
+        // is unavailable, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           button: true,
           enabled: interactive,
           selected: selected,
           // Never drawn, always read.
           label: item.label,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: interactive ? () => widget.onChanged?.call(item.value) : null,
           child: ExcludeSemantics(child: content),
         );

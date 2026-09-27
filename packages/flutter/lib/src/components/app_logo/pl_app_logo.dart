@@ -277,9 +277,15 @@ class PlAppLogo extends StatelessWidget {
       pressable: pressable,
       cursor: pressable ? SystemMouseCursors.click : MouseCursor.defer,
       builder: (BuildContext context, PlassInteraction state) {
+        // Said on the logo's own node, which is in here, and nothing while it
+        // cannot be pressed, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: pressable,
           button: pressable ? true : null,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           // The press target excludes itself from semantics, so the action a
           // screen reader, Switch Access or Voice Access fires is declared here.
           onTap: onPressed,

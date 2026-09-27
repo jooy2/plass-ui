@@ -292,11 +292,18 @@ class PlListItem extends StatelessWidget {
             focusNode: focusNode,
             autofocus: autofocus,
             builder: (BuildContext context, PlassInteraction state) {
+              // Said on the row's own node, which is in here, and nothing
+              // while the row cannot be pressed, which is when it takes no
+              // focus.
+              final focus = plassFocusSemanticsOf(context);
+
               return Semantics(
                 container: true,
                 button: interactive ? true : null,
                 enabled: interactive ? null : !disabled,
                 selected: selected,
+                focused: focus.focused,
+                onFocus: focus.onFocus,
                 onTap: interactive ? onPressed : null,
                 child: _body(
                   tokens,

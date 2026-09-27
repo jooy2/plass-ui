@@ -498,6 +498,10 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           );
         }
 
+        // Said on the trigger's own node, which is in here, and nothing while
+        // the select is disabled, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           button: true,
@@ -508,6 +512,8 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           // does through Base UI's Field. What is chosen is the value.
           label: widget.semanticLabel ?? plassTextOf(widget.label),
           value: chosen >= 0 ? _spoken(widget.options[chosen]) : null,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: _usable ? _openList : null,
           child: shell,
         );

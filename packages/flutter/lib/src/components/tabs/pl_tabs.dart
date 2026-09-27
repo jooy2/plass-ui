@@ -848,11 +848,18 @@ class _Tab<T> extends StatelessWidget {
             child: body,
           );
 
+          // Said on the tab's own node, which is in here, and only on the tab
+          // that holds the list's stop: the others are behind an
+          // `ExcludeFocus` and take no focus.
+          final focus = plassFocusSemanticsOf(context);
+
           return Semantics(
             container: true,
             inMutuallyExclusiveGroup: true,
             selected: chosen,
             enabled: onPressed != null,
+            focused: focus.focused,
+            onFocus: focus.onFocus,
             onTap: onPressed,
             child: body,
           );

@@ -406,6 +406,11 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           );
         }
 
+        // Said on the trigger's own node, which is in here, and nothing while
+        // the picker is disabled, which is when it takes no focus. The ×
+        // inside it is a stop of its own and says so on its own node.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           button: true,
@@ -415,6 +420,8 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           // The field's label names the trigger, and what is chosen is the value.
           label: widget.semanticLabel ?? plassTextOf(widget.label),
           value: widget.semanticValue,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: _usable ? () => widget.onOpenChanged(!widget.open) : null,
           child: shell,
         );

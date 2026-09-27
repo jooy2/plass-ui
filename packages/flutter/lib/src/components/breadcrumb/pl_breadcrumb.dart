@@ -401,9 +401,15 @@ class _Step extends StatelessWidget {
       cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
       shortcuts: PlassInteractive.enterOnly,
       builder: (BuildContext context, PlassInteraction state) {
+        // Said on the step's own node, which is in here, and nothing while
+        // the step cannot be followed, which is when it takes no focus.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           link: interactive ? true : null,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           enabled: interactive ? null : !item.disabled,
           // The step the reader is on is a *page*, not the chosen one of a set
           // of options — which is why it is a header rather than a selection.
@@ -472,10 +478,15 @@ class _Fold extends StatelessWidget {
           child: mark,
         );
 
+        // Said on the fold's own node, which is in here.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: true,
           button: true,
           label: label,
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: onPressed,
           child: mark,
         );

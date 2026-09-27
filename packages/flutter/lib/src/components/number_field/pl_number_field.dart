@@ -1054,6 +1054,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
             child: button,
           );
 
+          // Said on the stepper's own node, which is in here, and nothing while
+          // it has no step to take, which is when it takes no focus.
+          final focus = plassFocusSemanticsOf(context);
+
           // A held stepper repeats, which is the difference between a spinner
           // and two buttons: nobody presses `+` forty times.
           return Listener(
@@ -1069,6 +1073,8 @@ class _PlNumberFieldState extends State<PlNumberField> {
               label: direction > 0
                   ? widget.incrementLabel ?? PlassTheme.labelsOf(context).increase
                   : widget.decrementLabel ?? PlassTheme.labelsOf(context).decrease,
+              focused: focus.focused,
+              onFocus: focus.onFocus,
               // `PlassInteractive` keeps its tap off the semantics tree, so the
               // press a screen reader makes is given here. It is one step, the
               // click a Base UI stepper answers with no pointer behind it: no
