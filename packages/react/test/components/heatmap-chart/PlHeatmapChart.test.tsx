@@ -1,6 +1,7 @@
 import { commands } from 'vitest/browser';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PlHeatmapChart } from 'plass-ui';
+import type { PlassChartSeries } from 'plass-ui';
 import { render } from 'vitest-browser-react';
 
 const HOURS = ['09', '12', '15', '18'];
@@ -470,6 +471,122 @@ describe('PlHeatmapChart', () => {
         arrow(plot.element(), 'ArrowDown');
         await expect.poll(() => status.textContent).toContain('Wed · 12');
       });
+    });
+
+    describe('rendered again', () => {
+      // A cell under the resting pointer takes the readout from the keyboard.
+      beforeEach(async () => {
+        await commands.parkPointer();
+      });
+
+      const SQUARE: PlassChartSeries[] = [
+        { name: 'Mon', data: [2, 9] },
+        { name: 'Tue', data: [3, 11] }
+      ];
+
+      /**
+       * Renders a chart over `SQUARE` in `shape` and reads its 'Tue · 12' cell
+       * by key: the last cell of the grid, and the largest, so the first, tile
+       * of the treemap.
+       */
+      async function reading(shape: 'grid' | 'treemap') {
+        const chart = (series: PlassChartSeries[]) => (
+          <PlHeatmapChart label="Traffic" series={series} categories={HOURS} shape={shape} />
+        );
+        const screen = await render(chart(SQUARE));
+        const plot = screen.getByRole('img', { name: 'Traffic' });
+
+        await expect.element(plot).toBeInTheDocument();
+        await expect.poll(() => cells(plot.element()).length).toBe(4);
+
+        const status = screen.container.querySelector('[role="status"]') as HTMLElement;
+
+        // One key at a time: the handler reads the cell the last render left.
+        for (const heading of shape === 'grid'
+          ? ['Mon · 09', 'Mon · 12', 'Tue · 09', 'Tue · 12']
+          : ['Tue · 12']) {
+          arrow(plot.element(), 'ArrowRight');
+          await expect.poll(() => status.textContent).toContain(heading);
+        }
+
+        expect(opacities(plot.element())).toContain('1');
+
+        return { screen, plot: plot.element(), status, chart };
+      }
+
+      /** `SQUARE` with its 'Tue · 12' cell turned to `gone`. */
+      function without(gone: number | null): PlassChartSeries[] {
+        return [SQUARE[0], { name: 'Tue', data: [3, gone] }];
+      }
+
+      /** The opacity every cell is drawn at. */
+      function opacities(plot: Element): (string | null)[] {
+        return cells(plot).map((cell) => cell.getAttribute('opacity'));
+      }
+
+      // A gap on either shape, and a value with no area to be a tile.
+      it.each([
+        ['grid', null],
+        ['treemap', null],
+        ['treemap', 0]
+      ] as const)(
+        'lets go of a %s cell that turns %s and is no longer drawn, and for good',
+        async (shape, gone) => {
+          const { screen, plot, status, chart } = await reading(shape);
+
+          await screen.rerender(chart(without(gone)));
+
+          expect(cells(plot).length).toBe(3);
+          expect(status.textContent).toBe('');
+          expect(screen.container.querySelector('[data-plass-tooltip]')).toBeNull();
+          expect(opacities(plot)).not.toContain('1');
+
+          // The data bringing the cell back does not bring the reading back
+          // with it.
+          await screen.rerender(chart(SQUARE));
+
+          expect(cells(plot).length).toBe(4);
+          expect(status.textContent).toBe('');
+          expect(screen.container.querySelector('[data-plass-tooltip]')).toBeNull();
+          expect(opacities(plot)).not.toContain('1');
+        }
+      );
+
+      it.each(['grid', 'treemap'] as const)(
+        'lets Escape through once the cell it was reading on a %s is gone',
+        async (shape) => {
+          const { screen, plot, chart } = await reading(shape);
+
+          await screen.rerender(chart(without(null)));
+
+          // Nothing is being read, so the key goes on to what the chart sits in
+          // rather than clearing a reading nobody can see.
+          const escape = new KeyboardEvent('keydown', {
+            key: 'Escape',
+            bubbles: true,
+            cancelable: true
+          });
+
+          plot.dispatchEvent(escape);
+
+          expect(escape.defaultPrevented).toBe(false);
+        }
+      );
+
+      it.each(['grid', 'treemap'] as const)(
+        'keeps reading a cell that is still there on a %s',
+        async (shape) => {
+          const { screen, plot, status, chart } = await reading(shape);
+
+          // Another cell goes, and every one left moves on the treemap.
+          await screen.rerender(chart([{ name: 'Mon', data: [null, 9] }, SQUARE[1]]));
+
+          expect(cells(plot).length).toBe(3);
+          expect(status.textContent).toContain('Tue · 12');
+          expect(screen.container.querySelector('[data-plass-tooltip]')).not.toBeNull();
+          expect(opacities(plot).filter((opacity) => opacity === '1').length).toBe(1);
+        }
+      );
     });
   });
 });

@@ -356,6 +356,14 @@ export function PlHeatmapChart({
       ? null
       : (cells.find((one) => one.row === active.row && one.index === active.index) ?? null);
 
+  /* A cell that is no longer drawn has nothing left to read, so the reading is
+     let go rather than kept for a cell the data may bring back, as the other
+     charts let go of a column or a mark. Let go in the render that finds it
+     gone, and React renders again before anything is painted. */
+  if (active !== null && hovered === null) {
+    setActive(null);
+  }
+
   /* One row, with no name on it. The heading already says which cell this is —
      both of its coordinates — so a name here would print one of them twice. */
   const items: ChartTooltipItem[] =

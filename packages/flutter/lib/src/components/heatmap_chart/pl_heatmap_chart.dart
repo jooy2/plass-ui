@@ -226,14 +226,13 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
 
     // The cell being read comes up to whole and goes back as the reading moves
     // on, easing both ways. At once when the platform asks for less movement,
-    // as the React cells change under `prefers-reduced-motion`.
-    _ease.aim(
-      <Object>{?_active},
-      duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
-          ? Duration.zero
-          : tokens.motionDuration,
-      curve: tokens.motionEase,
-    );
+    // as the React cells change under `prefers-reduced-motion`. Aimed once the
+    // cells are laid out, below, where a cell that is not drawn is let go.
+    final Duration easing = (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
+        ? Duration.zero
+        : tokens.motionDuration;
+
+    void aim() => _ease.aim(<Object>{?_active}, duration: easing, curve: tokens.motionEase);
 
     final Widget plot = SizedBox(
       height: plotHeight,
@@ -244,6 +243,10 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
               : plotHeight * 2;
 
           if (nothing || width <= 0) {
+            // Nothing is drawn, so there is no cell left to read either.
+            _active = null;
+            aim();
+
             return Center(
               child: DefaultTextStyle.merge(
                 style: TextStyle(fontSize: metaText[size]!, color: tokens.mutedFg),
@@ -323,6 +326,19 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
               break;
             }
           }
+
+          // A cell that is no longer drawn has nothing left to read, so the
+          // reading is let go rather than kept for a cell the data may bring
+          // back, as the other charts let go of a column or a mark. Here rather
+          // than when the widget changes, because the cells are known only
+          // once they are laid out, and asking the data instead would write
+          // out a second time which values get one: a gap on either shape, and
+          // on a treemap a value with no area to be.
+          if (shown == null) {
+            _active = null;
+          }
+
+          aim();
 
           // Both coordinates, which is what a cell *is*. What it is worth then
           // has only the number left to carry.

@@ -803,6 +803,116 @@ void main() {
         );
         expect(find.byType(PlassChartTabStop), findsNothing);
       });
+
+      group('built again', () {
+        /// Arrives on a chart over [square] in [shape] by Tab, reads its
+        /// 'Tue · 12' cell by key, and hands back what builds it again.
+        Future<ValueNotifier<List<PlassChartSeries>>> reading(
+          WidgetTester tester,
+          PlHeatmapShape shape,
+        ) async {
+          final data = ValueNotifier<List<PlassChartSeries>>(square);
+
+          addTearDown(data.dispose);
+
+          await tabTo(
+            tester,
+            ValueListenableBuilder<List<PlassChartSeries>>(
+              valueListenable: data,
+              builder: (BuildContext context, List<PlassChartSeries> series, Widget? _) =>
+                  PlHeatmapChart(series: series, categories: hours, shape: shape),
+            ),
+          );
+
+          // The last cell of the grid, and the largest, so the first, tile of
+          // the treemap.
+          await walk(tester, <(LogicalKeyboardKey, String)>[
+            if (shape == PlHeatmapShape.grid) ...<(LogicalKeyboardKey, String)>[
+              (LogicalKeyboardKey.arrowRight, 'Mon · 09, 2'),
+              (LogicalKeyboardKey.arrowRight, 'Mon · 12, 9'),
+              (LogicalKeyboardKey.arrowRight, 'Tue · 09, 3'),
+            ],
+            (LogicalKeyboardKey.arrowRight, 'Tue · 12, 11'),
+          ]);
+          await tester.pumpAndSettle();
+
+          expect(_count(_cellAlphas(tester), 1), 1);
+
+          return data;
+        }
+
+        /// [square] with its 'Tue · 12' cell turned to [gone].
+        List<PlassChartSeries> without(double? gone) => <PlassChartSeries>[
+          square[0],
+          PlassChartSeries(name: 'Tue', data: _row(<double?>[3, gone])),
+        ];
+
+        testWidgets('lets go of a cell that is no longer drawn, and for good', (
+          WidgetTester tester,
+        ) async {
+          // A gap on either shape, and a value with no area to be a tile.
+          for (final (PlHeatmapShape shape, double? gone) in <(PlHeatmapShape, double?)>[
+            (PlHeatmapShape.grid, null),
+            (PlHeatmapShape.treemap, null),
+            (PlHeatmapShape.treemap, 0),
+          ]) {
+            final ValueNotifier<List<PlassChartSeries>> data = await reading(tester, shape);
+
+            data.value = without(gone);
+            await tester.pumpAndSettle();
+
+            expect(said(tester), isEmpty, reason: '$shape $gone');
+            expect(find.byType(PlassChartTooltipCard), findsNothing, reason: '$shape $gone');
+            expect(_count(_cellAlphas(tester), 0.94), 3, reason: '$shape $gone');
+
+            // The data bringing the cell back does not bring the reading back
+            // with it, nor the cell up to whole: it is drawn at rest from the
+            // first frame, rather than easing down from where it was held.
+            data.value = square;
+            await tester.pump();
+
+            expect(said(tester), isEmpty, reason: '$shape $gone');
+            expect(find.byType(PlassChartTooltipCard), findsNothing, reason: '$shape $gone');
+            expect(_count(_cellAlphas(tester), 0.94), 4, reason: '$shape $gone');
+            expect(tester.binding.transientCallbackCount, 0, reason: '$shape $gone');
+          }
+        });
+
+        testWidgets('lets Escape through once the cell it was reading is gone', (
+          WidgetTester tester,
+        ) async {
+          for (final PlHeatmapShape shape in PlHeatmapShape.values) {
+            final ValueNotifier<List<PlassChartSeries>> data = await reading(tester, shape);
+
+            data.value = without(null);
+            await tester.pumpAndSettle();
+
+            // Nothing is being read, so the key goes on to what the chart sits
+            // in rather than clearing a reading nobody can see.
+            await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+
+            expect(passed, <LogicalKeyboardKey>[LogicalKeyboardKey.escape], reason: '$shape');
+          }
+        });
+
+        testWidgets('keeps reading a cell that is still there', (WidgetTester tester) async {
+          for (final PlHeatmapShape shape in PlHeatmapShape.values) {
+            final ValueNotifier<List<PlassChartSeries>> data = await reading(tester, shape);
+
+            // Another cell goes, and every one left moves on the treemap.
+            data.value = <PlassChartSeries>[
+              PlassChartSeries(name: 'Mon', data: _row(<double?>[null, 9])),
+              square[1],
+            ];
+            await tester.pumpAndSettle();
+
+            expect(said(tester), 'Tue · 12, 11', reason: '$shape');
+            expect(find.byType(PlassChartTooltipCard), findsOneWidget, reason: '$shape');
+            expect(_count(_cellAlphas(tester), 1), 1, reason: '$shape');
+            expect(_count(_cellAlphas(tester), 0.94), 2, reason: '$shape');
+          }
+        });
+      });
     });
   });
 }

@@ -78,6 +78,8 @@
 
 ### Fixed
 
+- **A `PlHeatmapChart` built again without the cell it is reading lets go of it.** A cell the data turned into a gap, or a treemap tile whose value no longer had an area to be, was kept: nothing was read while it was gone, `Escape` was taken with nothing to clear, and once the data brought the cell back it was read again, with its card and drawn whole at once. A cell that is still there is still read.
+
 - **A `PlHeatmapChart` card moves to the left of a cell past 60% of the width, as in the React build.** The card stood to the right of every cell and moved to the left only when it did not fit there, where the React heatmap and every other Flutter chart put it on the left of a point past 60% of the way across.
 
 - **A line or area chart's series faded for a legend entry fades as one picture, as in the React build.** Its band, its line and each marker's ring and dot faded one by one, so the line showed through a faded marker. The series is now drawn whole and faded together while it fades or is faded; a series at full strength is drawn as before.
