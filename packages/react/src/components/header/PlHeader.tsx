@@ -201,6 +201,20 @@ const endClasses: Record<PlassAlign, string> = {
   end: 'shrink-0'
 };
 
+/**
+ * The trailing end is the leading end with an auto margin on the two packed
+ * alignments. A middle takes the rest of the row and so leaves the actions at
+ * the far end; a bar with no middle has nothing taking that room, and the
+ * margin is what puts the actions there rather than one gap after the brand.
+ * While a middle is there it takes all the room and the margin comes to
+ * nothing, and centred the end is `flex-1` already.
+ */
+const actionsClasses: Record<PlassAlign, string> = {
+  start: 'ms-auto shrink-0',
+  center: 'flex-1 basis-0',
+  end: 'ms-auto shrink-0'
+};
+
 const middleClasses: Record<PlassAlign, string> = {
   start: 'flex min-w-0 flex-1 items-center justify-start',
   center: 'flex min-w-0 shrink items-center justify-center',
@@ -335,7 +349,7 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
               <div
                 className={cx(
                   'flex min-w-0 items-center justify-end',
-                  endClasses[align],
+                  actionsClasses[align],
                   sheetSectionGapClasses[size]
                 )}
               >
