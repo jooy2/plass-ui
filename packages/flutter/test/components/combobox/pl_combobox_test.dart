@@ -1815,6 +1815,166 @@ void main() {
         expect(removed, 2);
       });
 
+      group('the focus, as a chip’s × takes its chip off', () {
+        /// Puts a field holding [values] after a focus stop of its own, which
+        /// holds the focus, with its chips coming off as they would for a
+        /// caller.
+        Future<ValueNotifier<List<String>>> pumpAfterStop(
+          WidgetTester tester,
+          List<String> values,
+        ) async {
+          final FocusNode before = FocusNode(debugLabel: 'before');
+          final ValueNotifier<List<String>> held = ValueNotifier<List<String>>(values);
+          addTearDown(before.dispose);
+          addTearDown(held.dispose);
+
+          await tester.pumpWidget(
+            _host(
+              afterFocusStop(
+                before,
+                ValueListenableBuilder<List<String>>(
+                  valueListenable: held,
+                  builder: (BuildContext context, List<String> chosen, Widget? child) =>
+                      PlCombobox<String>.multiple(
+                        options: _more,
+                        values: chosen,
+                        onChanged: (List<String> next) => held.value = next,
+                      ),
+                ),
+              ),
+            ),
+          );
+          before.requestFocus();
+          await tester.pump();
+
+          return held;
+        }
+
+        /// Whether the × of the chip for [city] holds the focus.
+        bool onRemove(WidgetTester tester, String city) {
+          return Focus.of(tester.element(_adornment('Remove $city'))).hasPrimaryFocus;
+        }
+
+        /// Whether the text holds the focus.
+        bool onText(WidgetTester tester) {
+          return tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+        }
+
+        testWidgets('goes to the text from the keyboard, so a second Enter takes nothing', (
+          WidgetTester tester,
+        ) async {
+          final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>[
+            'seoul',
+            'lisbon',
+          ]);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(onRemove(tester, 'Seoul'), isTrue);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(held.value, <String>['lisbon']);
+          expect(onText(tester), isTrue);
+          expect(onRemove(tester, 'Lisbon'), isFalse);
+
+          // The next chip's × has not moved up into the place the focus was
+          // left in, so Enter does not take off a value nobody chose.
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(held.value, <String>['lisbon']);
+          expect(onText(tester), isTrue);
+        });
+
+        testWidgets('goes to the text from the keyboard as the last chip goes', (
+          WidgetTester tester,
+        ) async {
+          final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>['seoul']);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(onRemove(tester, 'Seoul'), isTrue);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          // Not back to the stop before the field, where a focus left on a ×
+          // that has gone falls.
+          expect(held.value, isEmpty);
+          expect(onText(tester), isTrue);
+        });
+
+        testWidgets('goes to the text from a press, and leaves the list shut', (
+          WidgetTester tester,
+        ) async {
+          final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>[
+            'seoul',
+            'lisbon',
+          ]);
+
+          await tester.tap(_adornment('Remove Seoul'));
+          await tester.pumpAndSettle();
+
+          expect(held.value, <String>['lisbon']);
+          expect(onText(tester), isTrue);
+          expect(find.text('Quito'), findsNothing);
+        });
+
+        testWidgets('stays on a chip’s × as a chip before it goes some other way', (
+          WidgetTester tester,
+        ) async {
+          final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>[
+            'seoul',
+            'lisbon',
+            'osaka',
+          ]);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(onRemove(tester, 'Lisbon'), isTrue);
+
+          // Each chip is kept by its value, and not by its place in the row, so
+          // the focus stays with Lisbon rather than with the chip that has
+          // come into the place it held.
+          held.value = <String>['lisbon', 'osaka'];
+          await tester.pumpAndSettle();
+
+          expect(onRemove(tester, 'Lisbon'), isTrue);
+          expect(onRemove(tester, 'Osaka'), isFalse);
+        });
+
+        testWidgets('draws a set that holds one value twice, or holds the word `query`', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(
+            _host(
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  PlCombobox<String>.multiple(
+                    options: _cities,
+                    values: const <String>['seoul', 'seoul'],
+                    onChanged: (List<String> _) {},
+                  ),
+                  // The text beside the chips is kept by that word.
+                  PlCombobox<String>.multiple(
+                    options: _cities,
+                    values: const <String>['query'],
+                    onChanged: (List<String> _) {},
+                  ),
+                ],
+              ),
+            ),
+          );
+
+          expect(tester.takeException(), isNull);
+          expect(find.byType(PlChip), findsNWidgets(3));
+        });
+      });
+
       testWidgets('takes a chosen value back out when its row is taken again', (
         WidgetTester tester,
       ) async {

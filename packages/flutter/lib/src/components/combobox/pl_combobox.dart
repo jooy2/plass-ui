@@ -379,6 +379,13 @@ class _Row<T> {
   String get label => option?.label ?? query!;
 }
 
+/// What a chip of a `multiple` field is kept by: the value it stands for, in a
+/// key of its own type, so no value can clash with the key of the text beside
+/// the chips.
+class _ChipKey<T> extends ValueKey<T> {
+  const _ChipKey(super.value);
+}
+
 /// What a single-value [combobox]'s field says for the value it holds: its
 /// option's label, or the value itself when no option holds it. Nothing with
 /// `multiple`, or with nothing held.
@@ -969,11 +976,16 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     });
   }
 
+  /// Takes [value] off from its chip's ×, and puts the focus in the text, as
+  /// Base UI's chip remove does whether the × was pressed or reached from the
+  /// keyboard. The × goes with its chip, and a focus left on it would fall back
+  /// to whatever came before the field.
   void _remove(T value) {
     widget.onValuesChanged?.call(<T>[
       for (final held in widget.values)
         if (held != value) held,
     ]);
+    _focusNode.requestFocus();
   }
 
   void _clear() {
@@ -1191,6 +1203,13 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     editor = plassHotKeyScope(hotKeys: widget.hotKeys, child: editor);
 
+    // Each chip is kept by the value it stands for, so the chips after one that
+    // is taken off keep their own widgets, and a focused × stays with its chip,
+    // rather than each moving up into the widgets of the chip before it. Two
+    // chips of one value cannot share a key, so a set with a repeat is kept by
+    // place.
+    final bool repeats = widget.values.toSet().length < widget.values.length;
+
     final chips = widget.multiple && widget.values.isNotEmpty
         ? <Widget>[
             for (final value in widget.values)
@@ -1198,6 +1217,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
               // disabled, so the chip, disabled with it, keeps the disabled
               // look without a fade of its own.
               PlassFadedScope(
+                key: repeats ? null : _ChipKey<T>(value),
                 faded: _disabled,
                 // A node of its own, named by its label, with its × a button
                 // inside it, as each React chip is an element of its own in the

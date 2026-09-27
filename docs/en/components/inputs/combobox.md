@@ -196,7 +196,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is.
 - The "add this" row is a **real option**, not a special case in the key handling, so a click, <kbd>Enter</kbd> and the arrow keys all reach it the way every other row is reached.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
-- Each chip's × is named after its chip (`Remove Seoul`, not `Remove`), because a screen reader reading a row of six identical buttons has told the reader nothing.
+- Each chip's × is named after its chip (`Remove Seoul`, not `Remove`), because a screen reader reading a row of six identical buttons has told the reader nothing. Removing a chip with its × moves the focus to the input.
 - The clear × is drawn at the size of the text, and a press anywhere in a 24px square around it reaches it, which is the minimum target size in WCAG 2.5.8. The chevron keeps the size it is drawn at, and a press on the input opens the list as well.
 - With `name`, Base UI renders the hidden input that makes the value part of a native form submission.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset can hang the same reset.
@@ -212,7 +212,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row. The pointer lights a row only by moving onto it, so a row the keys scroll under a resting pointer leaves the light where the keys put it. The pointer leaving a row puts its light out.
 - The list opens with the chosen row lit, or with `multiple` the first chosen row down the list, and a row just taken, or taken back out, stays lit. With nothing chosen, <kbd>↓</kbd> opens the list on the first row that can be taken, <kbd>↑</kbd> on the last one, and a press opens it with no row lit.
 - A row that cannot be taken stays in the list and is announced as unavailable. The highlight stops on it like any other row, and <kbd>Enter</kbd> there takes nothing.
-- Each chip's × is named after its chip.
+- Each chip's × is named after its chip. Removing a chip with its × moves the focus to the field, whether the × was pressed or reached with the keyboard.
 - The clear × is drawn at the size of the text, and a press anywhere in a 24px square around it reaches it, which is the minimum target size in WCAG 2.5.8. The chevron keeps the size it is drawn at, and a press on the field opens the list as well.
 - Nothing is committed when the list closes or focus leaves: the query goes back to being the value, so the list opens on every row again, and a value the list does not have is only ever taken by taking its row.
 
