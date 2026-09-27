@@ -312,7 +312,10 @@ class _PlTreeState extends State<PlTree> {
   }
 
   KeyEventResult _onKey(_Row row, List<_Row> reachable, KeyEvent event) {
-    if (event is! KeyDownEvent) {
+    // A held key's repeats are steps too, as they are in the React tree. Let
+    // go of, they would go on to the app, which moves the focus out of the
+    // tree or scrolls the page.
+    if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
 

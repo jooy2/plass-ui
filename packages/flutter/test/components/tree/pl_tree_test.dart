@@ -511,6 +511,71 @@ void main() {
           );
           expect(_focused(), equals('src'));
         });
+
+        testWidgets('walks on row by row while an arrow is held, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          final FocusNode before = FocusNode(debugLabel: 'before');
+          final FocusNode after = FocusNode(debugLabel: 'after');
+          addTearDown(before.dispose);
+          addTearDown(after.dispose);
+
+          // Stops above and below the tree, and the arrow keys a `WidgetsApp`
+          // gives, which take a key the tree lets go of to the nearest stop
+          // that way. The disabled row is left off the end, so the last row
+          // drawn is the last one the arrows reach.
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              afterFocusStop(
+                before,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    PlTree(
+                      items: items.sublist(0, 2),
+                      expanded: const <String>{'src'},
+                      onExpandedChanged: (Set<String> _) {},
+                    ),
+                    Focus(focusNode: after, child: const SizedBox.square(dimension: 1)),
+                  ],
+                ),
+              ),
+            ),
+          );
+          await _focusRow(tester, 'src');
+
+          // A held key arrives as one press and then its repeats, and every
+          // repeat is a step, as it is in the React tree.
+          await simulateKeyDownEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          expect(_focused(), equals('index'));
+
+          await simulateKeyRepeatEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          expect(_focused(), equals('components'));
+
+          await simulateKeyRepeatEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          expect(_focused(), equals('readme'));
+
+          // Past the last row the tree keeps the key, except under directional
+          // navigation, where the arrows are the only way out of it.
+          await simulateKeyRepeatEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+          await simulateKeyUpEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          if (mode == NavigationMode.traditional) {
+            expect(_focused(), equals('readme'));
+          } else {
+            expect(after.hasPrimaryFocus, isTrue);
+          }
+        });
       }
     });
 
