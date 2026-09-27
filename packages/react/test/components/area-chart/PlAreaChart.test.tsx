@@ -1,3 +1,4 @@
+import { commands } from 'vitest/browser';
 import { describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlAreaChart } from 'plass-ui';
@@ -153,6 +154,10 @@ describe('PlAreaChart', () => {
     });
 
     it('fades a band’s markers and labels with it, cut out of its band', async () => {
+      // The pointer is still wherever the previous file left it, and resting on
+      // the legend it would fade a band before the test points at one.
+      await commands.parkPointer();
+
       const screen = await render(
         <PlAreaChart
           label="Storage"
