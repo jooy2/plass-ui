@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **Leaving a `PlNumberField` calls `onCommitted` only when something is left to settle: a number typed since the value last settled, the repeats of a held stepper the focus left before it was let go, or a box that reads as a number other than the value, as in the React build.** Every blur called it. So a Tab through the field, or a mouse press on its padding or an adornment, which takes the focus out and gives it back, reported the value the field already had. A press on a stepper of a field that did not have the focus, a held stepper let go of, and `Enter` each reported it a second time on the way out, after the press or the key had settled it. The box is still written back in its settled form on every blur.
+
 - **A `PlAppLogo` given `onPressed` can be reached and pressed from the keyboard.** `Tab` reaches it, `Enter` and `Space` press it, and the family's focus ring is drawn round it while a keyboard holds the focus, as on every other button. Before, it answered only a pointer: it took no focus and no key, so a keyboard could not press it.
 
 - **A screen reader names a `PlCommandPalette`'s search field by its placeholder, before and after anything is typed, as in the React build.** The field had no name. Its placeholder, "Search commands" by default, was a separate line of text beside it, and that line left as soon as something was typed. The field now takes `placeholder`, or the label pack's `commandPalettePlaceholder`, as its own name, and the drawn placeholder is no longer read as a second line.

@@ -304,6 +304,24 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// Whether the stepper being held has repeated, which makes its release the
   /// moment the value settles rather than one more step.
   bool _repeated = false;
+
+  /// Whether a change has been reported that has not settled since: text typed
+  /// into the box, or the repeats of a held stepper before its release.
+  ///
+  /// Leaving the field reports a settle only while this holds, or when the box
+  /// settles to a number other than [_held]. Otherwise there is nothing left to
+  /// settle, and a Tab through the field, or a press that takes the focus out of
+  /// it and brings it back, would report the value it already had.
+  bool _unsettled = false;
+
+  /// The value as far as the field knows it: the last one handed in, or the
+  /// last one it reported, whichever came later.
+  ///
+  /// Not [PlNumberField.value], which does not hold a report until the parent
+  /// has built again. A blur can come first: Enter settles the box and takes
+  /// the focus out in the same turn, and measured against the value before it,
+  /// the box would read as a number still to settle.
+  double? _held;
   bool _hovered = false;
   bool _pressed = false;
 
@@ -370,6 +388,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: _write(widget.value));
+    _held = widget.value;
     _focusNode.addListener(_onFocusChanged);
   }
 
@@ -380,6 +399,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
     if (oldWidget.focusNode != widget.focusNode) {
       (oldWidget.focusNode ?? _owned)?.removeListener(_onFocusChanged);
       _focusNode.addListener(_onFocusChanged);
+    }
+
+    if (widget.value != oldWidget.value) {
+      _held = widget.value;
     }
 
     // A value handed in from outside is written into the box — unless the box is
@@ -408,9 +431,30 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
     // Leaving the field is what settles it: the text is read, clamped and
     // written back, so a box holding `007` or `1e3` or nothing at all comes back
-    // saying what the field actually holds.
+    // saying what the field actually holds. It is reported only if something was
+    // left to settle.
     if (!_focused) {
-      _commit(_read(_controller.text));
+      final double? raw = _read(_controller.text);
+      final double? next = raw == null ? null : _settle(raw);
+
+      if (_unsettled || next != _held) {
+        _commit(raw);
+      } else {
+        _show(next);
+      }
+    }
+  }
+
+  /// Writes [value] into the box as a settled value is written, with the caret
+  /// at the end.
+  void _show(double? value) {
+    final String text = _write(value);
+
+    if (_controller.text != text) {
+      _controller.value = TextEditingValue(
+        text: text,
+        selection: TextSelection.collapsed(offset: text.length),
+      );
     }
   }
 
@@ -468,20 +512,17 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// repeat of a held stepper, which changes the value without settling it.
   void _commit(double? raw, {bool settled = true}) {
     final next = raw == null ? null : _settle(raw);
-    final text = _write(next);
 
-    if (_controller.text != text) {
-      _controller.value = TextEditingValue(
-        text: text,
-        selection: TextSelection.collapsed(offset: text.length),
-      );
-    }
+    _show(next);
 
     if (next != widget.value) {
+      _held = next;
+      _unsettled = true;
       widget.onChanged?.call(next);
     }
 
     if (settled) {
+      _unsettled = false;
       widget.onCommitted?.call(next);
     }
 
@@ -494,14 +535,8 @@ class _PlNumberFieldState extends State<PlNumberField> {
         return;
       }
 
-      final String held = _write(widget.value);
-
-      if (_controller.text != held) {
-        _controller.value = TextEditingValue(
-          text: held,
-          selection: TextSelection.collapsed(offset: held.length),
-        );
-      }
+      _held = widget.value;
+      _show(widget.value);
     });
     WidgetsBinding.instance.ensureVisualUpdate();
   }
@@ -535,8 +570,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
   void _onTyped(String text) {
     _quieten();
+
     // Reported as typed rather than as settled — see the note on `onChanged`.
-    widget.onChanged?.call(_read(text));
+    final double? typed = _read(text);
+
+    _held = typed;
+    _unsettled = true;
+    widget.onChanged?.call(typed);
   }
 
   /// Which step the modifiers being held are asking for.
@@ -614,6 +654,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
     _repeat = null;
 
     if (_repeated) {
+      _unsettled = false;
       widget.onCommitted?.call(_read(_controller.text));
 
       // Kept for the press that ends the hold, which arrives in the same

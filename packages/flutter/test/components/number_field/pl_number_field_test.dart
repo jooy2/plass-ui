@@ -26,6 +26,7 @@ class _Harness extends StatefulWidget {
     this.format,
     this.onCommitted,
     this.allowWheelScrub = false,
+    this.startIcon,
   });
 
   final double? value;
@@ -39,6 +40,7 @@ class _Harness extends StatefulWidget {
   final String Function(double value)? format;
   final ValueChanged<double?>? onCommitted;
   final bool allowWheelScrub;
+  final Widget? startIcon;
 
   @override
   State<_Harness> createState() => _HarnessState();
@@ -63,6 +65,7 @@ class _HarnessState extends State<_Harness> {
       format: widget.format,
       onCommitted: widget.onCommitted,
       allowWheelScrub: widget.allowWheelScrub,
+      startIcon: widget.startIcon,
       onChanged: (double? next) => setState(() => _value = next),
     );
   }
@@ -599,6 +602,177 @@ void main() {
         tester.binding.focusManager.primaryFocus!.unfocus();
         await tester.pumpAndSettle();
         expect(settled, <double?>[12]);
+      });
+    });
+
+    group('leaving the field', () {
+      testWidgets('settles nothing when the field is passed by Tab', (WidgetTester tester) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        final List<double?> settled = <double?>[];
+
+        await tester.pumpWidget(
+          host(afterFocusStop(before, _Harness(onCommitted: settled.add)), width: 320),
+        );
+        final _HarnessState state = tester.state<_HarnessState>(find.byType(_Harness));
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(_editorFocused(tester), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        // Nothing was typed and nothing changed, so there is nothing to settle.
+        expect(_editorFocused(tester), isFalse);
+        expect(state.value, 5);
+        expect(settled, isEmpty);
+      });
+
+      testWidgets('settles what was typed, though every keystroke already reported it', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(tester, _Harness(onCommitted: settled.add));
+
+        await tester.enterText(find.byType(EditableText), '7');
+        await tester.pump();
+        expect(state.value, 7);
+
+        // The box settles to the value the parent already holds, and the
+        // number was still typed rather than settled.
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(settled, <double?>[7]);
+      });
+
+      testWidgets('settles a box that reads as another number, once', (WidgetTester tester) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(value: 40, max: 12, onCommitted: settled.add),
+        );
+
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pump();
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(state.value, 12);
+        expect(settled, <double?>[12]);
+      });
+
+      testWidgets('settles once when Enter settles and takes the focus out', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(max: 12, onCommitted: settled.add),
+        );
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('40');
+        await tester.pump();
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(_editorFocused(tester), isFalse);
+        expect(state.value, 12);
+        expect(settled, <double?>[12]);
+      });
+
+      testWidgets(
+        'settles nothing when a press on an adornment takes the focus and gives it back',
+        (WidgetTester tester) async {
+          final List<double?> settled = <double?>[];
+          await _pumpInApp(
+            tester,
+            _Harness(startIcon: const Text('qty'), onCommitted: settled.add),
+          );
+
+          await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('qty'), kind: PointerDeviceKind.mouse);
+          await tester.pumpAndSettle();
+
+          expect(_editorFocused(tester), isTrue);
+          expect(settled, isEmpty);
+        },
+      );
+
+      testWidgets('settles a press on a stepper once, and not again on the way out', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pumpInApp(tester, _Harness(onCommitted: settled.add));
+
+        await tester.tap(_plus(), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+        expect(_editorFocused(tester), isTrue);
+
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(state.value, 6);
+        expect(settled, <double?>[6]);
+      });
+
+      testWidgets('settles a held stepper once, on its release and not again on the way out', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pumpInApp(
+          tester,
+          _Harness(value: 0, max: 3, onCommitted: settled.add),
+        );
+
+        final TestGesture press = await tester.startGesture(
+          tester.getCenter(_plus()),
+          kind: PointerDeviceKind.mouse,
+        );
+        await tester.pump(const Duration(milliseconds: 1200));
+        expect(settled, isEmpty);
+
+        await press.up();
+        await tester.pumpAndSettle();
+        expect(_editorFocused(tester), isTrue);
+
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(state.value, 3);
+        expect(settled, <double?>[3]);
+      });
+
+      testWidgets('settles a held stepper the focus leaves before its release', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pumpInApp(
+          tester,
+          _Harness(value: 0, onCommitted: settled.add),
+        );
+
+        final TestGesture press = await tester.startGesture(
+          tester.getCenter(_plus()),
+          kind: PointerDeviceKind.mouse,
+        );
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(state.value, greaterThan(0));
+
+        // The repeats so far are changes nothing has settled yet.
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pump();
+
+        expect(settled, <double?>[state.value]);
+
+        // Let go, so the repeat stops.
+        await press.up();
+        await tester.pumpAndSettle();
       });
     });
 
