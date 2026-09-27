@@ -2,9 +2,9 @@
 
 The open findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and of the batches that have worked through it since. The work goes in batches of twenty. When no item is left, delete this file in a commit of its own.
 
-A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 31 closed 572 items between `148a20e4` and `8a5c11ad`; those items and the notes of batches 1 to 29 are in the history of this file.
+A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 32 closed 584 items between `148a20e4` and `abf75ea0`; those items and the notes of batches 1 to 29 are in the history of this file.
 
-**12 items are open, and the last number used is 586.**
+**13 items are open, and the last number used is 599.**
 
 ## Working through a batch
 
@@ -46,7 +46,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 
 ## Waiting for an answer
 
-None. Every question batch 31 asked was answered with an item or with the change the batch had already made.
+None. Every question batch 32 asked was answered with an item, or with the test fix the batch made itself.
 
 ## Passed over and not yet asked
 
@@ -87,67 +87,76 @@ Small differences between the builds found in passing from batch 27 on. They are
 - `PlCalendar`: the Flutter weekday headers are read "Sun" (`internal/calendar.dart`, `weekdayRow`), React's "Sunday" (`role="columnheader"` with the long name).
 - `PlAnchor`: the label is a heading only in Flutter (`pl_anchor.dart`, `Semantics(header: true, …)`); React draws a plain `<span>`.
 - Fields: a Flutter field's adornments are read after the field, as children of its node, where React's start adornment comes before the input.
+- `PlRadioGroup` and `PlSegmentedButton`: in a read-only Flutter set, the focus stop the arrows moved goes back to the chosen option when `value` changes from outside or `readOnly` is lifted; Base UI keeps the highlighted item (`useCompositeRoot` reads `ACTIVE_COMPOSITE_ITEM` only on its first `onMapChange`), in a live group too.
+- `PlCombobox`: taking a chip off with its × while the list is open leaves that value's row lit in Flutter (`_remove` never clears `_highlighted`), so `Enter` puts it straight back; Base UI clears the highlight with `clearActiveIndexForRemovedItem`.
+- `PlNumberField`: a step on an empty Flutter field adds a step to `min` or zero (`final from = _read(_controller.text) ?? widget.min ?? 0;`), where Base UI sets zero held inside the range (`NumberFieldRoot.js` ~224), so with a `min` of 3 Flutter gives 4 and React 3; and Flutter rounds a typed value to ten decimals as it settles (`toStringAsFixed(10)` in `_settle`), where Base UI keeps typed input as it is.
+- Fields: a press on the text of a disabled Flutter field still moves its selection (the bare `EditableText` handles the tap itself, and `enableInteractiveSelection: false` does not stop it); no text changes, and a React `<input disabled>` ignores the click.
 
 ## Items
 
 Each item was raised in a batch report and approved. Its line numbers are from the commit that raised it and drift as the code changes; when one no longer matches, search for the symbol.
 
-- [ ] **575.** A disabled Flutter field is no longer announced as a text field (Accessibility · Flutter · Low)
-  - Location: the editors' `readOnly` in `text_field/pl_text_field.dart` (`readOnly: widget.readOnly || _disabled` ~369), `combobox/pl_combobox.dart` (~1103), `number_field/pl_number_field.dart` (`readOnly: !_editable`) and the `PlColorPicker` value field
-  - Problem: Since item 567 made each field one node, a disabled field reports the editor's read-only flag, as a Material `TextField` does. On iOS a read-only text field is not a text input (`accessibility_bridge.mm` ~269) and on Android it does not get the `EditText` class (`AccessibilityBridge.java` ~781), so a disabled field is read as "Name, dimmed" rather than as a dimmed text field. React's `<input disabled>` keeps its role.
-  - Proposal: Stop passing the disabled state into the editor's `readOnly` in the four fields and keep typing out with the `ExcludeFocus` they already have; check nothing else (scribble, stylus handwriting) reaches the editor, and test the role and that no text gets in.
+- [ ] **587.** A Flutter arrow-key control holds a D-pad user in (Accessibility · Flutter · Low)
+  - Location: the key handlers of `components/radio_group/pl_radio_group.dart` (`_onKey` ~253), `segmented_button/pl_segmented_button.dart` (~352), `tabs/pl_tabs.dart` (~310), `tree/pl_tree.dart` (~325) and `slider/pl_slider.dart` (~392)
+  - Problem: Each returns `KeyEventResult.handled` for an arrow whether or not it did anything, and the radio group, segmented button and tabs wrap at both ends. Under `NavigationMode.directional`, where the arrows are the only way to move the focus, a user who reaches a radio group or segmented set cannot leave it; a disabled set swallows the arrows while doing nothing (a disabled option can hold the focus there), as do tabs with no `onChanged`, a tree at its first or last row and a slider at `min` or `max`. Flutter's own `RadioGroup` behaves the same way.
+  - Proposal (approved): under `NavigationMode.directional` only, stop wrapping and return `KeyEventResult.ignored` for an arrow that moved nothing, so the focus system takes it to the next control; leave the keyboard behaviour in the traditional mode as it is. Sweep the package for other arrow handlers of the same shape and test each in both modes.
 
-- [ ] **576.** The arrow keys do nothing in a read-only Flutter radio group (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/radio_group/pl_radio_group.dart` (`_move`, `if (!_interactive || widget.options.isEmpty) {` ~187)
-  - Problem: A read-only group keeps its focus stop but its arrow keys neither move the focus nor the choice, so the other options cannot be reached from the keyboard. React's read-only Base UI group moves the focus and leaves the choice, and since item 564 the Flutter `PlSegmentedButton` does too.
-  - Proposal: Do what item 564 did (`a8643c1b`): a highlight index the arrows move in a read-only group, kept through `keepStop`, with a test.
+- [ ] **588.** An empty React donut draws its centre over the empty message (Bug · React · Low)
+  - Location: `packages/react/src/components/pie-chart/PlPieChart.tsx` (`const centred = Boolean(center) && inner > 0;` ~228, `{centred ? (` ~496)
+  - Problem: `centred` does not look at `nothing`, so an empty `donut` or `semi` pie with a `center` draws the centre on top of the empty state's words. The Flutter pie returns only the empty box (`if (nothing || outer <= 0) {`).
+  - Proposal (approved): draw no centre while the pie is empty, as Flutter does, with a test.
 
-- [ ] **577.** A Flutter surface that cannot be pressed is still a directional stop when it is handed a focus node (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/interaction.dart` (`focusNode: widget.focusNode ?? _ownNode,` ~280)
-  - Problem: Item 568 gave `PlassInteractive` a focus node of its own that refuses the focus while there is nothing to press, since `FocusableActionDetector` makes its node focusable under `NavigationMode.directional` even when disabled. A node the component was handed (`PlListItem`, `PlCard`, `PlChip`) bypasses it, so `PlListItem(focusNode: n, disabled: true, onPressed: …)` takes the focus from a remote, which it did not before item 568.
-  - Proposal: Build `PlassInteractive` on `Focus`, `Actions`, `Shortcuts` and its own highlight tracking instead of `FocusableActionDetector`, so it decides whether any node can take the focus, with tests in both navigation modes.
+- [ ] **589.** An empty gauge announces a reading it does not draw (Accessibility · Both · Low)
+  - Location: `packages/react/src/components/gauge-chart/PlGaugeChart.tsx` (`aria-label` ~367); `packages/flutter/lib/src/components/gauge_chart/pl_gauge_chart.dart` (`label:` ~256)
+  - Problem: A named `PlGaugeChart` whose `min` equals `max` draws only its empty state, but is announced "Quota: 5 / 10" in both builds, followed by the empty words.
+  - Proposal (approved): name an empty gauge by its label alone, with the empty words after it, in both builds, with a test in each.
 
-- [ ] **578.** A disabled Flutter tooltip still takes the long press from its trigger (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/tooltip/pl_tooltip.dart` (`onLongPress: () => _schedule(true),` ~466, while `_schedule` returns at once when disabled ~360)
-  - Problem: The long-press recogniser is registered whether or not the tooltip is disabled, so holding a `PlButton` under a disabled tooltip for a second and letting go shows nothing and does not press the button either.
-  - Proposal: Register the long press only while the tooltip is enabled, with a test that the control under a disabled tooltip is pressed.
+- [ ] **590.** Switching a Flutter data table's `selection` moves its cells' state one column over (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/data_table/pl_data_table.dart` (`if (_ticks)` ~663); the unkeyed cells of each `TableRow` in `internal/table.dart`
+  - Problem: Turning `selection` on or off puts a checkbox column in front of every row or takes it away, and since the cells have no keys each data cell is matched with the element of its neighbour: a cell of a different type is built again from scratch, and one of the same type hands its `State` to the next column.
+  - Proposal (approved): key each cell by its column, so its state follows it, with a test that a stateful cell keeps its `State` as `selection` changes both ways.
 
-- [ ] **579.** A tooltip turned off while it is open stays open in React, and closes without a word in Flutter (Bug · Both · Low)
-  - Location: `packages/react/src/components/tooltip/PlTooltip.tsx` (`disabled={disabled}` on the trigger only ~207); `packages/flutter/lib/src/components/tooltip/pl_tooltip.dart` (`didUpdateWidget`, `if (widget.disabled) {` ~259)
-  - Problem: In React, a tooltip opened by hover stays up with `aria-describedby` set after `disabled` turns on, and `onOpenChange` never reports the close; a controlled `open` opens a disabled tooltip, against its JSDoc ("Stops the tooltip from opening at all"). Base UI's `Root` closes only on its own `disabled`. In Flutter the plate goes, but `onOpenChanged` is not called, so a caller mirroring the state keeps `true`.
-  - Proposal: Pass `disabled` to the React `Root` as well, and report the close through `onOpenChanged(false)` in Flutter, with a test in each.
+- [ ] **591.** A Flutter table built again whole as its parent's height becomes bounded or unbounded (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/table/pl_table.dart` (`if (bounded) Flexible(child: grid) else grid,` ~293) and `data_table/pl_data_table.dart` (~818), with the comments above each
+  - Problem: The grid is wrapped in a `Flexible` only under a bounded height, so moving between the two builds the whole grid again (scroll offset, measured widths, every cell's state). The comment says a `Flexible` asserts under an unbounded height, which is not so for a loose `Flexible` in a `MainAxisSize.min` column (`rendering/flex.dart` ~1121 asserts only for `MainAxisSize.max` or a tight fit).
+  - Proposal (approved): always wrap the grid in the `Flexible`, correct the comments, and test that the grid keeps its state across the switch.
 
-- [ ] **580.** Removing a chip of a multiple Flutter combobox from the keyboard leaves the focus in the wrong place (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (the chips, unkeyed, `for (final value in widget.values)` ~1196; `_remove` ~972 never moves the focus)
-  - Problem: With a chip's × focused, `Enter` removes it and the focus stays on the same slot, which now removes the next chip, so a second `Enter` removes a value the reader never chose; after the last chip the focus goes back to whatever was before the field. React moves the focus to the input (Base UI `ComboboxChipRemove.js` ~74).
-  - Proposal: Key the chips by value and move the focus to the editor after a remove, with a test.
+- [ ] **592.** A Flutter table's pinned header drifts from its columns as the rows change (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/table.dart` (`if (widget.stickyHeader && _measuredAt != constraints.maxWidth) {` ~541; the only reset, `if (widget.columns.length != oldWidget.columns.length) {` ~209)
+  - Problem: The band that pins the header is a copy laid out with widths measured only when the width or the number of columns changes. The grid's columns are intrinsic, so a longer cell widens a column and the band's headers stop lining up (reproduced at x=524 against 416); header content, the text scale and turning `stickyHeader` off and on leave it stale too. React pins the real `<th>` with `position: sticky`.
+  - Proposal (approved): measure again whenever the rows, the columns or the header change, and when `stickyHeader` is turned on, with a test that the band lines up after a row widens a column.
 
-- [ ] **581.** A Flutter number field's `snapOnStep` snaps to the nearest multiple on every settle (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (`next = (next / widget.step).roundToDouble() * widget.step;` ~534)
-  - Problem: Base UI's `toValidatedNumber` snaps only on a step, by the amount stepped and in its direction from `min` (to the nearest only for a small step), and never on blur. Flutter snaps to the nearest multiple of `step` whatever moved it: with a step of 5, `ArrowUp` from 8 gives 15 where React gives 10; with a step of 1, `Alt+ArrowUp` from 5 does nothing where React gives 5.1; and 7 typed and left settles to 5 where React keeps 7.
-  - Proposal: Snap as Base UI does, with a test for each case.
+- [ ] **593.** A Flutter chip's label is built again as icons change on both sides of it (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/chip/pl_chip.dart` (the inner `Row`, `?startIcon,` ~288)
+  - Problem: The label is an unkeyed child between the start icon and the end icon and count, so when both sides change in one build, as a filter chip that gains a check and a count when chosen does, the label is built again from scratch and a stateful label starts over.
+  - Proposal (approved): give the label a key of its own, with a test.
 
-- [ ] **582.** A second key in the same frame steps a Flutter number field from a stale value (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (`final changed = next != widget.value;` ~559)
-  - Problem: A step compares against `widget.value`, which the parent has not rebuilt yet when a second key arrives in the same frame: `ArrowUp` then `ArrowDown` from 5 ends at 6, because the step down to 5 matches the old value and reports nothing.
-  - Proposal: Compare against the value the field last reported (`_held`), with a test that sends two keys in one frame.
+- [ ] **594.** A disabled chip that can be pressed stops being a button, and React mounts its content again (Accessibility · Both · Low)
+  - Location: `packages/react/src/components/chip/PlChip.tsx` (`const interactive = Boolean(onClick) && !disabled;` ~221, `{interactive ? (<button …>{label}</button>) : (label)}` ~291); `packages/flutter/lib/src/components/chip/pl_chip.dart` (`final interactive = onPressed != null && !disabled;` ~164)
+  - Problem: A chip with `onClick` is a button only while enabled. In React the label, icons and count move in and out of the `<button>` as `disabled` changes, so they are mounted again and a `PlAvatar` in `startIcon` loads again, showing its initials until it does; in both builds a disabled chip that can be pressed is not announced as an unavailable button, as a disabled `PlButton` is.
+  - Proposal (approved): keep a chip that has `onClick` or `onPressed` a button while disabled, a `<button disabled>` in React and `button: true, enabled: false` in Flutter, so `disabled` no longer mounts the content again; update the docs and test both builds.
 
-- [ ] **583.** Flutter table cells and a chip's label are built again when they become pressable (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/table.dart` (`if (_interactive) {` ~292, `if (_interactive || widget.hoverable) {` ~300, the `FocusableActionDetector` ~313); `packages/flutter/lib/src/components/chip/pl_chip.dart` (`if (onDeleted != null) {` ~302)
-  - Problem: The item 568 bug in more places: a `PlTable` or `PlDataTable` cell is wrapped only when `onRowPressed` or `hoverable` asks for it, and a `PlChip`'s label moves under a `Row` when `onDeleted` comes, so toggling either builds the content again from scratch and anything stateful in it starts over.
-  - Proposal: Keep one tree shape in each, as item 568 did, with a test that the content's `State` survives.
+- [ ] **595.** A disabled colour picker's value field is only read-only (Accessibility · Both · Low)
+  - Location: `packages/react/src/components/color-picker/PlColorPicker.tsx` (`readOnly={inert}` ~543, beside the swatches' `disabled={inert}`); `packages/flutter/lib/src/components/color_picker/pl_color_picker.dart` (`readOnly: inert,` ~749, and `_textFocus`, never excluded from the focus)
+  - Problem: In both builds the value field of a disabled picker stays in the Tab order and is announced as read-only rather than unavailable, while its swatches are disabled; inside a disabled `<fieldset>` the React input is natively disabled, so the two ways of disabling the picker disagree.
+  - Proposal (approved): make the value field disabled while the picker is `disabled` (out of the Tab order, announced as unavailable) and keep it read-only while it is `readOnly`, in both builds, with a test in each.
 
-- [ ] **584.** A Flutter toggle and a pressable card do not say they can take the focus (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/interaction.dart` (`includeFocusSemantics: false,` ~279)
-  - Problem: `PlassInteractive` keeps the detector's focus semantics off, which is right where the component's `Semantics` sits inside the builder, but a `PlToggle` and a pressable `PlCard` put theirs outside it, so their node offers a tap and no `focus` action and is not `isFocusable`, where a `PlButton`'s node has both.
-  - Proposal: Let a component whose `Semantics` is outside the builder ask for the focus semantics, sweep the users of `PlassInteractive` for it, and test each with a dump.
+- [ ] **596.** Pressing a focused Flutter field does not bring its keyboard back (Bug · Flutter · Low)
+  - Location: the shell's `onTap: _disabled ? null : _focusNode.requestFocus,` in `text_field/pl_text_field.dart` (~583) and `number_field/pl_number_field.dart` (~1203), and `_pressField` in `combobox/pl_combobox.dart` (~786)
+  - Problem: With the keyboard put away while the field holds the focus (Android's back, for one), a press on the field does nothing, because the focus is already there; a press on the text helps only if it moves the caret. Material's `TextField` calls `requestKeyboard` on every tap.
+  - Proposal (approved): have the press call `plassTapEditor` from `internal/editor.dart` (added by item 586), with a test that a press after `TextInput.hide` shows the keyboard again.
 
-- [ ] **585.** A React pie chart's centre and a chart's empty message are not read (Accessibility · React · Low)
-  - Location: `packages/react/src/components/pie-chart/PlPieChart.tsx` (`{center}` ~499 inside the `role="img"` element ~351), and each chart's `empty` content inside its `role="img"` host
-  - Problem: The children of an element with `role="img"` are presentational, so "Total 30" in a pie's centre and "Nothing yet" in an empty chart are never read. Flutter reads both as part of the chart's name.
-  - Proposal: Put the centre and the empty message into what the chart says, through `aria-describedby` or the text summary, in every chart that takes them, with a test.
+- [ ] **597.** Twenty-two Flutter controls still do not say they can take the focus (Accessibility · Flutter · Low)
+  - Location: the nodes built inside `PlassInteractive`'s builder in `PlChip`, `PlListItem`, `PlTabs` tabs, `PlSegmentedButton`, `PlAccordion`, `PlCollapsible`, `PlSelect`, `internal/picker.dart`, the `PlNumberField` steppers, `PlBottomNavigation`, `PlFloatingBottomNavigation`, `PlMenubar`, the `PlWindowPane` caption buttons, `PlAppLogo`, `PlNavigationMenu` links, the `PlChatBubble` preview, the `PlToast` action, `PlPill`, `PlTextLink`, `PlBreadcrumb` and `internal/dismiss.dart`
+  - Problem: Item 584 added `focusSemantics` for a component whose `Semantics` sits outside the builder, and `plassFocusSemanticsOf` for one whose node is inside it, and used the second only on `PlCard`. These nodes offer a tap and no `focus` action, and never say they are focusable or focused.
+  - Proposal (approved): put `plassFocusSemanticsOf(context)` on each of these nodes, and test each with a check of the node that names it.
 
-- [ ] **586.** A screen reader cannot tap or focus a Flutter text field (Accessibility · Flutter · Low)
-  - Location: the editors' `Focus(... includeSemantics: false)` (`editable_text.dart` ~5806 in the SDK) and the shells' gesture detectors with `excludeFromSemantics: true` (`text_field/pl_text_field.dart` ~562, `number_field/pl_number_field.dart` ~1125), in `PlTextField`, `PlNumberField`, the `PlColorPicker` value field and the `PlCommandPalette` field
-  - Problem: The field's node carries the cursor, selection and set-text actions only, with no `tap` or `focus`. On the web, a screen reader focusing the semantic `<input>` dispatches `SemanticsAction.focus`, which nothing takes, so the editor never gets the focus; Android's `ACTION_CLICK` dispatches a tap nothing answers. Material's `TextField` gives its node `onTap` and `onFocus`. Not yet checked on a device.
-  - Proposal: Give each field's node `onTap` and `onFocus` that focus the editor, as Material does, and test the actions.
+- [ ] **598.** Three Flutter buttons cannot be pressed from a screen reader (Accessibility · Flutter · Low)
+  - Location: `components/code_block/pl_code_block.dart` (the bar button's `Semantics(button: true, toggled: …, label: …)` ~1199), `gallery/pl_gallery.dart` (the tile's `Semantics(button: true, …)` ~672), `toast/pl_toast.dart` (the action's `Semantics(container: true, button: true, …)` ~854)
+  - Problem: Each node says it is a button but has no `onTap`, and `PlassInteractive`'s press is kept off the semantics tree, so the node offers only `focus`: a screen reader can reach Copy and Raw, a gallery tile and a toast's action but not press them.
+  - Proposal (approved): give each node the tap its press has, sweep the package for another `button: true` node over a press it does not carry, and test each.
+
+- [ ] **599.** A Flutter anchor row draws no focus ring (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/anchor/pl_anchor.dart` (the row's builder ~323, which never reads `state.focusVisible`)
+  - Problem: A row reached with the keyboard shows nothing, where the React row draws the house ring (`focusRingClasses`, `PlAnchor.tsx` ~258).
+  - Proposal (approved): draw the house focus ring on a row while `state.focusVisible`, with a test.
