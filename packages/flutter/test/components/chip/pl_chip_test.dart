@@ -56,6 +56,46 @@ void main() {
         expect(find.text('12'), findsOneWidget);
         expect(find.text('Errors'), findsOneWidget);
       });
+
+      testWidgets('keeps its label as things come and go on both sides of it at once', (
+        WidgetTester tester,
+      ) async {
+        Widget chip({bool start = false, bool end = false, bool counted = false}) {
+          return host(
+            PlChip(
+              onPressed: () {},
+              selected: start,
+              startIcon: start ? const Icon(IconData(0xe000)) : null,
+              endIcon: end ? const Icon(IconData(0xe001)) : null,
+              count: counted ? const Text('12') : null,
+              child: const _Probe('Unread'),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(chip());
+
+        final State<_Probe> resting = tester.state<State<_Probe>>(find.byType(_Probe));
+
+        // Each step changes what is in front of the label and what is behind
+        // it in one build, as a filter chip that gains a mark and a count when
+        // it is chosen does.
+        for (final (bool start, bool end, bool counted) in <(bool, bool, bool)>[
+          (true, false, true),
+          (false, true, false),
+          (true, true, true),
+          (false, false, false),
+        ]) {
+          await tester.pumpWidget(chip(start: start, end: end, counted: counted));
+
+          // Built again from scratch, the probe is a different object.
+          expect(
+            tester.state<State<_Probe>>(find.byType(_Probe)),
+            same(resting),
+            reason: 'start $start, end $end, count $counted',
+          );
+        }
+      });
     });
 
     group('pressing', () {

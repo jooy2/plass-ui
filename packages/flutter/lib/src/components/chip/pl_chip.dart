@@ -286,7 +286,11 @@ class PlChip extends StatelessWidget {
           spacing: spacing,
           children: <Widget>[
             ?startIcon,
-            if (child != null) Flexible(child: child!),
+            // Keyed, because a filter chip that is chosen can gain a mark in
+            // front of the label and a count behind it in the same build.
+            // Found by its place alone, the label would then match neither
+            // end of the row and be built again from scratch.
+            if (child != null) Flexible(key: const ValueKey<String>('label'), child: child!),
             ?endIcon,
             if (count != null) _countPlate(context, tokens, family, fontSize: fontSize),
           ],
