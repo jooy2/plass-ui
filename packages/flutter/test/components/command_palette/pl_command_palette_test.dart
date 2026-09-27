@@ -570,6 +570,32 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('brings the keyboard back as a press lands on the field, once', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        final Finder editor = find.byType(EditableText);
+
+        expect(tester.widget<EditableText>(editor).focusNode.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // The keyboard put away under the focus, as Android's back does. The
+        // caret of an empty field is already where the press puts it, which on
+        // its own asks for no keyboard.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        tester.testTextInput.log.clear();
+        await tester.tap(editor);
+        await tester.pumpAndSettle();
+
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(
+          tester.testTextInput.log.where((MethodCall call) => call.method == 'TextInput.show'),
+          hasLength(1),
+        );
+      });
+
       testWidgets('names the field by a placeholder of the caller s own', (
         WidgetTester tester,
       ) async {

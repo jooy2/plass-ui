@@ -282,6 +282,88 @@ void main() {
         debugDefaultTargetPlatformOverride = null;
       });
 
+      testWidgets('brings the keyboard back as a press lands on the text, once', (
+        WidgetTester tester,
+      ) async {
+        final focus = FocusNode();
+        final controller = TextEditingController();
+        addTearDown(focus.dispose);
+        addTearDown(controller.dispose);
+
+        Widget build({bool readOnly = false, bool disabled = false}) => host(
+          PlTextField(
+            fullWidth: true,
+            controller: controller,
+            focusNode: focus,
+            readOnly: readOnly,
+            disabled: disabled,
+          ),
+          width: 300,
+        );
+
+        Iterable<MethodCall> shows() =>
+            tester.testTextInput.log.where((MethodCall call) => call.method == 'TextInput.show');
+
+        final Finder editor = find.byType(EditableText);
+
+        await tester.pumpWidget(build());
+        await tester.tap(editor);
+        await tester.pump();
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // The keyboard put away under the focus, as Android's back does. The
+        // caret of an empty field is already where the press puts it, which on
+        // its own asks for no keyboard. The press asks once: the shell round the
+        // text does not hear a press the editor took.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        tester.testTextInput.log.clear();
+        await tester.tap(editor);
+        await tester.pump();
+
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(shows(), hasLength(1));
+
+        // A drag across the text is not a press.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        await tester.drag(editor, const Offset(-60, 0));
+        await tester.pump();
+
+        expect(tester.testTextInput.isVisible, isFalse);
+
+        // A long press still takes the word under it.
+        controller.text = 'Seoul Lisbon';
+        await tester.pump();
+        await tester.longPressAt(tester.getTopLeft(editor) + const Offset(10, 8));
+        await tester.pump();
+
+        expect(controller.selection, const TextSelection(baseOffset: 0, extentOffset: 5));
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // A read-only field takes the focus and opens no keyboard, and a
+        // disabled one takes neither.
+        focus.unfocus();
+        await tester.pump();
+        controller.value = TextEditingValue.empty;
+        await tester.pumpWidget(build(readOnly: true));
+        await tester.tap(editor);
+        await tester.pump();
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        focus.unfocus();
+        await tester.pump();
+        controller.value = TextEditingValue.empty;
+        await tester.pumpWidget(build(disabled: true));
+        await tester.tap(editor, warnIfMissed: false);
+        await tester.pump();
+
+        expect(focus.hasFocus, isFalse);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+      });
+
       testWidgets('takes no text while disabled, by any way in', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         final name = TextEditingController();

@@ -925,6 +925,34 @@ void main() {
         expect(tester.testTextInput.hasAnyClients, isFalse);
       });
 
+      testWidgets('brings the keyboard back as a press lands on the number, once', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Harness(value: null));
+
+        final Finder editor = find.byType(EditableText);
+
+        await tester.tap(editor);
+        await tester.pump();
+
+        expect(_editorFocused(tester), isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // The keyboard put away under the focus, as Android's back does. The
+        // caret of an empty box is already where the press puts it, which on
+        // its own asks for no keyboard.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        tester.testTextInput.log.clear();
+        await tester.tap(editor);
+        await tester.pump();
+
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(
+          tester.testTextInput.log.where((MethodCall call) => call.method == 'TextInput.show'),
+          hasLength(1),
+        );
+      });
+
       testWidgets('reads what was typed and settles it on the way out', (
         WidgetTester tester,
       ) async {

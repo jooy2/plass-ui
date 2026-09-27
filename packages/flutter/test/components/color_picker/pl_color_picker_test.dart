@@ -264,6 +264,35 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('brings the keyboard back as a press lands on the value field, once', (
+      WidgetTester tester,
+    ) async {
+      final Finder editor = find.byType(EditableText);
+
+      await tester.pumpWidget(
+        host(const PlColorPicker(inline: true, value: ''), width: 400, height: 560, overlay: true),
+      );
+      await tester.tap(editor);
+      await tester.pump();
+
+      expect(tester.widget<EditableText>(editor).focusNode.hasFocus, isTrue);
+      expect(tester.testTextInput.isVisible, isTrue);
+
+      // The keyboard put away under the focus, as Android's back does. The
+      // caret of an empty field is already where the press puts it, which on
+      // its own asks for no keyboard.
+      await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+      tester.testTextInput.log.clear();
+      await tester.tap(editor);
+      await tester.pump();
+
+      expect(tester.testTextInput.isVisible, isTrue);
+      expect(
+        tester.testTextInput.log.where((MethodCall call) => call.method == 'TextInput.show'),
+        hasLength(1),
+      );
+    });
+
     testWidgets('disables the value field while disabled, and not while read-only', (
       WidgetTester tester,
     ) async {

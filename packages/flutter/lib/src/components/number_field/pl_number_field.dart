@@ -937,6 +937,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
       );
     }
 
+    // A press on the number asks for the keyboard as a press round it does,
+    // which the editor does only when the press moves the caret.
+    editor = PlassEditorPress(
+      onPress: _disabled ? null : () => plassTapEditor(_editor),
+      child: editor,
+    );
+
     // Bound *inside* the field rather than around it: a `Shortcuts` closer to
     // the focused editor than the app's own text-editing shortcuts is the one
     // that answers, which is what keeps the up arrow from moving the caret in a

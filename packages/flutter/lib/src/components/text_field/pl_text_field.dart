@@ -461,6 +461,14 @@ class _PlTextFieldState extends State<PlTextField> {
       );
     }
 
+    // A press on the text asks for the keyboard as a press round it does. The
+    // editor asks only when the press moves the caret, which a press on empty
+    // text or on the caret does not.
+    control = PlassEditorPress(
+      onPress: _disabled ? null : () => plassTapEditor(_editor),
+      child: control,
+    );
+
     control = plassHotKeyScope(hotKeys: widget.hotKeys, child: control);
 
     Widget shell = Row(

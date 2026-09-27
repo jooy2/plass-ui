@@ -792,28 +792,6 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     _openList();
   }
 
-  /// Where a press on the text went down, for as long as it can still be a tap.
-  Offset? _pressedAt;
-
-  void _onTextDown(PointerDownEvent event) {
-    _pressedAt = event.buttons == kPrimaryButton ? event.position : null;
-  }
-
-  void _onTextMove(PointerMoveEvent event) {
-    final Offset? at = _pressedAt;
-
-    if (at != null && (event.position - at).distance > kTouchSlop) {
-      _pressedAt = null;
-    }
-  }
-
-  void _onTextUp(PointerUpEvent event) {
-    if (_pressedAt != null) {
-      _pressedAt = null;
-      _pressField();
-    }
-  }
-
   /// Closes the list without taking a row, and puts the text back.
   void _close() {
     if (_open) {
@@ -1219,15 +1197,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     // A press on the text is the editor's own, which is how the caret lands
     // where it was pressed, so the field's tap never hears it. It is heard here
-    // instead, without taking part in deciding what the press was, and opens
-    // the list as a press anywhere else on the field does.
-    editor = Listener(
-      onPointerDown: _disabled ? null : _onTextDown,
-      onPointerMove: _disabled ? null : _onTextMove,
-      onPointerUp: _disabled ? null : _onTextUp,
-      onPointerCancel: (PointerCancelEvent event) => _pressedAt = null,
-      child: editor,
-    );
+    // instead, without taking part in deciding what the press was, and once the
+    // editor has put the caret down it opens the list and asks for the
+    // keyboard, as a press anywhere else on the field does.
+    editor = PlassEditorPress(onPress: _disabled ? null : _pressField, child: editor);
 
     editor = plassHotKeyScope(hotKeys: widget.hotKeys, child: editor);
 

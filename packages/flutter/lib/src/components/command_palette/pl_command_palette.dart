@@ -436,18 +436,23 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
             // the focus onto the field's `<input>`.
             onTap: () => plassTapEditor(_editor),
             onFocus: () => plassFocusEditor(_editor),
-            child: EditableText(
-              key: _editor,
-              controller: _query,
-              focusNode: _field,
-              onChanged: (String _) {
-                setState(() => _highlighted = 0);
-                _reveal.reveal(_scroll, 0, _filtered.length);
-              },
-              style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
-              cursorColor: tokens.family(_color).accent,
-              backgroundCursorColor: tokens.mutedFg,
-              selectionColor: tokens.family(_color).softPress,
+            // A press on the text asks for the keyboard, which the editor does
+            // only when the press moves the caret.
+            child: PlassEditorPress(
+              onPress: () => plassTapEditor(_editor),
+              child: EditableText(
+                key: _editor,
+                controller: _query,
+                focusNode: _field,
+                onChanged: (String _) {
+                  setState(() => _highlighted = 0);
+                  _reveal.reveal(_scroll, 0, _filtered.length);
+                },
+                style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
+                cursorColor: tokens.family(_color).accent,
+                backgroundCursorColor: tokens.mutedFg,
+                selectionColor: tokens.family(_color).softPress,
+              ),
             ),
           ),
         ),
