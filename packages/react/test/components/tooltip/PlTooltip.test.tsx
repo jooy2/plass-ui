@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTooltip } from 'plass-ui';
 
@@ -99,6 +100,74 @@ describe('PlTooltip', () => {
       );
 
       await expect.element(screen.getByRole('tooltip', { name: 'Cut' })).toBeInTheDocument();
+    });
+  });
+
+  describe('disabled', () => {
+    // The pointer outlives the file that moved it, and a trigger rendered under
+    // it would open before the test has done anything.
+    beforeEach(async () => {
+      await commands.parkPointer();
+    });
+
+    it('closes a tooltip the pointer opened, says so once, and stops describing the trigger', async () => {
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <PlTooltip delay={0} content="Copy to clipboard" onOpenChange={onOpenChange}>
+          <button type="button">Copy</button>
+        </PlTooltip>
+      );
+
+      await userEvent.hover(screen.getByRole('button'));
+      await expect.element(screen.getByRole('tooltip')).toBeInTheDocument();
+      expect(screen.getByRole('button').element()).toHaveAttribute('aria-describedby');
+      expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true]);
+
+      // The pointer stays where it is: nothing but the prop has changed.
+      await screen.rerender(
+        <PlTooltip delay={0} disabled content="Copy to clipboard" onOpenChange={onOpenChange}>
+          <button type="button">Copy</button>
+        </PlTooltip>
+      );
+
+      await expect.element(screen.getByRole('tooltip')).not.toBeInTheDocument();
+      expect(screen.getByRole('button').element()).not.toHaveAttribute('aria-describedby');
+      expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([true, false]);
+    });
+
+    it('closes a controlled tooltip and answers it with false once', async () => {
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <PlTooltip open content="Copy to clipboard" onOpenChange={onOpenChange}>
+          <button type="button">Copy</button>
+        </PlTooltip>
+      );
+
+      await expect.element(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      await screen.rerender(
+        <PlTooltip open disabled content="Copy to clipboard" onOpenChange={onOpenChange}>
+          <button type="button">Copy</button>
+        </PlTooltip>
+      );
+
+      await expect.element(screen.getByRole('tooltip')).not.toBeInTheDocument();
+      expect(screen.getByRole('button').element()).not.toHaveAttribute('aria-describedby');
+      expect(onOpenChange.mock.calls.map(([open]) => open)).toEqual([false]);
+    });
+
+    it('shows nothing for a controlled open, and answers it with false', async () => {
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <PlTooltip open disabled content="Copy to clipboard" onOpenChange={onOpenChange}>
+          <button type="button">Copy</button>
+        </PlTooltip>
+      );
+
+      await expect.poll(() => onOpenChange.mock.calls.length).toBe(1);
+      expect(onOpenChange).toHaveBeenLastCalledWith(false);
+      expect(screen.getByRole('tooltip').query()).toBeNull();
+      expect(screen.getByRole('button').element()).not.toHaveAttribute('aria-describedby');
     });
   });
 

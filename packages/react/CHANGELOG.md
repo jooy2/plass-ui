@@ -72,6 +72,7 @@
 
 ### Fixed
 
+- **A `PlTooltip` switched off with `disabled` while it is open closes and reports the close through `onOpenChange`, and a controlled `open` shows nothing while it is `disabled`, as the Flutter build does.** `disabled` only stopped the trigger from opening the tooltip. A tooltip opened by hover stayed on the page with the trigger's `aria-describedby` still pointing at it, and `onOpenChange` never heard it close. A controlled `open` also showed a disabled tooltip; it is now answered with `false`. The Flutter build makes the same change to what it reports.
 - **Every segment of a read-only `PlSegmentedButton` keeps its pointer light out, and its label stays in the muted ink under the pointer.** Each segment still carried the interaction light and darkened its label as the pointer went over it, as though it could be chosen, where the light goes out on a read-only control and the Flutter segments of a read-only set show neither.
 
 - **A line or area chart draws its markers over every band and every line, and its value labels over every marker.** A stacked `PlAreaChart` drew each band's markers and labels before the band above it, so that band's tint covered the upper half of each marker and the labels, and the gap between the two bands ran through the middle of each marker; on a line chart, a line drawn later crossed an earlier series' markers. A series faded for a legend entry still fades its markers and labels with it, and its own line or band does not show through them. The Flutter build makes the same change.

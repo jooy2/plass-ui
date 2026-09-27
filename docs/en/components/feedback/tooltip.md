@@ -134,7 +134,7 @@ Worth wrapping a toolbar in. Without it, moving along a row of icon buttons mean
 
 ### delay, closeDelay and disabled
 
-`disabled` stops the tooltip from opening without disabling the trigger, for the tooltip that only exists while a label is truncated.
+`disabled` stops the tooltip from opening without disabling the trigger, for the tooltip that only exists while a label is truncated. A tooltip that is up when it turns on closes, and <Fw react="onOpenChange" flutter="onOpenChanged" code /> hears it close. A controlled `open` shows nothing while it is on, and is answered with `false`.
 
 ::: fw flutter
 

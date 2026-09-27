@@ -70,6 +70,10 @@ export interface PlTooltipProps
   /**
    * Stops the tooltip from opening at all, without disabling the trigger. For
    * the tooltip that only exists while a label is truncated.
+   *
+   * One that is up when this turns on closes, and `onOpenChange` hears it
+   * close. A controlled `open` shows nothing while this is on, and is answered
+   * with `false`.
    * @default false
    */
   disabled?: boolean;
@@ -187,14 +191,19 @@ export function PlTooltip({
 
   // Mirrored rather than owned: `open` still drives a controlled tooltip and
   // Base UI still drives an uncontrolled one. This copy exists only so the
-  // trigger knows whether the plate it describes is on the page yet.
+  // trigger knows whether the plate it describes is on the page yet, which it
+  // never is while the tooltip is switched off, whatever `open` says.
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen ?? false);
-  const isOpen = open ?? uncontrolledOpen;
+  const isOpen = !disabled && (open ?? uncontrolledOpen);
 
   return (
     <BaseUITooltip.Root
       open={open}
       defaultOpen={defaultOpen}
+      // On the root, which is what keeps the plate off the page: it closes one
+      // that is up when this turns on, and reports the close, and it will not
+      // show one that a controlled `open` asks for.
+      disabled={disabled}
       onOpenChange={(next) => {
         setUncontrolledOpen(next);
         onOpenChange?.(next);
@@ -204,6 +213,8 @@ export function PlTooltip({
         render={children}
         delay={delay}
         closeDelay={closeDelay}
+        // Also here, because the trigger reads the root's copy only once an
+        // effect has passed it along, and would listen for a render before.
         disabled={disabled}
         aria-describedby={isOpen ? popupId : undefined}
       />

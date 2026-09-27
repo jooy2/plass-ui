@@ -12110,8 +12110,8 @@ export const propTables: Record<string, PropRow[]> = {
       default: 'false',
       shared: true,
       description: {
-        ko: '트리거는 그대로 두고 tooltip만 열리지 않게 합니다. 라벨이 잘렸을 때만 존재하는 tooltip을 위한 것입니다',
-        en: 'Stops the tooltip from opening at all, without disabling the trigger. For the tooltip that only exists while a label is truncated'
+        ko: '트리거는 그대로 두고 tooltip만 열리지 않게 합니다. 라벨이 잘렸을 때만 존재하는 tooltip을 위한 것입니다. 열려 있던 tooltip은 닫히며 닫혔다고 알리고, controlled open에는 false로 답합니다',
+        en: 'Stops the tooltip from opening at all, without disabling the trigger. For the tooltip that only exists while a label is truncated. One that is up closes and reports it, and a controlled open is answered with false'
       }
     }
   ],

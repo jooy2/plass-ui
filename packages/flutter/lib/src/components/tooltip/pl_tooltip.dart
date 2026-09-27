@@ -187,6 +187,10 @@ class PlTooltip extends StatefulWidget {
   /// Stops the tooltip opening at all, without disabling the trigger. For the
   /// tooltip that only exists while a label is truncated.
   ///
+  /// One that is up when this turns on closes, and [onOpenChanged] hears it
+  /// close once the frame is done. A controlled [open] shows nothing while
+  /// this is on, and is answered with `false`.
+  ///
   /// A screen reader is not given the words either, and the child is left as
   /// it was, so a label that fits is not read out twice.
   final bool disabled;
@@ -246,11 +250,22 @@ class _PlTooltipState extends State<PlTooltip> {
     super.initState();
     _side = widget.side;
     _open = widget.open ?? false;
+
+    // Asked to be open while it is switched off: nothing shows, and the caller
+    // is answered as it is when the tooltip is switched off while up.
+    if (_open && widget.disabled) {
+      _reportDisabledClose();
+    }
   }
 
   @override
   void didUpdateWidget(PlTooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    // Whether something asks for the plate, before `disabled` has its say: the
+    // caller's `open`, or whatever was holding the tooltip up.
+    final wanted = widget.open ?? _open;
+    final wantedBefore = oldWidget.open ?? _open;
 
     if (widget.open != null && widget.open != _open) {
       _open = widget.open!;
@@ -261,9 +276,29 @@ class _PlTooltipState extends State<PlTooltip> {
       _timer?.cancel();
       _timer = null;
       _open = false;
+
+      // A plate that was up has gone, and so has one a controlled `open` has
+      // just asked for, so a caller that mirrors the state is told. Once, and
+      // not again while it stays switched off and asked for.
+      if (wanted && !(oldWidget.disabled && wantedBefore)) {
+        _reportDisabledClose();
+      }
     }
 
     _syncGroup();
+  }
+
+  /// Tells the caller the tooltip closed because it was switched off.
+  ///
+  /// After the frame rather than now, because this is heard while an ancestor
+  /// is building, and one that mirrors the state with `setState` cannot be
+  /// marked to build again from there.
+  void _reportDisabledClose() {
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted) {
+        widget.onOpenChanged?.call(false);
+      }
+    });
   }
 
   @override

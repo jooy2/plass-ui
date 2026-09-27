@@ -197,6 +197,134 @@ void main() {
         expect(find.text('Copy'), findsOneWidget);
       });
 
+      testWidgets('switched off while it is up, it closes and says so once', (
+        WidgetTester tester,
+      ) async {
+        final reported = <bool>[];
+        await tester.pumpWidget(_tooltip(delay: Duration.zero, onOpenChanged: reported.add));
+        await _rest(tester);
+        await tester.pumpAndSettle();
+        expect(find.text('Copy'), findsOneWidget);
+
+        // The pointer stays where it is: nothing but the prop has changed.
+        await tester.pumpWidget(
+          _tooltip(delay: Duration.zero, disabled: true, onOpenChanged: reported.add),
+        );
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          _tooltip(delay: Duration.zero, disabled: true, onOpenChanged: reported.add),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsNothing);
+        expect(reported, <bool>[true, false]);
+      });
+
+      testWidgets('switched off while it waits, it says nothing', (WidgetTester tester) async {
+        final reported = <bool>[];
+        await tester.pumpWidget(_tooltip(onOpenChanged: reported.add));
+        await _rest(tester);
+        await tester.pump(const Duration(milliseconds: 300));
+
+        await tester.pumpWidget(_tooltip(disabled: true, onOpenChanged: reported.add));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsNothing);
+        expect(reported, isEmpty);
+      });
+
+      Widget controlled({required bool disabled, required ValueChanged<bool> onOpenChanged}) {
+        return host(
+          Center(
+            child: PlTooltip(
+              content: const Text('Copy'),
+              open: true,
+              disabled: disabled,
+              onOpenChanged: onOpenChanged,
+              child: const SizedBox(width: 80, height: 32, child: Text('Trigger')),
+            ),
+          ),
+          overlay: true,
+        );
+      }
+
+      testWidgets('switched off under a controlled open, it closes and answers false once', (
+        WidgetTester tester,
+      ) async {
+        final reported = <bool>[];
+        await tester.pumpWidget(controlled(disabled: false, onOpenChanged: reported.add));
+        await tester.pumpAndSettle();
+        expect(find.text('Copy'), findsOneWidget);
+
+        await tester.pumpWidget(controlled(disabled: true, onOpenChanged: reported.add));
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(controlled(disabled: true, onOpenChanged: reported.add));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsNothing);
+        expect(reported, <bool>[false]);
+      });
+
+      testWidgets('a controlled open shows nothing while it is switched off', (
+        WidgetTester tester,
+      ) async {
+        final reported = <bool>[];
+        await tester.pumpWidget(controlled(disabled: true, onOpenChanged: reported.add));
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(controlled(disabled: true, onOpenChanged: reported.add));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsNothing);
+        expect(reported, <bool>[false]);
+      });
+
+      testWidgets('tells a caller above whatever switched it off without building it mid-build', (
+        WidgetTester tester,
+      ) async {
+        // The state is mirrored by an ancestor of the builder that switches the
+        // tooltip off, as a page mirrors a tooltip a `LayoutBuilder` below it
+        // turns off once the label fits.
+        var mirrored = false;
+        var disabled = false;
+        late StateSetter switchOff;
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter mirror) {
+                return Center(
+                  child: StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setDisabled) {
+                      switchOff = setDisabled;
+
+                      return PlTooltip(
+                        content: const Text('Copy'),
+                        delay: Duration.zero,
+                        disabled: disabled,
+                        onOpenChanged: (bool open) => mirror(() => mirrored = open),
+                        child: const SizedBox(width: 80, height: 32, child: Text('Trigger')),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+            overlay: true,
+          ),
+        );
+        await _rest(tester);
+        await tester.pumpAndSettle();
+        expect(mirrored, isTrue);
+
+        switchOff(() => disabled = true);
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(mirrored, isFalse);
+        expect(find.text('Copy'), findsNothing);
+      });
+
       testWidgets('a disabled tooltip leaves a long press to the button under it', (
         WidgetTester tester,
       ) async {

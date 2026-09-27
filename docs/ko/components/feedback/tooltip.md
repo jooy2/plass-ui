@@ -134,7 +134,7 @@ tooltip은 판을 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 ### delay, closeDelay, disabled
 
-`disabled`는 트리거는 그대로 두고 tooltip만 열리지 않게 합니다. 라벨이 잘렸을 때만 존재하는 tooltip을 위한 것입니다.
+`disabled`는 트리거는 그대로 두고 tooltip만 열리지 않게 합니다. 라벨이 잘렸을 때만 존재하는 tooltip을 위한 것입니다. 켜지는 순간 열려 있던 tooltip은 닫히고, <Fw react="onOpenChange" flutter="onOpenChanged" code />가 닫혔다는 알림을 받습니다. 켜져 있는 동안 controlled `open`은 아무것도 보여 주지 않고 `false`로 답을 받습니다.
 
 ::: fw flutter
 
