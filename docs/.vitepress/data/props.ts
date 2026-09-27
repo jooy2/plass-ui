@@ -14130,8 +14130,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'id',
       type: 'string',
       description: {
-        ko: '다시 렌더해도 차트가 이 series를 알아보는 값. 범례 항목, 범례에서 꺼졌는지, 그 항목에 머문 pointer가 이 값을 따라가므로 이름이 바뀌거나 같은 이름의 series가 있어도 그대로 남습니다. 없으면 이름과 그 앞에 같은 이름이 몇 번 나왔는지로, 이름도 없으면 자리로 알아봅니다',
-        en: 'What the chart knows the series by from one render to the next. Its legend entry, whether the legend has it switched off and the pointer resting on that entry follow it, so they stay when its name changes or another series has the same name. Without it, a series is known by its name and how many series before it have that name, or by its place when it has no name'
+        ko: '다시 렌더해도 차트가 이 series를 알아보는 값. 범례 항목, 범례에서 꺼졌는지, 그 항목에 머문 pointer, 읽고 있는 mark가 이 값을 따라가므로 이름이 바뀌거나 같은 이름의 series가 있어도 그대로 남습니다. 없으면 이름과 그 앞에 같은 이름이 몇 번 나왔는지로, 이름도 없으면 자리로 알아봅니다',
+        en: 'What the chart knows the series by from one render to the next. Its legend entry, whether the legend has it switched off, the pointer resting on that entry and a mark of it being read follow it, so they stay when its name changes or another series has the same name. Without it, a series is known by its name and how many series before it have that name, or by its place when it has no name'
       }
     },
     {

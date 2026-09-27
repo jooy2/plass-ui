@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A `PlScatterChart`, a `PlTimelineChart`, and a `PlLineChart`, `PlAreaChart` or `PlBarChart` whose tooltip is in `PlassChartTooltipMode.nearest` go on reading the mark they are on when a series or a row ahead of it leaves the data.** The mark being read was held by its series' place, so when a series before it left, the card and the live region read the mark at the same place in the series that moved into its place, and a mark whose series left handed its reading to the series after it. It is now held by what its series' legend entry is known by, its `id`, its name or else its place, and a timeline's span by its row's name or else its place, and the reading is let go once that series or row has left. The React build makes the same change.
+
 - **The segments of a disabled `PlSegmentedButton` and the chips of a disabled `multiple` `PlCombobox` are drained once, with the set or the field they sit in.** Each was drained a second time inside a set or a field already drained, so they were drawn at a quarter of their opacity and hard to read. A chip in a disabled field keeps the look of a disabled chip, and a segment disabled on its own in a set that is not disabled, like a `PlChip` disabled anywhere else, is still drained on its own.
 
 - **A `PlPieChart` goes on reading the slice it is on when it is built again without a slice ahead of it.** The slice being read was held by its place, so when a slice before it left the data, the card and the live region read whichever slice moved into that place, and a slice read as it left handed its reading to the slice that moved in. It is now held by its name, as a slice switched off in the legend is, and the reading is let go once no slice drawn has that name. The React build makes the same change.

@@ -727,10 +727,10 @@ export interface PlassChartSeries {
    * name is not enough: one that shares its name with another, or one whose
    * name changes.
    *
-   * Its legend entry, whether the legend has it switched off and the pointer
-   * resting on that entry are held by it. Without one, a series is known by its
-   * name and how many series before it have that name, or by its place in the
-   * array when it has no name.
+   * Its legend entry, whether the legend has it switched off, the pointer
+   * resting on that entry and a mark of it being read are held by it. Without
+   * one, a series is known by its name and how many series before it have that
+   * name, or by its place in the array when it has no name.
    */
   id?: string;
   /** The values, in category order. */

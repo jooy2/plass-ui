@@ -260,8 +260,11 @@ interface Visibility {
  * meet another name's key either. An id is followed by its count and then by
  * `@id`, so a series with the id "eu" is `eu#0@id`, which ends in a letter
  * where the key of a name or of a place always ends in a digit.
+ *
+ * A timeline keys its rows with it as well. They have no legend, but a mark on
+ * one is held by its row's key, as a mark on a series is held by its entry's.
  */
-function entryKeys(series: readonly PlassChartSeries[]): string[] {
+function entryKeys(series: readonly Pick<PlassChartSeries, 'id' | 'name'>[]): string[] {
   const names = new Map<string, number>();
   const ids = new Map<string, number>();
 
@@ -964,6 +967,13 @@ export interface ChartMark {
   series: number;
   /** Its own place within that series. */
   index: number;
+  /**
+   * What its series is known by, from `entryKeys`, when the chart's series are
+   * not the frame's: a timeline's rows, which the frame is handed as its
+   * categories. Without it, the mark's series is known by its legend entry's
+   * key.
+   */
+  key?: string;
   /** Its centre, in pixels from the chart's top-left. */
   x: number;
   y: number;
@@ -982,12 +992,16 @@ export interface ChartMark {
 }
 
 /**
- * Which mark `mark` is, as a reading holds on to it: its series and its own
- * place in that series, which name the same mark in whatever list a render
- * builds, where its place in the list does not.
+ * Which mark `mark` is, as a reading holds on to it: the key its series is
+ * known by, from `keys` or from the mark itself, and its own place in that
+ * series. Those name the same mark in whatever list a render builds, where its
+ * place in the list does not, and they name it by its series rather than by
+ * where that series sits, so a series leaving the data ahead of it does not
+ * hand the reading to the series that takes its place. The place is whatever
+ * follows the last `:`, so a key holding a `:` of its own cannot meet another.
  */
-function markKey(mark: ChartMark): string {
-  return `${mark.series}:${mark.index}`;
+function markKey(mark: ChartMark, keys: readonly string[]): string {
+  return `${mark.key ?? keys[mark.series] ?? mark.series}:${mark.index}`;
 }
 
 /**
@@ -1742,7 +1756,9 @@ export function CartesianChart({
      marks is walked mark by mark; a chart without them is walked column by
      column, and `activeIndex` is then the column. */
   const activeAt =
-    heldMark === null ? -1 : markList.findIndex((mark) => markKey(mark) === heldMark);
+    heldMark === null
+      ? -1
+      : markList.findIndex((mark) => markKey(mark, visibility.keys) === heldMark);
   const activeMark = activeAt === -1 ? null : markList[activeAt];
   const activeIndex = markBuilder ? (activeMark ? activeMark.index : null) : columnIndex;
   const walkLength = markBuilder ? markList.length : count;
@@ -1755,11 +1771,12 @@ export function CartesianChart({
 
   /* A column past the end, or a mark that is no longer drawn, has nothing left
      to read, so the reading is let go rather than kept for a column or a mark
-     the data may bring back. A mark is held by its series and its place in
-     that series rather than by where it sits in `markList`, so one that is
-     still drawn goes on being read, and the reading never moves onto whichever
-     mark took its place. Let go in the render that finds it gone, and React
-     renders again before anything is painted. */
+     the data may bring back. A mark is held by the key of its series and its
+     place in that series rather than by where it sits in `markList`, so one
+     that is still drawn goes on being read, and the reading never moves onto
+     whichever mark took its place, nor onto another series when one ahead of
+     its own leaves the data. Let go in the render that finds it gone, and
+     React renders again before anything is painted. */
   if ((columnIndex !== null && columnIndex >= count) || (heldMark !== null && !activeMark)) {
     clearActive();
   }
@@ -1776,7 +1793,7 @@ export function CartesianChart({
     if (markBuilder) {
       const mark = bounded === null ? undefined : markList[bounded];
 
-      setHeldMark(mark ? markKey(mark) : null);
+      setHeldMark(mark ? markKey(mark, visibility.keys) : null);
     } else {
       setColumnIndex(bounded);
     }
@@ -1969,7 +1986,7 @@ export function CartesianChart({
           if (markBuilder) {
             const at = nearestMark(event.clientX, event.clientY);
 
-            setHeldMark(at === null ? null : markKey(markList[at]));
+            setHeldMark(at === null ? null : markKey(markList[at], visibility.keys));
           } else {
             setColumnIndex(indexAt(event.clientX, event.clientY));
           }
@@ -2562,6 +2579,7 @@ export {
   ChartStatus,
   ChartSurface,
   ChartTooltipPanel,
+  entryKeys,
   useMeasuredWidth,
   useVisibility
 };

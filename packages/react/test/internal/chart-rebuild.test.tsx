@@ -6,9 +6,11 @@
  * Rendered again with fewer categories or marks, a column past the end used to
  * be kept, with its crosshair drawn past the plot, and read again once the data
  * grew back; a mark was held by its place in the list of marks, so the reading
- * moved onto whichever mark took that place. These let go of a column or a mark
- * that is no longer there, as the Flutter charts do, while one that is still
- * there goes on being read.
+ * moved onto whichever mark took that place, and then by its series' place, so
+ * a series leaving ahead of it moved the reading onto another series. These let
+ * go of a column or a mark that is no longer there, as the Flutter charts do,
+ * while one that is still there goes on being read, a mark by the key of its
+ * series or its timeline row.
  *
  * A test of the frame the five charts share rather than of one of them, which
  * is why it is here rather than under `test/components/`.
@@ -200,5 +202,104 @@ describe('a scatter chart of two series', () => {
     await screen.rerender(chart(2));
 
     expect(said(screen.container)).toBe(read);
+  });
+});
+
+/* Each chart read by mark, rendered with one series or row per name, and the
+   key that steps back through its marks. The data follows the name, so a
+   series that moves draws what it drew. A timeline runs on its side, so its
+   marks are walked up and down. */
+const byName: Record<
+  string,
+  { back: string; chart: (names: readonly string[]) => React.ReactElement }
+> = {
+  'a scatter': {
+    back: 'ArrowLeft',
+    chart: (names) => (
+      <PlScatterChart
+        label="Chart"
+        series={names.map((name) => ({
+          name,
+          data: [0, 1].map((at) => ({ x: 10 * name.length + at, y: 20 * name.length + at }))
+        }))}
+      />
+    )
+  },
+  'a nearest line': {
+    back: 'ArrowLeft',
+    chart: (names) => (
+      <PlLineChart
+        label="Chart"
+        categories={['Jan', 'Feb']}
+        tooltip={{ mode: 'nearest' }}
+        series={names.map((name) => ({ name, data: [name.length, name.length * 2] }))}
+      />
+    )
+  },
+  'a timeline': {
+    back: 'ArrowUp',
+    chart: (names) => (
+      <PlTimelineChart
+        label="Chart"
+        series={names.map((name) => ({
+          name,
+          data: [0, 1].map((at) => ({
+            start: day(1 + at * 10 + name.length),
+            end: day(4 + at * 10 + name.length)
+          }))
+        }))}
+      />
+    )
+  }
+};
+
+describe.each(Object.entries(byName))('%s chart read by mark', (_, { back, chart }) => {
+  // Names of different lengths, so every series draws marks of its own.
+  const names = ['Web', 'Mobile', 'Desktop', 'Tablets..'];
+
+  /** Renders the chart and reads the last mark of its third series by key. */
+  async function readThird() {
+    const screen = await render(chart(names));
+    const plot = screen.getByRole('img', { name: 'Chart' });
+
+    await expect.poll(() => plot.element().querySelector('svg')).not.toBeNull();
+    (plot.element() as HTMLElement).focus();
+
+    // The last mark of the fourth, then two back to the last of the third.
+    // Each key waits for the one before it to be read, because a step is taken
+    // from the mark the chart last rendered.
+    press(plot.element(), 'End');
+    await expect.poll(() => said(screen.container)).toContain('Tablets..');
+
+    for (let step = 0; step < 2; step += 1) {
+      const before = said(screen.container);
+
+      press(plot.element(), back);
+      await expect.poll(() => said(screen.container)).not.toBe(before);
+    }
+
+    const read = said(screen.container);
+
+    expect(read).toContain('Desktop');
+
+    return { screen, read };
+  }
+
+  it('keeps reading a mark of the third series when the first leaves', async () => {
+    const { screen, read } = await readThird();
+
+    await screen.rerender(chart(names.slice(1)));
+
+    expect(said(screen.container)).toBe(read);
+    expect(reading(screen.container)).toBe(true);
+  });
+
+  it('lets go of the mark when its series leaves', async () => {
+    const { screen } = await readThird();
+
+    await screen.rerender(chart(names.filter((name) => name !== 'Desktop')));
+
+    expect(said(screen.container)).toBe('');
+    expect(reading(screen.container)).toBe(false);
   });
 });

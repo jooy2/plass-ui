@@ -3,6 +3,7 @@
 import * as React from 'react';
 import {
   CartesianChart,
+  entryKeys,
   markTransitionClasses,
   type CartesianChartProps,
   type CartesianContext,
@@ -156,6 +157,13 @@ export function PlTimelineChart({
     [series]
   );
 
+  /* What each row is known by, its name and how many rows before it have that
+     name, or its place when it has none, as a series is known by its legend
+     entry. A mark carries its row's, because the frame is handed the rows as
+     its categories and holds a mark by the key of its series: a span being
+     read stays on its row when a row ahead of it leaves the data. */
+  const rowKeys = React.useMemo(() => entryKeys(series), [series]);
+
   const thickness = barSize ?? barMaxThickness[size];
 
   const marks = React.useCallback(
@@ -190,6 +198,7 @@ export function PlTimelineChart({
           list.push({
             series: index,
             index: at,
+            key: rowKeys[index],
             x: (from + to) / 2,
             y: top + one.lane * (height + markGap),
             r: height / 2,
@@ -203,7 +212,7 @@ export function PlTimelineChart({
 
       return list;
     },
-    [rows, thickness]
+    [rows, rowKeys, thickness]
   );
 
   const markTooltip = React.useCallback(

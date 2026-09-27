@@ -257,6 +257,7 @@ class PlassChartMark {
     required this.index,
     required this.centre,
     required this.r,
+    this.key,
     this.rx,
     this.ry,
   });
@@ -266,6 +267,12 @@ class PlassChartMark {
 
   /// Its own place within that series.
   final int index;
+
+  /// What its series is known by, from [seriesKeys], when the chart's series
+  /// are not the frame's: a timeline's rows, which the frame is handed as its
+  /// categories. Without it, the mark's series is known by its legend entry's
+  /// key from [legendKeys].
+  final String? key;
 
   /// Where it is pinned, in pixels from the chart's top-left.
   final Offset centre;
@@ -804,7 +811,13 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
 
   int? _activeIndex;
   int? _hovered;
-  PlassChartMark? _activeMark;
+
+  /// The mark the pointer or a key is on, by the key of its series and its own
+  /// place in that series, which name the same mark in whatever list a build
+  /// makes. By its series' key rather than its series' place, so a series
+  /// leaving the data ahead of it does not hand the reading to the series that
+  /// takes its place.
+  (String, int)? _heldMark;
 
   /// The plot's own tab stop, which the arrow keys walk.
   ///
@@ -966,7 +979,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
 
         if (nothing) {
           // Nothing is drawn, so there is no mark left to read either.
-          _activeMark = null;
+          _heldMark = null;
 
           return SizedBox(
             height: height,
@@ -1159,11 +1172,20 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
            is the only order that works: a builder that could read what is
            active would be reading a value that does not exist yet. */
         final List<PlassChartMark> built = markBuilder?.call(base) ?? const <PlassChartMark>[];
-        final PlassChartMark? active = _activeMark == null
+
+        /// Which mark [mark] is, as the reading holds on to it: the key its
+        /// series is known by, from the mark itself or from its legend entry,
+        /// and its own place in that series.
+        (String, int) held(PlassChartMark mark) => (
+          mark.key ?? (mark.series < keys.length ? keys[mark.series] : '${mark.series}'),
+          mark.index,
+        );
+
+        final (String, int)? heldMark = _heldMark;
+        final PlassChartMark? active = heldMark == null
             ? null
             : built.cast<PlassChartMark?>().firstWhere(
-                (PlassChartMark? mark) =>
-                    mark!.series == _activeMark!.series && mark.index == _activeMark!.index,
+                (PlassChartMark? mark) => held(mark!) == heldMark,
                 orElse: () => null,
               );
 
@@ -1171,7 +1193,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
         // column, rather than read again once the data brings one back to its
         // place.
         if (active == null) {
-          _activeMark = null;
+          _heldMark = null;
         }
 
         final PlassChartLayout layout = built.isEmpty && active == null
@@ -1224,9 +1246,10 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
           // that lands near none of them clears the readout.
           if (markBuilder != null) {
             final PlassChartMark? found = nearest(local);
+            final (String, int)? under = found == null ? null : held(found);
 
-            if (found?.series != _activeMark?.series || found?.index != _activeMark?.index) {
-              setState(() => _activeMark = found);
+            if (under != _heldMark) {
+              setState(() => _heldMark = under);
             }
 
             _pointer.value = found == null ? null : local;
@@ -1251,10 +1274,10 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
         }
 
         void onLeave() {
-          if (_activeIndex != null || _activeMark != null) {
+          if (_activeIndex != null || _heldMark != null) {
             setState(() {
               _activeIndex = null;
-              _activeMark = null;
+              _heldMark = null;
               _keyed = false;
             });
           }
@@ -1282,7 +1305,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
             _keyed = true;
 
             if (markBuilder != null) {
-              _activeMark = built[bounded];
+              _heldMark = held(built[bounded]);
             } else {
               _activeIndex = bounded;
             }
@@ -1412,7 +1435,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
 
         void onTap(Offset local) {
           final int? before = _activeIndex;
-          final PlassChartMark? beforeMark = _activeMark;
+          final (String, int)? beforeMark = _heldMark;
 
           onMove(local);
 
@@ -1420,9 +1443,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
           // the only way to dismiss a tooltip on a screen with no pointer to
           // move away.
           if (markBuilder != null) {
-            if (beforeMark != null &&
-                beforeMark.series == _activeMark?.series &&
-                beforeMark.index == _activeMark?.index) {
+            if (beforeMark != null && beforeMark == _heldMark) {
               onLeave();
             }
 
@@ -2020,11 +2041,20 @@ bool legendHasEntry(PlChartLegend legend, int count, int index) {
 /// id, or else its name and how many series before it have that name, or its
 /// place in the list when it has neither, as the React build's `entryKeys`.
 ///
-/// What a chart holds the series switched off in the legend by, so a series
-/// that moves because one before it left the data stays as it was, the one
-/// that moves into its place does not take its state over, one of two series
-/// with the same name is switched off without the other, and a series with an
-/// id keeps its state when its name changes.
+/// What a chart holds the series switched off in the legend by, and a mark
+/// being read by, so a series that moves because one before it left the data
+/// stays as it was, the one that moves into its place does not take its state
+/// over, one of two series with the same name is switched off without the
+/// other, and a series with an id keeps its state when its name changes.
+List<String> legendKeys(List<PlassChartSeries> series) {
+  return seriesKeys(<({String? id, String? name})>[
+    for (final PlassChartSeries one in series) (id: one.id, name: one.name),
+  ]);
+}
+
+/// The keys [legendKeys] makes, for anything with a name and perhaps an id: a
+/// chart's series, and a timeline's rows, which have no legend but hold a mark
+/// being read by their key as a series does.
 ///
 /// No two entries share a key. Every name is followed by its count and a place
 /// never is: two series called 'Revenue' are `Revenue#0` and `Revenue#1`, and
@@ -2033,7 +2063,7 @@ bool legendHasEntry(PlChartLegend legend, int count, int index) {
 /// cannot meet another name's key either. An id is followed by its count and
 /// then by `@id`, so a series with the id 'eu' is `eu#0@id`, which ends in a
 /// letter where the key of a name or of a place always ends in a digit.
-List<String> legendKeys(List<PlassChartSeries> series) {
+List<String> seriesKeys(List<({String? id, String? name})> series) {
   final Map<String, int> names = <String, int>{};
   final Map<String, int> ids = <String, int>{};
   final List<String> keys = <String>[];

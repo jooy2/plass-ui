@@ -151,6 +151,15 @@ class PlTimelineChart extends StatelessWidget {
     final List<String> rowNames = <String>[
       for (int i = 0; i < series.length; i += 1) series[i].name ?? '${i + 1}',
     ];
+
+    /* What each row is known by, its name and how many rows before it have that
+       name, or its place when it has none, as a series is known by its legend
+       entry. A mark carries its row's, because the frame is handed the rows as
+       its categories and holds a mark by the key of its series: a span being
+       read stays on its row when a row ahead of it leaves the data. */
+    final List<String> rowKeys = seriesKeys(<({String? id, String? name})>[
+      for (final PlassTimelineSeries row in series) (id: null, name: row.name),
+    ]);
     final List<Color> colors = <Color>[
       for (int i = 0; i < series.length; i += 1)
         seriesColor(
@@ -216,6 +225,7 @@ class PlTimelineChart extends StatelessWidget {
             PlassChartMark(
               series: index,
               index: at,
+              key: rowKeys[index],
               centre: Offset((from + to) / 2, top + one.lane * (lane + markGap)),
               r: lane / 2,
               // A box and not a disc: a fortnight is two hundred pixels of bar
