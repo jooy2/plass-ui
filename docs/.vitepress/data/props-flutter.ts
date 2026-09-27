@@ -6089,8 +6089,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '스크린 리더가 트리거의 tooltip으로 읽는 말. content가 Text면 그 글자가 기본값입니다',
-        en: "What a screen reader says the trigger's tooltip is. With a Text in content it defaults to that text"
+        ko: '스크린 리더가 트리거의 tooltip으로 읽는 말. content가 Text면 그 글자가 기본값입니다. disabled인 동안에는 읽지 않습니다',
+        en: "What a screen reader says the trigger's tooltip is. With a Text in content it defaults to that text. Nothing is said while disabled"
       }
     },
     from('PlTooltip', 'size', { type: `${SIZE}?`, default: 'PlassSize.sm' }),

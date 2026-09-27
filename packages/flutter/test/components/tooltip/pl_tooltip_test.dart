@@ -441,6 +441,97 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('switched off, says nothing about the control under it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        // The tooltip that is only on while a label is cut short, over a label
+        // that fits.
+        await tester.pumpWidget(
+          host(
+            Center(
+              child: PlTooltip(
+                content: const Text('Delete'),
+                disabled: true,
+                child: PlButton(onPressed: () {}, child: const Text('Delete')),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+
+        // Nothing carries the words, and the button is announced as it would be
+        // with no tooltip at all.
+        expect(_stops(tester).where((SemanticsNode node) => node.tooltip.isNotEmpty), isEmpty);
+        expect(
+          tester.getSemantics(find.byType(PlButton)),
+          isSemantics(label: 'Delete', tooltip: '', isButton: true, hasTapAction: true),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('switched off, leaves the controls under it apart', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            Center(
+              child: PlTooltip(
+                content: const Text('Clipboard'),
+                disabled: true,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    PlButton(onPressed: () {}, child: const Text('Cut')),
+                    PlButton(onPressed: () {}, child: const Text('Copy')),
+                  ],
+                ),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>['Cut', 'Copy']);
+
+        handle.dispose();
+      });
+
+      testWidgets('is switched off and on again without building the trigger again', (
+        WidgetTester tester,
+      ) async {
+        Widget build({required bool disabled}) {
+          return host(
+            Center(
+              child: PlTooltip(
+                content: const Text('Copy the link'),
+                disabled: disabled,
+                child: PlButton(onPressed: () {}, child: const Text('Copy')),
+              ),
+            ),
+            overlay: true,
+          );
+        }
+
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(build(disabled: false));
+        final State before = tester.state(find.byType(PlButton));
+        expect(_stops(tester).single, isSemantics(label: 'Copy', tooltip: 'Copy the link'));
+
+        await tester.pumpWidget(build(disabled: true));
+        expect(tester.state(find.byType(PlButton)), same(before));
+        expect(
+          tester.getSemantics(find.byType(PlButton)),
+          isSemantics(label: 'Copy', tooltip: '', isButton: true),
+        );
+
+        await tester.pumpWidget(build(disabled: false));
+        expect(tester.state(find.byType(PlButton)), same(before));
+        expect(_stops(tester).single, isSemantics(label: 'Copy', tooltip: 'Copy the link'));
+
+        handle.dispose();
+      });
     });
 
     group('groups', () {

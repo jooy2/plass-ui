@@ -149,7 +149,8 @@ class PlTooltip extends StatefulWidget {
   /// A screen reader gets the child and the tooltip's words as one node, so a
   /// button under a tooltip is announced with its own name and its own actions,
   /// and the words with them. The whole child is merged, so a child that holds
-  /// several controls of its own is announced as one.
+  /// several controls of its own is announced as one. With no words to say, or
+  /// while [disabled], the child is left as it was.
   final Widget child;
 
   /// Which edge of the trigger it appears on. It flips to the opposite side when
@@ -185,13 +186,16 @@ class PlTooltip extends StatefulWidget {
 
   /// Stops the tooltip opening at all, without disabling the trigger. For the
   /// tooltip that only exists while a label is truncated.
+  ///
+  /// A screen reader is not given the words either, and the child is left as
+  /// it was, so a label that fits is not read out twice.
   final bool disabled;
 
   /// What a screen reader says the trigger's tooltip is.
   ///
   /// A widget cannot be read out, so this is what a tooltip carrying anything
   /// but a plain [Text] needs. With a `Text` in [content] it defaults to that
-  /// text, and the common case needs nothing.
+  /// text, and the common case needs nothing. Nothing is said while [disabled].
   final String? semanticLabel;
 
   /// Type scale, radius and padding of the plate.
@@ -472,8 +476,12 @@ class _PlTooltipState extends State<PlTooltip> {
       child: trigger,
     );
 
-    final spoken =
-        widget.semanticLabel ?? (widget.content is Text ? (widget.content as Text).data : null);
+    // Nothing while the tooltip is switched off. A plate that never opens is not
+    // there to describe the trigger, and for the tooltip that only exists while
+    // a label is cut short, a label that fits would be read out twice.
+    final spoken = widget.disabled
+        ? null
+        : widget.semanticLabel ?? (widget.content is Text ? (widget.content as Text).data : null);
 
     final anchored = Semantics(
       tooltip: spoken,
