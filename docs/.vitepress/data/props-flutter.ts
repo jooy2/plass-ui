@@ -5415,6 +5415,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: 'Builds the cell for a row. Required, because Dart has no row[key] on an arbitrary type'
       }
     },
+    from('PlTableColumn', 'key', {
+      type: 'String?',
+      required: false,
+      description: {
+        ko: '빌드가 바뀌어도 열을 알아보는 이름. 앞에 열이 들어오거나 빠져도 셀과 제목이 가진 상태가 이 열에 남습니다. 생략하면 key 없는 열 가운데 몇 번째인지로 알아보므로, 앞에 열이 들어오면 뒤의 셀이 그 자리에 있던 셀의 상태를 넘겨받습니다',
+        en: 'Identifies the column from one build to the next, so what its cells and heading hold stays with it as a column is put in front of it or taken away. Left out, a column is known by its place among the columns with no key, so a column put in front hands each cell behind it the state of the one that was in its place'
+      }
+    }),
     from('PlTableColumn', 'header', {
       type: 'Widget?',
       description: {

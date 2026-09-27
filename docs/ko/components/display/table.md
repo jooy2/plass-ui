@@ -82,6 +82,8 @@ PlTable<Invoice>(
 
 `cell`이 필수라는 점이 두 빌드 사이의 유일한 실제 차이입니다. React에서는 column이 `key`로 속성 이름을 가리키고 `render`가 없으면 셀이 `row[key]`가 되는데, Dart에는 임의의 타입에 대한 그런 조회가 없습니다. 행의 타입을 `dynamic`으로 넓혀 가며 얻는 것보다, 접근자를 한 줄 쓰는 편이 싼 거래입니다.
 
+같은 이유로 여기서는 `key`가 선택입니다. 속성 이름이 아니라 열 자체만 가리키기 때문입니다. 열이 늘거나 줄어드는 표라면 column에 `key`를 주세요. 그래야 필드에 입력한 글처럼 셀이 가진 상태가 제 열에 남습니다. `key`가 없는 column은 `key` 없는 column 가운데 몇 번째인지로 구분합니다.
+
 :::
 
 라이브러리 전체에서 공유 축(`variant` `size` `color` `density` `elevation`)이 뜻하는 바는 [prop 규칙](../../design/prop-conventions)에 있습니다.

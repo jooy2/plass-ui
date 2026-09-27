@@ -209,6 +209,99 @@ void main() {
         expect(aligned.alignment, AlignmentDirectional.centerEnd);
         expect(start.alignment, AlignmentDirectional.centerStart);
       });
+
+      group('what a cell holds', () {
+        /// A column whose heading and cells each have a `State`, told apart by
+        /// the [name] every one of them starts with.
+        PlTableColumn<_Build> probed(String name, {String? key}) {
+          return PlTableColumn<_Build>(
+            key: key,
+            header: _Probe(name),
+            cell: (_Build row, int index) => _Probe('$name ${row.id}'),
+          );
+        }
+
+        Widget table(List<PlTableColumn<_Build>> columns) {
+          return host(PlTable<_Build>(rows: _rows, columns: columns), width: 640);
+        }
+
+        /// Every probe in the grid by what it says.
+        Map<String, _ProbeState> probes(WidgetTester tester) {
+          return <String, _ProbeState>{
+            for (final _ProbeState state in tester.stateList<_ProbeState>(
+              find.descendant(of: find.byType(Table), matching: find.byType(_Probe)),
+            ))
+              state.widget.text: state,
+          };
+        }
+
+        /// Checks that every probe that was in [before] is still there, the
+        /// same object.
+        void expectKept(Map<String, _ProbeState> before, WidgetTester tester, String reason) {
+          final Map<String, _ProbeState> now = probes(tester);
+
+          for (final MapEntry<String, _ProbeState> probe in before.entries) {
+            expect(now[probe.key], same(probe.value), reason: '${probe.key}, $reason');
+          }
+        }
+
+        testWidgets('stays with a keyed column as a column is put in front of it and taken away', (
+          WidgetTester tester,
+        ) async {
+          final List<PlTableColumn<_Build>> keyed = <PlTableColumn<_Build>>[
+            probed('Build', key: 'build'),
+            probed('Branch', key: 'branch'),
+          ];
+
+          await tester.pumpWidget(table(keyed));
+
+          final Map<String, _ProbeState> resting = probes(tester);
+
+          expect(resting, hasLength(8));
+
+          await tester.pumpWidget(
+            table(<PlTableColumn<_Build>>[probed('Note', key: 'note'), ...keyed]),
+          );
+          expectKept(resting, tester, 'a column in front');
+
+          await tester.pumpWidget(table(keyed));
+          expectKept(resting, tester, 'taken away again');
+        });
+
+        testWidgets('stays with the place of a column that has no key', (
+          WidgetTester tester,
+        ) async {
+          final List<PlTableColumn<_Build>> unkeyed = <PlTableColumn<_Build>>[
+            probed('Build'),
+            probed('Branch'),
+          ];
+
+          await tester.pumpWidget(table(unkeyed));
+
+          final Map<String, _ProbeState> resting = probes(tester);
+
+          // A keyed column in front moves none of them from their place among
+          // the columns with no key.
+          await tester.pumpWidget(
+            table(<PlTableColumn<_Build>>[probed('Note', key: 'note'), ...unkeyed]),
+          );
+          expectKept(resting, tester, 'a keyed column in front');
+
+          await tester.pumpWidget(table(unkeyed));
+          expectKept(resting, tester, 'taken away again');
+
+          // One with no key in front takes the first place over, and with it
+          // what the column that was there held, as a table with no keys
+          // always has.
+          await tester.pumpWidget(table(<PlTableColumn<_Build>>[probed('Note'), ...unkeyed]));
+
+          final Map<String, _ProbeState> now = probes(tester);
+
+          expect(now['Note'], same(resting['Build']));
+          expect(now['Note #412'], same(resting['Build #412']));
+          expect(now['Build #412'], same(resting['Branch #412']));
+        });
+      });
     });
 
     group('rules', () {

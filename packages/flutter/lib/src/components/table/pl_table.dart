@@ -26,6 +26,7 @@ class PlTableColumn<T> {
   /// Creates a column.
   const PlTableColumn({
     required this.cell,
+    this.key,
     this.header,
     this.width,
     this.flex = 1,
@@ -34,6 +35,19 @@ class PlTableColumn<T> {
 
   /// Builds the cell for a row.
   final Widget Function(T row, int index) cell;
+
+  /// Identifies the column from one build to the next, so what its cells and
+  /// its heading hold stays with it as a column is put in front of it or taken
+  /// away.
+  ///
+  /// A plain [String], not a widget [Key], as it is in the React build. It is
+  /// required there, where it also names the property a cell is read from, and
+  /// optional here, where [cell] does that. Left out, a column is known by its
+  /// place among the columns that have no key, which is right for a set of
+  /// columns that never changes; in one that gains or loses a column in front
+  /// of the others, each cell behind it takes over what the cell in its place
+  /// held.
+  final String? key;
 
   /// The heading. Left out, the column is headed by nothing, which is what an
   /// actions column wants and what every other column does not.
@@ -233,6 +247,7 @@ class PlTable<T> extends StatelessWidget {
       columns: <PlassGridColumn>[
         for (final column in columns)
           PlassGridColumn(
+            id: column.key,
             cell: (int index) => column.cell(rows[index], index),
             header: column.header,
             width: column.width,

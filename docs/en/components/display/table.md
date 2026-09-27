@@ -82,6 +82,8 @@ The grid is laid out by Flutter's own `Table`, which is also where the table, ro
 
 `cell` is required, which is the one real difference between the two builds. There a column names a property with `key` and the cell is `row[key]` unless `render` says otherwise; Dart has no such lookup on an arbitrary type, and a map of `dynamic` bought at the price of the row's type would be a worse bargain than writing the accessor.
 
+`key` is optional here for the same reason: it no longer names a property, only the column. Give it to the columns of a table that gains or loses a column, so that what a cell holds, such as a field's text, stays with its column. A column without one is known by its place among the columns without one.
+
 :::
 
 What the shared axes (`variant` `size` `color` `density` `elevation`) mean across the library is in [prop conventions](../../design/prop-conventions).

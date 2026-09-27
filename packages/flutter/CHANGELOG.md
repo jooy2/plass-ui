@@ -6,6 +6,7 @@
 
 ### Added
 
+- **A `PlTableColumn` takes a `key`, so what a `PlTable` cell and heading hold stays with the column as a column is put in front of it or taken away, as in the React build.** A column was known only by its place, so a table that gained a column in front of the others handed each cell the state of the one that had been in its place: a field showed what was typed into the column beside it. The `key` is a `String`, as in React, and optional, since `cell` already says what a cell draws; a column without one is known by its place among the columns without one, as before.
 - **`PlassChartSeries.id` is what a chart knows a series by from one build to the next.** It was documented as what identifies a series and read by nothing. A series' legend entry was known by its name and how many series before it have that name, so a series renamed between two builds came back switched on, and when the first of two series with one name left the data, the second took its state over. A series with an `id` keeps its switched-off state through both. A series without one is known as before, and so is a `PlPieChart`'s slice, which has no `id`. The React build makes the same change.
 
 - **`PlChartTooltip` takes `crosshair`, so a line, area or bar chart can read a column without the line dropped through it, as React's `crosshair: false` does.** It is `true` by default, and the crosshair is drawn only in `PlassChartTooltipMode.column`.
