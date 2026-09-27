@@ -2,9 +2,9 @@
 
 The open findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and of the batches that have worked through it since. The work goes in batches of twenty. When no item is left, delete this file in a commit of its own.
 
-A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 32 closed 584 items between `148a20e4` and `abf75ea0`; those items and the notes of batches 1 to 29 are in the history of this file.
+A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 33 closed 604 items between `148a20e4` and `a63f7c3d`; those items and the notes of batches 1 to 29 are in the history of this file.
 
-**13 items are open, and the last number used is 599.**
+**7 items are open, and the last number used is 613.**
 
 ## Working through a batch
 
@@ -46,7 +46,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 
 ## Waiting for an answer
 
-None. Every question batch 32 asked was answered with an item, or with the test fix the batch made itself.
+None. Every question batch 33 asked was answered with an item, with a fix the batch made itself, or with a line under Noted differences.
 
 ## Passed over and not yet asked
 
@@ -91,72 +91,48 @@ Small differences between the builds found in passing from batch 27 on. They are
 - `PlCombobox`: taking a chip off with its × while the list is open leaves that value's row lit in Flutter (`_remove` never clears `_highlighted`), so `Enter` puts it straight back; Base UI clears the highlight with `clearActiveIndexForRemovedItem`.
 - `PlNumberField`: a step on an empty Flutter field adds a step to `min` or zero (`final from = _read(_controller.text) ?? widget.min ?? 0;`), where Base UI sets zero held inside the range (`NumberFieldRoot.js` ~224), so with a `min` of 3 Flutter gives 4 and React 3; and Flutter rounds a typed value to ten decimals as it settles (`toStringAsFixed(10)` in `_settle`), where Base UI keeps typed input as it is.
 - Fields: a press on the text of a disabled Flutter field still moves its selection (the bare `EditableText` handles the tap itself, and `enableInteractiveSelection: false` does not stop it); no text changes, and a React `<input disabled>` ignores the click.
+- `PlPieChart` and `PlGaugeChart`: in a box too small to draw in (`outer <= 0`), Flutter draws the empty state's words even with data (`pl_pie_chart.dart`, `if (nothing || outer <= 0) {`; `pl_gauge_chart.dart`, `if (box.outer <= 0 || range == 0) {`), so a named gauge is read "Quota: 68 / 100" and then "Nothing here"; React draws nothing there (`width > 0 && outer > 0 ? (`).
+- `PlColorPicker`: the Flutter value field's inset inside its border (`EdgeInsets.symmetric(horizontal: 6, vertical: 4)`) is outside the editor and takes no press, where the React `<input>` owns its border and padding, so a click there focuses it (read from the code).
+- `PlChip`: a disabled chip with no `onClick` shows `cursor-not-allowed` and carries `aria-disabled` on its shell in React, where the Flutter chip defers the cursor and its node says nothing about being disabled.
+- `PlChip`: the React label, icons and count are mounted again as `onClick` comes or goes (`{pressable ? (<button …>{label}</button>) : (label)}`), so a `PlAvatar` in `startIcon` loads again; the Flutter chip keeps them.
+- React pickers: inside a native `<fieldset disabled>` the trigger is disabled by the browser but does not look disabled, since `PickerShell` reads only `useDisabled` (the `PlFieldset` context); `PlColorPicker`'s panel reads both since item 600.
+- Arrow keys: an arrow at an end still reports the unchanged value through `PlSlider`'s callbacks (`_report(index, value, ended: true);`), the `PlPanes` and `PlSidebar` `onResize`/`onResizeEnd`, the `PlWindowPane` corner's `onResize` and the `PlColorPicker` square and rails, in both navigation modes; not compared with React.
 
 ## Items
 
 Each item was raised in a batch report and approved. Its line numbers are from the commit that raised it and drift as the code changes; when one no longer matches, search for the symbol.
 
-- [ ] **587.** A Flutter arrow-key control holds a D-pad user in (Accessibility · Flutter · Low)
-  - Location: the key handlers of `components/radio_group/pl_radio_group.dart` (`_onKey` ~253), `segmented_button/pl_segmented_button.dart` (~352), `tabs/pl_tabs.dart` (~310), `tree/pl_tree.dart` (~325) and `slider/pl_slider.dart` (~392)
-  - Problem: Each returns `KeyEventResult.handled` for an arrow whether or not it did anything, and the radio group, segmented button and tabs wrap at both ends. Under `NavigationMode.directional`, where the arrows are the only way to move the focus, a user who reaches a radio group or segmented set cannot leave it; a disabled set swallows the arrows while doing nothing (a disabled option can hold the focus there), as do tabs with no `onChanged`, a tree at its first or last row and a slider at `min` or `max`. Flutter's own `RadioGroup` behaves the same way.
-  - Proposal (approved): under `NavigationMode.directional` only, stop wrapping and return `KeyEventResult.ignored` for an arrow that moved nothing, so the focus system takes it to the next control; leave the keyboard behaviour in the traditional mode as it is. Sweep the package for other arrow handlers of the same shape and test each in both modes.
+- [ ] **603.** Every Flutter menu trigger sits in an unnamed focus stop that holds the focus while the menu is open (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/menu/pl_menu.dart` (`final Widget trigger = Focus(focusNode: _focusNode, onKeyEvent: _onKey,` ~693; `_focusNode` ~385; `_focusNode.requestFocus();` in `_openMenu` ~466)
+  - Problem: The `Focus` round the trigger leaves `includeSemantics` at `true`, so every `PlMenu` trigger, a `PlButton` for one, sits in a focusable node with no name whose focus action moves the focus to the menu's own node rather than to the trigger. While the menu is open the primary focus is on that node, so the named trigger is never announced as focused. The comment at ~689 ("Focus stays on the trigger while the popup is up") says otherwise. React's trigger is one Base UI `Menu.Trigger` button.
+  - Proposal (approved): take the wrapper's semantics away (`includeSemantics: false`) and have the named trigger's node say it holds the focus while the menu is open, checking what a screen reader reads while it is; correct the comment, and test the tree with the menu shut and open. The `PlMenubar` case in `test/package/focus_semantics_test.dart` passes `alone: false` because of this node.
 
-- [ ] **588.** An empty React donut draws its centre over the empty message (Bug · React · Low)
-  - Location: `packages/react/src/components/pie-chart/PlPieChart.tsx` (`const centred = Boolean(center) && inner > 0;` ~228, `{centred ? (` ~496)
-  - Problem: `centred` does not look at `nothing`, so an empty `donut` or `semi` pie with a `center` draws the centre on top of the empty state's words. The Flutter pie returns only the empty box (`if (nothing || outer <= 0) {`).
-  - Proposal (approved): draw no centre while the pie is empty, as Flutter does, with a test.
+- [ ] **607.** A Flutter table wider than its sheet is cut off, and its pinned header overflows (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/table.dart` (the grid's vertical `SingleChildScrollView` ~537, `PlassKeyboardScroll(vertical: _scroll,` ~631, `_PinnedHeader.build`'s `IntrinsicHeight(child: Row(` ~980); the sheet's `ClipRRect` in `internal/surface.dart` ~305; `docs/en/components/display/table.md` ~343 and the `ko` twin
+  - Problem: The grid scrolls only up and down. Once the columns cannot shrink further, the sheet clips them, and with `stickyHeader` the band's `Row` overflows (a `RenderFlex` overflow in debug, reproduced with a 640-wide `PlTable` headed 'Build, with where it ran and why'). The docs tell a Flutter reader to wrap the table in a horizontal `SingleChildScrollView`, which gives the stretched `Column` of `PlTable` and of the grid an unbounded width (read from the code, not run). React scrolls the sheet sideways (`overflow-x-auto`, `PlTable.tsx` ~275).
+  - Proposal (approved): scroll the grid sideways, as React does, when its columns need more room than the sheet has, with the pinned band moving with it and the keyboard scroll given the horizontal controller; take the workaround out of the docs (en and ko, table and data table pages) and say the table scrolls sideways; test a wide table in `PlTable` and `PlDataTable`, with and without `stickyHeader`.
 
-- [ ] **589.** An empty gauge announces a reading it does not draw (Accessibility · Both · Low)
-  - Location: `packages/react/src/components/gauge-chart/PlGaugeChart.tsx` (`aria-label` ~367); `packages/flutter/lib/src/components/gauge_chart/pl_gauge_chart.dart` (`label:` ~256)
-  - Problem: A named `PlGaugeChart` whose `min` equals `max` draws only its empty state, but is announced "Quota: 5 / 10" in both builds, followed by the empty words.
-  - Proposal (approved): name an empty gauge by its label alone, with the empty words after it, in both builds, with a test in each.
+- [ ] **609.** Under directional navigation, an arrow across a control's axis still changes its value (Accessibility · Flutter · Low)
+  - Location: `components/slider/pl_slider.dart` (~368-376, no orientation check), `segmented_button/pl_segmented_button.dart` (~364-365), `radio_group/pl_radio_group.dart` (~266-267), `rating/pl_rating.dart` (~326, ~328), `color_picker/pl_color_picker.dart` (the rails' `_nudges`, ~921-926 and ~1001-1004), `panes/pl_panes.dart` (~496-501)
+  - Problem: A horizontal `PlSegmentedButton`, `PlSlider` or colour-picker rail takes up and down, a vertical `PlRadioGroup` left and right, a `PlRating` up and down, and a `PlPanes` handle all four, so a D-pad reader leaves only after driving the value to an end. Material's `Slider` binds only the arrows along its axis under `NavigationMode.directional` (`material/slider.dart` ~655-660, ~962-966); `PlSidebar`'s handle already binds only its own axis.
+  - Proposal (approved): under `NavigationMode.directional` only, take the arrows along the control's axis and hand the others on to the focus system (through `internal/arrows.dart`), leaving the traditional mode as it is; test each in both modes. `PlPanes` also flips up and down on a horizontal split in RTL (`final int steps = widget.horizontal && rtl ? -intent.steps : intent.steps;` ~508); check that on the way.
 
-- [ ] **590.** Switching a Flutter data table's `selection` moves its cells' state one column over (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/data_table/pl_data_table.dart` (`if (_ticks)` ~663); the unkeyed cells of each `TableRow` in `internal/table.dart`
-  - Problem: Turning `selection` on or off puts a checkbox column in front of every row or takes it away, and since the cells have no keys each data cell is matched with the element of its neighbour: a cell of a different type is built again from scratch, and one of the same type hands its `State` to the next column.
-  - Proposal (approved): key each cell by its column, so its state follows it, with a test that a stateful cell keeps its `State` as `selection` changes both ways.
+- [ ] **610.** Under directional navigation, some arrows never run out, so a D-pad reader cannot leave (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/calendar.dart` (the day grid's `_onDayKey` ~921-938 and the month and year grids' `_onCursorKey` ~1064-1081), the `PlColorPicker` hue rail (~651-661, it wraps), `PlWindowPane`'s corner (`_nudge` ~593-599, no ceiling on right and down)
+  - Problem: The calendar grids move across months and years without an end (`minDate` and `maxDate` only draw a day as disabled), the hue rail goes round, and the window corner grows to the right and down without a limit, so every arrow there moves something and none is handed on.
+  - Proposal (approved): under `NavigationMode.directional` only, treat what is shown as the end: the calendar stops at the edge of the month or page shown (the month changes with the header's buttons and Page keys; check what Material's `CalendarDatePicker` does and follow it where it fits), the hue rail stops at either end instead of wrapping, and the window corner stops at the edge of its area; an arrow past that goes on to the next control. Leave the traditional mode as it is, and test each in both modes.
 
-- [ ] **591.** A Flutter table built again whole as its parent's height becomes bounded or unbounded (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/table/pl_table.dart` (`if (bounded) Flexible(child: grid) else grid,` ~293) and `data_table/pl_data_table.dart` (~818), with the comments above each
-  - Problem: The grid is wrapped in a `Flexible` only under a bounded height, so moving between the two builds the whole grid again (scroll offset, measured widths, every cell's state). The comment says a `Flexible` asserts under an unbounded height, which is not so for a loose `Flexible` in a `MainAxisSize.min` column (`rendering/flex.dart` ~1121 asserts only for `MainAxisSize.max` or a tight fit).
-  - Proposal (approved): always wrap the grid in the `Flexible`, correct the comments, and test that the grid keeps its state across the switch.
+- [ ] **611.** Under directional navigation, a closed select or combobox takes up and down (Accessibility · Flutter · Low)
+  - Location: `components/select/pl_select.dart` (`if (!_open) {` / `_openList();` ~300-303), `combobox/pl_combobox.dart` (`_move` ~857-859, `_MoveIntent: CallbackAction<_MoveIntent>(` ~1485, `if (!_openable || _open) {` ~725)
+  - Problem: A closed `PlSelect` or `PlCombobox` opens its list on up or down in directional mode too, so a D-pad reader cannot move up or down past it; the combobox's `CallbackAction` reports the arrows handled even when it cannot open.
+  - Proposal (approved): under `NavigationMode.directional` only, open with Enter or Select rather than with up and down, and hand those arrows on while the list is shut; move the combobox onto `PlassArrowAction`; keep an open list's arrows and the traditional mode as they are; test both.
 
-- [ ] **592.** A Flutter table's pinned header drifts from its columns as the rows change (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/table.dart` (`if (widget.stickyHeader && _measuredAt != constraints.maxWidth) {` ~541; the only reset, `if (widget.columns.length != oldWidget.columns.length) {` ~209)
-  - Problem: The band that pins the header is a copy laid out with widths measured only when the width or the number of columns changes. The grid's columns are intrinsic, so a longer cell widens a column and the band's headers stop lining up (reproduced at x=524 against 416); header content, the text scale and turning `stickyHeader` off and on leave it stale too. React pins the real `<th>` with `position: sticky`.
-  - Proposal (approved): measure again whenever the rows, the columns or the header change, and when `stickyHeader` is turned on, with a test that the band lines up after a row widens a column.
+- [ ] **612.** Under directional navigation, a scroll box scrolls to its end before the focus leaves a control inside it (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/keyboard_scroll.dart` (`onKeyEvent: _onKey,` ~242; `_onKey` ~156-223 never reads `hasPrimaryFocus`)
+  - Problem: `PlassKeyboardScroll` (`PlScrollArea`, `PlScrollZone`, `PlTable`, `PlDataTable`) answers arrows that bubble up from a focused descendant, a sortable `PlDataTable` heading or a control that hands an arrow on at its end (item 587), so in directional mode the box scrolls 40px a press to its end before the focus moves.
+  - Proposal (approved): under `NavigationMode.directional` only, scroll with the arrows only while the box itself holds the focus, and let a descendant's arrow go to focus traversal, which brings the newly focused control into view; keep the traditional mode as it is, as a browser does; test both.
 
-- [ ] **593.** A Flutter chip's label is built again as icons change on both sides of it (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/chip/pl_chip.dart` (the inner `Row`, `?startIcon,` ~288)
-  - Problem: The label is an unkeyed child between the start icon and the end icon and count, so when both sides change in one build, as a filter chip that gains a check and a count when chosen does, the label is built again from scratch and a stateful label starts over.
-  - Proposal (approved): give the label a key of its own, with a test.
-
-- [ ] **594.** A disabled chip that can be pressed stops being a button, and React mounts its content again (Accessibility · Both · Low)
-  - Location: `packages/react/src/components/chip/PlChip.tsx` (`const interactive = Boolean(onClick) && !disabled;` ~221, `{interactive ? (<button …>{label}</button>) : (label)}` ~291); `packages/flutter/lib/src/components/chip/pl_chip.dart` (`final interactive = onPressed != null && !disabled;` ~164)
-  - Problem: A chip with `onClick` is a button only while enabled. In React the label, icons and count move in and out of the `<button>` as `disabled` changes, so they are mounted again and a `PlAvatar` in `startIcon` loads again, showing its initials until it does; in both builds a disabled chip that can be pressed is not announced as an unavailable button, as a disabled `PlButton` is.
-  - Proposal (approved): keep a chip that has `onClick` or `onPressed` a button while disabled, a `<button disabled>` in React and `button: true, enabled: false` in Flutter, so `disabled` no longer mounts the content again; update the docs and test both builds.
-
-- [ ] **595.** A disabled colour picker's value field is only read-only (Accessibility · Both · Low)
-  - Location: `packages/react/src/components/color-picker/PlColorPicker.tsx` (`readOnly={inert}` ~543, beside the swatches' `disabled={inert}`); `packages/flutter/lib/src/components/color_picker/pl_color_picker.dart` (`readOnly: inert,` ~749, and `_textFocus`, never excluded from the focus)
-  - Problem: In both builds the value field of a disabled picker stays in the Tab order and is announced as read-only rather than unavailable, while its swatches are disabled; inside a disabled `<fieldset>` the React input is natively disabled, so the two ways of disabling the picker disagree.
-  - Proposal (approved): make the value field disabled while the picker is `disabled` (out of the Tab order, announced as unavailable) and keep it read-only while it is `readOnly`, in both builds, with a test in each.
-
-- [ ] **596.** Pressing a focused Flutter field does not bring its keyboard back (Bug · Flutter · Low)
-  - Location: the shell's `onTap: _disabled ? null : _focusNode.requestFocus,` in `text_field/pl_text_field.dart` (~583) and `number_field/pl_number_field.dart` (~1203), and `_pressField` in `combobox/pl_combobox.dart` (~786)
-  - Problem: With the keyboard put away while the field holds the focus (Android's back, for one), a press on the field does nothing, because the focus is already there; a press on the text helps only if it moves the caret. Material's `TextField` calls `requestKeyboard` on every tap.
-  - Proposal (approved): have the press call `plassTapEditor` from `internal/editor.dart` (added by item 586), with a test that a press after `TextInput.hide` shows the keyboard again.
-
-- [ ] **597.** Twenty-two Flutter controls still do not say they can take the focus (Accessibility · Flutter · Low)
-  - Location: the nodes built inside `PlassInteractive`'s builder in `PlChip`, `PlListItem`, `PlTabs` tabs, `PlSegmentedButton`, `PlAccordion`, `PlCollapsible`, `PlSelect`, `internal/picker.dart`, the `PlNumberField` steppers, `PlBottomNavigation`, `PlFloatingBottomNavigation`, `PlMenubar`, the `PlWindowPane` caption buttons, `PlAppLogo`, `PlNavigationMenu` links, the `PlChatBubble` preview, the `PlToast` action, `PlPill`, `PlTextLink`, `PlBreadcrumb` and `internal/dismiss.dart`
-  - Problem: Item 584 added `focusSemantics` for a component whose `Semantics` sits outside the builder, and `plassFocusSemanticsOf` for one whose node is inside it, and used the second only on `PlCard`. These nodes offer a tap and no `focus` action, and never say they are focusable or focused.
-  - Proposal (approved): put `plassFocusSemanticsOf(context)` on each of these nodes, and test each with a check of the node that names it.
-
-- [ ] **598.** Three Flutter buttons cannot be pressed from a screen reader (Accessibility · Flutter · Low)
-  - Location: `components/code_block/pl_code_block.dart` (the bar button's `Semantics(button: true, toggled: …, label: …)` ~1199), `gallery/pl_gallery.dart` (the tile's `Semantics(button: true, …)` ~672), `toast/pl_toast.dart` (the action's `Semantics(container: true, button: true, …)` ~854)
-  - Problem: Each node says it is a button but has no `onTap`, and `PlassInteractive`'s press is kept off the semantics tree, so the node offers only `focus`: a screen reader can reach Copy and Raw, a gallery tile and a toast's action but not press them.
-  - Proposal (approved): give each node the tap its press has, sweep the package for another `button: true` node over a press it does not carry, and test each.
-
-- [ ] **599.** A Flutter anchor row draws no focus ring (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/anchor/pl_anchor.dart` (the row's builder ~323, which never reads `state.focusVisible`)
-  - Problem: A row reached with the keyboard shows nothing, where the React row draws the house ring (`focusRingClasses`, `PlAnchor.tsx` ~258).
-  - Proposal (approved): draw the house focus ring on a row while `state.focusVisible`, with a test.
+- [ ] **613.** A disabled Flutter tree row is a focus stop under directional navigation (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/tree/pl_tree.dart` (`focusNode: node.disabled ? null : _nodeFor(node.id),` ~431); `_decide` in `internal/interaction.dart` (`NavigationMode.directional => true,`)
+  - Problem: A disabled row gets no node from the tree, so its `PlassInteractive` makes one of its own, which is not `skipTraversal` and, under `NavigationMode.directional`, can take the focus, as every unavailable control can there. An arrow the tree hands on past its last reachable row (item 587) can land on a disabled row below it, although the tree's own walk skips disabled rows and `docs/en/components/display/tree.md` ~134 says a disabled row "is not a stop for the arrow keys".
+  - Proposal (approved): keep a disabled tree row out of the focus order in every navigation mode, as the exception to the directional rule for an item inside one composite control, with a screen reader still reading it; test it in both modes.
