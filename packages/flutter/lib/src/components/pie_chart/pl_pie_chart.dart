@@ -178,8 +178,9 @@ class PlPieChart extends StatefulWidget {
 }
 
 class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateMixin {
-  /// Which slices the reader has switched off in the legend.
-  final Set<int> _off = <int>{};
+  /// Which slices the reader has switched off in the legend, each by its
+  /// [legendKey] rather than by its place.
+  final Set<String> _off = <String>{};
 
   int? _active;
   int? _hovered;
@@ -248,7 +249,17 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
         ),
     ];
 
-    final List<bool> visible = <bool>[for (int i = 0; i < slices.length; i += 1) !_off.contains(i)];
+    final List<String> keys = <String>[
+      for (int i = 0; i < slices.length; i += 1) legendKey(slices[i], i),
+    ];
+
+    // A key no slice has any more is let go, as the React pie lets go of it in
+    // the render that finds it gone, so a slice that comes back under it is
+    // drawn. Here rather than when the widget changes, because a slice's name
+    // comes from the theme's date names as well as from the widget.
+    _off.retainWhere(keys.contains);
+
+    final List<bool> visible = <bool>[for (final String key in keys) !_off.contains(key)];
 
     // A slice that no longer draws an arc, because it left the data or is now
     // worth nothing or a gap, has nothing left to read, so the reading is let
@@ -517,8 +528,8 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
             align: widget.legend.align,
             vertical: widget.legend.side == PlassSide.left || widget.legend.side == PlassSide.right,
             onToggle: (int index) => setState(() {
-              if (!_off.remove(index)) {
-                _off.add(index);
+              if (!_off.remove(keys[index])) {
+                _off.add(keys[index]);
               }
 
               if (_active == index) {

@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A series switched off in a chart's legend, or a slice switched off in a `PlPieChart`'s, is held by its name when the data changes.** It was held by its place, so when a series ahead of it left the data, the series that moved into that place was switched off instead, and a place past the new end switched a series off again once the data grew back. It is now held by its name, or by its place when it has none, and a series that leaves the data is drawn again if it comes back. `hidden` is still read once, when the chart mounts. The Flutter build makes the same change.
+
 - **A `PlPieChart` lets go of the slice it is reading once it is rendered again with that slice drawing no arc.** A slice that left the data went on being read as "0 · 0%", or "0 · NaN%" when the slices left summed to 0, and a slice now worth 0 or a gap went on being read as worth nothing, each with every other slice faded for it. A slice that still draws an arc is still read. The Flutter build makes the same change.
 
 - **`Home` and `End` on a line, bar or area chart whose tooltip is in `item` mode read the whole column they move to, as in the Flutter build.** With the pointer still over the plot, either key read only the one value nearest where the pointer last was, where the arrow keys read the whole column, since a key brings no pointer to measure against.

@@ -78,6 +78,8 @@
 
 ### Fixed
 
+- **A series switched off in a chart's legend, or a slice switched off in a `PlPieChart`'s, is held by its name when it is built again.** It was held by its place, so when a series ahead of it left the data, the series that moved into that place was switched off instead, and a place past the new end switched a series off again once the data grew back. It is now held by its name, or by its place when it has none, and a series that leaves the data is drawn again if it comes back. `hidden` is still read once, when the chart mounts. The React build makes the same change.
+
 - **A `PlPieChart` lets go of the slice it is reading once it is built again with that slice worth 0 or a gap, as in the React build.** Such a slice draws no arc, but it stayed in the card and the live region as worth nothing, with every other slice faded for it. A slice that still draws an arc is still read.
 
 - **A `PlHeatmapChart` built again without the cell it is reading lets go of it.** A cell the data turned into a gap, or a treemap tile whose value no longer had an area to be, was kept: nothing was read while it was gone, `Escape` was taken with nothing to clear, and once the data brought the cell back it was read again, with its card and drawn whole at once. A cell that is still there is still read.

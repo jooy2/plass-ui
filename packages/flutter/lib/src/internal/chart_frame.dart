@@ -759,11 +759,14 @@ class PlassCartesianChart extends StatefulWidget {
 class _PlassCartesianChartState extends State<PlassCartesianChart>
     with SingleTickerProviderStateMixin {
   /// Which series are switched off: the ones that started `hidden`, then
-  /// whatever the reader toggled in the legend.
+  /// whatever the reader toggled in the legend, each by its [legendKey] rather
+  /// than by its place.
   ///
   /// `hidden` is read once, as the React build reads it, so a series that starts
-  /// switched off is one the legend can switch back on.
-  final Set<int> _off = <int>{};
+  /// switched off is one the legend can switch back on, and a series that
+  /// arrives later, or whose `hidden` changes, is drawn until its entry is
+  /// pressed.
+  final Set<String> _off = <String>{};
 
   @override
   void initState() {
@@ -773,7 +776,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
 
     for (int i = 0; i < widget.series.length; i += 1) {
       if (widget.series[i].hidden) {
-        _off.add(i);
+        _off.add(legendKey(widget.series[i], i));
       }
     }
   }
@@ -781,6 +784,15 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
   @override
   void didUpdateWidget(PlassCartesianChart oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    // A key no series has any more is let go, as the React build lets go of it
+    // in the render that finds it gone, so a series that comes back under it,
+    // or an unnamed one that comes back to its place, is drawn.
+    final Set<String> keys = <String>{
+      for (int i = 0; i < widget.series.length; i += 1) legendKey(widget.series[i], i),
+    };
+
+    _off.retainWhere(keys.contains);
 
     // An entry taken out of the legend from under the pointer reports no exit,
     // so it is let go here, rather than held until the data brings a series
@@ -860,7 +872,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
 
     final List<List<ChartValue>> values = toValues(widget.series);
     final List<bool> visible = <bool>[
-      for (int i = 0; i < widget.series.length; i += 1) !_off.contains(i),
+      for (int i = 0; i < widget.series.length; i += 1)
+        !_off.contains(legendKey(widget.series[i], i)),
     ];
     final List<Color> colors = <Color>[
       for (int i = 0; i < widget.series.length; i += 1)
@@ -1588,8 +1601,10 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
             align: widget.legend.align,
             vertical: _beside(widget.legend.side),
             onToggle: (int index) => setState(() {
-              if (!_off.remove(index)) {
-                _off.add(index);
+              final String key = legendKey(widget.series[index], index);
+
+              if (!_off.remove(key)) {
+                _off.add(key);
               }
             }),
             swatch: widget.swatch,
@@ -1996,6 +2011,14 @@ class _FramePainter extends CustomPainter {
 bool legendHasEntry(PlChartLegend legend, int count, int index) {
   return !legend.hidden && legend.interactive && count >= 2 && index < count;
 }
+
+/// The key the legend entry of [series], at [index] in the list, is known by:
+/// its name, or its place when it has none, as the React build's `entryKey`.
+///
+/// What a chart holds the series switched off in the legend by, so a series
+/// that moves because one before it left the data stays as it was, and the one
+/// that moves into its place does not take its state over.
+String legendKey(PlassChartSeries series, int index) => series.name ?? '$index';
 
 /// The row of names under the plot.
 /// The swatch-and-name row every chart carries, cartesian or not.

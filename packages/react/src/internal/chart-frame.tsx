@@ -256,25 +256,39 @@ function entryKey(one: PlassChartSeries, index: number): string {
 /**
  * Which series are drawn, and which one the pointer is resting on in the legend.
  *
- * Keyed by index into the array as it was passed, which is what keeps a hidden
- * series from renumbering the ones after it. The colours come off the same
- * index, so hiding Europe leaves Asia exactly the colour it was.
+ * Answered by index into the array as it was passed, which is what keeps a
+ * hidden series from renumbering the ones after it. The colours come off the
+ * same index, so hiding Europe leaves Asia exactly the colour it was.
  *
  * `listed` is whether the legend is drawn with entries that answer the pointer
  * and the focus, which is where the hovered one comes from.
  */
 function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Visibility {
-  const [hidden, setHidden] = React.useState<ReadonlySet<number>>(() => {
-    const initial = new Set<number>();
+  /* The series switched off, held by the key their legend entry is rendered
+     under rather than by their place, so a series before one that is off can
+     leave the data without the one that moves into its place being switched
+     off instead. `hidden` is read once, when the chart mounts: a series that
+     arrives later, or whose `hidden` changes, is drawn until its entry is
+     pressed. A key no series has any more is let go in the render that finds
+     it gone, as the hovered one is, so a series that comes back under it, or
+     an unnamed one that comes back to its place, is drawn. */
+  const [hidden, setHidden] = React.useState<ReadonlySet<string>>(() => {
+    const initial = new Set<string>();
 
     series.forEach((one, index) => {
       if (one.hidden) {
-        initial.add(index);
+        initial.add(entryKey(one, index));
       }
     });
 
     return initial;
   });
+
+  const keys = series.map((one, index) => entryKey(one, index));
+
+  if ([...hidden].some((key) => !keys.includes(key))) {
+    setHidden(new Set([...hidden].filter((key) => keys.includes(key))));
+  }
 
   /* The hovered entry, held by the key it is rendered under rather than by its
      place. A button taken out of the legend while the pointer or the focus is
@@ -293,22 +307,28 @@ function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Vi
     setHoveredKey(null);
   }
 
-  const toggle = React.useCallback((index: number) => {
+  const toggle = (index: number) => {
+    const key = keys[index];
+
+    if (key === undefined) {
+      return;
+    }
+
     setHidden((current) => {
       const next = new Set(current);
 
-      if (next.has(index)) {
-        next.delete(index);
+      if (next.has(key)) {
+        next.delete(key);
       } else {
-        next.add(index);
+        next.add(key);
       }
 
       return next;
     });
-  }, []);
+  };
 
   return {
-    visible: series.map((_, index) => !hidden.has(index)),
+    visible: keys.map((key) => !hidden.has(key)),
     hovered: hovered === -1 ? null : hovered,
     toggle,
     setHovered: (index) =>
