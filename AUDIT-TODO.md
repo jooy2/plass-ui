@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**545 of 553 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**553 of 560 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -76,6 +76,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 26    | `b1c0093a..4e0e89e7` | Answers first: a focused combobox handed a value, a touch press on a close button and the picker shell's `group` class. Then 517 to 526, every item left, with 526 picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | 27    | `bf6904cb..6d2e5843` | Answers first: the combobox shell's `group` class, one adornment for every Flutter field and the page layout's demos. Then 527 to 539, every item left, with 537 picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | 28    | `066a7017..da69a3f9` | No answers waiting. 540 to 547, every item left, with 542 picked once answered; `b4a591d7` fixed a test batch 27 had moved                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 29    | `58caf4d9..b4794711` | Answers first: a series' `id` as its legend key. Then 548 to 555, every item left, with 548, 552 and 554 picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -123,11 +124,11 @@ Batch 27 had no questions to ask at its start. It worked the three changes batch
 
 Batch 28 had no questions to ask at its start. It worked the eight items left, 540 to 547, in six worktrees at once, each brought onto `main` one commit at a time with the changelog entries added there. Every item reproduced, and several were wider or narrower than written: item 540 also took off the plot's tap, which read only what was under its middle; item 541 also moved the actions of a bar with no brand to the end; item 546's stepper press put the light out only in a tree with no tap region, so the wheel scrub, which does in an app, was fixed and tested with it; and item 543 needed only the gate taken off, since the Flutter tops were already at the running totals. Item 542's commit was held until its question was answered, because the docs wrapper reaches the layout's nesting context through the library's internals; the Prompter kept it docs-only. Batch 27's push had failed macOS Chromium on `test/styles/app-logo.test.tsx`, which changed a colour before the first one was ever worked out; `b4a591d7` reads it first and starts every test file with motion allowed. A fact check read the code behind every behaviour question before it was asked, and found the same misbehaving tap on the Flutter pie and heatmap, an empty tap on every Flutter sheet and a double node under every Flutter select option. Eleven questions were asked at the end and every one was answered with its recommendation: eight bugs became items 548 to 555, a series' `id` as its legend key waits below, and one stays as it is: a touch-only screen reader user moves a window only through a way the app adds. Three small differences are listed under Noted differences. The size budget's "Everything" stands at +2.1 kB.
 
+Batch 29 had no questions to ask at its start. It worked the change batch 28 approved first, a series' `id` as its legend key, and then the eight items left, 548 to 555, in five worktrees at once, each brought onto `main` one commit at a time with the changelog entries added there. Every item reproduced, and several were wider than written: item 553 also let go of a mark whose own series left, which had handed its reading to the next one, and gave timeline rows keys of their own; item 548 had to cut a faded series' markers out of its own band and line, or the line would have shown through them again, which item 532 had fixed; item 550 also took the tap off the layers built on the modal, the drawer and the overlay; and item 552 isolated the whole of VitePress's article styles from the previews through its own `postcssIsolateStyles`, which also put the tables, pagination and link buttons in the previews back as they are in an app. Three commits were held until their questions were answered, 554, 548 and 552, and each was kept as written. Batch 28's push had failed one Windows Firefox job on `usePlOnScreen`, which neither batch touched, and it passed when run again. Twelve questions were asked at the end and every one was answered with its recommendation: seven bugs became items 556 to 562, the project's local `CLAUDE.md` was brought up to date with item 552, and two stay as they are: a pie slice and a timeline row have no `id`. Seven small differences are listed under Noted differences. A test the `id` change added still counted a series by every faded group, which item 548 had split in three, and `b4794711` counts them by the group their line is in. The size budget's "Everything" stands at +2.4 kB.
+
 ## Waiting for an answer
 
-Asked through the prompt in batch 28. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
-
-1. **A series' `id` as its legend key.** When a series (or a pie slice) has an `id`, key its legend entry by it rather than by its name and count, in both builds: wire the Flutter `PlassChartSeries.id`, which is documented as what identifies a series and read by nothing, and add an optional `id` to the React `PlassChartSeries`. A caller whose series share or change names then keeps each one's switched-off state, hover and reading; without an `id` the key stays as item 545 made it. Document it in both props tables and changelogs.
+None. Every question batch 29 asked was answered with an item, a change made in the batch, or to keep what is there.
 
 ## Passed over and not yet asked
 
@@ -151,6 +152,13 @@ Small differences between the builds found in passing from batch 27 on. They are
 - Charts: `markers: auto` counts each series' own points in React (`chart-line.tsx` ~266) and the chart's categories in Flutter (`chart_line.dart` ~58-60), so a short series on a long chart has markers in React only.
 - `PlHeader`: with no middle, the Flutter row keeps a gap on each side of its empty `Expanded` middle (`pl_header.dart` ~219-233), so its narrowest width is one gap wider than React's.
 - `PlSegmentedButton`: a segment disabled on its own in a live set fades by opacity only in React (`data-[disabled]:opacity-50`), where Flutter also drains its colour (`plassStateFilter`).
+- `PlSegmentedButton`: the chosen segment of a disabled set draws its label in `mutedFg` in Flutter (`pl_segmented_button.dart` ~624) and in its on-fill or accent ink in React (`PlSegmentedButton.tsx` ~153-155).
+- `PlTextField` and `PlNumberField`: a mouse press on the padding or an adornment of a focused Flutter field blurs the editor and focuses it again through the shell; the React text field keeps the focus (`preventDefault` on pointer-down), and the React number field loses it.
+- `PlTable` and `PlDataTable`: every cell of an interactive Flutter row carries its own tap that presses the row (`internal/table.dart` ~293), where the React row is one stop.
+- Charts: the Flutter frame names its easing keys by series index, so when a series ahead of the one being read leaves, the read mark eases up again from unlit.
+- Charts: when the legend lets go, the React `mask` that keeps a faded line out of its markers goes at once while the series' opacity eases back, so the line shows through its markers for about 150ms (`chart-line.tsx`, the band `<g>`).
+- Docs: in the home showcase the "Danger zone" card's "Export first" button sticks out about 33px past the card at 1440px (`docs/.vitepress/demos/showcase/app.tsx` ~352).
+- Stale comments: `PlBlockquote.tsx` ~141-145 still says the wrapper lets the docs undo VitePress's blockquote, and `docs/.vitepress/theme/styles/scope.css` ~31 says nothing portals yet.
 
 ## Items
 
@@ -1892,42 +1900,77 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Problem: A disabled `PlSegmentedButton` fades its set and each segment, and the chips of a disabled `multiple` `PlCombobox` fade inside a field that is already faded, so both are drawn at a quarter in both builds, which is hard to read. The React segments of a disabled set also keep their pointer light.
   - Proposal: Fade each once and put the React segments' light out, as item 527 did for the fields, with a test each.
 
-- [ ] **548.** A stacked area chart draws a band's markers and labels under the band above it (Bug · Both · Low)
+- [x] **548.** A stacked area chart draws a band's markers and labels under the band above it (Bug · Both · Low)
   - Location: `packages/react/src/internal/chart-line.tsx` (each series' `<g>`), `packages/flutter/lib/src/internal/chart_line.dart` (the markers in the per-series loop)
   - Problem: Both builds draw a lower band's markers before the next band's fill, so its 70% wash covers their upper half, and in React the 2px gap line along the next band's lower edge runs through the middle of each marker. React draws a lower band's value labels inside its `<g>` too, under the next band's fill, so they lose contrast; the Flutter labels are drawn after every band.
   - Proposal: Draw every band's markers and labels after all the bands, in both builds, keeping the legend fade on them, with a test each.
 
-- [ ] **549.** A Flutter pie and heatmap offer a screen reader a tap at their middle (Accessibility · Flutter · Low)
+- [x] **549.** A Flutter pie and heatmap offer a screen reader a tap at their middle (Accessibility · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/pie_chart/pl_pie_chart.dart` and `packages/flutter/lib/src/components/heatmap_chart/pl_heatmap_chart.dart` (the plot's `GestureDetector(onTapDown: …)` without `excludeFromSemantics`)
   - Problem: A semantics tap lands at the centre of the drawing: a full pie reads the slice that crosses 3 o'clock, a donut or a semi ring lands in the hole and clears the reading, and a heatmap toggles whichever cell is under the centre of the drawing, name bands included. React offers no action there, and both charts walk by key since items 493 and 524.
   - Proposal: Keep the tap off the semantics tree, as item 540 did for the other charts, with a test.
 
-- [ ] **550.** Flutter sheets carry a tap that does nothing, and their backdrop is an unnamed node (Accessibility · Flutter · Low)
+- [x] **550.** Flutter sheets carry a tap that does nothing, and their backdrop is an unnamed node (Accessibility · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/modal/pl_modal.dart`, `drawer/pl_drawer.dart`, `overlay/pl_overlay.dart` (`GestureDetector(onTap: () {})` round the sheet), `packages/flutter/lib/src/internal/portal.dart` (the backdrop's `GestureDetector`)
   - Problem: The empty tap that keeps a press on a modal, a drawer or an overlay from counting as a press outside it puts a tap action that does nothing on the sheet's heading node, or on the overlay's content. The backdrop of a modal, a drawer or a command palette is an unnamed node the size of the screen whose tap dismisses, on every platform. The React backdrop is `presentation` and hidden from the accessibility tree while the dialog is open.
   - Proposal: Keep the sheet's empty tap and the backdrop off the semantics tree, leaving `Escape` and the close button to dismiss, with a test each.
 
-- [ ] **551.** A screen reader meets each Flutter select and combobox option twice (Accessibility · Flutter · Low)
+- [x] **551.** A screen reader meets each Flutter select and combobox option twice (Accessibility · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/select/pl_select.dart` and `combobox/pl_combobox.dart` (the outer `GestureDetector(onTap: () => _take(index))` round each option)
   - Problem: The outer detector gives every option an unnamed node with a tap round its own labelled node, which already carries the tap, so each option is met twice, and a disabled option's wrapper still offers a tap that `_take` refuses. `PlMenu`, `PlCommandPalette` and `PlTreeSelect` do not do this.
   - Proposal: Keep the outer tap off the semantics tree, with a test that each option is one node.
 
-- [ ] **552.** The docs' own heading styles leak into the demos (Bug · Docs · Low)
+- [x] **552.** The docs' own heading styles leak into the demos (Bug · Docs · Low)
   - Location: `docs/.vitepress/theme/styles/scope.css`
   - Problem: VitePress's `.vp-doc h1` to `h6` rules (0,1,1) beat the `.plass-scope :where(h1, …)` reset (0,1,0) and every utility, so a heading in a demo takes the docs' size, weight and position, and an `h2` their top border and 24px padding: the page layout and sidebar heroes draw a `text-base` heading at 24px under a rule, and `PlTypography` headings, the inline drawer's title and the example screens are drawn as the docs' own. The margin, line-height and letter-spacing reset at (0,2,1) also beats every `mb-*`, `leading-*` and `tracking-*` a demo sets on a heading, a paragraph or a list item.
   - Proposal: Reset the docs' heading properties inside a preview so a demo is drawn as it is in an app, and let the utilities a demo sets win over the reset.
 
-- [ ] **553.** A chart read by mark moves onto another series when one before it leaves (Bug · Both · Low)
+- [x] **553.** A chart read by mark moves onto another series when one before it leaves (Bug · Both · Low)
   - Location: `packages/react/src/internal/chart-frame.tsx` (`markKey`), `packages/flutter/lib/src/internal/chart_frame.dart` (`_activeMark`), the scatter and timeline charts
   - Problem: A scatter, a `nearest` line or a timeline holds the mark being read by its series' index and its place, so when a series (or a timeline row) before it leaves the data, the reading moves onto another series' mark. Item 544 fixed the same in the pie.
   - Proposal: Hold a mark by its series' legend key and its place, and give timeline rows keys of their own, in both builds, with a test each.
 
-- [ ] **554.** A mouse press on a focused Flutter number field's stepper takes the focus away (Bug · Flutter · Low)
+- [x] **554.** A mouse press on a focused Flutter number field's stepper takes the focus away (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (the steppers, outside the editor's `TextFieldTapRegion`)
   - Problem: Inside a `WidgetsApp`, a mouse press on a stepper of a focused field lands outside the editor's tap region, so `EditableText` unfocuses the field before the tap: `onCommitted` fires twice, the old value then the new one, and the arrow keys no longer step until the field is focused again. Base UI keeps the focus in the input on a stepper press, so React commits once.
   - Proposal: Put the steppers in the editor's tap region, as the combobox's shell is, with a test in a `WidgetsApp`.
 
-- [ ] **555.** A React disabled segmented button's labels darken under the pointer (Bug · React · Low)
+- [x] **555.** A React disabled segmented button's labels darken under the pointer (Bug · React · Low)
   - Location: `packages/react/src/components/segmented-button/PlSegmentedButton.tsx` (`hover:text-(--plass-fg)`)
   - Problem: A segment's label turns to the foreground under the pointer whether or not the segment or its set is disabled, the bug items 511 and 517 fixed on the combobox chevron and the number field steppers; the Flutter segment keeps its muted ink.
   - Proposal: Darken the label under the pointer only while the segment can be pressed, with a test.
+
+- [ ] **556.** A Flutter number field settles its value on every blur (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (`_onFocusChanged` → `_commit`)
+  - Problem: A blur calls `onCommitted` whether or not anything was typed, where the doc says "on blur after typing" and Base UI commits on blur only after typed input or a change not yet committed. So a Tab through the field commits the value it already had, a press on the padding or an adornment of a focused field blurs and refocuses it and commits, and since item 554 a mouse press on a stepper of an unfocused field followed by a blur commits the same value twice.
+  - Proposal: On blur, commit only when text was typed since the value was last settled or the settled value differs from `value`, with a test for each case.
+
+- [ ] **557.** The system back over an open Flutter layer closes the page under it (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/portal.dart` (nothing handles `didPopRoute`, `PopScope` or `BackButtonListener`)
+  - Problem: With a `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette`, image preview or gallery viewer open, the Android back button, TalkBack's back gesture and VoiceOver's escape pop the page under the layer, and `onOpenChanged` is never called, so the caller's `open` stays true; on the root route Android leaves the app. Since item 550 took the backdrop off the semantics tree, a touch-only screen reader user also has no way to close a dismissible layer that draws no close button.
+  - Proposal: Have the topmost dismissible layer close on the system back, as `Escape` closes it, with a test in a `WidgetsApp` with two routes.
+
+- [ ] **558.** A Flutter combobox's chevron and clear buttons merge into its text field's node (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`adornment()`, `Semantics(button: true, label:, onTap:)` with no `container: true`)
+  - Problem: The chevron's and the ×'s semantics merge into the editor's node, so the field is announced as a button named "Open" even with a `semanticLabel`, and a screen reader's tap on the field runs the chevron's action and closes an open list.
+  - Proposal: Give each its own node, check the other fields' adornment buttons for the same, and test that the field keeps its name and its own tap.
+
+- [ ] **559.** A Flutter tooltip adds a long press and a stop of its own to what it wraps (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/tooltip/pl_tooltip.dart` (the trigger's `GestureDetector(onLongPress: …)` and `Semantics(tooltip: …)`)
+  - Problem: The long press that shows the tooltip on a touch screen becomes a semantics action on the wrapped node, announced as "double-tap and hold", and over a control that is its own node, such as a `PlButton`, the tooltip's words and the long press sit on an unnamed wrapper round it, a stop of their own rather than part of the control's announcement. React describes the trigger with the tooltip.
+  - Proposal: Keep the long press off the semantics tree and put the tooltip's words on the control's own node, with a test.
+
+- [ ] **560.** A pressable Flutter `PlAppLogo` cannot be reached from the keyboard (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/app_logo/pl_app_logo.dart` (`onPressed`)
+  - Problem: With `onPressed`, the logo is a button node with a tap but takes no focus and answers neither `Enter` nor `Space`, so a keyboard cannot press it. The React logo is usually rendered as a link, which is a tab stop.
+  - Proposal: Give it the focus, the focus ring and the keys the other buttons have, with a test.
+
+- [ ] **561.** The search field of a Flutter command palette has no name (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/command_palette/pl_command_palette.dart` (the search `EditableText`)
+  - Problem: The field is an unnamed text field; its placeholder, "Search commands" by default, is a separate text node that leaves once something is typed. The React `<input>` takes its name from the placeholder.
+  - Proposal: Name the field's node with the same words, with a test.
+
+- [ ] **562.** A React read-only segmented button still answers the pointer (Bug · React · Low)
+  - Location: `packages/react/src/components/segmented-button/PlSegmentedButton.tsx` (`lit`, the label's hover)
+  - Problem: A read-only set keeps the pointer light on its segments and darkens their labels under the pointer, since `lit` reads only the disabled states and the hover guard only `data-disabled`, where both changelogs say the light goes out on a read-only control and the Flutter segments of a read-only set show neither.
+  - Proposal: Put the light out and keep the labels muted on a read-only set, with a test.
