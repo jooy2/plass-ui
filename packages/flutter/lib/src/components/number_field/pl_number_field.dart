@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/ink.dart';
@@ -651,30 +652,6 @@ class _PlNumberFieldState extends State<PlNumberField> {
             child: widget.label!,
           );
 
-    // Muted whether or not the field holds the focus, as the React number
-    // field's adornments are: the focus is answered by the edge, the ring and
-    // the caret. A word in one is set in the value's type and line, as the
-    // React adornment inherits the shell's.
-    Widget adornment(Widget slot) {
-      return SizedBox(
-        height: scale.line,
-        child: Center(
-          child: IconTheme.merge(
-            data: IconThemeData(color: tokens.mutedFg, size: scale.size * iconScale),
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: tokens.mutedFg,
-                fontSize: scale.size,
-                height: scale.height,
-                leadingDistribution: TextLeadingDistribution.even,
-              ),
-              child: slot,
-            ),
-          ),
-        ),
-      );
-    }
-
     Widget editor = EditableText(
       controller: _controller,
       focusNode: _focusNode,
@@ -880,12 +857,12 @@ class _PlNumberFieldState extends State<PlNumberField> {
       spacing: gap[size]!,
       children: <Widget>[
         if (showSteppers && split) stepper(-1),
-        if (widget.startIcon != null) adornment(widget.startIcon!),
+        if (widget.startIcon != null) PlassFieldAdornment(size: size, child: widget.startIcon!),
         // Keyed, because a read-only field puts its steppers away, and with
         // `split` one of them is in front of the editor. Found by its place
         // alone, the editor would be built again from scratch.
         Expanded(key: const ValueKey<String>('editor'), child: editor),
-        if (widget.endIcon != null) adornment(widget.endIcon!),
+        if (widget.endIcon != null) PlassFieldAdornment(size: size, child: widget.endIcon!),
         if (showSteppers && !split)
           Row(
             mainAxisSize: MainAxisSize.min,

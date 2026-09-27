@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/keys.dart';
@@ -342,32 +343,6 @@ class _PlTextFieldState extends State<PlTextField> {
       disabled: widget.disabled,
     );
 
-    // A box the height of one line keeps an adornment centred on the first line
-    // rather than on the whole box, which is the only way it stays put when the
-    // control grows to five rows. Muted whether or not the field holds the
-    // focus: the family reaches the edge, the ring and the caret, and stops. A
-    // word in it is set in the value's type and line, as the React adornment
-    // inherits the shell's.
-    Widget adornment(Widget slot) {
-      return SizedBox(
-        height: scale.line,
-        child: Center(
-          child: IconTheme.merge(
-            data: IconThemeData(color: tokens.mutedFg, size: scale.size * iconScale),
-            child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: tokens.mutedFg,
-                fontSize: scale.size,
-                height: scale.height,
-                leadingDistribution: TextLeadingDistribution.even,
-              ),
-              child: slot,
-            ),
-          ),
-        ),
-      );
-    }
-
     Widget control = EditableText(
       controller: _controller,
       focusNode: _focusNode,
@@ -450,12 +425,15 @@ class _PlTextFieldState extends State<PlTextField> {
       mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
       spacing: gap[size]!,
       children: <Widget>[
-        if (widget.startIcon != null) adornment(widget.startIcon!),
+        if (widget.startIcon != null) PlassFieldAdornment(size: size, child: widget.startIcon!),
         Expanded(child: control),
         if (widget.loading)
-          adornment(PlassSpinner(size: scale.size * iconScale, color: tokens.mutedFg))
+          PlassFieldAdornment(
+            size: size,
+            child: PlassSpinner(size: scale.size * iconScale, color: tokens.mutedFg),
+          )
         else if (widget.endIcon != null)
-          adornment(widget.endIcon!),
+          PlassFieldAdornment(size: size, child: widget.endIcon!),
       ],
     );
 
