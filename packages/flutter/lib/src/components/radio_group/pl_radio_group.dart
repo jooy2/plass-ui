@@ -126,6 +126,9 @@ class PlRadioGroup<T> extends StatefulWidget {
   final bool? invalid;
 
   /// Inert but not dimmed — the choice is still there to be read.
+  ///
+  /// The set keeps its focus stop, and the arrow keys move the focus between
+  /// the options without changing which one is chosen.
   final bool readOnly;
 
   /// Unavailable. The light goes out.
@@ -145,6 +148,11 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
+  /// The option the arrow keys moved the focus stop to in a read-only set,
+  /// where they cannot move the choice, or `null` while the stop is on the
+  /// chosen one.
+  int? _highlight;
+
   @override
   FocusNode? get callerStop => widget.focusNode;
 
@@ -152,6 +160,13 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
   void didUpdateWidget(PlRadioGroup<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     keepStop(oldWidget.focusNode);
+
+    // The stop goes back to the chosen option when the choice changes, and
+    // when the set stops or starts being read-only, so an option the arrows
+    // reached in a read-only set never holds the stop of a live one.
+    if (oldWidget.value != widget.value || oldWidget.readOnly != widget.readOnly) {
+      _highlight = null;
+    }
   }
 
   /// Its own `disabled`, a missing `onChanged` or a disabled [PlFieldset]
@@ -163,9 +178,18 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
 
   /// Which option the one focus stop currently rests on.
   ///
-  /// The chosen one, or — with nothing chosen yet — the first that can be
-  /// reached. Which is the roving tab index, in a sentence.
+  /// The one the arrows moved it to in a read-only set, otherwise the chosen
+  /// one, or — with nothing chosen yet — the first that can be reached. Which
+  /// is the roving tab index, in a sentence.
   int get _focused {
+    final highlight = _highlight;
+
+    if (highlight != null &&
+        highlight < widget.options.length &&
+        !widget.options[highlight].disabled) {
+      return highlight;
+    }
+
     final chosen = widget.options.indexWhere(
       (PlRadioOption<T> option) => option.value == widget.value,
     );
@@ -179,12 +203,17 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
     return first < 0 ? 0 : first;
   }
 
-  /// The next option in [step]'s direction that can be chosen, wrapping.
+  /// Moves the focus stop to the next option in [step]'s direction that is
+  /// not disabled, wrapping.
+  ///
+  /// In a live set the choice goes with it. In a read-only one only the stop
+  /// moves, so each option can still be reached and heard, as the arrows do in
+  /// a read-only group in the React build.
   ///
   /// Wrapping is what an arrow key does in a radio group and what it does not do
   /// in a list: the set is a ring of alternatives with no beginning.
   void _move(int step) {
-    if (!_interactive || widget.options.isEmpty) {
+    if (_disabled || widget.options.isEmpty) {
       return;
     }
 
@@ -195,7 +224,12 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
       index = (index + step + count) % count;
 
       if (!widget.options[index].disabled) {
-        widget.onChanged!(widget.options[index].value);
+        if (widget.readOnly) {
+          keepStop(widget.focusNode);
+          setState(() => _highlight = index);
+        } else {
+          widget.onChanged!(widget.options[index].value);
+        }
 
         return;
       }

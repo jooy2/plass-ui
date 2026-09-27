@@ -225,7 +225,7 @@ There is only the controlled form: `value` with `onChanged`. Options are compare
 ::: fw flutter
 
 - Each option is announced as one of a mutually exclusive set, checked or not.
-- The set takes **one** focus stop: exactly one option is in the tab order and the rest are wrapped in an `ExcludeFocus`, which is the roving tab index in one widget. <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> move the choice, wrapping at both ends and skipping an option that cannot be chosen.
+- The set takes **one** focus stop: exactly one option is in the tab order and the rest are wrapped in an `ExcludeFocus`, which is the roving tab index in one widget. <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> move the choice, wrapping at both ends and skipping an option that cannot be chosen. In a `readOnly` set they move the focus and leave the choice where it is.
 - Wrapping is what an arrow key does in a radio group and what it does not do in a list: the set is a ring of alternatives with no beginning.
 - Pressing a label chooses its option: the whole row is the target.
 - Each dot is centred on its label's **first** line, so it stays put when a label wraps.

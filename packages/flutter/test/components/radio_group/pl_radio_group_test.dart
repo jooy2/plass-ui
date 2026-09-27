@@ -11,6 +11,23 @@ const List<PlRadioOption<String>> plans = <PlRadioOption<String>>[
   PlRadioOption<String>(value: 'enterprise', label: Text('Enterprise')),
 ];
 
+/// The same three with the last one closed, for the arrows to step past.
+const List<PlRadioOption<String>> tiers = <PlRadioOption<String>>[
+  PlRadioOption<String>(value: 'starter', label: Text('Starter')),
+  PlRadioOption<String>(value: 'team', label: Text('Team')),
+  PlRadioOption<String>(value: 'enterprise', label: Text('Enterprise'), disabled: true),
+];
+
+/// The option reading [label], found only while it holds the focus.
+Finder focusedOption(String label) {
+  return find.ancestor(
+    of: find.text(label),
+    matching: find.byWidgetPredicate(
+      (Widget widget) => widget is Focus && (widget.focusNode?.hasPrimaryFocus ?? false),
+    ),
+  );
+}
+
 void main() {
   group('PlRadioGroup', () {
     group('rendering', () {
@@ -231,6 +248,236 @@ void main() {
         expect(value, 'enterprise');
         expect(before.hasFocus, isFalse);
       });
+
+      testWidgets('move the focus and not the choice while read-only, skipping and wrapping', (
+        WidgetTester tester,
+      ) async {
+        String? chosen;
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlRadioGroup<String>(
+                options: tiers,
+                value: 'starter',
+                readOnly: true,
+                onChanged: (String next) => chosen = next,
+              ),
+            ),
+            width: 320,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Starter'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Team'), findsOneWidget);
+
+        // Past the closed one and round to the start.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Starter'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Team'), findsOneWidget);
+        expect(chosen, isNull);
+        expect(before.hasFocus, isFalse);
+      });
+
+      testWidgets('follow the writing direction sideways while read-only', (
+        WidgetTester tester,
+      ) async {
+        String? chosen;
+        await tester.pumpWidget(
+          host(
+            PlRadioGroup<String>(
+              options: plans,
+              value: 'starter',
+              readOnly: true,
+              orientation: PlassOrientation.horizontal,
+              autofocus: true,
+              onChanged: (String next) => chosen = next,
+            ),
+            width: 480,
+            textDirection: TextDirection.rtl,
+          ),
+        );
+        await tester.pump();
+
+        // Under RTL the next option is to the left.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Team'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Starter'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Enterprise'), findsOneWidget);
+        expect(chosen, isNull);
+      });
+
+      testWidgets('leave the stop where they moved it in a read-only set', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlRadioGroup<String>(
+                options: plans,
+                value: 'starter',
+                readOnly: true,
+                onChanged: (String _) {},
+              ),
+            ),
+            width: 320,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shift);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shift);
+        await tester.pumpAndSettle();
+
+        expect(before.hasFocus, isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Team'), findsOneWidget);
+      });
+
+      testWidgets('give the stop back to the chosen option as the choice changes from outside', (
+        WidgetTester tester,
+      ) async {
+        String value = 'starter';
+        late StateSetter rebuild;
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                return PlRadioGroup<String>(
+                  options: plans,
+                  value: value,
+                  readOnly: true,
+                  autofocus: true,
+                  onChanged: (String _) {},
+                );
+              },
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Team'), findsOneWidget);
+
+        rebuild(() => value = 'enterprise');
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Enterprise'), findsOneWidget);
+      });
+
+      testWidgets('give the stop back to the chosen option as a read-only set turns live', (
+        WidgetTester tester,
+      ) async {
+        bool readOnly = true;
+        late StateSetter rebuild;
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                return PlRadioGroup<String>(
+                  options: plans,
+                  value: 'starter',
+                  readOnly: readOnly,
+                  autofocus: true,
+                  onChanged: (String _) {},
+                );
+              },
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Team'), findsOneWidget);
+
+        rebuild(() => readOnly = false);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Starter'), findsOneWidget);
+      });
+
+      testWidgets('do nothing in a disabled set, read-only or not', (WidgetTester tester) async {
+        for (final bool readOnly in <bool>[true, false]) {
+          String? chosen;
+
+          // Directional navigation is where a disabled option can still hold
+          // the focus, so the arrows reach the set at all.
+          await tester.pumpWidget(
+            host(
+              MediaQuery(
+                data: const MediaQueryData(navigationMode: NavigationMode.directional),
+                child: PlRadioGroup<String>(
+                  key: ValueKey<bool>(readOnly),
+                  options: plans,
+                  value: 'starter',
+                  readOnly: readOnly,
+                  disabled: true,
+                  autofocus: true,
+                  onChanged: (String next) => chosen = next,
+                ),
+              ),
+              width: 320,
+            ),
+          );
+          await tester.pump();
+
+          expect(focusedOption('Starter'), findsOneWidget);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          expect(focusedOption('Starter'), findsOneWidget);
+          expect(chosen, isNull);
+        }
+      });
     });
 
     group('error', () {
@@ -303,6 +550,60 @@ void main() {
           expect(
             tester.getSemantics(find.text(label)),
             isSemantics(
+              hasEnabledState: true,
+              isEnabled: true,
+              isReadOnly: true,
+              hasTapAction: false,
+            ),
+          );
+        }
+
+        handle.dispose();
+      });
+
+      testWidgets('an arrow in a read-only set moves the focus and changes nothing it says', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlRadioGroup<String>(
+              options: plans,
+              value: 'team',
+              readOnly: true,
+              autofocus: true,
+              onChanged: (String _) {},
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(focusedOption('Enterprise'), findsOneWidget);
+
+        final set = tester.getSemantics(
+          find
+              .descendant(
+                of: find.byType(PlRadioGroup<String>),
+                matching: find.byWidgetPredicate(
+                  (Widget widget) => widget is Semantics && widget.container,
+                ),
+              )
+              .first,
+        );
+
+        expect(set, isSemantics(hasEnabledState: true, isEnabled: true, isReadOnly: true));
+
+        for (final label in <String>['Starter', 'Team', 'Enterprise']) {
+          expect(
+            tester.getSemantics(find.text(label)),
+            isSemantics(
+              isInMutuallyExclusiveGroup: true,
+              hasCheckedState: true,
+              isChecked: label == 'Team',
               hasEnabledState: true,
               isEnabled: true,
               isReadOnly: true,
