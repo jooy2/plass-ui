@@ -196,6 +196,34 @@ void main() {
 
         expect(find.text('Copy'), findsOneWidget);
       });
+
+      testWidgets('a disabled tooltip leaves a long press to the button under it', (
+        WidgetTester tester,
+      ) async {
+        var pressed = 0;
+        await tester.pumpWidget(
+          host(
+            Center(
+              child: PlTooltip(
+                content: const Text('Copy'),
+                delay: Duration.zero,
+                disabled: true,
+                child: PlButton(onPressed: () => pressed += 1, child: const Text('Trigger')),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+
+        // Held for a second, well past the long-press timeout, then let go.
+        final finger = await tester.startGesture(tester.getCenter(find.byType(PlButton)));
+        await tester.pump(const Duration(seconds: 1));
+        await finger.up();
+        await tester.pumpAndSettle();
+
+        expect(pressed, 1);
+        expect(find.text('Copy'), findsNothing);
+      });
     });
 
     group('placement', () {

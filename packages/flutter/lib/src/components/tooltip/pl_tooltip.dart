@@ -463,8 +463,13 @@ class _PlTooltipState extends State<PlTooltip> {
         // trigger, and a long press offered to it would be one more thing the
         // control announces it does, for a plate it has no use for.
         excludeFromSemantics: true,
-        onLongPress: () => _schedule(true),
-        onLongPressEnd: (_) => _schedule(false, after: _touchDwell),
+        // Only while there is a plate to open. A long-press recogniser wins the
+        // gesture from the trigger's own tap, so one left in place while the
+        // tooltip is switched off would swallow a slow press on the button under
+        // it and open nothing. The callbacks go rather than the detector, which
+        // keeps the tree above the child the same shape and the child its state.
+        onLongPress: widget.disabled ? null : () => _schedule(true),
+        onLongPressEnd: widget.disabled ? null : (_) => _schedule(false, after: _touchDwell),
         child: widget.child,
       ),
     );
