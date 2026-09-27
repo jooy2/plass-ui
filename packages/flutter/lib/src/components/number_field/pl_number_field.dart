@@ -586,6 +586,27 @@ class _PlNumberFieldState extends State<PlNumberField> {
     });
   }
 
+  /// A press coming down on a stepper that can step.
+  ///
+  /// A mouse press brings the focus into the field, as the React stepper's
+  /// does, so the arrow keys carry on from the value the press leaves. A finger
+  /// or a pen does not: the focus would bring a keyboard up over a field that
+  /// was only being nudged.
+  void _pressStepper(PointerDownEvent event, int direction) {
+    final touchLike = switch (event.kind) {
+      PointerDeviceKind.touch ||
+      PointerDeviceKind.stylus ||
+      PointerDeviceKind.invertedStylus => true,
+      _ => false,
+    };
+
+    if (!touchLike && !_focusNode.hasFocus) {
+      _focusNode.requestFocus();
+    }
+
+    _arm(direction);
+  }
+
   /// Ends a hold. A hold that repeated settles here, once, and its release is
   /// not a step of its own.
   void _release() {
@@ -801,7 +822,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       final faded = !_disabled && _atEdge(direction);
       final box = scale.size * _stepperScale;
 
-      return PlassInteractive(
+      final Widget control = PlassInteractive(
         onTap: inert ? null : () => _tapStepper(direction),
         enabled: !inert,
         interactive: !inert,
@@ -856,7 +877,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
           // A held stepper repeats, which is the difference between a spinner
           // and two buttons: nobody presses `+` forty times.
           return Listener(
-            onPointerDown: inert ? null : (PointerDownEvent _) => _arm(direction),
+            onPointerDown: inert
+                ? null
+                : (PointerDownEvent event) => _pressStepper(event, direction),
             onPointerUp: (PointerUpEvent _) => _release(),
             onPointerCancel: (PointerCancelEvent _) => _release(),
             child: Semantics(
@@ -878,6 +901,14 @@ class _PlNumberFieldState extends State<PlNumberField> {
           );
         },
       );
+
+      // Counted as the editor's own, so a mouse press on a stepper, and a touch
+      // in a browser, does not take the focus out of the field before the press
+      // is a step: that settled the old value on the way out, and left the
+      // arrow keys with nothing to step until the field was focused again. A
+      // stepper at its limit counts too, and a press on it leaves the focus
+      // where it was.
+      return TextFieldTapRegion(child: control);
     }
 
     Widget shell = Row(

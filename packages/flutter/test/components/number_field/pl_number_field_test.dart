@@ -74,6 +74,25 @@ Future<_HarnessState> _pump(WidgetTester tester, _Harness harness) async {
   return tester.state<_HarnessState>(find.byType(_Harness));
 }
 
+/// [harness] inside a `WidgetsApp`, which is what gives a focused editor the
+/// tap regions a real app has: there, and only there, a mouse press outside
+/// the editor's region takes the focus out of it.
+Future<_HarnessState> _pumpInApp(WidgetTester tester, _Harness harness) async {
+  await tester.pumpWidget(
+    WidgetsApp(
+      color: const Color(0xFF000000),
+      builder: (BuildContext context, Widget? child) => host(harness, width: 320),
+    ),
+  );
+
+  return tester.state<_HarnessState>(find.byType(_Harness));
+}
+
+/// Whether the field's editor holds the focus.
+bool _editorFocused(WidgetTester tester) {
+  return tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+}
+
 /// The `+` stepper, which is the second glyph in the row when both are drawn.
 Finder _plus() => find.byWidgetPredicate(
   (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.plus,
@@ -392,6 +411,93 @@ void main() {
         await tester.tap(_plus(), warnIfMissed: false);
         await tester.pump();
         expect(state.value, 5);
+      });
+
+      testWidgets('a mouse press on a stepper leaves the focus in a focused field', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pumpInApp(tester, _Harness(onCommitted: settled.add));
+
+        await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+        expect(_editorFocused(tester), isTrue);
+
+        await tester.tap(_plus(), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+
+        // One step, settled once, and the field still being typed in: the
+        // stepper is the field's own, not a press somewhere else on the page.
+        expect(state.value, 6);
+        expect(settled, <double?>[6]);
+        expect(_editorFocused(tester), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+
+        expect(state.value, 7);
+        expect(settled, <double?>[6, 7]);
+      });
+
+      testWidgets('a mouse press on a stepper leaves the focus in a field at its limit', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pumpInApp(
+          tester,
+          _Harness(max: 5, onCommitted: settled.add),
+        );
+
+        await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+
+        await tester.tap(_plus(), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+
+        expect(state.value, 5);
+        expect(settled, isEmpty);
+        expect(_editorFocused(tester), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(state.value, 4);
+      });
+
+      testWidgets('a mouse press on a stepper brings the focus into the field', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pumpInApp(tester, _Harness(onCommitted: settled.add));
+
+        expect(_editorFocused(tester), isFalse);
+
+        await tester.tap(_plus(), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+
+        // So the keyboard can carry on from the value the press left.
+        expect(state.value, 6);
+        expect(settled, <double?>[6]);
+        expect(_editorFocused(tester), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+
+        expect(state.value, 7);
+      });
+
+      testWidgets('a touch on a stepper steps without bringing the focus in', (
+        WidgetTester tester,
+      ) async {
+        final _HarnessState state = await _pumpInApp(tester, const _Harness());
+
+        await tester.tap(_plus());
+        await tester.pumpAndSettle();
+
+        // A finger that brought the focus in would bring the keyboard up with
+        // it, over the field it was only nudging.
+        expect(state.value, 6);
+        expect(_editorFocused(tester), isFalse);
       });
     });
 
