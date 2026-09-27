@@ -798,7 +798,12 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         child: RawGestureDetector(
           behavior: HitTestBehavior.opaque,
           gestures: drag,
-          semantics: _BarDragSemantics(onDrag: movable ? _dragBy : null),
+          // A screen reader moves the window with the arrow keys on the stop
+          // `_MoveHandle` puts under the bar, which keep the bar on the screen,
+          // as the React window is moved only through its button. The scroll a
+          // drag would offer moves it most of the bar's width at a time, and
+          // past every edge.
+          excludeFromSemantics: true,
           child: held,
         ),
       ),
@@ -814,10 +819,6 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     _travel += details.delta;
     _moveTo(_grippedAt + _travel);
   }
-
-  /// A whole drag in one step, which is what a screen reader's scroll on the
-  /// bar asks for.
-  void _dragBy(DragUpdateDetails details) => _moveTo(_at + details.delta);
 
   String _labelFor(PlWindowControl control, PlassLabels labels) {
     switch (control) {
@@ -1043,22 +1044,6 @@ class _BarDragRecognizer extends PanGestureRecognizer {
     }
 
     super.addPointer(event);
-  }
-}
-
-/// What a screen reader's scroll on a title bar that drags does: it moves the
-/// window by the step it asks for, as the scroll a plain pan is given does.
-class _BarDragSemantics extends SemanticsGestureDelegate {
-  const _BarDragSemantics({required this.onDrag});
-
-  /// Moves the window, or `null` where the bar does not drag.
-  final GestureDragUpdateCallback? onDrag;
-
-  @override
-  void assignSemantics(RenderSemanticsGestureHandler renderObject) {
-    renderObject
-      ..onHorizontalDragUpdate = onDrag
-      ..onVerticalDragUpdate = onDrag;
   }
 }
 

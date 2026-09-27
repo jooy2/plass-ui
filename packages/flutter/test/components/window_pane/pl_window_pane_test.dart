@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart' show PointerDeviceKind, kDoubleTapTimeout, kPressTimeout;
+import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -994,6 +995,30 @@ void main() {
         expect(
           tester.getSemantics(find.bySemanticsLabel('Move window')),
           isSemantics(label: 'Move window', isButton: true),
+        );
+      });
+
+      testWidgets('offers a screen reader no scroll on the bar, only the stop the keys move', (
+        WidgetTester tester,
+      ) async {
+        await _pumpFree(
+          tester,
+          const PlWindowPane(title: Text('Notes'), width: 300, draggable: true),
+        );
+
+        // The stop is how a screen reader moves the window, as the React
+        // button is, and its arrow keys keep the bar on the screen. A scroll
+        // on the bar moved it most of the bar's width at a time, past every
+        // edge.
+        expect(find.bySemanticsLabel('Move window'), findsOneWidget);
+        expect(
+          find.semantics.byAnyAction(<SemanticsAction>[
+            SemanticsAction.scrollLeft,
+            SemanticsAction.scrollRight,
+            SemanticsAction.scrollUp,
+            SemanticsAction.scrollDown,
+          ]),
+          findsNothing,
         );
       });
 

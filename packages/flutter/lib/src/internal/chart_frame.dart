@@ -1441,6 +1441,13 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
           onExit: (PointerExitEvent _) => onLeave(),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
+            // A screen reader reads the chart through its own node, which says
+            // every value and walks the columns by key, as it reads the React
+            // picture, an image with no action of its own. The tap these
+            // gestures would offer it reads only what is under the middle of
+            // the plot, and the scroll hands over a place on the screen where a
+            // place on the plot belongs.
+            excludeFromSemantics: true,
             // A tap **leaves** the tooltip up, and a second tap on the same
             // column takes it down again. Clearing it on the release would be a
             // tooltip a reader with no pointer never gets to read: on a touch

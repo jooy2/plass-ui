@@ -9,6 +9,7 @@
 // A test of a *contract* rather than of a widget, which is why it is here
 // rather than under `test/components/`: line, bar and area are three widgets
 // over one frame, and what they say has to be the same shape in all three.
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -186,6 +187,74 @@ void main() {
       expect(
         tester.getSemantics(find.bySemanticsLabel(RegExp('^Chart'))),
         isSemantics(isFocusable: false),
+      );
+    });
+  }
+
+  PlassChartDatum point(double x, double y) =>
+      PlassChartDatum.point(PlassChartPoint(x: PlassChartCategory.number(x), y: y));
+
+  const List<PlassChartSeries> one = <PlassChartSeries>[
+    PlassChartSeries(
+      name: 'Revenue',
+      data: <PlassChartDatum>[PlassChartDatum(12), PlassChartDatum(19), PlassChartDatum(15)],
+    ),
+  ];
+
+  // One series each, so there is no legend and nothing on the chart a reader
+  // presses at all.
+  for (final (String name, Widget chart) in <(String, Widget)>[
+    ('line', const PlLineChart(categories: months, series: one)),
+    ('bar', const PlBarChart(categories: months, series: one)),
+    ('area', const PlAreaChart(categories: months, series: one)),
+    (
+      'scatter',
+      PlScatterChart(
+        series: <PlassChartSeries>[
+          PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[point(10, 22), point(20, 31)]),
+        ],
+      ),
+    ),
+    (
+      'timeline',
+      PlTimelineChart(
+        series: <PlassTimelineSeries>[
+          PlassTimelineSeries(
+            name: 'Design',
+            data: <PlassTimelinePoint>[
+              PlassTimelinePoint(
+                start: PlassChartCategory.date(DateTime(2026, 1, 1)),
+                end: PlassChartCategory.date(DateTime(2026, 1, 9)),
+                label: 'Wireframes',
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  ]) {
+    testWidgets('gives a screen reader nothing to scroll or tap on the $name chart', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, chart);
+
+      // The chart's own node is how it is read: every value, and the columns
+      // walked by key. A tap on the picture read only what was under its
+      // middle, and a scroll handed it a place on the screen for a place on
+      // the plot, so both scrolls did the same thing.
+      expect(
+        tester.getSemantics(find.bySemanticsLabel(RegExp('^Chart'))),
+        isSemantics(isFocusable: true),
+      );
+      expect(
+        find.semantics.byAnyAction(<SemanticsAction>[
+          SemanticsAction.tap,
+          SemanticsAction.scrollLeft,
+          SemanticsAction.scrollRight,
+          SemanticsAction.scrollUp,
+          SemanticsAction.scrollDown,
+        ]),
+        findsNothing,
       );
     });
   }
