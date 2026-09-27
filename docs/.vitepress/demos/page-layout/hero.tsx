@@ -1,4 +1,4 @@
-import { PlBox, PlButton, PlPageLayout, PlToolbar } from 'plass-ui';
+import { PlBox, PlButton, PlFooter, PlHeader, PlPageLayout } from 'plass-ui';
 
 export default function PageLayoutHero() {
   return (
@@ -8,13 +8,10 @@ export default function PageLayoutHero() {
         scroll="content"
         collapseBelow="none"
         header={
-          <PlToolbar
-            render={<header />}
-            position="sticky"
-            divider
+          <PlHeader
             size="sm"
-            start={<span className="font-semibold">Acme</span>}
-            end={<PlButton size="sm">Sign in</PlButton>}
+            brand={<span className="font-semibold">Acme</span>}
+            actions={<PlButton size="sm">Sign in</PlButton>}
           />
         }
         sidebar={
@@ -32,9 +29,9 @@ export default function PageLayoutHero() {
           </PlBox>
         }
         footer={
-          <PlToolbar render={<footer />} divider side="bottom" size="sm" density="compact">
+          <PlFooter size="sm" density="compact">
             <span className="text-xs text-(--plass-muted-fg)">© 2026 Acme</span>
-          </PlToolbar>
+          </PlFooter>
         }
       >
         <div className="flex flex-col gap-3 p-5 text-sm">

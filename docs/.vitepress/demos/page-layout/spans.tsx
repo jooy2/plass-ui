@@ -1,4 +1,4 @@
-import { PlBox, PlPageLayout, PlToolbar, type PlPageLayoutSpan } from 'plass-ui';
+import { PlBox, PlHeader, PlPageLayout, type PlPageLayoutSpan } from 'plass-ui';
 
 function Shell({ span }: { span: PlPageLayoutSpan }) {
   return (
@@ -9,9 +9,9 @@ function Shell({ span }: { span: PlPageLayoutSpan }) {
         collapseBelow="none"
         headerSpan={span}
         header={
-          <PlToolbar render={<header />} divider size="xs" density="compact">
+          <PlHeader size="xs" density="compact">
             <span className="text-xs font-semibold">headerSpan=&quot;{span}&quot;</span>
-          </PlToolbar>
+          </PlHeader>
         }
         sidebar={
           <PlBox

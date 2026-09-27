@@ -15,12 +15,10 @@ class PageLayoutHero extends StatelessWidget {
         borderRadius: BorderRadius.circular(tokens.radii[PlassSize.md]!),
         child: PlPageLayout(
           collapseBelow: null,
-          header: PlToolbar(
-            divider: true,
-            rounded: false,
+          header: PlHeader(
             size: PlassSize.sm,
-            start: const <Widget>[Text('Acme', style: TextStyle(fontWeight: FontWeight.w600))],
-            end: <Widget>[
+            brand: const <Widget>[Text('Acme', style: TextStyle(fontWeight: FontWeight.w600))],
+            actions: <Widget>[
               PlButton(size: PlassSize.sm, onPressed: () {}, child: const Text('Sign in')),
             ],
           ),
@@ -40,10 +38,7 @@ class PageLayoutHero extends StatelessWidget {
               ),
             ),
           ),
-          footer: PlToolbar(
-            divider: true,
-            rounded: false,
-            side: PlassSide.bottom,
+          footer: PlFooter(
             size: PlassSize.sm,
             density: PlassDensity.compact,
             child: Text('© 2026 Acme', style: TextStyle(color: tokens.mutedFg, fontSize: 12)),

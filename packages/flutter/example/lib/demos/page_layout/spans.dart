@@ -33,9 +33,7 @@ class _Shell extends StatelessWidget {
         child: PlPageLayout(
           collapseBelow: null,
           headerSpan: span,
-          header: PlToolbar(
-            divider: true,
-            rounded: false,
+          header: PlHeader(
             size: PlassSize.xs,
             density: PlassDensity.compact,
             child: Text('headerSpan: ${span.name}', style: const TextStyle(fontSize: 11)),

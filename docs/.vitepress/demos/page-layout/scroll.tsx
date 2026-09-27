@@ -1,4 +1,4 @@
-import { PlPageLayout, PlToolbar } from 'plass-ui';
+import { PlFooter, PlHeader, PlPageLayout } from 'plass-ui';
 
 const rows = Array.from({ length: 12 }, (_, index) => `Row ${index + 1}`);
 
@@ -10,14 +10,14 @@ export default function PageLayoutScroll() {
         scroll="content"
         collapseBelow="none"
         header={
-          <PlToolbar render={<header />} divider size="sm">
+          <PlHeader position="static" size="sm">
             <span className="text-sm font-semibold">Pinned by the layout, not by the bar</span>
-          </PlToolbar>
+          </PlHeader>
         }
         footer={
-          <PlToolbar render={<footer />} divider side="bottom" size="sm" density="compact">
+          <PlFooter size="sm" density="compact">
             <span className="text-xs text-(--plass-muted-fg)">Always on screen</span>
-          </PlToolbar>
+          </PlFooter>
         }
       >
         <ul className="flex flex-col divide-y [border-color:var(--plass-divider)] text-sm">

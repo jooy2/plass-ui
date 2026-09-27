@@ -12,9 +12,13 @@ order: 10
 ::: fw react
 
 ```tsx
-import { PlPageLayout } from 'plass-ui';
+import { PlFooter, PlHeader, PlPageLayout } from 'plass-ui';
 
-<PlPageLayout header={<header>…</header>} sidebar={<nav>…</nav>} footer={<footer>…</footer>}>
+<PlPageLayout
+  header={<PlHeader brand="Acme" />}
+  sidebar={<nav>…</nav>}
+  footer={<PlFooter>© 2026 Acme</PlFooter>}
+>
   {page}
 </PlPageLayout>;
 ```
@@ -27,9 +31,9 @@ import { PlPageLayout } from 'plass-ui';
 import 'package:plass_ui/plass_ui.dart';
 
 PlPageLayout(
-  header: const PlToolbar(child: Text('Acme')),
+  header: const PlHeader(brand: <Widget>[Text('Acme')]),
   sidebar: const SizedBox(width: 200, child: Text('Navigation')),
-  footer: const PlToolbar(side: PlassSide.bottom, child: Text('© 2026 Acme')),
+  footer: const PlFooter(child: Text('© 2026 Acme')),
   child: page,
 );
 ```
