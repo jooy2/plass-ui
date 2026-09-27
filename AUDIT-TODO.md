@@ -4,7 +4,7 @@ The findings of a full audit of both packages, the documentation site and the re
 
 Numbers 39 and 180 are missing on purpose. They were two security findings whose details were kept out of this public file, in a local note that is no longer on the machine, and the Prompter dropped them rather than reconstructing them. Nothing else is renumbered.
 
-**524 of 537 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
+**537 of 545 items are ticked.** Line numbers in the items are from `148a20e4` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ## Working through a batch
 
@@ -74,6 +74,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 | 24    | `2bc0862d..2c9804b2` | Answers first: a field's adornments, a pie with its tooltip off, the focus easing both ways, the combobox page and a blink at 0. Then 496 to 506, every item left, with 506's React half left as it was                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | 25    | `c3c553d0..a437f1e6` | Answers first: the `PlNumberField` shell's `group` class, the `PlDataTable` tests' headings and a popup's first frame. Then 507 to 516, every item left, with 508 picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | 26    | `b1c0093a..4e0e89e7` | Answers first: a focused combobox handed a value, a touch press on a close button and the picker shell's `group` class. Then 517 to 526, every item left, with 526 picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 27    | `bf6904cb..6d2e5843` | Answers first: the combobox shell's `group` class, one adornment for every Flutter field and the page layout's demos. Then 527 to 539, every item left, with 537 picked once answered                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 The answers to batch 4's questions went in as `363c243b..2a8fb470`: the decode half of item 100, the `PlAnimateTyping` caret, and a `headingLevel` for `PlCard` with the card page corrected.
 
@@ -117,13 +118,11 @@ Batch 25 had no questions to ask at its start. It worked the three cleanups batc
 
 Batch 26 had no questions to ask at its start. It worked the three changes batch 25 approved first and then the ten items left, 517 to 526, in eight worktrees at once, each brought onto `main` one commit at a time with the changelog entries added there; all eight worktrees were created without a failure. Every item reproduced, and several were wider or narrower than written: item 520 also lights a bar chart's column in `nearest` mode, as React does; item 526 reproduced for every sticky bar that spans the content and for a static glass one beside a start sidebar, but not for a `fixed` bar, which spans the window and is now item 539; and item 524 kept the heatmap a tab stop with its tooltip off, as React and the other charts do, where the lead's brief had asked for the stop to go. Item 526's commit was held until its question was answered, because the layer that lifts the sidebars puts a `fixed` element in the page under a full-width sticky bar where the two meet; the Prompter kept it. The changelog entries of the combobox, the adornments, the field opacities, the chart marks and the chart tab stops were rewritten rather than added to. Two fact checks read the code behind every question before it was asked, and one found that a field given its own `disabled` inside a disabled Flutter fieldset is drained twice, which is part of item 527. Eighteen questions were asked at the end and every one was answered with its recommendation: thirteen bugs became items 527 to 539, three changes wait below, and one stays as it is: a Flutter adornment taller than a line is squeezed to it, where React lets it overflow the line. The size budget's "Everything" stands at +1.0 kB.
 
+Batch 27 had no questions to ask at its start. It worked the three changes batch 26 approved first and then the thirteen items left, 527 to 539, in eight worktrees at once, each brought onto `main` one commit at a time with the changelog entries added there. It was the first batch under the rule the Prompter set after batch 26: a problem found in passing is asked only when it is wrong behaviour or an accessibility problem, and a small difference between the builds goes under [Noted differences](#noted-differences). Every item reproduced, and several were wider than written: item 527 also found that a React `PlSlider` and `PlSegmentedButton` in a disabled fieldset still answered, that a `PlFilePicker` there took a dropped file and that four controls there still handed their values to a `PlForm`; item 535's drag from a caption button did move the window, and a mouse press that wandered on one was lost to the bar; item 534's test had also hovered a point where nothing was read; and item 528 now quiets the light on `Enter`, as React does. Item 537's commit was held until its question was answered, and the Prompter kept its rule that a series leaving the data comes back switched on. Item 527 and the shared adornment met only in the imports of two Flutter fields, resolved by hand. The session's scratch folder was emptied overnight and took the changelog helper with it, so one entry went in by a second amend. A fact check read the code behind every behaviour question before it was asked, and found that a Flutter chart plot, like the window bar, offers a screen reader scroll actions, which is part of item 540. Twelve questions were asked, ten while item 527 was being worked and two after it, and every one was answered with its recommendation: eight bugs became items 540 to 547, and four stay as they are: the React page layout's hero keeps its code until item 541 fixes the header, a switched-off series that leaves the data comes back on, a React field in a hand-written `<fieldset disabled>` keeps its own look, and eleven small differences are listed under Noted differences. The size budget's "Everything" stands at +1.9 kB.
+
 ## Waiting for an answer
 
-Asked through the prompt in batch 26. Every entry here was answered with its recommended option and is approved: do it first in the next batch, without asking again.
-
-1. **The combobox shell's `group` class.** Remove the unused `group` class from `shellBaseClasses` in `packages/react/src/components/combobox/PlCombobox.tsx`, as batches 25 and 26 did for `PlNumberField` and the picker shell. No entry and no test.
-1. **One adornment for every Flutter field.** Move the adornment `PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox` and the picker shell each build for themselves (a box one line high, centred, a muted `IconTheme` and the field's text style) into one helper under `packages/flutter/lib/src/internal/`, so the next field cannot drift as items 512 and 519 found two of them had. `test/package/field_adornment_test.dart` stays as the guard. No entry.
-1. **The page layout's demos.** Build the headers and footers of the `page-layout` demos and snippets in both builds with `PlHeader` and `PlFooter` rather than `PlToolbar`, which never registers with the layout, so the page shows what the header page says: a header has a place in a `PlPageLayout` and a toolbar does not.
+None. Every question batch 27 asked was answered with an item, or to keep what is there.
 
 ## Passed over and not yet asked
 
@@ -133,7 +132,17 @@ None. Every flagged item passed over so far is asked above.
 
 Small differences between the builds found in passing from batch 27 on. They are not items and are not worked; see the standing decisions above.
 
-None yet.
+- `PlWindowPane`: over a draggable bar Flutter shows `SystemMouseCursors.move` (`pl_window_pane.dart` ~797), React `cursor-grab` and `active:cursor-grabbing` (`PlWindowPane.tsx` ~872); both show that cursor over the caption buttons' column outside the buttons, where nothing drags.
+- Charts: Flutter draws no category-axis rule (`tokens.chartAxis` is read nowhere), where React draws one at the zero line in `--plass-chart-axis` (`ChartAxes` in `chart-frame.tsx`).
+- Charts: React draws the zero gridline in `--plass-chart-baseline`, Flutter every gridline in `chartGrid` (`chart_frame.dart` ~1794-1810).
+- `PlScatterChart`: Flutter draws no vertical gridlines, React draws them when the x axis measures (`categoryGrid`).
+- `PlAreaChart`: a stacked Flutter area has no 2px surface line between bands (React `chart-line.tsx` ~235).
+- Charts: a faded series' value labels fade in React (inside the series `<g>`) and stay whole in Flutter (`_paintValueLabels`, `chart_line.dart` ~220).
+- Charts: Flutter replaces the alpha of a series or point colour it is given (`chart_line.dart` ~89, the scatter fill, `pl_bar_chart.dart` ~351, `pl_pie_chart.dart` ~752), where React keeps it.
+- `PlHeatmapChart`: the Flutter card sits 8px higher than the React one (`pl_heatmap_chart.dart` ~468 and `chart_frame.dart` ~2724, against `chart-frame.tsx` ~715).
+- `PlassChartSeries`: the Flutter class has an `id` documented as what identifies a series (`types.dart` ~733) that nothing reads; the React type has none.
+- `PlCombobox` and `PlTextField`: the arrow keys that move a Flutter combobox list's highlight (`_MoveIntent`) do not put the pointer light out, where React's keydown does, and nor does `Enter` in a single-line Flutter text field (read from the code).
+- `packages/react/src/types.ts` ~858-866: an orphaned JSDoc block above `PlassChartTooltipMode` describes `item` as "the one mark being pointed at", against the comment that belongs to it.
 
 ## Items
 
@@ -1770,67 +1779,107 @@ Findings raised in a batch report and approved as new items. Their line numbers 
   - Problem: Read from the code, not seen: with `headerSpan` or `footerSpan` at `content`, a sticky or fixed header or footer sits beside a sidebar and above the outer half of its handle. It is the React side of item 508.
   - Proposal: Reproduce it first; if it reproduces, lift the handle above the bar where the two meet.
 
-- [ ] **527.** A field inside a disabled `PlFieldset` is drawn wrongly in both builds (Bug · Both · Low)
+- [x] **527.** A field inside a disabled `PlFieldset` is drawn wrongly in both builds (Bug · Both · Low)
   - Location: `packages/react/src/components/fieldset/PlFieldset.tsx` and every React field shell (`PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox`, `packages/react/src/internal/picker.tsx`, `PlOtpField`, `PlFilePicker`, `PlCheckbox` and the like), `packages/flutter/lib/src/components/fieldset/pl_fieldset.dart`, `docs/en/components/inputs/fieldset.md` and its `ko` twin
   - Problem: Base UI hands a disabled fieldset's state to every field through `FieldsetRootContext` and `Field.Root`, so a React field in one is disabled, but each shell draws from its own `disabled` prop only: it keeps its rest classes and its pointer light and looks live, as the docs' own demo shows. Only `PlColorPicker`, inline, reads `useFieldsetDisabled`. The Flutter fieldset drains the whole group through `plassStateFilter`, and a field that is also given its own `disabled`, as the page advises, is drained twice, to 0.25 opacity and 0.12 saturation. The page also says the React fieldset works with "no context".
   - Proposal: Have each field read the fieldset's disabled state and draw itself disabled once, in both builds (React through Base UI's field context, Flutter through a state the fieldset hands down instead of draining the group), and correct the page.
 
-- [ ] **528.** A label written into a focused Flutter `PlCombobox` puts its pointer light out (Bug · Flutter · Low)
+- [x] **528.** A label written into a focused Flutter `PlCombobox` puts its pointer light out (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`_onEditing`, `_quiet`)
   - Problem: The controller listener takes every change to the text while the field has the focus as typing and sets `_quiet`, so a label the field writes itself (a taken row, a renamed option, a value handed in, the label put back on close, a clear) turns the pointer light off until the pointer moves. React quiets the light on a key press only.
   - Proposal: Quiet the light only for text the reader typed, with a test.
 
-- [ ] **529.** A Flutter heatmap's card does not change sides past 60% of the width (Bug · Flutter · Low)
+- [x] **529.** A Flutter heatmap's card does not change sides past 60% of the width (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/heatmap_chart/pl_heatmap_chart.dart` (`PlassChartTooltipPlacement` with no `before:`)
   - Problem: The React heatmap puts its card on the far side of a cell whose centre is past 60% of the width, as every Flutter cartesian card does, but the Flutter heatmap passes no `before:`, so its card changes sides only when it does not fit.
   - Proposal: Pass `before:` at 60% of the width, with a test.
 
-- [ ] **530.** A heatmap being read keeps a cell that is no longer there (Bug · Both · Low)
+- [x] **530.** A heatmap being read keeps a cell that is no longer there (Bug · Both · Low)
   - Location: `packages/flutter/lib/src/components/heatmap_chart/pl_heatmap_chart.dart` (`_active`), `packages/react/src/components/heatmap-chart/PlHeatmapChart.tsx` (`active`)
   - Problem: Neither heatmap lets go of the cell it is reading when the data drops it, so nothing is read while it is gone and the reading comes back when the data brings the cell back. Items 516 and 523 let go in the other charts.
   - Proposal: Let go of a cell that is no longer drawn, in both builds, with a test each.
 
-- [ ] **531.** A Flutter scatter mark and sparkline end dot are drawn unlike the React ones (Bug · Flutter · Low)
+- [x] **531.** A Flutter scatter mark and sparkline end dot are drawn unlike the React ones (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/scatter_chart/pl_scatter_chart.dart` (the mark and its comment), `packages/flutter/lib/src/components/sparkline/pl_sparkline.dart` (the end dot)
   - Problem: React strokes the 2px `markGap` over the fill, so a mark's dot is `r − 1` and its ring runs from `r − 1` to `r + 1`. The Flutter scatter mark fills over the stroke, a dot of `r` and a ring from `r` to `r + 1`, and its comment says React does the same; its ring stays at full opacity while the dot fades, where React's `opacity` fades both; and it keeps the ring's width as the mark grows, where React's `scale` widens it. The Flutter sparkline's end dot is `r` with a ring to `r + 2`.
   - Proposal: Draw both at the React sizes and fade the scatter ring with its dot, as item 521 did for the line chart, with a test each.
 
-- [ ] **532.** A faded Flutter line lets the line show through its markers (Bug · Flutter · Low)
+- [x] **532.** A faded Flutter line lets the line show through its markers (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/chart_line.dart`
   - Problem: A series faded for a legend entry fades its line and each marker disc on their own, so the line shows through a faded marker, at about 14% in the dot and 20% in the ring. React fades the whole series `<g>` after it is drawn, so the line never shows through.
   - Proposal: Draw a series that is fading into a layer of its own (`saveLayer`) and fade the layer, only while it is faded, with a test.
 
-- [ ] **533.** The Flutter crosshair differs from the React one in three ways (Bug · Flutter · Low)
+- [x] **533.** The Flutter crosshair differs from the React one in three ways (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/internal/chart_frame.dart` (the crosshair, `PlChartTooltip`), `docs/.vitepress/data/props-flutter.ts`
   - Problem: Flutter draws the crosshair in the tooltip's `item` mode as well, where React draws it in its column mode only, as the props table says; `PlChartTooltip` has no counterpart of React's `crosshair: false`; and the line is painted in `mutedFg` at 35% rather than `tokens.chartBaseline`, so a theme that changes the baseline does not reach it.
   - Proposal: Draw it in the column mode only, add `crosshair` to `PlChartTooltip`, and paint it in `chartBaseline`, with a test each and the props table.
 
-- [ ] **534.** A React line chart test cannot fail (Bug · React · Low)
+- [x] **534.** A React line chart test cannot fail (Bug · React · Low)
   - Location: `packages/react/test/components/line-chart/PlLineChart.test.tsx` ("answers with the one series the pointer is nearest, and draws no crosshair")
   - Problem: The test looks for `line[stroke-dasharray="4 4"]`, but the crosshair is a solid line with no dash array, so it passes whether a crosshair is drawn or not, and no other React test looks for one.
   - Proposal: Find the crosshair by what it is, and check that the test fails with one drawn.
 
-- [ ] **535.** A Flutter window's caption buttons differ from the React ones in where they sit and what they claim (Bug · Flutter · Low)
+- [x] **535.** A Flutter window's caption buttons differ from the React ones in where they sit and what they claim (Bug · Flutter · Low)
   - Location: `packages/flutter/lib/src/components/window_pane/pl_window_pane.dart` (`_WindowControlSet`, `_claim`, the bar's drag)
   - Problem: The Aero (`windows7`) buttons are centred in the bar, leaving 5px above buttons whose top corners are square, where React hangs them from the top edge. The React button set stretches to the bar's height and stops a press and a double click along that whole column, but the Flutter `_claim` covers only the buttons' own height, so on `macos`, `macosx`, `windowsxp` and `linux` a press just above or below a button drags the window and a double tap there maximizes it. The bar's drag also never consults `_claim`, so a drag that starts on a caption button may move the window (read from the code, not seen).
   - Proposal: Hang the Aero set from the top, claim the set's whole column, and reproduce the drag from a button before keeping it off the window, with a test each.
 
-- [ ] **536.** A pie being read keeps a slice that is no longer drawn (Bug · Both · Low)
+- [x] **536.** A pie being read keeps a slice that is no longer drawn (Bug · Both · Low)
   - Location: `packages/react/src/components/pie-chart/PlPieChart.tsx` (`active`), `packages/flutter/lib/src/components/pie_chart/pl_pie_chart.dart` (`didUpdateWidget`)
   - Problem: The React pie never lets go of the slice it is reading: once the slices shrink past it, the live region and the card say "0 · 0%" ("NaN%" when the rest sum to 0) and every slice is faded. The Flutter pie lets go of a slice past the end since item 503, but not of one whose value became null or 0, which draws no arc and keeps the others faded.
   - Proposal: Let go of a slice that no longer draws an arc, in both builds, with a test each.
 
-- [ ] **537.** A series switched off in the legend is remembered by its place (Bug · Both · Low)
+- [x] **537.** A series switched off in the legend is remembered by its place (Bug · Both · Low)
   - Location: `packages/react/src/internal/chart-frame.tsx` (`useVisibility`'s `hidden`), `packages/flutter/lib/src/internal/chart_frame.dart` and `packages/flutter/lib/src/components/pie_chart/pl_pie_chart.dart` (`_off`)
   - Problem: Both builds hold the series switched off in the legend by index, so when a series before it leaves the data, the series that moves into its place is switched off instead, and an index past the new end switches a series off again when the data grows.
   - Proposal: Hold them by the legend entry's key, its name or else its index, as item 522 holds the React hover, in both builds, with a test each.
 
-- [ ] **538.** React `Home` and `End` on a chart in `item` mode read one value (Bug · React · Low)
+- [x] **538.** React `Home` and `End` on a chart in `item` mode read one value (Bug · React · Low)
   - Location: `packages/react/src/internal/chart-frame.tsx` (`goTo`)
   - Problem: `goTo` does not clear `pointer`, where `step` does and the Flutter `goTo` does, so with the pointer still over the plot, `Home` or `End` in the tooltip's `item` mode reads the one value nearest the last pointer position rather than the whole column, as the comment there says it should.
   - Proposal: Clear the pointer in `goTo`, with a test.
 
-- [ ] **539.** A React `fixed` bar that spans only the content covers the sidebars (Bug · React · Low)
+- [x] **539.** A React `fixed` bar that spans only the content covers the sidebars (Bug · React · Low)
   - Location: `packages/react/src/components/page-layout/PlPageLayout.tsx` (the bar's measurement), `docs/en/components/layout/header.md`, `footer.md` and `page-layout.md` and their `ko` twins
   - Problem: A `fixed` `PlHeader` or `PlFooter` spans the whole window whatever `headerSpan` or `footerSpan` says, but with `content` the layout gives it no room beside the sidebars, so it covers each sidebar's top or bottom edge. The header and footer pages say a `fixed` bar in a layout is answered for you.
   - Proposal: Measure a `fixed` bar whatever its span, so the sidebars start below it and end above it, and say on the pages that a bar meant to sit beside the sidebars is `sticky`, with a test.
+
+- [ ] **540.** A Flutter window bar and chart plot offer a screen reader scroll actions (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/window_pane/pl_window_pane.dart` (`_BarDragSemantics`), `packages/flutter/lib/src/internal/chart_frame.dart` (the plot's `GestureDetector` with `onHorizontalDragStart`/`onHorizontalDragUpdate` and no `excludeFromSemantics`)
+  - Problem: A `draggable` window's title bar exposes scrollLeft, scrollRight, scrollUp and scrollDown, each of which moves the window by 80% of the bar's width or height with no clamp, so it can leave the screen. The plot of a line, bar, area, scatter or timeline chart exposes scrollLeft and scrollRight through the default drag semantics, which hand global coordinates where local ones are expected, so both do the same thing. React has neither, and both already have a keyboard path: the "Move window" button and the chart's key walk.
+  - Proposal: Take the scroll actions off both, with a semantics test each.
+
+- [ ] **541.** A React `PlHeader` with no middle packs its actions against the brand (Bug · React · Low)
+  - Location: `packages/react/src/components/header/PlHeader.tsx` (`endClasses`, the middle left out when empty)
+  - Problem: With a `brand` and `actions` and no `children`, at the default `align`, the ends are only `shrink-0` and the middle is not rendered, so the actions sit one gap after the brand rather than at the end, where the JSDoc, the header page and the Flutter header put them. The header page's `sizes`, `variants`, `position` and `measure` demos, the page layout's hero and the component index show it.
+  - Proposal: Keep the middle's room when it is empty, so the actions go to the end, with a test.
+
+- [ ] **542.** The docs demos of a page layout add main landmarks to the page (Accessibility · Docs · Low)
+  - Location: `docs/.vitepress/demos/page-layout/`, `docs/.vitepress/demos/sidebar/`, `docs/.vitepress/demos/component-index/all.tsx`, `packages/flutter/example/lib/demos/page_layout/spans.dart`, `packages/flutter/example/lib/demos/sidebar/variants.dart`
+  - Problem: Each React `PlPageLayout` demo renders its own `<main id="main">`, and most a "Skip to content" link, inline inside the VitePress page's `<main>`, so the page layout page ends up with six main landmarks and `id="main"` four times, the sidebar page with eight and seven, and every `#main` link jumps to the first demo. The Flutter demos that put several layouts side by side leave each main landmark unlabelled, which a debug build reports.
+  - Proposal: Render the docs demos without a main landmark or a skip link of their own, and label each layout in the Flutter demos.
+
+- [ ] **543.** A stacked Flutter area chart draws no markers (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/internal/chart_line.dart` (`if (!banded && (dots || layout.activeIndex != null))`)
+  - Problem: A `PlAreaChart` stacked `total` or `full` draws no marker, even with `markers: PlChartMarkers.all`, and none for the column under the crosshair or a key. React draws them on each band's top, at the running total or share.
+  - Proposal: Draw them on the band's top, as React does, with a test.
+
+- [ ] **544.** A pie being read moves onto another slice when one before it leaves (Bug · Both · Low)
+  - Location: `packages/react/src/components/pie-chart/PlPieChart.tsx` (`active`), `packages/flutter/lib/src/components/pie_chart/pl_pie_chart.dart` (`_active`)
+  - Problem: Both pies hold the slice being read by its index, so when a slice ahead of it leaves the data, the card and the live region read whichever slice took its place. The other charts hold a mark by its series and place since items 516 and 523.
+  - Proposal: Hold the slice by its legend key, as item 537 holds a switched-off slice, in both builds, with a test each.
+
+- [ ] **545.** Two series with the same name share one legend entry's state (Bug · Both · Low)
+  - Location: `packages/react/src/internal/chart-frame.tsx` (`entryKey`), `packages/flutter/lib/src/internal/chart_frame.dart` (`legendKey`), and the pie
+  - Problem: The legend key is the series' name, or else its index, so two series (or two pie slices) with the same name switch off and on together, pointing at the second highlights the first, and React warns about duplicate keys in the legend and the data table; a series named "1" and an unnamed series at index 1 also share a key.
+  - Proposal: Key a repeated name by how many times it has appeared before, and keep index keys from meeting names, in both builds, with a test each.
+
+- [ ] **546.** A Flutter field's pointer light goes out on changes the reader did not type (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (`_commit`, `_onEditing`), `pl_text_field.dart`, `pl_combobox.dart`
+  - Problem: A focused `PlNumberField` stepped with a press writes the new value into its controller, which `_onEditing` takes for typing, so the light goes out until the pointer moves. And the first time a `PlTextField`, `PlNumberField` or `PlCombobox` takes the focus from the keyboard while the pointer rests on it, `EditableText` places the caret and the light goes out the same way. React quiets it on a key press only.
+  - Proposal: Quiet the light from the reader's own edits and caret moves only, in all three fields, as item 528 did for the combobox's own writes, with a test each.
+
+- [ ] **547.** A disabled segmented button and a disabled combobox's chips are faded twice (Bug · Both · Low)
+  - Location: `packages/react/src/components/segmented-button/PlSegmentedButton.tsx`, `packages/flutter/lib/src/components/segmented_button/pl_segmented_button.dart`, the chips in `PlCombobox.tsx` and `pl_combobox.dart`
+  - Problem: A disabled `PlSegmentedButton` fades its set and each segment, and the chips of a disabled `multiple` `PlCombobox` fade inside a field that is already faded, so both are drawn at a quarter in both builds, which is hard to read. The React segments of a disabled set also keep their pointer light.
+  - Proposal: Fade each once and put the React segments' light out, as item 527 did for the fields, with a test each.
