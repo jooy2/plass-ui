@@ -7,7 +7,7 @@ order: 13
 
 <p class="plass-lede">A column beside the page's content, and a drawer once the window is too narrow to hold one. Two presentations of one panel, so a caller never swaps components at a breakpoint.</p>
 
-<Demo src="sidebar/hero" :min-height="360" />
+<Demo src="sidebar/hero" nested :min-height="360" />
 
 ::: fw react
 
@@ -66,7 +66,7 @@ Logical rather than physical: `start` is the left of an English page and the rig
 
 Inside a [`PlPageLayout`](./page-layout) it is already decided by which slot the sidebar was handed to, and setting it again is only a way of disagreeing with the layout.
 
-<Demo src="sidebar/sides" :min-height="260">
+<Demo src="sidebar/sides" nested :min-height="260">
 
 ::: fw react
 
@@ -90,7 +90,7 @@ The window width below which the column becomes a drawer. It defaults to the lay
 
 `title` is drawn only while the sidebar is a drawer: a column has the page around it to say what it is, and a panel that has covered the page does not.
 
-<Demo src="sidebar/collapse" :min-height="300">
+<Demo src="sidebar/collapse" nested :min-height="300">
 
 ::: fw react
 
@@ -114,7 +114,7 @@ The dragged width is written straight onto the element rather than into state: n
 
 The handle straddles the edge rather than sitting inside it, a hairline one pixel wide is a target one pixel wide, which is the same split between what is drawn and what can be grabbed that a scrollbar makes.
 
-<Demo src="sidebar/resizable" :min-height="260">
+<Demo src="sidebar/resizable" nested :min-height="260">
 
 ::: fw react
 
@@ -136,7 +136,7 @@ The three materials, read the way a **container** reads them. The panel is never
 
 `divider` rules the **inner** edge, the one facing the content. The outer edge is against the window, where there is nothing on the other side to be separated from.
 
-<Demo src="sidebar/variants" :min-height="220">
+<Demo src="sidebar/variants" nested :min-height="220">
 
 ::: fw react
 

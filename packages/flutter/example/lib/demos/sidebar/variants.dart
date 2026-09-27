@@ -18,6 +18,7 @@ class SidebarVariants extends StatelessWidget {
               borderRadius: BorderRadius.circular(PlassTheme.of(context).radii[PlassSize.md]!),
               child: PlPageLayout(
                 collapseBelow: null,
+                mainSemanticLabel: '${variant.name} content',
                 sidebar: PlSidebar(
                   size: PlassSize.xs,
                   width: 90,

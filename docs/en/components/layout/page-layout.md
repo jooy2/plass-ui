@@ -7,7 +7,7 @@ order: 10
 
 <p class="plass-lede">The skeleton a page is hung on: a header, a footer, one sidebar or two, and the content between them. It draws no surface of its own. What it contributes is the arrangement and the landmarks.</p>
 
-<Demo src="page-layout/hero" :min-height="360" />
+<Demo src="page-layout/hero" nested :min-height="360" />
 
 ::: fw react
 
@@ -82,7 +82,7 @@ A `fixed` [`PlHeader`](./header) or [`PlFooter`](./footer) spans the window what
 
 :::
 
-<Demo src="page-layout/spans" :min-height="260">
+<Demo src="page-layout/spans" nested :min-height="260">
 
 ::: fw react
 
@@ -108,7 +108,7 @@ A `fixed` [`PlHeader`](./header) or [`PlFooter`](./footer) spans the window what
 
 `height` is `viewport` by default, `auto` for a layout that is not the page (a preview, a pane of a larger tool), or any CSS length. It is a floor while the page scrolls and an exact height while only the content does.
 
-<Demo src="page-layout/scroll" :flutter="false" :min-height="300">
+<Demo src="page-layout/scroll" nested :flutter="false" :min-height="300">
 
 <<< @/.vitepress/demos/page-layout/scroll.tsx
 

@@ -18,6 +18,15 @@ function reactRuntime() {
   return runtime;
 }
 
+let nestedRuntime = null;
+
+/** The wrapper a `nested` preview is rendered in, fetched once and only when asked for. */
+function nestedLayout() {
+  nestedRuntime ??= import('../nested-layout');
+
+  return nestedRuntime;
+}
+
 /**
  * How far outside the viewport a preview counts as worth mounting, in px.
  * Wide enough that scrolling reaches a mounted preview rather than an empty box.
@@ -118,6 +127,16 @@ const props = defineProps({
    * whichever framework is selected.
    */
   flutter: { type: Boolean, default: true },
+  /**
+   * Renders the React preview as though it were inside a `PlPageLayout`, so a
+   * layout in it takes no `<main>`, no `id` and no skip link of its own.
+   *
+   * For the demos that draw a whole layout inline in the page, which has a
+   * `<main>` of its own already. Only for a demo whose sidebars all sit inside
+   * its layouts: a `PlSidebar` with no layout around it would take its drawer
+   * from this one, which never opens.
+   */
+  nested: { type: Boolean, default: false },
   /**
    * Height the mount point holds **while it is empty**, in px or as a CSS length.
    *
@@ -241,7 +260,11 @@ async function mountReact() {
 
   // The demo's own chunk is fetched alongside React rather than after it: it
   // pulls in the components it renders, which is the other half of the payload.
-  const [[React, { createRoot }], demo] = await Promise.all([reactRuntime(), load()]);
+  const [[React, { createRoot }], demo, nested] = await Promise.all([
+    reactRuntime(),
+    load(),
+    props.nested ? nestedLayout() : null
+  ]);
 
   // Navigating away during the await leaves nothing to mount into, and a reader
   // who switched to Flutter mid-fetch should not have a React root appear
@@ -254,7 +277,9 @@ async function mountReact() {
   // Demos are written in English and reused by every locale — they are code
   // samples. The few that carry docs chrome of their own (the component index)
   // take the locale and localise themselves.
-  root.render(React.createElement(demo.default, { locale, base }));
+  const element = React.createElement(demo.default, { locale, base });
+
+  root.render(nested ? React.createElement(nested.NestedLayout, null, element) : element);
 }
 
 /* ---------------------------------------------------------------------------

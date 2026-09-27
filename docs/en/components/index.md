@@ -14,7 +14,7 @@ The gallery below is the **React** build, because the cards are one page of 130 
 
 :::
 
-<Demo src="component-index/all" plain :flutter="false" :min-height="220" />
+<Demo src="component-index/all" plain nested :flutter="false" :min-height="220" />
 
 ## Next
 

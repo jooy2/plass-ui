@@ -7,7 +7,7 @@ order: 13
 
 <p class="plass-lede">페이지 콘텐츠 옆의 열이고, 창이 그것을 담기에 너무 좁아지면 drawer가 됩니다. 하나의 패널을 두 모습으로 보여 주므로, 브레이크포인트에서 컴포넌트를 바꿔 끼울 일이 없습니다.</p>
 
-<Demo src="sidebar/hero" :min-height="360" />
+<Demo src="sidebar/hero" nested :min-height="360" />
 
 ::: fw react
 
@@ -66,7 +66,7 @@ PlPageLayout(
 
 [`PlPageLayout`](./page-layout) 안에서는 sidebar를 어느 슬롯에 넘겼는지가 이미 정하므로, 다시 쓰는 것은 레이아웃과 의견을 달리하는 방법일 뿐입니다.
 
-<Demo src="sidebar/sides" :min-height="260">
+<Demo src="sidebar/sides" nested :min-height="260">
 
 ::: fw react
 
@@ -90,7 +90,7 @@ PlPageLayout(
 
 `title`은 sidebar가 drawer일 때만 그려집니다. 열에는 자기가 무엇인지 말해 줄 페이지가 둘레에 있지만, 페이지를 덮은 패널에는 없습니다.
 
-<Demo src="sidebar/collapse" :min-height="300">
+<Demo src="sidebar/collapse" nested :min-height="300">
 
 ::: fw react
 
@@ -114,7 +114,7 @@ PlPageLayout(
 
 손잡이는 가장자리 안이 아니라 가장자리를 걸치고 있습니다. 1px 헤어라인은 1px짜리 표적이기 때문입니다. 스크롤바가 하는, 그려지는 것과 잡을 수 있는 것 사이의 같은 분리입니다.
 
-<Demo src="sidebar/resizable" :min-height="260">
+<Demo src="sidebar/resizable" nested :min-height="260">
 
 ::: fw react
 
@@ -136,7 +136,7 @@ PlPageLayout(
 
 `divider`는 **안쪽** 가장자리(콘텐츠를 마주하는 쪽)를 긋습니다. 바깥쪽 가장자리는 창을 향하고 있고, 그 너머에는 구분할 것이 없습니다.
 
-<Demo src="sidebar/variants" :min-height="220">
+<Demo src="sidebar/variants" nested :min-height="220">
 
 ::: fw react
 

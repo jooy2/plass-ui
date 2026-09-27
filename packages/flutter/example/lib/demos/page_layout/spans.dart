@@ -24,6 +24,7 @@ class _Shell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final PlassTokens tokens = PlassTheme.of(context);
+    final String name = 'headerSpan: ${span.name}';
 
     return SizedBox(
       width: 260,
@@ -33,10 +34,11 @@ class _Shell extends StatelessWidget {
         child: PlPageLayout(
           collapseBelow: null,
           headerSpan: span,
+          mainSemanticLabel: name,
           header: PlHeader(
             size: PlassSize.xs,
             density: PlassDensity.compact,
-            child: Text('headerSpan: ${span.name}', style: const TextStyle(fontSize: 11)),
+            child: Text(name, style: const TextStyle(fontSize: 11)),
           ),
           sidebar: DecoratedBox(
             decoration: BoxDecoration(

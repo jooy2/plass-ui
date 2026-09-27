@@ -7,7 +7,7 @@ order: 10
 
 <p class="plass-lede">페이지를 걸어 두는 뼈대입니다. header와 footer, sidebar 하나 또는 둘, 그리고 그 사이의 콘텐츠를 배치합니다. 자기 표면은 그리지 않고 배치와 landmark만 보탭니다.</p>
 
-<Demo src="page-layout/hero" :min-height="360" />
+<Demo src="page-layout/hero" nested :min-height="360" />
 
 ::: fw react
 
@@ -82,7 +82,7 @@ footer는 같은 질문에 따로 답합니다. 전체 높이 내비게이션 �
 
 :::
 
-<Demo src="page-layout/spans" :min-height="260">
+<Demo src="page-layout/spans" nested :min-height="260">
 
 ::: fw react
 
@@ -108,7 +108,7 @@ footer는 같은 질문에 따로 답합니다. 전체 높이 내비게이션 �
 
 `height`는 기본이 `viewport`, 페이지가 아닌 레이아웃(미리 보기, 더 큰 도구의 한 pane)에는 `auto`, 그 외에는 아무 CSS 길이나 됩니다. 페이지가 스크롤될 때는 최소 높이, 콘텐츠만 스크롤될 때는 정확한 높이입니다.
 
-<Demo src="page-layout/scroll" :flutter="false" :min-height="300">
+<Demo src="page-layout/scroll" nested :flutter="false" :min-height="300">
 
 <<< @/.vitepress/demos/page-layout/scroll.tsx
 

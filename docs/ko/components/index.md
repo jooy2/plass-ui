@@ -14,7 +14,7 @@ aside: false
 
 :::
 
-<Demo src="component-index/all" plain :flutter="false" :min-height="220" />
+<Demo src="component-index/all" plain nested :flutter="false" :min-height="220" />
 
 ## Next
 
