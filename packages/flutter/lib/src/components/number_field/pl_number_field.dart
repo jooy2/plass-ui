@@ -79,6 +79,21 @@ class _EdgeIntent extends Intent {
 /// Which of the three steps a key press asked for.
 enum _StepAmount { small, normal, large }
 
+/// When a value the field writes is reported through
+/// [PlNumberField.onCommitted].
+enum _CommitWhen {
+  /// Every time, changed or not: leaving the field, <kbd>Enter</kbd>, and the
+  /// release of a press on a stepper.
+  always,
+
+  /// Only when the value changed: a key step, <kbd>Home</kbd>, <kbd>End</kbd>
+  /// and the wheel. One that leaves the value where it was settles nothing.
+  changed,
+
+  /// Never: a repeat of a held stepper, which settles on its release.
+  never,
+}
+
 /// A field that only holds a number.
 ///
 /// ```dart
@@ -157,7 +172,8 @@ class PlNumberField extends StatefulWidget {
   final ValueChanged<double?>? onChanged;
 
   /// Called when the value settles: on blur after typing, on release after a
-  /// press, and alongside [onChanged] for the keyboard.
+  /// press, and alongside [onChanged] for the keyboard and the wheel, so a key
+  /// or a turn of the wheel that leaves the value where it was calls neither.
   final ValueChanged<double?>? onCommitted;
 
   /// The bottom of the range. Stepping stops here.
@@ -442,8 +458,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // Leaving the field is what settles it: the text is read, clamped and
     // written back, so a box holding `007` or `1e3` or nothing at all comes back
     // saying what the field actually holds. It is reported only if something was
-    // left to settle.
-    if (!_focused) {
+    // left to settle. A read-only or disabled field is left as it is: nothing
+    // can be typed into it, and a value handed to it outside the range is the
+    // caller's to keep.
+    if (!_focused && _editable) {
       final double? raw = _read(_controller.text);
       final double? next = raw == null ? null : _settle(raw);
 
@@ -520,20 +538,25 @@ class _PlNumberFieldState extends State<PlNumberField> {
     return double.parse(next.toStringAsFixed(10));
   }
 
-  /// Settles [raw] into the box and reports it. [settled] is `false` for a
-  /// repeat of a held stepper, which changes the value without settling it.
-  void _commit(double? raw, {bool settled = true}) {
+  /// Settles [raw] into the box, reports it through `onChanged` if the value
+  /// changed, and through `onCommitted` as [when] says.
+  ///
+  /// A commit that changes nothing still writes the box in its settled form.
+  /// If it goes unreported, a number typed before it still settles when the
+  /// focus leaves, as in Base UI.
+  void _commit(double? raw, {_CommitWhen when = _CommitWhen.always}) {
     final next = raw == null ? null : _settle(raw);
+    final changed = next != widget.value;
 
     _show(next);
 
-    if (next != widget.value) {
+    if (changed) {
       _held = next;
       _unsettled = true;
       widget.onChanged?.call(next);
     }
 
-    if (settled) {
+    if (when == _CommitWhen.always || (when == _CommitWhen.changed && changed)) {
       _unsettled = false;
       widget.onCommitted?.call(next);
     }
@@ -553,7 +576,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
     WidgetsBinding.instance.ensureVisualUpdate();
   }
 
-  void _step(int direction, {_StepAmount amount = _StepAmount.normal, bool settled = true}) {
+  void _step(
+    int direction, {
+    _StepAmount amount = _StepAmount.normal,
+    _CommitWhen when = _CommitWhen.always,
+  }) {
     if (!_editable) {
       return;
     }
@@ -569,14 +596,16 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // put something in it.
     final from = _read(_controller.text) ?? widget.min ?? 0;
 
-    _commit(from + by * direction, settled: settled);
+    _commit(from + by * direction, when: when);
   }
 
+  /// <kbd>Home</kbd> or <kbd>End</kbd>: a field that can be edited goes to that
+  /// end of the range, if the range has one.
   void _edge(bool toEnd) {
     final target = toEnd ? widget.max : widget.min;
 
-    if (target != null) {
-      _commit(target);
+    if (target != null && _editable) {
+      _commit(target, when: _CommitWhen.changed);
     }
   }
 
@@ -624,7 +653,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
     _repeat = Timer(_repeatDelay, () {
       _repeat = Timer.periodic(_repeatInterval, (Timer timer) {
         _repeated = true;
-        _step(direction, amount: amount, settled: false);
+        _step(direction, amount: amount, when: _CommitWhen.never);
 
         // Nothing more to add once the range has run out.
         final double? now = _read(_controller.text);
@@ -847,7 +876,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
           _StepIntent: CallbackAction<_StepIntent>(
             onInvoke: (_StepIntent intent) {
               _quieten();
-              _step(intent.direction, amount: intent.amount);
+              _step(intent.direction, amount: intent.amount, when: _CommitWhen.changed);
 
               return null;
             },
@@ -1100,7 +1129,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
           // Claimed through the resolver, so the page under the field does not
           // scroll on the same turn and carry the field away from the pointer.
           GestureBinding.instance.pointerSignalResolver.register(event, (PointerSignalEvent _) {
-            _step(dy > 0 ? -1 : 1);
+            _step(dy > 0 ? -1 : 1, when: _CommitWhen.changed);
           });
         },
         child: shell,

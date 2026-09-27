@@ -286,6 +286,95 @@ void main() {
         expect(state.value, 0);
       });
 
+      testWidgets('Home and End leave a read-only field where it is', (WidgetTester tester) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(value: 5, min: 0, max: 100, readOnly: true, onCommitted: settled.add),
+        );
+
+        await tester.tap(find.byType(PlNumberField));
+        await tester.pump();
+        expect(_editorFocused(tester), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.pump();
+
+        expect(state.value, 5);
+        expect(find.text('5'), findsOneWidget);
+        expect(settled, isEmpty);
+      });
+
+      testWidgets('a key or a turn of the wheel that changes nothing settles nothing', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(value: 10, min: 0, max: 10, allowWheelScrub: true, onCommitted: settled.add),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.pageUp);
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pump();
+
+        final TestPointer mouse = TestPointer(1, PointerDeviceKind.mouse);
+
+        await tester.sendEventToBinding(mouse.hover(tester.getCenter(find.byType(EditableText))));
+        await tester.sendEventToBinding(mouse.scroll(const Offset(0, -40)));
+        await tester.pump();
+
+        expect(state.value, 10);
+        expect(settled, isEmpty);
+
+        // One that moves the value settles it.
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.pump();
+
+        expect(state.value, 0);
+        expect(settled, <double?>[0]);
+      });
+
+      testWidgets('a key that changes nothing leaves what was typed to settle on the way out', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(max: 10, onCommitted: settled.add),
+        );
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('10');
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+
+        expect(state.value, 10);
+        expect(settled, isEmpty);
+
+        // The key wrote the box, so a value handed in now is shown, and what
+        // settles on the way out is the value the field holds by then.
+        state.handIn(3);
+        await tester.pump();
+        expect(find.text('3'), findsOneWidget);
+
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(state.value, 3);
+        expect(settled, <double?>[3]);
+      });
+
       testWidgets('the wheel steps a focused field and leaves the page where it is', (
         WidgetTester tester,
       ) async {
@@ -713,6 +802,50 @@ void main() {
 
         expect(state.value, 12);
         expect(settled, <double?>[12]);
+      });
+
+      testWidgets('settles nothing in a read-only field', (WidgetTester tester) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(value: 40, max: 12, readOnly: true, onCommitted: settled.add),
+        );
+
+        await tester.tap(find.byType(PlNumberField));
+        await tester.pump();
+        expect(_editorFocused(tester), isTrue);
+
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        // A value outside the range is the caller's to hand a field that
+        // cannot be changed, and leaving the field does not clamp it.
+        expect(state.value, 40);
+        expect(find.text('40'), findsOneWidget);
+        expect(settled, isEmpty);
+      });
+
+      testWidgets('settles nothing in a field disabled while it holds the focus', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(max: 12, onCommitted: settled.add),
+        );
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('40');
+        await tester.pump();
+
+        await tester.pumpWidget(
+          host(_Harness(max: 12, disabled: true, onCommitted: settled.add), width: 320),
+        );
+        await tester.pumpAndSettle();
+
+        expect(_editorFocused(tester), isFalse);
+        expect(state.value, 40);
+        expect(settled, isEmpty);
       });
 
       testWidgets('settles once when Enter settles and takes the focus out', (
