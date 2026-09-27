@@ -2,9 +2,9 @@
 
 The open findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and of the batches that have worked through it since. The work goes in batches of twenty. When no item is left, delete this file in a commit of its own.
 
-A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 29 closed 553 items between `148a20e4` and `14a63305`; those items and each batch's notes are in the history of this file.
+A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 30 closed 560 items between `148a20e4` and `ba2e8cee`; those items and the notes of batches 1 to 29 are in the history of this file.
 
-**7 items are open, and the last number used is 562.**
+**12 items are open, and the last number used is 574.**
 
 ## Working through a batch
 
@@ -46,7 +46,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 
 ## Waiting for an answer
 
-None. Every question batch 29 asked was answered with an item, a change made in the batch, or to keep what is there.
+None. Every question batch 30 asked was answered with an item or with the change the batch had already made.
 
 ## Passed over and not yet asked
 
@@ -77,42 +77,71 @@ Small differences between the builds found in passing from batch 27 on. They are
 - Charts: when the legend lets go, the React `mask` that keeps a faded line out of its markers goes at once while the series' opacity eases back, so the line shows through its markers for about 150ms (`chart-line.tsx`, the band `<g>`).
 - Docs: in the home showcase the "Danger zone" card's "Export first" button sticks out about 33px past the card at 1440px (`docs/.vitepress/demos/showcase/app.tsx` ~352).
 - Stale comments: `PlBlockquote.tsx` ~141-145 still says the wrapper lets the docs undo VitePress's blockquote, and `docs/.vitepress/theme/styles/scope.css` ~31 says nothing portals yet.
+- `PlAppLogo`: the React logo rendered as a link (`render={<a href="/" />}`) draws no house focus ring (`PlAppLogo.tsx` ~171-175 sets `controlSlots` but not `focusRingClasses`), so it shows the browser's own outline where the Flutter logo draws the family's ring; `PlAspectRatio` documents the same link `render` (`PlAspectRatio.tsx` ~53).
+- `PlAppLogo`: a pressable Flutter logo is a button that `Space` presses as well as `Enter` (`pl_app_logo.dart` ~264), where the React logo is usually a link that only `Enter` follows.
+- `PlNumberField`: `Enter` with nothing typed calls `onCommitted` with the value the Flutter field already had (`onSubmitted`, `pl_number_field.dart` ~747); Base UI commits nothing on `Enter`.
+- Docs: the Accessibility section of the command palette page (`docs/en/components/navigation/command-palette.md` and the `ko` twin) is shared by both frameworks but written for React only ("wired with `aria-activedescendant` by Base UI", "portalled to the end of `<body>`"), and it sits after "Differences from the React build", out of the page skeleton's order.
 
 ## Items
 
 Each item was raised in a batch report and approved. Its line numbers are from the commit that raised it and drift as the code changes; when one no longer matches, search for the symbol.
 
-- [ ] **556.** A Flutter number field settles its value on every blur (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (`_onFocusChanged` → `_commit`)
-  - Problem: A blur calls `onCommitted` whether or not anything was typed, where the doc says "on blur after typing" and Base UI commits on blur only after typed input or a change not yet committed. So a Tab through the field commits the value it already had, a press on the padding or an adornment of a focused field blurs and refocuses it and commits, and since item 554 a mouse press on a stepper of an unfocused field followed by a blur commits the same value twice.
-  - Proposal: On blur, commit only when text was typed since the value was last settled or the settled value differs from `value`, with a test for each case.
+- [ ] **563.** The system back over a running Flutter tour closes the page under it (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/tour/pl_tour.dart` (its own `OverlayPortal` ~466, `Escape` ~531)
+  - Problem: The tour lifts its own layer rather than going through `PlassPortal`, so item 557's `PlassBackGuard` does not reach it. With a tour running, Android's back, TalkBack's back and VoiceOver's escape pop the page under it, and `onOpenChanged` is never called, so the caller's `open` stays true; `Escape` closes a `dismissible` tour.
+  - Proposal: Register a `PlassBackGuard` while the tour is open and `dismissible`, closing it as `Escape` does, with a test in a `WidgetsApp` with two routes, as `test/internal/back_test.dart` does.
 
-- [ ] **557.** The system back over an open Flutter layer closes the page under it (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/portal.dart` (nothing handles `didPopRoute`, `PopScope` or `BackButtonListener`)
-  - Problem: With a `PlModal`, `PlDrawer`, `PlOverlay`, `PlCommandPalette`, image preview or gallery viewer open, the Android back button, TalkBack's back gesture and VoiceOver's escape pop the page under the layer, and `onOpenChanged` is never called, so the caller's `open` stays true; on the root route Android leaves the app. Since item 550 took the backdrop off the semantics tree, a touch-only screen reader user also has no way to close a dismissible layer that draws no close button.
-  - Proposal: Have the topmost dismissible layer close on the system back, as `Escape` closes it, with a test in a `WidgetsApp` with two routes.
+- [ ] **564.** A read-only Flutter segmented button tells a screen reader it is disabled (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/segmented_button/pl_segmented_button.dart` (`_interactive` ~204, the set's `enabled: _interactive` ~466, each segment's `enabled: onPressed != null` ~727)
+  - Problem: A read-only set and each of its segments report `enabled: false` and no `readOnly`, so a screen reader announces them as unavailable. React puts `aria-readonly` on the group and keeps the radios enabled, and the Flutter `PlRadioGroup` reports `enabled: !disabled` and `readOnly: readOnly` on the group and each option (`pl_radio_group.dart` ~279-280, ~427-428). It is the only control where the two builds disagree on this.
+  - Proposal: Report `enabled` and `readOnly` apart, as `PlRadioGroup` does, with a test.
 
-- [ ] **558.** A Flutter combobox's chevron and clear buttons merge into its text field's node (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (`adornment()`, `Semantics(button: true, label:, onTap:)` with no `container: true`)
-  - Problem: The chevron's and the ×'s semantics merge into the editor's node, so the field is announced as a button named "Open" even with a `semanticLabel`, and a screen reader's tap on the field runs the chevron's action and closes an open list.
-  - Proposal: Give each its own node, check the other fields' adornment buttons for the same, and test that the field keeps its name and its own tap.
+- [ ] **565.** A Flutter command palette built open never focuses its search field (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/command_palette/pl_command_palette.dart` (`initState` ~229, the focus request only in `didUpdateWidget` ~243)
+  - Problem: A palette whose first build has `open: true` leaves the focus on the portal's scope, so the arrows, `Enter` and `Escape` work through the hardware handler but typed characters go nowhere until the field is tapped. An app that builds the palette only while it is open always meets this. React's input has `autoFocus` (`PlCommandPalette.tsx` ~364).
+  - Proposal: Ask for the field's focus when the palette is built open too, with a test.
 
-- [ ] **559.** A Flutter tooltip adds a long press and a stop of its own to what it wraps (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/tooltip/pl_tooltip.dart` (the trigger's `GestureDetector(onLongPress: …)` and `Semantics(tooltip: …)`)
-  - Problem: The long press that shows the tooltip on a touch screen becomes a semantics action on the wrapped node, announced as "double-tap and hold", and over a control that is its own node, such as a `PlButton`, the tooltip's words and the long press sit on an unnamed wrapper round it, a stop of their own rather than part of the control's announcement. React describes the trigger with the tooltip.
-  - Proposal: Keep the long press off the semantics tree and put the tooltip's words on the control's own node, with a test.
+- [ ] **566.** A Flutter field's placeholder and adornment text join its name (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/text_field/pl_text_field.dart` (the placeholder `Text` ~414 and the adornments under the field's `Semantics(container: true, label: widget.semanticLabel)` ~580-587); the same placeholder in `combobox/pl_combobox.dart` ~1139 and `number_field/pl_number_field.dart` ~782
+  - Problem: The drawn placeholder merges into the field's node, so a field whose `placeholder` and `semanticLabel` are the same words is read twice ("Search\nSearch": the search fields of `PlTransfer` ~687-688, `PlTreeSelect` ~475-476, and `PlDataTable` ~808-809 with its defaults), and a field named only by its placeholder loses its name as soon as something is typed. Text in an adornment joins the name as well: `PlTextField(semanticLabel: 'Name', endIcon: Text('@'))` is "Name\n@". React names an input by `aria-label` over its placeholder, keeps the placeholder name after typing, and leaves an adornment out of the name.
+  - Proposal: Do what item 561 did for the command palette: keep the drawn placeholder off the semantics tree and name the editor by the placeholder only when the field has no label; give an adornment's content a node of its own beside the field rather than excluding it. Test each field.
 
-- [ ] **560.** A pressable Flutter `PlAppLogo` cannot be reached from the keyboard (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/app_logo/pl_app_logo.dart` (`onPressed`)
-  - Problem: With `onPressed`, the logo is a button node with a tap but takes no focus and answers neither `Enter` nor `Space`, so a keyboard cannot press it. The React logo is usually rendered as a link, which is a tab stop.
-  - Proposal: Give it the focus, the focus ring and the keys the other buttons have, with a test.
+- [ ] **567.** A Flutter text field's name and value sit on two nodes (Accessibility · Flutter · Low)
+  - Location: `text_field/pl_text_field.dart` ~582, `combobox/pl_combobox.dart` ~1047 and `color_picker/pl_color_picker.dart` ~723 (`Semantics(textField: true, …)` round an `EditableText`); `number_field/pl_number_field.dart` ~1113-1125 copies the text into `value:` on purpose
+  - Problem: `EditableText`'s render object sets `isTextField` itself, and two text-field configurations never merge (`isCompatibleWith`), so the field's name is on an outer text-field node that takes no input focus and its value on an unnamed editor node under it. A screen reader may stop on the field twice, or read the value without the name. Seen in semantics dumps in batch 30; not yet checked with TalkBack or VoiceOver.
+  - Proposal: Check how TalkBack and VoiceOver read the pair first, then make each field one node that carries its name, its value and its actions, and test it.
 
-- [ ] **561.** The search field of a Flutter command palette has no name (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/command_palette/pl_command_palette.dart` (the search `EditableText`)
-  - Problem: The field is an unnamed text field; its placeholder, "Search commands" by default, is a separate text node that leaves once something is typed. The React `<input>` takes its name from the placeholder.
-  - Proposal: Name the field's node with the same words, with a test.
+- [ ] **568.** Some Flutter components build their content again when they become pressable (Bug · Flutter · Low)
+  - Location: `app_logo/pl_app_logo.dart` (`if (onPressed == null) { return content; }` ~246), `list/pl_list.dart` (`PlListItem`, `final interactive = …` ~272 and the two trees after it), `breadcrumb/pl_breadcrumb.dart` (`_Step` ~323, also when an item becomes current or disabled)
+  - Problem: Being handed `onPressed`, or losing it, changes the shape of the tree above the content, so Flutter builds the content from scratch and anything stateful in it starts over: a `PlImage` decoding again, a field losing what was typed. `PlCard` had the same bug and now always wraps in `PlassInteractive` with `pressable` and `enabled` flags (see its comment on a card "handed `onPressed` later").
+  - Proposal: Keep one tree shape in each, as `PlCard` does, with a test that the content's `State` survives the change.
 
-- [ ] **562.** A React read-only segmented button still answers the pointer (Bug · React · Low)
-  - Location: `packages/react/src/components/segmented-button/PlSegmentedButton.tsx` (`lit`, the label's hover)
-  - Problem: A read-only set keeps the pointer light on its segments and darkens their labels under the pointer, since `lit` reads only the disabled states and the hover guard only `data-disabled`, where both changelogs say the light goes out on a read-only control and the Flutter segments of a read-only set show neither.
-  - Proposal: Put the light out and keep the labels muted on a read-only set, with a test.
+- [ ] **569.** A value handed to a focused Flutter number field is dropped (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (`if (widget.value != oldWidget.value && !_focused) {` ~411)
+  - Problem: While the field holds the focus, a new `value` never reaches the box even when nothing has been typed, and the next blur writes the old number back through `onChanged`: a field at 5 whose parent sets 9 while it is focused goes back to 5 on blur. Base UI syncs the box whenever nothing has been typed.
+  - Proposal: Skip the sync only while typed text is unsettled (`_focused && _unsettled`), with a test.
+
+- [ ] **570.** A read-only Flutter number field changes its value, and a step that changes nothing is committed (Bug · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (`_edge` ~563, the blur ~436, `_commit`'s `onCommitted` ~526)
+  - Problem: `Home` and `End` set a read-only field to its `min` or `max`, since `_edge` has no `_editable` check. A blur settles a read-only field too, so a value outside the range handed to it is clamped through `onChanged` and `onCommitted`. And a key step, `Home`, `End` or a wheel turn that leaves the value where it was still calls `onCommitted`. Base UI does nothing in any of the three.
+  - Proposal: Guard `_edge` and the blur's settle on `_editable`, and commit a step only when it changed the value, with a test for each.
+
+- [ ] **571.** A screen reader cannot press a Flutter number field's steppers (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/number_field/pl_number_field.dart` (the stepper's `Semantics(container: true, button: true, enabled: !inert, label: …)` with no `onTap`, ~927)
+  - Problem: `PlassInteractive` keeps its own tap off the semantics tree, so the "Increase" and "Decrease" nodes are named buttons with no action, and the field's node offers no increase or decrease either. React's steppers are Base UI `<button>`s.
+  - Proposal: Give each stepper's node the tap it has for the pointer, and consider `onIncrease` and `onDecrease` on the field's node, with a test.
+
+- [ ] **572.** The chips of a multiple Flutter combobox name its editor (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/combobox/pl_combobox.dart` (the chip's `child: Text(_labelOf(value))` ~1188); `chip/pl_chip.dart` forms a node only when the chip is interactive (~181-182)
+  - Problem: A chip that cannot be pressed forms no node, so its text merges into the editor's node, and the editor is announced by the chosen values ("Seoul"). React keeps the chips in Base UI's `role: 'toolbar'`, apart from the input's name.
+  - Proposal: Give each chip, or the row of chips, a node of its own, with a test that the editor keeps the field's name.
+
+- [ ] **573.** A Flutter `semanticLabel` is read before a button's text instead of replacing it (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/button/pl_button.dart` (`label: widget.semanticLabel,` ~564 inside the button's `MergeSemantics`, with the child's `Text` still on the tree)
+  - Problem: `PlButton(semanticLabel: 'Copy', child: Text('⧉'))` is announced "Copy\n⧉"; the tooltip hero demo (`example/lib/demos/tooltip/hero.dart` ~25-27) is this case. The dartdoc calls `semanticLabel` the name a screen reader announces, and React's `aria-label` replaces the content as the name.
+  - Proposal: Keep the child's text out of the name when a `semanticLabel` is given, and sweep the package for components that pair a `semanticLabel` with a text child the same way, with a test for each.
+
+- [ ] **574.** A disabled Flutter tooltip still describes its trigger (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/tooltip/pl_tooltip.dart` (`tooltip: spoken,` ~479, which does not read `widget.disabled`)
+  - Problem: A tooltip turned off still puts its words on the trigger, and since item 559 merges the trigger with them. For the documented use, a tooltip on only while a label is cut short, a label that fits is read twice. React never opens a disabled tooltip, so its trigger is never described.
+  - Proposal: Say nothing, and merge nothing, while the tooltip is disabled, with a test.
