@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A `value` handed to a focused `PlNumberField` is shown in its box at once, unless a number is being typed there, as in the React build.** The box kept the old number for as long as the field held the focus, and leaving the field wrote that number back through `onChanged` and `onCommitted`, so a field at 5 whose parent set 9 while it was focused went back to 5. A number being typed is still left alone until the field is left, where it settles as before.
+
 - **Each chip of a `multiple` `PlCombobox` is a node of its own to a screen reader, named by its label with its × inside it, as in the React build.** A chip that cannot be pressed forms no node, so the labels of the chosen values were folded into the field's text, which a screen reader met as a text field named "Seoul Lisbon" beside the field's own `semanticLabel`. The text now has no name of its own, as in a single-value field, and each chip is read by its label, followed by its ×.
 
 - **A read-only `PlSegmentedButton` tells a screen reader it is read-only rather than unavailable, and its arrow keys move the focus between the segments without changing the choice, as in the React build.** The set and each of its segments reported themselves as disabled while read-only, although the set kept its focus stop, so a screen reader announced a control it could still reach as one that could not be used. The arrow keys did nothing, so the other segments could not be reached from the keyboard. The set and its segments now say they are available and cannot be changed, as a read-only `PlRadioGroup` does. A segment still says whether it is chosen and offers no tap, and a segment disabled on its own is still announced as unavailable.

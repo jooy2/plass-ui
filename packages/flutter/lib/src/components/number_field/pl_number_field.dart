@@ -314,6 +314,15 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// it and brings it back, would report the value it already had.
   bool _unsettled = false;
 
+  /// Whether the box holds text typed into it since the field last wrote it.
+  ///
+  /// A value handed in while the field is focused is written into the box
+  /// unless this holds. Typed text is kept until the field is left, where it
+  /// settles: a value written over it would move the caret out from under the
+  /// finger between two keystrokes. Any other value is shown at once, so the
+  /// next blur does not write back the number the box held before.
+  bool _typed = false;
+
   /// The value as far as the field knows it: the last one handed in, or the
   /// last one it reported, whichever came later.
   ///
@@ -405,11 +414,12 @@ class _PlNumberFieldState extends State<PlNumberField> {
       _held = widget.value;
     }
 
-    // A value handed in from outside is written into the box — unless the box is
-    // being typed in, where rewriting it would move the caret out from under the
-    // finger between two keystrokes.
-    if (widget.value != oldWidget.value && !_focused) {
-      _controller.text = _write(widget.value);
+    // A value handed in from outside is written into the box, focused or not,
+    // unless the box holds text being typed: rewriting it would move the caret
+    // out from under the finger between two keystrokes. The typed text settles
+    // when the field is left.
+    if (widget.value != oldWidget.value && !(_focused && _typed)) {
+      _show(widget.value);
     }
   }
 
@@ -446,9 +456,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
   }
 
   /// Writes [value] into the box as a settled value is written, with the caret
-  /// at the end.
+  /// at the end. Whatever was typed there is replaced.
   void _show(double? value) {
     final String text = _write(value);
+
+    _typed = false;
 
     if (_controller.text != text) {
       _controller.value = TextEditingValue(
@@ -576,6 +588,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
     _held = typed;
     _unsettled = true;
+    _typed = true;
     widget.onChanged?.call(typed);
   }
 

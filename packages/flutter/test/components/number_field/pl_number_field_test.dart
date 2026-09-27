@@ -51,6 +51,10 @@ class _HarnessState extends State<_Harness> {
 
   double? get value => _value;
 
+  /// Sets the value from outside the field, as a parent's own state changing
+  /// does.
+  void handIn(double? next) => setState(() => _value = next);
+
   @override
   Widget build(BuildContext context) {
     return PlNumberField(
@@ -587,6 +591,52 @@ void main() {
 
         expect(offered.last, 6);
         expect(find.text('5'), findsOneWidget);
+      });
+
+      testWidgets('shows a value handed in while it holds the focus', (WidgetTester tester) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(tester, _Harness(onCommitted: settled.add));
+
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pump();
+
+        state.handIn(9);
+        await tester.pump();
+
+        // Nothing is being typed, so the box says what the field now holds.
+        expect(_editorFocused(tester), isTrue);
+        expect(find.text('9'), findsOneWidget);
+
+        // Leaving it has nothing to settle. A box still holding the number
+        // from before would write that number back over the one handed in.
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(state.value, 9);
+        expect(find.text('9'), findsOneWidget);
+        expect(settled, isEmpty);
+      });
+
+      testWidgets('keeps what is being typed over a value handed in, and settles it', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(tester, _Harness(onCommitted: settled.add));
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('7');
+        await tester.pump();
+
+        state.handIn(9);
+        await tester.pump();
+
+        expect(find.text('7'), findsOneWidget);
+
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(state.value, 7);
+        expect(settled, <double?>[7]);
       });
 
       testWidgets('onCommitted fires once the field settles, not per keystroke', (
