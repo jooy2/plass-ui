@@ -759,8 +759,8 @@ class PlassCartesianChart extends StatefulWidget {
 class _PlassCartesianChartState extends State<PlassCartesianChart>
     with SingleTickerProviderStateMixin {
   /// Which series are switched off: the ones that started `hidden`, then
-  /// whatever the reader toggled in the legend, each by its [legendKey] rather
-  /// than by its place.
+  /// whatever the reader toggled in the legend, each by its key from
+  /// [legendKeys] rather than by its place.
   ///
   /// `hidden` is read once, as the React build reads it, so a series that starts
   /// switched off is one the legend can switch back on, and a series that
@@ -774,9 +774,11 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
 
     _ease = PlassMarkEase(this);
 
+    final List<String> keys = legendKeys(widget.series);
+
     for (int i = 0; i < widget.series.length; i += 1) {
       if (widget.series[i].hidden) {
-        _off.add(legendKey(widget.series[i], i));
+        _off.add(keys[i]);
       }
     }
   }
@@ -788,9 +790,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
     // A key no series has any more is let go, as the React build lets go of it
     // in the render that finds it gone, so a series that comes back under it,
     // or an unnamed one that comes back to its place, is drawn.
-    final Set<String> keys = <String>{
-      for (int i = 0; i < widget.series.length; i += 1) legendKey(widget.series[i], i),
-    };
+    final Set<String> keys = legendKeys(widget.series).toSet();
 
     _off.retainWhere(keys.contains);
 
@@ -871,10 +871,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
     final double height = widget.height ?? plotHeights[size]!;
 
     final List<List<ChartValue>> values = toValues(widget.series);
-    final List<bool> visible = <bool>[
-      for (int i = 0; i < widget.series.length; i += 1)
-        !_off.contains(legendKey(widget.series[i], i)),
-    ];
+    final List<String> keys = legendKeys(widget.series);
+    final List<bool> visible = <bool>[for (final String key in keys) !_off.contains(key)];
     final List<Color> colors = <Color>[
       for (int i = 0; i < widget.series.length; i += 1)
         seriesColor(widget.series[i].color, i, tokens.chart),
@@ -1608,10 +1606,8 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
             align: widget.legend.align,
             vertical: _beside(widget.legend.side),
             onToggle: (int index) => setState(() {
-              final String key = legendKey(widget.series[index], index);
-
-              if (!_off.remove(key)) {
-                _off.add(key);
+              if (!_off.remove(keys[index])) {
+                _off.add(keys[index]);
               }
             }),
             swatch: widget.swatch,
@@ -2019,13 +2015,41 @@ bool legendHasEntry(PlChartLegend legend, int count, int index) {
   return !legend.hidden && legend.interactive && count >= 2 && index < count;
 }
 
-/// The key the legend entry of [series], at [index] in the list, is known by:
-/// its name, or its place when it has none, as the React build's `entryKey`.
+/// The keys the legend entries of [series] are known by, one per series and in
+/// its order: its name and how many series before it have that name, or its
+/// place in the list when it has none, as the React build's `entryKeys`.
 ///
 /// What a chart holds the series switched off in the legend by, so a series
-/// that moves because one before it left the data stays as it was, and the one
-/// that moves into its place does not take its state over.
-String legendKey(PlassChartSeries series, int index) => series.name ?? '$index';
+/// that moves because one before it left the data stays as it was, the one
+/// that moves into its place does not take its state over, and one of two
+/// series with the same name is switched off without the other.
+///
+/// Every name is followed by its count and a place never is, so no two entries
+/// share a key: two series called 'Revenue' are `Revenue#0` and `Revenue#1`,
+/// and a series called '1' is `1#0` where an unnamed one at index 1 is `1`. The
+/// count is whatever follows the last `#`, so a name holding a `#` of its own
+/// cannot meet another name's key either.
+List<String> legendKeys(List<PlassChartSeries> series) {
+  final Map<String, int> seen = <String, int>{};
+  final List<String> keys = <String>[];
+
+  for (int i = 0; i < series.length; i += 1) {
+    final String? name = series[i].name;
+
+    if (name == null) {
+      keys.add('$i');
+
+      continue;
+    }
+
+    final int before = seen[name] ?? 0;
+
+    seen[name] = before + 1;
+    keys.add('$name#$before');
+  }
+
+  return keys;
+}
 
 /// The row of names under the plot.
 /// The swatch-and-name row every chart carries, cartesian or not.

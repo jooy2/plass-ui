@@ -246,11 +246,32 @@ interface Visibility {
 }
 
 /**
- * The key a series' legend entry is rendered under: its name, or its place in
- * the array when it has none.
+ * The keys the legend entries of `series` are rendered under, one per series
+ * and in its order: its name and how many series before it have that name, or
+ * its place in the array when it has none.
+ *
+ * Every name is followed by its count and a place never is, so no two entries
+ * share a key: two series called "Revenue" are `Revenue#0` and `Revenue#1`, and
+ * a series called "1" is `1#0` where an unnamed one at index 1 is `1`. The
+ * count is whatever follows the last `#`, so a name holding a `#` of its own
+ * cannot meet another name's key either.
  */
-function entryKey(one: PlassChartSeries, index: number): string {
-  return String(one.name ?? index);
+function entryKeys(series: readonly PlassChartSeries[]): string[] {
+  const seen = new Map<string, number>();
+
+  return series.map((one, index) => {
+    const name = one.name ?? null;
+
+    if (name === null) {
+      return String(index);
+    }
+
+    const before = seen.get(name) ?? 0;
+
+    seen.set(name, before + 1);
+
+    return `${name}#${before}`;
+  });
 }
 
 /**
@@ -264,11 +285,14 @@ function entryKey(one: PlassChartSeries, index: number): string {
  * and the focus, which is where the hovered one comes from.
  */
 function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Visibility {
+  const keys = entryKeys(series);
+
   /* The series switched off, held by the key their legend entry is rendered
      under rather than by their place, so a series before one that is off can
      leave the data without the one that moves into its place being switched
-     off instead. `hidden` is read once, when the chart mounts: a series that
-     arrives later, or whose `hidden` changes, is drawn until its entry is
+     off instead, and one of two series with the same name can be switched off
+     without the other. `hidden` is read once, when the chart mounts: a series
+     that arrives later, or whose `hidden` changes, is drawn until its entry is
      pressed. A key no series has any more is let go in the render that finds
      it gone, as the hovered one is, so a series that comes back under it, or
      an unnamed one that comes back to its place, is drawn. */
@@ -277,14 +301,12 @@ function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Vi
 
     series.forEach((one, index) => {
       if (one.hidden) {
-        initial.add(entryKey(one, index));
+        initial.add(keys[index]);
       }
     });
 
     return initial;
   });
-
-  const keys = series.map((one, index) => entryKey(one, index));
 
   if ([...hidden].some((key) => !keys.includes(key))) {
     setHidden(new Set([...hidden].filter((key) => keys.includes(key))));
@@ -298,10 +320,7 @@ function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Vi
      place. An entry that has only moved is the same button, and says when it
      is left. */
   const [hoveredKey, setHoveredKey] = React.useState<string | null>(null);
-  const hovered =
-    hoveredKey === null || !listed
-      ? -1
-      : series.findIndex((one, index) => entryKey(one, index) === hoveredKey);
+  const hovered = hoveredKey === null || !listed ? -1 : keys.indexOf(hoveredKey);
 
   if (hoveredKey !== null && hovered === -1) {
     setHoveredKey(null);
@@ -331,8 +350,7 @@ function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Vi
     visible: keys.map((key) => !hidden.has(key)),
     hovered: hovered === -1 ? null : hovered,
     toggle,
-    setHovered: (index) =>
-      setHoveredKey(index === null || !series[index] ? null : entryKey(series[index], index))
+    setHovered: (index) => setHoveredKey(index === null ? null : (keys[index] ?? null))
   };
 }
 
@@ -458,6 +476,7 @@ function ChartLegendBar({
   const folded = cap !== undefined && cap > 0 && series.length > cap && !open;
   const shownEntries = folded ? series.slice(0, cap) : series;
   const hidden = series.length - shownEntries.length;
+  const keys = entryKeys(series);
 
   return (
     <ul
@@ -511,7 +530,7 @@ function ChartLegendBar({
         );
 
         return (
-          <li key={entryKey(one, index)} className="min-w-0">
+          <li key={keys[index]} className="min-w-0">
             {interactive ? (
               <button
                 type="button"
@@ -843,6 +862,8 @@ const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
   format,
   locale
 }: DataTableProps) {
+  const keys = entryKeys(series);
+
   return (
     <table id={id} className={srOnlyClasses}>
       {caption ? <caption>{caption}</caption> : null}
@@ -850,7 +871,7 @@ const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
         <tr>
           <th scope="col">{corner ?? ''}</th>
           {series.map((one, index) => (
-            <th key={one.name ?? index} scope="col">
+            <th key={keys[index]} scope="col">
               {one.name ?? index + 1}
             </th>
           ))}
@@ -860,18 +881,18 @@ const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
         {categories.map((category, index) => (
           <tr key={index}>
             <th scope="row">{formatCategory(category, locale)}</th>
-            {series.map((one, seriesIndex) => {
+            {keys.map((key, seriesIndex) => {
               const datum = values[seriesIndex]?.[index];
 
               // A point's own `label` wins, exactly as it does in the tooltip.
               // That is what keeps the caller's number reachable on a chart
               // stacked to `full`, where the value being *drawn* is a share.
               if (datum?.label !== undefined) {
-                return <td key={one.name ?? seriesIndex}>{datum.label}</td>;
+                return <td key={key}>{datum.label}</td>;
               }
 
               return (
-                <td key={one.name ?? seriesIndex}>
+                <td key={key}>
                   {datum?.value === null || datum?.value === undefined ? '' : format(datum.value)}
                 </td>
               );

@@ -78,6 +78,8 @@
 
 ### Fixed
 
+- **Two series of the same name in a chart's legend, or two slices of the same name in a `PlPieChart`'s, are switched off one at a time.** A series switched off was held by its name alone, so switching off either of two series of one name switched off both, and a series named "1" was held by the same key as an unnamed series in the second place. A repeated name is now told apart by how many series before it have that name, and a name never meets a place. The React build makes the same change.
+
 - **A `draggable` `PlWindowPane`'s title bar and the plot of a `PlLineChart`, `PlBarChart`, `PlAreaChart`, `PlScatterChart` or `PlTimelineChart` no longer offer a screen reader actions that misbehave, as in the React build.** The title bar offered four scroll actions, each of which moved the window by 80% of the bar's width or height with nothing to keep it on the screen, so a few of them took the window out of reach. The plot offered a tap that read only what was under its middle, and two scroll actions that both did the same thing. A screen reader now moves the window with the arrow keys on its "Move window" stop, which keep the bar on the screen, and reads a chart through its own node, which carries every value and walks the columns by key.
 
 - **A stacked `PlAreaChart` draws its markers on each band's top, as in the React build.** A chart stacked `total` or `full` drew none, even with `markers: PlChartMarkers.all`, and none in the column under the crosshair or a key either. Each band's markers now sit at the running total, or at the running share when the bands are `full`, at the size a line's markers take, growing by a pixel under the crosshair and fading with their band.

@@ -178,8 +178,8 @@ class PlPieChart extends StatefulWidget {
 }
 
 class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateMixin {
-  /// Which slices the reader has switched off in the legend, each by its
-  /// [legendKey] rather than by its place.
+  /// Which slices the reader has switched off in the legend, each by its key
+  /// from [legendKeys] rather than by its place.
   final Set<String> _off = <String>{};
 
   int? _active;
@@ -249,9 +249,7 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
         ),
     ];
 
-    final List<String> keys = <String>[
-      for (int i = 0; i < slices.length; i += 1) legendKey(slices[i], i),
-    ];
+    final List<String> keys = legendKeys(slices);
 
     // A key no slice has any more is let go, as the React pie lets go of it in
     // the render that finds it gone, so a slice that comes back under it is
