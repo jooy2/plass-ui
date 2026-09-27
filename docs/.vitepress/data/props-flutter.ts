@@ -1907,7 +1907,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         ko: '툴팁을 그리지 않습니다. React의 `tooltip={false}`입니다',
         en: "Draws no tooltip. React's `tooltip={false}`"
       }
-    }
+    },
+    from('PlassChartTooltip', 'crosshair', {
+      type: 'bool',
+      description: {
+        ko: '활성 category에 plot을 가로지르는 선. `column` 모드에서만, mark 차트가 아닐 때만 그립니다',
+        en: 'The line dropped through the plot at the active category. Drawn in `column` mode only, and never on a chart of marks'
+      }
+    })
   ],
   PlassChartSeries: [
     from('PlassChartSeries', 'data', { type: 'List<PlassChartDatum>', required: true }),

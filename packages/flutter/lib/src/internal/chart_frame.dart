@@ -200,13 +200,23 @@ class PlChartLegend {
 /// What a tooltip shows, and whether there is one.
 class PlChartTooltip {
   /// Creates a tooltip.
-  const PlChartTooltip({this.mode = PlassChartTooltipMode.column, this.hidden = false});
+  const PlChartTooltip({
+    this.mode = PlassChartTooltipMode.column,
+    this.hidden = false,
+    this.crosshair = true,
+  });
 
   /// How much of the chart a pointer summons.
   final PlassChartTooltipMode mode;
 
   /// Draws nothing.
   final bool hidden;
+
+  /// The line dropped through the plot at the active category. On in
+  /// [PlassChartTooltipMode.column], where it is what says which column the
+  /// numbers belong to, and never drawn in any other mode or on a chart of
+  /// marks.
+  final bool crosshair;
 }
 
 /// The plot's box inside the chart, once the axes have taken their bands.
@@ -1447,6 +1457,9 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
                       tickAngle: tilted ? tickAngle : 0,
                       tickBand: tickBand,
                       references: widget.reference,
+                      crosshair:
+                          widget.tooltip.mode == PlassChartTooltipMode.column &&
+                          widget.tooltip.crosshair,
                       textDirection: Directionality.of(context),
                       paintMarks: widget.paint,
                     ),
@@ -1709,6 +1722,7 @@ class _FramePainter extends CustomPainter {
     required this.tickAngle,
     required this.tickBand,
     required this.references,
+    required this.crosshair,
     required this.textDirection,
     required this.paintMarks,
   }) : super(repaint: repaint);
@@ -1732,6 +1746,11 @@ class _FramePainter extends CustomPainter {
 
   /// The lines drawn across the plot that are not data.
   final List<PlassChartReference> references;
+
+  /// Whether a column being read gets its crosshair: only in the column mode,
+  /// where it says which column the numbers belong to, and only while the
+  /// tooltip has not turned it off.
+  final bool crosshair;
   final TextDirection textDirection;
   final PlassChartMarkPainter paintMarks;
 
@@ -1934,14 +1953,14 @@ class _FramePainter extends CustomPainter {
     // thing pointing at it. Not for the column a mark being read stands in: a
     // crosshair says 'these numbers all belong to this column', and a mark is
     // read on its own.
-    if (layout.activeIndex != null && layout.activeMark == null && layout.count > 0) {
+    if (crosshair && layout.activeIndex != null && layout.activeMark == null && layout.count > 0) {
       final double at = layout.categoryPx(layout.activeIndex!);
 
       canvas.drawLine(
         layout.horizontal ? Offset(box.left, box.top + at) : Offset(box.left + at, box.top),
         layout.horizontal ? Offset(box.right, box.top + at) : Offset(box.left + at, box.bottom),
         Paint()
-          ..color = tokens.mutedFg.withValues(alpha: 0.35)
+          ..color = tokens.chartBaseline
           ..strokeWidth = hairline,
       );
     }
