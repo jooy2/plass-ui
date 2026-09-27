@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { defaultPickerLabels } from '../../internal/calendar.js';
 import { PickerShell } from '../../internal/picker.js';
-import { useFieldsetDisabled, useFormReport } from '../../internal/form.js';
+import { useDisabled, useFieldsetDisabled, useFormReport } from '../../internal/form.js';
 import { CheckIcon } from '../../internal/icons.js';
 import {
   checkerBackground,
@@ -756,6 +756,8 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
 
     // The square and the rails are not form controls, so a disabled
     // `<fieldset>` around the picker does not reach them unless it is asked.
+    // Asked from the wrapper in either placement: a popup's panel is portalled
+    // out of the fieldset, so not even its native value field is reached.
     const [root, setRoot] = React.useState<HTMLDivElement | null>(null);
     const setRootRef = React.useCallback(
       (node: HTMLDivElement | null) => {
@@ -766,7 +768,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       [ref]
     );
     const fieldsetDisabled = useFieldsetDisabled(root);
-    const isDisabled = disabled || fieldsetDisabled;
+    const isDisabled = useDisabled(disabled) || fieldsetDisabled;
 
     const isInvalid = invalid ?? Boolean(error);
     const fieldId = React.useId();
@@ -865,7 +867,7 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     }
 
     return (
-      <div ref={ref} className={fullWidth ? 'w-full' : 'inline-block'} {...props}>
+      <div ref={setRootRef} className={fullWidth ? 'w-full' : 'inline-block'} {...props}>
         <PickerShell
           variant={variant}
           size={size}

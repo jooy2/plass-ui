@@ -1,6 +1,7 @@
+import type { ReactElement } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlColorPicker } from 'plass-ui';
+import { PlColorPicker, PlFieldset } from 'plass-ui';
 
 describe('PlColorPicker', () => {
   describe('the trigger', () => {
@@ -399,6 +400,42 @@ describe('PlColorPicker', () => {
 
       await expect.element(hue).not.toHaveAttribute('aria-disabled');
       await expect.element(hue).toHaveAttribute('tabindex', '0');
+    });
+
+    it.each([
+      [
+        'a disabled `PlFieldset`',
+        (picker: ReactElement) => <PlFieldset disabled>{picker}</PlFieldset>
+      ],
+      ['a disabled `<fieldset>`', (picker: ReactElement) => <fieldset disabled>{picker}</fieldset>]
+    ])('takes nothing in an open popup inside %s, as with `disabled`', async (_, wrap) => {
+      const onValueChange = vi.fn();
+
+      const screen = await render(
+        wrap(
+          <PlColorPicker
+            open
+            defaultValue="#ff0000"
+            swatches={['#22c55e']}
+            onValueChange={onValueChange}
+          />
+        )
+      );
+
+      // The panel is portalled out of the fieldset, so neither reached it: a
+      // controlled `open` showed a panel that still changed the colour.
+      const hue = screen.getByRole('slider', { name: 'Hue' });
+
+      await expect.element(hue).toHaveAttribute('aria-disabled', 'true');
+      await expect.element(hue).toHaveAttribute('tabindex', '-1');
+      await expect.element(screen.getByRole('button', { name: '#22c55e' })).toBeDisabled();
+      await expect.element(screen.getByRole('textbox', { name: 'Colour value' })).toBeDisabled();
+
+      hue
+        .element()
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+      expect(onValueChange).not.toHaveBeenCalled();
     });
 
     it('puts `classNames.control` on the panel, which inline is the control', async () => {
