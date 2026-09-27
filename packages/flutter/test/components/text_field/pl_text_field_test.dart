@@ -382,6 +382,68 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is one node, with its name, the text it holds and what can be done to it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlTextField));
+        SemanticsNode editor() => tester.getSemantics(find.byType(EditableText));
+
+        // The editor's own node, which says it is a text field and holds the
+        // text, was a second node under the named one, which took no focus: a
+        // screen reader met the name and the text as two stops.
+        await tester.pumpWidget(
+          host(
+            const PlTextField(fullWidth: true, label: Text('Email'), description: Text('Work')),
+            width: 300,
+          ),
+        );
+
+        expect(editor().id, field().id);
+        expect(semanticsTextFields(tester), hasLength(1));
+
+        await tester.enterText(find.byType(EditableText), 'ada@example.com');
+        await tester.pump();
+
+        expect(editor().id, field().id);
+        expect(
+          field(),
+          isSemantics(
+            isTextField: true,
+            isFocusable: true,
+            isFocused: true,
+            label: 'Email\nWork',
+            value: 'ada@example.com',
+            hasSetTextAction: true,
+            hasSetSelectionAction: true,
+          ),
+        );
+
+        // A read-only field, still holding the text typed above, is one node
+        // too. Both nodes said read-only, which kept them apart on its own.
+        await tester.pumpWidget(
+          host(
+            const PlTextField(fullWidth: true, semanticLabel: 'Email', readOnly: true),
+            width: 300,
+          ),
+        );
+
+        expect(editor().id, field().id);
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(
+          field(),
+          isSemantics(
+            isTextField: true,
+            isReadOnly: true,
+            label: 'Email',
+            value: 'ada@example.com',
+          ),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is named by its placeholder only while nothing else names it', (
         WidgetTester tester,
       ) async {

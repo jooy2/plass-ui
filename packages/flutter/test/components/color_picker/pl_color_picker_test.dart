@@ -161,6 +161,35 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('makes the value field one node, with its name and the text it holds', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          const PlColorPicker(inline: true, value: '#ff0000'),
+          width: 400,
+          height: 560,
+          overlay: true,
+        ),
+      );
+
+      // The editor's own node, which says it is a text field and holds the
+      // text, was a second node under the named one, which took no focus: a
+      // screen reader met the name and the colour as two stops.
+      final SemanticsNode editor = tester.getSemantics(find.byType(EditableText));
+
+      expect(semanticsTextFields(tester), hasLength(1));
+      expect(semanticsTextFields(tester).single.id, editor.id);
+      expect(
+        editor,
+        isSemantics(isTextField: true, isFocusable: true, label: 'Colour value', value: '#ff0000'),
+      );
+
+      handle.dispose();
+    });
+
     testWidgets('reports the square s two channels together', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 

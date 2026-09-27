@@ -1186,18 +1186,19 @@ class _PlNumberFieldState extends State<PlNumberField> {
     );
 
     // Descendants are left to merge into this node, so the label's text becomes
-    // the field's name. The editor and the two steppers keep nodes of their own
-    // because what they say conflicts with it.
+    // the field's name, and the editor's own node, which says it is a text
+    // field, whether it is read-only, what the box shows and what can be done
+    // to it, merges in as well. Saying `textField`, `readOnly` or the text as a
+    // `value` here too would clash with the editor's, and split the field into
+    // a named node that never takes the focus over an unnamed one that holds
+    // the text. The two steppers keep nodes of their own.
     return Semantics(
       container: true,
-      textField: true,
-      readOnly: widget.readOnly,
       enabled: !_disabled,
       // Named by the placeholder only where nothing else names it, as the React
       // input is: a `semanticLabel` is its `aria-label`, and a visible label,
       // merged in below, is its `<label>`.
       label: widget.semanticLabel ?? (widget.label == null ? widget.placeholder : null),
-      value: _controller.text.isEmpty ? null : _controller.text,
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );
   }

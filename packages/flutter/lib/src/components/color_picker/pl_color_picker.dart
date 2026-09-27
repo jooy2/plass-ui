@@ -718,9 +718,14 @@ class _ColorPanel extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      // The editor's own node says it is a text field and
+                      // holds the text, and merges into this one, which forms
+                      // right here so nothing else in the panel joins it.
+                      // `textField` here as well would clash with the editor's
+                      // and put the name on a node of its own.
                       child: Semantics(
+                        container: true,
                         label: labels.value,
-                        textField: true,
                         child: EditableText(
                           controller: controller,
                           focusNode: focusNode,

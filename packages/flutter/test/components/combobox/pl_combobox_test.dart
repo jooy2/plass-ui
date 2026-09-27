@@ -2461,8 +2461,9 @@ void main() {
             hasTapAction: true,
           ),
         );
-        expect(text().label, isEmpty);
-        expect(text(), isSemantics(isTextField: true, isButton: false, hasTapAction: false));
+        // The text is the field's own node, so the name, the text and the tap
+        // are one stop.
+        expect(text().id, field().id);
         expect(
           field(),
           isSemantics(label: 'City', isTextField: true, isButton: false, hasTapAction: true),
@@ -2507,8 +2508,8 @@ void main() {
         expect(value, isNull);
 
         // A disabled field's chevron is still a button of its own, one that
-        // says it cannot be pressed, and neither the field nor its text is a
-        // button or takes a tap.
+        // says it cannot be pressed, and the field is not a button and takes
+        // no tap.
         await tester.pumpWidget(build(disabled: true));
 
         expect(
@@ -2521,8 +2522,85 @@ void main() {
             hasTapAction: false,
           ),
         );
-        expect(text(), isSemantics(isTextField: true, isButton: false, hasTapAction: false));
-        expect(field(), isSemantics(label: 'City', isButton: false, hasTapAction: false));
+        expect(text().id, field().id);
+        expect(
+          field(),
+          isSemantics(label: 'City', isTextField: true, isButton: false, hasTapAction: false),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('is one node, with its name, the text it holds, its list and its tap', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        String? value = 'seoul';
+
+        Widget build({bool readOnly = false}) {
+          return _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
+                options: _cities,
+                value: value,
+                readOnly: readOnly,
+                onChanged: (String? next) => setState(() => value = next),
+                semanticLabel: 'City',
+              ),
+            ),
+          );
+        }
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlCombobox<String>));
+        SemanticsNode text() => tester.getSemantics(find.byType(EditableText));
+
+        // The editor's own node, which says it is a text field and holds the
+        // text, was a second node under the named one, which took no focus: a
+        // screen reader met the name and the chosen label as two stops.
+        await tester.pumpWidget(build());
+
+        expect(text().id, field().id);
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(
+          field(),
+          isSemantics(
+            isTextField: true,
+            label: 'City',
+            value: 'Seoul',
+            hasExpandedState: true,
+            isExpanded: false,
+            hasTapAction: true,
+          ),
+        );
+
+        // Typed into, with its list open, it is still the one node.
+        await tester.enterText(find.byType(EditableText), 'li');
+        await tester.pumpAndSettle();
+
+        expect(text().id, field().id);
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(
+          field(),
+          isSemantics(
+            isTextField: true,
+            isFocused: true,
+            label: 'City',
+            value: 'li',
+            hasExpandedState: true,
+            isExpanded: true,
+            hasTapAction: true,
+            hasSetTextAction: true,
+          ),
+        );
+
+        // A read-only field too. Both nodes said read-only, which kept them
+        // apart on its own.
+        await tester.pumpWidget(build(readOnly: true));
+        await tester.pumpAndSettle();
+
+        expect(text().id, field().id);
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(field(), isSemantics(isTextField: true, isReadOnly: true, label: 'City'));
 
         handle.dispose();
       });
@@ -2564,11 +2642,17 @@ void main() {
           // named after the chosen values, "Seoul Lisbon".
           await tester.pumpWidget(build(semanticLabel: semanticLabel));
 
-          expect(text().label, isEmpty);
-          expect(text(), isSemantics(isTextField: true, isButton: false));
+          // The text is the field's own node, so the only name it carries is
+          // the field's.
+          expect(text().id, semanticsOf(tester, find.byType(PlCombobox<String>)).id);
           expect(
-            semanticsOf(tester, find.byType(PlCombobox<String>)),
-            isSemantics(label: semanticLabel ?? '', isTextField: true, hasTapAction: true),
+            text(),
+            isSemantics(
+              label: semanticLabel ?? '',
+              isTextField: true,
+              isButton: false,
+              hasTapAction: true,
+            ),
           );
 
           for (final String city in <String>['Seoul', 'Lisbon']) {
@@ -2598,7 +2682,7 @@ void main() {
         // A read-only field's chips have no ×, and are still nodes of their own.
         await tester.pumpWidget(build(semanticLabel: 'Cities', readOnly: true));
 
-        expect(text().label, isEmpty);
+        expect(text().label, 'Cities');
 
         for (final String city in <String>['Seoul', 'Lisbon']) {
           final SemanticsNode chip = semanticsNodeLabelled(tester, city)!;

@@ -597,10 +597,14 @@ class _PlTextFieldState extends State<PlTextField> {
       ],
     );
 
+    // One node for the whole field: the editor's own says it is a text field,
+    // whether it is read-only, what it holds and what can be done to it, and
+    // it merges into this one, which adds the name. Saying `textField` or
+    // `readOnly` here as well would clash with the editor's, and split the
+    // field into a named node that never takes the focus over an unnamed one
+    // that holds the text.
     return Semantics(
       container: true,
-      textField: true,
-      readOnly: widget.readOnly,
       enabled: !_disabled,
       // Named by the placeholder only where nothing else names it, as the React
       // input is: a `semanticLabel` is its `aria-label`, and a visible label,

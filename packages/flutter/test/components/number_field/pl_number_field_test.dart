@@ -1151,30 +1151,71 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('is named by its label, and holds the editor and the steppers', (
+      testWidgets('is one node named by its label, with the steppers inside it', (
         WidgetTester tester,
       ) async {
         final handle = tester.ensureSemantics();
-        await tester.pumpWidget(
-          host(
-            PlNumberField(value: 5, label: const Text('Guests'), onChanged: (double? _) {}),
-            width: 320,
-          ),
-        );
+        double? value = 5;
 
-        final SemanticsNode field = semanticsOf(tester, find.byType(PlNumberField));
+        Widget build({bool readOnly = false}) {
+          return host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlNumberField(
+                value: value,
+                readOnly: readOnly,
+                label: const Text('Guests'),
+                onChanged: (double? next) => setState(() => value = next),
+              ),
+            ),
+            width: 320,
+          );
+        }
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlNumberField));
+        SemanticsNode editor() => tester.getSemantics(find.byType(EditableText));
+
+        await tester.pumpWidget(build());
 
         // One text field node named by the label, rather than a nameless one
-        // with the label as a separate line beside the editor.
-        expect(field, isSemantics(isTextField: true, label: 'Guests', value: '5'));
+        // with the label as a separate line beside the editor. The editor's own
+        // node, which says it is a text field and holds the text, was a second
+        // node under the named one, which took no focus: a screen reader met
+        // the name and the number as two stops.
+        expect(field(), isSemantics(isTextField: true, label: 'Guests', value: '5'));
+        expect(editor().id, field().id);
+        expect(semanticsTextFields(tester), hasLength(1));
 
         final List<String> inside = <String>[];
-        field.visitChildren((SemanticsNode child) {
+        field().visitChildren((SemanticsNode child) {
           inside.add(child.label);
           return true;
         });
 
-        expect(inside, <String>['', 'Decrease', 'Increase']);
+        expect(inside, <String>['Decrease', 'Increase']);
+
+        // Typed into, it is still the one node, and says what the box holds.
+        await tester.enterText(find.byType(EditableText), '12');
+        await tester.pump();
+
+        expect(editor().id, field().id);
+        expect(
+          field(),
+          isSemantics(
+            isTextField: true,
+            isFocused: true,
+            label: 'Guests',
+            value: '12',
+            hasSetTextAction: true,
+          ),
+        );
+
+        // A read-only field too. Both nodes said read-only, which kept them
+        // apart on its own.
+        await tester.pumpWidget(build(readOnly: true));
+
+        expect(editor().id, field().id);
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(field(), isSemantics(isTextField: true, isReadOnly: true, label: 'Guests'));
 
         handle.dispose();
       });

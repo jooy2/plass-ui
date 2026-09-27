@@ -177,6 +177,29 @@ List<String> semanticsLabels(WidgetTester tester) {
   return labels;
 }
 
+/// Every node on the semantics tree that says it is a text field, in tree order.
+///
+/// Walked the same way [semanticsLabels] walks it, so it reaches a layer lifted
+/// into an overlay. A field is one of these, and a field that is two of them is
+/// a stop that holds the name over a stop that holds the text.
+List<SemanticsNode> semanticsTextFields(WidgetTester tester) {
+  final List<SemanticsNode> fields = <SemanticsNode>[];
+
+  bool visit(SemanticsNode node) {
+    if (node.getSemanticsData().flagsCollection.isTextField) {
+      fields.add(node);
+    }
+
+    node.visitChildren(visit);
+
+    return true;
+  }
+
+  tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+  return fields;
+}
+
 /// The label of every node on the semantics tree that offers [action], in tree
 /// order, and an empty string for a node with no name.
 ///
