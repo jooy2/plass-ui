@@ -4,6 +4,17 @@ import { PlAreaChart } from 'plass-ui';
 
 const MONTHS = ['Jan', 'Feb', 'Mar'];
 
+/**
+ * The series' marks on a plot in the order they are painted: the bands, the
+ * lines and the gaps between the bands, the markers, and the value labels,
+ * which are the only text written at 600. What a mask holds is not painted.
+ */
+function painted(plot: Element): Element[] {
+  return [...plot.querySelectorAll('path, circle, text[font-weight="600"]')].filter(
+    (mark) => mark.closest('defs') === null
+  );
+}
+
 describe('PlAreaChart', () => {
   describe('rendering', () => {
     it('fills under each series as well as drawing it', async () => {
@@ -96,6 +107,100 @@ describe('PlAreaChart', () => {
       expect(plot.element().querySelectorAll('path[stroke="var(--plass-chart-gap)"]').length).toBe(
         1
       );
+    });
+
+    it('draws every band’s markers and value labels after every band', async () => {
+      const screen = await render(
+        <PlAreaChart
+          label="Storage"
+          stacked
+          markers="all"
+          valueLabels="all"
+          categories={MONTHS}
+          series={[
+            { name: 'Hot', data: [10, 20, 30] },
+            { name: 'Warm', data: [40, 50, 60] },
+            { name: 'Archive', data: [20, 20, 20] }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Storage' });
+
+      await expect.poll(() => painted(plot.element()).length).toBeGreaterThan(0);
+
+      // In the order they are painted: the three bands and the two gaps
+      // between them, then the nine markers, then the nine labels, so the band
+      // above a lower one lies under its markers and its labels rather than
+      // over them.
+      expect(painted(plot.element()).map((mark) => mark.tagName)).toEqual([
+        ...Array(5).fill('path'),
+        ...Array(9).fill('circle'),
+        ...Array(9).fill('text')
+      ]);
+    });
+
+    it('fades a band’s markers and labels with it, cut out of its band', async () => {
+      const screen = await render(
+        <PlAreaChart
+          label="Storage"
+          stacked
+          markers="all"
+          valueLabels="all"
+          categories={MONTHS}
+          series={[
+            { name: 'Hot', color: '#c03030', data: [10, 20, 30] },
+            { name: 'Archive', color: '#3030c0', data: [40, 50, 60] }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Storage' });
+
+      await expect.poll(() => painted(plot.element()).length).toBeGreaterThan(0);
+      expect(plot.element().querySelector('mask')).toBeNull();
+
+      // Pointing the legend at Archive fades Hot.
+      screen.getByRole('button', { name: 'Archive' }).element().focus();
+
+      const hot = () => [...plot.element().querySelectorAll('circle[fill="#c03030"]')];
+
+      await expect
+        .poll(() => hot().map((marker) => marker.closest('g')?.getAttribute('opacity')))
+        .toEqual(['0.28', '0.28', '0.28']);
+
+      const archive = [...plot.element().querySelectorAll('circle[fill="#3030c0"]')];
+      const labels = [...plot.element().querySelectorAll('svg text[font-weight="600"]')];
+
+      expect(archive.map((marker) => marker.closest('g')?.getAttribute('opacity'))).toEqual([
+        '1',
+        '1',
+        '1'
+      ]);
+      expect(labels.map((label) => label.closest('g')?.getAttribute('opacity'))).toEqual([
+        ...Array(3).fill('0.28'),
+        ...Array(3).fill('1')
+      ]);
+
+      // Hot's own band is cut away under each of its markers, out to the edge
+      // of the ring, so it does not show through them; Archive's is whole.
+      const bands = [...plot.element().querySelectorAll('path[fill^="color-mix"]')].map((band) =>
+        band.closest('g')!
+      );
+      const cut = bands[0].getAttribute('mask')?.match(/^url\(#(.+)\)$/)?.[1];
+      const holes = [...plot.element().querySelectorAll(`mask[id="${cut}"] circle`)];
+
+      expect(bands[1].hasAttribute('mask')).toBe(false);
+      expect(holes.map((hole) => [hole.getAttribute('cx'), hole.getAttribute('cy')])).toEqual(
+        hot().map((marker) => [marker.getAttribute('cx'), marker.getAttribute('cy')])
+      );
+      expect(holes.map((hole) => Number(hole.getAttribute('r')))).toEqual(
+        hot().map((marker) => Number(marker.getAttribute('r')) + 1)
+      );
+
+      (document.activeElement as HTMLElement).blur();
+
+      await expect.poll(() => plot.element().querySelector('mask')).toBeNull();
     });
 
     it('turns the value axis into a percentage with full', async () => {

@@ -905,6 +905,39 @@ describe('PlLineChart', () => {
       expect(plot.element().querySelectorAll('circle').length).toBe(4);
     });
 
+    it('draws every line before any marker, and the labels last', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          markers="all"
+          valueLabels="last"
+          series={[
+            { name: 'Web', data: [10, 40, 10, 40] },
+            { name: 'Mobile', data: [40, 10, 40, 10] }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' });
+
+      await expect.element(plot).toBeInTheDocument();
+
+      // The two lines cross between every pair of points, so neither passes
+      // over the other's markers, and a label is under no marker.
+      const painted = [
+        ...plot.element().querySelectorAll('path, circle, text[font-weight="600"]')
+      ].filter((mark) => mark.closest('defs') === null);
+
+      expect(painted.map((mark) => mark.tagName)).toEqual([
+        'path',
+        'path',
+        ...Array(8).fill('circle'),
+        'text',
+        'text'
+      ]);
+    });
+
     it('draws none with markers="none"', async () => {
       const screen = await render(
         <PlLineChart

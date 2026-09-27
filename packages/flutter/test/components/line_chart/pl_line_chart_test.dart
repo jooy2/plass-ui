@@ -1,4 +1,4 @@
-import 'dart:ui' show Paragraph;
+import 'dart:ui' show ClipOp, Paragraph;
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -411,13 +411,18 @@ void main() {
         expect(tester.binding.transientCallbackCount, 0);
       });
 
-      testWidgets('fades a series as one layer, so its line does not show through its markers', (
+      testWidgets('fades a series in layers, so its line does not show through its markers', (
         WidgetTester tester,
       ) async {
         await _pump(tester, PlLineChart(series: series, categories: months));
 
-        // At rest nothing is faded, and nothing is drawn into a layer.
-        expect(_paintLayers(tester).where((_Call call) => call.kind == 'layer'), isEmpty);
+        // At rest nothing is faded, nothing is drawn into a layer and nothing
+        // is cut out.
+        expect(_paintLayers(tester).map((_Call call) => call.kind), <String>[
+          'stroke',
+          'stroke',
+          for (int i = 0; i < 16; i += 1) 'disc',
+        ]);
 
         final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
 
@@ -428,46 +433,56 @@ void main() {
         await tester.pump();
         await tester.pump(PlassTokens.duration ~/ 2);
 
-        /// Revenue as it is painted now: the layer it is drawn into, and what
-        /// is drawn inside that layer.
-        (double, List<_Call>) revenue() {
+        /// Checks Revenue as it is painted now, faded to [alpha]: its line in
+        /// a layer with its markers cut out of it, then Cost's line, then
+        /// Revenue's markers in a layer of their own, then Cost's markers.
+        void expectRevenueAt(Matcher alpha) {
           final List<_Call> calls = _paintLayers(tester);
-          final int open = calls.indexWhere((_Call call) => call.kind == 'layer');
-          final int close = calls.indexWhere((_Call call) => call.kind == 'end');
 
-          // One layer, Revenue's, and Cost drawn after it outside any.
-          expect(calls.where((_Call call) => call.kind == 'layer'), hasLength(1));
-          expect(calls.sublist(close + 1).map((_Call call) => call.kind), <String>[
+          expect(calls.map((_Call call) => call.kind), <String>[
+            'layer',
             'stroke',
+            for (int i = 0; i < 4; i += 1) 'cut',
+            'end',
+            'stroke',
+            'layer',
+            for (int i = 0; i < 8; i += 1) 'disc',
+            'end',
             for (int i = 0; i < 8; i += 1) 'disc',
           ]);
 
-          return (calls[open].alpha, calls.sublist(open + 1, close));
+          // Both layers fade by as much, and what is drawn in them is whole,
+          // so the markers land at the line's opacity.
+          expect(calls[0].alpha, alpha);
+          expect(calls[8].alpha, alpha);
+          expect(
+            calls
+                .where((_Call call) => call.kind == 'stroke' || call.kind == 'disc')
+                .map((_Call call) => call.alpha),
+            everyElement(1),
+          );
+
+          // Each cut is one of Revenue's rings, so its line stops at the edge
+          // of the ring rather than showing through the faded marker.
+          expect(calls.sublist(2, 6).map((_Call call) => (call.at, call.r)), <(Offset, double)>[
+            for (int i = 9; i < 17; i += 2) (calls[i].at, calls[i].r),
+          ]);
         }
 
-        // The layer fades on the house curve, and the line and each marker's
-        // ring and dot are drawn inside it whole, as the React series' `<g>`
-        // is faded after they are drawn in it.
-        final (double halfway, List<_Call> inside) = revenue();
-
-        expect(halfway, closeTo(1 - 0.72 * PlassTokens.ease.transform(0.5), 1e-6));
-        expect(inside.map((_Call call) => call.kind), <String>[
-          'stroke',
-          for (int i = 0; i < 8; i += 1) 'disc',
-        ]);
-        expect(inside.map((_Call call) => call.alpha), everyElement(1));
+        // The layers fade on the house curve.
+        expectRevenueAt(closeTo(1 - 0.72 * PlassTokens.ease.transform(0.5), 1e-6));
 
         await tester.pumpAndSettle();
 
-        final (double faded, List<_Call> settled) = revenue();
-
-        expect(faded, closeTo(0.28, 1e-6));
-        expect(settled.map((_Call call) => call.alpha), everyElement(1));
+        expectRevenueAt(closeTo(0.28, 1e-6));
 
         await mouse.moveTo(Offset.zero);
         await tester.pumpAndSettle();
 
-        expect(_paintLayers(tester).where((_Call call) => call.kind == 'layer'), isEmpty);
+        expect(
+          _paintLayers(tester).where((_Call call) => call.kind == 'layer' || call.kind == 'cut'),
+          isEmpty,
+        );
       });
 
       testWidgets('leaves a series alone when the legend is not interactive', (
@@ -1070,6 +1085,41 @@ void main() {
         }
       });
 
+      testWidgets('draws every line before any marker, and the labels after every marker', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlLineChart(
+            series: <PlassChartSeries>[
+              for (final List<double> values in <List<double>>[
+                <double>[10, 40, 10, 40],
+                <double>[40, 10, 40, 10],
+              ])
+                PlassChartSeries(
+                  data: <PlassChartDatum>[
+                    for (final double value in values) PlassChartDatum(value),
+                  ],
+                ),
+            ],
+            categories: months,
+            markers: PlChartMarkers.all,
+            valueLabels: PlassChartValueLabels.last,
+          ),
+        );
+
+        // The two lines cross between every pair of points, so neither passes
+        // over the other's markers, and a label is under no marker, as in the
+        // React build.
+        expect(_paintLayers(tester).map((_Call call) => call.kind), <String>[
+          'stroke',
+          'stroke',
+          for (int i = 0; i < 16; i += 1) 'disc',
+          'text',
+          'text',
+        ]);
+      });
+
       testWidgets('draws a reference line across the plot and says it in the reading', (
         WidgetTester tester,
       ) async {
@@ -1480,27 +1530,32 @@ class _CircleCanvas implements Canvas {
   void noSuchMethod(Invocation invocation) {}
 }
 
-/// The plot as it is painted now, as the layers opened and closed and the lines
-/// and discs drawn, in order.
+/// The plot's marks as they are painted now, in order: the layers opened and
+/// closed, the lines, the discs, the cuts and the text. Taken from the clip the
+/// frame draws the marks inside, which leaves the axes out.
 List<_Call> _paintLayers(WidgetTester tester) {
   final _LayerCanvas canvas = _LayerCanvas();
 
   tester.widget<CustomPaint>(_plot()).painter!.paint(canvas, tester.getSize(_plot()));
 
-  return canvas.calls;
+  return canvas.calls.sublist(canvas.calls.lastIndexWhere((_Call call) => call.kind == 'clip') + 1);
 }
 
-/// One thing a painter did: opened a layer at an alpha, closed it, or stroked
-/// a line, filled a path or drew a disc with a paint of an alpha.
-typedef _Call = ({String kind, double alpha});
+/// One thing a painter did: clipped, opened a layer at an alpha, closed it,
+/// stroked a line or filled a path with a paint of an alpha, drew a disc of a
+/// radius at a centre, cut one out, or wrote text.
+typedef _Call = ({String kind, double alpha, Offset at, double r});
 
-/// A canvas that writes down every layer opened and closed and every path and
-/// disc drawn, and drops everything else.
+/// A canvas that writes down every clip, every layer opened and closed, every
+/// path, disc and cut drawn and every piece of text, and drops everything else.
 class _LayerCanvas implements Canvas {
   final List<_Call> calls = <_Call>[];
 
   /// Whether each `save` still open was a layer.
   final List<bool> _open = <bool>[];
+
+  void _add(String kind, {double alpha = 1, Offset at = Offset.zero, double r = 0}) =>
+      calls.add((kind: kind, alpha: alpha, at: at, r: r));
 
   @override
   void save() => _open.add(false);
@@ -1508,23 +1563,33 @@ class _LayerCanvas implements Canvas {
   @override
   void saveLayer(Rect? bounds, Paint paint) {
     _open.add(true);
-    calls.add((kind: 'layer', alpha: paint.color.a));
+    _add('layer', alpha: paint.color.a);
   }
 
   @override
   void restore() {
     if (_open.removeLast()) {
-      calls.add((kind: 'end', alpha: 1));
+      _add('end');
     }
   }
 
   @override
-  void drawPath(Path path, Paint paint) =>
-      calls.add((kind: paint.style.name, alpha: paint.color.a));
+  void clipRect(Rect rect, {ClipOp clipOp = ClipOp.intersect, bool doAntiAlias = true}) =>
+      _add('clip');
 
   @override
-  void drawCircle(Offset c, double radius, Paint paint) =>
-      calls.add((kind: 'disc', alpha: paint.color.a));
+  void drawPath(Path path, Paint paint) => _add(paint.style.name, alpha: paint.color.a);
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) => _add(
+    paint.blendMode == BlendMode.clear ? 'cut' : 'disc',
+    alpha: paint.color.a,
+    at: c,
+    r: radius,
+  );
+
+  @override
+  void drawParagraph(Paragraph paragraph, Offset offset) => _add('text');
 
   @override
   void noSuchMethod(Invocation invocation) {}

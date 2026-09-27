@@ -50,9 +50,9 @@ describe('a line chart legend', () => {
 
   const named = (...names: string[]) => names.map((name) => ({ name }));
 
-  /** How many series the plot draws. */
+  /** How many series the plot draws, by the group each one's line is drawn in. */
   function drawn(container: HTMLElement): number {
-    return container.querySelectorAll('svg g[opacity]').length;
+    return container.querySelectorAll('svg g[opacity]:has(> path)').length;
   }
 
   it('keeps the series it switched off, and not the one that took its place', async () => {

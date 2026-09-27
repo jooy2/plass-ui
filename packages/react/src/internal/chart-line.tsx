@@ -130,6 +130,46 @@ export function LineSeries({
     });
   });
 
+  /* What each visible series draws, worked out once for the three passes
+     below: the bands and lines, then the markers, then the labels. */
+  const shapes = values.map((one, index) => {
+    if (!visible[index]) {
+      return null;
+    }
+
+    const tops: Vertex[] = one.map((value, category) => {
+      if (value.value === null) {
+        return null;
+      }
+
+      const total = stacked ? baselines[index][category] + value.value : value.value;
+
+      return point(category, total);
+    });
+
+    // Whatever `markers` says, the point under the pointer gets a dot: that is
+    // what tells the reader which column the tooltip is about.
+    const marks = tops.flatMap((vertex, category) =>
+      vertex &&
+      (markers === 'all' ||
+        (markers === 'auto' && one.length <= autoMarkerLimit) ||
+        category === activeIndex)
+        ? [{ ...vertex, category, r: category === activeIndex ? radius + 1 : radius }]
+        : []
+    );
+
+    const dimmed = dimmedByHover(hovered, index, visible);
+
+    return {
+      color: colors[index],
+      dimmed,
+      tops,
+      marks,
+      /** Whether its markers are cut out of its band and line, below. */
+      cut: dimmed && marks.length > 0
+    };
+  });
+
   return (
     <g>
       <defs>
@@ -168,25 +208,48 @@ export function LineSeries({
               </linearGradient>
             ))
           : null}
+
+        {/* A faded series' markers fade in a group of their own, drawn after
+            every band, where its own band and line would show through them.
+            So while it is faded they are cut out of those, out to the edge of
+            the ring. At full strength a marker covers them whole. The region
+            is the user space rather than the group's box, which a flat line
+            has no height in. */}
+        {shapes.map((shape, index) =>
+          shape?.cut ? (
+            <mask
+              key={`cut-${index}`}
+              id={`${idPrefix}-cut-${index}`}
+              maskUnits="userSpaceOnUse"
+              x="-50%"
+              y="-50%"
+              width="200%"
+              height="200%"
+            >
+              <rect x="-50%" y="-50%" width="200%" height="200%" fill="white" />
+              {shape.marks.map((mark) => (
+                <circle
+                  key={mark.category}
+                  cx={mark.x}
+                  cy={mark.y}
+                  r={mark.r + markGap / 2}
+                  fill="black"
+                  className={markTransitionClasses}
+                />
+              ))}
+            </mask>
+          ) : null
+        )}
       </defs>
 
       {values.map((one, index) => {
-        if (!visible[index]) {
+        const shape = shapes[index];
+
+        if (!shape) {
           return null;
         }
 
-        const color = colors[index];
-        const dimmed = dimmedByHover(hovered, index, visible);
-
-        const tops: Vertex[] = one.map((value, category) => {
-          if (value.value === null) {
-            return null;
-          }
-
-          const total = stacked ? baselines[index][category] + value.value : value.value;
-
-          return point(category, total);
-        });
+        const { color, tops } = shape;
 
         // `connect` drops the gaps rather than bridging them in the path
         // builder: a bridged segment and a real one have to be the same shape,
@@ -209,10 +272,13 @@ export function LineSeries({
         // data. What separates them is the gap below.
         const banded = filled && stacked;
 
-        const labelled = labelledPoints(one, valueLabels);
-
         return (
-          <g key={index} opacity={dimmed ? 0.28 : 1} className={markTransitionClasses}>
+          <g
+            key={index}
+            opacity={shape.dimmed ? 0.28 : 1}
+            mask={shape.cut ? `url(#${idPrefix}-cut-${index})` : undefined}
+            className={markTransitionClasses}
+          >
             {filled ? (
               <path
                 d={areaPath(
@@ -255,41 +321,51 @@ export function LineSeries({
                 strokeLinejoin="round"
               />
             )}
+          </g>
+        );
+      })}
 
-            {tops.map((vertex, category) => {
-              if (!vertex) {
-                return null;
-              }
+      {/* The markers go on after every band and every line, each series' in a
+          group that fades with it, so the band above a stacked one neither
+          washes over their top half nor runs its gap through them, and no line
+          crosses another series' marker. */}
+      {shapes.map((shape, index) =>
+        shape && shape.marks.length > 0 ? (
+          <g key={index} opacity={shape.dimmed ? 0.28 : 1} className={markTransitionClasses}>
+            {shape.marks.map((mark) => (
+              <circle
+                key={mark.category}
+                cx={mark.x}
+                cy={mark.y}
+                r={mark.r}
+                fill={values[index][mark.category].color ?? shape.color}
+                // The ring is the surface showing through, which is what keeps
+                // a marker legible where two lines cross — and it is part of
+                // the hit target, not only spacing.
+                stroke="var(--plass-chart-gap)"
+                strokeWidth={markGap}
+                className={markTransitionClasses}
+              />
+            ))}
+          </g>
+        ) : null
+      )}
 
-              const drawn =
-                markers === 'all' ||
-                (markers === 'auto' && one.length <= autoMarkerLimit) ||
-                category === activeIndex;
+      {/* And the numbers after every marker, so no band or marker drawn later
+          covers one. */}
+      {valueLabels === 'none'
+        ? null
+        : shapes.map((shape, index) => {
+            if (!shape) {
+              return null;
+            }
 
-              if (!drawn) {
-                return null;
-              }
+            const one = values[index];
+            const labelled = labelledPoints(one, valueLabels);
 
-              return (
-                <circle
-                  key={category}
-                  cx={vertex.x}
-                  cy={vertex.y}
-                  r={category === activeIndex ? radius + 1 : radius}
-                  fill={one[category].color ?? color}
-                  // The ring is the surface showing through, which is what keeps
-                  // a marker legible where two lines cross — and it is part of
-                  // the hit target, not only spacing.
-                  stroke="var(--plass-chart-gap)"
-                  strokeWidth={markGap}
-                  className={markTransitionClasses}
-                />
-              );
-            })}
-
-            {valueLabels === 'none'
-              ? null
-              : tops.map((vertex, category) => {
+            return (
+              <g key={index} opacity={shape.dimmed ? 0.28 : 1} className={markTransitionClasses}>
+                {shape.tops.map((vertex, category) => {
                   const value = one[category].value;
 
                   if (!vertex || value === null || !labelled(category)) {
@@ -298,7 +374,7 @@ export function LineSeries({
 
                   return (
                     <text
-                      key={`label-${category}`}
+                      key={category}
                       x={vertex.x}
                       y={vertex.y - radius - 5}
                       textAnchor={
@@ -318,7 +394,7 @@ export function LineSeries({
                       fill={
                         valueLabelColor === 'ink'
                           ? 'var(--plass-fg)'
-                          : (one[category].color ?? color)
+                          : (one[category].color ?? shape.color)
                       }
                       className="tabular-nums"
                     >
@@ -326,9 +402,9 @@ export function LineSeries({
                     </text>
                   );
                 })}
-          </g>
-        );
-      })}
+              </g>
+            );
+          })}
     </g>
   );
 }

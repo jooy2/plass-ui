@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A line or area chart draws its markers over every band and every line.** A stacked `PlAreaChart` drew each band's markers before the band above it, so that band's tint covered their upper half, and on a line chart a line drawn later crossed an earlier series' markers. The value labels are still drawn last, over every marker. A series faded for a legend entry still fades its markers with it, and its own line or band does not show through them. The React build makes the same change.
+
 - **A mouse press on a `PlNumberField` stepper leaves the focus in the field and settles the value once.** In an app, a press on a stepper of a focused field took the focus out of the field before the step, so `onCommitted` was called twice, with the old value and then the new one, and the arrow keys stepped nothing until the field was focused again; a press on a stepper that had run into `min` or `max` took the focus out too and called `onCommitted` with the value unchanged. The steppers now count as part of the field, and a mouse press on one that can step also brings the focus into a field that did not have it, as in the React build, so the arrow keys carry on from the value it left. A finger or a pen still does not bring the focus in.
 
 - **A screen reader meets each option of a `PlSelect` or `PlCombobox` list once, as in the React build.** Every option sat inside a second node with no name and a tap of its own, so each one was two stops, and a disabled option, or a row of a combobox that cannot be changed, still offered a tap that chose nothing. Each option is now one node, which carries its name, whether it is chosen and a tap only while it can be taken.
@@ -108,7 +110,7 @@
 
 - **A `PlHeatmapChart` card moves to the left of a cell past 60% of the width, as in the React build.** The card stood to the right of every cell and moved to the left only when it did not fit there, where the React heatmap and every other Flutter chart put it on the left of a point past 60% of the way across.
 
-- **A line or area chart's series faded for a legend entry fades as one picture, as in the React build.** Its band, its line and each marker's ring and dot faded one by one, so the line showed through a faded marker. The series is now drawn whole and faded together while it fades or is faded; a series at full strength is drawn as before.
+- **A line or area chart's series faded for a legend entry fades as one picture, as in the React build.** Its band, its line and each marker's ring and dot faded one by one, so the line showed through a faded marker. A faded series now shows no line through its markers, while it fades and once it is faded; a series at full strength is drawn as before.
 
 - **A `PlScatterChart` mark and a `PlSparkline` end dot are drawn at the size of the React ones.** A scatter mark's fill covered the inner half of its ring, so the dot was a pixel larger in radius than the React one and the ring of the surface round it 1px wide, where the React ring is 2px and runs from a pixel inside the radius to a pixel outside it; the ring now lies over the dot as it does there. A faded mark fades its ring with it, where the ring stayed at full strength round a faded dot, and a mark grown under the pointer or a key widens its ring with it. A sparkline's end dot filled its whole radius with a ring 2px past it, and is now a pixel inside the radius with its ring to a pixel outside it.
 

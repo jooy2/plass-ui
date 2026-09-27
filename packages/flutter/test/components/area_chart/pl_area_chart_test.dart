@@ -1,3 +1,5 @@
+import 'dart:ui' show ClipOp, Paragraph;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
@@ -316,7 +318,32 @@ void main() {
         expect(_paintMarks(tester).radii, <double>[radius + 2, radius, radius + 2, radius]);
       });
 
-      testWidgets('draws a band\'s markers before the band above it, which lies over them', (
+      testWidgets('draws every band\'s markers after every band, and the labels after them', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlAreaChart(
+            series: series,
+            categories: months,
+            stacking: PlAreaStacking.total,
+            markers: PlChartMarkers.all,
+            valueLabels: PlassChartValueLabels.all,
+          ),
+        );
+
+        // As the React build draws them: both bands, then the six markers,
+        // each a ring and a dot, then the six labels, so the band above
+        // Direct's lies under its markers and its labels rather than over them.
+        expect(_paintMarks(tester).marks, <String>[
+          'path',
+          'path',
+          for (int i = 0; i < 12; i += 1) 'disc',
+          for (int i = 0; i < 6; i += 1) 'text',
+        ]);
+      });
+
+      testWidgets('fades a band\'s markers with it, cut out of its band', (
         WidgetTester tester,
       ) async {
         await _pump(
@@ -329,13 +356,37 @@ void main() {
           ),
         );
 
-        // As the React series are drawn, each in a group of its own: Direct's
-        // band and its three markers, then Search's band and its three.
-        expect(_paintMarks(tester).calls, <String>[
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        // Pointing the legend at Search fades Direct.
+        await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Search')));
+        await tester.pumpAndSettle();
+
+        final _MarkCanvas canvas = _paintMarks(tester);
+
+        // Direct's band in a layer with its three markers cut out of it, out to
+        // the edge of the ring, then Search's band, then Direct's markers in a
+        // layer of their own, then Search's.
+        expect(canvas.marks, <String>[
+          'layer',
           'path',
-          for (int i = 0; i < 6; i += 1) 'disc',
+          for (int i = 0; i < 3; i += 1) 'cut',
+          'end',
           'path',
+          'layer',
           for (int i = 0; i < 6; i += 1) 'disc',
+          'end',
+          for (int i = 0; i < 6; i += 1) 'disc',
+        ]);
+        expect(canvas.layers, <Matcher>[closeTo(0.28, 1e-6), closeTo(0.28, 1e-6)]);
+        expect(canvas.opacities, <Matcher>[
+          for (int i = 0; i < 6; i += 1) closeTo(0.28, 1e-6),
+          for (int i = 0; i < 6; i += 1) equals(1),
+        ]);
+        expect(canvas.cuts, <(Offset, double)>[
+          for (int i = 0; i < 6; i += 2) (canvas.centres[i], canvas.radii[i]),
         ]);
       });
     });
@@ -385,22 +436,69 @@ void _expectAt(List<Offset> actual, List<Offset> expected, String reason) {
   }
 }
 
-/// A canvas that writes down every path and disc drawn on it, in order, with
-/// each disc's centre and radius, and drops everything else.
+/// A canvas that writes down every clip, every layer opened and closed, every
+/// path, disc and cut drawn and every piece of text, in order, with each disc's
+/// centre, radius and the opacity it lands at and each cut's centre and radius,
+/// and drops everything else.
 class _MarkCanvas implements Canvas {
   final List<String> calls = <String>[];
   final List<Offset> centres = <Offset>[];
   final List<double> radii = <double>[];
+  final List<double> opacities = <double>[];
+  final List<(Offset, double)> cuts = <(Offset, double)>[];
+
+  /// The alpha of every layer opened, in order.
+  final List<double> layers = <double>[];
+
+  /// For each `save` still open, whether it was a layer, and the opacity what
+  /// is drawn inside it lands at.
+  final List<(bool, double)> _open = <(bool, double)>[(false, 1)];
+
+  /// What was drawn inside the clip the frame puts round the marks, which
+  /// leaves the axes out.
+  List<String> get marks => calls.sublist(calls.lastIndexOf('clip') + 1);
+
+  @override
+  void save() => _open.add((false, _open.last.$2));
+
+  @override
+  void saveLayer(Rect? bounds, Paint paint) {
+    calls.add('layer');
+    layers.add(paint.color.a);
+    _open.add((true, _open.last.$2 * paint.color.a));
+  }
+
+  @override
+  void restore() {
+    if (_open.removeLast().$1) {
+      calls.add('end');
+    }
+  }
+
+  @override
+  void clipRect(Rect rect, {ClipOp clipOp = ClipOp.intersect, bool doAntiAlias = true}) =>
+      calls.add('clip');
 
   @override
   void drawPath(Path path, Paint paint) => calls.add('path');
 
   @override
   void drawCircle(Offset c, double radius, Paint paint) {
+    if (paint.blendMode == BlendMode.clear) {
+      calls.add('cut');
+      cuts.add((c, radius));
+
+      return;
+    }
+
     calls.add('disc');
     centres.add(c);
     radii.add(radius);
+    opacities.add(paint.color.a * _open.last.$2);
   }
+
+  @override
+  void drawParagraph(Paragraph paragraph, Offset offset) => calls.add('text');
 
   @override
   void noSuchMethod(Invocation invocation) {}

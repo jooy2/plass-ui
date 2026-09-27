@@ -79,8 +79,14 @@ void paintLineSeries(
     }
   }
 
+  // The markers each series draws, by series, empty for one switched off. They
+  // are drawn after every band and every line, so they are worked out in the
+  // first pass and drawn in the second.
+  final marks = <List<_Marker>>[];
+
   for (int s = 0; s < layout.values.length; s += 1) {
     if (!layout.visible[s]) {
+      marks.add(const <_Marker>[]);
       continue;
     }
 
@@ -88,15 +94,7 @@ void paintLineSeries(
     // Whole whatever alpha the colour carries: a fade is the layer's.
     final Color color = layout.colors[s].withValues(alpha: 1);
     // Faded while the legend points at another series, and eased there.
-    final double alpha = layout.seriesOpacity(s);
-
-    // A faded series is drawn whole into a layer and the layer is faded, as the
-    // React series' `<g>` is: faded one part at a time, the line would show
-    // through its markers. A series at full strength needs no layer. The layer
-    // takes the clip the frame has put round the plot.
-    if (alpha < 1) {
-      canvas.saveLayer(null, Paint()..color = const Color(0xFF000000).withValues(alpha: alpha));
-    }
+    final double alpha = _openFade(canvas, layout, s);
 
     final tops = <Offset?>[
       for (int i = 0; i < layout.count; i += 1)
@@ -181,38 +179,68 @@ void paintLineSeries(
     }
 
     // A stacked band has no line, but its points still get their dots, on the
-    // band's top at the running total, as the React markers are. They are
-    // drawn with the band, before the next one, so the band above lies over
-    // them where it starts, as the next React series' `<g>` does.
-    if (dots || layout.activeIndex != null) {
-      for (int i = 0; i < layout.count; i += 1) {
-        final Offset? at = i < tops.length ? tops[i] : null;
+    // band's top at the running total, as the React markers are.
+    final List<_Marker> own = <_Marker>[
+      if (dots || layout.activeIndex != null)
+        for (int i = 0; i < tops.length; i += 1)
+          // Whatever `markers` says, the point under the pointer gets a dot:
+          // that is what tells the reader which column the tooltip is about.
+          if (tops[i] != null && (dots || i == layout.activeIndex))
+            (
+              index: i,
+              at: tops[i]!,
+              // A pixel bigger under the crosshair, as the React marker's `r`
+              // is, and eased there with its column. A dot drawn only because
+              // its column is being read has nothing to grow from, so it
+              // arrives at that size, as a React marker put under the
+              // crosshair does.
+              r: radius + (dots ? layout.columnLit(i) : 1),
+            ),
+    ];
 
-        // Whatever `markers` says, the point under the pointer gets a dot: that
-        // is what tells the reader which column the tooltip is about.
-        if (at == null || (!dots && i != layout.activeIndex)) {
-          continue;
-        }
+    marks.add(own);
 
-        final Color ink = (one[i].color ?? color).withValues(alpha: 1);
-        // A pixel bigger under the crosshair, as the React marker's `r` is, and
-        // eased there with its column. A dot drawn only because its column is
-        // being read has nothing to grow from, so it arrives at that size, as
-        // a React marker put under the crosshair does.
-        final double r = radius + (dots ? layout.columnLit(i) : 1);
-
-        // The ring is the surface showing through, `markGap` wide and centred
-        // on the marker's edge, which is where the React marker's stroke lies
-        // over its fill: the dot is half the gap inside `r` and the ring runs
-        // to half the gap outside it, two discs with the dot on top.
-        canvas
-          ..drawCircle(
-            at,
-            r + markGap / 2,
-            Paint()..color = layout.tokens.surface.withValues(alpha: 1),
-          )
-          ..drawCircle(at, r - markGap / 2, Paint()..color = ink);
+    if (alpha < 1) {
+      // A faded series' markers fade in a layer of their own, drawn after
+      // every band, where its own band and line would show through them. So
+      // they are cut out of this layer, out to the edge of the ring. At full
+      // strength a marker covers them whole, and there is no layer.
+      for (final _Marker marker in own) {
+        canvas.drawCircle(marker.at, marker.r + markGap / 2, Paint()..blendMode = BlendMode.clear);
       }
+
+      canvas.restore();
+    }
+  }
+
+  // The markers go on after every band and every line, so the band above a
+  // stacked one does not wash over their top half, and no line crosses
+  // another series' marker, as in the React build.
+  for (int s = 0; s < marks.length; s += 1) {
+    if (marks[s].isEmpty) {
+      continue;
+    }
+
+    final List<ChartValue> one = layout.values[s];
+    final Color color = layout.colors[s];
+    final double alpha = _openFade(canvas, layout, s);
+
+    for (final _Marker marker in marks[s]) {
+      // The ring is the surface showing through, `markGap` wide and centred on
+      // the marker's edge, which is where the React marker's stroke lies over
+      // its fill: the dot is half the gap inside `r` and the ring runs to half
+      // the gap outside it, two discs with the dot on top.
+      canvas
+        ..drawCircle(
+          marker.at,
+          marker.r + markGap / 2,
+          Paint()..color = layout.tokens.surface.withValues(alpha: 1),
+        )
+        ..drawCircle(
+          marker.at,
+          marker.r - markGap / 2,
+          Paint()..color = (one[marker.index].color ?? color).withValues(alpha: 1),
+        );
     }
 
     if (alpha < 1) {
@@ -225,10 +253,31 @@ void paintLineSeries(
   }
 }
 
+/// A marker a series draws: the point it stands for, where it stands, and its
+/// radius.
+typedef _Marker = ({int index, Offset at, double r});
+
+/// Opens a layer faded to the opacity [series] is drawn at, when that is less
+/// than whole, and returns the opacity.
+///
+/// A faded series is drawn into layers and each layer is faded, as the React
+/// series' groups are, rather than each part on its own paint, which would let
+/// the line show through its markers. A series at full strength needs no
+/// layer. A layer takes the clip the frame has put round the plot.
+double _openFade(Canvas canvas, PlassChartLayout layout, int series) {
+  final double alpha = layout.seriesOpacity(series);
+
+  if (alpha < 1) {
+    canvas.saveLayer(null, Paint()..color = const Color(0xFF000000).withValues(alpha: alpha));
+  }
+
+  return alpha;
+}
+
 /// The numbers written on the marks.
 ///
-/// Drawn after every band, so a label is never crossed by a series drawn later
-/// — which on a three-series chart is most of them.
+/// Drawn after every band and every marker, so a label is never crossed by a
+/// series drawn later — which on a three-series chart is most of them.
 void _paintValueLabels(
   Canvas canvas,
   PlassChartLayout layout,
