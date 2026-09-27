@@ -29,6 +29,7 @@ Standing decisions that apply to every batch:
 - React 18 stays in the peer range, but only React 19 is tested. Do not add a React 18 job or test run.
 - Questions go to the Prompter through the prompt (AskUserQuestion), all of them at once: several calls of four questions in one message. Each question says what the problem is and how it would be fixed, each option carries its pros and cons, and one option is marked recommended. Check the facts in the code before writing a recommendation.
 - An entry under [Waiting for an answer](#waiting-for-an-answer) has been answered and is approved: do it at the start of the next batch without asking again.
+- From batch 27, a problem found in passing is asked, and can become an item, only when it is wrong behaviour (a crash, wrong data, a control that does not do what it says, a state that sticks) or an accessibility problem. A small difference between the builds that a reader would not call broken, such as a pixel of size, a colour a step apart or a change that eases in one build and at once in the other, is not asked: it goes under [Noted differences](#noted-differences) with a line saying where it is, and is not worked. When the last item is ticked, ask the Prompter what to do with that list before deleting this file.
 
 ### Verifying a batch
 
@@ -127,6 +128,12 @@ Asked through the prompt in batch 26. Every entry here was answered with its rec
 ## Passed over and not yet asked
 
 None. Every flagged item passed over so far is asked above.
+
+## Noted differences
+
+Small differences between the builds found in passing from batch 27 on. They are not items and are not worked; see the standing decisions above.
+
+None yet.
 
 ## Items
 
