@@ -32,9 +32,9 @@ function fadedEntries(container: HTMLElement): boolean[] {
   );
 }
 
-/** The opacity each series is drawn at on the plot. */
+/** The opacity each series is drawn at on the plot, read off the group its line is in. */
 function marks(container: HTMLElement): (string | null)[] {
-  return [...container.querySelectorAll('svg g[opacity]')].map((mark) =>
+  return [...container.querySelectorAll('svg g[opacity]:has(> path)')].map((mark) =>
     mark.getAttribute('opacity')
   );
 }
