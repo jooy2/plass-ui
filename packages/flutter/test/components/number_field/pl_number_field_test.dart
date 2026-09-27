@@ -370,6 +370,90 @@ void main() {
         expect(settled, <double?>[0]);
       });
 
+      testWidgets('a second key before the parent builds steps from where the first one left it', (
+        WidgetTester tester,
+      ) async {
+        double? value = 5;
+        final List<double?> changes = <double?>[];
+        final List<double?> settled = <double?>[];
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlNumberField(
+                value: value,
+                onChanged: (double? next) => setState(() {
+                  changes.add(next);
+                  value = next;
+                }),
+                onCommitted: settled.add,
+              ),
+            ),
+            width: 320,
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        // Both keys are handled before the next frame, so the parent has not
+        // built with 6 when the second one steps back to 5.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+
+        expect(changes, <double?>[6, 5]);
+        expect(settled, <double?>[6, 5]);
+        expect(value, 5);
+        expect(find.text('5'), findsOneWidget);
+
+        // The same the other way, from the value the parent built with.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+
+        expect(changes, <double?>[6, 5, 4, 5]);
+        expect(settled, <double?>[6, 5, 4, 5]);
+        expect(value, 5);
+        expect(find.text('5'), findsOneWidget);
+      });
+
+      testWidgets('a second key before a parent that turns the first down is reported too', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> changes = <double?>[];
+        final List<double?> settled = <double?>[];
+
+        await tester.pumpWidget(
+          host(
+            PlNumberField(value: 5, onChanged: changes.add, onCommitted: settled.add),
+            width: 320,
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        // A caller that saves what settles has been told 6, so it is told the
+        // step back to 5 as well, and ends where the field does.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(changes, <double?>[6, 5]);
+        expect(settled, <double?>[6, 5]);
+        expect(find.text('5'), findsOneWidget);
+
+        // The parent has answered by now, so the next step is measured against
+        // the 5 it holds rather than the 6 it turned down, and is reported.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pumpAndSettle();
+
+        expect(changes, <double?>[6, 5, 6]);
+        expect(settled, <double?>[6, 5, 6]);
+        expect(find.text('5'), findsOneWidget);
+      });
+
       testWidgets('a key that changes nothing leaves what was typed to settle on the way out', (
         WidgetTester tester,
       ) async {
@@ -961,6 +1045,34 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(settled, <double?>[7]);
+      });
+
+      testWidgets('offers a typed number the parent turned down again as it settles', (
+        WidgetTester tester,
+      ) async {
+        final List<double?> changes = <double?>[];
+        final List<double?> settled = <double?>[];
+
+        await tester.pumpWidget(
+          host(
+            PlNumberField(value: 5, onChanged: changes.add, onCommitted: settled.add),
+            width: 320,
+          ),
+        );
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('7');
+        await tester.pump();
+        expect(changes, <double?>[7]);
+
+        // The parent still holds 5, so the 7 the field settles to is a change,
+        // as Base UI offers it again on blur.
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(changes, <double?>[7, 7]);
+        expect(settled, <double?>[7]);
+        expect(find.text('5'), findsOneWidget);
       });
 
       testWidgets('settles a box that reads as another number, once', (WidgetTester tester) async {

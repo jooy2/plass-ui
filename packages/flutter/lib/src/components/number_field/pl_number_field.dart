@@ -361,12 +361,14 @@ class _PlNumberFieldState extends State<PlNumberField> {
   bool _typed = false;
 
   /// The value as far as the field knows it: the last one handed in, or the
-  /// last one it reported, whichever came later.
+  /// last one it reported, whichever came later, until the frame after a report
+  /// brings the parent's answer and this holds that.
   ///
   /// Not [PlNumberField.value], which does not hold a report until the parent
   /// has built again. A blur can come first: Enter settles the box and takes
   /// the focus out in the same turn, and measured against the value before it,
-  /// the box would read as a number still to settle.
+  /// the box would read as a number still to settle. So can a second key,
+  /// which a commit measures against this to tell whether it changed anything.
   double? _held;
   bool _hovered = false;
   bool _pressed = false;
@@ -562,7 +564,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// focus leaves, as in Base UI.
   void _commit(double? raw, {_CommitWhen when = _CommitWhen.always}) {
     final next = raw == null ? null : _settle(raw);
-    final changed = next != widget.value;
+    // Measured against [_held] rather than the parent's value, which a second
+    // key in the same frame would find still holding the value before the
+    // first: up and down from 5 would come back to a 5 that reads as no change,
+    // and leave the parent holding 6.
+    final changed = next != _held;
 
     _show(next);
 
@@ -581,13 +587,25 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // its answer, a box still showing a number the parent did not take goes
     // back to the one it holds, or the two would say different things until
     // something else changed.
+    _takeAnswer(show: true);
+  }
+
+  /// After the frame that builds the parent's answer to a report, holds the
+  /// value the parent holds, and with [show] writes it into the box.
+  ///
+  /// So a report the parent turned down is not the value the next one is
+  /// measured against: that one is reported, and the parent can take it.
+  void _takeAnswer({required bool show}) {
     WidgetsBinding.instance.addPostFrameCallback((Duration _) {
       if (!mounted) {
         return;
       }
 
       _held = widget.value;
-      _show(widget.value);
+
+      if (show) {
+        _show(widget.value);
+      }
     });
     WidgetsBinding.instance.ensureVisualUpdate();
   }
@@ -671,6 +689,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
     _unsettled = true;
     _typed = true;
     widget.onChanged?.call(typed);
+
+    // The box keeps what was typed until the field is left, whatever the
+    // parent answers, but a number it turned down is offered again there.
+    _takeAnswer(show: false);
   }
 
   /// Which step the modifiers being held are asking for.
