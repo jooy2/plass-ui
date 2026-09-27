@@ -163,10 +163,12 @@ const baseClasses = /* @__PURE__ */ [
  * `self-stretch` so its hit area is the full height of the chip rather than the
  * height of the words, and `rounded-[inherit]` so the focus ring traces the
  * shell's corners rather than drawing a second, squarer rectangle inside them.
+ * Disabled, it keeps the cursor the shell shows rather than its own.
  */
 const labelButtonClasses = /* @__PURE__ */ [
   'flex min-w-0 flex-1 cursor-pointer items-center justify-center self-stretch rounded-[inherit]',
-  focusRingClasses
+  focusRingClasses,
+  'disabled:cursor-not-allowed'
 ].join(' ');
 
 /**
@@ -175,7 +177,8 @@ const labelButtonClasses = /* @__PURE__ */ [
  * The shell is always a `<span>`. What changes is what is inside it: a plain run
  * of content, or — when `onClick` is given — a real `<button>` wrapping that
  * content, plus a second button for `onDelete`. Both are reachable by keyboard,
- * and neither is nested inside the other.
+ * and neither is nested inside the other. `disabled` disables them rather than
+ * taking them away.
  *
  * An inert `<span>` carrying a click handler is the single most common way a
  * component library loses its keyboard users, and a `<button>` inside a
@@ -218,7 +221,8 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
     // `PlCombobox` draws its chips, keeps the disabled look without a fade of
     // its own.
     const faded = React.useContext(FadedContext);
-    const interactive = Boolean(onClick) && !disabled;
+    const pressable = Boolean(onClick);
+    const interactive = pressable && !disabled;
     const deleteId = React.useId();
     const textId = React.useId();
     const step = chipScale[size];
@@ -239,10 +243,10 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
       interactive ? `plass-glow ${hoverClasses[variant]}` : '',
       // With a pressable label the padding belongs to the button, so its hit area
       // covers the whole chip rather than just the words.
-      interactive ? 'ps-0' : padX,
+      pressable ? 'ps-0' : padX,
       // The delete button brings its own padding; stacking the chip's on top of it
       // would leave the × floating in the middle of a gap.
-      onDelete ? 'pe-1' : interactive ? 'pe-0' : '',
+      onDelete ? 'pe-1' : pressable ? 'pe-0' : '',
       className ?? ''
     ]
       .filter(Boolean)
@@ -284,13 +288,19 @@ export const PlChip = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlChipPr
         ref={ref}
         className={shellClasses}
         style={{ ...controlSlots(color, elevation, variant), ...style }}
-        aria-disabled={disabled && !interactive ? true : undefined}
+        // A chip that can be pressed says it on its button instead.
+        aria-disabled={disabled && !pressable ? true : undefined}
         onPointerMove={glowPointerMove(interactive, onPointerMove)}
         {...props}
       >
-        {interactive ? (
+        {/* Still a button while it is disabled, as a disabled `PlButton` is, so
+            it is announced as a button that cannot be used. Taken out while it
+            was disabled, the button carried the label, the icons and the count
+            away with it, and they were mounted again as `disabled` changed. */}
+        {pressable ? (
           <button
             type="button"
+            disabled={disabled}
             aria-pressed={selected}
             className={`${labelButtonClasses} ${gapClasses[step]} ${padX}`}
             onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}

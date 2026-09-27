@@ -161,7 +161,8 @@ class PlChip extends StatelessWidget {
     final height = controlHeight[step]!;
     final fontSize = controlText[step]!;
     final radius = BorderRadius.circular(tokens.radii[step]!);
-    final interactive = onPressed != null && !disabled;
+    final pressable = onPressed != null;
+    final interactive = pressable && !disabled;
 
     // The same widgets above the label whether the chip is pressable, disabled
     // or neither, with the difference in their flags: a chip wrapped only
@@ -169,20 +170,29 @@ class PlChip extends StatelessWidget {
     // `disabled` changed, or as `onPressed` came or went. A chip that cannot be
     // pressed takes no focus and claims no tap, so a press on it reaches
     // whatever is around it, and it is not announced as a button.
+    //
+    // A pressable chip that is disabled is still a button, as a disabled
+    // `PlButton` is: announced as one that cannot be used, out of the
+    // keyboard's focus order, and holding on to a tap so that it does not
+    // reach whatever is around the chip.
     return PlassInteractive(
       onTap: onPressed,
       enabled: interactive,
       interactive: interactive,
-      pressable: interactive,
-      cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
+      pressable: pressable,
+      cursor: interactive
+          ? SystemMouseCursors.click
+          : pressable
+          ? SystemMouseCursors.forbidden
+          : MouseCursor.defer,
       focusNode: focusNode,
       autofocus: autofocus,
       builder: (BuildContext context, PlassInteraction state) {
         return Semantics(
-          container: interactive,
-          button: interactive ? true : null,
-          selected: interactive ? selected : null,
-          enabled: interactive ? true : null,
+          container: pressable,
+          button: pressable ? true : null,
+          selected: pressable ? selected : null,
+          enabled: pressable ? !disabled : null,
           onTap: interactive ? onPressed : null,
           child: _shell(
             context,
@@ -196,8 +206,9 @@ class PlChip extends StatelessWidget {
             state: state,
             // The chip's own focus. A focus node counts a focused descendant
             // as focus, and the × inside the chip is a stop of its own that
-            // draws its own ring.
-            focusVisible: interactive && state.focusVisible && Focus.of(context).hasPrimaryFocus,
+            // draws its own ring. A disabled chip that a remote can still
+            // reach, as it can a disabled `PlButton`, is ringed as that is.
+            focusVisible: state.focusVisible && Focus.of(context).hasPrimaryFocus,
             padded: true,
           ),
         );

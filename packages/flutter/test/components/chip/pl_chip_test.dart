@@ -130,6 +130,113 @@ void main() {
         expect(pressed, 0);
       });
 
+      testWidgets('stays a button that cannot be used while disabled', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(PlChip(onPressed: () {}, disabled: true, selected: true, child: const Text('Tag'))),
+        );
+
+        // Announced as a disabled `PlButton` is, with nothing to press.
+        expect(
+          tester.getSemantics(find.text('Tag')),
+          isSemantics(
+            isButton: true,
+            hasEnabledState: true,
+            isEnabled: false,
+            isSelected: true,
+            hasTapAction: false,
+          ),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('holds on to a tap while disabled, as a disabled button does', (
+        WidgetTester tester,
+      ) async {
+        var around = 0;
+        var pressed = 0;
+
+        Widget chip({required bool pressable}) {
+          return host(
+            GestureDetector(
+              onTap: () => around += 1,
+              child: PlChip(
+                onPressed: pressable ? () => pressed += 1 : null,
+                disabled: true,
+                child: const Text('Tag'),
+              ),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(chip(pressable: true));
+        await tester.tap(find.byType(PlChip));
+
+        // Whatever is around it does not answer someone who tried the
+        // disabled chip, as nothing around the React chip's disabled
+        // `<button>` hears the click.
+        expect(pressed, 0);
+        expect(around, 0);
+
+        // A chip with nothing to press is not a button, and leaves the tap
+        // to what is around it.
+        await tester.pumpWidget(chip(pressable: false));
+        await tester.tap(find.byType(PlChip));
+
+        expect(around, 1);
+      });
+
+      testWidgets('leaves the focus order while disabled, and a remote still finds it', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        int rings() {
+          return tester
+              .widgetList<CustomPaint>(find.byType(CustomPaint))
+              .where((CustomPaint paint) => paint.foregroundPainter is PlassFocusRingPainter)
+              .length;
+        }
+
+        for (final NavigationMode mode in NavigationMode.values) {
+          await tester.pumpWidget(
+            host(
+              MediaQuery(
+                data: MediaQueryData(navigationMode: mode),
+                child: afterFocusStop(
+                  before,
+                  PlChip(onPressed: () {}, disabled: true, child: const Text('Tag')),
+                ),
+              ),
+            ),
+          );
+
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pumpAndSettle();
+
+          final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+          final bool inChip =
+              focused != null &&
+              find
+                  .ancestor(
+                    of: find.byElementPredicate((Element element) => element == focused),
+                    matching: find.byType(PlChip),
+                  )
+                  .evaluate()
+                  .isNotEmpty;
+          final bool directional = mode == NavigationMode.directional;
+
+          // As a disabled `PlButton` is: no stop for a keyboard, and one a
+          // remote can find, ringed while it is there.
+          expect(inChip, directional, reason: '$mode');
+          expect(rings(), directional ? 1 : 0, reason: '$mode');
+        }
+      });
+
       testWidgets('reports whether it is chosen', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(

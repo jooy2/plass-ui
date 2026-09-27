@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlChip, PlassProvider } from 'plass-ui';
@@ -5,6 +6,13 @@ import { PlChip, PlassProvider } from 'plass-ui';
 /** Words a component draws for itself, which no walk of the tree can read. */
 function Word() {
   return <>Design</>;
+}
+
+/** Content that says each time it is mounted. */
+function Mounted({ onMount }: { onMount: () => void }) {
+  React.useEffect(onMount, [onMount]);
+
+  return <span>•</span>;
 }
 
 describe('PlChip', () => {
@@ -72,15 +80,50 @@ describe('PlChip', () => {
       );
     });
 
-    it('stops being a button when disabled', async () => {
+    it('stays a button that cannot be used when disabled', async () => {
       const onClick = vi.fn();
       const screen = await render(
-        <PlChip disabled onClick={onClick}>
+        <PlChip disabled selected onClick={onClick}>
           Design
         </PlChip>
       );
 
-      expect(screen.getByRole('button').query()).toBeNull();
+      const button = screen.getByRole('button', { name: 'Design', exact: true });
+
+      // Announced as unavailable, as a disabled `PlButton` is, and out of the
+      // tab order with it.
+      await expect.element(button).toBeDisabled();
+      expect(button.element()).toHaveAttribute('aria-pressed', 'true');
+
+      (button.element() as HTMLButtonElement).click();
+
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
+    it('mounts nothing it holds again as `disabled` changes', async () => {
+      const onMount = vi.fn();
+      const chip = (disabled: boolean) => (
+        <PlChip
+          disabled={disabled}
+          onClick={() => {}}
+          startIcon={<Mounted onMount={onMount} />}
+          count={3}
+        >
+          Design
+        </PlChip>
+      );
+
+      const screen = await render(chip(false));
+      const mounts = onMount.mock.calls.length;
+      const words = screen.getByText('Design').element();
+
+      await screen.rerender(chip(true));
+      await screen.rerender(chip(false));
+
+      // Moved in and out of the button, an avatar in `startIcon` was loaded
+      // again, showing its initials until it was.
+      expect(onMount).toHaveBeenCalledTimes(mounts);
+      expect(screen.getByText('Design').element()).toBe(words);
     });
 
     it('marks a disabled, unpressable chip as such', async () => {
