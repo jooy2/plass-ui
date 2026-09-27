@@ -72,6 +72,8 @@
 
 ### Fixed
 
+- **Every segment of a read-only `PlSegmentedButton` keeps its pointer light out, and its label stays in the muted ink under the pointer.** Each segment still carried the interaction light and darkened its label as the pointer went over it, as though it could be chosen, where the light goes out on a read-only control and the Flutter segments of a read-only set show neither.
+
 - **A line or area chart draws its markers over every band and every line, and its value labels over every marker.** A stacked `PlAreaChart` drew each band's markers and labels before the band above it, so that band's tint covered the upper half of each marker and the labels, and the gap between the two bands ran through the middle of each marker; on a line chart, a line drawn later crossed an earlier series' markers. A series faded for a legend entry still fades its markers and labels with it, and its own line or band does not show through them. The Flutter build makes the same change.
 
 - **A `PlScatterChart`, a `PlTimelineChart`, and a `PlLineChart`, `PlAreaChart` or `PlBarChart` whose tooltip is in `nearest` mode go on reading the mark they are on when a series or a row ahead of it leaves the data.** The mark being read was held by its series' place, so when a series before it left, the card and the live region read the mark at the same place in the series that moved into its place, and a mark whose series left handed its reading to the series after it. It is now held by what its series' legend entry is known by, its `id`, its name or else its place, and a timeline's span by its row's name or else its place, and the reading is let go once that series or row has left. The Flutter build makes the same change.

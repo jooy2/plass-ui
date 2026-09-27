@@ -48,6 +48,11 @@ interface SegmentedButtonContextValue {
    * segment's light with it.
    */
   disabled: boolean;
+  /**
+   * Whether the whole set is read-only, which puts every segment's light out:
+   * a segment that cannot be chosen does not answer the pointer.
+   */
+  readOnly: boolean;
 }
 
 const SegmentedButtonContext = /* @__PURE__ */ React.createContext<SegmentedButtonContextValue>({
@@ -55,7 +60,8 @@ const SegmentedButtonContext = /* @__PURE__ */ React.createContext<SegmentedButt
   size: 'md',
   density: 'default',
   fullWidth: false,
-  disabled: false
+  disabled: false,
+  readOnly: false
 });
 
 export interface PlSegmentedButtonProps
@@ -181,12 +187,14 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
       size,
       density,
       fullWidth,
-      disabled: setDisabled
+      disabled: setDisabled,
+      readOnly
     } = React.useContext(SegmentedButtonContext);
     const disabled = useDisabled(disabledProp);
     // Base UI disables every segment of a disabled set, and the set puts out
-    // their light as well as its own.
-    const lit = !disabled && !setDisabled;
+    // their light as well as its own. A read-only set keeps its segments
+    // enabled but puts their light out too, since none of them can be chosen.
+    const lit = !disabled && !setDisabled && !readOnly;
 
     return (
       <BaseUIRadio.Root
@@ -227,10 +235,11 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           'not-data-[checked]:[--p-flash:var(--p-soft-hover)]',
           // Darkened under the pointer only while the segment can be pressed:
           // Base UI marks a disabled segment, and every segment of a disabled
-          // set, with `data-disabled`, and a disabled one still matches
-          // `:hover`. The guard makes the rule outrank the chosen label's
-          // colour, so it names the unchosen segments as well.
-          'text-(--plass-muted-fg) not-data-[checked]:not-data-[disabled]:hover:text-(--plass-fg)',
+          // set, with `data-disabled`, and every segment of a read-only set
+          // with `data-readonly`, and either still matches `:hover`. The guard
+          // makes the rule outrank the chosen label's colour, so it names the
+          // unchosen segments as well.
+          'text-(--plass-muted-fg) not-data-[checked]:not-data-[disabled]:not-data-[readonly]:hover:text-(--plass-fg)',
           checkedTextClasses[variant],
           forcedCheckedTextClasses,
           // Inset rather than offset — an offset ring on a segment inside a groove
@@ -419,8 +428,8 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
   }, [measure]);
 
   const context = React.useMemo(
-    () => ({ variant, size, density, fullWidth, disabled }),
-    [variant, size, density, fullWidth, disabled]
+    () => ({ variant, size, density, fullWidth, disabled, readOnly }),
+    [variant, size, density, fullWidth, disabled, readOnly]
   );
 
   return (

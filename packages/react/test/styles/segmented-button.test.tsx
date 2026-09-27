@@ -8,6 +8,8 @@
  * fade above it multiplied in, read with `src/standalone.css` loaded the way
  * `combobox.test.tsx` loads it. No opacity is asserted, only how many fades a
  * segment is drawn through: the one a disabled set is drawn at, and never two.
+ * A read-only set keeps its segments enabled, and the light and the label's
+ * hover are read off what Base UI marks them with instead.
  */
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
@@ -118,6 +120,30 @@ describe('the segmented button stylesheet', () => {
     }
   });
 
+  it('puts the light out on every segment of a read-only set, and keeps it on a live one', async () => {
+    await render(
+      <>
+        <PlSegmentedButton aria-label="Period" defaultValue="day" readOnly>
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+        </PlSegmentedButton>
+        <PlSegmentedButton aria-label="View" defaultValue="list">
+          <PlSegment value="list">List</PlSegment>
+          <PlSegment value="grid">Grid</PlSegment>
+        </PlSegmentedButton>
+      </>
+    );
+
+    for (const name of ['Day', 'Week']) {
+      expect(segment(name)).toHaveAttribute('data-readonly');
+      expect(getComputedStyle(segment(name), '::before').content).toBe('none');
+    }
+
+    for (const name of ['List', 'Grid']) {
+      expect(getComputedStyle(segment(name), '::before').content).not.toBe('none');
+    }
+  });
+
   it('fades a segment disabled on its own in a live set as a disabled set is faded', async () => {
     const screen = await render(
       <>
@@ -208,6 +234,21 @@ describe('the segmented button stylesheet', () => {
       );
 
       expect(segment('Week')).toHaveAttribute('data-disabled');
+
+      const { rest, hovered } = await labelColours('Week');
+
+      expect(hovered).toBe(rest);
+    });
+
+    it('keeps the labels of a read-only set in their muted ink', async () => {
+      await render(
+        <PlSegmentedButton aria-label="Period" defaultValue="day" readOnly>
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+        </PlSegmentedButton>
+      );
+
+      expect(segment('Week')).toHaveAttribute('data-readonly');
 
       const { rest, hovered } = await labelColours('Week');
 

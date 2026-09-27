@@ -178,6 +178,19 @@ describe('the rest of what the light is on', () => {
     expect(segments[1]).not.toHaveClass('plass-glow');
   });
 
+  it('is off every segment of a read-only PlSegmentedButton', async () => {
+    await render(
+      <PlSegmentedButton defaultValue="day" readOnly>
+        <PlSegment value="day">Day</PlSegment>
+        <PlSegment value="week">Week</PlSegment>
+      </PlSegmentedButton>
+    );
+
+    for (const segment of document.querySelectorAll('[data-segment]')) {
+      expect(segment).not.toHaveClass('plass-glow');
+    }
+  });
+
   it('is on a PlFilePicker’s drop zone, which is the largest of them', async () => {
     const screen = await render(<PlFilePicker />);
 
