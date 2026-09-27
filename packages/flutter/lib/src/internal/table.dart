@@ -179,9 +179,9 @@ class _PlassGridState extends State<PlassGrid> {
   /// Those widths, once they have been read.
   List<double>? _columnWidths;
 
-  /// The width the grid was measured at, so a resize is measured again and
-  /// anything else is not.
-  double? _measuredAt;
+  /// Whether a measurement is waiting for the end of the frame, so that it is
+  /// taken once however many headings were laid out at a new width.
+  bool _measuring = false;
 
   /// The view the rows scroll in, which the keyboard moves as well.
   final ScrollController _scroll = ScrollController();
@@ -210,10 +210,21 @@ class _PlassGridState extends State<PlassGrid> {
   void didUpdateWidget(PlassGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // The columns changed under the measurement, so it is worth nothing.
-    if (widget.columns.length != oldWidget.columns.length) {
-      _measuredAt = null;
+    final bool pinning = widget.stickyHeader && !oldWidget.stickyHeader;
+
+    // The columns changed under the measurement, so it is worth nothing. Nor is
+    // one taken before the band was last turned off, since nothing was measured
+    // while the rows, the headings or the text changed.
+    if (widget.columns.length != oldWidget.columns.length || pinning) {
       _columnWidths = null;
+    }
+
+    // A heading laid out at a new width asks for a measurement of its own. A
+    // column that goes, or changes places with another, can leave every
+    // heading at the width it had, so the columns are checked here as well.
+    if (widget.stickyHeader &&
+        (pinning || !listEquals(_columnIdsOf(widget.columns), _columnIdsOf(oldWidget.columns)))) {
+      _scheduleMeasure();
     }
 
     // The row under the pointer lights up or goes out as the grid starts or
@@ -228,13 +239,32 @@ class _PlassGridState extends State<PlassGrid> {
   /// What each column is known by: the id it was given, or its place among the
   /// columns given none, told apart from any column before it that was given
   /// the same.
-  List<Object> _columnIds() {
+  List<Object> _columnIdsOf(List<PlassGridColumn> columns) {
     final seen = <Object?, int>{};
 
     return <Object>[
-      for (final column in widget.columns)
+      for (final column in columns)
         (column.id, seen.update(column.id, (int count) => count + 1, ifAbsent: () => 0)),
     ];
+  }
+
+  /// Reads the widths once the frame that laid them out is over, while there
+  /// is a band to hand them to.
+  ///
+  /// After the frame, because the answer rebuilds the grid that is being laid
+  /// out, and at most once a frame. The band it rebuilds lies over the grid
+  /// rather than in it, so nothing it does lays a heading out again, and the
+  /// measurement asks for no other.
+  void _scheduleMeasure() {
+    if (_measuring || !widget.stickyHeader) {
+      return;
+    }
+
+    _measuring = true;
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      _measuring = false;
+      _measure();
+    });
   }
 
   /// Reads how wide the grid actually laid each column out.
@@ -243,7 +273,7 @@ class _PlassGridState extends State<PlassGrid> {
   /// is possible at all: the widths belong to the one [Table] that owns every
   /// row, and a band that asks it for them cannot disagree with it.
   void _measure() {
-    if (!mounted) {
+    if (!mounted || !widget.stickyHeader) {
       return;
     }
 
@@ -421,7 +451,7 @@ class _PlassGridState extends State<PlassGrid> {
     // the column's together. And the first cell of a row is inside the row's
     // focus stop, so the column that stops being first, or starts, moves in or
     // out of the stop, and only a global key takes its element with it.
-    final List<Object> columnIds = _columnIds();
+    final List<Object> columnIds = _columnIdsOf(widget.columns);
     final headerKeys = <Object, GlobalKey>{
       for (final id in columnIds) id: _headerKeys[id] ?? GlobalKey(),
     };
@@ -475,9 +505,16 @@ class _PlassGridState extends State<PlassGrid> {
             for (var index = 0; index < widget.columns.length; index += 1)
               // Keyed by the column, as every cell is, and read as well: the
               // pinned band is told how wide the grid laid this column out.
+              // Every column's width is its heading's, so a heading laid out
+              // at a new width is the one thing that moves the band: a longer
+              // cell, a new heading, a new text scale, a new width for the
+              // grid.
               KeyedSubtree(
                 key: headerKeys[columnIds[index]],
-                child: headerCell(widget.columns[index]),
+                child: _WidthReport(
+                  onChanged: _scheduleMeasure,
+                  child: headerCell(widget.columns[index]),
+                ),
               ),
           ],
         ),
@@ -543,12 +580,12 @@ class _PlassGridState extends State<PlassGrid> {
       ),
     );
 
-    // The cap, the band and the measuring round the rows are there whether or
-    // not they are asked for, and only what they do changes. A wrapper that
-    // came and went with `maxHeight` or `stickyHeader` would build every cell
-    // again from scratch, and a field in one would lose what was typed into it.
-    // Unasked for, the cap is no cap, the stack hands its one child the
-    // constraints it was given, and nothing is measured.
+    // The cap and the band round the rows are there whether or not they are
+    // asked for, and only what they do changes. A wrapper that came and went
+    // with `maxHeight` or `stickyHeader` would build every cell again from
+    // scratch, and a field in one would lose what was typed into it. Unasked
+    // for, the cap is no cap, the stack hands its one child the constraints it
+    // was given, and nothing is measured.
     scrolling = ConstrainedBox(
       constraints: BoxConstraints(maxHeight: widget.maxHeight ?? double.infinity),
       child: scrolling,
@@ -575,26 +612,6 @@ class _PlassGridState extends State<PlassGrid> {
             ),
           ),
       ],
-    );
-
-    // The widths are read after the frame that laid them out, and read again
-    // whenever the grid is laid out at a different width. Assigning the cache
-    // key here rather than inside the callback is what keeps a rebuild from
-    // queueing a second measurement of the same layout.
-    //
-    // Held in a second name rather than reassigned: a builder that returned the
-    // variable it was assigned to would be a widget containing itself.
-    final Widget pinned = scrolling;
-
-    scrolling = LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        if (widget.stickyHeader && _measuredAt != constraints.maxWidth) {
-          _measuredAt = constraints.maxWidth;
-          WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
-        }
-
-        return pinned;
-      },
     );
 
     // A grid held by `maxHeight`, or by a box too small for it, is a tab stop
@@ -874,6 +891,47 @@ class _RowBands extends CustomPainter {
         old.rule != rule ||
         old.hovered != hovered ||
         old.focused != focused;
+  }
+}
+
+/// Tells [onChanged] when the heading under it is laid out at a new width,
+/// the first time included.
+///
+/// A column's width is decided by every cell in it, and a heading laid out
+/// again is the one place all of them show up at once. What it reports is
+/// only that something moved; the grid reads the widths together once the
+/// frame is over.
+class _WidthReport extends SingleChildRenderObjectWidget {
+  const _WidthReport({required this.onChanged, required super.child});
+
+  final VoidCallback onChanged;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderWidthReport(onChanged);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderWidthReport renderObject) {
+    renderObject.onChanged = onChanged;
+  }
+}
+
+class _RenderWidthReport extends RenderProxyBox {
+  _RenderWidthReport(this.onChanged);
+
+  VoidCallback onChanged;
+
+  double? _reported;
+
+  @override
+  void performLayout() {
+    super.performLayout();
+
+    if (size.width == _reported) {
+      return;
+    }
+
+    _reported = size.width;
+    onChanged();
   }
 }
 

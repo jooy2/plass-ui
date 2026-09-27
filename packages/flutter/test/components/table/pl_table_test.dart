@@ -1009,6 +1009,102 @@ void main() {
         );
       });
 
+      testWidgets(
+        'lines the band up with the grid again as a row, a heading, the text scale and the band itself change',
+        (WidgetTester tester) async {
+          Widget table({
+            List<_Build> rows = _rows,
+            String heading = 'Build',
+            double scale = 1,
+            bool pinned = true,
+          }) {
+            return host(
+              Builder(
+                builder: (BuildContext context) => MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
+                  child: PlTable<_Build>(
+                    rows: rows,
+                    stickyHeader: pinned,
+                    maxHeight: 200,
+                    columns: <PlTableColumn<_Build>>[
+                      PlTableColumn<_Build>(
+                        header: Text(heading),
+                        cell: (_Build row, int index) => Text(row.id),
+                      ),
+                      PlTableColumn<_Build>(
+                        header: const Text('Branch'),
+                        cell: (_Build row, int index) => Text(row.branch),
+                      ),
+                      PlTableColumn<_Build>(
+                        header: const Text('State'),
+                        cell: (_Build row, int index) => const Text('green'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              width: 640,
+            );
+          }
+
+          // Where the band starts each heading after the first, against where
+          // the grid does: the grid's heading is built first, the band's last.
+          void expectLinedUp(String reason) {
+            for (final String name in <String>['Branch', 'State']) {
+              final List<Element> both = find.text(name).evaluate().toList();
+
+              expect(both, hasLength(2), reason: '$name, $reason');
+              expect(
+                tester.getTopLeft(find.byElementPredicate((Element e) => e == both.last)).dx,
+                tester.getTopLeft(find.byElementPredicate((Element e) => e == both.first)).dx,
+                reason: '$name, $reason',
+              );
+            }
+          }
+
+          const List<_Build> longer = <_Build>[
+            _Build('#412 nightly build', 'main'),
+            _Build('#411', 'fix/glass-edge'),
+            _Build('#410', 'topic/table'),
+          ];
+
+          await tester.pumpWidget(table());
+          await tester.pumpAndSettle();
+          expectLinedUp('at rest');
+
+          final double resting = tester.getTopLeft(find.text('Branch').first).dx;
+
+          await tester.pumpWidget(table(rows: longer));
+          await tester.pumpAndSettle();
+
+          // The first column really is wider, or the band has nothing to follow.
+          expect(tester.getTopLeft(find.text('Branch').first).dx, greaterThan(resting));
+          expectLinedUp('a longer cell');
+
+          await tester.pumpWidget(table(rows: longer, heading: 'Build and its run'));
+          await tester.pumpAndSettle();
+          expectLinedUp('a longer heading');
+
+          await tester.pumpWidget(table());
+          await tester.pumpAndSettle();
+          expectLinedUp('narrower again');
+
+          await tester.pumpWidget(table(scale: 1.3));
+          await tester.pumpAndSettle();
+          expectLinedUp('a larger text scale');
+
+          // Turned off, the rows change under a band that is not there to be
+          // measured for, and turned on it has to catch up.
+          await tester.pumpWidget(table(pinned: false));
+          await tester.pumpAndSettle();
+          await tester.pumpWidget(table(rows: longer, pinned: false));
+          await tester.pumpAndSettle();
+          await tester.pumpWidget(table(rows: longer));
+          await tester.pumpAndSettle();
+          expectLinedUp('turned off and on again');
+        },
+      );
+
       testWidgets('stays put while the rows go under it', (WidgetTester tester) async {
         await tester.pumpWidget(_table(rows: _many, maxHeight: 200, stickyHeader: true));
         await tester.pumpAndSettle();

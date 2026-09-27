@@ -173,6 +173,43 @@ void main() {
 
         expect(find.text('Nothing here'), findsOneWidget);
       });
+
+      testWidgets('lines the pinned band up with the grid again as the columns change places', (
+        WidgetTester tester,
+      ) async {
+        // Widths of their own, so every heading keeps the width it had and only
+        // the order moves.
+        final PlDataTableColumn<Invoice> invoice = PlDataTableColumn<Invoice>(
+          key: 'id',
+          header: const Text('Invoice'),
+          width: 120,
+          cell: (Invoice row, int _) => Text(row.id),
+        );
+        final PlDataTableColumn<Invoice> customer = PlDataTableColumn<Invoice>(
+          key: 'customer',
+          header: const Text('Customer'),
+          width: 240,
+          cell: (Invoice row, int _) => Text(row.customer),
+        );
+
+        await tester.pumpWidget(
+          host(table(columns: <PlDataTableColumn<Invoice>>[invoice, customer]), width: 640),
+        );
+        await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          host(table(columns: <PlDataTableColumn<Invoice>>[customer, invoice]), width: 640),
+        );
+        await tester.pumpAndSettle();
+
+        // The grid's heading is built first, the band's last.
+        final List<Element> both = find.text('Invoice').evaluate().toList();
+
+        expect(both, hasLength(2));
+        expect(
+          tester.getTopLeft(find.byElementPredicate((Element e) => e == both.last)).dx,
+          tester.getTopLeft(find.byElementPredicate((Element e) => e == both.first)).dx,
+        );
+      });
     });
 
     group('sorting', () {
