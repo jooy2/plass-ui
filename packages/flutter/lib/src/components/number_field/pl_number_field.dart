@@ -316,11 +316,26 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// See `PlTextField`, which explains the whole of it.
   bool _quiet = false;
 
-  /// Only while the field has the focus: a controller is written to from
-  /// outside as well, and a form filling its fields in is not a reader typing.
-  void _onEditing() {
+  /// Puts the light out, only while the field has the focus: autofill can
+  /// write into a field that does not have it, and that is not a reader typing.
+  ///
+  /// Called for the text typed and for the keys that step or settle the value,
+  /// and never for the field's own writes into the box: a step taken with a
+  /// press or the wheel is the pointer at work, and the value put back once the
+  /// caller has answered is not the reader's at all.
+  void _quieten() {
     if (_editable && _focused && !_quiet) {
       setState(() => _quiet = true);
+    }
+  }
+
+  /// The caret or the selection has moved. Only a move made from the keyboard
+  /// is the reader typing: the caret the editor puts in as the focus arrives,
+  /// and one a press puts somewhere, leave the light where it was, as the React
+  /// field is quieted by a key press alone.
+  void _onSelectionChanged(TextSelection selection, SelectionChangedCause? cause) {
+    if (cause == SelectionChangedCause.keyboard) {
+      _quieten();
     }
   }
 
@@ -355,7 +370,6 @@ class _PlNumberFieldState extends State<PlNumberField> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: _write(widget.value));
-    _controller.addListener(_onEditing);
     _focusNode.addListener(_onFocusChanged);
   }
 
@@ -380,7 +394,6 @@ class _PlNumberFieldState extends State<PlNumberField> {
   void dispose() {
     _repeat?.cancel();
     _focusNode.removeListener(_onFocusChanged);
-    _controller.removeListener(_onEditing);
     _owned?.dispose();
     _controller.dispose();
     super.dispose();
@@ -521,6 +534,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
   }
 
   void _onTyped(String text) {
+    _quieten();
     // Reported as typed rather than as settled — see the note on `onChanged`.
     widget.onChanged?.call(_read(text));
   }
@@ -663,7 +677,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
       autofocus: widget.autofocus,
       keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
       onChanged: _onTyped,
-      onSubmitted: (String text) => _commit(_read(text)),
+      onSelectionChanged: _onSelectionChanged,
+      // Enter is a key press, which puts the light out whether or not the value
+      // it settles changes the box.
+      onSubmitted: (String text) {
+        _quieten();
+        _commit(_read(text));
+      },
       textAlign: split && showSteppers ? TextAlign.center : TextAlign.start,
       style: TextStyle(
         color: tokens.fg,
@@ -747,8 +767,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
+          // A key press, which puts the light out as typing does, where a
+          // stepper or the wheel stepping the same value leaves it lit.
           _StepIntent: CallbackAction<_StepIntent>(
             onInvoke: (_StepIntent intent) {
+              _quieten();
               _step(intent.direction, amount: intent.amount);
 
               return null;
@@ -756,6 +779,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
           ),
           _EdgeIntent: CallbackAction<_EdgeIntent>(
             onInvoke: (_EdgeIntent intent) {
+              _quieten();
               _edge(intent.toEnd);
 
               return null;

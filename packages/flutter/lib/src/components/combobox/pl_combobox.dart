@@ -433,24 +433,25 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// See `PlTextField`, which explains the whole of it.
   bool _quiet = false;
 
-  /// Whether the field is writing its own text, through [_write].
-  bool _writing = false;
-
-  /// Puts the light out, only while the field has the focus: a controller is
-  /// written to from outside as well, and a form filling its fields in is not a
-  /// reader typing.
+  /// Puts the light out, only while the field has the focus: autofill can
+  /// write into a field that does not have it, and that is not a reader typing.
+  ///
+  /// Called for the text typed, a caret moved from the keyboard and Enter, and
+  /// never for a label the field writes itself — the row just taken, a value or
+  /// a label handed in, the text put back as the list closes, a field cleared —
+  /// which the editor does not report, as the React field is quieted by a key
+  /// press alone.
   void _quieten() {
     if (_usable && _focused && !_quiet) {
       setState(() => _quiet = true);
     }
   }
 
-  /// The text or the caret has moved. A label the field writes itself — the
-  /// row just taken, a value or a label handed in, the text put back as the
-  /// list closes, a field cleared — is not the reader typing, and leaves the
-  /// light where it was, as the React field is quieted by a key press alone.
-  void _onEditing() {
-    if (!_writing) {
+  /// The caret or the selection has moved. Only a move made from the keyboard
+  /// is the reader typing: the caret the editor puts in as the focus arrives,
+  /// and one a press puts somewhere, leave the light where it was.
+  void _onSelectionChanged(TextSelection selection, SelectionChangedCause? cause) {
+    if (cause == SelectionChangedCause.keyboard) {
       _quieten();
     }
   }
@@ -509,7 +510,6 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChanged);
-    _text.addListener(_onEditing);
   }
 
   @override
@@ -554,7 +554,6 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   @override
   void dispose() {
     _focusNode.removeListener(_onFocusChanged);
-    _text.removeListener(_onEditing);
     _scroll.dispose();
     _text.dispose();
     _owned?.dispose();
@@ -629,12 +628,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     // With the caret after it, where a field that keeps the focus goes on being
     // typed into.
-    _writing = true;
     _text.value = TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
     );
-    _writing = false;
 
     if (!later) {
       widget.onQueryChanged?.call(text);
@@ -855,6 +852,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   }
 
   void _onQueryChanged(String query) {
+    _quieten();
     widget.onQueryChanged?.call(query);
 
     // Emptying the text of a single-value field empties the field, as Base UI
@@ -1084,6 +1082,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       maxLines: 1,
       minLines: 1,
       onChanged: _onQueryChanged,
+      onSelectionChanged: _onSelectionChanged,
       // Enter takes the lit row and nothing else. Left to itself the editor also
       // gives the focus up, which closed the list and, with `multiple`, ended
       // the set of picks at the first one.

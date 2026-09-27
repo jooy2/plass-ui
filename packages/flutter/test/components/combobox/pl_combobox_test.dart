@@ -2531,6 +2531,64 @@ void main() {
         expect(bloomIsLit(tester), isTrue);
       });
 
+      testWidgets('stays lit as Tab brings the focus in under a resting pointer', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          _host(
+            afterFocusStop(
+              before,
+              PlCombobox<String>(options: _cities, value: 'seoul', onChanged: (String? _) {}),
+            ),
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+
+        final TestGesture pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await pointer.addPointer(location: Offset.zero);
+        addTearDown(pointer.removePointer);
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)));
+        await tester.pump();
+        expect(bloomIsLit(tester), isTrue);
+
+        // The editor puts its caret in as the focus arrives, which is not the
+        // reader typing.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('goes out as the caret is moved from the keyboard', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _host(
+            DefaultTextEditingShortcuts(
+              child: PlCombobox<String>(
+                options: _cities,
+                value: 'seoul',
+                onChanged: (String? _) {},
+              ),
+            ),
+          ),
+        );
+        await rest(tester);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pump();
+
+        expect(
+          tester.widget<EditableText>(find.byType(EditableText)).controller.selection,
+          const TextSelection.collapsed(offset: 4),
+        );
+        expect(bloomIsLit(tester), isFalse);
+      });
+
       testWidgets('goes out as Enter takes a row', (WidgetTester tester) async {
         final ValueNotifier<String?> value = ValueNotifier<String?>(null);
 

@@ -242,16 +242,29 @@ class _PlTextFieldState extends State<PlTextField> {
   /// `[data-quiet]` rule over `.plass-glow`.
   bool _quiet = false;
 
-  /// The controller notifies on both halves of being typed into — the text
-  /// changing and the caret moving through it — which is what makes it the
-  /// signal here rather than [PlTextField.onChanged], which hears only the
-  /// first.
-  ///
-  /// Only while the field has the focus. A controller is also written to from
-  /// outside, and a form filling its fields in is not a reader typing in one.
-  void _onEditing() {
+  /// Puts the light out, only while the field has the focus: autofill can
+  /// write into a field that does not have it, and that is not a reader typing.
+  void _quieten() {
     if (_lit && _focused && !_quiet) {
       setState(() => _quiet = true);
+    }
+  }
+
+  /// Text the reader has entered. The editor reports it here, and not a write
+  /// into the controller, which is a caller's rather than the reader's.
+  void _onChanged(String text) {
+    _quieten();
+    widget.onChanged?.call(text);
+  }
+
+  /// The caret or the selection has moved, which is the other half of being
+  /// typed into. Only a move made from the keyboard counts: the caret the
+  /// editor puts in as the focus arrives, and one a press puts somewhere, leave
+  /// the light where it was, as the React field is quieted by a key press
+  /// alone.
+  void _onSelectionChanged(TextSelection selection, SelectionChangedCause? cause) {
+    if (cause == SelectionChangedCause.keyboard) {
+      _quieten();
     }
   }
 
@@ -284,7 +297,6 @@ class _PlTextFieldState extends State<PlTextField> {
   void initState() {
     super.initState();
     _focusNode.addListener(_onFocusChanged);
-    _controller.addListener(_onEditing);
   }
 
   @override
@@ -295,17 +307,11 @@ class _PlTextFieldState extends State<PlTextField> {
       (oldWidget.focusNode ?? _owned)?.removeListener(_onFocusChanged);
       _focusNode.addListener(_onFocusChanged);
     }
-
-    if (oldWidget.controller != widget.controller) {
-      (oldWidget.controller ?? _fallback)?.removeListener(_onEditing);
-      _controller.addListener(_onEditing);
-    }
   }
 
   @override
   void dispose() {
     _focusNode.removeListener(_onFocusChanged);
-    _controller.removeListener(_onEditing);
     _owned?.dispose();
     _fallback?.dispose();
     super.dispose();
@@ -362,7 +368,8 @@ class _PlTextFieldState extends State<PlTextField> {
       ],
       maxLines: widget.multiline ? widget.rows : 1,
       minLines: widget.multiline ? widget.rows : 1,
-      onChanged: widget.onChanged,
+      onChanged: _onChanged,
+      onSelectionChanged: _onSelectionChanged,
       onSubmitted: widget.onSubmitted,
       style: TextStyle(
         color: tokens.fg,
@@ -399,7 +406,7 @@ class _PlTextFieldState extends State<PlTextField> {
       control = Stack(
         children: <Widget>[
           ValueListenableBuilder<TextEditingValue>(
-            valueListenable: widget.controller ?? _fallback!,
+            valueListenable: _controller,
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
               return value.text.isEmpty
                   ? IgnorePointer(

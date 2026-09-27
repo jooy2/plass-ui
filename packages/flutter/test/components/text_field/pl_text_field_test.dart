@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 
 import '../../support/host.dart';
@@ -189,6 +191,131 @@ void main() {
         );
 
         expect(tester.widget<EditableText>(find.byType(EditableText)).readOnly, isTrue);
+      });
+    });
+
+    group('the interaction light', () {
+      /// Whether the shell's bloom is lit: the first of the two layers of the
+      /// light.
+      bool bloomIsLit(WidgetTester tester) {
+        return tester.widgetList<PlassGlowLayer>(find.byType(PlassGlowLayer)).first.visible;
+      }
+
+      /// A mouse left resting on the field's text, as a hand that has gone
+      /// over to the keyboard leaves it.
+      Future<TestGesture> rest(WidgetTester tester) async {
+        final TestGesture pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await pointer.addPointer(location: Offset.zero);
+        addTearDown(pointer.removePointer);
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)));
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+
+        return pointer;
+      }
+
+      /// A field over [controller], under the keys a `WidgetsApp` gives a text
+      /// field, focused before the pointer comes to rest on it.
+      Future<TestGesture> focusAndRest(
+        WidgetTester tester,
+        TextEditingController controller,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            DefaultTextEditingShortcuts(
+              child: PlTextField(fullWidth: true, controller: controller),
+            ),
+            width: 300,
+          ),
+        );
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pump();
+
+        return rest(tester);
+      }
+
+      testWidgets('stays lit as Tab brings the focus in under a resting pointer', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(afterFocusStop(before, const PlTextField(fullWidth: true)), width: 300),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await rest(tester);
+
+        // The editor puts its caret in as the focus arrives, which is not the
+        // reader typing.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('stays lit as a press moves the caret', (WidgetTester tester) async {
+        final TextEditingController controller = TextEditingController(text: 'Seoul');
+        addTearDown(controller.dispose);
+
+        final TestGesture pointer = await focusAndRest(tester, controller);
+
+        await pointer.down(tester.getTopLeft(find.byType(EditableText)) + const Offset(2, 8));
+        await pointer.up();
+        await tester.pump();
+
+        expect(controller.selection, const TextSelection.collapsed(offset: 0));
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('stays lit as the caller writes into the focused field', (
+        WidgetTester tester,
+      ) async {
+        final TextEditingController controller = TextEditingController(text: 'Seoul');
+        addTearDown(controller.dispose);
+
+        await focusAndRest(tester, controller);
+
+        controller.text = 'Lisbon';
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('goes out as a character is typed, and comes back as the pointer moves', (
+        WidgetTester tester,
+      ) async {
+        final TextEditingController controller = TextEditingController(text: 'Seoul');
+        addTearDown(controller.dispose);
+
+        final TestGesture pointer = await focusAndRest(tester, controller);
+
+        tester.testTextInput.enterText('Seoul!');
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isFalse);
+
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)) + const Offset(6, 0));
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('goes out as the caret is moved from the keyboard', (WidgetTester tester) async {
+        final TextEditingController controller = TextEditingController(text: 'Seoul');
+        addTearDown(controller.dispose);
+
+        await focusAndRest(tester, controller);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pump();
+
+        expect(controller.selection, const TextSelection.collapsed(offset: 4));
+        expect(bloomIsLit(tester), isFalse);
       });
     });
 

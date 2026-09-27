@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -492,6 +493,159 @@ void main() {
         tester.binding.focusManager.primaryFocus!.unfocus();
         await tester.pumpAndSettle();
         expect(settled, <double?>[12]);
+      });
+    });
+
+    group('the interaction light', () {
+      /// Whether the shell's bloom is lit: the first of the two layers of the
+      /// light, and the shell is the one surface here that has one.
+      bool bloomIsLit(WidgetTester tester) {
+        return tester.widgetList<PlassGlowLayer>(find.byType(PlassGlowLayer)).first.visible;
+      }
+
+      /// A mouse left resting on the field's text, as a hand that has gone
+      /// over to the keyboard leaves it.
+      Future<TestGesture> rest(WidgetTester tester) async {
+        final TestGesture pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await pointer.addPointer(location: Offset.zero);
+        addTearDown(pointer.removePointer);
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)));
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+
+        return pointer;
+      }
+
+      /// [harness] under the keys a `WidgetsApp` gives a text field, focused
+      /// before the pointer comes to rest on it.
+      Future<TestGesture> focusAndRest(WidgetTester tester, _Harness harness) async {
+        await tester.pumpWidget(host(DefaultTextEditingShortcuts(child: harness), width: 320));
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pump();
+
+        return rest(tester);
+      }
+
+      testWidgets('stays lit as Tab brings the focus in under a resting pointer', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(host(afterFocusStop(before, const _Harness()), width: 320));
+        before.requestFocus();
+        await tester.pump();
+        await rest(tester);
+
+        // The editor puts its caret in as the focus arrives, which is not the
+        // reader typing.
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('stays lit as a stepper is pressed in the focused field', (
+        WidgetTester tester,
+      ) async {
+        final TestGesture pointer = await focusAndRest(tester, const _Harness());
+        final _HarnessState state = tester.state<_HarnessState>(find.byType(_Harness));
+
+        await pointer.moveTo(tester.getCenter(_plus()));
+        await tester.pump();
+        await pointer.down(tester.getCenter(_plus()));
+        await pointer.up();
+        await tester.pumpAndSettle();
+
+        // The value it writes in, and the value put back once the caller has
+        // answered, are the field's own.
+        expect(state.value, 6);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('stays lit as the wheel steps the focused field', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const _Harness(allowWheelScrub: true), width: 320));
+        final _HarnessState state = tester.state<_HarnessState>(find.byType(_Harness));
+
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pump();
+
+        // A pointer of its own, since only a bare one can be turned as a wheel.
+        final TestPointer mouse = TestPointer(1, PointerDeviceKind.mouse);
+
+        await tester.sendEventToBinding(mouse.hover(tester.getCenter(find.byType(EditableText))));
+        await tester.pump();
+        expect(bloomIsLit(tester), isTrue);
+
+        await tester.sendEventToBinding(mouse.scroll(const Offset(0, -40)));
+        await tester.pumpAndSettle();
+
+        expect(state.value, 6);
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('goes out as a character is typed, and comes back as the pointer moves', (
+        WidgetTester tester,
+      ) async {
+        final TestGesture pointer = await focusAndRest(tester, const _Harness());
+
+        tester.testTextInput.enterText('50');
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isFalse);
+
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)) + const Offset(6, 0));
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('goes out as the caret is moved from the keyboard', (WidgetTester tester) async {
+        await focusAndRest(tester, const _Harness(value: 50));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pump();
+
+        expect(
+          tester.widget<EditableText>(find.byType(EditableText)).controller.selection,
+          const TextSelection.collapsed(offset: 1),
+        );
+        expect(bloomIsLit(tester), isFalse);
+      });
+
+      testWidgets('goes out as a key steps the value or settles it', (WidgetTester tester) async {
+        final TestGesture pointer = await focusAndRest(tester, const _Harness(max: 100));
+        final _HarnessState state = tester.state<_HarnessState>(find.byType(_Harness));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+
+        expect(state.value, 6);
+        expect(bloomIsLit(tester), isFalse);
+
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)) + const Offset(6, 0));
+        await tester.pump();
+        expect(bloomIsLit(tester), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pump();
+
+        expect(state.value, 100);
+        expect(bloomIsLit(tester), isFalse);
+
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)));
+        await tester.pump();
+        expect(bloomIsLit(tester), isTrue);
+
+        // Enter settles a value the box already shows, and writes nothing.
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isFalse);
       });
     });
 
