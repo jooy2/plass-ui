@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A screen reader can press a `PlNumberField`'s steppers, as in the React build.** "Increase" and "Decrease" were announced as buttons with nothing to do. Each now takes one step when a screen reader presses it, without bringing the focus into the field, and calls `onCommitted` if the value moved, as a click on a React stepper does. A stepper that has run into `min` or `max`, and the steppers of a disabled field, still have no press.
+
 - **A read-only `PlNumberField` keeps the value it is handed, and a key or a turn of the wheel that leaves a `PlNumberField`'s value where it was does not call `onCommitted`, as in the React build.** `Home` and `End` set a read-only field to its `min` or `max`, and leaving a read-only field clamped a value outside the range through `onChanged` and `onCommitted`; leaving a field that was disabled while it held the focus did the same. An arrow key, `Page Up`, `Page Down`, `Home`, `End` or a turn of the wheel that met the end of the range called `onCommitted` with the value the field already had. A number typed before such a key still settles when the field is left.
 
 - **A `value` handed to a focused `PlNumberField` is shown in its box at once, unless a number is being typed there, as in the React build.** The box kept the old number for as long as the field held the focus, and leaving the field wrote that number back through `onChanged` and `onCommitted`, so a field at 5 whose parent set 9 while it was focused went back to 5. A number being typed is still left alone until the field is left, where it settles as before.

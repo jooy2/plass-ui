@@ -1177,6 +1177,43 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('a screen reader presses a stepper, one step at a time', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(tester, _Harness(max: 6, onCommitted: settled.add));
+
+        tester.semantics.tap(find.semantics.byLabel('Increase'));
+        await tester.pumpAndSettle();
+
+        // One step, settled as it is taken, and no focus brought in with it.
+        expect(state.value, 6);
+        expect(settled, <double?>[6]);
+        expect(_editorFocused(tester), isFalse);
+
+        // A stepper at the end of the range has nothing to press.
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>['Decrease']);
+
+        tester.semantics.tap(find.semantics.byLabel('Decrease'));
+        await tester.pumpAndSettle();
+
+        expect(state.value, 5);
+        expect(settled, <double?>[6, 5]);
+
+        handle.dispose();
+      });
+
+      testWidgets('a disabled field has no stepper to press', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await _pump(tester, const _Harness(disabled: true));
+
+        expect(find.bySemanticsLabel('Increase'), findsOneWidget);
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), isEmpty);
+
+        handle.dispose();
+      });
+
       testWidgets('is passed by Tab while disabled, and reached by it otherwise', (
         WidgetTester tester,
       ) async {

@@ -86,8 +86,9 @@ enum _CommitWhen {
   /// release of a press on a stepper.
   always,
 
-  /// Only when the value changed: a key step, <kbd>Home</kbd>, <kbd>End</kbd>
-  /// and the wheel. One that leaves the value where it was settles nothing.
+  /// Only when the value changed: a key step, <kbd>Home</kbd>, <kbd>End</kbd>,
+  /// the wheel, and a screen reader's press on a stepper. One that leaves the
+  /// value where it was settles nothing.
   changed,
 
   /// Never: a repeat of a held stepper, which settles on its release.
@@ -972,6 +973,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
               label: direction > 0
                   ? widget.incrementLabel ?? PlassTheme.labelsOf(context).increase
                   : widget.decrementLabel ?? PlassTheme.labelsOf(context).decrease,
+              // `PlassInteractive` keeps its tap off the semantics tree, so the
+              // press a screen reader makes is given here. It is one step, the
+              // click a Base UI stepper answers with no pointer behind it: no
+              // repeat, no focus, and settled only if it moved the value.
+              onTap: inert
+                  ? null
+                  : () => _step(direction, amount: _heldAmount, when: _CommitWhen.changed),
               // Painted straight onto the canvas while it is not faded, rather
               // than through an `Opacity` at 1, which is a layer all the same:
               // one on each stepper of every field on the screen, for nothing.
