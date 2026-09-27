@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlassChartSeries` takes `id`, which the chart knows a series by from one render to the next.** A series' legend entry was known by its name and how many series before it have that name, so a series renamed between two renders came back switched on and let go of the pointer resting on its entry, and when the first of two series with one name left the data, the second took its state over. A series with an `id` keeps its switched-off state and the pointer on its entry through both. A series without one is known as before, and so is a `PlPieChart`'s slice, which has no `id`. The Flutter build makes the same change.
+
 - **`PlPopconfirm` takes `loadingLabel`, the word a screen reader hears while it waits on `onConfirm`.** Its confirming button was always described by the label set's `loading`, "Loading" in English, which does not say what is being waited for, and the popconfirm had no way to hand it another. `loadingLabel` reaches that button and puts the popconfirm's own word in its place, such as "Revoking", and the name stays what it was.
 
 - **`PlButton`, `PlIconButton` and `PlFloatingActionButton` take `loadingLabel`, the word a screen reader hears while `loading`.** A loading button was always described by the label set's `loading`, "Loading" in English, which does not say what is being waited for. `loadingLabel` puts the button's own word in its place, such as "Saving", and the name stays what it was.

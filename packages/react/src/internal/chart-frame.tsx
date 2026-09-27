@@ -249,28 +249,42 @@ interface Visibility {
 
 /**
  * The keys the legend entries of `series` are rendered under, one per series
- * and in its order: its name and how many series before it have that name, or
- * its place in the array when it has none.
+ * and in its order: its `id` and how many series before it have that id, or
+ * else its name and how many series before it have that name, or its place in
+ * the array when it has neither.
  *
- * Every name is followed by its count and a place never is, so no two entries
- * share a key: two series called "Revenue" are `Revenue#0` and `Revenue#1`, and
- * a series called "1" is `1#0` where an unnamed one at index 1 is `1`. The
- * count is whatever follows the last `#`, so a name holding a `#` of its own
- * cannot meet another name's key either.
+ * No two entries share a key. Every name is followed by its count and a place
+ * never is: two series called "Revenue" are `Revenue#0` and `Revenue#1`, and a
+ * series called "1" is `1#0` where an unnamed one at index 1 is `1`. The count
+ * is whatever follows the last `#`, so a name holding a `#` of its own cannot
+ * meet another name's key either. An id is followed by its count and then by
+ * `@id`, so a series with the id "eu" is `eu#0@id`, which ends in a letter
+ * where the key of a name or of a place always ends in a digit.
  */
 function entryKeys(series: readonly PlassChartSeries[]): string[] {
-  const seen = new Map<string, number>();
+  const names = new Map<string, number>();
+  const ids = new Map<string, number>();
 
   return series.map((one, index) => {
+    const id = one.id ?? null;
+
+    if (id !== null) {
+      const before = ids.get(id) ?? 0;
+
+      ids.set(id, before + 1);
+
+      return `${id}#${before}@id`;
+    }
+
     const name = one.name ?? null;
 
     if (name === null) {
       return String(index);
     }
 
-    const before = seen.get(name) ?? 0;
+    const before = names.get(name) ?? 0;
 
-    seen.set(name, before + 1);
+    names.set(name, before + 1);
 
     return `${name}#${before}`;
   });

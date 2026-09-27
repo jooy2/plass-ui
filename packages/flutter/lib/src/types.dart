@@ -730,7 +730,13 @@ class PlassChartSeries {
   /// The readings, in category order.
   final List<PlassChartDatum> data;
 
-  /// What identifies it. Defaults to its place in the list.
+  /// What the chart knows it by from one build to the next, for a series whose
+  /// name is not enough: one that shares its name with another, or one whose
+  /// name changes.
+  ///
+  /// Its legend entry and whether the legend has it switched off are held by
+  /// it. Without one, a series is known by its name and how many series before
+  /// it have that name, or by its place in the list when it has no name.
   final String? id;
 
   /// What the legend, the tooltip and the table call it.

@@ -722,6 +722,17 @@ export interface PlassChartSeries {
    * the reader cannot identify.
    */
   name?: string;
+  /**
+   * What the chart knows it by from one render to the next, for a series whose
+   * name is not enough: one that shares its name with another, or one whose
+   * name changes.
+   *
+   * Its legend entry, whether the legend has it switched off and the pointer
+   * resting on that entry are held by it. Without one, a series is known by its
+   * name and how many series before it have that name, or by its place in the
+   * array when it has no name.
+   */
+  id?: string;
   /** The values, in category order. */
   data: readonly PlassChartDatum[];
   /**

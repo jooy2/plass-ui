@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlassChartSeries.id` is what a chart knows a series by from one build to the next.** It was documented as what identifies a series and read by nothing. A series' legend entry was known by its name and how many series before it have that name, so a series renamed between two builds came back switched on, and when the first of two series with one name left the data, the second took its state over. A series with an `id` keeps its switched-off state through both. A series without one is known as before, and so is a `PlPieChart`'s slice, which has no `id`. The React build makes the same change.
+
 - **`PlChartTooltip` takes `crosshair`, so a line, area or bar chart can read a column without the line dropped through it, as React's `crosshair: false` does.** It is `true` by default, and the crosshair is drawn only in `PlassChartTooltipMode.column`.
 
 - **A double tap on a `PlWindowPane` title bar maximizes the window, and another restores it, as a double click does in the React build.** Only the maximize button did. It works on a window whose `controls` include that button and reports through `onMaximizedChanged`. A press on a caption button, in the gap between two of them, above or below them within the bar or on `actions` stays that control's own, so a button pressed twice is pressed twice, and a drag of a `draggable` bar still moves the window from the first pixel. On `windows7` the buttons hang from the top edge of the bar, and a double tap below them is the bar's.

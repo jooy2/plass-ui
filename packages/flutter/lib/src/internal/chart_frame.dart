@@ -2016,24 +2016,40 @@ bool legendHasEntry(PlChartLegend legend, int count, int index) {
 }
 
 /// The keys the legend entries of [series] are known by, one per series and in
-/// its order: its name and how many series before it have that name, or its
-/// place in the list when it has none, as the React build's `entryKeys`.
+/// its order: its [PlassChartSeries.id] and how many series before it have that
+/// id, or else its name and how many series before it have that name, or its
+/// place in the list when it has neither, as the React build's `entryKeys`.
 ///
 /// What a chart holds the series switched off in the legend by, so a series
 /// that moves because one before it left the data stays as it was, the one
-/// that moves into its place does not take its state over, and one of two
-/// series with the same name is switched off without the other.
+/// that moves into its place does not take its state over, one of two series
+/// with the same name is switched off without the other, and a series with an
+/// id keeps its state when its name changes.
 ///
-/// Every name is followed by its count and a place never is, so no two entries
-/// share a key: two series called 'Revenue' are `Revenue#0` and `Revenue#1`,
-/// and a series called '1' is `1#0` where an unnamed one at index 1 is `1`. The
+/// No two entries share a key. Every name is followed by its count and a place
+/// never is: two series called 'Revenue' are `Revenue#0` and `Revenue#1`, and
+/// a series called '1' is `1#0` where an unnamed one at index 1 is `1`. The
 /// count is whatever follows the last `#`, so a name holding a `#` of its own
-/// cannot meet another name's key either.
+/// cannot meet another name's key either. An id is followed by its count and
+/// then by `@id`, so a series with the id 'eu' is `eu#0@id`, which ends in a
+/// letter where the key of a name or of a place always ends in a digit.
 List<String> legendKeys(List<PlassChartSeries> series) {
-  final Map<String, int> seen = <String, int>{};
+  final Map<String, int> names = <String, int>{};
+  final Map<String, int> ids = <String, int>{};
   final List<String> keys = <String>[];
 
   for (int i = 0; i < series.length; i += 1) {
+    final String? id = series[i].id;
+
+    if (id != null) {
+      final int before = ids[id] ?? 0;
+
+      ids[id] = before + 1;
+      keys.add('$id#$before@id');
+
+      continue;
+    }
+
     final String? name = series[i].name;
 
     if (name == null) {
@@ -2042,9 +2058,9 @@ List<String> legendKeys(List<PlassChartSeries> series) {
       continue;
     }
 
-    final int before = seen[name] ?? 0;
+    final int before = names[name] ?? 0;
 
-    seen[name] = before + 1;
+    names[name] = before + 1;
     keys.add('$name#$before');
   }
 

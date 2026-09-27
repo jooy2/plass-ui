@@ -1919,16 +1919,9 @@ export const flutterPropTables: Record<string, PropRow[]> = {
   PlassChartSeries: [
     from('PlassChartSeries', 'data', { type: 'List<PlassChartDatum>', required: true }),
     from('PlassChartSeries', 'name', { type: 'String?' }),
+    from('PlassChartSeries', 'id', { type: 'String?' }),
     from('PlassChartSeries', 'color', { type: 'Color?' }),
     from('PlassChartSeries', 'hidden', { type: 'bool', default: 'false' }),
-    {
-      name: 'id',
-      type: 'String?',
-      description: {
-        ko: '무엇이 이 series인지. 기본은 리스트에서의 자리입니다',
-        en: 'What identifies it. Defaults to its place in the list'
-      }
-    },
     {
       name: 'dashed',
       type: 'bool',
