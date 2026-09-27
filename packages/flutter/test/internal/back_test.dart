@@ -108,6 +108,37 @@ Widget _popover(ValueNotifier<bool> open, List<bool> asked, {bool dismissible = 
   );
 }
 
+/// A tour of one step whose `open` is [open], wired as [_modal] is. With
+/// [listens] off, the caller writes down what it is asked and leaves `open` as
+/// it was.
+Widget _tour(
+  ValueNotifier<bool> open,
+  List<bool> asked, {
+  bool dismissible = true,
+  bool mask = true,
+  bool listens = true,
+}) {
+  return ValueListenableBuilder<bool>(
+    valueListenable: open,
+    builder: (BuildContext context, bool value, Widget? _) {
+      return PlTour(
+        open: value,
+        dismissible: dismissible,
+        mask: mask,
+        scrollIntoView: false,
+        onOpenChanged: (bool next) {
+          asked.add(next);
+
+          if (listens) {
+            open.value = next;
+          }
+        },
+        steps: const <PlTourStep>[PlTourStep(title: Text('Welcome'))],
+      );
+    },
+  );
+}
+
 /// Every method the app sent the platform, by name, from here on.
 List<String> _platformCalls(WidgetTester tester) {
   final List<String> calls = <String>[];
@@ -324,6 +355,167 @@ void main() {
 
       expect(asked, <bool>[false], reason: 'one that cannot be dismissed is not asked');
       expect(find.text('Second'), findsNothing, reason: 'and the back goes on to the page');
+    });
+
+    testWidgets('ends a running tour and leaves the page under it', (WidgetTester tester) async {
+      final ValueNotifier<bool> open = ValueNotifier<bool>(true);
+      final List<bool> asked = <bool>[];
+      addTearDown(open.dispose);
+
+      await tester.pumpWidget(_app(navigator));
+      await _push(tester, navigator, _tour(open, asked));
+
+      expect(find.text('Welcome'), findsOneWidget);
+
+      await _back(tester);
+
+      expect(asked, <bool>[false], reason: 'the tour is asked to end');
+      expect(find.text('Welcome'), findsNothing);
+      expect(find.text('Second'), findsOneWidget, reason: 'the page stays');
+
+      await _back(tester);
+
+      expect(find.text('Second'), findsNothing, reason: 'with the tour gone, the page goes');
+      expect(asked, <bool>[false]);
+    });
+
+    testWidgets('is refused by a dimming tour that cannot be dismissed', (
+      WidgetTester tester,
+    ) async {
+      final ValueNotifier<bool> open = ValueNotifier<bool>(true);
+      final List<bool> asked = <bool>[];
+      addTearDown(open.dispose);
+
+      await tester.pumpWidget(_app(navigator));
+      await _push(tester, navigator, _tour(open, asked, dismissible: false));
+
+      await _back(tester);
+
+      expect(find.text('Welcome'), findsOneWidget);
+      expect(find.text('Second'), findsOneWidget, reason: 'the dimmed page is not reached');
+      expect(asked, isEmpty);
+
+      open.value = false;
+      await tester.pumpAndSettle();
+      await _back(tester);
+
+      expect(find.text('Second'), findsNothing, reason: 'ended, the page is popped again');
+    });
+
+    testWidgets('passes a tour with no dimming that cannot be dismissed', (
+      WidgetTester tester,
+    ) async {
+      final ValueNotifier<bool> open = ValueNotifier<bool>(true);
+      final List<bool> asked = <bool>[];
+      addTearDown(open.dispose);
+
+      await tester.pumpWidget(_app(navigator));
+      await _push(tester, navigator, _tour(open, asked, dismissible: false, mask: false));
+
+      await _back(tester);
+
+      expect(asked, isEmpty);
+      expect(find.text('Second'), findsNothing, reason: 'the page it leaves in use is popped');
+    });
+
+    testWidgets('lets the back go once a tour has taken itself down', (WidgetTester tester) async {
+      final ValueNotifier<bool> open = ValueNotifier<bool>(true);
+      final List<bool> asked = <bool>[];
+      addTearDown(open.dispose);
+
+      await tester.pumpWidget(_app(navigator));
+      await _push(tester, navigator, _tour(open, asked, listens: false));
+
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+
+      // Its caller never changed `open`, and the tour is gone all the same.
+      expect(asked, <bool>[false]);
+      expect(find.text('Welcome'), findsNothing);
+
+      await _back(tester);
+
+      expect(find.text('Second'), findsNothing, reason: 'the page is popped');
+      expect(asked, <bool>[false], reason: 'and the tour is not asked again');
+    });
+
+    testWidgets('closes a popover opened over a running tour before the tour', (
+      WidgetTester tester,
+    ) async {
+      final ValueNotifier<bool> tour = ValueNotifier<bool>(true);
+      final ValueNotifier<bool> popover = ValueNotifier<bool>(false);
+      final List<bool> tourAsked = <bool>[];
+      final List<bool> popoverAsked = <bool>[];
+      addTearDown(tour.dispose);
+      addTearDown(popover.dispose);
+
+      await tester.pumpWidget(_app(navigator));
+      await _push(
+        tester,
+        navigator,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[_tour(tour, tourAsked), _popover(popover, popoverAsked)],
+        ),
+      );
+
+      // The step points at the trigger, and the reader opens it.
+      popover.value = true;
+      await tester.pumpAndSettle();
+
+      expect(find.text('Explain'), findsOneWidget);
+
+      await _back(tester);
+
+      expect(popoverAsked, <bool>[false], reason: 'the popover on top closes');
+      expect(tourAsked, isEmpty, reason: 'and the tour under it goes on');
+      expect(find.text('Welcome'), findsOneWidget);
+
+      await _back(tester);
+
+      expect(tourAsked, <bool>[false]);
+      expect(find.text('Second'), findsOneWidget);
+
+      await _back(tester);
+
+      expect(find.text('Home'), findsOneWidget);
+    });
+
+    testWidgets('ends a tour started over an open modal before the modal', (
+      WidgetTester tester,
+    ) async {
+      final ValueNotifier<bool> modal = ValueNotifier<bool>(true);
+      final ValueNotifier<bool> tour = ValueNotifier<bool>(false);
+      final List<bool> modalAsked = <bool>[];
+      final List<bool> tourAsked = <bool>[];
+      addTearDown(modal.dispose);
+      addTearDown(tour.dispose);
+
+      await tester.pumpWidget(_app(navigator));
+      await _push(
+        tester,
+        navigator,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[_modal(modal, modalAsked), _tour(tour, tourAsked)],
+        ),
+      );
+
+      tour.value = true;
+      await tester.pumpAndSettle();
+
+      expect(find.text('Welcome'), findsOneWidget);
+
+      await _back(tester);
+
+      expect(tourAsked, <bool>[false], reason: 'the tour on top ends');
+      expect(modalAsked, isEmpty, reason: 'and the modal under it stays');
+      expect(find.text('Settings'), findsOneWidget);
+
+      await _back(tester);
+
+      expect(modalAsked, <bool>[false]);
+      expect(find.text('Second'), findsOneWidget);
     });
 
     testWidgets('is not answered by a layer on a page another page covers', (

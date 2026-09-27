@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/button/pl_button.dart';
+import 'package:plass_ui/src/internal/back.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
@@ -138,6 +139,13 @@ class PlTourStep {
 /// itself, which is right for a modal and wrong here. A tour whose reader
 /// cannot reach the control it is pointing at has pointed at a picture.
 ///
+/// The system back is answered as that helper answers it, though. Android's
+/// back button and gesture, TalkBack's back and VoiceOver's escape scrub end
+/// the tour as <kbd>Escape</kbd> does, and only the layer on top answers, so a
+/// popover opened from a step closes before the tour, and a tour started over
+/// a modal ends before the modal. The page under a running tour is never
+/// popped by it, unless the tour cannot be dismissed and draws no dimming.
+///
 /// The widget draws nothing where it is written, so it can go anywhere under an
 /// [Overlay] — `WidgetsApp` with a navigator and `MaterialApp` both provide one.
 class PlTour extends StatefulWidget {
@@ -173,7 +181,7 @@ class PlTour extends StatefulWidget {
   final bool open;
 
   /// Called with what [open] should become — a press on Skip, on the ×, on Done,
-  /// or <kbd>Escape</kbd>.
+  /// <kbd>Escape</kbd>, or the system back.
   final ValueChanged<bool>? onOpenChanged;
 
   /// Which stop, counted from `0`. Pass it with [onStepChanged] to control one.
@@ -203,7 +211,12 @@ class PlTour extends StatefulWidget {
   /// Draws the Skip button beside the counter.
   final bool skippable;
 
-  /// Whether <kbd>Escape</kbd> and the × end the tour.
+  /// Whether <kbd>Escape</kbd>, the system back and the × end the tour.
+  ///
+  /// Off, the system back is refused while [mask] dims the screen, which has
+  /// taken the page away from the pointer, rather than let through to pop the
+  /// page under the tour. With no dimming the page is still in use, and the
+  /// back goes on to it.
   final bool dismissible;
 
   /// Scrolls each target into view as the tour reaches it.
@@ -331,7 +344,8 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
       }
 
       _returnTo ??= FocusManager.instance.primaryFocus;
-      _portal.show();
+      // Built again with it, so the layer takes the system back now it is up.
+      setState(_portal.show);
       _reveal();
 
       // A frame later, once the card is in the tree. Left where it was, the
@@ -367,7 +381,8 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
       back.requestFocus();
     }
 
-    _portal.hide();
+    // Built again with it, so a layer that is gone lets the system back go.
+    setState(_portal.hide);
   }
 
   int get _index {
@@ -463,10 +478,20 @@ class _PlTourState extends State<PlTour> with WidgetsBindingObserver {
       return const SizedBox.shrink();
     }
 
-    return OverlayPortal(
-      controller: _portal,
-      overlayChildBuilder: _buildLayer,
-      child: const SizedBox.shrink(),
+    // Taken while the layer is up, which is not always while `open` is: the
+    // tour takes itself down on Skip or Done whether or not its caller listens,
+    // and a layer that is gone must not go on keeping the back from the page.
+    // A tour that can be dismissed ends on it, as on Escape. One that cannot
+    // takes it and does nothing while the dimming has taken the page away from
+    // the pointer, and with no dimming lets it go on to the page in use.
+    return PlassBackGuard(
+      active: widget.open && _portal.isShowing && (widget.dismissible || widget.mask),
+      onBack: widget.dismissible ? () => _setOpen(next: false) : null,
+      child: OverlayPortal(
+        controller: _portal,
+        overlayChildBuilder: _buildLayer,
+        child: const SizedBox.shrink(),
+      ),
     );
   }
 

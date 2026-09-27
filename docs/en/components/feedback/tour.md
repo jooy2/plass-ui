@@ -191,6 +191,7 @@ The light is measured when the step changes and when the window changes size. Fo
 - The card is announced as its own thing and the screen under it is still there to be reached. It deliberately does not take the route: a tour that did would be a modal, and the reader could not get to the control the tour is telling them about.
 - The card takes the focus when the tour opens, which is what lets <kbd>Escape</kbd> reach it, and hands the focus back when the tour closes.
 - <kbd>Escape</kbd> ends the tour unless `dismissible` is `false`.
+- The system back (Android's back button and gesture, TalkBack's back, VoiceOver's escape scrub) ends the tour as <kbd>Escape</kbd> does. Only the layer on top answers it, so a popover opened from a step closes first, and the page under a running tour is not popped. A tour that is not `dismissible` refuses the back while `mask` dims the screen, and with `mask: false`, where the page is still in use, lets it go on to the page.
 - The step's `title` is a live region, or its `content` on a step with no title, so moving to the next step says what the card now says while the focus stays on Next.
 - The counter is two numbers, for the reason the React build gives.
 - The card's buttons wrap to a second line rather than running off the edge, because a translation whose words are longer than English's is three buttons wider than the card.
