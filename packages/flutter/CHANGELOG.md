@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **Each chip of a `multiple` `PlCombobox` is a node of its own to a screen reader, named by its label with its × inside it, as in the React build.** A chip that cannot be pressed forms no node, so the labels of the chosen values were folded into the field's text, which a screen reader met as a text field named "Seoul Lisbon" beside the field's own `semanticLabel`. The text now has no name of its own, as in a single-value field, and each chip is read by its label, followed by its ×.
+
 - **A read-only `PlSegmentedButton` tells a screen reader it is read-only rather than unavailable, and its arrow keys move the focus between the segments without changing the choice, as in the React build.** The set and each of its segments reported themselves as disabled while read-only, although the set kept its focus stop, so a screen reader announced a control it could still reach as one that could not be used. The arrow keys did nothing, so the other segments could not be reached from the keyboard. The set and its segments now say they are available and cannot be changed, as a read-only `PlRadioGroup` does. A segment still says whether it is chosen and offers no tap, and a segment disabled on its own is still announced as unavailable.
 
 - **A `PlCommandPalette` built with `open: true` puts the focus in its search field, as one opened later does and as the React build does.** The palette asked for the field's focus only when `open` turned from `false` to `true`, so one that was open from its first frame, which is how an app that builds the palette only while it is open always has it, left the focus on the layer itself. The arrow keys, `Enter` and `Escape` still worked, but typed words went nowhere until the field was pressed.

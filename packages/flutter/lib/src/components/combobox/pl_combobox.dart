@@ -1176,16 +1176,26 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
               // look without a fade of its own.
               PlassFadedScope(
                 faded: _disabled,
-                child: PlChip(
-                  size: size,
-                  color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
-                  density: PlassDensity.compact,
-                  disabled: _disabled,
-                  deleteLabel: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(
-                    _labelOf(value),
+                // A node of its own, named by its label, with its × a button
+                // inside it, as each React chip is an element of its own in the
+                // chip row. A chip that cannot be pressed forms no node, which
+                // suits a chip in running text, but here its words went into
+                // the text's node, which was then named by the chosen values.
+                child: Semantics(
+                  container: true,
+                  child: PlChip(
+                    size: size,
+                    color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
+                    density: PlassDensity.compact,
+                    disabled: _disabled,
+                    deleteLabel: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(
+                      _labelOf(value),
+                    ),
+                    onDeleted: widget.readOnly || _disabled || !_usable
+                        ? null
+                        : () => _remove(value),
+                    child: Text(_labelOf(value)),
                   ),
-                  onDeleted: widget.readOnly || _disabled || !_usable ? null : () => _remove(value),
-                  child: Text(_labelOf(value)),
                 ),
               ),
           ]

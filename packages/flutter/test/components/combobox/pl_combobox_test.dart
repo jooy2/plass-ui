@@ -2503,6 +2503,89 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('keeps the chips’ words out of the text, with each chip on a node of its own', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        Widget build({String? semanticLabel, bool readOnly = false}) {
+          return _host(
+            PlCombobox<String>.multiple(
+              options: _cities,
+              values: const <String>['seoul', 'lisbon'],
+              onChanged: (List<String> _) {},
+              semanticLabel: semanticLabel,
+              readOnly: readOnly,
+            ),
+          );
+        }
+
+        SemanticsNode text() => tester.getSemantics(find.byType(EditableText));
+
+        List<SemanticsNode> childrenOf(SemanticsNode node) {
+          final List<SemanticsNode> children = <SemanticsNode>[];
+
+          node.visitChildren((SemanticsNode child) {
+            children.add(child);
+
+            return true;
+          });
+
+          return children;
+        }
+
+        for (final String? semanticLabel in <String?>[null, 'Cities']) {
+          // A chip that cannot be pressed forms no node, so its words were
+          // folded into the text's, which a screen reader met as a text field
+          // named after the chosen values, "Seoul Lisbon".
+          await tester.pumpWidget(build(semanticLabel: semanticLabel));
+
+          expect(text().label, isEmpty);
+          expect(text(), isSemantics(isTextField: true, isButton: false));
+          expect(
+            semanticsOf(tester, find.byType(PlCombobox<String>)),
+            isSemantics(label: semanticLabel ?? '', isTextField: true, hasTapAction: true),
+          );
+
+          for (final String city in <String>['Seoul', 'Lisbon']) {
+            final SemanticsNode chip = semanticsNodeLabelled(tester, city)!;
+
+            expect(chip.id, isNot(text().id));
+            expect(
+              chip,
+              isSemantics(label: city, isButton: false, isTextField: false, hasTapAction: false),
+            );
+
+            // The × stays a button of its own, inside its chip.
+            expect(childrenOf(chip), hasLength(1));
+            expect(
+              childrenOf(chip).single,
+              isSemantics(
+                label: 'Remove $city',
+                isButton: true,
+                hasEnabledState: true,
+                isEnabled: true,
+                hasTapAction: true,
+              ),
+            );
+          }
+        }
+
+        // A read-only field's chips have no ×, and are still nodes of their own.
+        await tester.pumpWidget(build(semanticLabel: 'Cities', readOnly: true));
+
+        expect(text().label, isEmpty);
+
+        for (final String city in <String>['Seoul', 'Lisbon']) {
+          final SemanticsNode chip = semanticsNodeLabelled(tester, city)!;
+
+          expect(chip.id, isNot(text().id));
+          expect(childrenOf(chip), isEmpty);
+        }
+
+        handle.dispose();
+      });
+
       testWidgets('meets each row once, with its name, its state and a tap it can take', (
         WidgetTester tester,
       ) async {
