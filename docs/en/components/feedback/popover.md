@@ -126,7 +126,7 @@ Escape closes it too, and `dismissible={false}` cancels both. `PlPopoverClose` s
 
 ::: fw flutter
 
-<kbd>Escape</kbd> closes it too, and `dismissible: false` refuses both. Opened inside a `PlModal`, it takes Escape first and leaves the modal up. `showClose` and the actions inside it still work while it is off, which is what keeps a refusal from being a trap.
+<kbd>Escape</kbd> and the system back close it too: Android's back button and gesture, TalkBack's back and VoiceOver's escape scrub. Opened inside a `PlModal`, it takes them first and leaves the modal up. `dismissible: false` refuses the press outside and Escape, but not the back, which goes on to the page or to the modal the popover was opened in: a popover leaves the page in use. `showClose` and the actions inside it still work while it is off, which is what keeps a refusal from being a trap.
 
 :::
 
@@ -145,7 +145,7 @@ Escape closes it too, and `dismissible={false}` cancels both. `PlPopoverClose` s
 
 ::: fw flutter
 
-- The lift, the anchoring, the flip and the press outside are `PlassAnchoredPortal`'s, the same layer a `PlTooltip` and a `PlSelect`'s list stand on, so the three stay stuck to their anchors through a scroll for the same reason.
+- The lift, the anchoring, the flip, the press outside and the system back are `PlassAnchoredPortal`'s, the same layer a `PlTooltip` and a `PlSelect`'s list stand on, so the three stay stuck to their anchors through a scroll for the same reason.
 
 ## Differences from the React build
 

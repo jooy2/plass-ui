@@ -8,6 +8,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/back.dart';
 import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
@@ -30,7 +31,7 @@ enum PlassAnchorWidth {
 ///
 /// What a `PlTooltip` and a `PlSelect`'s list have in common: the lift into the
 /// nearest [Overlay], the anchoring, the flip when there is no room on the side
-/// that was asked for, the fade, and a press outside.
+/// that was asked for, the fade, a press outside, and the system back.
 ///
 /// The tracking is a [LayerLink] rather than arithmetic repeated every frame,
 /// which is what keeps a popup stuck to its anchor while the page under it
@@ -97,16 +98,23 @@ class PlassAnchoredPortal extends StatefulWidget {
   /// press on it closes the popup and goes no further, or a trigger that opens
   /// its popup would open it again on the same press. [anchorInside] turns that
   /// exception round.
+  ///
+  /// A popup that a press outside closes is one the system back closes too —
+  /// Android's back button and gesture, TalkBack's back, VoiceOver's escape
+  /// scrub — through [onEscape] where there is one, as <kbd>Escape</kbd> does.
+  /// The back then closes the popup on top and leaves the page, or the modal
+  /// the popup was opened in, where it is. Without it, the back goes on to
+  /// whatever is under the popup, as a press outside does.
   final VoidCallback? onDismiss;
 
   /// Called when Escape is pressed while the popup is open and the focus is on
   /// the anchor or inside the popup. Falls back to [onDismiss].
   ///
-  /// Separate because a tooltip closes on Escape without taking outside presses:
-  /// it is not a barrier. With neither, Escape does nothing while the popup is
-  /// open and goes no further, so a modal under a popup that refuses to be
-  /// dismissed stays up too. While the popup is closed, Escape goes on to
-  /// whatever is around it, a modal or a page that binds it too.
+  /// Separate because a tooltip closes on Escape without taking outside presses
+  /// or the system back: it is not a barrier. With neither, Escape does nothing
+  /// while the popup is open and goes no further, so a modal under a popup that
+  /// refuses to be dismissed stays up too. While the popup is closed, Escape
+  /// goes on to whatever is around it, a modal or a page that binds it too.
   final VoidCallback? onEscape;
 
   /// Whether a press on the anchor counts as a press inside the popup.
@@ -624,7 +632,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     // Around the portal rather than inside the popup: the popup's element sits
     // under the portal's, so one binding reaches a focus on the anchor and a
     // focus inside the popup alike.
-    return Shortcuts(
+    final Widget anchored = Shortcuts(
       shortcuts: const <ShortcutActivator, Intent>{
         SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
       },
@@ -642,6 +650,14 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
           ),
         ),
       ),
+    );
+
+    // The back is taken by the popups a press outside closes, and answered as
+    // Escape is. A tooltip is not one of them: it is not a barrier.
+    return PlassBackGuard(
+      active: widget.open && widget.onDismiss != null,
+      onBack: widget.onEscape ?? widget.onDismiss,
+      child: anchored,
     );
   }
 

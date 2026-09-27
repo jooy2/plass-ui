@@ -7,6 +7,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/back.dart';
 import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
@@ -15,8 +16,16 @@ import 'package:plass_ui/src/theme/tokens.dart';
 ///
 /// What a `PlOverlay` and a `PlModal` have in common, which is nearly all of
 /// it: the lift into the nearest [Overlay], the backdrop, the fade, the pointer
-/// held outside, the focus held inside, <kbd>Escape</kbd>, and focus going back
-/// where it came from on the way out.
+/// held outside, the focus held inside, <kbd>Escape</kbd> and the system back,
+/// and focus going back where it came from on the way out.
+///
+/// The system back — Android's back button and gesture, TalkBack's back,
+/// VoiceOver's escape scrub — does what <kbd>Escape</kbd> does, and only the
+/// layer on top answers it. While a [modal] layer is up the back never pops the
+/// page under it; a layer that cannot be dismissed takes it and does nothing.
+/// A layer that is not [modal] takes it only to close, so one that cannot be
+/// dismissed lets it go on to the page, which is still in use. It needs a
+/// [ModalRoute] above it for that, which a navigator gives every page.
 ///
 /// It needs an [Overlay] above it — `WidgetsApp` with a navigator and
 /// `MaterialApp` both provide one, and an app that has neither can add one
@@ -66,14 +75,15 @@ class PlassPortal extends StatefulWidget {
   final double barrierBlur;
 
   /// Whether the page behind is taken away for the pointer as well as the
-  /// keyboard.
+  /// keyboard, and from the system back.
   ///
   /// `false` leaves the page clickable and scrollable while focus is still held
   /// inside the layer, which is what a layer drawing nothing usually wants.
   final bool modal;
 
-  /// Called when the layer asks to be closed — a press outside it, or
-  /// <kbd>Escape</kbd>. `null` is a layer that cannot be dismissed.
+  /// Called when the layer asks to be closed — a press outside it,
+  /// <kbd>Escape</kbd>, or the system back. `null` is a layer that cannot be
+  /// dismissed.
   final VoidCallback? onDismiss;
 
   /// The name a screen reader gives the layer.
@@ -234,10 +244,18 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    return OverlayPortal(
-      controller: _portal,
-      overlayChildBuilder: _buildLayer,
-      child: const SizedBox.shrink(),
+    return PlassBackGuard(
+      // A modal layer takes the back whether or not it can be dismissed: the
+      // page under it has been taken away, and the back is not the one way
+      // left to reach it. A layer that leaves the page in use takes it only to
+      // close, and one that cannot be closed lets it go on to the page.
+      active: widget.open && (widget.modal || widget.onDismiss != null),
+      onBack: widget.onDismiss == null ? null : _dismiss,
+      child: OverlayPortal(
+        controller: _portal,
+        overlayChildBuilder: _buildLayer,
+        child: const SizedBox.shrink(),
+      ),
     );
   }
 
@@ -266,7 +284,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
       // Not handed to a screen reader, as the React backdrop is hidden from one
       // while the layer is open. On the tree it would be a node the size of the
       // screen with no name, whose tap closes the layer. A reader closes it with
-      // Escape, or with a button the layer draws.
+      // Escape, the system back, or a button the layer draws.
       excludeFromSemantics: true,
       onTap: widget.onDismiss == null ? null : _dismiss,
       child: backdrop,

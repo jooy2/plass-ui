@@ -179,10 +179,13 @@ class PlModal extends StatelessWidget {
   /// keyboard.
   final bool modal;
 
-  /// Whether <kbd>Escape</kbd> or a press outside closes the modal.
+  /// Whether <kbd>Escape</kbd>, the system back or a press outside closes the
+  /// modal.
   ///
   /// Turn it off for the one that has to be answered — and then give it actions
-  /// that answer it, because there will be no other way out.
+  /// that answer it, because there will be no other way out. While [modal] is
+  /// on, the system back is then refused rather than let through to the page
+  /// under the modal.
   final bool dismissible;
 
   /// Type scale, radius, padding, and how wide the sheet is allowed to get.

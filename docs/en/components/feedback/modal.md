@@ -187,6 +187,7 @@ Off, <kbd>Esc</kbd> and a click outside both stop closing the modal. Pair it wit
 - The layer is a route of its own, which is how a screen reader knows the screen changed, and `title` is announced as a heading rather than read as the first line of the body.
 - `label` is the name the route is announced with. `title` is a widget and has no text to hand over, so a modal with no `label` opens with no name; give it the same words as the title.
 - <kbd>Escape</kbd> closes it unless `dismissible` is off; `modal: false` keeps the page behind clickable while still holding focus inside.
+- The system back closes it as <kbd>Escape</kbd> does: Android's back button and gesture, TalkBack's back, and VoiceOver's escape scrub. Only the layer on top answers it, so a modal opened from a modal closes first, and the page under an open modal is never popped. A modal that is not `dismissible` refuses the back while it is up, unless `modal: false` has left the page in use, where the back goes on to the page.
 - The × is on by default, unlike most of the switches in the library. A modal takes the page away until it is answered, and the visible way out should not have to be remembered.
 - Only the body scrolls, and it is the only section allowed to give way when the sheet runs out of screen, a header that scrolled away would take the modal's name with it.
 - Opening and closing animate opacity only. A modal that scaled or slid in would drag its own text across the screen, and unlike a control, this one is full of text. With animations turned off at the OS it appears at once.

@@ -134,7 +134,8 @@ The body is the only part that scrolls either way.
 ::: fw flutter
 
 - `label` is the name an `overlay` drawer is announced with. `title` is a widget and has no text to hand over, so a drawer with no `label` opens with no name; give it the same words as the title.
-- The lift, the scrim, the focus scope, <kbd>Escape</kbd> and focus going back where it came from are `PlassPortal`'s. The same layer a `PlModal` and a `PlOverlay` are built on, so a drawer opened over an overlay shows no seam.
+- The lift, the scrim, the focus scope, <kbd>Escape</kbd>, the system back and focus returning to where it came from are `PlassPortal`'s. The same layer a `PlModal` and a `PlOverlay` are built on, so a drawer opened over an overlay shows no seam.
+- The system back (Android's back button and gesture, TalkBack's back, VoiceOver's escape scrub) closes the drawer as <kbd>Escape</kbd> does, and `dismissible: false` refuses it too, unless `modal: false` has left the screen in use.
 
 ## Differences from the React build
 

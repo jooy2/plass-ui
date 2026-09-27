@@ -136,10 +136,12 @@ class PlPopover extends StatefulWidget {
   /// it, so the wedge is the one part of the sheet the blur does not reach.
   final bool arrow;
 
-  /// Whether a press outside closes the popup.
+  /// Whether a press outside, <kbd>Escape</kbd> and the system back close the
+  /// popup.
   ///
   /// Turn it off only for a popup with its own way out, because there will be
-  /// no other.
+  /// no other. Off, the system back goes on past the popup, as a press outside
+  /// does: a popover leaves the page in use.
   final bool dismissible;
 
   /// Shows the × in the corner.

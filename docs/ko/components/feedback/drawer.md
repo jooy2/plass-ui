@@ -134,7 +134,8 @@ PlDrawer(
 ::: fw flutter
 
 - `label`은 `overlay` 서랍을 안내할 때 쓰는 이름입니다. `title`은 위젯이라 넘겨줄 글자가 없으므로, `label`이 없는 서랍은 이름 없이 열립니다. 제목과 같은 말을 주세요.
-- 들어 올리기, 스크림, focus scope, <kbd>Escape</kbd>, 나갈 때 포커스를 되돌려주는 것은 전부 `PlassPortal`의 것입니다. `PlModal`과 `PlOverlay`가 서 있는 것과 같은 층이라, 오버레이 위에 열린 서랍에 이음매가 보이지 않습니다.
+- 들어 올리기, 스크림, focus scope, <kbd>Escape</kbd>, 시스템 뒤로 가기, 나갈 때 포커스를 되돌려주는 것은 전부 `PlassPortal`의 것입니다. `PlModal`과 `PlOverlay`가 서 있는 것과 같은 층이라, 오버레이 위에 열린 서랍에 이음매가 보이지 않습니다.
+- 시스템 뒤로 가기(Android의 뒤로 버튼과 제스처, TalkBack의 뒤로, VoiceOver의 두 손가락 문지르기)는 <kbd>Escape</kbd>처럼 서랍을 닫고, `dismissible: false`는 이것도 거절합니다. `modal: false`로 화면을 계속 쓰게 두었다면 예외입니다.
 
 ## React 빌드와 다른 점
 

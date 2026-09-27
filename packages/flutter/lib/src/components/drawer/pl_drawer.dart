@@ -203,11 +203,13 @@ class PlDrawer extends StatelessWidget {
   /// keyboard. [PlDrawerMode.overlay] only.
   final bool modal;
 
-  /// Whether <kbd>Escape</kbd> or a press on the scrim closes the drawer.
+  /// Whether <kbd>Escape</kbd>, the system back or a press on the scrim closes
+  /// the drawer.
   ///
   /// Turn it off for the drawer that has to be answered — and then give it
-  /// actions that answer it, because there will be no other way out.
-  /// [PlDrawerMode.overlay] only.
+  /// actions that answer it, because there will be no other way out. While
+  /// [modal] is on, the system back is then refused rather than let through to
+  /// the screen under the drawer. [PlDrawerMode.overlay] only.
   final bool dismissible;
 
   /// The panel's width, radius and padding.

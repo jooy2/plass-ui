@@ -68,7 +68,8 @@ class PlConfirmOptions {
   /// reach for the pointer to agree is its own kind of rude.
   final PlConfirmFocus initialFocus;
 
-  /// Whether a press outside and <kbd>Escape</kbd> answer **no**.
+  /// Whether a press outside, <kbd>Escape</kbd> and the system back answer
+  /// **no**.
   ///
   /// On, because a question that cannot be escaped is a trap. Turn it off for
   /// the one that has to be answered.
@@ -305,9 +306,9 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
           widget.child,
           PlModal(
             open: _open,
-            // The only path that reaches here is Escape or a press outside —
-            // the buttons below settle and close it themselves, and a controlled
-            // `open` does not call this back for that.
+            // The only paths that reach here are Escape, the system back and a
+            // press outside — the buttons below settle and close it themselves,
+            // and a controlled `open` does not call this back for that.
             onOpenChanged: (bool next) {
               if (!next) {
                 _settle(false);

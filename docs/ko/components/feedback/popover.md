@@ -126,7 +126,7 @@ Escape로도 닫히고, `dismissible={false}`가 둘 다 취소합니다. 꺼져
 
 ::: fw flutter
 
-<kbd>Escape</kbd>로도 닫히고, `dismissible: false`가 둘 다 거절합니다. `PlModal` 안에서 열었다면 Escape를 먼저 받아 모달은 그대로 둡니다. 꺼져 있어도 `showClose`와 그 안의 액션은 동작하는데, 그것이 거절을 덫으로 만들지 않는 장치입니다.
+<kbd>Escape</kbd>와 시스템 뒤로 가기로도 닫힙니다. Android의 뒤로 버튼과 제스처, TalkBack의 뒤로, VoiceOver의 두 손가락 문지르기가 모두 시스템 뒤로 가기입니다. `PlModal` 안에서 열었다면 이 둘을 먼저 받아 모달은 그대로 둡니다. `dismissible: false`는 바깥 누름과 Escape를 거절하지만 뒤로 가기는 거절하지 않습니다. popover는 페이지를 가져가지 않으므로, 뒤로 가기는 페이지나 popover를 연 modal로 넘어갑니다. 꺼져 있어도 `showClose`와 그 안의 액션은 동작하는데, 그것이 거절을 덫으로 만들지 않는 장치입니다.
 
 :::
 
@@ -145,7 +145,7 @@ Escape로도 닫히고, `dismissible={false}`가 둘 다 취소합니다. 꺼져
 
 ::: fw flutter
 
-- 들어 올리기, 앵커링, 뒤집기, 바깥 누름은 전부 `PlassAnchoredPortal`의 것입니다. `PlTooltip`과 `PlSelect`의 목록이 서 있는 것과 같은 층이라, 셋 다 같은 이유로 스크롤 중에도 자기 앵커에 붙어 있습니다.
+- 들어 올리기, 앵커링, 뒤집기, 바깥 누름, 시스템 뒤로 가기는 전부 `PlassAnchoredPortal`의 것입니다. `PlTooltip`과 `PlSelect`의 목록이 서 있는 것과 같은 층이라, 셋 다 같은 이유로 스크롤 중에도 자기 앵커에 붙어 있습니다.
 
 ## React 빌드와 다른 점
 

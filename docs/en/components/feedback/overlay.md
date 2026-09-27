@@ -144,6 +144,7 @@ Turn it on for the overlay whose job is to catch a click outside something.
 - Focus goes in and stays in: the layer is its own focus scope, and traversal is bounded by the nearest scope, so <kbd>Tab</kbd> inside the overlay cannot land on the page under it. When the overlay closes, focus goes back to whatever had it.
 - `label` has a default rather than being left empty, because an overlay that holds nothing readable (a bare spinner, a `clear` sheet) still has to say what it is. It names the layer as a route, which is how a screen reader knows the screen changed.
 - `modal: false` leaves the page clickable and scrollable while focus is still held inside, which is what a `clear` overlay usually wants.
+- The system back (Android's back button and gesture, TalkBack's back, VoiceOver's escape scrub) closes a `dismissible` overlay as <kbd>Escape</kbd> does. One that is not, which is the default, refuses it while it is up, so the page under a save cannot be left halfway through it. With `modal: false` the back goes on to the page, which is still in use.
 - The overlay animates opacity and nothing else. One that scaled or slid would drag whatever is written on it across the screen, and unlike a control this one is usually carrying a sentence. With animations turned off at the OS it appears at once.
 - Use a `PlModal` instead when there is a question to answer. An overlay has no title, no description and no actions, so a screen reader has nothing to work with beyond `label`.
 

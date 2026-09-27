@@ -103,10 +103,13 @@ class PlOverlay extends StatelessWidget {
   /// How much of the page is taken away.
   final PlOverlayTone tone;
 
-  /// Whether a press outside the content or <kbd>Escape</kbd> closes it.
+  /// Whether a press outside the content, <kbd>Escape</kbd> or the system back
+  /// closes it.
   ///
   /// Off by default, which is the other way round from [PlModal]. Turn it on for
-  /// the overlay whose job is to catch a press outside something.
+  /// the overlay whose job is to catch a press outside something. Off, and while
+  /// [modal] is on, the system back is refused rather than let through to the
+  /// page under the overlay, so what it is waiting for is not left halfway.
   final bool dismissible;
 
   /// Whether the page behind is taken away for the pointer as well as the
