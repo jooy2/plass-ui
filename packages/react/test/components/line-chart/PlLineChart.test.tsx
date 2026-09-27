@@ -7,6 +7,15 @@ import { press } from '../../support/keys';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr'];
 
 /**
+ * The crosshair: a rule in the baseline's ink, drawn straight into the plot's
+ * picture. The zero gridline wears the same ink, but it is drawn inside the
+ * axes' group, so it is not a child of the `svg` itself.
+ */
+function crosshairs(plot: Element): Element[] {
+  return [...plot.querySelectorAll('svg > line[stroke="var(--plass-chart-baseline)"]')];
+}
+
+/**
  * A chart is measured before it draws, so nothing reaches the DOM until the
  * host element has a width. In a browser test the element is laid out for real,
  * but the `ResizeObserver` callback that confirms it lands a task later —
@@ -132,11 +141,29 @@ describe('PlLineChart', () => {
       const plot = screen.getByRole('img', { name: 'Sessions' });
 
       await expect.element(plot).toBeInTheDocument();
-      await userEvent.hover(plot);
+
+      // Onto the first point of the first line. This mode reads only a mark
+      // the pointer is on, and a chart reading nothing draws no crosshair in
+      // any mode, so the middle of the plot would prove nothing.
+      const first = () =>
+        /^M(-?[\d.]+) (-?[\d.]+)/.exec(
+          plot.element().querySelector('path[stroke]:not([stroke="none"])')?.getAttribute('d') ?? ''
+        );
+
+      await expect.poll(first).not.toBeNull();
+
+      const [, x, y] = first()!;
+
+      await plot.hover({ position: { x: Number(x), y: Number(y) } });
+
+      const status = () => screen.getByRole('status').element().textContent;
+
+      await expect.poll(status).toBe('Jan, Web: 10');
+      expect(document.querySelector('[data-plass-tooltip]')).not.toBeNull();
 
       // A crosshair says "these numbers all belong to this column", and with a
       // mark under the pointer there is no column.
-      expect(plot.element().querySelectorAll('line[stroke-dasharray="4 4"]').length).toBe(0);
+      expect(crosshairs(plot.element())).toHaveLength(0);
     });
 
     it('walks the marks with the arrow keys rather than the columns', async () => {
@@ -669,6 +696,33 @@ describe('PlLineChart', () => {
       expect(status.element().textContent).toContain('High');
       expect(status.element().textContent).toContain('Low');
       expect(document.querySelectorAll('[data-plass-tooltip] li').length).toBe(2);
+    });
+
+    it('draws a crosshair through the column with mode="index"', async () => {
+      const screen = await render(
+        <PlLineChart
+          label="Sessions"
+          categories={MONTHS}
+          series={[
+            { name: 'Web', data: [10, 20, 30, 40] },
+            { name: 'App', data: [90, 80, 70, 60] }
+          ]}
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' });
+
+      await expect.element(plot).toBeInTheDocument();
+      await userEvent.hover(plot);
+      await expect.poll(() => document.querySelector('[data-plass-tooltip]')).not.toBeNull();
+
+      // One rule, standing upright through the column, found by the same
+      // check the `nearest` mode test finds none with.
+      const rules = crosshairs(plot.element());
+
+      expect(rules).toHaveLength(1);
+      expect(rules[0].getAttribute('x1')).toBe(rules[0].getAttribute('x2'));
+      expect(rules[0].getAttribute('y1')).not.toBe(rules[0].getAttribute('y2'));
     });
 
     it('is not focusable when it is turned off', async () => {
