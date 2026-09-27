@@ -67,6 +67,48 @@ final List<_Build> _many = <_Build>[
   for (var index = 0; index < 24; index += 1) _Build('#${400 + index}', 'topic/$index'),
 ];
 
+/// Content with a `State` of its own: built again from scratch, it is a
+/// different object, where a field would have lost what was typed into it.
+class _Probe extends StatefulWidget {
+  const _Probe(this.text);
+
+  final String text;
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => Text(widget.text);
+}
+
+/// Whether the focus is on a row of the grid, or on something inside one.
+///
+/// Asked of the grid rather than of the whole table: a table capped short of
+/// its rows is a stop of its own, round the grid, and that stop is not a row.
+bool _holdsRow(WidgetTester tester) {
+  final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+  return focused != null &&
+      find
+          .descendant(
+            of: find.byType(Table),
+            matching: find.byElementPredicate((Element element) => element == focused),
+          )
+          .evaluate()
+          .isNotEmpty;
+}
+
+/// Moves the focus to [before] and presses Tab once, as a keyboard reader
+/// arriving at the table does.
+Future<void> _tabFrom(WidgetTester tester, FocusNode before) async {
+  before.requestFocus();
+  await tester.pump();
+  await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+  await tester.pumpAndSettle();
+}
+
 /// The decoration row number [index] paints — the header is row `0`.
 ///
 /// The header's is its [TableRow]'s. The rows of data are painted behind the
@@ -209,8 +251,256 @@ void main() {
       testWidgets('a row nothing listens to is not pressable', (WidgetTester tester) async {
         await tester.pumpWidget(_table());
 
-        expect(find.byType(GestureDetector), findsNothing);
+        // The detectors are there either way, so a row keeps its cells as it
+        // becomes pressable. Nothing listens to them, and nothing changes the
+        // cursor.
+        expect(
+          tester
+              .widgetList<GestureDetector>(
+                find.descendant(of: find.byType(Table), matching: find.byType(GestureDetector)),
+              )
+              .where((GestureDetector detector) => detector.onTap != null),
+          isEmpty,
+        );
+        expect(
+          tester
+              .widgetList<MouseRegion>(
+                find.descendant(of: find.byType(Table), matching: find.byType(MouseRegion)),
+              )
+              .where((MouseRegion region) => region.cursor != MouseCursor.defer),
+          isEmpty,
+        );
       });
+
+      testWidgets(
+        'keeps what its cells hold as onRowPressed, hoverable, maxHeight and stickyHeader change',
+        (WidgetTester tester) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+          final before = FocusNode(debugLabel: 'before');
+          addTearDown(before.dispose);
+
+          Widget table({
+            bool pressable = false,
+            bool hoverable = false,
+            bool capped = false,
+            bool pinned = false,
+          }) {
+            return host(
+              afterFocusStop(
+                before,
+                PlTable<_Build>(
+                  rows: _rows,
+                  hoverable: hoverable,
+                  onRowPressed: pressable ? (_Build row, int index) {} : null,
+                  // A cap the rows fit under, so that the grid is no stop of its
+                  // own and Tab goes straight to a row.
+                  maxHeight: capped ? 400 : null,
+                  stickyHeader: pinned,
+                  columns: <PlTableColumn<_Build>>[
+                    PlTableColumn<_Build>(
+                      header: const Text('Build'),
+                      cell: (_Build row, int index) => _Probe(row.id),
+                    ),
+                    PlTableColumn<_Build>(
+                      header: const Text('Branch'),
+                      cell: (_Build row, int index) => _Probe(row.branch),
+                    ),
+                  ],
+                ),
+              ),
+              width: 420,
+            );
+          }
+
+          await tester.pumpWidget(table());
+          await tester.pumpAndSettle();
+
+          final List<State<_Probe>> resting = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          expect(resting, hasLength(6));
+
+          // Every wrapper the grid has, on and off, alone and together.
+          for (final (bool pressable, bool hoverable, bool capped, bool pinned)
+              in <(bool, bool, bool, bool)>[
+                (true, false, false, false),
+                (false, false, false, false),
+                (false, true, false, false),
+                (true, true, false, false),
+                (false, false, true, false),
+                (false, false, true, true),
+                (true, false, true, true),
+                (false, true, false, true),
+                (false, false, false, false),
+              ]) {
+            final String reason =
+                'pressable $pressable, hoverable $hoverable, capped $capped, pinned $pinned';
+
+            await tester.pumpWidget(
+              table(pressable: pressable, hoverable: hoverable, capped: capped, pinned: pinned),
+            );
+            await tester.pumpAndSettle();
+
+            // Built again from scratch, a probe is a different object, and a
+            // field in its place would have lost what was typed into it.
+            final List<State<_Probe>> now = tester
+                .stateList<State<_Probe>>(find.byType(_Probe))
+                .toList();
+
+            expect(now, hasLength(resting.length), reason: reason);
+
+            for (var index = 0; index < resting.length; index += 1) {
+              expect(now[index], same(resting[index]), reason: 'probe $index, $reason');
+            }
+
+            // A stop with a tap in the first cell and a tap in the rest only
+            // while the row can be pressed, and no more than the words
+            // otherwise, as it always said.
+            expect(
+              tester.getSemantics(find.text('#412')),
+              isSemantics(
+                label: '#412',
+                isFocusable: pressable,
+                hasFocusAction: pressable,
+                hasTapAction: pressable,
+              ),
+              reason: reason,
+            );
+            expect(
+              tester.getSemantics(find.text('main')),
+              isSemantics(label: 'main', isFocusable: false, hasTapAction: pressable),
+              reason: reason,
+            );
+
+            await _tabFrom(tester, before);
+
+            expect(_holdsRow(tester), pressable, reason: reason);
+          }
+
+          handle.dispose();
+        },
+      );
+
+      testWidgets(
+        'keeps what is typed into a field in a row, and the focus, as it becomes pressable',
+        (WidgetTester tester) async {
+          Widget table({required bool pressable}) {
+            return host(
+              PlTable<_Build>(
+                rows: _rows,
+                onRowPressed: pressable ? (_Build row, int index) {} : null,
+                columns: <PlTableColumn<_Build>>[
+                  // In the first cell, which is inside the row's own stop.
+                  PlTableColumn<_Build>(
+                    header: const Text('Note'),
+                    cell: (_Build row, int index) =>
+                        index == 0 ? const PlTextField(semanticLabel: 'Note') : Text(row.id),
+                  ),
+                  PlTableColumn<_Build>(
+                    header: const Text('Branch'),
+                    cell: (_Build row, int index) => Text(row.branch),
+                  ),
+                ],
+              ),
+              width: 420,
+            );
+          }
+
+          await tester.pumpWidget(table(pressable: false));
+          await tester.enterText(find.byType(EditableText), 'flaky');
+          await tester.pump();
+
+          for (final bool pressable in <bool>[true, false, true]) {
+            await tester.pumpWidget(table(pressable: pressable));
+            await tester.pumpAndSettle();
+
+            final EditableText field = tester.widget<EditableText>(find.byType(EditableText));
+
+            expect(field.controller.text, 'flaky', reason: 'pressable $pressable');
+            expect(field.focusNode.hasPrimaryFocus, isTrue, reason: 'pressable $pressable');
+          }
+        },
+      );
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('is no focus stop while nothing listens to its rows, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          final before = FocusNode(debugLabel: 'before');
+          addTearDown(before.dispose);
+
+          // Directional navigation is where an unavailable control is still a
+          // stop, so a reader on a remote can find it. A row that cannot be
+          // pressed is not a control, lit by the pointer or not.
+          for (final bool hoverable in <bool>[false, true]) {
+            await tester.pumpWidget(
+              host(
+                MediaQuery(
+                  data: MediaQueryData(navigationMode: mode),
+                  child: afterFocusStop(
+                    before,
+                    PlTable<_Build>(rows: _rows, columns: _columns(), hoverable: hoverable),
+                  ),
+                ),
+                width: 420,
+              ),
+            );
+
+            await _tabFrom(tester, before);
+
+            expect(_holdsRow(tester), isFalse, reason: 'hoverable $hoverable');
+          }
+        });
+
+        testWidgets('gives the focus up as its rows stop being pressable, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTraditional;
+          addTearDown(
+            () => FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic,
+          );
+
+          final before = FocusNode(debugLabel: 'before');
+          addTearDown(before.dispose);
+
+          Widget table({required bool pressable}) {
+            return host(
+              MediaQuery(
+                data: MediaQueryData(navigationMode: mode),
+                child: afterFocusStop(
+                  before,
+                  PlTable<_Build>(
+                    rows: _rows,
+                    columns: _columns(),
+                    onRowPressed: pressable ? (_Build row, int index) {} : null,
+                  ),
+                ),
+              ),
+              width: 420,
+            );
+          }
+
+          await tester.pumpWidget(table(pressable: true));
+          await _tabFrom(tester, before);
+
+          expect(_holdsRow(tester), isTrue);
+          expect(_rowDecoration(tester, 1).border!.top.width, focusRingWidth);
+
+          await tester.pumpWidget(table(pressable: false));
+          await tester.pumpAndSettle();
+
+          expect(_holdsRow(tester), isFalse);
+          expect(_rowDecoration(tester, 1).border, isNull);
+
+          await tester.pumpWidget(table(pressable: true));
+          await tester.pumpAndSettle();
+
+          // Nothing holds it, so there is no ring to draw.
+          expect(_holdsRow(tester), isFalse);
+          expect(_rowDecoration(tester, 1).border, isNull);
+        });
+      }
 
       testWidgets('the pointer lights the row it is over, not the cell', (
         WidgetTester tester,
@@ -229,6 +519,46 @@ void main() {
           PlassTokens.light().family(PlassColor.primary).soft,
         );
         expect(_rowDecoration(tester, 2).color, isNull);
+      });
+
+      testWidgets('lights the row the pointer rests on as it starts lighting rows, and not after', (
+        WidgetTester tester,
+      ) async {
+        final Color soft = PlassTokens.light().family(PlassColor.primary).soft;
+
+        await tester.pumpWidget(_table());
+
+        final pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        addTearDown(pointer.removePointer);
+        await pointer.addPointer(location: Offset.zero);
+        await pointer.moveTo(tester.getCenter(find.text('main')));
+        await tester.pump();
+
+        expect(_rowDecoration(tester, 1).color, isNull);
+
+        // The pointer has not moved: the row it is resting on lights up as the
+        // table starts lighting rows, and goes out as it stops.
+        for (final (bool hoverable, bool pressable, Color? lit) in <(bool, bool, Color?)>[
+          (true, false, soft),
+          (false, false, null),
+          (false, true, soft),
+          (false, false, null),
+        ]) {
+          await tester.pumpWidget(
+            _table(
+              hoverable: hoverable,
+              onRowPressed: pressable ? (_Build row, int index) {} : null,
+            ),
+          );
+          await tester.pump();
+
+          expect(
+            _rowDecoration(tester, 1).color,
+            lit,
+            reason: 'hoverable $hoverable, pressable $pressable',
+          );
+          expect(_rowDecoration(tester, 2).color, isNull);
+        }
       });
 
       testWidgets('moving between rows neither builds the cells again nor lays the grid out', (

@@ -299,30 +299,39 @@ class PlChip extends StatelessWidget {
       child: body,
     );
 
+    Widget? delete;
+
     if (onDeleted != null) {
       final PlassLabels labels = PlassTheme.labelsOf(context);
       final String? text = plassTextOf(child);
 
-      body = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Flexible(child: body),
-          // The delete button brings its own padding; the chip's would leave the
-          // × floating in the middle of a gap.
-          Padding(
-            padding: EdgeInsetsDirectional.only(end: padX / 2),
-            // Drawn at the size of the label, and pressed from a 24px square
-            // through the scope round the whole chip.
-            child: PlassDismissButton(
-              label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
-              onPressed: disabled ? null : onDeleted,
-              size: fontSize * dismissScale,
-              ring: family.ring,
-            ),
-          ),
-        ],
+      // The delete button brings its own padding; the chip's would leave the ×
+      // floating in the middle of a gap.
+      delete = Padding(
+        padding: EdgeInsetsDirectional.only(end: padX / 2),
+        // Drawn at the size of the label, and pressed from a 24px square through
+        // the scope round the whole chip.
+        child: PlassDismissButton(
+          label: deleteLabel ?? (text == null ? labels.remove : labels.removeItem(text)),
+          onPressed: disabled ? null : onDeleted,
+          size: fontSize * dismissScale,
+          ring: family.ring,
+        ),
       );
     }
+
+    // The label and its icons sit in the same row whether there is a × beside
+    // them or not. Moved into a row only as `onDeleted` came, and out of it as
+    // it went, they were built again from scratch, and an avatar among them was
+    // decoded again. With nothing beside it the row is as wide and as tall as
+    // what it holds, which is laid out as it would be on its own.
+    body = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Flexible(child: body),
+        ?delete,
+      ],
+    );
 
     // The label, its glyphs and the × ease to a new ink with the fill, as the
     // React build's `color` does under the house transition. The count's plate

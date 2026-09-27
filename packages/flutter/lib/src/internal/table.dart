@@ -174,7 +174,17 @@ class _PlassGridState extends State<PlassGrid> {
   /// The view the rows scroll in, which the keyboard moves as well.
   final ScrollController _scroll = ScrollController();
 
+  /// Which row the pointer is over, whether or not the grid lights it.
+  ///
+  /// Followed all the time, so a grid that starts lighting rows lights the one
+  /// the pointer is already resting on, and handed to [_hovered] only while the
+  /// grid lights rows, so a grid that does not is never painted again for it.
+  int? _pointerRow;
+
   bool get _interactive => widget.onRowPressed != null;
+
+  /// Whether the pointer lights a row at all.
+  bool get _lit => widget.hoverable || _interactive;
 
   @override
   void initState() {
@@ -199,6 +209,14 @@ class _PlassGridState extends State<PlassGrid> {
     if (widget.columns.length != oldWidget.columns.length) {
       _measuredAt = null;
       _columnWidths = null;
+    }
+
+    // The row under the pointer lights up or goes out as the grid starts or
+    // stops lighting rows, and a ring goes with the rows' focus stops.
+    _hovered.value = _lit ? _pointerRow : null;
+
+    if (!_interactive) {
+      _focused.value = null;
     }
   }
 
@@ -245,14 +263,18 @@ class _PlassGridState extends State<PlassGrid> {
 
   void _hover(int index, {required bool over}) {
     if (over) {
-      _hovered.value = index;
-    } else if (_hovered.value == index) {
-      _hovered.value = null;
+      _pointerRow = index;
+    } else if (_pointerRow == index) {
+      _pointerRow = null;
     }
+
+    _hovered.value = _lit ? _pointerRow : null;
   }
 
   void _focus(int index, {required bool visible}) {
-    if (visible) {
+    // A row that cannot be pressed is no stop, so what has the focus is a
+    // control inside its first cell, which draws its own ring.
+    if (visible && _interactive) {
       _focused.value = index;
     } else if (_focused.value == index) {
       _focused.value = null;
@@ -266,6 +288,13 @@ class _PlassGridState extends State<PlassGrid> {
   /// is pressed anywhere on it, including the space between the text and the
   /// rule under it, and a hit region that stopped at the glyphs would be a row
   /// that ignores most of itself.
+  ///
+  /// The same widgets above the content of a row's cell whether the row can be
+  /// pressed, is lit by the pointer, or neither, with the difference in their
+  /// flags. A cell wrapped only while its row could be pressed or lit was built
+  /// again from scratch as `onRowPressed` or `hoverable` came or went, and a
+  /// field in it lost what was typed into it. A row that cannot be pressed
+  /// claims no tap, keeps the cursor of whatever is under it, and is no stop.
   Widget _cell(
     Widget content, {
     required PlassAlign align,
@@ -289,44 +318,34 @@ class _PlassGridState extends State<PlassGrid> {
       return cell;
     }
 
-    if (_interactive) {
-      cell = GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => _press(row),
-        child: cell,
-      );
-    }
+    final bool interactive = _interactive;
 
-    if (_interactive || widget.hoverable) {
-      cell = MouseRegion(
-        cursor: _interactive ? SystemMouseCursors.click : MouseCursor.defer,
-        onEnter: (_) => _hover(row, over: true),
-        onExit: (_) => _hover(row, over: false),
+    cell = MouseRegion(
+      cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
+      onEnter: (_) => _hover(row, over: true),
+      onExit: (_) => _hover(row, over: false),
+      child: GestureDetector(
+        // `null` is the detector's own default, which claims nothing its
+        // content does not.
+        behavior: interactive ? HitTestBehavior.opaque : null,
+        onTap: interactive ? () => _press(row) : null,
         child: cell,
-      );
+      ),
+    );
+
+    if (!first) {
+      return cell;
     }
 
     // One focus stop per row, and it lives in the row's first cell — the only
     // place it can, since the row itself is not a widget. What it lights is the
     // whole row, because the ring is painted round the row behind the grid.
-    if (_interactive && first) {
-      cell = FocusableActionDetector(
-        shortcuts: PlassInteractive.defaultShortcuts,
-        actions: <Type, Action<Intent>>{
-          ActivateIntent: CallbackAction<ActivateIntent>(
-            onInvoke: (ActivateIntent _) {
-              _press(row);
-
-              return null;
-            },
-          ),
-        },
-        onShowFocusHighlight: (bool value) => _focus(row, visible: value),
-        child: cell,
-      );
-    }
-
-    return cell;
+    return _RowStop(
+      pressable: interactive,
+      onPressed: () => _press(row),
+      onFocusVisible: (bool visible) => _focus(row, visible: visible),
+      child: cell,
+    );
   }
 
   @override
@@ -474,57 +493,59 @@ class _PlassGridState extends State<PlassGrid> {
       ),
     );
 
-    if (widget.maxHeight != null) {
-      scrolling = ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: widget.maxHeight!),
-        child: scrolling,
-      );
-    }
+    // The cap, the band and the measuring round the rows are there whether or
+    // not they are asked for, and only what they do changes. A wrapper that
+    // came and went with `maxHeight` or `stickyHeader` would build every cell
+    // again from scratch, and a field in one would lose what was typed into it.
+    // Unasked for, the cap is no cap, the stack hands its one child the
+    // constraints it was given, and nothing is measured.
+    scrolling = ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: widget.maxHeight ?? double.infinity),
+      child: scrolling,
+    );
 
-    if (widget.stickyHeader) {
-      scrolling = Stack(
-        children: <Widget>[
-          scrolling,
-          if (_columnWidths != null)
-            PositionedDirectional(
-              top: 0,
-              start: 0,
-              end: 0,
-              child: _PinnedHeader(
-                // Opaque, and it has to be: rows pass directly underneath, and
-                // a translucent band would let them through. The glass at its
-                // densest laid over the page's own surface colour, flattened to
-                // the one colour that is what those two stacked would look
-                // like.
-                fill: Color.alphaBlend(tokens.glassPress, tokens.surface),
-                rule: headRule,
-                widths: _columnWidths!,
-                cells: <Widget>[for (final column in widget.columns) headerCell(column)],
-              ),
+    scrolling = Stack(
+      fit: widget.stickyHeader ? StackFit.loose : StackFit.passthrough,
+      children: <Widget>[
+        scrolling,
+        if (widget.stickyHeader && _columnWidths != null)
+          PositionedDirectional(
+            top: 0,
+            start: 0,
+            end: 0,
+            child: _PinnedHeader(
+              // Opaque, and it has to be: rows pass directly underneath, and a
+              // translucent band would let them through. The glass at its
+              // densest laid over the page's own surface colour, flattened to
+              // the one colour that is what those two stacked would look like.
+              fill: Color.alphaBlend(tokens.glassPress, tokens.surface),
+              rule: headRule,
+              widths: _columnWidths!,
+              cells: <Widget>[for (final column in widget.columns) headerCell(column)],
             ),
-        ],
-      );
+          ),
+      ],
+    );
 
-      // The widths are read after the frame that laid them out, and read again
-      // whenever the grid is laid out at a different width. Assigning the cache
-      // key here rather than inside the callback is what keeps a rebuild from
-      // queueing a second measurement of the same layout.
-      //
-      // Held in a second name rather than reassigned: a builder that returned
-      // the variable it was assigned to would be a widget containing itself.
-      final Widget pinned = scrolling;
+    // The widths are read after the frame that laid them out, and read again
+    // whenever the grid is laid out at a different width. Assigning the cache
+    // key here rather than inside the callback is what keeps a rebuild from
+    // queueing a second measurement of the same layout.
+    //
+    // Held in a second name rather than reassigned: a builder that returned the
+    // variable it was assigned to would be a widget containing itself.
+    final Widget pinned = scrolling;
 
-      scrolling = LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          if (_measuredAt != constraints.maxWidth) {
-            _measuredAt = constraints.maxWidth;
-            WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
-          }
+    scrolling = LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (widget.stickyHeader && _measuredAt != constraints.maxWidth) {
+          _measuredAt = constraints.maxWidth;
+          WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
+        }
 
-          return pinned;
-        },
-      );
-    }
+        return pinned;
+      },
+    );
 
     // A grid held by `maxHeight`, or by a box too small for it, is a tab stop
     // while it scrolls, so rows past the edge are in reach of a keyboard in a
@@ -552,6 +573,153 @@ class _PlassGridState extends State<PlassGrid> {
     return DefaultTextStyle.merge(
       style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
       child: scrolling,
+    );
+  }
+}
+
+/// A focus node that can be told to refuse the focus outright.
+///
+/// A row's [FocusableActionDetector] lets its node take the focus: it is always
+/// enabled, and even a disabled one does in [NavigationMode.directional]. A row
+/// that cannot be pressed is not a control to find, so this node overrules the
+/// detector while it is [inert], without the detector being handed a different
+/// node.
+class _RowFocusNode extends FocusNode {
+  bool _inert = false;
+
+  /// Whether the node refuses the focus, whatever the detector says.
+  set inert(bool value) {
+    if (value == _inert) {
+      return;
+    }
+
+    _inert = value;
+
+    // Only when the row itself holds the focus. A field in the first cell is
+    // inside this node too, and it keeps the focus as the row stops being
+    // pressable, as it keeps what was typed into it.
+    if (value && hasPrimaryFocus) {
+      unfocus(disposition: UnfocusDisposition.previouslyFocusedChild);
+    }
+  }
+
+  @override
+  bool get canRequestFocus => !_inert && super.canRequestFocus;
+}
+
+/// The focus stop of one row, in its first cell, which Enter and Space press.
+///
+/// Built for every row whether it can be pressed or not, with [pressable]
+/// deciding what it does, so the cell under it keeps its place in the tree. A
+/// row that cannot be pressed has no shortcuts, no actions and a node that
+/// refuses the focus. The detector stays enabled either way, so the node alone
+/// answers whether the row takes the focus, the same answer in both navigation
+/// modes, and the shortcuts and actions a disabled detector would drop are
+/// left out here instead.
+///
+/// What the stop tells a screen reader is said here rather than by the
+/// detector's [Focus], which says it whether there is a stop or not: a row with
+/// none would still be a node the size of its first cell, where the words in
+/// that cell were a node the size of the words.
+class _RowStop extends StatefulWidget {
+  const _RowStop({
+    required this.pressable,
+    required this.onPressed,
+    required this.onFocusVisible,
+    required this.child,
+  });
+
+  /// Whether the row answers a press.
+  final bool pressable;
+
+  /// Presses the row.
+  final VoidCallback onPressed;
+
+  /// Called as the keyboard ring should be drawn round the row or taken away.
+  final ValueChanged<bool> onFocusVisible;
+
+  /// The cell.
+  final Widget child;
+
+  @override
+  State<_RowStop> createState() => _RowStopState();
+}
+
+class _RowStopState extends State<_RowStop> {
+  /// Made here, with the row's cell, so that the stop moves with a keyed row
+  /// rather than staying with whichever row is drawn in its place.
+  final _RowFocusNode _node = _RowFocusNode();
+
+  /// Whether the stop can take the focus, and whether it has it, as last told
+  /// to a screen reader. Read from the node as [Focus] reads them.
+  bool _focusable = false;
+  bool _focused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _node.inert = !widget.pressable;
+    _node.addListener(_onFocusChanged);
+    _focusable = _node.canRequestFocus;
+    _focused = _node.hasPrimaryFocus;
+  }
+
+  @override
+  void didUpdateWidget(_RowStop oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _node.inert = !widget.pressable;
+    _focusable = _node.canRequestFocus;
+  }
+
+  @override
+  void dispose() {
+    _node.removeListener(_onFocusChanged);
+    _node.dispose();
+    super.dispose();
+  }
+
+  void _onFocusChanged() {
+    final bool focusable = _node.canRequestFocus;
+    final bool focused = _node.hasPrimaryFocus;
+
+    if (focusable != _focusable || focused != _focused) {
+      setState(() {
+        _focusable = focusable;
+        _focused = focused;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool pressable = widget.pressable;
+
+    return FocusableActionDetector(
+      focusNode: _node,
+      includeFocusSemantics: false,
+      shortcuts: pressable ? PlassInteractive.defaultShortcuts : null,
+      actions: pressable
+          ? <Type, Action<Intent>>{
+              ActivateIntent: CallbackAction<ActivateIntent>(
+                onInvoke: (ActivateIntent _) {
+                  widget.onPressed();
+
+                  return null;
+                },
+              ),
+            }
+          : null,
+      onShowFocusHighlight: widget.onFocusVisible,
+      // What [Focus] says for a node that can take the focus, and nothing at
+      // all for one that cannot.
+      child: Semantics(
+        onFocus: _focusable && defaultTargetPlatform != TargetPlatform.iOS
+            ? _node.requestFocus
+            : null,
+        focusable: _focusable ? true : null,
+        focused: _focusable ? _focused : null,
+        child: widget.child,
+      ),
     );
   }
 }

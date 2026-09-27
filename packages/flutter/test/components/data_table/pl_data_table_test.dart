@@ -59,6 +59,36 @@ List<String> customers(WidgetTester tester) {
       .toList();
 }
 
+/// Content with a `State` of its own: built again from scratch, it is a
+/// different object, where a field would have lost what was typed into it.
+class _Probe extends StatefulWidget {
+  const _Probe(this.text);
+
+  final String text;
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => Text(widget.text);
+}
+
+/// Whether the focus is on a row of the grid, or on something inside one.
+bool _holdsRow(WidgetTester tester) {
+  final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+  return focused != null &&
+      find
+          .descendant(
+            of: find.byType(Table),
+            matching: find.byElementPredicate((Element element) => element == focused),
+          )
+          .evaluate()
+          .isNotEmpty;
+}
+
 /// The Customer heading a press can reach. That is the pinned band's copy,
 /// which is built after the grid and lies over the grid's own heading once
 /// the table has measured its columns, and the grid's own before then, while
@@ -1144,6 +1174,138 @@ void main() {
         expect(tester.binding.focusManager.primaryFocus?.debugLabel, 'PlassKeyboardScroll');
         expect(rings(), <double>[-focusRingWidth]);
       });
+    });
+
+    group('rows', () {
+      /// Plain columns with a `State` in every cell, so nothing in the grid
+      /// takes the focus but a row.
+      final List<PlDataTableColumn<Invoice>> probed = <PlDataTableColumn<Invoice>>[
+        PlDataTableColumn<Invoice>(
+          key: 'id',
+          header: const Text('Invoice'),
+          cell: (Invoice row, int _) => _Probe(row.id),
+        ),
+        PlDataTableColumn<Invoice>(
+          key: 'customer',
+          header: const Text('Customer'),
+          cell: (Invoice row, int _) => _Probe(row.customer),
+        ),
+      ];
+
+      Future<void> tabFrom(WidgetTester tester, FocusNode before) async {
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets(
+        'keeps what its cells hold as onRowPressed, hoverable, maxHeight and stickyHeader change',
+        (WidgetTester tester) async {
+          final before = FocusNode(debugLabel: 'before');
+          addTearDown(before.dispose);
+
+          Widget build({
+            bool pressable = false,
+            bool hoverable = false,
+            bool capped = false,
+            bool pinned = true,
+          }) {
+            return host(
+              afterFocusStop(
+                before,
+                PlDataTable<Invoice>(
+                  columns: probed,
+                  rows: rows,
+                  rowKey: (Invoice row, int _) => row.id,
+                  hoverable: hoverable,
+                  onRowPressed: pressable ? (Invoice row, int index) {} : null,
+                  // A cap the rows fit under, so that the grid is no stop of
+                  // its own and Tab goes straight to a row.
+                  maxHeight: capped ? 400 : null,
+                  stickyHeader: pinned,
+                ),
+              ),
+              width: 640,
+            );
+          }
+
+          await tester.pumpWidget(build());
+          await tester.pumpAndSettle();
+
+          final List<State<_Probe>> resting = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          expect(resting, hasLength(6));
+
+          for (final (bool pressable, bool hoverable, bool capped, bool pinned)
+              in <(bool, bool, bool, bool)>[
+                (true, false, false, true),
+                (false, false, false, true),
+                (false, true, false, true),
+                (true, true, true, true),
+                (false, false, true, false),
+                (true, false, false, false),
+                (false, false, false, true),
+              ]) {
+            final String reason =
+                'pressable $pressable, hoverable $hoverable, capped $capped, pinned $pinned';
+
+            await tester.pumpWidget(
+              build(pressable: pressable, hoverable: hoverable, capped: capped, pinned: pinned),
+            );
+            await tester.pumpAndSettle();
+
+            final List<State<_Probe>> now = tester
+                .stateList<State<_Probe>>(find.byType(_Probe))
+                .toList();
+
+            expect(now, hasLength(resting.length), reason: reason);
+
+            for (var index = 0; index < resting.length; index += 1) {
+              expect(now[index], same(resting[index]), reason: 'probe $index, $reason');
+            }
+
+            await tabFrom(tester, before);
+
+            expect(_holdsRow(tester), pressable, reason: reason);
+          }
+        },
+      );
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('is no focus stop while nothing listens to its rows, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          final before = FocusNode(debugLabel: 'before');
+          addTearDown(before.dispose);
+
+          for (final bool hoverable in <bool>[false, true]) {
+            await tester.pumpWidget(
+              host(
+                MediaQuery(
+                  data: MediaQueryData(navigationMode: mode),
+                  child: afterFocusStop(
+                    before,
+                    PlDataTable<Invoice>(
+                      columns: probed,
+                      rows: rows,
+                      rowKey: (Invoice row, int _) => row.id,
+                      hoverable: hoverable,
+                    ),
+                  ),
+                ),
+                width: 640,
+              ),
+            );
+
+            await tabFrom(tester, before);
+
+            expect(_holdsRow(tester), isFalse, reason: 'hoverable $hoverable');
+          }
+        });
+      }
     });
 
     group('loading', () {

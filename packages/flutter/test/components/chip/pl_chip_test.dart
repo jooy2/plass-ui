@@ -3,11 +3,28 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
 /// A pack's remove button name, which puts the verb after the name.
 String _removeInKorean(String name) => '$name 삭제';
+
+/// Content with a `State` of its own: built again from scratch, it is a
+/// different object, where a picture would have been decoded again.
+class _Probe extends StatefulWidget {
+  const _Probe(this.text);
+
+  final String text;
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => Text(widget.text);
+}
 
 void main() {
   group('PlChip', () {
@@ -144,6 +161,81 @@ void main() {
 
         expect(find.bySemanticsLabel(RegExp('^Remove')), findsNothing);
         handle.dispose();
+      });
+
+      testWidgets('keeps the label and its icons as onDeleted comes and goes', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        Widget chip({bool deletable = false, bool pressable = false, bool disabled = false}) {
+          return host(
+            PlChip(
+              onPressed: pressable ? () {} : null,
+              onDeleted: deletable ? () {} : null,
+              disabled: disabled,
+              startIcon: const _Probe('S'),
+              endIcon: const _Probe('E'),
+              child: const _Probe('Tag'),
+            ),
+          );
+        }
+
+        await tester.pumpWidget(chip());
+
+        final List<State<_Probe>> resting = tester
+            .stateList<State<_Probe>>(find.byType(_Probe))
+            .toList();
+        final Size bare = tester.getSize(find.byType(PlChip));
+
+        expect(resting, hasLength(3));
+
+        for (final (bool deletable, bool pressable, bool disabled) in <(bool, bool, bool)>[
+          (true, false, false),
+          (false, false, false),
+          (true, true, false),
+          (false, true, false),
+          (true, true, true),
+          (false, false, false),
+        ]) {
+          final String reason = 'deletable $deletable, pressable $pressable, disabled $disabled';
+
+          await tester.pumpWidget(
+            chip(deletable: deletable, pressable: pressable, disabled: disabled),
+          );
+
+          // Built again from scratch, a probe is a different object, and an
+          // avatar in its place would have been decoded again.
+          final List<State<_Probe>> now = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          for (var index = 0; index < resting.length; index += 1) {
+            expect(now[index], same(resting[index]), reason: 'probe $index, $reason');
+          }
+
+          // The label is not words, so the × is named by the word alone.
+          expect(
+            find.bySemanticsLabel('Remove'),
+            deletable ? findsOneWidget : findsNothing,
+            reason: reason,
+          );
+        }
+
+        // With nothing beside it, as wide as it was before there was ever a ×.
+        expect(tester.getSize(find.byType(PlChip)), bare);
+        handle.dispose();
+      });
+
+      testWidgets('leaves no room for a × it does not have', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlChip(child: Text('Tag'))));
+
+        // An `md` chip pads its label by an `sm` control's padding.
+        expect(
+          tester.getSize(find.byType(PlChip)).width,
+          tester.getSize(find.text('Tag')).width +
+              2 * paddingX[PlassDensity.standard]![PlassSize.sm]!,
+        );
       });
 
       testWidgets('fires on its own, without the chip', (WidgetTester tester) async {
