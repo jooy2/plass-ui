@@ -173,7 +173,8 @@ class PlCommandPalette extends StatefulWidget {
   /// How tall the list may get before it scrolls.
   final double maxHeight;
 
-  /// The placeholder in the field. Falls back to the label pack's
+  /// The placeholder in the field, and the name a screen reader gives the
+  /// field, typed into or not. Falls back to the label pack's
   /// `commandPalettePlaceholder`.
   final String? placeholder;
 
@@ -388,6 +389,8 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
     final PlassSize size = _size;
     final double inset = _insetX[size]!;
     final PlassTextScale text = controlTextLeading[size]!;
+    final String placeholderText =
+        widget.placeholder ?? PlassTheme.labelsOf(context).commandPalettePlaceholder;
 
     final Widget field = SizedBox(
       height: _inputHeight[size]!,
@@ -395,29 +398,39 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
         padding: EdgeInsets.symmetric(horizontal: inset),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
-          child: EditableText(
-            controller: _query,
-            focusNode: _field,
-            onChanged: (String _) {
-              setState(() => _highlighted = 0);
-              _reveal.reveal(_scroll, 0, _filtered.length);
-            },
-            style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
-            cursorColor: tokens.family(_color).accent,
-            backgroundCursorColor: tokens.mutedFg,
-            selectionColor: tokens.family(_color).softPress,
+          // The placeholder's words name the editor's own node, as the React
+          // input takes its name from its placeholder, and the name stays once
+          // something is typed and the placeholder is gone.
+          child: Semantics(
+            label: placeholderText,
+            child: EditableText(
+              controller: _query,
+              focusNode: _field,
+              onChanged: (String _) {
+                setState(() => _highlighted = 0);
+                _reveal.reveal(_scroll, 0, _filtered.length);
+              },
+              style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
+              cursorColor: tokens.family(_color).accent,
+              backgroundCursorColor: tokens.mutedFg,
+              selectionColor: tokens.family(_color).softPress,
+            ),
           ),
         ),
       ),
     );
 
-    final Widget placeholder = Padding(
-      padding: EdgeInsets.symmetric(horizontal: inset),
-      child: Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: Text(
-          widget.placeholder ?? PlassTheme.labelsOf(context).commandPalettePlaceholder,
-          style: TextStyle(color: tokens.mutedFg, fontSize: text.size, height: text.height),
+    // Off the semantics tree, since the field already carries its words as its
+    // name, and a node of its own beside the field would read them twice.
+    final Widget placeholder = ExcludeSemantics(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: inset),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: Text(
+            placeholderText,
+            style: TextStyle(color: tokens.mutedFg, fontSize: text.size, height: text.height),
+          ),
         ),
       ),
     );

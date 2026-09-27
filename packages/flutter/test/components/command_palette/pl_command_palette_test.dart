@@ -24,12 +24,19 @@ const List<PlCommandItem> commands = <PlCommandItem>[
 /// The palette with a caller holding its open state, which is the only shape
 /// this build offers.
 class _Host extends StatefulWidget {
-  const _Host({this.open = true, this.onSelect, this.shortcut, this.items = commands});
+  const _Host({
+    this.open = true,
+    this.onSelect,
+    this.shortcut,
+    this.items = commands,
+    this.placeholder,
+  });
 
   final bool open;
   final ValueChanged<PlCommandItem>? onSelect;
   final String? shortcut;
   final List<PlCommandItem> items;
+  final String? placeholder;
 
   @override
   State<_Host> createState() => _HostState();
@@ -46,6 +53,7 @@ class _HostState extends State<_Host> {
       shortcut: widget.shortcut,
       onOpenChanged: (bool next) => setState(() => _open = next),
       onSelect: widget.onSelect,
+      placeholder: widget.placeholder,
     );
   }
 }
@@ -393,6 +401,63 @@ void main() {
             'Unavailable',
           ]),
         );
+
+        handle.dispose();
+      });
+
+      testWidgets('names the field by its placeholder, typed into or not', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        // The editor's own node carries the words, as the React input takes its
+        // name from its placeholder, and the drawn placeholder is not a second
+        // node beside it reading them again.
+        expect(
+          semanticsNodeLabelled(tester, 'Search commands'),
+          isSemantics(isTextField: true, label: 'Search commands', value: ''),
+        );
+        expect(
+          semanticsLabels(tester).where((String label) => label.contains('Search commands')),
+          hasLength(1),
+        );
+
+        // The placeholder leaves once something is typed, and the name stays.
+        await tester.enterText(find.byType(EditableText), 'copy');
+        await tester.pumpAndSettle();
+
+        expect(find.text('Search commands'), findsNothing);
+        expect(
+          semanticsNodeLabelled(tester, 'Search commands'),
+          isSemantics(isTextField: true, label: 'Search commands', value: 'copy'),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('names the field by a placeholder of the caller s own', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            const _Host(placeholder: 'What do you want to do?'),
+            width: 700,
+            height: 500,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          semanticsNodeLabelled(tester, 'What do you want to do?'),
+          isSemantics(isTextField: true, label: 'What do you want to do?'),
+        );
+        expect(semanticsLabels(tester), isNot(contains('Search commands')));
 
         handle.dispose();
       });

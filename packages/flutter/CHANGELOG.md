@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A screen reader names a `PlCommandPalette`'s search field by its placeholder, before and after anything is typed, as in the React build.** The field had no name. Its placeholder, "Search commands" by default, was a separate line of text beside it, and that line left as soon as something was typed. The field now takes `placeholder`, or the label pack's `commandPalettePlaceholder`, as its own name, and the drawn placeholder is no longer read as a second line.
+
 - **A line or area chart draws its markers over every band and every line.** A stacked `PlAreaChart` drew each band's markers before the band above it, so that band's tint covered their upper half, and on a line chart a line drawn later crossed an earlier series' markers. The value labels are still drawn last, over every marker. A series faded for a legend entry still fades its markers with it, and its own line or band does not show through them. The React build makes the same change.
 
 - **A mouse press on a `PlNumberField` stepper leaves the focus in the field and settles the value once.** In an app, a press on a stepper of a focused field took the focus out of the field before the step, so `onCommitted` was called twice, with the old value and then the new one, and the arrow keys stepped nothing until the field was focused again; a press on a stepper that had run into `min` or `max` took the focus out too and called `onCommitted` with the value unchanged. The steppers now count as part of the field, and a mouse press on one that can step also brings the focus into a field that did not have it, as in the React build, so the arrow keys carry on from the value it left. A finger or a pen still does not bring the focus in.
