@@ -387,22 +387,30 @@ class _Step extends StatelessWidget {
       return content;
     }
 
-    if (!interactive) {
-      return Semantics(
-        container: true,
-        enabled: !item.disabled,
-        // The step the reader is on is a *page*, not the chosen one of a set of
-        // options — which is why it is a header rather than a selection.
-        header: current,
-        child: body(const PlassInteraction()),
-      );
-    }
-
+    // The same widgets above the step whether it can be followed or not, with
+    // the difference in their flags. A step wrapped only while it could be
+    // followed was built again from scratch as it became the current page, was
+    // disabled, or was handed `onPressed` or lost it, and a picture in its
+    // icon was decoded again. A step that cannot be followed takes no focus and
+    // claims no tap, so a press on it reaches whatever is around it.
     return PlassInteractive(
       onTap: item.onPressed,
+      enabled: interactive,
+      interactive: interactive,
+      pressable: interactive,
+      cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
       shortcuts: PlassInteractive.enterOnly,
       builder: (BuildContext context, PlassInteraction state) {
-        return Semantics(container: true, link: true, onTap: item.onPressed, child: body(state));
+        return Semantics(
+          container: true,
+          link: interactive ? true : null,
+          enabled: interactive ? null : !item.disabled,
+          // The step the reader is on is a *page*, not the chosen one of a set
+          // of options — which is why it is a header rather than a selection.
+          header: interactive ? null : current,
+          onTap: interactive ? item.onPressed : null,
+          child: body(interactive ? state : const PlassInteraction()),
+        );
       },
     );
   }

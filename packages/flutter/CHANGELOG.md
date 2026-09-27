@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A `PlAppLogo`, a `PlListItem` and a `PlBreadcrumb` step keep what they hold as `onPressed` comes or goes, as a row is disabled and as a step becomes the current page or is disabled.** Each was wrapped in one tree while it could be pressed and in another while it could not, and Flutter builds a changed shape from scratch, so the logo's artwork and words, the row's label, description and icons, and the step's label and icons were built again: a picture in them was decoded again and a field lost what was typed into it. The wrappers now stay in the tree with only their settings changing. A logo, a row or a step that cannot be pressed still takes no focus, lets a tap through to whatever is around it and is not announced as a button or a link.
+
 - **A screen reader can press a `PlNumberField`'s steppers, as in the React build.** "Increase" and "Decrease" were announced as buttons with nothing to do. Each now takes one step when a screen reader presses it, without bringing the focus into the field, and calls `onCommitted` if the value moved, as a click on a React stepper does. A stepper that has run into `min` or `max`, and the steppers of a disabled field, still have no press.
 
 - **A read-only `PlNumberField` keeps the value it is handed, and a key or a turn of the wheel that leaves a `PlNumberField`'s value where it was does not call `onCommitted`, as in the React build.** `Home` and `End` set a read-only field to its `min` or `max`, and leaving a read-only field clamped a value outside the range through `onChanged` and `onCommitted`; leaving a field that was disabled while it held the focus did the same. An arrow key, `Page Up`, `Page Down`, `Home`, `End` or a turn of the wheel that met the end of the range called `onCommitted` with the value the field already had. A number typed before such a key still settles when the field is left.
@@ -318,7 +320,7 @@
 
 - **A line chart's value labels, a scatter, a pie, a heatmap and a gauge write their numbers compactly and grouped.** They wrote the bare number, so a slice worth 48,300 read `48300` and 1,234.5 read `1234.50`, where every other chart and the React build write `48.3K` and `1,234.5`. They now go through the writer the axes and the tooltips use, and a caller's `format` still wins. A compact figure of five digits or more in front of the last unit is grouped too, `1,500,000T` rather than `1500000T`, as `Intl` writes it.
 
-- **A tap on a `PlPill` with no `onPressed` reaches what is around it.** The pill kept a tap recogniser that answered nothing, so a pill inside a pressable row or card swallowed the tap and the row never saw it. It now claims no tap until it is given something to do, and keeps what it holds when `onPressed` comes or goes.
+- **A `PlPill` with no `onPressed` lets a tap through to what is around it, and is not a stop in directional navigation.** The pill kept a tap recogniser that answered nothing, so a pill inside a pressable row or card swallowed the tap and the row never saw it, and with `NavigationMode.directional` the focus stopped on it though there was nothing to press. It now claims no tap and takes no focus until it is given something to do, and keeps what it holds when `onPressed` comes or goes.
 
 - **A `PlCollapsible` leaves space between its header and its body.** Under the default header the body began at the open header's tinted edge, so its first line read as part of the title; only a `triggerBuilder` of the caller's own had the space. Both now have the space a `PlAccordion` section leaves.
 

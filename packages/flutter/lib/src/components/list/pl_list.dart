@@ -276,33 +276,38 @@ class PlListItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Expanded(
-          child: interactive
-              ? PlassInteractive(
-                  onTap: onPressed,
-                  focusNode: focusNode,
-                  autofocus: autofocus,
-                  builder: (BuildContext context, PlassInteraction state) {
-                    return Semantics(
-                      container: true,
-                      button: true,
-                      selected: selected,
-                      onTap: onPressed,
-                      child: _body(tokens, family, scope, state: state, reduceMotion: reduceMotion),
-                    );
-                  },
-                )
-              : Semantics(
-                  container: true,
-                  enabled: !disabled,
-                  selected: selected,
-                  child: _body(
-                    tokens,
-                    family,
-                    scope,
-                    state: const PlassInteraction(),
-                    reduceMotion: reduceMotion,
-                  ),
+          // The same widgets above the row's content whether it can be pressed,
+          // is disabled, or neither, with the difference in their flags. A row
+          // wrapped only while it could be pressed was built again from scratch
+          // as `onPressed` came or went, or as `disabled` changed, and a field
+          // or a picture in it started over. A row that cannot be pressed takes
+          // no focus and claims no tap, so a press on it reaches whatever is
+          // around it, and it is not announced as a button.
+          child: PlassInteractive(
+            onTap: onPressed,
+            enabled: interactive,
+            interactive: interactive,
+            pressable: interactive,
+            cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
+            focusNode: focusNode,
+            autofocus: autofocus,
+            builder: (BuildContext context, PlassInteraction state) {
+              return Semantics(
+                container: true,
+                button: interactive ? true : null,
+                enabled: interactive ? null : !disabled,
+                selected: selected,
+                onTap: interactive ? onPressed : null,
+                child: _body(
+                  tokens,
+                  family,
+                  scope,
+                  state: interactive ? state : const PlassInteraction(),
+                  reduceMotion: reduceMotion,
                 ),
+              );
+            },
+          ),
         ),
         if (action != null)
           Padding(

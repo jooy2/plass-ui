@@ -30,6 +30,45 @@ class _Mark extends StatelessWidget {
   }
 }
 
+/// Content with a `State` of its own: built again from scratch, it is a
+/// different object, where a picture would have been decoded again.
+class _Probe extends StatefulWidget {
+  const _Probe(this.text);
+
+  final String text;
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => Text(widget.text);
+}
+
+/// Whether the focus is on something inside the logo.
+bool _holdsFocus(WidgetTester tester) {
+  final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+  return focused != null &&
+      find
+          .descendant(
+            of: find.byType(PlAppLogo),
+            matching: find.byElementPredicate((Element element) => element == focused),
+          )
+          .evaluate()
+          .isNotEmpty;
+}
+
+/// Moves the focus to [before] and presses Tab once, as a keyboard reader
+/// arriving at the logo does.
+Future<void> _tabFrom(WidgetTester tester, FocusNode before) async {
+  before.requestFocus();
+  await tester.pump();
+  await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+  await tester.pump();
+}
+
 Future<void> _pump(WidgetTester tester, Widget child) async {
   // No width on the host: a tight constraint from outside would answer the
   // question these tests are asking, which is what the logo sizes itself to.
@@ -238,20 +277,6 @@ void main() {
     });
 
     group('the keyboard', () {
-      /// Whether the focus is on something inside the logo.
-      bool holdsFocus(WidgetTester tester) {
-        final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
-
-        return focused != null &&
-            find
-                .descendant(
-                  of: find.byType(PlAppLogo),
-                  matching: find.byElementPredicate((Element element) => element == focused),
-                )
-                .evaluate()
-                .isNotEmpty;
-      }
-
       /// The focus rings drawn inside the logo.
       List<PlassFocusRingPainter> rings(WidgetTester tester) {
         return tester
@@ -288,7 +313,7 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pump();
 
-        expect(holdsFocus(tester), isTrue);
+        expect(_holdsFocus(tester), isTrue);
 
         await tester.sendKeyEvent(LogicalKeyboardKey.enter);
         expect(pressed, 1);
@@ -349,8 +374,88 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pump();
 
-        expect(holdsFocus(tester), isFalse);
+        expect(_holdsFocus(tester), isFalse);
         expect(rings(tester), isEmpty);
+      });
+
+      testWidgets('takes no focus when it has nothing to do, on a remote either', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        // Directional navigation is where an unavailable control is still a
+        // stop, so a reader can find it. A logo with nothing to do is not a
+        // control, and there is nothing to find.
+        await tester.pumpWidget(
+          host(
+            MediaQuery(
+              data: const MediaQueryData(navigationMode: NavigationMode.directional),
+              child: afterFocusStop(before, const PlAppLogo(name: Text('Acme'), child: _Mark())),
+            ),
+          ),
+        );
+
+        await _tabFrom(tester, before);
+
+        expect(_holdsFocus(tester), isFalse);
+      });
+    });
+
+    group('onPressed', () {
+      testWidgets('keeps what the logo holds when it is handed onPressed, and loses it', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        Widget logo({VoidCallback? onPressed}) => host(
+          afterFocusStop(
+            before,
+            PlAppLogo(
+              name: const _Probe('Acme'),
+              description: const _Probe('Staging'),
+              onPressed: onPressed,
+              child: const _Probe('A'),
+            ),
+          ),
+        );
+
+        await tester.pumpWidget(logo());
+
+        final List<State<_Probe>> resting = tester
+            .stateList<State<_Probe>>(find.byType(_Probe))
+            .toList();
+
+        expect(resting, hasLength(3));
+
+        for (final bool pressable in <bool>[true, false, true, false]) {
+          await tester.pumpWidget(logo(onPressed: pressable ? () {} : null));
+
+          // Built again from scratch, a probe is a different object, and a
+          // picture in its place would have been decoded again.
+          final List<State<_Probe>> now = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          for (var index = 0; index < resting.length; index += 1) {
+            expect(now[index], same(resting[index]), reason: 'probe $index, $pressable');
+          }
+
+          // Still a button only while there is something to press.
+          expect(
+            tester.getSemantics(find.text('Acme')),
+            isSemantics(isButton: pressable, hasTapAction: pressable),
+            reason: '$pressable',
+          );
+
+          await _tabFrom(tester, before);
+
+          expect(_holdsFocus(tester), pressable, reason: '$pressable');
+        }
+
+        handle.dispose();
       });
     });
   });

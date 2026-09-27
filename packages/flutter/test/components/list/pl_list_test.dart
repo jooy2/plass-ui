@@ -1,8 +1,48 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import '../../support/host.dart';
+
+/// Content with a `State` of its own: built again from scratch, it is a
+/// different object, where a field would have lost what was typed into it.
+class _Probe extends StatefulWidget {
+  const _Probe(this.text);
+
+  final String text;
+
+  @override
+  State<_Probe> createState() => _ProbeState();
+}
+
+class _ProbeState extends State<_Probe> {
+  @override
+  Widget build(BuildContext context) => Text(widget.text);
+}
+
+/// Whether the focus is on something inside the list.
+bool _holdsFocus(WidgetTester tester) {
+  final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+  return focused != null &&
+      find
+          .descendant(
+            of: find.byType(PlList),
+            matching: find.byElementPredicate((Element element) => element == focused),
+          )
+          .evaluate()
+          .isNotEmpty;
+}
+
+/// Moves the focus to [before] and presses Tab once, as a keyboard reader
+/// arriving at the list does.
+Future<void> _tabFrom(WidgetTester tester, FocusNode before) async {
+  before.requestFocus();
+  await tester.pump();
+  await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+  await tester.pump();
+}
 
 void main() {
   group('PlList', () {
@@ -194,6 +234,138 @@ void main() {
 
         await tester.tap(find.text('One'));
         expect(pressed, 0);
+      });
+
+      testWidgets('keeps what it holds as onPressed, disabled and selected change', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        Widget list({bool pressable = false, bool disabled = false, bool selected = false}) {
+          return host(
+            afterFocusStop(
+              before,
+              PlList(
+                children: <Widget>[
+                  PlListItem(
+                    onPressed: pressable ? () {} : null,
+                    disabled: disabled,
+                    selected: selected,
+                    startIcon: const _Probe('S'),
+                    endIcon: const _Probe('E'),
+                    description: const _Probe('Visa 4242'),
+                    child: const _Probe('Billing'),
+                  ),
+                ],
+              ),
+            ),
+            width: 320,
+          );
+        }
+
+        await tester.pumpWidget(list());
+
+        final List<State<_Probe>> resting = tester
+            .stateList<State<_Probe>>(find.byType(_Probe))
+            .toList();
+
+        expect(resting, hasLength(4));
+
+        // Every way a row can change what it does, and back.
+        for (final (bool pressable, bool disabled, bool selected) in <(bool, bool, bool)>[
+          (true, false, false),
+          (true, true, false),
+          (true, false, true),
+          (false, false, true),
+          (false, true, false),
+          (true, false, false),
+          (false, false, false),
+        ]) {
+          final String reason = 'pressable $pressable, disabled $disabled, selected $selected';
+          final bool interactive = pressable && !disabled;
+
+          await tester.pumpWidget(
+            list(pressable: pressable, disabled: disabled, selected: selected),
+          );
+
+          // Built again from scratch, a probe is a different object, and a
+          // field in its place would have lost what was typed into it.
+          final List<State<_Probe>> now = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          for (var index = 0; index < resting.length; index += 1) {
+            expect(now[index], same(resting[index]), reason: 'probe $index, $reason');
+          }
+
+          // A button with its tap only while it can be pressed, and otherwise
+          // a row that says whether it is available, as it always said.
+          expect(
+            tester.getSemantics(find.text('Billing')),
+            interactive
+                ? isSemantics(
+                    isButton: true,
+                    hasTapAction: true,
+                    hasEnabledState: false,
+                    hasSelectedState: true,
+                    isSelected: selected,
+                  )
+                : isSemantics(
+                    isButton: false,
+                    hasTapAction: false,
+                    hasEnabledState: true,
+                    isEnabled: !disabled,
+                    hasSelectedState: true,
+                    isSelected: selected,
+                  ),
+            reason: reason,
+          );
+
+          await _tabFrom(tester, before);
+
+          expect(_holdsFocus(tester), interactive, reason: reason);
+        }
+
+        handle.dispose();
+      });
+
+      testWidgets('is not a focus stop while it cannot be pressed, on a remote either', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        // Directional navigation is where an unavailable control is still a
+        // stop, so a reader can find it. A row that cannot be pressed was never
+        // one, whether it has nothing to do or is disabled.
+        for (final bool disabled in <bool>[false, true]) {
+          await tester.pumpWidget(
+            host(
+              MediaQuery(
+                data: const MediaQueryData(navigationMode: NavigationMode.directional),
+                child: afterFocusStop(
+                  before,
+                  PlList(
+                    children: <Widget>[
+                      PlListItem(
+                        onPressed: disabled ? () {} : null,
+                        disabled: disabled,
+                        child: const Text('Billing'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              width: 320,
+            ),
+          );
+
+          await _tabFrom(tester, before);
+
+          expect(_holdsFocus(tester), isFalse, reason: 'disabled $disabled');
+        }
       });
     });
   });

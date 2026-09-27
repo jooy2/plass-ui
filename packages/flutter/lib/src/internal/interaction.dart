@@ -119,6 +119,13 @@ class PlassInteractive extends StatefulWidget {
   /// keeps the same widgets above its content, where leaving the wrapper out
   /// would change the shape of the tree and build the content again from
   /// scratch.
+  ///
+  /// It takes the surface out of the focus order too, in every navigation
+  /// mode. [enabled] alone does that only in [NavigationMode.traditional]: in
+  /// [NavigationMode.directional] an unavailable control stays a stop so a
+  /// reader on a remote can find it, and a surface with nothing to press is
+  /// not a control to find. That holds for the node the surface makes for
+  /// itself; a [focusNode] the component was handed is left as it was given.
   final bool pressable;
 
   /// The cursor over it.
@@ -167,6 +174,36 @@ class PlassInteractive extends StatefulWidget {
   State<PlassInteractive> createState() => PlassInteractiveState();
 }
 
+/// A focus node that can be told to refuse the focus outright.
+///
+/// [FocusableActionDetector] decides whether its node may take the focus from
+/// the navigation mode, and in [NavigationMode.directional] the answer is yes
+/// even while it is disabled. This node overrules that while it is [inert],
+/// without the detector being handed a different node: a swapped node leaves
+/// the detector believing the old one still holds the focus, and it would
+/// draw a ring round a surface nothing is focused on.
+class _PlassFocusNode extends FocusNode {
+  bool _inert = false;
+
+  /// Whether the node refuses the focus, whatever the detector says.
+  set inert(bool value) {
+    if (value == _inert) {
+      return;
+    }
+
+    _inert = value;
+
+    // What setting `canRequestFocus` to `false` does, which is what the
+    // detector does for a disabled node in the traditional mode.
+    if (value && hasFocus) {
+      unfocus(disposition: UnfocusDisposition.previouslyFocusedChild);
+    }
+  }
+
+  @override
+  bool get canRequestFocus => !_inert && super.canRequestFocus;
+}
+
 /// The state behind a [PlassInteractive]. Public so that a component holding a
 /// [GlobalKey] to one can ask it to take focus.
 class PlassInteractiveState extends State<PlassInteractive> {
@@ -174,6 +211,29 @@ class PlassInteractiveState extends State<PlassInteractive> {
   bool _pressed = false;
   bool _focusVisible = false;
   Offset? _pointer;
+
+  /// The node the surface uses when the component handed it none. Made here
+  /// rather than left to the detector so that [PlassInteractive.pressable] can
+  /// reach it.
+  final _PlassFocusNode _ownNode = _PlassFocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _ownNode.inert = !widget.pressable;
+  }
+
+  @override
+  void didUpdateWidget(PlassInteractive oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _ownNode.inert = !widget.pressable;
+  }
+
+  @override
+  void dispose() {
+    _ownNode.dispose();
+    super.dispose();
+  }
 
   void _setPointer(Offset position) {
     // Written on every pointer frame, so it is deliberately not `setState` for
@@ -217,7 +277,7 @@ class PlassInteractiveState extends State<PlassInteractive> {
       // containing a button. Every caller says what it is; this only has to
       // make it reachable.
       includeFocusSemantics: false,
-      focusNode: widget.focusNode,
+      focusNode: widget.focusNode ?? _ownNode,
       autofocus: widget.autofocus,
       mouseCursor: widget.cursor,
       onFocusChange: widget.onFocusChange,

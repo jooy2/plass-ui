@@ -243,9 +243,7 @@ class PlAppLogo extends StatelessWidget {
       );
     }
 
-    if (onPressed == null) {
-      return content;
-    }
+    final pressable = onPressed != null;
 
     // The ring follows the disc when the disc is all there is, and otherwise
     // takes the house radius round the whole logo, mark and words together.
@@ -256,12 +254,22 @@ class PlAppLogo extends StatelessWidget {
     // A focus stop that `Enter` and `Space` press, as every other button is.
     // Nothing lights up or darkens under the pointer: the React logo, a link
     // round the artwork, does neither.
+    //
+    // The same widgets above the artwork whether the logo can be pressed or
+    // not, with the difference in their flags. A logo handed `onPressed` later,
+    // or losing it, used to be wrapped in a different tree, and Flutter builds
+    // a changed shape from scratch: a picture in it was decoded again. A logo
+    // with nothing to do takes no focus, claims no tap and is not a button.
     return PlassInteractive(
       onTap: onPressed,
+      enabled: pressable,
+      interactive: pressable,
+      pressable: pressable,
+      cursor: pressable ? SystemMouseCursors.click : MouseCursor.defer,
       builder: (BuildContext context, PlassInteraction state) {
         return Semantics(
-          container: true,
-          button: true,
+          container: pressable,
+          button: pressable ? true : null,
           // The press target excludes itself from semantics, so the action a
           // screen reader, Switch Access or Voice Access fires is declared here.
           onTap: onPressed,
@@ -269,7 +277,7 @@ class PlAppLogo extends StatelessWidget {
           // that paints it, so the artwork is not built again as the focus
           // comes and goes.
           child: CustomPaint(
-            foregroundPainter: state.focusVisible
+            foregroundPainter: pressable && state.focusVisible
                 ? PlassFocusRingPainter(color: family.ring, borderRadius: ringRadius)
                 : null,
             child: content,
