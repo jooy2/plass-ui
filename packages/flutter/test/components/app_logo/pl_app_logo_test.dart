@@ -1,6 +1,8 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
 
 import '../../support/host.dart';
 
@@ -203,6 +205,152 @@ void main() {
         await tester.tap(find.byType(PlAppLogo));
 
         expect(pressed, 1);
+      });
+
+      testWidgets('is announced as one button, named by the words beside the mark', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        int pressed = 0;
+
+        await _pump(
+          tester,
+          PlAppLogo(
+            name: const Text('Acme'),
+            description: const Text('Staging'),
+            onPressed: () => pressed += 1,
+            child: const _Mark(),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Acme')),
+          isSemantics(isButton: true, hasTapAction: true, label: 'Acme\nStaging'),
+        );
+
+        // The action a screen reader, Switch Access or Voice Access fires.
+        tester.semantics.tap(find.semantics.byLabel('Acme\nStaging'));
+
+        expect(pressed, 1);
+
+        handle.dispose();
+      });
+    });
+
+    group('the keyboard', () {
+      /// Whether the focus is on something inside the logo.
+      bool holdsFocus(WidgetTester tester) {
+        final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+        return focused != null &&
+            find
+                .descendant(
+                  of: find.byType(PlAppLogo),
+                  matching: find.byElementPredicate((Element element) => element == focused),
+                )
+                .evaluate()
+                .isNotEmpty;
+      }
+
+      /// The focus rings drawn inside the logo.
+      List<PlassFocusRingPainter> rings(WidgetTester tester) {
+        return tester
+            .widgetList<CustomPaint>(
+              find.descendant(of: find.byType(PlAppLogo), matching: find.byType(CustomPaint)),
+            )
+            .map((CustomPaint paint) => paint.foregroundPainter)
+            .whereType<PlassFocusRingPainter>()
+            .toList();
+      }
+
+      testWidgets('reaches a pressable logo by Tab, and presses it with Enter and Space', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+        int pressed = 0;
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlAppLogo(
+                name: const Text('Acme'),
+                onPressed: () => pressed += 1,
+                child: const _Mark(),
+              ),
+            ),
+          ),
+        );
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(holdsFocus(tester), isTrue);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(pressed, 1);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        expect(pressed, 2);
+      });
+
+      testWidgets('draws the focus ring only while a keyboard holds the focus', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlAppLogo(
+                shape: PlAppLogoShape.plate,
+                color: PlassColor.success,
+                onPressed: () {},
+                child: const _Mark(),
+              ),
+            ),
+          ),
+        );
+
+        expect(rings(tester), isEmpty);
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        // The family's own ring, as on every other control.
+        expect(
+          rings(tester).single.color,
+          PlassTheme.of(tester.element(find.byType(PlAppLogo))).family(PlassColor.success).ring,
+        );
+
+        before.requestFocus();
+        await tester.pumpAndSettle();
+
+        expect(rings(tester), isEmpty);
+      });
+
+      testWidgets('takes no focus when it has nothing to do', (WidgetTester tester) async {
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(afterFocusStop(before, const PlAppLogo(name: Text('Acme'), child: _Mark()))),
+        );
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+
+        expect(holdsFocus(tester), isFalse);
+        expect(rings(tester), isEmpty);
       });
     });
   });

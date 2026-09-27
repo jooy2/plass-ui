@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A `PlAppLogo` given `onPressed` can be reached and pressed from the keyboard.** `Tab` reaches it, `Enter` and `Space` press it, and the family's focus ring is drawn round it while a keyboard holds the focus, as on every other button. Before, it answered only a pointer: it took no focus and no key, so a keyboard could not press it.
+
 - **A screen reader names a `PlCommandPalette`'s search field by its placeholder, before and after anything is typed, as in the React build.** The field had no name. Its placeholder, "Search commands" by default, was a separate line of text beside it, and that line left as soon as something was typed. The field now takes `placeholder`, or the label pack's `commandPalettePlaceholder`, as its own name, and the drawn placeholder is no longer read as a second line.
 
 - **A line or area chart draws its markers over every band and every line.** A stacked `PlAreaChart` drew each band's markers before the band above it, so that band's tint covered their upper half, and on a line chart a line drawn later crossed an earlier series' markers. The value labels are still drawn last, over every marker. A series faded for a legend entry still fades its markers with it, and its own line or band does not show through them. The React build makes the same change.

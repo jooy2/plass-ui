@@ -136,4 +136,16 @@ PlAppLogo(semanticLabel: 'Acme', child: Image.asset('assets/logo.png'));
 
 - **With a `name`, the mark is decorative** and is taken off the accessibility tree. The wordmark beside it already says what the product is called, and a picture that says it again is a screen reader reading the name twice.
 - Without a `name`, the mark speaks: `alt` in React, `semanticLabel` in Flutter. An empty `alt` is a real answer and the default. It says the picture carries nothing the text does not.
+
+::: fw react
+
 - A logo that goes home should say so. `render={<a href="/" />}` makes it a real link with a real destination, rather than a click handler on a picture.
+
+:::
+
+::: fw flutter
+
+- `onPressed` makes the logo a button and a focus stop, because Flutter has no link element to make it one. <kbd>Tab</kbd> reaches it, <kbd>Enter</kbd> and <kbd>Space</kbd> press it, and the focus ring is drawn round it only while a keyboard holds the focus.
+- Without `onPressed` the logo adds no role and takes no focus stop.
+
+:::

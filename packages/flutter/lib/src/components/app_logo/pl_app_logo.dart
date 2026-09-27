@@ -3,7 +3,9 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -123,6 +125,11 @@ class PlAppLogo extends StatelessWidget {
 
   /// Makes the logo the way back to the front screen, which is nearly always
   /// what it is. Leaving it `null` draws the same logo and presses nothing.
+  ///
+  /// Passing it makes the logo a button and a focus stop: a keyboard reaches it
+  /// with <kbd>Tab</kbd> and presses it with <kbd>Enter</kbd> or
+  /// <kbd>Space</kbd>, and the focus ring is drawn round it while a keyboard
+  /// holds the focus.
   final VoidCallback? onPressed;
 
   /// The height of the mark, and the type scale of the name beside it.
@@ -140,6 +147,7 @@ class PlAppLogo extends StatelessWidget {
     final family = tokens.family(color);
     final height = _markHeight[size]!;
     final plated = shape != PlAppLogoShape.bare;
+    final hasWords = name != null || description != null;
 
     Widget mark = child;
 
@@ -198,7 +206,7 @@ class PlAppLogo extends StatelessWidget {
 
     Widget content = mark;
 
-    if (name != null || description != null) {
+    if (hasWords) {
       content = Row(
         mainAxisSize: MainAxisSize.min,
         spacing: _gap[size]!,
@@ -239,13 +247,35 @@ class PlAppLogo extends StatelessWidget {
       return content;
     }
 
-    return Semantics(
-      button: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
-        child: MouseRegion(cursor: SystemMouseCursors.click, child: content),
-      ),
+    // The ring follows the disc when the disc is all there is, and otherwise
+    // takes the house radius round the whole logo, mark and words together.
+    final ringRadius = shape == PlAppLogoShape.circle && !hasWords
+        ? BorderRadius.circular(height)
+        : BorderRadius.circular(tokens.radii[size]!);
+
+    // A focus stop that `Enter` and `Space` press, as every other button is.
+    // Nothing lights up or darkens under the pointer: the React logo, a link
+    // round the artwork, does neither.
+    return PlassInteractive(
+      onTap: onPressed,
+      builder: (BuildContext context, PlassInteraction state) {
+        return Semantics(
+          container: true,
+          button: true,
+          // The press target excludes itself from semantics, so the action a
+          // screen reader, Switch Access or Voice Access fires is declared here.
+          onTap: onPressed,
+          // The ring is switched off by leaving out its painter, not the widget
+          // that paints it, so the artwork is not built again as the focus
+          // comes and goes.
+          child: CustomPaint(
+            foregroundPainter: state.focusVisible
+                ? PlassFocusRingPainter(color: family.ring, borderRadius: ringRadius)
+                : null,
+            child: content,
+          ),
+        );
+      },
     );
   }
 }
