@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlPieChart` goes on reading the slice it is on when a slice ahead of it leaves the data.** The slice being read was held by its place, so when a slice before it left, the card and the live region read whichever slice moved into that place, and a slice read as it left the data handed its reading to the slice that moved in. It is now held by its name, as a slice switched off in the legend is, and the reading is let go once no slice drawn has that name. The Flutter build makes the same change.
+
 - **Two series of the same name in a chart's legend, or two slices of the same name in a `PlPieChart`'s, are switched off and pointed at one at a time.** Each legend entry was known by its name alone, so switching off either of two series of one name switched off both, pointing at the second faded every series but the first, and React warned of two children with the same key in the legend and in the table under the chart. A series named "1" was known by the same key as an unnamed series in the second place, so the two switched off and on together. A repeated name is now told apart by how many series before it have that name, and a name never meets a place. The Flutter build makes the same change.
 
 - **A `PlHeader` with no middle puts its actions at the far end of the bar.** With a `brand` and `actions` and no `children`, at the default `align` or at `end`, the actions sat one gap after the brand, and a bar with actions and no brand started with them, where the header page and the Flutter build put them at the end. The actions now take the room an empty middle leaves. A bar with a middle, and a centred one, lay out as before.

@@ -182,7 +182,10 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
   /// from [legendKeys] rather than by its place.
   final Set<String> _off = <String>{};
 
-  int? _active;
+  /// The slice being read, by its key from [legendKeys] rather than by its
+  /// place, so a slice leaving the data ahead of it does not move the reading
+  /// onto whichever slice takes its place.
+  String? _activeKey;
   int? _hovered;
 
   /// The plot's own tab stop, which the arrow keys walk. Held here for the
@@ -263,11 +266,20 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
     // worth nothing or a gap, has nothing left to read, so the reading is let
     // go in the build that finds it gone, as the frame lets go of a column,
     // rather than left standing with every other slice faded for it. A slice
-    // that still draws one goes on being read.
-    if (_active != null &&
-        (_active! >= values.length || !_drawn(values[_active!], visible[_active!]))) {
-      _active = null;
+    // that still draws one goes on being read, wherever it has moved to.
+    final String? activeKey = _activeKey;
+    final int held = activeKey == null ? -1 : keys.indexOf(activeKey);
+    final int? active = held != -1 && _drawn(values[held], visible[held]) ? held : null;
+
+    if (active == null) {
+      _activeKey = null;
     }
+
+    /// The key of the slice at [index], or `null` for none. The handlers below
+    /// compare it with [_activeKey] as they run, rather than with the slice
+    /// this build was reading, since a second event can arrive before the next
+    /// build.
+    String? keyOf(int? index) => index == null ? null : keys[index];
 
     final List<Color> colors = <Color>[
       for (int i = 0; i < slices.length; i += 1) seriesColor(values[i].color, i, tokens.chart),
@@ -291,7 +303,7 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
       <Object>{
         for (int i = 0; i < slices.length; i += 1)
           if (visible[i] &&
-              (dimmedByHover(_hovered, i, visible) || (_active != null && _active != i)))
+              (dimmedByHover(_hovered, i, visible) || (active != null && active != i)))
             i,
       },
       duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
@@ -343,7 +355,9 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
             return;
           }
 
-          setState(() => _active = found == _active ? null : found);
+          final String? pressed = keyOf(found);
+
+          setState(() => _activeKey = pressed == _activeKey ? null : pressed);
         }
 
         void move(Offset local) {
@@ -353,8 +367,10 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
 
           final int? found = _hit(local, arcs, centreX, centreY, outer, inner);
 
-          if (found != _active) {
-            setState(() => _active = found);
+          final String? under = keyOf(found);
+
+          if (under != _activeKey) {
+            setState(() => _activeKey = under);
           }
         }
 
@@ -373,11 +389,11 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
 
           final LogicalKeyboardKey key = event.logicalKey;
 
-          if (key == LogicalKeyboardKey.escape && _active != null) {
+          if (key == LogicalKeyboardKey.escape && _activeKey != null) {
             // Only while a slice is being read. With nothing to clear, the key
             // belongs to whatever the chart sits in — a sheet, a dialog — and
             // swallowing it would leave that unable to close.
-            setState(() => _active = null);
+            setState(() => _activeKey = null);
 
             return KeyEventResult.handled;
           }
@@ -389,7 +405,8 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
           }
 
           final List<int> order = <int>[for (final _Arc arc in arcs) arc.index];
-          final int at = _active == null ? -1 : order.indexOf(_active!);
+          final String? reading = _activeKey;
+          final int at = reading == null ? -1 : order.indexOf(keys.indexOf(reading));
           final bool forward = key == LogicalKeyboardKey.arrowRight;
 
           // Nothing read yet: forward starts at the first, and back at the last.
@@ -397,7 +414,7 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
               ? (forward ? 0 : order.length - 1)
               : (at + (forward ? 1 : -1) + order.length) % order.length;
 
-          setState(() => _active = order[next]);
+          setState(() => _activeKey = keys[order[next]]);
 
           return KeyEventResult.handled;
         }
@@ -405,8 +422,8 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
         final Widget drawing = MouseRegion(
           onHover: (PointerHoverEvent event) => move(event.localPosition),
           onExit: (PointerExitEvent _) {
-            if (_active != null) {
-              setState(() => _active = null);
+            if (_activeKey != null) {
+              setState(() => _activeKey = null);
             }
           },
           child: GestureDetector(
@@ -433,7 +450,7 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
                       outer: outer,
                       inner: inner,
                       padAngle: widget.padAngle?.clamp(0.0, 10.0),
-                      active: _active,
+                      active: active,
                       hovered: _hovered,
                       visible: visible,
                       shares: widget.valueLabels == PlPieLabels.all,
@@ -453,7 +470,7 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
                       height: semi ? inner : inner * 2,
                       child: IgnorePointer(child: Center(child: widget.center)),
                     ),
-                  if (_active != null && !quiet)
+                  if (active != null && !quiet)
                     PositionedDirectional(
                       start: 0,
                       end: 0,
@@ -467,11 +484,11 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
                           child: PlassChartTooltipCard(
                             tokens: tokens,
                             size: size,
-                            heading: slices[_active!].name ?? '',
+                            heading: slices[active].name ?? '',
                             children: <Widget>[
                               _Readout(
-                                color: values[_active!].color ?? colors[_active!],
-                                text: _said(values[_active!], total),
+                                color: values[active].color ?? colors[active],
+                                text: _said(values[active], total),
                                 tokens: tokens,
                                 size: size,
                               ),
@@ -482,9 +499,7 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
                     ),
                   if (!quiet)
                     PlassChartReadout(
-                      said: _active == null
-                          ? ''
-                          : _reading(slices[_active!], values[_active!], total),
+                      said: active == null ? '' : _reading(slices[active], values[active], total),
                     ),
                 ],
               ),
@@ -505,7 +520,7 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
             // readout forever.
             setState(() {
               if (!has) {
-                _active = null;
+                _activeKey = null;
               }
             });
           },
@@ -530,8 +545,8 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
                 _off.add(keys[index]);
               }
 
-              if (_active == index) {
-                _active = null;
+              if (_activeKey == keys[index]) {
+                _activeKey = null;
               }
             }),
             onHover: (int? index) => setState(() => _hovered = index),

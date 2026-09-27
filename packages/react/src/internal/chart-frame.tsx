@@ -239,6 +239,8 @@ export interface CartesianChartProps extends ChartBaseProps {
  * ------------------------------------------------------------------------- */
 
 interface Visibility {
+  /** The key each series' legend entry is rendered under, from `entryKeys`. */
+  keys: readonly string[];
   visible: boolean[];
   hovered: number | null;
   toggle: (index: number) => void;
@@ -347,6 +349,7 @@ function useVisibility(series: readonly PlassChartSeries[], listed: boolean): Vi
   };
 
   return {
+    keys,
     visible: keys.map((key) => !hidden.has(key)),
     hovered: hovered === -1 ? null : hovered,
     toggle,

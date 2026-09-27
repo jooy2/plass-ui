@@ -776,6 +776,82 @@ void main() {
         await tester.pumpAndSettle();
       });
 
+      group('with a slice before it gone', () {
+        late StateSetter setSlices;
+        List<PlassChartDatum> data = traffic;
+        List<PlassChartCategory> names = sources;
+
+        /// Reads Direct, the third of the four slices.
+        Future<void> readDirect(WidgetTester tester) async {
+          data = traffic;
+          names = sources;
+
+          await tabTo(
+            tester,
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                setSlices = setState;
+
+                return PlPieChart(data: data, categories: names);
+              },
+            ),
+          );
+
+          await walk(tester, <(LogicalKeyboardKey, String)>[
+            (LogicalKeyboardKey.arrowLeft, 'Referral, 15 · 15%'),
+            (LogicalKeyboardKey.arrowLeft, 'Direct, 20 · 20%'),
+          ]);
+        }
+
+        testWidgets('keeps reading the slice it was on, and not the one that took its place', (
+          WidgetTester tester,
+        ) async {
+          await readDirect(tester);
+
+          // Direct moves into the place Social was in.
+          setSlices(() {
+            data = traffic.sublist(1);
+            names = sources.sublist(1);
+          });
+          await tester.pump();
+
+          expect(said(tester), 'Direct, 20 · 33.3%');
+          expect(
+            tester.widget<PlassChartTooltipCard>(find.byType(PlassChartTooltipCard)).heading,
+            'Direct',
+          );
+
+          await tester.pumpAndSettle();
+          expect(_sliceAlphas(tester), <Matcher>[lessThan(1), equals(1), lessThan(1)]);
+
+          // And the walk goes on from where it is.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+          await tester.pump();
+          expect(said(tester), 'Referral, 15 · 25%');
+
+          await tester.pumpAndSettle();
+        });
+
+        testWidgets('lets go of the slice it was on when that slice leaves', (
+          WidgetTester tester,
+        ) async {
+          await readDirect(tester);
+
+          // Referral moves into the place Direct was in.
+          setSlices(() {
+            data = <PlassChartDatum>[traffic[0], traffic[1], traffic[3]];
+            names = <PlassChartCategory>[sources[0], sources[1], sources[3]];
+          });
+          await tester.pump();
+
+          expect(said(tester), isEmpty);
+          expect(find.byType(PlassChartTooltipCard), findsNothing);
+
+          await tester.pumpAndSettle();
+          expect(_sliceAlphas(tester), everyElement(1));
+        });
+      });
+
       testWidgets('clears what it was reading when the focus leaves', (WidgetTester tester) async {
         await tabTo(tester, const PlPieChart(data: traffic, categories: sources));
 

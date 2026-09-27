@@ -439,6 +439,65 @@ describe('PlPieChart', () => {
         expect(said(screen.container)).toBe('Search, 40 · 61.5%');
         expect(screen.container.querySelector('[data-plass-tooltip]')).not.toBeNull();
       });
+
+      describe('with a slice before it gone', () => {
+        const named = (names: readonly string[], data: readonly number[]) => (
+          <PlPieChart label="Traffic" categories={names} data={data} />
+        );
+
+        /** Reads Direct, the third of the four slices. */
+        async function readDirect() {
+          await commands.parkPointer();
+
+          const screen = await render(named(SOURCES, [40, 25, 20, 15]));
+          const plot = screen.getByRole('img', { name: 'Traffic' });
+
+          await expect.element(plot).toBeInTheDocument();
+
+          arrow(plot.element(), 'ArrowLeft');
+          await expect.poll(() => said(screen.container)).toBe('Referral, 15 · 15%');
+          arrow(plot.element(), 'ArrowLeft');
+          await expect.poll(() => said(screen.container)).toBe('Direct, 20 · 20%');
+
+          return { screen, plot };
+        }
+
+        it('keeps reading the slice it was on, and not the one that took its place', async () => {
+          const { screen, plot } = await readDirect();
+
+          // Direct moves into the place Social was in.
+          await screen.rerender(named(['Social', 'Direct', 'Referral'], [25, 20, 15]));
+
+          expect(said(screen.container)).toBe('Direct, 20 · 33.3%');
+          expect(screen.container.querySelector('[data-plass-tooltip]')?.textContent).toContain(
+            'Direct'
+          );
+          expect(slices(plot.element()).map((slice) => slice.getAttribute('opacity'))).toEqual([
+            '0.32',
+            '1',
+            '0.32'
+          ]);
+
+          // And the walk goes on from where it is.
+          arrow(plot.element(), 'ArrowRight');
+          await expect.poll(() => said(screen.container)).toBe('Referral, 15 · 25%');
+        });
+
+        it('lets go of the slice it was on when that slice leaves', async () => {
+          const { screen, plot } = await readDirect();
+
+          // Referral moves into the place Direct was in.
+          await screen.rerender(named(['Search', 'Social', 'Referral'], [40, 25, 15]));
+
+          expect(said(screen.container)).toBe('');
+          expect(screen.container.querySelector('[data-plass-tooltip]')).toBeNull();
+          expect(slices(plot.element()).map((slice) => slice.getAttribute('opacity'))).toEqual([
+            '1',
+            '1',
+            '1'
+          ]);
+        });
+      });
     });
 
     it('is a tab stop only while there is something on it', async () => {

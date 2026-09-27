@@ -187,7 +187,13 @@ export function PlPieChart({
   const legendSide = legendOptions.side ?? 'bottom';
 
   const visibility = useVisibility(slices, showLegend && legendOptions.interactive !== false);
-  const [active, setActive] = React.useState<number | null>(null);
+
+  /* The slice being read, held by the key of its legend entry rather than by
+     its place, so a slice leaving the data ahead of it does not move the
+     reading onto whichever slice takes its place. */
+  const [activeKey, setActiveKey] = React.useState<string | null>(null);
+  const setActive = (index: number | null) =>
+    setActiveKey(index === null ? null : (visibility.keys[index] ?? null));
 
   const colors = slices.map((slice, index) => seriesColor(slice, index));
 
@@ -260,9 +266,13 @@ export function PlPieChart({
      worth nothing or a gap, has nothing left to read, so the reading is let go
      rather than reading it as "0 · 0%" with every other slice faded for it.
      Let go in the render that finds it gone, and React renders again before
-     anything is painted. A slice that still draws one goes on being read. */
-  if (active !== null && !arcs.some((arc) => arc.index === active)) {
-    setActive(null);
+     anything is painted. A slice that still draws one goes on being read,
+     wherever it has moved to. */
+  const held = activeKey === null ? -1 : visibility.keys.indexOf(activeKey);
+  const active = arcs.some((arc) => arc.index === held) ? held : null;
+
+  if (activeKey !== null && active === null) {
+    setActiveKey(null);
   }
 
   /* A slice's value and what part of the whole it is, which is the reading a
