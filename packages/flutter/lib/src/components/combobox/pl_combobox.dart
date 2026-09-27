@@ -432,11 +432,25 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// See `PlTextField`, which explains the whole of it.
   bool _quiet = false;
 
-  /// Only while the field has the focus: a controller is written to from
-  /// outside as well, and a form filling its fields in is not a reader typing.
-  void _onEditing() {
+  /// Whether the field is writing its own text, through [_write].
+  bool _writing = false;
+
+  /// Puts the light out, only while the field has the focus: a controller is
+  /// written to from outside as well, and a form filling its fields in is not a
+  /// reader typing.
+  void _quieten() {
     if (_usable && _focused && !_quiet) {
       setState(() => _quiet = true);
+    }
+  }
+
+  /// The text or the caret has moved. A label the field writes itself — the
+  /// row just taken, a value or a label handed in, the text put back as the
+  /// list closes, a field cleared — is not the reader typing, and leaves the
+  /// light where it was, as the React field is quieted by a key press alone.
+  void _onEditing() {
+    if (!_writing) {
+      _quieten();
     }
   }
 
@@ -611,10 +625,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     // With the caret after it, where a field that keeps the focus goes on being
     // typed into.
+    _writing = true;
     _text.value = TextEditingValue(
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
     );
+    _writing = false;
 
     if (!later) {
       widget.onQueryChanged?.call(text);
@@ -1072,6 +1088,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       // on screen, and Enter must not commit something the reader cannot see.
       // With no row lit it closes the list, as Base UI's does.
       onSubmitted: (String _) {
+        // Enter is a key press, which puts the light out whatever it does,
+        // even where the label of the row it takes is written in by the field.
+        _quieten();
+
         if (!_open) {
           return;
         }

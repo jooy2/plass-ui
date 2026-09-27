@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -2383,6 +2384,169 @@ void main() {
           (fill.decoration as BoxDecoration).color,
           PlassTheme.of(tester.element(row)).family(PlassColor.primary).softHover,
         );
+      });
+    });
+
+    group('the interaction light', () {
+      /// Whether the field's bloom is lit: the first of the two layers of the
+      /// light, and the shell is the one surface here that has one.
+      bool bloomIsLit(WidgetTester tester) {
+        return tester.widgetList<PlassGlowLayer>(find.byType(PlassGlowLayer)).first.visible;
+      }
+
+      /// A mouse left resting on the text of a field that holds the focus, as a
+      /// hand that has gone over to the keyboard leaves it.
+      Future<TestGesture> rest(WidgetTester tester) async {
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pumpAndSettle();
+
+        final TestGesture pointer = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        await pointer.addPointer(location: Offset.zero);
+        addTearDown(pointer.removePointer);
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)));
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+
+        return pointer;
+      }
+
+      /// A single-value field over [_cities] that takes whatever it is given,
+      /// and the way to hand it a value from outside.
+      Future<StateSetter> pumpHeld(
+        WidgetTester tester, {
+        required ValueNotifier<String?> value,
+      }) async {
+        late StateSetter update;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                update = setState;
+
+                return PlCombobox<String>(
+                  options: _cities,
+                  value: value.value,
+                  clearable: true,
+                  onChanged: (String? next) => setState(() => value.value = next),
+                );
+              },
+            ),
+          ),
+        );
+
+        return update;
+      }
+
+      testWidgets('stays lit as a value handed in is written into the focused field', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>('seoul');
+        final StateSetter update = await pumpHeld(tester, value: value);
+
+        await rest(tester);
+
+        update(() => value.value = 'lisbon');
+        await tester.pumpAndSettle();
+
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Lisbon');
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('stays lit as a row taken with a press writes its label', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>(null);
+
+        await pumpHeld(tester, value: value);
+        await rest(tester);
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        await tester.tap(_inList('Lisbon'));
+        await tester.pumpAndSettle();
+
+        expect(value.value, 'lisbon');
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Lisbon');
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('stays lit as the × empties the field', (WidgetTester tester) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>('seoul');
+
+        await pumpHeld(tester, value: value);
+        await rest(tester);
+
+        await tester.tap(_adornment('Clear'));
+        await tester.pumpAndSettle();
+
+        expect(value.value, isNull);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, isEmpty);
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('stays lit as the label is put back over a query when the list closes', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>('seoul');
+
+        await pumpHeld(tester, value: value);
+
+        final TestGesture pointer = await rest(tester);
+
+        // Typed, and then back on the pointer to close the list.
+        tester.testTextInput.enterText('Li');
+        await tester.pumpAndSettle();
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)) + const Offset(6, 0));
+        await tester.pump();
+        expect(bloomIsLit(tester), isTrue);
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SingleChildScrollView), findsNothing);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Seoul');
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('goes out as a character is typed, and comes back as the pointer moves', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>(null);
+
+        await pumpHeld(tester, value: value);
+
+        final TestGesture pointer = await rest(tester);
+
+        tester.testTextInput.enterText('L');
+        await tester.pumpAndSettle();
+
+        expect(bloomIsLit(tester), isFalse);
+
+        await pointer.moveTo(tester.getCenter(find.byType(EditableText)) + const Offset(6, 0));
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+      });
+
+      testWidgets('goes out as Enter takes a row', (WidgetTester tester) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>(null);
+
+        await pumpHeld(tester, value: value);
+        await rest(tester);
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        // A key press, even one whose row is written in by the field.
+        expect(value.value, 'seoul');
+        expect(bloomIsLit(tester), isFalse);
       });
     });
   });
