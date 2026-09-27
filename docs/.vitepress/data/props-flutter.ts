@@ -6041,8 +6041,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'Widget',
       required: true,
       description: {
-        ko: 'tooltip이 매달리는 것. 감싸개는 레이아웃에 상자를 더하지 않습니다',
-        en: 'What the tooltip hangs off. The wrapper adds no box to the layout'
+        ko: 'tooltip이 매달리는 것, 곧 tooltip이 설명하는 컨트롤이나 텍스트 하나. 스크린 리더는 자식과 tooltip의 문구를 한 노드로 받으므로, 컨트롤을 여럿 담은 자식은 하나로 읽힙니다. 감싸개는 레이아웃에 상자를 더하지 않습니다',
+        en: "What the tooltip hangs off: the one control, or the text, it describes. A screen reader gets the child and the tooltip's words as one node, so a child that holds several controls of its own is announced as one. The wrapper adds no box to the layout"
       }
     }),
     from('PlTooltip', 'side', {

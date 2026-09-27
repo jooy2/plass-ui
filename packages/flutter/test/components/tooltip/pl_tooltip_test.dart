@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -46,6 +47,26 @@ Future<TestGesture> _rest(WidgetTester tester) async {
   await tester.pump();
 
   return pointer;
+}
+
+/// The nodes a screen reader can land on, in tree order: every node below the
+/// root that is not merged into the one above it.
+List<SemanticsNode> _stops(WidgetTester tester) {
+  final stops = <SemanticsNode>[];
+
+  bool visit(SemanticsNode node) {
+    if (!node.isMergedIntoParent) {
+      stops.add(node);
+    }
+
+    node.visitChildren(visit);
+
+    return true;
+  }
+
+  tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+  return stops;
 }
 
 void main() {
@@ -313,6 +334,110 @@ void main() {
         );
 
         expect(tester.getSemantics(find.text('Trigger')), isSemantics(tooltip: 'Copy, Command C'));
+
+        handle.dispose();
+      });
+
+      testWidgets('a control under it is one node, with the words on it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            Center(
+              child: PlTooltip(
+                content: const Text('Nothing is deleted until you confirm'),
+                child: PlButton(onPressed: () {}, child: const Text('Delete')),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+
+        // One stop: the button, named and pressed as it was, with the words as
+        // its tooltip, rather than a node of the tooltip's own wrapped round it.
+        final stops = _stops(tester);
+        expect(stops, hasLength(1));
+        expect(
+          stops.single,
+          isSemantics(
+            label: 'Delete',
+            tooltip: 'Nothing is deleted until you confirm',
+            isButton: true,
+            hasTapAction: true,
+          ),
+        );
+        expect(stops.single.getSemanticsData().hasAction(SemanticsAction.longPress), isFalse);
+
+        handle.dispose();
+      });
+
+      testWidgets('offers a screen reader no long press of its own', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(_tooltip());
+
+        // The words are on the trigger already, and the long press only opens a
+        // plate that says them again.
+        expect(
+          tester.getSemantics(find.text('Trigger')),
+          isSemantics(label: 'Trigger', tooltip: 'Copy'),
+        );
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.longPress), isEmpty);
+
+        handle.dispose();
+      });
+
+      testWidgets('with nothing to say, leaves the controls under it apart', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            Center(
+              child: PlTooltip(
+                content: const Row(mainAxisSize: MainAxisSize.min, children: <Widget>[Text('⌘C')]),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    PlButton(onPressed: () {}, child: const Text('Cut')),
+                    PlButton(onPressed: () {}, child: const Text('Copy')),
+                  ],
+                ),
+              ),
+            ),
+            overlay: true,
+          ),
+        );
+
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>['Cut', 'Copy']);
+
+        handle.dispose();
+      });
+
+      testWidgets('takes words that arrive later without building the trigger again', (
+        WidgetTester tester,
+      ) async {
+        Widget build(String? label) {
+          return host(
+            Center(
+              child: PlTooltip(
+                content: const Row(mainAxisSize: MainAxisSize.min, children: <Widget>[Text('⌘C')]),
+                semanticLabel: label,
+                child: PlButton(onPressed: () {}, child: const Text('Copy')),
+              ),
+            ),
+            overlay: true,
+          );
+        }
+
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(build(null));
+        final State before = tester.state(find.byType(PlButton));
+
+        await tester.pumpWidget(build('Copy, Command C'));
+
+        expect(tester.state(find.byType(PlButton)), same(before));
+        expect(_stops(tester).single, isSemantics(label: 'Copy', tooltip: 'Copy, Command C'));
 
         handle.dispose();
       });

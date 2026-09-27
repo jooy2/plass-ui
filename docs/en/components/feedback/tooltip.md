@@ -191,8 +191,9 @@ Both delays are `Duration`s rather than numbers. A tooltip opened by a **long pr
 ::: fw flutter
 
 - The **trigger** carries what the plate says, as its tooltip, which is how a screen reader gets it: the plate itself is excluded from semantics, because a floating node repeating the phrase is a screen reader reading it twice. A `Text` in `content` supplies that string on its own; anything else needs `semanticLabel`.
+- **The child and the words are one node.** A `PlButton` under a tooltip is announced with its own name and its own actions, and the words with them, as one stop. The whole child is merged, so it should be the one control, or the text, that the tooltip describes: a child that holds several controls of its own, such as a row of buttons or a `PlChip` with `onDeleted`, is announced as one.
 - The wrapper adds no box to the layout and no focus stop of its own. The child stays whatever it was.
-- It opens on hover, on a long press and on focus, and each holds it up on its own: the plate goes once all of them have ended, so a pointer brushing past does not close what the keyboard opened. The pointer can move from the trigger onto the plate without closing it, and <kbd>Escape</kbd> closes it.
+- It opens on hover, on a long press and on focus, and each holds it up on its own: the plate goes once all of them have ended, so a pointer brushing past does not close what the keyboard opened. The pointer can move from the trigger onto the plate without closing it, and <kbd>Escape</kbd> closes it. A screen reader is not offered the long press, since it reads the words off the trigger.
 - **A tooltip is not a label.** It describes; it does not name. An icon-only button needs its own `semanticLabel` as well. A trigger with no name of its own is a trigger nothing can announce.
 - Nothing inside a tooltip can be pressed, and on a touch screen there is no pointer to rest. Content that needs either belongs somewhere that stays put.
 

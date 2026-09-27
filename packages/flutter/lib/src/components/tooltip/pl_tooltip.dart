@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/anchored.dart';
@@ -143,7 +144,12 @@ class PlTooltip extends StatefulWidget {
   /// What the tooltip says.
   final Widget content;
 
-  /// What it hangs off.
+  /// What it hangs off: the one control, or the text, it describes.
+  ///
+  /// A screen reader gets the child and the tooltip's words as one node, so a
+  /// button under a tooltip is announced with its own name and its own actions,
+  /// and the words with them. The whole child is merged, so a child that holds
+  /// several controls of its own is announced as one.
   final Widget child;
 
   /// Which edge of the trigger it appears on. It flips to the opposite side when
@@ -449,6 +455,10 @@ class _PlTooltipState extends State<PlTooltip> {
       onExit: (_) => _track(hovered: false),
       child: GestureDetector(
         behavior: HitTestBehavior.deferToChild,
+        // Off the semantics tree. A screen reader has the words already, on the
+        // trigger, and a long press offered to it would be one more thing the
+        // control announces it does, for a plate it has no use for.
+        excludeFromSemantics: true,
         onLongPress: () => _schedule(true),
         onLongPressEnd: (_) => _schedule(false, after: _touchDwell),
         child: widget.child,
@@ -465,7 +475,7 @@ class _PlTooltipState extends State<PlTooltip> {
     final spoken =
         widget.semanticLabel ?? (widget.content is Text ? (widget.content as Text).data : null);
 
-    return Semantics(
+    final anchored = Semantics(
       tooltip: spoken,
       child: PlassAnchoredPortal(
         open: _open && !widget.disabled,
@@ -506,6 +516,14 @@ class _PlTooltipState extends State<PlTooltip> {
         child: trigger,
       ),
     );
+
+    // The words go on the trigger's own node, which is what `aria-describedby`
+    // does on the web. Left as an annotation round a child that is a node of its
+    // own, as a `PlButton` is, they would make a second node wrapped round it
+    // with no name: a stop of its own ahead of the control rather than part of
+    // what the control announces. Merged, the child's name, its actions and the
+    // words are one node.
+    return _MergeSemantics(merging: spoken != null, child: anchored);
   }
 
   /// The wedge, on whichever edge of the plate faces the anchor.
@@ -572,6 +590,57 @@ class _PlTooltipState extends State<PlTooltip> {
         child: slot,
       ),
     };
+  }
+}
+
+/// A [MergeSemantics] that can be switched off.
+///
+/// Switched rather than added and removed, so a tooltip that stops having
+/// anything to say does not change the shape of the tree above its trigger,
+/// which would build the trigger again from scratch and lose its state. Off, it
+/// adds nothing to the semantics tree, and a child that holds several controls
+/// keeps them apart.
+class _MergeSemantics extends SingleChildRenderObjectWidget {
+  const _MergeSemantics({required this.merging, required super.child});
+
+  final bool merging;
+
+  @override
+  _RenderMergeSemantics createRenderObject(BuildContext context) {
+    return _RenderMergeSemantics(merging: merging);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderMergeSemantics renderObject) {
+    renderObject.merging = merging;
+  }
+}
+
+class _RenderMergeSemantics extends RenderProxyBox {
+  _RenderMergeSemantics({required bool merging}) : _merging = merging;
+
+  bool _merging;
+
+  set merging(bool value) {
+    if (value == _merging) {
+      return;
+    }
+
+    _merging = value;
+    markNeedsSemanticsUpdate();
+  }
+
+  @override
+  void describeSemanticsConfiguration(SemanticsConfiguration config) {
+    super.describeSemanticsConfiguration(config);
+
+    // Left untouched when off: a configuration only takes the merge flag once it
+    // is a boundary, and one that is neither adds nothing to the tree.
+    if (_merging) {
+      config
+        ..isSemanticBoundary = true
+        ..isMergingSemanticsOfDescendants = true;
+    }
   }
 }
 
