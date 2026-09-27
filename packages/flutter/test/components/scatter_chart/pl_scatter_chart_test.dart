@@ -30,9 +30,65 @@ RecordingCanvas _paintScatter(WidgetTester tester) {
   return canvas;
 }
 
-/// The alpha of every mark's fill, in the order they were painted.
+/// The opacity every mark's fill lands at, in the order they were painted.
 List<double> _fillAlphas(WidgetTester tester) {
-  return <double>[for (final Paint paint in _paintScatter(tester).fills) paint.color.a];
+  final RecordingCanvas canvas = _paintScatter(tester);
+
+  return <double>[
+    for (int i = 0; i < canvas.paints.length; i += 1)
+      if (canvas.paints[i].style == PaintingStyle.fill) canvas.opacities[i],
+  ];
+}
+
+/// Each mark as it is painted now, in the order painted.
+List<_Mark> _marks(WidgetTester tester) {
+  final RecordingCanvas canvas = _paintScatter(tester);
+
+  // A mark is its fill and then the ring stroked over it; anything else on the
+  // plot is a failure of that.
+  expect(canvas.paints.map((Paint paint) => paint.style), <PaintingStyle>[
+    for (int i = 0; i < canvas.paints.length ~/ 2; i += 1) ...<PaintingStyle>[
+      PaintingStyle.fill,
+      PaintingStyle.stroke,
+    ],
+  ]);
+
+  return <_Mark>[
+    for (int i = 0; i < canvas.paints.length; i += 2)
+      _Mark(
+        fill: canvas.paths[i].getBounds(),
+        ring: canvas.paths[i + 1].getBounds(),
+        ringWidth: canvas.paints[i + 1].strokeWidth,
+        alphas: <double>[canvas.paints[i].color.a, canvas.paints[i + 1].color.a],
+        opacities: <double>[canvas.opacities[i], canvas.opacities[i + 1]],
+      ),
+  ];
+}
+
+/// One mark's fill and the ring stroked over it.
+class _Mark {
+  const _Mark({
+    required this.fill,
+    required this.ring,
+    required this.ringWidth,
+    required this.alphas,
+    required this.opacities,
+  });
+
+  /// The box of the outline the fill takes.
+  final Rect fill;
+
+  /// And of the one the ring is stroked along.
+  final Rect ring;
+
+  /// How wide the ring is stroked.
+  final double ringWidth;
+
+  /// The alpha of the fill's paint and then of the ring's.
+  final List<double> alphas;
+
+  /// The opacity the fill and then the ring land at, layers and all.
+  final List<double> opacities;
 }
 
 /// How wide the fill of the mark furthest to the start is drawn now.
@@ -299,29 +355,85 @@ void main() {
       tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
 
       expect(canvas.fills, isNotEmpty);
-      expect(canvas.fills.every((Paint paint) => paint.color.a == 1), isTrue);
+      expect(canvas.opacities.every((double opacity) => opacity == 1), isTrue);
     });
 
-    testWidgets('rings each mark as thinly as the React build does', (WidgetTester tester) async {
-      await _pump(tester, PlScatterChart(series: spend));
+    testWidgets('strokes the ring over the mark as the React build does, faded and grown with it', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
 
-      final canvas = RecordingCanvas();
-      final Finder plot = find.byWidgetPredicate(
-        (Widget widget) =>
-            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
-      );
+      addTearDown(before.dispose);
+      await _pump(tester, afterFocusStop(before, PlScatterChart(series: spend)));
 
-      tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
+      final double r = markerRadii[PlassSize.md]!;
 
-      final List<Paint> rings = canvas.paints
-          .where((Paint paint) => paint.style == PaintingStyle.stroke)
-          .toList();
+      // Each mark is its fill and then its ring, stroked `markGap` wide along
+      // the same outline. The stroke straddles the outline, so its inner half
+      // covers the edge of the fill: the colour shows to a pixel inside the
+      // radius, and the ring runs from there to a pixel outside it.
+      final List<_Mark> rest = _marks(tester);
 
-      // A stroke straddles the path and the fill over it keeps only the outer
-      // half, so `markGap` is the 1px of surface the React mark shows and
-      // twice it was a ring twice as thick.
-      expect(rings, isNotEmpty);
-      expect(rings.every((Paint paint) => paint.strokeWidth == markGap), isTrue);
+      expect(rest, hasLength(5));
+
+      // A path keeps its points in single precision, so a box a few hundred
+      // pixels in is a hair off.
+      for (final _Mark mark in rest) {
+        expect(mark.fill.width, closeTo(r * 2, 1e-3));
+        expect(mark.ring, mark.fill);
+        expect(mark.ringWidth, markGap);
+        expect(mark.opacities, <double>[1, 1]);
+      }
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Q2')));
+      await tester.pumpAndSettle();
+
+      // Q1's three marks are faded, each drawn whole into a layer that is
+      // faded, as the React `opacity` fades a mark: the ring fades with the dot
+      // rather than lying at full strength over it, and the dot does not show
+      // through it.
+      final List<_Mark> faded = _marks(tester);
+
+      expect(_paintScatter(tester).layers, <Matcher>[
+        for (int i = 0; i < 3; i += 1) closeTo(0.28, 1e-6),
+      ]);
+      expect(faded.where((_Mark mark) => mark.opacities.first < 1), hasLength(3));
+
+      for (final _Mark mark in faded) {
+        expect(mark.alphas, <double>[1, 1]);
+        expect(mark.opacities.last, mark.opacities.first);
+      }
+
+      await mouse.moveTo(Offset.zero);
+      await tester.pumpAndSettle();
+
+      expect(_paintScatter(tester).layers, isEmpty);
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // The first point, at an x of 10, is a pixel larger, and its ring widens
+      // by the same ratio, as the React `scale` widens the stroke with the
+      // outline it scales.
+      final List<_Mark> grown = _marks(tester)
+        ..sort((_Mark a, _Mark b) => a.fill.center.dx.compareTo(b.fill.center.dx));
+
+      expect(grown.first.fill.width, closeTo((r + 1) * 2, 1e-3));
+      expect(grown.first.ring, grown.first.fill);
+      expect(grown.first.ringWidth, closeTo(markGap * (r + 1) / r, 1e-6));
+
+      for (final _Mark mark in grown.skip(1)) {
+        expect(mark.fill.width, closeTo(r * 2, 1e-3));
+        expect(mark.ringWidth, markGap);
+      }
     });
 
     testWidgets('says nothing is there when every point is a gap', (WidgetTester tester) async {

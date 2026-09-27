@@ -6,9 +6,9 @@
 /// out of the theme rather than out of the test. Recording the calls and
 /// reading the alphas back answers it without naming a palette colour.
 ///
-/// Only [drawPath] is recorded. Everything else a painter asks for — the grid
-/// lines, the clips, the text — is accepted and dropped, which is what
-/// [noSuchMethod] is doing here.
+/// Only [drawPath] is recorded, with the layers it was drawn into. Everything
+/// else a painter asks for — the grid lines, the clips, the text — is accepted
+/// and dropped, which is what [noSuchMethod] is doing here.
 library;
 
 import 'dart:ui';
@@ -21,6 +21,18 @@ class RecordingCanvas implements Canvas {
   /// rather than the ink, such as whether a line was cut into dashes.
   final List<Path> paths = <Path>[];
 
+  /// The opacity each path lands at, in the same order: its paint's alpha
+  /// times that of every layer it was drawn into. What a reader sees faded is
+  /// this, whether the paint or a layer around it did the fading.
+  final List<double> opacities = <double>[];
+
+  /// The alpha of every layer a painter opened, in the order it opened them.
+  final List<double> layers = <double>[];
+
+  /// The opacity whatever is drawn now lands at, one entry for each `save` or
+  /// layer still open.
+  final List<double> _open = <double>[1];
+
   /// Only the fills, which is what a mark's colour and its alpha are on.
   List<Paint> get fills =>
       paints.where((Paint paint) => paint.style == PaintingStyle.fill).toList();
@@ -31,9 +43,26 @@ class RecordingCanvas implements Canvas {
   List<int> get contours => paths.map((Path path) => path.computeMetrics().length).toList();
 
   @override
+  void save() => _open.add(_open.last);
+
+  @override
+  void saveLayer(Rect? bounds, Paint paint) {
+    layers.add(paint.color.a);
+    _open.add(_open.last * paint.color.a);
+  }
+
+  @override
+  void restore() {
+    if (_open.length > 1) {
+      _open.removeLast();
+    }
+  }
+
+  @override
   void drawPath(Path path, Paint paint) {
     paints.add(paint);
     paths.add(path);
+    opacities.add(paint.color.a * _open.last);
   }
 
   @override

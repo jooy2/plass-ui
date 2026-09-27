@@ -388,28 +388,45 @@ class PlScatterChart extends StatelessWidget {
       // the mark stands is data, and moves at once.
       final double r = mark.r > 0 ? mark.r + layout.markLit(mark.series, mark.index) : mark.r;
       final Path path = markPath(shapeOf(mark.series), mark.centre.dx, mark.centre.dy, r);
+      // The React `scale` grows the ring with the mark, so it widens by the
+      // ratio the radius grew by.
+      final double gap = mark.r > 0 ? markGap * r / mark.r : markGap;
+      final double alpha = layout.seriesOpacity(mark.series);
+
+      // A faded mark is drawn whole into a layer and the layer is faded, as the
+      // React `opacity` fades the fill and the ring together. Faded one by one,
+      // the dot would show through the ring where the ring lies over it. A mark
+      // at full strength needs no layer.
+      if (alpha < 1) {
+        canvas.saveLayer(
+          // A mitred corner reaches twice the ring's width past the path.
+          path.getBounds().inflate(gap * 2),
+          Paint()..color = const Color(0xFF000000).withValues(alpha: alpha),
+        );
+      }
 
       // The ring is the surface showing through, not a stroke drawn around the
-      // mark — which is what keeps two overlapping dots two dots.
-      //
-      // `markGap` and not twice it, which is the width the React build strokes:
-      // a stroke straddles the path, and the fill painted over it keeps only
-      // the outer half, so twice the width left a ring twice as thick here.
+      // mark — which is what keeps two overlapping dots two dots. It is stroked
+      // over the fill, as the React mark's is, so its inner half covers the
+      // edge of the fill: the colour shows to half the ring's width inside the
+      // mark's radius, and the ring runs to half its width outside it. The fill
+      // is whole whatever alpha its colour carries: a fade is the layer's.
       canvas
+        ..drawPath(
+          path,
+          Paint()..color = (value.color ?? layout.colors[mark.series]).withValues(alpha: 1),
+        )
         ..drawPath(
           path,
           Paint()
             ..color = layout.tokens.surface
             ..style = PaintingStyle.stroke
-            ..strokeWidth = markGap,
-        )
-        ..drawPath(
-          path,
-          Paint()
-            ..color = (value.color ?? layout.colors[mark.series]).withValues(
-              alpha: layout.seriesOpacity(mark.series),
-            ),
+            ..strokeWidth = gap,
         );
+
+      if (alpha < 1) {
+        canvas.restore();
+      }
     }
   }
 }

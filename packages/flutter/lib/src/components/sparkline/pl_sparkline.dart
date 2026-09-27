@@ -253,10 +253,13 @@ class _SparklinePainter extends CustomPainter {
 
       final double value = values[i].value!;
 
+      // The ring is `markGap` wide and centred on the dot's edge, which is where
+      // the React dot's stroke lies over its fill: the colour shows to half the
+      // gap inside the radius, and the ring runs to half the gap outside it.
       if (value >= low && value <= high) {
         canvas
-          ..drawCircle(last, radius + markGap, Paint()..color = gap)
-          ..drawCircle(last, radius, Paint()..color = ink);
+          ..drawCircle(last, radius + markGap / 2, Paint()..color = gap)
+          ..drawCircle(last, radius - markGap / 2, Paint()..color = ink);
       }
 
       return;

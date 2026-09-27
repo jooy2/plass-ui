@@ -4,6 +4,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/chart.dart';
 
 import '../../support/canvas.dart';
 import '../../support/host.dart';
@@ -243,6 +244,21 @@ void main() {
       }
     });
 
+    testWidgets('draws the end dot a pixel inside its radius and its ring a pixel outside', (
+      WidgetTester tester,
+    ) async {
+      for (final PlassSize size in PlassSize.values) {
+        await _pump(tester, PlSparkline(data: trend, size: size, endDot: true));
+
+        // The React dot is a circle of the radius stroked 2px wide in the
+        // surface over its fill, so the colour shows to a pixel inside the
+        // radius and the ring runs from there to a pixel outside it.
+        final double radius = markerRadii[size]!;
+
+        expect(_CutCanvas.of(tester).radii, <double>[radius + 1, radius - 1], reason: size.name);
+      }
+    });
+
     testWidgets('cuts a line that runs past a pinned max, and draws no end dot on it', (
       WidgetTester tester,
     ) async {
@@ -332,6 +348,9 @@ class _CutCanvas extends RecordingCanvas {
   /// Every dot drawn, by its centre.
   final List<Offset> dots = <Offset>[];
 
+  /// And by its radius, in the same order.
+  final List<double> radii = <double>[];
+
   @override
   void save() => _saved.add(_clip);
 
@@ -352,7 +371,10 @@ class _CutCanvas extends RecordingCanvas {
   }
 
   @override
-  void drawCircle(Offset c, double radius, Paint paint) => dots.add(c);
+  void drawCircle(Offset c, double radius, Paint paint) {
+    dots.add(c);
+    radii.add(radius);
+  }
 
   /// Paints the sparkline under [tester] into a fresh one.
   static _CutCanvas of(WidgetTester tester) {
