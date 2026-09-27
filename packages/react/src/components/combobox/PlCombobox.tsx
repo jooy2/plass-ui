@@ -206,7 +206,7 @@ interface Entry {
 
 /** The field, and it is a PlTextField's shell to the pixel. */
 const shellBaseClasses = /* @__PURE__ */ [
-  'group relative flex w-full cursor-text items-center',
+  'relative flex w-full cursor-text items-center',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
   iconClasses
