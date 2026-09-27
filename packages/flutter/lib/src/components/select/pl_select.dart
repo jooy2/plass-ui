@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -289,11 +290,17 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
     return -1;
   }
 
-  void _move(int by) {
+  /// Opens the list, or moves the highlight [by] rows through the open one.
+  ///
+  /// Says whether the key did anything, which on a closed select that cannot
+  /// open, disabled or read-only, it did not. An open list keeps the arrows
+  /// whatever they do: the focus is on the trigger, and an arrow handed on
+  /// would take it off with the list still up.
+  bool _move(int by) {
     if (!_open) {
       _openList();
 
-      return;
+      return _open;
     }
 
     final next = _next(_highlighted, by);
@@ -302,6 +309,8 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       setState(() => _highlighted = next);
       _reveal.reveal(_scroll, next, widget.options.length);
     }
+
+    return true;
   }
 
   void _edge(bool toEnd) {
@@ -517,12 +526,11 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
-          _MoveIntent: CallbackAction<_MoveIntent>(
-            onInvoke: (_MoveIntent intent) {
-              _move(intent.by);
-
-              return null;
-            },
+          // An arrow on a closed select that cannot open goes on to the focus
+          // system under directional navigation.
+          _MoveIntent: PlassArrowAction<_MoveIntent>(
+            context,
+            onArrow: (_MoveIntent intent) => _move(intent.by),
           ),
           _EdgeIntent: CallbackAction<_EdgeIntent>(
             onInvoke: (_EdgeIntent intent) {

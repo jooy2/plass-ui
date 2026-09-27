@@ -5,6 +5,7 @@ import 'package:flutter/semantics.dart' show SemanticsValidationResult;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/color.dart';
 import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
@@ -594,16 +595,14 @@ class _ColorPanel extends StatelessWidget {
             onFraction: (double x, double y) => onChanged(
               PlassColorValue(PlassHsv(model.hsv.h, x * 100, (1 - y) * 100), model.alpha),
             ),
-            onNudge: (int dx, int dy) => onChanged(
-              PlassColorValue(
-                PlassHsv(
-                  model.hsv.h,
-                  (model.hsv.s + dx).clamp(0, 100).toDouble(),
-                  (model.hsv.v + dy).clamp(0, 100).toDouble(),
-                ),
-                model.alpha,
-              ),
-            ),
+            onNudge: (int dx, int dy) {
+              final double saturation = (model.hsv.s + dx).clamp(0, 100).toDouble();
+              final double value = (model.hsv.v + dy).clamp(0, 100).toDouble();
+
+              onChanged(PlassColorValue(PlassHsv(model.hsv.h, saturation, value), model.alpha));
+
+              return saturation != model.hsv.s || value != model.hsv.v;
+            },
             // Black over white: the brightness ramp has to be above the
             // saturation ramp or the bottom of the square never reaches black.
             layers: <Widget>[
@@ -650,13 +649,17 @@ class _ColorPanel extends StatelessWidget {
             onFraction: (double x, double _) =>
                 onChanged(PlassColorValue(model.hsv.copyWith(h: x * 360), model.alpha)),
             // The wheel is a circle, so a step past either end wraps rather
-            // than stopping.
-            onNudge: (int dx, int dy) => onChanged(
-              PlassColorValue(
-                model.hsv.copyWith(h: (model.hsv.h + (dx + dy) * 2 + 360) % 360),
-                model.alpha,
-              ),
-            ),
+            // than stopping, and every step moves it.
+            onNudge: (int dx, int dy) {
+              onChanged(
+                PlassColorValue(
+                  model.hsv.copyWith(h: (model.hsv.h + (dx + dy) * 2 + 360) % 360),
+                  model.alpha,
+                ),
+              );
+
+              return true;
+            },
             onJump: (bool end) =>
                 onChanged(PlassColorValue(model.hsv.copyWith(h: end ? 360 : 0), model.alpha)),
             layers: const <Widget>[
@@ -691,9 +694,13 @@ class _ColorPanel extends StatelessWidget {
               border: tokens.border,
               onFraction: (double x, double _) =>
                   onChanged(PlassColorValue(model.hsv, x.clamp(0, 1))),
-              onNudge: (int dx, int dy) => onChanged(
-                PlassColorValue(model.hsv, (model.alpha + (dx + dy) / 100).clamp(0, 1)),
-              ),
+              onNudge: (int dx, int dy) {
+                final double alpha = (model.alpha + (dx + dy) / 100).clamp(0, 1);
+
+                onChanged(PlassColorValue(model.hsv, alpha));
+
+                return alpha != model.alpha;
+              },
               onJump: (bool end) => onChanged(PlassColorValue(model.hsv, end ? 1 : 0)),
               layers: <Widget>[
                 Positioned.fill(
@@ -880,7 +887,10 @@ class _Track extends StatefulWidget {
   final BorderRadius borderRadius;
   final Color border;
   final void Function(double x, double y) onFraction;
-  final void Function(int dx, int dy) onNudge;
+
+  /// Moves the value by an arrow key's step on each axis, and says whether it
+  /// moved.
+  final bool Function(int dx, int dy) onNudge;
 
   /// Home and End, for a rail: `true` for the end. A square has two axes and no
   /// one end to go to, so it leaves this out and the keys alone.
@@ -998,11 +1008,11 @@ class _TrackState extends State<_Track> {
         },
       },
       actions: <Type, Action<Intent>>{
-        _NudgeIntent: CallbackAction<_NudgeIntent>(
-          onInvoke: (_NudgeIntent intent) {
-            widget.onNudge(intent.dx, intent.dy);
-            return null;
-          },
+        // An arrow that moved nothing, at an edge of the square or an end of a
+        // rail, goes on to the focus system under directional navigation.
+        _NudgeIntent: PlassArrowAction<_NudgeIntent>(
+          context,
+          onArrow: (_NudgeIntent intent) => widget.onNudge(intent.dx, intent.dy),
         ),
         _JumpIntent: CallbackAction<_JumpIntent>(
           onInvoke: (_JumpIntent intent) {

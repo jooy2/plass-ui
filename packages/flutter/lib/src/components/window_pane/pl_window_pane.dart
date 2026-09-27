@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -578,22 +579,24 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     }
   }
 
-  /// One arrow key on the reachable corner.
+  /// One arrow key on the reachable corner, and whether it changed the size.
   ///
   /// It reads the window rather than a grip, because a key press is a whole
   /// gesture on its own: there is no press to have measured anything at.
-  void _nudge(Offset step, double shortest) {
+  bool _nudge(Offset step, double shortest) {
     final RenderObject? box = _paneKey.currentContext?.findRenderObject();
     if (box is! RenderBox || !box.hasSize) {
-      return;
+      return false;
     }
 
-    _resizeTo(
-      Size(
-        math.max(math.max(0, widget.minWidth), box.size.width + step.dx),
-        math.max(math.max(shortest, widget.minHeight ?? shortest), box.size.height + step.dy),
-      ),
+    final Size size = Size(
+      math.max(math.max(0, widget.minWidth), box.size.width + step.dx),
+      math.max(math.max(shortest, widget.minHeight ?? shortest), box.size.height + step.dy),
     );
+
+    _resizeTo(size);
+
+    return size != box.size;
   }
 
   void _resizeTo(Size size) {
@@ -609,10 +612,12 @@ class _PlWindowPaneState extends State<PlWindowPane> {
   /// [top] is how far down the window its bar ends, frame included. That much
   /// has to stay on the screen: the body may go past the bottom edge, as it can
   /// on a desktop, but never the thing being held.
-  void _step(_MoveWindowIntent intent, double top) {
+  ///
+  /// Says whether the window moved.
+  bool _step(_MoveWindowIntent intent, double top) {
     final RenderObject? box = _paneKey.currentContext?.findRenderObject();
     if (box is! RenderBox || !box.hasSize) {
-      return;
+      return false;
     }
 
     final FlutterView view = View.of(context);
@@ -635,9 +640,13 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       ),
     );
 
-    if (moved != Offset.zero) {
-      _moveTo(_at + moved);
+    if (moved == Offset.zero) {
+      return false;
     }
+
+    _moveTo(_at + moved);
+
+    return true;
   }
 
   /// The window's own name, for the semantics node.
@@ -1379,8 +1388,8 @@ class _MoveHandle extends StatefulWidget {
   /// The inside of the frame's corners, where the ring turns.
   final BorderRadius radius;
 
-  /// What an arrow key on it does.
-  final ValueChanged<_MoveWindowIntent> onMove;
+  /// What an arrow key on it does, saying whether the window moved.
+  final bool Function(_MoveWindowIntent intent) onMove;
 
   /// The bar, with the drag already on it.
   final Widget child;
@@ -1418,11 +1427,12 @@ class _MoveHandleState extends State<_MoveHandle> {
           },
           shortcuts: _moveKeys,
           actions: <Type, Action<Intent>>{
-            _MoveWindowIntent: CallbackAction<_MoveWindowIntent>(
-              onInvoke: (_MoveWindowIntent intent) {
-                widget.onMove(intent);
-                return null;
-              },
+            // An arrow that moved nothing, with the window against an edge of
+            // the screen, goes on to the focus system under directional
+            // navigation.
+            _MoveWindowIntent: PlassArrowAction<_MoveWindowIntent>(
+              context,
+              onArrow: (_MoveWindowIntent intent) => widget.onMove(intent),
             ),
           },
           child: const SizedBox.expand(),
@@ -1695,9 +1705,9 @@ class _ResizeHandle extends StatefulWidget {
   /// And what that handle is called.
   final String? label;
 
-  /// And what an arrow key on it does. Its absence is what makes the other
-  /// seven handles pointer-only.
-  final ValueChanged<Offset>? onNudge;
+  /// And what an arrow key on it does, saying whether the size changed. Its
+  /// absence is what makes the other seven handles pointer-only.
+  final bool Function(Offset step)? onNudge;
 
   @override
   State<_ResizeHandle> createState() => _ResizeHandleState();
@@ -1708,7 +1718,7 @@ class _ResizeHandleState extends State<_ResizeHandle> {
 
   @override
   Widget build(BuildContext context) {
-    final ValueChanged<Offset>? onNudge = widget.onNudge;
+    final bool Function(Offset step)? onNudge = widget.onNudge;
     final Color? ring = widget.ring;
 
     final Widget target = CustomPaint(
@@ -1755,11 +1765,11 @@ class _ResizeHandleState extends State<_ResizeHandle> {
         SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeWindowIntent(Offset(0, -_keyboardStep)),
       },
       actions: <Type, Action<Intent>>{
-        _NudgeWindowIntent: CallbackAction<_NudgeWindowIntent>(
-          onInvoke: (_NudgeWindowIntent intent) {
-            onNudge(intent.step);
-            return null;
-          },
+        // An arrow that moved nothing, with the window at its smallest, goes on
+        // to the focus system under directional navigation.
+        _NudgeWindowIntent: PlassArrowAction<_NudgeWindowIntent>(
+          context,
+          onArrow: (_NudgeWindowIntent intent) => onNudge(intent.step),
         ),
       },
       child: handle,

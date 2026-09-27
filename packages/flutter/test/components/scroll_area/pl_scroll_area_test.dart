@@ -177,6 +177,48 @@ void main() {
 
         expect(tester.binding.focusManager.primaryFocus?.debugLabel, isNot('PlassKeyboardScroll'));
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow at the end of the view only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          final before = FocusNode(debugLabel: 'before');
+          addTearDown(before.dispose);
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              afterFocusStop(before, PlScrollArea(height: 200, child: _long())),
+            ),
+          );
+
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pumpAndSettle();
+
+          expect(before.hasFocus, isFalse);
+
+          final controller = _views(tester).single.controller!;
+
+          // The arrows scroll the view in both while it has somewhere to go.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+          await tester.pumpAndSettle();
+
+          expect(controller.offset, 0);
+          expect(before.hasFocus, isFalse);
+
+          // At the top. Under directional navigation the arrows are the only
+          // way off the view, so the one that moves nothing goes on to the stop
+          // above it.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+          await tester.pumpAndSettle();
+
+          expect(controller.offset, 0);
+          expect(before.hasPrimaryFocus, mode == NavigationMode.directional);
+        });
+      }
     });
 
     group('semantics', () {

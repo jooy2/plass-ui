@@ -445,12 +445,15 @@ void main() {
         expect(focusedOption('Starter'), findsOneWidget);
       });
 
-      testWidgets('do nothing in a disabled set, read-only or not', (WidgetTester tester) async {
+      testWidgets('do nothing in a disabled set and hand the key on, read-only or not', (
+        WidgetTester tester,
+      ) async {
         for (final bool readOnly in <bool>[true, false]) {
           String? chosen;
 
           // Directional navigation is where a disabled option can still hold
-          // the focus, so the arrows reach the set at all.
+          // the focus, so the arrows reach the set at all, and where they are
+          // the only way out of it.
           await tester.pumpWidget(
             host(
               MediaQuery(
@@ -472,13 +475,69 @@ void main() {
 
           expect(focusedOption('Starter'), findsOneWidget);
 
-          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          final bool handled = await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
           await tester.pumpAndSettle();
 
+          expect(handled, isFalse);
           expect(focusedOption('Starter'), findsOneWidget);
           expect(chosen, isNull);
         }
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('go round past the first option only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          for (final bool readOnly in <bool>[false, true]) {
+            String value = 'starter';
+            final FocusNode before = FocusNode(debugLabel: 'before');
+            addTearDown(before.dispose);
+
+            // Under directional navigation the arrows are the only way out of
+            // the set, so the one past the end goes on to the stop above
+            // rather than round to the last option.
+            await tester.pumpWidget(
+              host(
+                inNavigationMode(
+                  mode,
+                  StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) => afterFocusStop(
+                      before,
+                      PlRadioGroup<String>(
+                        key: ValueKey<bool>(readOnly),
+                        options: plans,
+                        value: value,
+                        readOnly: readOnly,
+                        onChanged: (String next) => setState(() => value = next),
+                      ),
+                    ),
+                  ),
+                ),
+                width: 320,
+              ),
+            );
+            before.requestFocus();
+            await tester.pump();
+            await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+            await tester.pumpAndSettle();
+
+            expect(focusedOption('Starter'), findsOneWidget);
+
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+            await tester.pumpAndSettle();
+
+            final String reason = 'read-only $readOnly';
+
+            if (mode == NavigationMode.traditional) {
+              expect(focusedOption('Enterprise'), findsOneWidget, reason: reason);
+              expect(value, readOnly ? 'starter' : 'enterprise', reason: reason);
+            } else {
+              expect(before.hasPrimaryFocus, isTrue, reason: reason);
+              expect(value, 'starter', reason: reason);
+            }
+          }
+        });
+      }
     });
 
     group('error', () {

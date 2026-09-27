@@ -923,6 +923,59 @@ void main() {
       expect(sized!.width, closeTo(316, 0.5));
     });
 
+    for (final NavigationMode mode in NavigationMode.values) {
+      testWidgets('keeps an arrow on the corner that moves nothing only in traditional navigation, '
+          '${mode.name}', (WidgetTester tester) async {
+        Size? sized;
+
+        await _pumpFree(
+          tester,
+          inNavigationMode(
+            mode,
+            PlWindowPane(
+              title: const Text('Notes'),
+              width: 200,
+              height: 200,
+              resizable: true,
+              minWidth: 200,
+              onResize: (Size value) => sized = value,
+            ),
+          ),
+        );
+
+        Focus.of(
+          tester.element(
+            find
+                .descendant(
+                  of: find.byType(FocusableActionDetector),
+                  matching: find.byType(MouseRegion),
+                )
+                .last,
+          ),
+        ).requestFocus();
+        await tester.pump();
+
+        expect(holdsFocus(tester, find.byType(PlWindowPane)), isTrue);
+
+        // At its narrowest. Under directional navigation the arrows are the
+        // only way off the corner, so one that moves nothing goes on to the
+        // focus system.
+        expect(
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft),
+          mode == NavigationMode.traditional,
+        );
+        await tester.pumpAndSettle();
+
+        expect(sized!.width, closeTo(200, 0.5));
+
+        // An arrow that changes the size is kept in both.
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+        await tester.pumpAndSettle();
+
+        expect(sized!.width, closeTo(216, 0.5));
+      });
+    }
+
     testWidgets('puts its handles away while it is maximized', (WidgetTester tester) async {
       await _pumpFree(
         tester,
@@ -1127,6 +1180,42 @@ void main() {
         expect(drawn(tester).right, closeTo(900, 0.5));
         expect(drawn(tester).top + metrics.frame + metrics.bar, closeTo(900, 0.5));
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow that moves nothing only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await _pumpFree(
+            tester,
+            inNavigationMode(
+              mode,
+              const PlWindowPane(title: Text('Notes'), width: 300, height: 200, draggable: true),
+            ),
+          );
+
+          await focusBar(tester);
+
+          for (int i = 0; i < 12; i += 1) {
+            await press(tester, LogicalKeyboardKey.arrowLeft, far: true);
+          }
+
+          expect(drawn(tester).topLeft.dx, closeTo(0, 0.5));
+          expect(holdsFocus(tester, find.byType(PlWindowPane)), isTrue);
+
+          // Against the edge of the screen. Under directional navigation the
+          // arrows are the only way off the bar, so one that moves nothing
+          // goes on to the focus system.
+          expect(
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft),
+            mode == NavigationMode.traditional,
+          );
+
+          // An arrow that moves the window is kept in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+          await tester.pump();
+
+          expect(drawn(tester).topLeft.dx, closeTo(16, 0.5));
+        });
+      }
 
       testWidgets('moves the way the arrow points under RTL', (WidgetTester tester) async {
         tester.view.physicalSize = const Size(900, 900);

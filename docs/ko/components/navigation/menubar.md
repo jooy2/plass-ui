@@ -116,7 +116,7 @@ PlMenubar(
 | --- | --- | --- |
 | 조합된 `PlMenubarMenu` 자식 | 데이터로서의 `menus: List<PlMenubarMenu>` | 바 위의 메뉴는 단어 하나와 행 목록이고, 띠가 셀 수 있는 것은 목록입니다. |
 | 띠를 가로지르면 메뉴들을 지나감 | 다른 단어를 누르면 그 메뉴가 열리고 열려 있던 것은 닫힘 | 단어는 누름에 답하고, 포인터가 올라온 것에는 답하지 않습니다. 어느 쪽이든 열리는 것은 하나뿐입니다. |
-| `modal`, `loopFocus` | — | inert로 만들 페이지가 없고, 바는 언제나 양 끝에서 돕니다. `loopFocus`의 기본값과 같습니다. |
+| `modal`, `loopFocus` | — | inert로 만들 페이지가 없고, 바는 양 끝에서 돕니다. `loopFocus`의 기본값과 같습니다. `NavigationMode.directional`에서만 양 끝에서 멈춥니다. |
 | 단어의 `aria-expanded` | `expanded`를 단 `SemanticsRole.menuItem` | 같은 상태를 프레임워크의 이름으로 부른 것입니다. 메뉴가 열리면 그것이 접근성 트리가 되므로, 띠는 어느 것이 열렸는지를 색으로도 말합니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 
@@ -138,6 +138,7 @@ PlMenubar(
 ::: fw flutter
 
 - 바는 tab stop 하나이고, 마지막으로 쓴 단어에 있습니다. 화살표 키가 바를 따라 움직이고(`vertical` 바에서는 위아래) 양 끝에서 돕니다. <kbd>Home</kbd>과 <kbd>End</kbd>는 첫 단어와 마지막 단어로 가고, `disabled` 단어는 건너뜁니다.
+- 리모컨의 방향 버튼으로 움직이는 `NavigationMode.directional`에서는 화살표가 바를 벗어나는 유일한 길이기도 해서, 양 끝에서 돌지 않고 멈춥니다. 끝을 넘어선 화살표는 그쪽의 다음 컨트롤로 focus를 넘깁니다.
 - 열린 메뉴는 화살표 키를 자기 행에 씁니다. <kbd>Esc</kbd>가 닫고 focus를 그 단어로 되돌립니다.
 
 :::

@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
 import 'package:plass_ui/src/internal/date.dart';
@@ -376,7 +377,17 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
                 ? -1
                 : cells.indexWhere((_Cell cell) => cell.row == now.row && cell.index == now.index);
 
-            void go(_Cell cell) => setState(() => _active = (row: cell.row, index: cell.index));
+            /// Reads the cell at [next], and says whether that moved the
+            /// reading.
+            bool go(int next) {
+              final _Cell cell = cells[next];
+
+              setState(() => _active = (row: cell.row, index: cell.index));
+
+              return next != at;
+            }
+
+            final bool moved;
 
             if (grid && at != -1 && (down || up)) {
               /* A row down or up, in the same column. The cells are listed row
@@ -391,26 +402,29 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
                 next += step;
               }
 
-              if (next >= 0 && next < cells.length) {
-                go(cells[next]);
-              }
+              moved = next >= 0 && next < cells.length && go(next);
             } else if (key == LogicalKeyboardKey.arrowRight || down) {
               // One cell on, and the last cell keeps the reading. A treemap has
               // no rows, so ↓ and ↑ walk it as → and ← do. With nothing read
               // yet, forward starts at the first cell and back at the last.
-              go(cells[math.min(cells.length - 1, at + 1)]);
+              moved = go(math.min(cells.length - 1, at + 1));
             } else if (key == LogicalKeyboardKey.arrowLeft || up) {
-              go(cells[math.max(0, (at == -1 ? cells.length : at) - 1)]);
+              moved = go(math.max(0, (at == -1 ? cells.length : at) - 1));
             } else if (key == LogicalKeyboardKey.escape && now != null) {
               // Only while a cell is being read. With nothing to clear, the key
               // belongs to whatever the chart sits in — a sheet, a dialog — and
               // swallowing it would leave that unable to close.
               setState(() => _active = null);
+
+              return KeyEventResult.handled;
             } else {
               return KeyEventResult.ignored;
             }
 
-            return KeyEventResult.handled;
+            // An arrow that moved nothing, at an edge of the grid or the first
+            // or last cell, goes on to the focus system under directional
+            // navigation.
+            return plassArrowResult(context, moved: moved);
           }
 
           final Widget drawing = MouseRegion(

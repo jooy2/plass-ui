@@ -535,6 +535,68 @@ void main() {
       handle.dispose();
     });
 
+    for (final NavigationMode mode in NavigationMode.values) {
+      testWidgets('keeps an arrow that moves nothing only in traditional navigation, '
+          '${mode.name}', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            inNavigationMode(
+              mode,
+              PlColorPicker(
+                inline: true,
+                alpha: true,
+                value: '#ff0000',
+                onValueChanged: (String _) {},
+              ),
+            ),
+            width: 400,
+            height: 560,
+            overlay: true,
+          ),
+        );
+
+        Future<bool> press(String part, LogicalKeyboardKey key) async {
+          Focus.of(
+            tester.element(
+              find.descendant(of: find.bySemanticsLabel(part), matching: find.byType(Stack)).first,
+            ),
+          ).requestFocus();
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlColorPicker)), isTrue, reason: part);
+
+          final bool handled = await tester.sendKeyEvent(key);
+          await tester.pump();
+
+          return handled;
+        }
+
+        // Red at full strength and opacity: the square is at its top corner on
+        // the right and the opacity rail at its end. Under directional
+        // navigation the arrows are the only way off them, so one that moves
+        // nothing goes on to the focus system.
+        final bool traditional = mode == NavigationMode.traditional;
+
+        expect(
+          await press('Saturation and brightness', LogicalKeyboardKey.arrowRight),
+          traditional,
+        );
+        expect(await press('Saturation and brightness', LogicalKeyboardKey.arrowUp), traditional);
+        expect(await press('Opacity', LogicalKeyboardKey.arrowRight), traditional);
+        expect(await press('Opacity', LogicalKeyboardKey.arrowUp), traditional);
+
+        // An arrow that moves the value is kept in both, and the hue, a circle
+        // with no end, moves with every one.
+        expect(await press('Saturation and brightness', LogicalKeyboardKey.arrowLeft), isTrue);
+        expect(await press('Opacity', LogicalKeyboardKey.arrowLeft), isTrue);
+        expect(await press('Hue', LogicalKeyboardKey.arrowLeft), isTrue);
+
+        handle.dispose();
+      });
+    }
+
     testWidgets('changes the colour when a swatch is pressed', (WidgetTester tester) async {
       final List<String> seen = <String>[];
 

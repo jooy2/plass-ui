@@ -293,6 +293,7 @@ PlTabs<String>(wheel: false, overscroll: PlassOverscroll.auto, tabs: tabs);
 
 - 바 전체가 focus stop **하나**입니다. 탭 하나만 tab 순서에 있고 나머지는 `ExcludeFocus` 안에 있습니다. 바를 버튼 줄이 아니라 바로 만드는 것이 이것입니다.
 - 가로 바에서는 <kbd>←</kbd> <kbd>→</kbd>, 세로 바에서는 <kbd>↑</kbd> <kbd>↓</kbd>가 선택을 옮기며, 양 끝에서 감기고 비활성 탭은 건너뜁니다. <kbd>Enter</kbd>와 <kbd>Space</kbd>는 focus된 탭을 고릅니다.
+- 리모컨의 방향 버튼으로 움직이는 `NavigationMode.directional`에서는 화살표가 바를 벗어나는 유일한 길이기도 해서, 양 끝에서 감기지 않고 멈춥니다. 끝을 넘어서거나 `onChanged`가 없는 바여서 아무것도 옮기지 못한 화살표는 그쪽의 다음 컨트롤로 focus를 넘깁니다.
 - 각 탭은 서로 배타적인 묶음의 하나로, 골라졌는지 아닌지와 함께 읽힙니다. 바 자체는 `semanticLabel`을 줄 수 있는 컨테이너입니다. 꼭 주세요. 바에는 눈에 보이는 이름이 없습니다.
 - focus가 움직이면 **선택도 움직입니다**. 고른 패널만 만들어지기 때문이고, focus와 내용이 어긋날 수 있는 바는 하나를 보여 주면서 다른 것을 읽는 바입니다. 패널이 비싸다면 탭이 아니라 `build` 바깥으로 그 일을 빼세요.
 - 탭의 focus ring은 **안쪽**으로 돕니다. `solid` 홈 안의 탭에 바깥쪽 ring을 그리면 이웃 위에 덧칠됩니다.

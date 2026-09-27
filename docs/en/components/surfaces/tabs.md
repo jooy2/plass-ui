@@ -293,6 +293,7 @@ PlTabs<String>(wheel: false, overscroll: PlassOverscroll.auto, tabs: tabs);
 
 - **One** focus stop for the whole bar: exactly one tab is in the tab order and the rest are wrapped in an `ExcludeFocus`. That is what makes a bar a bar rather than a row of buttons.
 - <kbd>←</kbd> <kbd>→</kbd> on a horizontal bar and <kbd>↑</kbd> <kbd>↓</kbd> on a vertical one move the choice, wrapping at both ends and stepping over a disabled tab. <kbd>Enter</kbd> and <kbd>Space</kbd> choose the focused one.
+- Under `NavigationMode.directional`, a remote's D-pad, the arrows are also the only way off the bar, so they stop at either end, and an arrow that moves nothing, past an end or on a bar with no `onChanged`, moves the focus to the next control that way.
 - Each tab is announced as one of a mutually exclusive set, chosen or not, and the bar is a container you can give a `semanticLabel`. Give it one. A bar has no visible label of its own.
 - Moving the focus **moves the choice**, because only the chosen panel is built and a bar that let focus and content disagree would be showing one thing and reading another. If a panel is expensive, keep the work out of `build` rather than out of the tab.
 - A tab's focus ring turns **inward**, because a ring drawn outside a tab in a `solid` groove would be painted over its neighbours.

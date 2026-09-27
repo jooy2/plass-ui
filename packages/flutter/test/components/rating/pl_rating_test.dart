@@ -342,6 +342,30 @@ void main() {
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 1);
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow that moves nothing only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await tester.pumpWidget(host(inNavigationMode(mode, const _Harness(value: 5))));
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlRating)), isTrue);
+
+          // A full row. Under directional navigation the arrows are the only
+          // way off the row, so one that moves nothing goes on to the focus
+          // system.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), traditional);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp), traditional);
+
+          // A key that is the row's alone, and an arrow that moves the score,
+          // are kept in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.end), isTrue);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), isTrue);
+          expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 4);
+        });
+      }
     });
 
     group('readOnly', () {

@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -413,6 +414,55 @@ void main() {
 
         handle.dispose();
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow that moves nothing only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          final List<double> settled = <double>[];
+
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                mode,
+                column(
+                  PlSidebar(
+                    resizable: true,
+                    width: 240,
+                    maxWidth: 240,
+                    onResizeEnd: settled.add,
+                    child: const Text('Links'),
+                  ),
+                ),
+              ),
+              width: 500,
+              height: 400,
+            ),
+          );
+          Focus.of(
+            tester.element(
+              find.byWidgetPredicate(
+                (Widget widget) =>
+                    widget is MouseRegion && widget.cursor == SystemMouseCursors.resizeColumn,
+              ),
+            ),
+          ).requestFocus();
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlSidebar)), isTrue);
+
+          // At its widest. Under directional navigation the arrows are the
+          // only way off the handle, so one that moves nothing goes on to the
+          // focus system.
+          expect(
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight),
+            mode == NavigationMode.traditional,
+          );
+
+          // An arrow that moves the edge is kept in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), isTrue);
+          expect(settled.last, 224);
+        });
+      }
     });
 
     group('as a drawer', () {

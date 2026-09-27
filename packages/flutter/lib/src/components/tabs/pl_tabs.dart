@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
@@ -270,23 +271,37 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
     }
   }
 
-  void _move(int step) {
+  /// Chooses the next tab in [step]'s direction that is not disabled,
+  /// wrapping, and says whether there was one.
+  ///
+  /// Under directional navigation, where the arrows are also the only way out
+  /// of the bar, it halts at either end rather than wrapping.
+  bool _move(int step) {
     if (widget.onChanged == null || widget.tabs.isEmpty) {
-      return;
+      return false;
     }
 
     final count = widget.tabs.length;
+    final wraps = !plassArrowsMoveFocus(context);
     var index = _focused;
 
     for (var tried = 0; tried < count; tried += 1) {
-      index = (index + step + count) % count;
+      index += step;
+
+      if (wraps) {
+        index = (index + count) % count;
+      } else if (index < 0 || index >= count) {
+        return false;
+      }
 
       if (!widget.tabs[index].disabled) {
         widget.onChanged!(widget.tabs[index].value);
 
-        return;
+        return true;
       }
     }
+
+    return false;
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
@@ -304,16 +319,14 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
         ? LogicalKeyboardKey.arrowUp
         : (rtl ? LogicalKeyboardKey.arrowRight : LogicalKeyboardKey.arrowLeft);
 
+    // An arrow that moved nothing, past an end or on a bar that cannot be
+    // changed, goes on to the focus system under directional navigation.
     if (event.logicalKey == forward) {
-      _move(1);
-
-      return KeyEventResult.handled;
+      return plassArrowResult(context, moved: _move(1));
     }
 
     if (event.logicalKey == back) {
-      _move(-1);
-
-      return KeyEventResult.handled;
+      return plassArrowResult(context, moved: _move(-1));
     }
 
     return KeyEventResult.ignored;

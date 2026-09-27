@@ -183,13 +183,14 @@ void main() {
         WidgetTester tester,
         PlMenubar menubar, {
         TextDirection textDirection = TextDirection.ltr,
+        NavigationMode mode = NavigationMode.traditional,
       }) async {
         final FocusNode before = FocusNode(debugLabel: 'before');
         addTearDown(before.dispose);
 
         await tester.pumpWidget(
           host(
-            afterFocusStop(before, menubar),
+            inNavigationMode(mode, afterFocusStop(before, menubar)),
             width: 500,
             height: 300,
             overlay: true,
@@ -229,6 +230,27 @@ void main() {
         await press(tester, LogicalKeyboardKey.arrowLeft);
         expect(focused(), 'PlMenubar 2');
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('wraps past the first word only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          await reach(
+            tester,
+            const PlMenubar(orientation: PlassOrientation.vertical, menus: three),
+            mode: mode,
+          );
+
+          expect(focused(), 'PlMenubar 0');
+
+          await press(tester, LogicalKeyboardKey.arrowUp);
+
+          // Under directional navigation the arrows are the only way off the
+          // bar, so the one past the end goes on to the stop above it rather
+          // than round to the last word.
+          expect(focused(), mode == NavigationMode.traditional ? 'PlMenubar 2' : 'before');
+        });
+      }
 
       testWidgets('goes to either end with Home and End', (WidgetTester tester) async {
         await reach(tester, const PlMenubar(menus: three));

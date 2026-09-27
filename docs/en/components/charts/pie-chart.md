@@ -136,3 +136,9 @@ Where the first slice starts, in degrees clockwise from twelve o'clock. `semi` i
 - Focusing the picture reads its name, then what `center` holds when the ring has a hole for it, then every slice with its share, such as "Search 40 · 40%, Social 25 · 25%". A chart with nothing to draw is read by its name and the words of its empty state. On React the picture is a `role="img"`, and the same numbers are also written into a table under the chart, clipped from view but never hidden from the accessibility tree.
 - The legend is real buttons. Pressing one takes its slice out of the ring and shares the angle out again among the rest.
 - Colour is never the only channel: every slice is named in the legend, in the readout and in the table.
+
+::: fw flutter
+
+- Under `NavigationMode.directional`, a remote's D-pad, the arrows are also the only way off the chart, so the walk stops at the first and the last slice rather than going round, and an arrow past either moves the focus to the next control that way. A browser has no such mode.
+
+:::

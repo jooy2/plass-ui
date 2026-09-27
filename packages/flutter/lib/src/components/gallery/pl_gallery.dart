@@ -13,6 +13,7 @@ import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/components/image/pl_image.dart';
 import 'package:plass_ui/src/components/overlay/pl_overlay.dart';
 import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/decode.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/gallery.dart';
@@ -1054,10 +1055,15 @@ class _Viewer extends StatelessWidget {
   final String nextLabel;
   final String Function(int index, int total) itemLabel;
 
-  void _go(int to) {
-    if (to >= 0 && to < items.length) {
-      onIndexChanged(to);
+  /// Opens the picture at [to], and says whether there is one there.
+  bool _go(int to) {
+    if (to < 0 || to >= items.length) {
+      return false;
     }
+
+    onIndexChanged(to);
+
+    return true;
   }
 
   /// [child] turned and mirrored the way [item] asks, as its tile is.
@@ -1116,12 +1122,12 @@ class _Viewer extends StatelessWidget {
               },
               child: Actions(
                 actions: <Type, Action<Intent>>{
-                  _StepIntent: CallbackAction<_StepIntent>(
-                    onInvoke: (_StepIntent intent) {
-                      _go(at! + intent.by);
-
-                      return null;
-                    },
+                  // An arrow that moved nothing, at the first or the last
+                  // picture, goes on to the focus system under directional
+                  // navigation.
+                  _StepIntent: PlassArrowAction<_StepIntent>(
+                    context,
+                    onArrow: (_StepIntent intent) => _go(at! + intent.by),
                   ),
                 },
                 child: Focus(

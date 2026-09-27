@@ -24,6 +24,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -1314,13 +1315,19 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
           _pointer.value = null;
         }
 
-        void step(int delta) {
+        /// Steps the reading [delta] along, and says whether it moved: at
+        /// either end it stays where it is.
+        bool step(int delta) {
           final int? current = markBuilder != null
               ? (active == null ? null : built.indexOf(active))
               : _activeIndex;
 
           // Nothing read yet: forward starts at the first, and back at the last.
-          goTo((current ?? (delta > 0 ? -1 : walkLength)) + delta);
+          final int at = (current ?? (delta > 0 ? -1 : walkLength)) + delta;
+
+          goTo(at);
+
+          return walkLength > 0 && at.clamp(0, walkLength - 1) != current;
         }
 
         KeyEventResult onKey(FocusNode node, KeyEvent event) {
@@ -1340,10 +1347,12 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
               ? LogicalKeyboardKey.arrowUp
               : LogicalKeyboardKey.arrowLeft;
 
+          // An arrow that moved nothing, at the first or the last, goes on to
+          // the focus system under directional navigation.
           if (key == forward) {
-            step(1);
+            return plassArrowResult(context, moved: step(1));
           } else if (key == back) {
-            step(-1);
+            return plassArrowResult(context, moved: step(-1));
           } else if (key == LogicalKeyboardKey.home) {
             goTo(0);
           } else if (key == LogicalKeyboardKey.end) {

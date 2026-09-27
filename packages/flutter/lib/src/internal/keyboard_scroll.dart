@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -125,13 +126,21 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
   bool get _reduceMotion => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 
   /// Moves [controller] to [offset], held inside its extent.
-  KeyEventResult _to(ScrollController? controller, double Function(ScrollPosition) offset) {
+  ///
+  /// An [arrow] that finds the view already at that end moved nothing, and goes
+  /// on to the focus system under directional navigation.
+  KeyEventResult _to(
+    ScrollController? controller,
+    double Function(ScrollPosition) offset, {
+    bool arrow = false,
+  }) {
     if (!_overflows(controller)) {
       return KeyEventResult.ignored;
     }
 
     final position = controller!.position;
     final target = offset(position).clamp(position.minScrollExtent, position.maxScrollExtent);
+    final moved = target != position.pixels;
 
     if (_reduceMotion) {
       controller.jumpTo(target);
@@ -141,7 +150,7 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
       controller.animateTo(target, duration: tokens.motionDuration, curve: tokens.motionEase);
     }
 
-    return KeyEventResult.handled;
+    return arrow ? plassArrowResult(context, moved: moved) : KeyEventResult.handled;
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
@@ -157,19 +166,35 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
     final along = Directionality.of(context) == TextDirection.rtl ? -_line : _line;
 
     if (key == LogicalKeyboardKey.arrowDown) {
-      return _to(widget.vertical, (ScrollPosition position) => position.pixels + _line);
+      return _to(
+        widget.vertical,
+        (ScrollPosition position) => position.pixels + _line,
+        arrow: true,
+      );
     }
 
     if (key == LogicalKeyboardKey.arrowUp) {
-      return _to(widget.vertical, (ScrollPosition position) => position.pixels - _line);
+      return _to(
+        widget.vertical,
+        (ScrollPosition position) => position.pixels - _line,
+        arrow: true,
+      );
     }
 
     if (key == LogicalKeyboardKey.arrowRight) {
-      return _to(widget.horizontal, (ScrollPosition position) => position.pixels + along);
+      return _to(
+        widget.horizontal,
+        (ScrollPosition position) => position.pixels + along,
+        arrow: true,
+      );
     }
 
     if (key == LogicalKeyboardKey.arrowLeft) {
-      return _to(widget.horizontal, (ScrollPosition position) => position.pixels - along);
+      return _to(
+        widget.horizontal,
+        (ScrollPosition position) => position.pixels - along,
+        arrow: true,
+      );
     }
 
     if (key == LogicalKeyboardKey.pageDown) {

@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/ease.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/fold.dart';
@@ -260,7 +261,8 @@ class _PlTreeState extends State<PlTree> {
     return rows;
   }
 
-  void _toggle(String id, {bool? open}) {
+  /// Opens or shuts the branch [id], and says whether anyone was asked to.
+  bool _toggle(String id, {bool? open}) {
     final next = Set<String>.from(widget.expanded);
     final shouldOpen = open ?? !next.contains(id);
 
@@ -271,6 +273,8 @@ class _PlTreeState extends State<PlTree> {
     }
 
     widget.onExpandedChanged?.call(next);
+
+    return widget.onExpandedChanged != null;
   }
 
   void _select(PlTreeNode node) {
@@ -316,38 +320,47 @@ class _PlTreeState extends State<PlTree> {
     final isBranch = row.node.children != null;
     final isOpen = widget.expanded.contains(row.node.id);
 
+    // An arrow that moved nothing, at the first or last row, on a leaf, or on
+    // a row at the top with nothing to shut, goes on to the focus system under
+    // directional navigation.
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowDown:
         if (index + 1 < reachable.length) {
           _focus(reachable[index + 1].node.id);
+
+          return KeyEventResult.handled;
         }
 
-        return KeyEventResult.handled;
+        return plassArrowResult(context, moved: false);
       case LogicalKeyboardKey.arrowUp:
         if (index > 0) {
           _focus(reachable[index - 1].node.id);
+
+          return KeyEventResult.handled;
         }
 
-        return KeyEventResult.handled;
+        return plassArrowResult(context, moved: false);
       case LogicalKeyboardKey.arrowRight:
         // Open, then step in. Two presses rather than one, which is the pattern
         // and is what lets a reader open a branch without leaving the row that
         // told them it was there. Only ever into a child: an open branch with
         // none, or with only disabled ones, has a sibling as its next row.
         if (isBranch && !isOpen) {
-          _toggle(row.node.id, open: true);
-        } else if (isBranch &&
+          return plassArrowResult(context, moved: _toggle(row.node.id, open: true));
+        }
+
+        if (isBranch &&
             index + 1 < reachable.length &&
             reachable[index + 1].level == row.level + 1) {
           _focus(reachable[index + 1].node.id);
-        }
-
-        return KeyEventResult.handled;
-      case LogicalKeyboardKey.arrowLeft:
-        if (isBranch && isOpen) {
-          _toggle(row.node.id, open: false);
 
           return KeyEventResult.handled;
+        }
+
+        return plassArrowResult(context, moved: false);
+      case LogicalKeyboardKey.arrowLeft:
+        if (isBranch && isOpen) {
+          return plassArrowResult(context, moved: _toggle(row.node.id, open: false));
         }
 
         // Out to the parent, which is the nearest row above at a shallower
@@ -355,11 +368,12 @@ class _PlTreeState extends State<PlTree> {
         for (var back = index - 1; back >= 0; back -= 1) {
           if (reachable[back].level < row.level) {
             _focus(reachable[back].node.id);
-            break;
+
+            return KeyEventResult.handled;
           }
         }
 
-        return KeyEventResult.handled;
+        return plassArrowResult(context, moved: false);
       case LogicalKeyboardKey.home:
         if (reachable.isNotEmpty) {
           _focus(reachable.first.node.id);

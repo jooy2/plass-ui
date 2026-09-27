@@ -448,6 +448,39 @@ void main() {
         expect(said(tester), 'Search, 40 · 40%');
       });
 
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('goes round past either end only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          tester.view.physicalSize = const Size(500, 700);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(mode, const PlPieChart(data: traffic, categories: sources)),
+              width: 500,
+            ),
+          );
+          await tester.pumpAndSettle();
+          tester.widget<PlassChartTabStop>(find.byType(PlassChartTabStop)).focusNode.requestFocus();
+          await tester.pump();
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+          await tester.pump();
+          expect(said(tester), 'Search, 40 · 40%');
+
+          // Back past the first slice. Under directional navigation the arrows
+          // are the only way off the chart, so the walk halts at either end and
+          // the arrow goes on to the focus system.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), traditional);
+          await tester.pump();
+          expect(said(tester), traditional ? 'Referral, 15 · 15%' : 'Search, 40 · 40%');
+        });
+      }
+
       testWidgets('starts from the last slice when the first key goes back', (
         WidgetTester tester,
       ) async {

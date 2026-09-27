@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -348,6 +349,7 @@ class _PlPanesState extends State<PlPanes> {
       onDrag: (double delta) => _resize(index, delta, extent),
       onSettle: _settle,
       onNudge: (int steps) {
+        final double before = _current(extent)[index];
         final List<double>? next = _resize(index, steps * _keyboardStep, extent);
 
         // A key press is a whole gesture on its own — there is no "let go" to
@@ -355,6 +357,8 @@ class _PlPanesState extends State<PlPanes> {
         if (next != null) {
           _settle(next);
         }
+
+        return next != null && next[index] != before;
       },
     );
   }
@@ -386,7 +390,9 @@ class _Handle extends StatefulWidget {
   final int step;
   final List<double>? Function(double delta) onDrag;
   final ValueChanged<List<double>> onSettle;
-  final ValueChanged<int> onNudge;
+
+  /// Moves the boundary [steps] key steps along, and says whether it moved.
+  final bool Function(int steps) onNudge;
 
   @override
   State<_Handle> createState() => _HandleState();
@@ -494,11 +500,13 @@ class _HandleState extends State<_Handle> {
         SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(-1),
       },
       actions: <Type, Action<Intent>>{
-        _NudgeIntent: CallbackAction<_NudgeIntent>(
-          onInvoke: (_NudgeIntent intent) {
+        // An arrow that moved nothing, with a pane at its limit, goes on to the
+        // focus system under directional navigation.
+        _NudgeIntent: PlassArrowAction<_NudgeIntent>(
+          context,
+          onArrow: (_NudgeIntent intent) {
             final int steps = widget.horizontal && rtl ? -intent.steps : intent.steps;
-            widget.onNudge(steps);
-            return null;
+            return widget.onNudge(steps);
           },
         ),
       },

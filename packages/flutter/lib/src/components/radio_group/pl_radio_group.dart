@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -204,24 +205,33 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
   }
 
   /// Moves the focus stop to the next option in [step]'s direction that is
-  /// not disabled, wrapping.
+  /// not disabled, wrapping, and says whether there was one.
   ///
   /// In a live set the choice goes with it. In a read-only one only the stop
   /// moves, so each option can still be reached and heard, as the arrows do in
   /// a read-only group in the React build.
   ///
   /// Wrapping is what an arrow key does in a radio group and what it does not do
-  /// in a list: the set is a ring of alternatives with no beginning.
-  void _move(int step) {
+  /// in a list: the set is a ring of alternatives with no beginning. Not under
+  /// directional navigation, where the arrows are also the only way out of the
+  /// set: there the stop halts at either end.
+  bool _move(int step) {
     if (_disabled || widget.options.isEmpty) {
-      return;
+      return false;
     }
 
     final count = widget.options.length;
+    final wraps = !plassArrowsMoveFocus(context);
     var index = _focused;
 
     for (var tried = 0; tried < count; tried += 1) {
-      index = (index + step + count) % count;
+      index += step;
+
+      if (wraps) {
+        index = (index + count) % count;
+      } else if (index < 0 || index >= count) {
+        return false;
+      }
 
       if (!widget.options[index].disabled) {
         if (widget.readOnly) {
@@ -231,9 +241,11 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
           widget.onChanged!(widget.options[index].value);
         }
 
-        return;
+        return true;
       }
     }
+
+    return false;
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
@@ -246,26 +258,15 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
     // turn round.
     final step = Directionality.of(context) == TextDirection.rtl ? -1 : 1;
 
-    switch (event.logicalKey) {
-      case LogicalKeyboardKey.arrowDown:
-        _move(1);
-
-        return KeyEventResult.handled;
-      case LogicalKeyboardKey.arrowUp:
-        _move(-1);
-
-        return KeyEventResult.handled;
-      case LogicalKeyboardKey.arrowRight:
-        _move(step);
-
-        return KeyEventResult.handled;
-      case LogicalKeyboardKey.arrowLeft:
-        _move(-step);
-
-        return KeyEventResult.handled;
-      default:
-        return KeyEventResult.ignored;
-    }
+    // An arrow that moved nothing, past an end or in a set that cannot be
+    // changed, goes on to the focus system under directional navigation.
+    return switch (event.logicalKey) {
+      LogicalKeyboardKey.arrowDown => plassArrowResult(context, moved: _move(1)),
+      LogicalKeyboardKey.arrowUp => plassArrowResult(context, moved: _move(-1)),
+      LogicalKeyboardKey.arrowRight => plassArrowResult(context, moved: _move(step)),
+      LogicalKeyboardKey.arrowLeft => plassArrowResult(context, moved: _move(-step)),
+      _ => KeyEventResult.ignored,
+    };
   }
 
   @override

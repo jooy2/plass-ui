@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/chart_frame.dart';
 import 'package:plass_ui/src/internal/date.dart';
@@ -377,7 +378,10 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
         /* The walk, over the slices that have an arc, in the order they are
            drawn: clockwise from the first, and round again past either end,
            since a disc has none. The same list the pointer is tested against,
-           so a key can never reach a slice a pointer could not.
+           so a key can never reach a slice a pointer could not. Not round
+           again under directional navigation, where the arrows are also the
+           only way off the chart: there it halts at the first and the last
+           slice, and an arrow past either goes on to the focus system.
 
            With the card turned off there is nothing to read, as on every other
            chart, so no key is taken and every one goes on to what the chart
@@ -410,9 +414,15 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
           final bool forward = key == LogicalKeyboardKey.arrowRight;
 
           // Nothing read yet: forward starts at the first, and back at the last.
-          final int next = at == -1
-              ? (forward ? 0 : order.length - 1)
-              : (at + (forward ? 1 : -1) + order.length) % order.length;
+          int next = at == -1 ? (forward ? 0 : order.length - 1) : at + (forward ? 1 : -1);
+
+          if (next < 0 || next >= order.length) {
+            if (plassArrowsMoveFocus(context)) {
+              return KeyEventResult.ignored;
+            }
+
+            next = (next + order.length) % order.length;
+          }
 
           setState(() => _activeKey = keys[order[next]]);
 

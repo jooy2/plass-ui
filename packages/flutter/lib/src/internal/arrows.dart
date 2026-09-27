@@ -1,0 +1,61 @@
+/// What an arrow key a control answers tells the focus system.
+///
+/// A set of options, a value on a rail and a walk through a chart all take the
+/// arrow keys for themselves. On a keyboard that costs nothing, because Tab is
+/// how a reader leaves. Under [NavigationMode.directional], a remote's D-pad,
+/// the arrows are the only way to leave, so an arrow a control cannot use has
+/// to go on to the focus system, or the control holds the reader where they
+/// stand.
+library;
+
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+/// Whether the arrow keys are how a reader moves the focus from one control to
+/// the next, which they are under [NavigationMode.directional].
+///
+/// Read as `PlassInteractive` reads the mode: no [MediaQuery], or one that does
+/// not say, is [NavigationMode.traditional].
+bool plassArrowsMoveFocus(BuildContext context) {
+  return MediaQuery.maybeNavigationModeOf(context) == NavigationMode.directional;
+}
+
+/// Whether [key] is one of the four arrow keys.
+bool plassIsArrow(LogicalKeyboardKey key) {
+  return key == LogicalKeyboardKey.arrowUp ||
+      key == LogicalKeyboardKey.arrowDown ||
+      key == LogicalKeyboardKey.arrowLeft ||
+      key == LogicalKeyboardKey.arrowRight;
+}
+
+/// What a control reports for an arrow key, given whether the key [moved]
+/// anything: the choice, a value, or the place being read.
+///
+/// An arrow that moved something is handled. One that moved nothing, at the
+/// end of a set or a range or on a control that cannot be changed, is handled
+/// too under [NavigationMode.traditional], where the key belongs to the control
+/// and Tab leaves it, and is left to the focus system under
+/// [NavigationMode.directional], which takes it on to the next control.
+KeyEventResult plassArrowResult(BuildContext context, {required bool moved}) {
+  return moved || !plassArrowsMoveFocus(context) ? KeyEventResult.handled : KeyEventResult.ignored;
+}
+
+/// An action bound to arrow keys, whose [onInvoke] returns whether the key
+/// moved anything, reported to the key's [Shortcuts] as [plassArrowResult]
+/// says.
+///
+/// [context] is the control's own, which is where the navigation mode is read
+/// when a key arrives.
+class PlassArrowAction<T extends Intent> extends CallbackAction<T> {
+  /// Creates the action.
+  PlassArrowAction(this.context, {required bool Function(T intent) onArrow})
+    : super(onInvoke: onArrow);
+
+  /// The control's own context.
+  final BuildContext context;
+
+  @override
+  KeyEventResult toKeyEventResult(T intent, covariant bool? invokeResult) {
+    return plassArrowResult(context, moved: invokeResult ?? true);
+  }
+}

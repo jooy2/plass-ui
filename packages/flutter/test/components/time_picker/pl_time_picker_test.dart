@@ -282,6 +282,46 @@ void main() {
         expect(value.hour, 1);
         expect(_cell(tester, '01 Hour').focusNode!.hasFocus, isTrue);
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow past the end of a column only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          DateTime? changed;
+
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              PlTimePicker(
+                value: DateTime(2026, 7, 27, 1, 30),
+                onChanged: (DateTime? next) => changed = next,
+                shouldDisableTime: (DateTime at, PlassTimeUnit unit) =>
+                    unit == PlassTimeUnit.hour && at.hour == 0,
+              ),
+            ),
+          );
+          await _open(tester);
+
+          _cell(tester, '01 Hour').focusNode!.requestFocus();
+          await tester.pump();
+
+          expect(_cell(tester, '01 Hour').focusNode!.hasFocus, isTrue);
+
+          // The first hour that can be chosen, with only a blocked one above
+          // it. Under directional navigation the arrows are the only way out of
+          // the column, so one that moves nothing goes on to the focus system.
+          expect(
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp),
+            mode == NavigationMode.traditional,
+          );
+          await tester.pumpAndSettle();
+
+          expect(changed, isNull);
+
+          // Home is the column's alone, and kept in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.home), isTrue);
+        });
+      }
     });
 
     group('choosing', () {

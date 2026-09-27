@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -215,16 +216,21 @@ class _PlRatingState extends State<PlRating> {
     widget.onChanged!(score);
   }
 
-  void _nudge(int steps) {
+  /// Moves the score [steps] steps along, and says whether it moved.
+  bool _nudge(int steps) {
     if (!_interactive) {
-      return;
+      return false;
     }
 
     final double next = _snap(widget.value + steps * _step);
 
-    if (next != widget.value) {
-      widget.onChanged!(next);
+    if (next == widget.value) {
+      return false;
     }
+
+    widget.onChanged!(next);
+
+    return true;
   }
 
   /// Home and End. They go to a place on the row rather than choose a score, so
@@ -324,13 +330,15 @@ class _PlRatingState extends State<PlRating> {
         SingleActivator(LogicalKeyboardKey.end): _SetIntent(double.infinity),
       },
       actions: <Type, Action<Intent>>{
-        _NudgeIntent: CallbackAction<_NudgeIntent>(
-          onInvoke: (_NudgeIntent intent) {
+        // An arrow that moved nothing, with the row empty or full, goes on to
+        // the focus system under directional navigation.
+        _NudgeIntent: PlassArrowAction<_NudgeIntent>(
+          context,
+          onArrow: (_NudgeIntent intent) {
             // The left and right arrows follow the writing direction, because
             // the row does. Up is more and down is less in every direction.
             final bool rtl = Directionality.of(context) == TextDirection.rtl;
-            _nudge(rtl && intent.across ? -intent.steps : intent.steps);
-            return null;
+            return _nudge(rtl && intent.across ? -intent.steps : intent.steps);
           },
         ),
         _SetIntent: CallbackAction<_SetIntent>(

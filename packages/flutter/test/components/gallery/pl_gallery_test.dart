@@ -1067,6 +1067,36 @@ void main() {
         expect(find.text('1 of 4'), findsOneWidget);
       });
 
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow past an end only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          await _pump(tester, inNavigationMode(mode, PlGallery(items: items, preview: true)));
+
+          await tester.tap(find.bySemanticsLabel('A harbour — 1 of 4'));
+          await _settle(tester);
+
+          expect(holdsFocus(tester, find.byType(PlOverlay)), isTrue);
+
+          // The first picture. Under directional navigation the arrows are the
+          // only way to the viewer's buttons, so one that moves nothing goes on
+          // to the focus system.
+          expect(
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft),
+            mode == NavigationMode.traditional,
+          );
+          await _settle(tester);
+
+          expect(find.text('1 of 4'), findsOneWidget);
+
+          // An arrow that moves to the next picture is kept in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+          await _settle(tester);
+
+          expect(find.text('2 of 4'), findsOneWidget);
+        });
+      }
+
       testWidgets('offers no arrows for a set of one', (WidgetTester tester) async {
         await _pump(
           tester,

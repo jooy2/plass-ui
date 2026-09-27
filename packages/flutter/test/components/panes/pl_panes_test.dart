@@ -321,6 +321,48 @@ void main() {
         expect(_ring, findsOneWidget);
         expect(widthOf(tester, 'a'), closeTo(216, 0.001));
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow that moves nothing only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                mode,
+                PlPanes(
+                  panes: <PlPane>[
+                    pane('a', minSize: const PlPaneSize.percent(50)),
+                    pane('b'),
+                  ],
+                ),
+              ),
+              width: 408,
+              height: 200,
+            ),
+          );
+          Focus.of(tester.element(handles().first)).requestFocus();
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlPanes)), isTrue);
+
+          // The first pane at its minimum. Under directional navigation the
+          // arrows are the only way off the handle, so one that moves nothing
+          // goes on to the focus system.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), traditional);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp), traditional);
+          await tester.pump();
+
+          expect(widthOf(tester, 'a'), closeTo(200, 0.001));
+
+          // An arrow that moves the boundary is kept in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+          await tester.pump();
+
+          expect(widthOf(tester, 'a'), closeTo(216, 0.001));
+        });
+      }
     });
 
     group('accessibility', () {

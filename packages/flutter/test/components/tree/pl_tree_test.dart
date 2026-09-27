@@ -469,6 +469,49 @@ void main() {
 
         expect(_focused(), equals('src'));
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow that moves nothing only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          // Under directional navigation the arrows are the only way out of the
+          // tree, so one with nowhere to go goes on to the focus system.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          await _pump(tester, inNavigationMode(mode, const _Host(expanded: <String>{'src'})));
+
+          // The first row, which has nothing above it.
+          await _focusRow(tester, 'src');
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp), traditional);
+          expect(_focused(), equals('src'));
+
+          // The last row a reader can get to, a leaf at the top: nothing below
+          // it, nothing to open and nothing to step out to.
+          await _focusRow(tester, 'README.md');
+
+          for (final LogicalKeyboardKey key in <LogicalKeyboardKey>[
+            LogicalKeyboardKey.arrowDown,
+            LogicalKeyboardKey.arrowRight,
+            LogicalKeyboardKey.arrowLeft,
+          ]) {
+            expect(await tester.sendKeyEvent(key), traditional, reason: key.keyLabel);
+            await tester.pumpAndSettle();
+            expect(_focused(), equals('readme'), reason: key.keyLabel);
+          }
+        });
+
+        testWidgets('keeps the right arrow on a branch nobody can open only in traditional '
+            'navigation, ${mode.name}', (WidgetTester tester) async {
+          await _pump(tester, inNavigationMode(mode, const PlTree(items: items)));
+          await _focusRow(tester, 'src');
+
+          expect(
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight),
+            mode == NavigationMode.traditional,
+          );
+          expect(_focused(), equals('src'));
+        });
+      }
     });
 
     group('semantics', () {

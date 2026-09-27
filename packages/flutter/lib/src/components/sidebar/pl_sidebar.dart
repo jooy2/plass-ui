@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/drawer/pl_drawer.dart';
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/page_layout.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -385,8 +386,13 @@ class _PlSidebarState extends State<PlSidebar> {
                 onSettle: () => widget.onResizeEnd?.call(_width.value),
                 // A key press is a whole gesture on its own — there is no "let
                 // go" to wait for, so the settled callback fires with it.
-                onNudge: (int steps) =>
-                    _resize(_width.value + steps * _keyboardStep, settled: true),
+                onNudge: (int steps) {
+                  final double before = _width.value;
+
+                  _resize(before + steps * _keyboardStep, settled: true);
+
+                  return _width.value != before;
+                },
               ),
             ),
           ),
@@ -531,7 +537,9 @@ class _ResizeHandle extends StatefulWidget {
   final double max;
   final ValueChanged<double> onDrag;
   final VoidCallback onSettle;
-  final ValueChanged<int> onNudge;
+
+  /// Moves the edge [steps] key steps outwards, and says whether it moved.
+  final bool Function(int steps) onNudge;
 
   @override
   State<_ResizeHandle> createState() => _ResizeHandleState();
@@ -603,11 +611,12 @@ class _ResizeHandleState extends State<_ResizeHandle> {
         SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1),
       },
       actions: <Type, Action<Intent>>{
-        _NudgeIntent: CallbackAction<_NudgeIntent>(
-          onInvoke: (_NudgeIntent intent) {
-            widget.onNudge((rtl ? -intent.steps : intent.steps) * widget.outwards);
-            return null;
-          },
+        // An arrow that moved nothing, with the column at its floor or its
+        // ceiling, goes on to the focus system under directional navigation.
+        _NudgeIntent: PlassArrowAction<_NudgeIntent>(
+          context,
+          onArrow: (_NudgeIntent intent) =>
+              widget.onNudge((rtl ? -intent.steps : intent.steps) * widget.outwards),
         ),
       },
       child: handle,

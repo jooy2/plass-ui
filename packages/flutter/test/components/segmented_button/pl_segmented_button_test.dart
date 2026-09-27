@@ -550,6 +550,96 @@ void main() {
 
         expect(focusedSegment('List'), findsOneWidget);
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets(
+          'go round past the first segment only in traditional navigation, ${mode.name}',
+          (WidgetTester tester) async {
+            for (final bool readOnly in <bool>[false, true]) {
+              String value = 'list';
+              final FocusNode before = FocusNode(debugLabel: 'before');
+              addTearDown(before.dispose);
+
+              // Under directional navigation the arrows are the only way out of
+              // the set, so the one past the end goes on to the stop above
+              // rather than round to the last segment.
+              await tester.pumpWidget(
+                host(
+                  inNavigationMode(
+                    mode,
+                    StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) => afterFocusStop(
+                        before,
+                        PlSegmentedButton<String>(
+                          key: ValueKey<bool>(readOnly),
+                          segments: views,
+                          value: value,
+                          readOnly: readOnly,
+                          onChanged: (String next) => setState(() => value = next),
+                        ),
+                      ),
+                    ),
+                  ),
+                  width: 480,
+                ),
+              );
+              before.requestFocus();
+              await tester.pump();
+              await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+              await tester.pumpAndSettle();
+
+              expect(focusedSegment('List'), findsOneWidget);
+
+              await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+              await tester.pumpAndSettle();
+
+              final String reason = 'read-only $readOnly';
+
+              if (mode == NavigationMode.traditional) {
+                expect(focusedSegment('Calendar'), findsOneWidget, reason: reason);
+                expect(value, readOnly ? 'list' : 'calendar', reason: reason);
+              } else {
+                expect(before.hasPrimaryFocus, isTrue, reason: reason);
+                expect(value, 'list', reason: reason);
+              }
+            }
+          },
+        );
+      }
+
+      testWidgets('hand the key on in a disabled set under directional navigation', (
+        WidgetTester tester,
+      ) async {
+        String? chosen;
+
+        // Directional navigation is where a disabled segment can still hold the
+        // focus, so the arrows reach the set at all.
+        await tester.pumpWidget(
+          host(
+            inNavigationMode(
+              NavigationMode.directional,
+              PlSegmentedButton<String>(
+                segments: views,
+                value: 'board',
+                disabled: true,
+                autofocus: true,
+                onChanged: (String next) => chosen = next,
+              ),
+            ),
+            width: 480,
+          ),
+        );
+        await tester.pump();
+
+        expect(focusedSegment('Board'), findsOneWidget);
+
+        final bool handled = await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(handled, isFalse);
+        expect(focusedSegment('Board'), findsOneWidget);
+        expect(chosen, isNull);
+      });
     });
 
     group('accessibility', () {

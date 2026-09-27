@@ -509,6 +509,49 @@ void main() {
         expect(passed, <LogicalKeyboardKey>[LogicalKeyboardKey.home, LogicalKeyboardKey.end]);
       });
 
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow at an end of the walk only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await tabTo(
+            tester,
+            inNavigationMode(mode, PlHeatmapChart(series: square, categories: hours)),
+          );
+
+          final bool traditional = mode == NavigationMode.traditional;
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+          await tester.pump();
+
+          expect(said(tester), 'Mon · 09, 2');
+
+          // Back past the first cell, which has no stop beside it to go to.
+          // Under directional navigation the arrows are the only way off the
+          // chart, so one that moves nothing goes on to what the chart sits in.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+          await tester.pump();
+
+          expect(said(tester), 'Mon · 09, 2');
+          expect(
+            passed,
+            traditional ? isEmpty : <LogicalKeyboardKey>[LogicalKeyboardKey.arrowLeft],
+          );
+
+          // Up past the edge of the grid, where the stop in front of the chart
+          // is.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlHeatmapChart)), traditional);
+          expect(said(tester), traditional ? 'Mon · 09, 2' : isEmpty);
+          expect(
+            passed,
+            traditional
+                ? isEmpty
+                : <LogicalKeyboardKey>[LogicalKeyboardKey.arrowLeft, LogicalKeyboardKey.arrowUp],
+          );
+        });
+      }
+
       testWidgets('starts from the last cell when the first key goes back', (
         WidgetTester tester,
       ) async {

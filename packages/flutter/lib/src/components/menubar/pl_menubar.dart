@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/menu/pl_menu.dart';
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -226,18 +227,28 @@ class _PlMenubarState extends State<PlMenubar> {
   }
 
   /// Steps to the next word that can take focus, wrapping at either end, which
-  /// is what the React bar does by default.
-  void _move(int from, int by) {
+  /// is what the React bar does by default, and says whether there was one.
+  ///
+  /// Under directional navigation, where the arrows are also the only way off
+  /// the bar, it halts at either end rather than wrapping.
+  bool _move(int from, int by) {
     final int count = widget.menus.length;
+    final bool wraps = !plassArrowsMoveFocus(context);
 
     for (int step = 1; step < count; step += 1) {
-      final int next = (from + by * step) % count;
+      final int next = from + by * step;
 
-      if (_enabled(next)) {
-        _focus(next);
-        return;
+      if (!wraps && (next < 0 || next >= count)) {
+        return false;
+      }
+
+      if (_enabled(next % count)) {
+        _focus(next % count);
+        return true;
       }
     }
+
+    return false;
   }
 
   /// The first word that can take focus, or the last.
@@ -280,10 +291,12 @@ class _PlMenubarState extends State<PlMenubar> {
         ? LogicalKeyboardKey.arrowUp
         : (rtl ? LogicalKeyboardKey.arrowRight : LogicalKeyboardKey.arrowLeft);
 
+    // An arrow that moved nothing, past an end or with no other word to go
+    // to, goes on to the focus system under directional navigation.
     if (event.logicalKey == forward) {
-      _move(current, 1);
+      return plassArrowResult(context, moved: _move(current, 1));
     } else if (event.logicalKey == back) {
-      _move(current, -1);
+      return plassArrowResult(context, moved: _move(current, -1));
     } else if (event.logicalKey == LogicalKeyboardKey.home) {
       _edge(toEnd: false);
     } else if (event.logicalKey == LogicalKeyboardKey.end) {

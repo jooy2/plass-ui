@@ -386,6 +386,83 @@ void main() {
         expect(state.value, isNull);
         expect(_row('Seoul'), findsNothing);
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps the arrows on a read-only select only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(mode, const _Harness(value: 'kr-11', readOnly: true)),
+              width: 320,
+              overlay: true,
+            ),
+          );
+          await tester.pumpAndSettle();
+          Focus.of(tester.element(_trigger())).requestFocus();
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlSelect<String>)), isTrue);
+
+          // It cannot open, so the arrows move nothing. Under directional
+          // navigation they are the only way off the select, so they go on to
+          // the focus system.
+          for (final LogicalKeyboardKey key in <LogicalKeyboardKey>[
+            LogicalKeyboardKey.arrowDown,
+            LogicalKeyboardKey.arrowUp,
+          ]) {
+            expect(
+              await tester.sendKeyEvent(key),
+              mode == NavigationMode.traditional,
+              reason: key.keyLabel,
+            );
+            await tester.pumpAndSettle();
+            expect(_row('Tokyo'), findsNothing);
+          }
+        });
+
+        testWidgets('keeps the arrows while its list is open, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(
+            host(inNavigationMode(mode, const _Harness()), width: 320, overlay: true),
+          );
+          await tester.pumpAndSettle();
+          await tester.tap(_trigger());
+          await tester.pumpAndSettle();
+
+          // The focus is on the trigger, and an arrow handed on would take it
+          // off with the list still up, so the list keeps them round both ends.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp), isTrue);
+          await tester.pumpAndSettle();
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown), isTrue);
+          await tester.pumpAndSettle();
+
+          expect(_row('Seoul'), findsOneWidget);
+        });
+      }
+
+      testWidgets('hands the arrows on from a disabled select under directional navigation', (
+        WidgetTester tester,
+      ) async {
+        // Directional navigation is where a disabled select can still hold the
+        // focus, so the arrows reach it at all.
+        await tester.pumpWidget(
+          host(
+            inNavigationMode(
+              NavigationMode.directional,
+              const _Harness(value: 'kr-11', disabled: true),
+            ),
+            width: 320,
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+        Focus.of(tester.element(_trigger())).requestFocus();
+        await tester.pump();
+
+        expect(holdsFocus(tester, find.byType(PlSelect<String>)), isTrue);
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown), isFalse);
+      });
     });
 
     group('accessibility', () {

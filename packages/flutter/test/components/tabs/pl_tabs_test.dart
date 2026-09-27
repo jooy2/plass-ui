@@ -170,6 +170,63 @@ void main() {
         expect(value, 'settings');
         expect(before.hasFocus, isFalse);
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('the arrow keys go round past the first tab only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          String? chosen;
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                mode,
+                PlTabs<String>(
+                  tabs: panes,
+                  value: 'overview',
+                  autofocus: true,
+                  onChanged: (String next) => chosen = next,
+                ),
+              ),
+              width: 480,
+            ),
+          );
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlTabs<String>)), isTrue);
+
+          final bool handled = await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+
+          // Under directional navigation the arrows are the only way off the
+          // bar, so the one past the end goes on to the focus system rather
+          // than round to the last tab.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(handled, traditional);
+          expect(chosen, traditional ? 'settings' : isNull);
+        });
+      }
+
+      testWidgets(
+        'the arrow keys go on from a bar with no `onChanged` under directional navigation',
+        (WidgetTester tester) async {
+          // Directional navigation is where a tab that cannot be chosen can still
+          // hold the focus, so the arrows reach the bar at all.
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                NavigationMode.directional,
+                const PlTabs<String>(tabs: panes, value: 'activity', autofocus: true),
+              ),
+              width: 480,
+            ),
+          );
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlTabs<String>)), isTrue);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isFalse);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), isFalse);
+          expect(holdsFocus(tester, find.byType(PlTabs<String>)), isTrue);
+        },
+      );
     });
 
     group('a bar with more tabs than room', () {

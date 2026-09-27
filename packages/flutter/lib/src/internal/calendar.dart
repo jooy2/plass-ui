@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/button/pl_button.dart';
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/date.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -1446,9 +1447,14 @@ class _PlassTimeGridState extends State<PlassTimeGrid> {
         widget.onChanged(_candidate(unit, rows[target]));
         nodes[target].requestFocus();
         _revealRow(unit, target);
+
+        return KeyEventResult.handled;
       }
 
-      return KeyEventResult.handled;
+      // An arrow that moved nothing, at the top or the bottom of the column or
+      // with every row that way blocked, goes on to the focus system under
+      // directional navigation.
+      return plassIsArrow(key) ? plassArrowResult(context, moved: false) : KeyEventResult.handled;
     }
 
     return Semantics(

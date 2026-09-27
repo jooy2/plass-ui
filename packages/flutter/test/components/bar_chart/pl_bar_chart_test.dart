@@ -371,6 +371,44 @@ void main() {
       expect(find.byType(PlassChartTooltipCard), findsOneWidget);
     });
 
+    for (final NavigationMode mode in NavigationMode.values) {
+      testWidgets('keeps an arrow at an end of the walk only in traditional navigation, '
+          '${mode.name}', (WidgetTester tester) async {
+        await _pump(
+          tester,
+          inNavigationMode(mode, PlBarChart(series: series, categories: regions)),
+        );
+        tester.widget<PlassChartTabStop>(find.byType(PlassChartTabStop)).focusNode.requestFocus();
+        await tester.pump();
+
+        String said() => find.semantics.byFlag(SemanticsFlag.isLiveRegion).evaluate().single.label;
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+        await tester.pump();
+        expect(said(), 'Europe, This year: 42, Last year: 35');
+
+        // Back past the first column. Under directional navigation the arrows
+        // are the only way off the chart, so one that moves nothing goes on to
+        // the focus system.
+        expect(
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft),
+          mode == NavigationMode.traditional,
+        );
+        await tester.pump();
+        expect(said(), 'Europe, This year: 42, Last year: 35');
+
+        // Home and End are the chart's alone, and kept in both.
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.end), isTrue);
+        await tester.pump();
+        expect(said(), 'Americas, This year: 31, Last year: 38');
+
+        expect(
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight),
+          mode == NavigationMode.traditional,
+        );
+      });
+    }
+
     testWidgets('lifts the column a key reaches over the house duration', (
       WidgetTester tester,
     ) async {

@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -387,9 +388,17 @@ class _PlSliderState extends State<PlSlider> {
       return KeyEventResult.ignored;
     }
 
-    _report(index, _valueAt(_fraction(next), index), ended: true);
+    final double value = _valueAt(_fraction(next), index);
+    final bool moved = value != widget.values[index];
 
-    return KeyEventResult.handled;
+    _report(index, value, ended: true);
+
+    // An arrow that moved the thumb nowhere, at an end of the rail or against
+    // the other thumb, goes on to the focus system under directional
+    // navigation. The other keys are the slider's alone.
+    return plassIsArrow(event.logicalKey)
+        ? plassArrowResult(context, moved: moved)
+        : KeyEventResult.handled;
   }
 
   @override

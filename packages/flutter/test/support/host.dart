@@ -116,6 +116,43 @@ Widget afterFocusStop(FocusNode before, Widget child) {
   );
 }
 
+/// [child] under the navigation [mode], with everything else the tree around it
+/// says left as it is.
+///
+/// [NavigationMode.directional] is a remote's D-pad, where the arrow keys are
+/// the only way from one control to the next.
+Widget inNavigationMode(NavigationMode mode, Widget child) {
+  return Builder(
+    builder: (BuildContext context) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(navigationMode: mode),
+      child: child,
+    ),
+  );
+}
+
+/// Whether the primary focus is on something inside [finder], or on it.
+///
+/// What a test checks before it presses a key and expects the key to be handed
+/// on: with nothing focused, no key is handled by anyone.
+bool holdsFocus(WidgetTester tester, Finder finder) {
+  final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+  if (focused is! Element) {
+    return false;
+  }
+
+  final Element target = tester.element(finder);
+  bool inside = identical(focused, target);
+
+  focused.visitAncestorElements((Element ancestor) {
+    inside = inside || identical(ancestor, target);
+
+    return !inside;
+  });
+
+  return inside;
+}
+
 /// Runs [change] once the next frame has been built, and builds the tree again
 /// at once, ahead of everything that frame's build put off until after it.
 ///

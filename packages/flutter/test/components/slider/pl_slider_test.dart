@@ -269,6 +269,37 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.home);
         expect(reported!.first, 0);
       });
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('keeps an arrow that moves nothing only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                mode,
+                PlSlider(values: const <double>[100], autofocus: true, onChanged: (_) {}),
+              ),
+              width: 300,
+            ),
+          );
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlSlider)), isTrue);
+
+          // At the end of the rail. Under directional navigation the arrows are
+          // the only way off the slider, so one that moves nothing goes on to
+          // the focus system.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), traditional);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp), traditional);
+
+          // An arrow that moves the thumb, and a key that is the slider's
+          // alone, are kept in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), isTrue);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.end), isTrue);
+        });
+      }
     });
 
     group('a range', () {
