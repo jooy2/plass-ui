@@ -123,7 +123,7 @@ Left out, `format` writes a whole number with no decimal point and `parse` throw
 
 ### step, largeStep and smallStep
 
-The arrow keys and the steppers both move by `step`, with <kbd>Shift</kbd> taking `largeStep` and <kbd>Alt</kbd> taking `smallStep`, the modifiers count for a pressed stepper as well as a pressed key. `snapOnStep` makes a step land on a multiple rather than move by one.
+The arrow keys and the steppers both move by `step`, with <kbd>Shift</kbd> taking `largeStep` and <kbd>Alt</kbd> taking `smallStep`, the modifiers count for a pressed stepper as well as a pressed key. `snapOnStep` makes a step land on the next multiple of how far it goes, counted from `min` or from zero, rather than move that far: with a `step` of 5, the up arrow takes 8 to 10. A `smallStep` lands on the nearest multiple, and a number typed into the box is left as it is.
 
 ::: fw flutter
 

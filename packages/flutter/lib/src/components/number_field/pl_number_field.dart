@@ -43,6 +43,12 @@ const double _stepperGlyphScale = 0.9;
 /// The gap between the two steppers when they sit together at the end.
 const double _stepperGap = 2;
 
+/// How far short of a multiple, as a share of the step, a stepped value may
+/// land and still count as on it with [PlNumberField.snapOnStep]: `0.7 + 0.1`
+/// is a hair under `0.8`, and without the allowance a step up from `0.7` would
+/// snap back to it. The factor Base UI's `snapToStep` uses.
+const double _snapTolerance = 1e-10;
+
 /// Where the two steppers sit.
 enum PlNumberFieldSteppers {
   /// Both at the trailing edge, the way a spinner has always looked.
@@ -192,7 +198,12 @@ class PlNumberField extends StatefulWidget {
   /// The step taken while <kbd>Alt</kbd> is held.
   final double smallStep;
 
-  /// Whether stepping snaps to multiples of [step].
+  /// Whether a step lands on a multiple of how far it goes, counted from [min],
+  /// or from zero without one, rather than that far from where the value was.
+  ///
+  /// A step goes to the next multiple in its direction, so with a [step] of 5
+  /// the up arrow takes 8 to 10 and the down arrow takes it to 5. A [smallStep]
+  /// goes to the nearest one. A number typed into the box is left as it is.
   final bool snapOnStep;
 
   /// Whether the wheel changes the value while the field is focused and the
@@ -525,14 +536,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
     return digits.isEmpty ? null : double.tryParse(digits);
   }
 
-  /// The value as it is allowed to settle: snapped if asked for, then held
-  /// inside the range.
+  /// The value as it is allowed to settle: held inside the range.
   double _settle(double value) {
     var next = value;
-
-    if (widget.snapOnStep) {
-      next = (next / widget.step).roundToDouble() * widget.step;
-    }
 
     if (widget.min != null && next < widget.min!) {
       next = widget.min!;
@@ -605,8 +611,44 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // zero if it does not: the first press of `+` on a blank quantity box should
     // put something in it.
     final from = _read(_controller.text) ?? widget.min ?? 0;
+    var next = from + by * direction;
 
-    _commit(from + by * direction, when: when);
+    // Snapped before the range is applied, as Base UI snaps, so a `max` that is
+    // not a multiple can still be reached.
+    if (widget.snapOnStep && by != 0) {
+      next = _snap(next, by * direction, nearest: amount == _StepAmount.small);
+    }
+
+    _commit(next, when: when);
+  }
+
+  /// Where a step of [by], signed with its direction, that took the value to
+  /// [value] settles with [PlNumberField.snapOnStep]: on the last multiple of
+  /// the step, counted from [PlNumberField.min] or from zero, that it reached
+  /// on the way, or with [nearest] on the nearest one, as Base UI's
+  /// `snapToStep` puts it.
+  double _snap(double value, double by, {required bool nearest}) {
+    final double base = widget.min ?? 0;
+    final double size = by.abs();
+    // Leaned in the step's direction, so a value a hair short of a multiple is
+    // on it, and a small step half-way between two goes on to the next.
+    final double offset = value - base + by * _snapTolerance;
+
+    if (nearest) {
+      return base + _roundHalfUp(offset / by) * by;
+    }
+
+    final double count = offset / size;
+
+    return base + (by > 0 ? count.floorToDouble() : count.ceilToDouble()) * size;
+  }
+
+  /// `Math.round`, which takes a half towards positive infinity where Dart's
+  /// `roundToDouble` takes it away from zero.
+  static double _roundHalfUp(double value) {
+    final double floor = value.floorToDouble();
+
+    return value - floor >= 0.5 ? floor + 1 : floor;
   }
 
   /// <kbd>Home</kbd> or <kbd>End</kbd>: a field that can be edited goes to that

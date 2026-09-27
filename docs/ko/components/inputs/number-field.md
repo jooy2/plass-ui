@@ -123,7 +123,7 @@ PlNumberField(
 
 ### step, largeStep, smallStep
 
-방향키와 스테퍼는 둘 다 `step`만큼 움직이고, <kbd>Shift</kbd>는 `largeStep`을, <kbd>Alt</kbd>는 `smallStep`을 씁니다. 수정 키는 눌린 키에도, 눌린 스테퍼에도 똑같이 셉니다. `snapOnStep`은 한 걸음이 하나만큼 움직이는 대신 배수에 내려앉게 합니다.
+방향키와 스테퍼는 둘 다 `step`만큼 움직이고, <kbd>Shift</kbd>는 `largeStep`을, <kbd>Alt</kbd>는 `smallStep`을 씁니다. 수정 키는 눌린 키에도, 눌린 스테퍼에도 똑같이 셉니다. `snapOnStep`은 한 걸음이 그만큼 움직이는 대신, `min`이나 0부터 센 걸음 크기의 다음 배수에 내려앉게 합니다. `step`이 5이면 위쪽 방향키가 8을 10으로 옮깁니다. `smallStep`은 가장 가까운 배수에 내려앉고, 상자에 입력한 숫자는 그대로 둡니다.
 
 ::: fw flutter
 

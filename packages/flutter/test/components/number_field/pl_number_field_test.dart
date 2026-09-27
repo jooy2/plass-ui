@@ -100,6 +100,33 @@ bool _editorFocused(WidgetTester tester) {
   return tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
 }
 
+/// Presses [key] with <kbd>Shift</kbd> or <kbd>Alt</kbd> held if asked, and
+/// lets the parent build with what the field reported.
+Future<void> _press(
+  WidgetTester tester,
+  LogicalKeyboardKey key, {
+  bool shift = false,
+  bool alt = false,
+}) async {
+  final LogicalKeyboardKey? modifier = shift
+      ? LogicalKeyboardKey.shiftLeft
+      : alt
+      ? LogicalKeyboardKey.altLeft
+      : null;
+
+  if (modifier != null) {
+    await tester.sendKeyDownEvent(modifier);
+  }
+
+  await tester.sendKeyEvent(key);
+
+  if (modifier != null) {
+    await tester.sendKeyUpEvent(modifier);
+  }
+
+  await tester.pump();
+}
+
 /// The `+` stepper, which is the second glyph in the row when both are drawn.
 Finder _plus() => find.byWidgetPredicate(
   (Widget widget) => widget is PlassGlyph && widget.shape == PlassGlyphShape.plus,
@@ -425,6 +452,154 @@ void main() {
         await tester.tap(_plus());
         await tester.pump();
         expect(state.value, 10);
+      });
+
+      testWidgets('a snapped step goes to the next multiple in its direction', (
+        WidgetTester tester,
+      ) async {
+        final _HarnessState state = await _pump(
+          tester,
+          const _Harness(value: 8, max: 12, step: 5, snapOnStep: true),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        // Up from 8 is 10, the multiple the step passed, and not 15, the
+        // multiple nearest to 13.
+        await _press(tester, LogicalKeyboardKey.arrowUp);
+        expect(state.value, 10);
+
+        // Snapped before it is clamped, so a `max` that is not a multiple is
+        // still reached.
+        await _press(tester, LogicalKeyboardKey.arrowUp);
+        expect(state.value, 12);
+
+        state.handIn(8);
+        await tester.pump();
+
+        await _press(tester, LogicalKeyboardKey.arrowDown);
+        expect(state.value, 5);
+      });
+
+      testWidgets('a snapped field goes all the way to its range on End', (
+        WidgetTester tester,
+      ) async {
+        final _HarnessState state = await _pump(
+          tester,
+          const _Harness(value: 8, max: 12, step: 5, snapOnStep: true),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        // `End` is not a step, so it goes to 12 and not to the 10 nearest it.
+        await _press(tester, LogicalKeyboardKey.end);
+        expect(state.value, 12);
+      });
+
+      testWidgets('a snapped step counts its multiples from min', (WidgetTester tester) async {
+        final _HarnessState state = await _pump(
+          tester,
+          const _Harness(value: 8, min: 1, step: 5, snapOnStep: true),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        await _press(tester, LogicalKeyboardKey.arrowUp);
+        expect(state.value, 11);
+
+        state.handIn(8);
+        await tester.pump();
+
+        await _press(tester, LogicalKeyboardKey.arrowDown);
+        expect(state.value, 6);
+      });
+
+      testWidgets('a snapped small step goes to the nearest multiple of the small step', (
+        WidgetTester tester,
+      ) async {
+        final _HarnessState state = await _pump(tester, const _Harness(value: 5, snapOnStep: true));
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        // A tenth, and not back to the whole number the step snaps to.
+        await _press(tester, LogicalKeyboardKey.arrowUp, alt: true);
+        expect(state.value, 5.1);
+
+        // 4.94 is nearer 4.9 than 5.
+        state.handIn(5.04);
+        await tester.pump();
+
+        await _press(tester, LogicalKeyboardKey.arrowDown, alt: true);
+        expect(state.value, 4.9);
+      });
+
+      testWidgets('a snapped small step counts its multiples from min too', (
+        WidgetTester tester,
+      ) async {
+        final _HarnessState state = await _pump(
+          tester,
+          const _Harness(value: 1, min: 0.05, snapOnStep: true),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        // The multiples of a tenth counted from 0.05, as Base UI counts them.
+        await _press(tester, LogicalKeyboardKey.arrowUp, alt: true);
+        expect(state.value, 1.15);
+      });
+
+      testWidgets('a snapped large step goes to a multiple of the large step', (
+        WidgetTester tester,
+      ) async {
+        final _HarnessState state = await _pump(tester, const _Harness(value: 5, snapOnStep: true));
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        await _press(tester, LogicalKeyboardKey.arrowUp, shift: true);
+        expect(state.value, 10);
+
+        await _press(tester, LogicalKeyboardKey.pageUp);
+        expect(state.value, 20);
+
+        state.handIn(23);
+        await tester.pump();
+
+        await _press(tester, LogicalKeyboardKey.pageDown);
+        expect(state.value, 20);
+      });
+
+      testWidgets('leaves a typed number unsnapped', (WidgetTester tester) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(step: 5, snapOnStep: true, onCommitted: settled.add),
+        );
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('7');
+        await tester.pump();
+
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(state.value, 7);
+        expect(find.text('7'), findsOneWidget);
+        expect(settled, <double?>[7]);
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('13');
+        await tester.pump();
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(state.value, 13);
+        expect(settled, <double?>[7, 13]);
       });
 
       testWidgets('an empty field steps from the bottom of the range', (WidgetTester tester) async {

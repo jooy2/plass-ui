@@ -8037,8 +8037,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '걸음이 step의 배수에 붙을지',
-        en: 'Whether stepping snaps to multiples of the step'
+        ko: '걸음이 그만큼 움직이는 대신 min이나 0부터 센 걸음 크기의 다음 배수에 내려앉을지. smallStep은 가장 가까운 배수에 내려앉고, 입력한 숫자는 그대로 둡니다',
+        en: 'Whether a step lands on the next multiple of how far it goes, counted from min or from zero, rather than moving that far. A smallStep lands on the nearest multiple, and a typed number is left as it is'
       }
     },
     {
