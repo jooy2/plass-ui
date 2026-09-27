@@ -46,10 +46,14 @@ function Logo({ color }: { color: PlassColor }) {
  */
 async function change() {
   const screen = await render(<Logo color="info" />);
+  const plate = document.querySelector('.logo-under-test')!.firstElementChild!;
+
+  // Read before the change, so the plate has an ink to ease from: a colour
+  // changed before the browser ever worked out the first one has nothing to
+  // start a transition from, and whether it had depended on what ran before.
+  void getComputedStyle(plate).color;
 
   await screen.rerender(<Logo color="warning" />);
-
-  const plate = document.querySelector('.logo-under-test')!.firstElementChild!;
 
   return {
     ink: getComputedStyle(plate).color,
