@@ -708,6 +708,24 @@ void main() {
         expect(said(tester), 'Mon · 12, 9');
       });
 
+      testWidgets('offers a screen reader no tap on the plot, only the walk', (
+        WidgetTester tester,
+      ) async {
+        await tabTo(tester, PlHeatmapChart(series: week, categories: hours));
+
+        // A tap on the plot landed at the middle of the drawing, row names and
+        // all, and read whichever cell happened to be under it.
+        expect(find.semantics.byAction(SemanticsAction.tap), findsNothing);
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Chart')),
+          isSemantics(label: 'Chart', isFocusable: true, isFocused: true),
+        );
+
+        await walk(tester, <(LogicalKeyboardKey, String)>[
+          (LogicalKeyboardKey.arrowRight, 'Mon · 09, 2'),
+        ]);
+      });
+
       testWidgets('draws the ring only while the keyboard holds it', (WidgetTester tester) async {
         await tabTo(tester, PlHeatmapChart(series: week, categories: hours));
 

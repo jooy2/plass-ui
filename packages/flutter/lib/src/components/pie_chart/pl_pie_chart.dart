@@ -428,6 +428,13 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
           },
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
+            // A screen reader reads the pie through the chart's own node, which
+            // says every slice and walks them by key, as it reads the React
+            // picture, an image with no action of its own. The tap this press
+            // would offer it lands at the middle of the drawing, which reads
+            // whichever slice crosses three o'clock on a pie and clears the
+            // reading in the hole of a ring.
+            excludeFromSemantics: true,
             // A press leaves the readout up and a second press on the same
             // slice takes it down, for the reason the cartesian frame gives:
             // clearing it on the release is a readout a reader with no pointer

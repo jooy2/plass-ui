@@ -432,6 +432,12 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
             },
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
+              // A screen reader reads the heatmap through the chart's own node,
+              // which says every cell and walks them by key, as it reads the
+              // React picture, an image with no action of its own. The tap this
+              // press would offer it lands at the middle of the drawing, name
+              // bands and all, and reads whichever cell happens to be there.
+              excludeFromSemantics: true,
               onTapDown: (TapDownDetails details) => press(details.localPosition),
               child: Stack(
                 children: <Widget>[

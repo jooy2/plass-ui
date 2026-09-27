@@ -546,6 +546,35 @@ void main() {
         expect(said(tester), 'Search, 40 · 40%');
       });
 
+      for (final (String name, PlChartLegend legend) in <(String, PlChartLegend)>[
+        ('with its legend', const PlChartLegend()),
+        ('with no legend', const PlChartLegend(hidden: true)),
+      ]) {
+        testWidgets('offers a screen reader no tap on the plot $name, only the walk', (
+          WidgetTester tester,
+        ) async {
+          await tabTo(tester, PlPieChart(data: traffic, categories: sources, legend: legend));
+
+          // The legend's entries are the only things pressed. A tap on the
+          // plot landed at the middle of the drawing: on a pie it read the
+          // slice across three o'clock, and in the hole of a ring it cleared.
+          final List<String> pressed = <String>[
+            for (final SemanticsNode node
+                in find.semantics.byAction(SemanticsAction.tap).evaluate())
+              node.label,
+          ];
+
+          expect(
+            pressed,
+            legend.hidden ? isEmpty : <String>['Search', 'Social', 'Direct', 'Referral'],
+          );
+
+          await walk(tester, <(LogicalKeyboardKey, String)>[
+            (LogicalKeyboardKey.arrowRight, 'Search, 40 · 40%'),
+          ]);
+        });
+      }
+
       testWidgets('draws the ring only while the keyboard holds it', (WidgetTester tester) async {
         // No legend, so there is no entry whose own ring could be the one
         // found once the focus moves on.
