@@ -10,14 +10,14 @@
  * So this is Preflight cut down to what the library actually needs, applied
  * only inside `.plass-scope` — the element every live preview mounts into.
  *
- * Two specificity rules govern this file:
- *
- * - Rules that only fight browser defaults use `.plass-scope :where(…)`, which
- *   keeps them at a single class. They are imported before Tailwind's
- *   utilities, so a utility of equal specificity wins on order.
- * - Rules that have to undo `.vp-doc …` (VitePress's documentation typography)
- *   are prefixed with `.vp-doc`, because a `.vp-doc p` cannot be outranked by
- *   anything with fewer than two classes.
+ * The rules are written as `.plass-scope :where(…)`, which keeps them at a
+ * single class, and this file is imported before Tailwind's utilities, so a
+ * utility of equal specificity wins on order. They undo the browser's defaults
+ * and VitePress's global `base.css`, and nothing else. VitePress's article
+ * typography never reaches a preview: `postcss.config.mjs` keeps every selector
+ * in `vp-doc.css` out of `.plass-scope`. A rule here that had to outrank
+ * `.vp-doc h2` or `.vp-doc p` would need two classes, and would then outrank
+ * every utility a demo sets as well.
  */
 
 /*
@@ -79,83 +79,16 @@
   list-style: none;
 }
 
+/* `base.css` gives every heading 16px, a weight of 400 and a 24px line, and
+   Preflight lets all three inherit. */
 .plass-scope :where(h1, h2, h3, h4, h5, h6) {
   font-size: inherit;
   font-weight: inherit;
-}
-
-/* ---------------------------------------------------------------------------
- * Undoing `.vp-doc`
- *
- * Everything below exists because the preview is rendered inside the rendered
- * Markdown, so VitePress is already styling these elements. Base UI renders a
- * `<p>` for a field description and a `<label>` for its label; a card's footer
- * can hold a link. None of them should pick up article typography.
- * ------------------------------------------------------------------------- */
-
-.vp-doc .plass-scope :is(p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote, figure, dl, dd) {
-  margin: 0;
   line-height: inherit;
-  letter-spacing: inherit;
 }
 
-/*
- * Padding is reset separately, and only on the three tags that are actually
- * padded by something — `.vp-doc ul` / `.vp-doc ol` add `padding-left:
- * 1.25rem` and `.vp-doc blockquote` adds `padding-left: 16px`. Nothing pads a
- * `p`, an `li`, a `figure` or a `dd`.
- *
- * The distinction is not tidiness. `.vp-doc .plass-scope` is two classes and a
- * padding utility is one, so **every tag named here is a tag whose padding a
- * component can no longer set**. `[role="list"]` is excluded for that reason:
- * it marks the lists whose padding belongs to the component rather than to the
- * page's typography.
- */
-.vp-doc .plass-scope :is(ul, ol):not([role='list']),
-.vp-doc .plass-scope blockquote {
-  padding: 0;
-}
-
-.vp-doc .plass-scope :is(ul, ol) {
-  list-style: none;
-}
-
-/*
- * `.vp-doc a` gives every link the brand colour, a weight and an underline, and
- * a link inside a component is almost never a link in an article — it is a
- * card's footer, a menu row, a button that navigates. Those take the
- * component's own typography.
- *
- * `.plass-link` is the exception, and it is why `PlTextLink` carries that class:
- * it is the one component whose whole job is to *be* a link, and it writes its
- * colour and its underline as utilities this two-class rule would otherwise
- * beat — `.underline.plass-link` is one class short of `.vp-doc .plass-scope a`,
- * so every `PlTextLink` in the docs came out with no line under it at all.
- * Excluding it here is the same move `[role="list"]` makes above: a marker for
- * the elements whose styling belongs to the library.
- */
-.vp-doc .plass-scope a:not(.plass-link) {
-  color: inherit;
-  font-weight: inherit;
-  text-decoration: none;
-  text-underline-offset: unset;
-}
-
-/*
- * `.vp-doc blockquote` draws a grey rule down the left edge and greys the text
- * inside it. `PlBlockquote` draws neither on the quote itself — the wrapper
- * around it carries the surface and the accent rule, precisely so this reset
- * can take VitePress's version away without also taking ours.
- */
-.vp-doc .plass-scope blockquote {
-  border: 0 solid;
-  color: inherit;
-}
-
-.vp-doc .plass-scope :not(pre) > code {
-  padding: 0;
-  border-radius: 0;
-  background-color: transparent;
-  font-size: inherit;
-  color: inherit;
+/* `base.css` already takes most of these margins away. The browser's own still
+   spaces a `dl` and indents a `dd`. */
+.plass-scope :where(p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote, figure, dl, dd) {
+  margin: 0;
 }
