@@ -451,6 +451,11 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
                     PlassChartTooltipPlacement(
                       at: Offset(shown.rect.center.dx, shown.rect.top + 12),
                       gap: 12,
+                      // Before a cell whose middle is past 60% of the way
+                      // across, as every card is. Of the whole drawing, row
+                      // names and all, which is the width the React heatmap
+                      // measures its cell against.
+                      before: shown.rect.center.dx > width * 0.6,
                       // The card is the half a reader sees, and the readout
                       // below is the half they hear. Left on the tree as well,
                       // it would be read a second time, into the name of the

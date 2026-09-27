@@ -38,20 +38,24 @@ Future<void> _pump(WidgetTester tester, Widget child, {bool disableAnimations = 
   await tester.pumpAndSettle();
 }
 
-/// The alpha every cell is filled at now, in the order they are drawn.
-List<double> _cellAlphas(WidgetTester tester) {
+/// The heatmap's own drawing.
+final Finder _plot = find
+    .byWidgetPredicate(
+      (Widget widget) => widget is CustomPaint && widget.painter != null && widget.size.height > 40,
+    )
+    .first;
+
+/// Paints the drawing as it stands now onto a canvas that keeps its cells.
+_CellCanvas _cells(WidgetTester tester) {
   final _CellCanvas canvas = _CellCanvas();
-  final Finder plot = find
-      .byWidgetPredicate(
-        (Widget widget) =>
-            widget is CustomPaint && widget.painter != null && widget.size.height > 40,
-      )
-      .first;
 
-  tester.widget<CustomPaint>(plot).painter!.paint(canvas, tester.getSize(plot));
+  tester.widget<CustomPaint>(_plot).painter!.paint(canvas, tester.getSize(_plot));
 
-  return canvas.alphas;
+  return canvas;
 }
+
+/// The alpha every cell is filled at now, in the order they are drawn.
+List<double> _cellAlphas(WidgetTester tester) => _cells(tester).alphas;
 
 /// How many of [alphas] are [alpha].
 int _count(List<double> alphas, double alpha) =>
@@ -243,6 +247,39 @@ void main() {
       await tester.tapAt(inside);
       await tester.pumpAndSettle();
       expect(find.textContaining(' · '), findsNothing);
+    });
+
+    testWidgets('stands the card before a cell past 60% of the width, and after one short of it', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlHeatmapChart(series: week, categories: hours, height: 240));
+
+      final Rect plot = tester.getRect(_plot);
+      final List<Rect> boxes = _cells(tester).boxes;
+
+      // The first row's second and third cells, either side of 60% of the
+      // drawing, row names and all, as the React heatmap measures it.
+      for (final (int at, bool before) in <(int, bool)>[(1, false), (2, true)]) {
+        final Offset middle = plot.topLeft + boxes[at].center;
+
+        expect(middle.dx - plot.left > plot.width * 0.6, before, reason: 'cell $at');
+
+        await tester.tapAt(middle);
+        await tester.pumpAndSettle();
+
+        final Rect card = tester.getRect(find.byType(PlassChartTooltipCard));
+
+        // With room for the card on either side, so the side it takes is the
+        // one asked for rather than the only one it fits.
+        expect(middle.dx - 12 - card.width, greaterThan(plot.left), reason: 'cell $at');
+        expect(middle.dx + 12 + card.width, lessThan(plot.right), reason: 'cell $at');
+        expect(card.right <= middle.dx, before, reason: 'cell $at');
+        expect(card.left >= middle.dx, !before, reason: 'cell $at');
+
+        // Taken down again for the next one.
+        await tester.tapAt(middle);
+        await tester.pumpAndSettle();
+      }
     });
 
     testWidgets('brings the cell under the press up to whole over the house duration', (
@@ -770,13 +807,19 @@ void main() {
   });
 }
 
-/// A canvas that keeps the alpha of every rounded box a cell is drawn as, and
-/// drops everything else.
+/// A canvas that keeps the alpha and the box of every rounded box a cell is
+/// drawn as, and drops everything else.
 class _CellCanvas implements Canvas {
   final List<double> alphas = <double>[];
 
+  /// In the drawing's own coordinates.
+  final List<Rect> boxes = <Rect>[];
+
   @override
-  void drawRRect(RRect rrect, Paint paint) => alphas.add(paint.color.a);
+  void drawRRect(RRect rrect, Paint paint) {
+    alphas.add(paint.color.a);
+    boxes.add(rrect.outerRect);
+  }
 
   @override
   void noSuchMethod(Invocation invocation) {}
