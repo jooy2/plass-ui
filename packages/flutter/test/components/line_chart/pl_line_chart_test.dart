@@ -323,7 +323,7 @@ void main() {
       ) async {
         await _pump(tester, PlLineChart(series: series, categories: months));
 
-        /// The alpha each line is stroked at now, in the order of the series.
+        /// The opacity each line lands at now, in the order of the series.
         List<double> lineAlphas() {
           final canvas = RecordingCanvas();
           final Finder plot = find.byWidgetPredicate(
@@ -334,8 +334,8 @@ void main() {
           tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
 
           return <double>[
-            for (final Paint paint in canvas.paints)
-              if (paint.style == PaintingStyle.stroke) paint.color.a,
+            for (int i = 0; i < canvas.paints.length; i += 1)
+              if (canvas.paints[i].style == PaintingStyle.stroke) canvas.opacities[i],
           ];
         }
 
@@ -403,12 +403,71 @@ void main() {
 
         expect(
           <double>[
-            for (final Paint paint in canvas.paints)
-              if (paint.style == PaintingStyle.stroke) paint.color.a,
+            for (int i = 0; i < canvas.paints.length; i += 1)
+              if (canvas.paints[i].style == PaintingStyle.stroke) canvas.opacities[i],
           ],
           <Matcher>[closeTo(0.28, 1e-6), equals(1)],
         );
         expect(tester.binding.transientCallbackCount, 0);
+      });
+
+      testWidgets('fades a series as one layer, so its line does not show through its markers', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, PlLineChart(series: series, categories: months));
+
+        // At rest nothing is faded, and nothing is drawn into a layer.
+        expect(_paintLayers(tester).where((_Call call) => call.kind == 'layer'), isEmpty);
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Cost')));
+        await tester.pump();
+        await tester.pump();
+        await tester.pump(PlassTokens.duration ~/ 2);
+
+        /// Revenue as it is painted now: the layer it is drawn into, and what
+        /// is drawn inside that layer.
+        (double, List<_Call>) revenue() {
+          final List<_Call> calls = _paintLayers(tester);
+          final int open = calls.indexWhere((_Call call) => call.kind == 'layer');
+          final int close = calls.indexWhere((_Call call) => call.kind == 'end');
+
+          // One layer, Revenue's, and Cost drawn after it outside any.
+          expect(calls.where((_Call call) => call.kind == 'layer'), hasLength(1));
+          expect(calls.sublist(close + 1).map((_Call call) => call.kind), <String>[
+            'stroke',
+            for (int i = 0; i < 8; i += 1) 'disc',
+          ]);
+
+          return (calls[open].alpha, calls.sublist(open + 1, close));
+        }
+
+        // The layer fades on the house curve, and the line and each marker's
+        // ring and dot are drawn inside it whole, as the React series' `<g>`
+        // is faded after they are drawn in it.
+        final (double halfway, List<_Call> inside) = revenue();
+
+        expect(halfway, closeTo(1 - 0.72 * PlassTokens.ease.transform(0.5), 1e-6));
+        expect(inside.map((_Call call) => call.kind), <String>[
+          'stroke',
+          for (int i = 0; i < 8; i += 1) 'disc',
+        ]);
+        expect(inside.map((_Call call) => call.alpha), everyElement(1));
+
+        await tester.pumpAndSettle();
+
+        final (double faded, List<_Call> settled) = revenue();
+
+        expect(faded, closeTo(0.28, 1e-6));
+        expect(settled.map((_Call call) => call.alpha), everyElement(1));
+
+        await mouse.moveTo(Offset.zero);
+        await tester.pumpAndSettle();
+
+        expect(_paintLayers(tester).where((_Call call) => call.kind == 'layer'), isEmpty);
       });
 
       testWidgets('leaves a series alone when the legend is not interactive', (
@@ -1416,6 +1475,56 @@ class _CircleCanvas implements Canvas {
       downRules += 1;
     }
   }
+
+  @override
+  void noSuchMethod(Invocation invocation) {}
+}
+
+/// The plot as it is painted now, as the layers opened and closed and the lines
+/// and discs drawn, in order.
+List<_Call> _paintLayers(WidgetTester tester) {
+  final _LayerCanvas canvas = _LayerCanvas();
+
+  tester.widget<CustomPaint>(_plot()).painter!.paint(canvas, tester.getSize(_plot()));
+
+  return canvas.calls;
+}
+
+/// One thing a painter did: opened a layer at an alpha, closed it, or stroked
+/// a line, filled a path or drew a disc with a paint of an alpha.
+typedef _Call = ({String kind, double alpha});
+
+/// A canvas that writes down every layer opened and closed and every path and
+/// disc drawn, and drops everything else.
+class _LayerCanvas implements Canvas {
+  final List<_Call> calls = <_Call>[];
+
+  /// Whether each `save` still open was a layer.
+  final List<bool> _open = <bool>[];
+
+  @override
+  void save() => _open.add(false);
+
+  @override
+  void saveLayer(Rect? bounds, Paint paint) {
+    _open.add(true);
+    calls.add((kind: 'layer', alpha: paint.color.a));
+  }
+
+  @override
+  void restore() {
+    if (_open.removeLast()) {
+      calls.add((kind: 'end', alpha: 1));
+    }
+  }
+
+  @override
+  void drawPath(Path path, Paint paint) =>
+      calls.add((kind: paint.style.name, alpha: paint.color.a));
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) =>
+      calls.add((kind: 'disc', alpha: paint.color.a));
 
   @override
   void noSuchMethod(Invocation invocation) {}

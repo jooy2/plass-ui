@@ -85,9 +85,18 @@ void paintLineSeries(
     }
 
     final List<ChartValue> one = layout.values[s];
-    final Color color = layout.colors[s];
+    // Whole whatever alpha the colour carries: a fade is the layer's.
+    final Color color = layout.colors[s].withValues(alpha: 1);
     // Faded while the legend points at another series, and eased there.
     final double alpha = layout.seriesOpacity(s);
+
+    // A faded series is drawn whole into a layer and the layer is faded, as the
+    // React series' `<g>` is: faded one part at a time, the line would show
+    // through its markers. A series at full strength needs no layer. The layer
+    // takes the clip the frame has put round the plot.
+    if (alpha < 1) {
+      canvas.saveLayer(null, Paint()..color = const Color(0xFF000000).withValues(alpha: alpha));
+    }
 
     final tops = <Offset?>[
       for (int i = 0; i < layout.count; i += 1)
@@ -136,10 +145,7 @@ void paintLineSeries(
               : LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: <Color>[
-                    color.withValues(alpha: 0.28 * alpha),
-                    color.withValues(alpha: 0.02 * alpha),
-                  ],
+                  colors: <Color>[color.withValues(alpha: 0.28), color.withValues(alpha: 0.02)],
                 ).createShader(
                   Rect.fromLTWH(
                     layout.plot.left,
@@ -148,7 +154,7 @@ void paintLineSeries(
                     layout.plot.height,
                   ),
                 )
-          ..color = stacked ? color.withValues(alpha: 0.7 * alpha) : const Color(0xFF000000),
+          ..color = stacked ? color.withValues(alpha: 0.7) : const Color(0xFF000000),
       );
     }
 
@@ -170,7 +176,7 @@ void paintLineSeries(
           ..strokeWidth = stroke
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
-          ..color = color.withValues(alpha: alpha),
+          ..color = color,
       );
     }
 
@@ -184,7 +190,7 @@ void paintLineSeries(
           continue;
         }
 
-        final Color ink = one[i].color ?? color;
+        final Color ink = (one[i].color ?? color).withValues(alpha: 1);
         // A pixel bigger under the crosshair, as the React marker's `r` is, and
         // eased there with its column. A dot drawn only because its column is
         // being read has nothing to grow from, so it arrives at that size, as
@@ -194,17 +200,19 @@ void paintLineSeries(
         // The ring is the surface showing through, `markGap` wide and centred
         // on the marker's edge, which is where the React marker's stroke lies
         // over its fill: the dot is half the gap inside `r` and the ring runs
-        // to half the gap outside it. Painted as two discs with the dot on top
-        // rather than as a stroke over the dot, so a faded marker has no band
-        // where a translucent ring lies over a translucent dot.
+        // to half the gap outside it, two discs with the dot on top.
         canvas
           ..drawCircle(
             at,
             r + markGap / 2,
-            Paint()..color = layout.tokens.surface.withValues(alpha: alpha),
+            Paint()..color = layout.tokens.surface.withValues(alpha: 1),
           )
-          ..drawCircle(at, r - markGap / 2, Paint()..color = ink.withValues(alpha: alpha));
+          ..drawCircle(at, r - markGap / 2, Paint()..color = ink);
       }
+    }
+
+    if (alpha < 1) {
+      canvas.restore();
     }
   }
 

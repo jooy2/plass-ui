@@ -78,6 +78,8 @@
 
 ### Fixed
 
+- **A line or area chart's series faded for a legend entry fades as one picture, as in the React build.** Its band, its line and each marker's ring and dot faded one by one, so the line showed through a faded marker. The series is now drawn whole and faded together while it fades or is faded; a series at full strength is drawn as before.
+
 - **A `PlScatterChart` mark and a `PlSparkline` end dot are drawn at the size of the React ones.** A scatter mark's fill covered the inner half of its ring, so the dot was a pixel larger in radius than the React one and the ring of the surface round it 1px wide, where the React ring is 2px and runs from a pixel inside the radius to a pixel outside it; the ring now lies over the dot as it does there. A faded mark fades its ring with it, where the ring stayed at full strength round a faded dot, and a mark grown under the pointer or a key widens its ring with it. A sparkline's end dot filled its whole radius with a ring 2px past it, and is now a pixel inside the radius with its ring to a pixel outside it.
 
 - **A line, area or bar chart draws its crosshair only in `PlassChartTooltipMode.column`, and in `chartBaseline`, as in the React build.** The `item` mode drew it as well, under the pointer and under a key, though its card holds one series rather than the column. It was also painted in `mutedFg` at 35%, which is what `chartBaseline` is by default, so a theme that changed `chartBaseline` did not reach it.

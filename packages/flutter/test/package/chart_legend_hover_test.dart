@@ -13,7 +13,8 @@
 // why it is here rather than under `test/components/`. A line stands for the
 // charts on the shared frame, and a pie for itself: those are the two places
 // that hold the hovered entry. Both draw every series at full strength at rest,
-// so a paint with any alpha at all is a faded one.
+// so a path landing at any alpha at all, through its paint or a layer, is a
+// faded one.
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -70,7 +71,7 @@ bool _faded(WidgetTester tester) {
 
   tester.widget<CustomPaint>(plot.first).painter!.paint(canvas, tester.getSize(plot.first));
 
-  return canvas.paints.any((Paint paint) => paint.color.a < 1);
+  return canvas.opacities.any((double opacity) => opacity < 1);
 }
 
 void main() {
