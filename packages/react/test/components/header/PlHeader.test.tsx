@@ -225,6 +225,31 @@ describe('PlHeader', () => {
       await expect.poll(() => layout.style.getPropertyValue('--p-layout-header')).toBe('0px');
     });
 
+    it('takes a fixed bar off the columns even when it only spans the content', async () => {
+      const screen = await render(
+        <PlPageLayout
+          data-testid="layout"
+          headerSpan="content"
+          header={
+            <PlHeader
+              position="fixed"
+              style={{ position: 'fixed', top: 0, height: 48 }}
+              brand="Acme"
+            />
+          }
+        >
+          Body
+        </PlPageLayout>
+      );
+
+      const layout = screen.getByTestId('layout').element() as HTMLElement;
+
+      // A fixed bar spans the window whatever its slot says, so the sidebars
+      // start below it as well as the page reserving it.
+      await expect.poll(() => layout.style.getPropertyValue('--p-layout-header')).toBe('48px');
+      expect(layout.style.getPropertyValue('--p-layout-header-inset')).toBe('48px');
+    });
+
     it('is still a bar with no layout above it', async () => {
       const screen = await render(<PlHeader brand="Acme" />);
 

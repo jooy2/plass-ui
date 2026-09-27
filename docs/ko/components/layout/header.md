@@ -95,7 +95,7 @@ PlHeader(
 
 기본은 `sticky`입니다. 페이지가 거기까지 스크롤되면 바가 창 위쪽에 붙고, 흐름 안에 남아 있으므로 아래의 무엇도 밀어낼 필요가 없습니다.
 
-`fixed`는 흐름 밖으로 완전히 빼냅니다. `PlPageLayout` 안이라면 레이아웃이 바의 높이를 대신 비워 둡니다. `static`은 페이지와 함께 스크롤되어 지나가게 둡니다.
+`fixed`는 흐름 밖으로 완전히 빼내고 창 너비 전체에 걸칩니다. `PlPageLayout` 안이라면 레이아웃이 바의 높이를 대신 비워 두고, `headerSpan`이 무엇이든 sidebar가 그 아래에서 시작하게 합니다. 그러니 sidebar 사이에 앉아야 하는 header는 `sticky`로 둡니다. `static`은 페이지와 함께 스크롤되어 지나가게 둡니다.
 
 <Demo src="header/position" :flutter="false" :min-height="300">
 

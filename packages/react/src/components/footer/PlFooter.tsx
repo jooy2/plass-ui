@@ -37,7 +37,9 @@ export interface PlFooterProps extends Omit<
    * is: the thing at the end of the document, reached by scrolling to it.
    * `sticky` and `fixed` are for the bar that has to stay in reach — a form's
    * save row, a cookie notice — and a `PlPageLayout` reserves the height a
-   * `fixed` one takes out of the flow.
+   * `fixed` one takes out of the flow. A `fixed` one spans the window, so the
+   * layout ends the sidebars above it whatever `footerSpan` says, and a footer
+   * meant to sit between the sidebars is `sticky`.
    * @default 'static'
    */
   position?: PlassPosition;

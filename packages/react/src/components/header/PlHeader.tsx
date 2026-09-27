@@ -64,8 +64,10 @@ export interface PlHeaderProps extends Omit<
    *
    * `sticky` — the default — holds it against the top of the window once the
    * page has scrolled to it, while leaving it in the flow so nothing has to be
-   * padded out of its way. `fixed` takes it out of the flow entirely, which a
-   * `PlPageLayout` answers by reserving its height. `static` lets it scroll
+   * padded out of its way. `fixed` takes it out of the flow entirely and
+   * spans the window, which a `PlPageLayout` answers by reserving its height
+   * and starting the sidebars below it whatever `headerSpan` says, so a header
+   * meant to sit between the sidebars is `sticky`. `static` lets it scroll
    * away.
    * @default 'sticky'
    */

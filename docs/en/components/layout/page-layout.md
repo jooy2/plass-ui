@@ -76,6 +76,12 @@ Which of the header and the sidebars takes the top corner.
 
 The footer answers the same question separately, because a dashboard with a full-height navigation rail still usually wants its copyright line under the content rather than under the rail.
 
+::: fw react
+
+A `fixed` [`PlHeader`](./header) or [`PlFooter`](./footer) spans the window whatever these say, so the sidebars start below the header and end above the footer. A bar meant to sit between the sidebars is `sticky`.
+
+:::
+
 <Demo src="page-layout/spans" :min-height="260">
 
 ::: fw react
@@ -150,7 +156,7 @@ The layout also owns whether each drawer is open, so a route change can close on
 
 A sidebar that holds its place has to start below a header whose height nobody but the header knows, so the layout measures the two bars and writes what they take out of the window onto its own root: `--p-layout-header` and `--p-layout-footer`, plus an `-inset` for each.
 
-They are two rather than one because a bar takes two different things away depending on how it is positioned. A `sticky` bar is still in the flow, so nothing has to be reserved for it, but it is permanently across the top of the window, so a column has to start below it. A `fixed` bar is out of the flow, so the page _does_ have to reserve its height. Which of the two a bar is is read off the element rather than plumbed through a prop.
+They are two rather than one because a bar takes two different things away depending on how it is positioned. A `sticky` bar is still in the flow, so nothing has to be reserved for it, but it is permanently across the top of the window, so a column has to start below it. A `fixed` bar is out of the flow, so the page _does_ have to reserve its height, and it spans the window whatever `headerSpan` or `footerSpan` says, so a column starts below it too. Which of the two a bar is is read off the element rather than plumbed through a prop.
 
 A bar that never registered itself is left at zero: the measurement is a contract a slot opts into, not a `querySelector`, so a bar rendered through `render={<MyBar />}` is found as reliably as one that is not.
 

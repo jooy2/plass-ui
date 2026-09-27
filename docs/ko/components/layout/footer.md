@@ -57,7 +57,7 @@ PlFooter(child: const Text('© 2026 Acme'));
 
 기본은 `static`이고, header와 정반대입니다. 푸터는 문서의 끝이고 스크롤해서 닿는 것입니다.
 
-`sticky`와 `fixed`는 화면 아래쪽의 다른 종류의 바를 위한 것입니다. 폼의 저장 줄, 쿠키 알림, 일괄 작업 띠. [`PlPageLayout`](./page-layout) 안에서는 `fixed`가 흐름에서 빼낸 높이를 레이아웃이 대신 비워 두므로, 마지막 문단 위에 올라앉지 않습니다.
+`sticky`와 `fixed`는 화면 아래쪽의 다른 종류의 바를 위한 것입니다. 폼의 저장 줄, 쿠키 알림, 일괄 작업 띠. [`PlPageLayout`](./page-layout) 안에서는 `fixed`가 흐름에서 빼낸 높이를 레이아웃이 대신 비워 두므로, 마지막 문단 위에 올라앉지 않습니다. `fixed` 푸터는 창 너비 전체에도 걸치므로 `footerSpan`이 무엇이든 sidebar는 그 위에서 끝납니다. sidebar 사이에 앉아야 하는 푸터는 `sticky`로 둡니다.
 
 <Demo src="footer/position" :flutter="false" :min-height="300">
 

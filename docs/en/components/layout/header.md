@@ -95,7 +95,7 @@ Where the middle sits. `start` packs it against the brand and is the default; `e
 
 `sticky` is the default: the bar is held against the top of the window once the page has scrolled to it, and it stays in the flow, so nothing underneath has to be padded out of its way.
 
-`fixed` takes it out of the flow entirely, inside a `PlPageLayout` that is answered for you, because the layout reserves the bar's height. `static` lets it scroll away with the page.
+`fixed` takes it out of the flow entirely and spans the window. Inside a `PlPageLayout` that is answered for you: the layout reserves the bar's height and starts the sidebars below it, whatever `headerSpan` says, so a header meant to sit between the sidebars is `sticky`. `static` lets it scroll away with the page.
 
 <Demo src="header/position" :flutter="false" :min-height="300">
 

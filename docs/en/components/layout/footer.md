@@ -57,7 +57,7 @@ A footer is not like that. It is four columns of links on one site, a copyright 
 
 `static` is the default, and it is the opposite of a header's. A footer is the end of the document and is reached by scrolling to it.
 
-`sticky` and `fixed` are for the other kind of bar at the bottom of a screen, a form's save row, a cookie notice, a bulk-action strip. Inside a [`PlPageLayout`](./page-layout) the height a `fixed` one takes out of the flow is reserved, so it does not sit on top of the last paragraph.
+`sticky` and `fixed` are for the other kind of bar at the bottom of a screen, a form's save row, a cookie notice, a bulk-action strip. Inside a [`PlPageLayout`](./page-layout) the height a `fixed` one takes out of the flow is reserved, so it does not sit on top of the last paragraph. A `fixed` footer also spans the window, so the sidebars end above it whatever `footerSpan` says, and a footer meant to sit between the sidebars is `sticky`.
 
 <Demo src="footer/position" :flutter="false" :min-height="300">
 

@@ -47,13 +47,17 @@ export interface PlPageLayoutProps extends React.ComponentPropsWithoutRef<'div'>
    * - `content` — the sidebars run the full height of the window and the header
    *   sits between them, belonging to the view rather than to the site. The
    *   arrangement of an application.
+   *
+   * A `fixed` header spans the window whatever this says, so the sidebars
+   * start below it; a header meant to sit between them is `sticky`.
    * @default 'full'
    */
   headerSpan?: PlPageLayoutSpan;
   /**
    * The same question for the footer, and it is worth answering separately: a
    * dashboard with a full-height navigation rail still usually wants its
-   * copyright line under the content rather than under the rail.
+   * copyright line under the content rather than under the rail. A `fixed`
+   * footer spans the window whatever this says, so the sidebars end above it.
    * @default 'full'
    */
   footerSpan?: PlPageLayoutSpan;
@@ -258,9 +262,10 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
      * has to be reserved for it — but it is permanently across the top of the
      * window, so a column that holds its place has to start below it. A `fixed`
      * bar is out of the flow, so the page *does* have to reserve its height,
-     * and it is across the top as well. Which of the two a bar is is read off
-     * the element rather than plumbed through a prop: the bar already knows,
-     * `position` is what it knows it as, and asking is one line.
+     * and it is across the top of the whole window, whatever its span. Which of
+     * the two a bar is is read off the element rather than plumbed through a
+     * prop: the bar already knows, `position` is what it knows it as, and
+     * asking is one line.
      *
      * Written straight to the DOM rather than held in state: nothing in the
      * tree depends on the numbers except a handful of CSS declarations, and a
@@ -282,12 +287,17 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
 
         const position = getComputedStyle(node).position;
         const extent = `${node.offsetHeight}px`;
-        const pinned = position === 'sticky' || position === 'fixed';
+        const fixed = position === 'fixed';
 
-        // A bar that only spans the content column has the sidebars *beside*
-        // it, not under it, so it takes nothing off the top of theirs.
-        root.style.setProperty(`--p-layout-${slot}`, pinned && span === 'full' ? extent : '0px');
-        root.style.setProperty(`--p-layout-${slot}-inset`, position === 'fixed' ? extent : '0px');
+        // A sticky bar that only spans the content column has the sidebars
+        // *beside* it, not under it, so it takes nothing off the top of theirs.
+        // A fixed bar spans the window whatever its slot, so the sidebars start
+        // below it and end above it either way.
+        root.style.setProperty(
+          `--p-layout-${slot}`,
+          fixed || (position === 'sticky' && span === 'full') ? extent : '0px'
+        );
+        root.style.setProperty(`--p-layout-${slot}-inset`, fixed ? extent : '0px');
       }
     }, [headerSpan, footerSpan]);
 
@@ -383,8 +393,10 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
             // scrolling to whichever region below asks for it.
             fills ? 'overflow-hidden' : '',
             extentClasses,
-            headerSpan === 'full' ? '[padding-top:var(--p-layout-header-inset,0px)]' : '',
-            footerSpan === 'full' ? '[padding-bottom:var(--p-layout-footer-inset,0px)]' : '',
+            // On the root whatever the span: a fixed bar spans the window, and
+            // the sidebars start below it as the content does.
+            '[padding-top:var(--p-layout-header-inset,0px)]',
+            '[padding-bottom:var(--p-layout-footer-inset,0px)]',
             className
           )}
           style={
@@ -427,7 +439,7 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
               // absolutely placed element in the page is placed against; a flex
               // item takes a `z-index` unpositioned. `21` clears a sticky bar's
               // `20` and stays under a fixed one's `30`, which spans the window
-              // over the sidebars anyway.
+              // above the sidebars rather than beside them.
               layered ? 'z-1 [&>aside]:z-21' : ''
             )}
           >
@@ -437,14 +449,7 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
               </PlassSidebarSideContext.Provider>
             ) : null}
 
-            <div
-              className={cx(
-                'flex min-w-0 flex-1 flex-col',
-                fills ? 'min-h-0' : '',
-                headerSpan === 'content' ? '[padding-top:var(--p-layout-header-inset,0px)]' : '',
-                footerSpan === 'content' ? '[padding-bottom:var(--p-layout-footer-inset,0px)]' : ''
-              )}
-            >
+            <div className={cx('flex min-w-0 flex-1 flex-col', fills ? 'min-h-0' : '')}>
               {headerSpan === 'content' ? headerSlot : null}
 
               <Region

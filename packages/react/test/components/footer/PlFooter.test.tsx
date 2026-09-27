@@ -165,6 +165,29 @@ describe('PlFooter', () => {
         .toBe('56px');
     });
 
+    it('takes a fixed footer off the columns even when it only spans the content', async () => {
+      const screen = await render(
+        <PlPageLayout
+          data-testid="layout"
+          footerSpan="content"
+          footer={
+            <PlFooter position="fixed" style={{ position: 'fixed', bottom: 0, height: 56 }}>
+              © 2026
+            </PlFooter>
+          }
+        >
+          Body
+        </PlPageLayout>
+      );
+
+      const layout = screen.getByTestId('layout').element() as HTMLElement;
+
+      // A fixed footer spans the window whatever its slot says, so the
+      // sidebars end above it as well as the page reserving it.
+      await expect.poll(() => layout.style.getPropertyValue('--p-layout-footer')).toBe('56px');
+      expect(layout.style.getPropertyValue('--p-layout-footer-inset')).toBe('56px');
+    });
+
     it('reserves nothing for the static footer it is by default', async () => {
       const screen = await render(
         <PlPageLayout data-testid="layout" footer={<PlFooter>© 2026</PlFooter>}>

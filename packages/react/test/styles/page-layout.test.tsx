@@ -150,34 +150,38 @@ describe('a PlSidebar resize handle beside a bar that spans the content', () => 
     expect(document.elementFromPoint(x, y)).toBe(handle());
   });
 
-  it('leaves the header over the content that scrolls under it', async () => {
-    await render(
-      <PlPageLayout
-        collapseBelow="none"
-        headerSpan="content"
-        header={<PlHeader>Bar</PlHeader>}
-        sidebar={<PlSidebar resizable>Navigation</PlSidebar>}
-      >
-        <div className="relative z-10 h-40" data-testid="raised">
-          Raised
-        </div>
-        {tallPage}
-      </PlPageLayout>
-    );
-    await frame();
+  it.each(['sticky', 'fixed'] as const)(
+    'leaves a %s header over the content that scrolls under it',
+    async (position) => {
+      await render(
+        <PlPageLayout
+          collapseBelow="none"
+          headerSpan="content"
+          header={<PlHeader position={position}>Bar</PlHeader>}
+          sidebar={<PlSidebar resizable>Navigation</PlSidebar>}
+        >
+          <div className="relative z-10 h-40" data-testid="raised">
+            Raised
+          </div>
+          {tallPage}
+        </PlPageLayout>
+      );
+      await frame();
 
-    window.scrollTo(0, 100);
-    await frame();
+      window.scrollTo(0, 100);
+      await frame();
 
-    const box = document.querySelector('header')!.getBoundingClientRect();
-    const raised = document.querySelector('[data-testid="raised"]')!.getBoundingClientRect();
-    const x = box.left + box.width / 2;
-    const y = box.top + box.height / 2;
+      const box = document.querySelector('header')!.getBoundingClientRect();
+      const raised = document.querySelector('[data-testid="raised"]')!.getBoundingClientRect();
+      const x = raised.left + raised.width / 2;
+      const y = box.top + box.height / 2;
 
-    // The raised block has scrolled under the pinned bar.
-    expect(inside(raised, x, y)).toBe(true);
-    expect(document.elementFromPoint(x, y)?.closest('header')).not.toBeNull();
-  });
+      // The raised block has scrolled under the pinned bar.
+      expect(inside(box, x, y)).toBe(true);
+      expect(inside(raised, x, y)).toBe(true);
+      expect(document.elementFromPoint(x, y)?.closest('header')).not.toBeNull();
+    }
+  );
 
   it('leaves a full-width header over a sidebar pushed up under it', async () => {
     await render(
@@ -251,5 +255,146 @@ describe('a PlSidebar resize handle beside a bar that spans the content', () => 
     expect(inside(aside, x, y)).toBe(true);
     expect(inside(box, x, y)).toBe(true);
     expect(document.elementFromPoint(x, y)?.closest('header')).toBe(outer);
+  });
+});
+
+describe('a fixed bar in a layout whose bars span the content', () => {
+  const cases: {
+    name: string;
+    side: 'start' | 'end';
+    bar: 'header' | 'footer';
+    dir: 'ltr' | 'rtl';
+    scroll: PlPageLayoutScroll;
+    scrolled?: boolean;
+  }[] = [
+    {
+      name: 'a header over a start sidebar',
+      side: 'start',
+      bar: 'header',
+      dir: 'ltr',
+      scroll: 'page'
+    },
+    {
+      name: 'a header over an end sidebar',
+      side: 'end',
+      bar: 'header',
+      dir: 'ltr',
+      scroll: 'page'
+    },
+    {
+      name: 'a header over a start sidebar under RTL',
+      side: 'start',
+      bar: 'header',
+      dir: 'rtl',
+      scroll: 'page'
+    },
+    {
+      name: 'a header over a start sidebar once the page has scrolled',
+      side: 'start',
+      bar: 'header',
+      dir: 'ltr',
+      scroll: 'page',
+      scrolled: true
+    },
+    {
+      name: 'a header over a start sidebar when only the content scrolls',
+      side: 'start',
+      bar: 'header',
+      dir: 'ltr',
+      scroll: 'content'
+    },
+    {
+      name: 'a footer under a start sidebar',
+      side: 'start',
+      bar: 'footer',
+      dir: 'ltr',
+      scroll: 'page'
+    },
+    {
+      name: 'a footer under an end sidebar under RTL',
+      side: 'end',
+      bar: 'footer',
+      dir: 'rtl',
+      scroll: 'page'
+    },
+    {
+      name: 'a footer under a start sidebar when only the content scrolls',
+      side: 'start',
+      bar: 'footer',
+      dir: 'ltr',
+      scroll: 'content'
+    }
+  ];
+
+  it.each(cases)(
+    'keeps the sidebar clear of $name',
+    async ({ side, bar, dir, scroll, scrolled }) => {
+      const sidebar = <PlSidebar resizable>Navigation</PlSidebar>;
+
+      await render(
+        <div dir={dir}>
+          <PlPageLayout
+            collapseBelow="none"
+            scroll={scroll}
+            headerSpan="content"
+            footerSpan="content"
+            header={bar === 'header' ? <PlHeader position="fixed">Bar</PlHeader> : undefined}
+            footer={bar === 'footer' ? <PlFooter position="fixed">Bar</PlFooter> : undefined}
+            sidebar={side === 'start' ? sidebar : undefined}
+            endSidebar={side === 'end' ? sidebar : undefined}
+          >
+            {tallPage}
+          </PlPageLayout>
+        </div>
+      );
+      await frame();
+
+      if (scrolled) {
+        window.scrollTo(0, 500);
+        await frame();
+      }
+
+      const aside = document.querySelector('aside')!.getBoundingClientRect();
+      const grip = handle().getBoundingClientRect();
+      const box = document.querySelector(bar)!.getBoundingClientRect();
+
+      // The bar spans the window, so it is across the sidebar's column.
+      expect(box.left).toBeLessThanOrEqual(aside.left);
+      expect(box.right).toBeGreaterThanOrEqual(aside.right);
+
+      // The sidebar starts below a header and ends above a footer, and so does
+      // the handle along its edge: its end nearest the bar is the handle's.
+      const x = (grip.left + grip.right) / 2;
+
+      if (bar === 'header') {
+        expect(aside.top).toBeGreaterThanOrEqual(box.bottom - 0.5);
+        expect(document.elementFromPoint(x, grip.top + 2)).toBe(handle());
+      } else {
+        expect(aside.bottom).toBeLessThanOrEqual(box.top + 0.5);
+        expect(document.elementFromPoint(x, grip.bottom - 2)).toBe(handle());
+      }
+    }
+  );
+
+  it('leaves a sticky header beside the sidebar', async () => {
+    await render(
+      <PlPageLayout
+        collapseBelow="none"
+        headerSpan="content"
+        header={<PlHeader>Bar</PlHeader>}
+        sidebar={<PlSidebar resizable>Navigation</PlSidebar>}
+      >
+        {tallPage}
+      </PlPageLayout>
+    );
+    await frame();
+
+    const aside = document.querySelector('aside')!.getBoundingClientRect();
+    const box = document.querySelector('header')!.getBoundingClientRect();
+
+    // Both start at the top of the window, the bar in the column beside the
+    // sidebar rather than across it.
+    expect(aside.top).toBe(box.top);
+    expect(box.left).toBeGreaterThanOrEqual(aside.right - 0.5);
   });
 });
