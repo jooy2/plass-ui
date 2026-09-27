@@ -180,7 +180,11 @@ void paintLineSeries(
       );
     }
 
-    if (!banded && (dots || layout.activeIndex != null)) {
+    // A stacked band has no line, but its points still get their dots, on the
+    // band's top at the running total, as the React markers are. They are
+    // drawn with the band, before the next one, so the band above lies over
+    // them where it starts, as the next React series' `<g>` does.
+    if (dots || layout.activeIndex != null) {
       for (int i = 0; i < layout.count; i += 1) {
         final Offset? at = i < tops.length ? tops[i] : null;
 
