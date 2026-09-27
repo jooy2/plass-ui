@@ -2610,6 +2610,91 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is named by its placeholder only while nothing else names it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlCombobox<String>));
+        Iterable<String> saying(String words) =>
+            semanticsLabels(tester).where((String label) => label.contains(words));
+
+        // Named by nothing else, the field takes the placeholder's words as its
+        // name, and keeps them once something is typed and the placeholder is
+        // gone, as the React input does.
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              placeholder: 'Pick a city',
+            ),
+          ),
+        );
+
+        expect(field().label, 'Pick a city');
+        expect(saying('Pick a city'), hasLength(1));
+
+        await tester.enterText(find.byType(EditableText), 'zz');
+        await tester.pumpAndSettle();
+
+        expect(find.text('Pick a city'), findsNothing);
+        expect(field().label, 'Pick a city');
+
+        // A `semanticLabel` takes its place, and the placeholder is not read
+        // beside it.
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              placeholder: 'Pick a city',
+              semanticLabel: 'City',
+            ),
+          ),
+        );
+        await tester.enterText(find.byType(EditableText), '');
+        await tester.pumpAndSettle();
+
+        expect(find.text('Pick a city'), findsOneWidget);
+        expect(field().label, 'City');
+        expect(saying('Pick a city'), isEmpty);
+
+        handle.dispose();
+      });
+
+      testWidgets('reads what its adornment says on a node of its own, not in its name', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              semanticLabel: 'City',
+              startIcon: const Text('To'),
+            ),
+          ),
+        );
+
+        final SemanticsNode field = semanticsOf(tester, find.byType(PlCombobox<String>));
+        final SemanticsNode text = tester.getSemantics(find.byType(EditableText));
+        final SemanticsNode? adornment = semanticsNodeLabelled(tester, 'To');
+
+        expect(field.label, 'City');
+        expect(text.label, isNot(contains('To')));
+        expect(adornment, isNotNull);
+        expect(adornment!.id, isNot(field.id));
+        expect(adornment.id, isNot(text.id));
+        expect(adornment, isSemantics(label: 'To', isTextField: false));
+
+        handle.dispose();
+      });
+
       testWidgets('meets each row once, with its name, its state and a tap it can take', (
         WidgetTester tester,
       ) async {

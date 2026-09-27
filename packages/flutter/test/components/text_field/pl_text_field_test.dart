@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -377,6 +378,95 @@ void main() {
           semanticsOf(tester, find.byType(PlTextField)),
           isSemantics(isTextField: true, label: 'Email'),
         );
+
+        handle.dispose();
+      });
+
+      testWidgets('is named by its placeholder only while nothing else names it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlTextField));
+        Iterable<String> saying(String words) =>
+            semanticsLabels(tester).where((String label) => label.contains(words));
+
+        // Named by nothing else, the field takes the placeholder's words as its
+        // name, and keeps them once something is typed and the placeholder is
+        // gone, as the React input does.
+        await tester.pumpWidget(
+          host(const PlTextField(fullWidth: true, placeholder: 'Search'), width: 300),
+        );
+
+        expect(field().label, 'Search');
+        expect(saying('Search'), hasLength(1));
+
+        await tester.enterText(find.byType(EditableText), 'invoices');
+        await tester.pump();
+
+        expect(find.text('Search'), findsNothing);
+        expect(field().label, 'Search');
+
+        // A `semanticLabel` in the same words, as the search fields of a
+        // transfer, a tree select and a data table have, is read once.
+        await tester.pumpWidget(
+          host(
+            const PlTextField(fullWidth: true, semanticLabel: 'Search', placeholder: 'Search'),
+            width: 300,
+          ),
+        );
+        await tester.enterText(find.byType(EditableText), '');
+        await tester.pump();
+
+        expect(find.text('Search'), findsOneWidget);
+        expect(field().label, 'Search');
+        expect(saying('Search'), hasLength(1));
+
+        // A visible label names it, and the placeholder is not read with it.
+        await tester.pumpWidget(
+          host(
+            const PlTextField(
+              fullWidth: true,
+              label: Text('Email'),
+              placeholder: 'you@example.com',
+            ),
+            width: 300,
+          ),
+        );
+
+        expect(field().label, 'Email');
+        expect(saying('you@example.com'), isEmpty);
+
+        handle.dispose();
+      });
+
+      testWidgets('reads what an adornment says on a node of its own, not in its name', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const PlTextField(
+              fullWidth: true,
+              semanticLabel: 'Price',
+              startIcon: Text('\$'),
+              endIcon: Text('USD'),
+            ),
+            width: 300,
+          ),
+        );
+
+        final SemanticsNode field = semanticsOf(tester, find.byType(PlTextField));
+
+        expect(field.label, 'Price');
+
+        for (final String words in <String>['\$', 'USD']) {
+          final SemanticsNode? adornment = semanticsNodeLabelled(tester, words);
+
+          expect(adornment, isNotNull, reason: words);
+          expect(adornment!.id, isNot(field.id), reason: words);
+          expect(adornment, isSemantics(label: words, isTextField: false), reason: words);
+        }
 
         handle.dispose();
       });

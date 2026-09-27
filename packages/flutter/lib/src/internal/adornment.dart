@@ -24,7 +24,12 @@ import 'package:plass_ui/src/types.dart';
 ///   unit is the size of the value beside it at every `size`.
 class PlassFieldAdornment extends StatelessWidget {
   /// Creates the adornment of a field of [size].
-  const PlassFieldAdornment({required this.size, required this.child, super.key});
+  const PlassFieldAdornment({
+    required this.size,
+    required this.child,
+    this.apart = false,
+    super.key,
+  });
 
   /// The field's size, which decides the line, the type and the glyph.
   final PlassSize size;
@@ -32,10 +37,21 @@ class PlassFieldAdornment extends StatelessWidget {
   /// The caller's `startIcon` or `endIcon`, or a glyph the field draws there.
   final Widget child;
 
+  /// Whether what [child] says is put on a node of its own rather than merged
+  /// into the node round it.
+  ///
+  /// A text field sets it, since the node round the adornment is the field's,
+  /// and a word merged into it would be read as part of the field's name, where
+  /// the React adornment is text beside the input. A trigger leaves it off: its
+  /// adornment is inside the React `<button>`, and part of the button's name.
+  final bool apart;
+
   @override
   Widget build(BuildContext context) {
     final muted = PlassTheme.of(context).mutedFg;
     final scale = controlTextLeading[size]!;
+
+    final Widget content = apart ? Semantics(explicitChildNodes: true, child: child) : child;
 
     return SizedBox(
       height: scale.line,
@@ -49,7 +65,7 @@ class PlassFieldAdornment extends StatelessWidget {
               height: scale.height,
               leadingDistribution: TextLeadingDistribution.even,
             ),
-            child: child,
+            child: content,
           ),
         ),
       ),

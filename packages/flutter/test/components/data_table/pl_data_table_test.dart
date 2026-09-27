@@ -554,6 +554,24 @@ void main() {
         expect(find.text('Nothing here'), findsOneWidget);
       });
 
+      testWidgets('names the field once, with the words it shows as its placeholder', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(host(table(searchable: true), width: 640));
+
+        // The label pack's `search` is both the placeholder and the name, and
+        // was read twice, as the placeholder merged into the name.
+        expect(find.text('Search'), findsOneWidget);
+        expect(semanticsOf(tester, find.byType(PlTextField)).label, 'Search');
+        expect(
+          semanticsLabels(tester).where((String label) => label.contains('Search')),
+          hasLength(1),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('draws no field at all unless it was asked for', (WidgetTester tester) async {
         await tester.pumpWidget(host(table(), width: 640));
 

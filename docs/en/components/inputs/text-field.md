@@ -316,7 +316,8 @@ The controller **is** the value, and `onChanged` is told about every change. `ma
 ::: fw flutter
 
 - Announced as a text field, and as read-only or unavailable when it is.
-- The label, the field, the description and the message are **one** semantics node, so a screen reader reads them together rather than one after another. Without a visible label, give the field a `semanticLabel`. A `placeholder` is not a name.
+- The label, the field, the description and the message are **one** semantics node, so a screen reader reads them together rather than one after another. Without a visible label, give the field a `semanticLabel`. A field with neither is named by its `placeholder`, and keeps that name once something is typed; a field that has a name does not read its placeholder as well.
+- What `startIcon` and `endIcon` say is read on a node of its own, not as part of the field's name.
 - The focus ring is drawn on the shell rather than on the editor, so it traces the glass edge instead of a rectangle floating inside it. It appears only on what CSS calls `:focus-visible`.
 - Pressing the shell's padding puts the caret in the field, the way pressing inside a native input does.
 - A selection is made by dragging and has **no handles** to adjust afterwards: the drag handles a touch platform puts under one belong to Material and Cupertino, and this package imports neither.

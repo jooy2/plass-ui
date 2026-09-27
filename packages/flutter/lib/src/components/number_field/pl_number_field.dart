@@ -276,12 +276,18 @@ class PlNumberField extends StatefulWidget {
   final bool? invalid;
 
   /// Shown while the field is empty.
+  ///
+  /// On a field with neither a [label] nor a [semanticLabel], it is also the
+  /// name a screen reader gives the field, holding a number or not.
   final String? placeholder;
 
-  /// Content before the number — a currency mark, a unit, an icon.
+  /// Content before the number — a currency mark, a unit, an icon. What it
+  /// says to a screen reader is on a node of its own, not part of the field's
+  /// name.
   final Widget? startIcon;
 
-  /// Content after the number, before the steppers.
+  /// Content after the number, before the steppers. Read on a node of its own,
+  /// as [startIcon] is.
   final Widget? endIcon;
 
   /// Stretches to the width of the container.
@@ -821,6 +827,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // either way, so turning `disabled` off does not build the editor again.
     editor = ExcludeFocus(excluding: _disabled, child: editor);
 
+    // Kept off the semantics tree: where the placeholder names the field, it
+    // does so as the field's own label, which stays once a number is in the box
+    // and the drawing is gone.
     if (widget.placeholder != null) {
       editor = Stack(
         children: <Widget>[
@@ -829,16 +838,18 @@ class _PlNumberFieldState extends State<PlNumberField> {
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
               return value.text.isEmpty
                   ? IgnorePointer(
-                      child: Text(
-                        widget.placeholder!,
-                        textAlign: split && showSteppers ? TextAlign.center : TextAlign.start,
-                        style: TextStyle(
-                          color: tokens.mutedFg,
-                          fontSize: scale.size,
-                          height: scale.height,
-                          leadingDistribution: TextLeadingDistribution.even,
+                      child: ExcludeSemantics(
+                        child: Text(
+                          widget.placeholder!,
+                          textAlign: split && showSteppers ? TextAlign.center : TextAlign.start,
+                          style: TextStyle(
+                            color: tokens.mutedFg,
+                            fontSize: scale.size,
+                            height: scale.height,
+                            leadingDistribution: TextLeadingDistribution.even,
+                          ),
+                          maxLines: 1,
                         ),
-                        maxLines: 1,
                       ),
                     )
                   : const SizedBox.shrink();
@@ -1015,12 +1026,14 @@ class _PlNumberFieldState extends State<PlNumberField> {
       spacing: gap[size]!,
       children: <Widget>[
         if (showSteppers && split) stepper(-1),
-        if (widget.startIcon != null) PlassFieldAdornment(size: size, child: widget.startIcon!),
+        if (widget.startIcon != null)
+          PlassFieldAdornment(size: size, apart: true, child: widget.startIcon!),
         // Keyed, because a read-only field puts its steppers away, and with
         // `split` one of them is in front of the editor. Found by its place
         // alone, the editor would be built again from scratch.
         Expanded(key: const ValueKey<String>('editor'), child: editor),
-        if (widget.endIcon != null) PlassFieldAdornment(size: size, child: widget.endIcon!),
+        if (widget.endIcon != null)
+          PlassFieldAdornment(size: size, apart: true, child: widget.endIcon!),
         if (showSteppers && !split)
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -1180,7 +1193,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
       textField: true,
       readOnly: widget.readOnly,
       enabled: !_disabled,
-      label: widget.semanticLabel,
+      // Named by the placeholder only where nothing else names it, as the React
+      // input is: a `semanticLabel` is its `aria-label`, and a visible label,
+      // merged in below, is its `<label>`.
+      label: widget.semanticLabel ?? (widget.label == null ? widget.placeholder : null),
       value: _controller.text.isEmpty ? null : _controller.text,
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );

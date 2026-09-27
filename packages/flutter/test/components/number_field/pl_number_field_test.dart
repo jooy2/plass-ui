@@ -1179,6 +1179,87 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is named by its placeholder only while nothing else names it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        double? value;
+
+        Widget field({String? semanticLabel}) => host(
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlNumberField(
+              value: value,
+              placeholder: 'Amount',
+              semanticLabel: semanticLabel,
+              onChanged: (double? next) => setState(() => value = next),
+            ),
+          ),
+          width: 320,
+        );
+
+        SemanticsNode node() => semanticsOf(tester, find.byType(PlNumberField));
+        Iterable<String> saying(String words) =>
+            semanticsLabels(tester).where((String label) => label.contains(words));
+
+        // Named by nothing else, the field takes the placeholder's words as its
+        // name, and keeps them once it holds a number and the placeholder is
+        // gone, as the React input does.
+        await tester.pumpWidget(field());
+
+        expect(node().label, 'Amount');
+        expect(saying('Amount'), hasLength(1));
+
+        await tester.enterText(find.byType(EditableText), '12');
+        await tester.pump();
+
+        expect(find.text('Amount'), findsNothing);
+        expect(node().label, 'Amount');
+
+        // A `semanticLabel` in the same words is read once.
+        value = null;
+        await tester.pumpWidget(field(semanticLabel: 'Amount'));
+        await tester.enterText(find.byType(EditableText), '');
+        await tester.pump();
+
+        expect(find.text('Amount'), findsOneWidget);
+        expect(node().label, 'Amount');
+        expect(saying('Amount'), hasLength(1));
+
+        handle.dispose();
+      });
+
+      testWidgets('reads what an adornment says on a node of its own, not in its name', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlNumberField(
+              value: 5,
+              semanticLabel: 'Weight',
+              startIcon: const Text('≈'),
+              endIcon: const Text('kg'),
+              onChanged: (double? _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        final SemanticsNode field = semanticsOf(tester, find.byType(PlNumberField));
+
+        expect(field.label, 'Weight');
+
+        for (final String words in <String>['≈', 'kg']) {
+          final SemanticsNode? adornment = semanticsNodeLabelled(tester, words);
+
+          expect(adornment, isNotNull, reason: words);
+          expect(adornment!.id, isNot(field.id), reason: words);
+          expect(adornment, isSemantics(label: words, isTextField: false), reason: words);
+        }
+
+        handle.dispose();
+      });
+
       testWidgets('each stepper has a name of its own', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await _pump(tester, const _Harness());

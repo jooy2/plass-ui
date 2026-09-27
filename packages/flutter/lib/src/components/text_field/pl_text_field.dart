@@ -154,12 +154,18 @@ class PlTextField extends StatefulWidget {
   final bool? invalid;
 
   /// What is shown while the field is empty.
+  ///
+  /// On a field with neither a [label] nor a [semanticLabel], it is also the
+  /// name a screen reader gives the field, typed into or not.
   final String? placeholder;
 
   /// Content before the control. Sized against the text rather than the row.
+  ///
+  /// What it says to a screen reader is on a node of its own, not part of the
+  /// field's name.
   final Widget? startIcon;
 
-  /// Content after the control.
+  /// Content after the control. Read on a node of its own, as [startIcon] is.
   final Widget? endIcon;
 
   /// Shows a spinner in place of [endIcon].
@@ -196,7 +202,8 @@ class PlTextField extends StatefulWidget {
   /// The name a screen reader announces, for a field with no visible [label].
   ///
   /// Given beside a visible [label], it is the name in the label's place, and
-  /// the label's words are not read after it.
+  /// the label's words are not read after it. It takes the place of
+  /// [placeholder] as the name as well.
   final String? semanticLabel;
 
   /// Drive focus from outside.
@@ -404,7 +411,9 @@ class _PlTextFieldState extends State<PlTextField> {
     control = ExcludeFocus(excluding: _disabled, child: control);
 
     // The placeholder is drawn under the text rather than by the editor, which
-    // has no notion of one.
+    // has no notion of one. It is kept off the semantics tree: where it names the
+    // field, it does so as the field's own label, which stays once something is
+    // typed and the drawing is gone.
     if (widget.placeholder != null) {
       control = Stack(
         children: <Widget>[
@@ -413,15 +422,17 @@ class _PlTextFieldState extends State<PlTextField> {
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
               return value.text.isEmpty
                   ? IgnorePointer(
-                      child: Text(
-                        widget.placeholder!,
-                        style: TextStyle(
-                          color: tokens.mutedFg,
-                          fontSize: scale.size,
-                          height: scale.height,
-                          leadingDistribution: TextLeadingDistribution.even,
+                      child: ExcludeSemantics(
+                        child: Text(
+                          widget.placeholder!,
+                          style: TextStyle(
+                            color: tokens.mutedFg,
+                            fontSize: scale.size,
+                            height: scale.height,
+                            leadingDistribution: TextLeadingDistribution.even,
+                          ),
+                          maxLines: widget.multiline ? widget.rows : 1,
                         ),
-                        maxLines: widget.multiline ? widget.rows : 1,
                       ),
                     )
                   : const SizedBox.shrink();
@@ -439,7 +450,8 @@ class _PlTextFieldState extends State<PlTextField> {
       mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
       spacing: gap[size]!,
       children: <Widget>[
-        if (widget.startIcon != null) PlassFieldAdornment(size: size, child: widget.startIcon!),
+        if (widget.startIcon != null)
+          PlassFieldAdornment(size: size, apart: true, child: widget.startIcon!),
         Expanded(child: control),
         if (widget.loading)
           PlassFieldAdornment(
@@ -447,7 +459,7 @@ class _PlTextFieldState extends State<PlTextField> {
             child: PlassSpinner(size: scale.size * iconScale, color: tokens.mutedFg),
           )
         else if (widget.endIcon != null)
-          PlassFieldAdornment(size: size, child: widget.endIcon!),
+          PlassFieldAdornment(size: size, apart: true, child: widget.endIcon!),
       ],
     );
 
@@ -590,7 +602,10 @@ class _PlTextFieldState extends State<PlTextField> {
       textField: true,
       readOnly: widget.readOnly,
       enabled: !_disabled,
-      label: widget.semanticLabel,
+      // Named by the placeholder only where nothing else names it, as the React
+      // input is: a `semanticLabel` is its `aria-label`, and a visible label,
+      // merged in below, is its `<label>`.
+      label: widget.semanticLabel ?? (widget.label == null ? widget.placeholder : null),
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );
   }

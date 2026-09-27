@@ -260,6 +260,9 @@ class PlCombobox<T> extends StatefulWidget {
   final ValueChanged<String>? onQueryChanged;
 
   /// Shown in the field while nothing is typed.
+  ///
+  /// On a field with neither a [label] nor a [semanticLabel], it is also the
+  /// name a screen reader gives the field, typed into or not.
   final String? placeholder;
 
   /// Shown where the list would be when nothing matched and nothing may be
@@ -331,7 +334,8 @@ class PlCombobox<T> extends StatefulWidget {
   /// Forces the invalid state without a message.
   final bool? invalid;
 
-  /// Content before the text.
+  /// Content before the text. What it says to a screen reader is on a node of
+  /// its own, not part of the field's name.
   final Widget? startIcon;
 
   /// Stretches to the width of the container.
@@ -1056,7 +1060,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       expanded: _open,
       readOnly: widget.readOnly,
       enabled: !_disabled,
-      label: widget.semanticLabel,
+      // Named by the placeholder only where nothing else names it, as the React
+      // input is: a `semanticLabel` is its `aria-label`, and a visible label,
+      // merged in below, is its `<label>`.
+      label: widget.semanticLabel ?? (widget.label == null ? widget.placeholder : null),
       // A screen reader's tap is a press on the field, as a click on the React
       // input is: it focuses the text and opens the list, and leaves an open
       // list open. The chevron's own tap is on the chevron's own node.
@@ -1135,7 +1142,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     if (widget.placeholder != null) {
       // The placeholder is drawn under the text rather than by the editor, which
-      // has no notion of one.
+      // has no notion of one. It is kept off the semantics tree: where it names
+      // the field, it does so as the field's own label, which stays once
+      // something is typed and the drawing is gone.
       editor = Stack(
         children: <Widget>[
           ValueListenableBuilder<TextEditingValue>(
@@ -1143,15 +1152,17 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
               return value.text.isEmpty
                   ? IgnorePointer(
-                      child: Text(
-                        widget.placeholder!,
-                        style: TextStyle(
-                          color: tokens.mutedFg,
-                          fontSize: scale.size,
-                          height: scale.height,
-                          leadingDistribution: TextLeadingDistribution.even,
+                      child: ExcludeSemantics(
+                        child: Text(
+                          widget.placeholder!,
+                          style: TextStyle(
+                            color: tokens.mutedFg,
+                            fontSize: scale.size,
+                            height: scale.height,
+                            leadingDistribution: TextLeadingDistribution.even,
+                          ),
+                          maxLines: 1,
                         ),
-                        maxLines: 1,
                       ),
                     )
                   : const SizedBox.shrink();
@@ -1263,7 +1274,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
         spacing: gap[size]!,
         children: <Widget>[
-          if (widget.startIcon != null) PlassFieldAdornment(size: size, child: widget.startIcon!),
+          if (widget.startIcon != null)
+            PlassFieldAdornment(size: size, apart: true, child: widget.startIcon!),
           Expanded(
             // A `multiple` field keeps the wrap even with no chips in it, so the
             // first chip lands beside the editor rather than above a new one:
