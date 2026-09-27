@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -207,6 +208,56 @@ void main() {
         expect(tester.getSemantics(find.text('Body')), isSemantics(isButton: false));
 
         handle.dispose();
+      });
+
+      testWidgets('is a focus stop on a remote only once it can be pressed, on any focus node', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode(debugLabel: 'before');
+        addTearDown(before.dispose);
+        final given = FocusNode(debugLabel: 'given');
+        addTearDown(given.dispose);
+
+        for (final bool handed in <bool>[false, true]) {
+          for (final bool pressable in <bool>[false, true, false]) {
+            await tester.pumpWidget(
+              host(
+                MediaQuery(
+                  data: const MediaQueryData(navigationMode: NavigationMode.directional),
+                  child: afterFocusStop(
+                    before,
+                    PlCard(
+                      onPressed: pressable ? () {} : null,
+                      focusNode: handed ? given : null,
+                      child: const Text('Body'),
+                    ),
+                  ),
+                ),
+                width: 360,
+              ),
+            );
+
+            before.requestFocus();
+            await tester.pump();
+            await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+            await tester.pump();
+
+            final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+            expect(
+              focused != null &&
+                  find
+                      .ancestor(
+                        of: find.byElementPredicate((Element element) => element == focused),
+                        matching: find.byType(PlCard),
+                      )
+                      .evaluate()
+                      .isNotEmpty,
+              pressable,
+              reason: 'handed $handed, pressable $pressable',
+            );
+          }
+        }
       });
 
       testWidgets('is a real button once it can be', (WidgetTester tester) async {

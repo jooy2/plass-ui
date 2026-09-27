@@ -103,7 +103,12 @@ class PlassInteractive extends StatefulWidget {
   /// Called on a long press — the touch equivalent of a context menu.
   final VoidCallback? onLongPress;
 
-  /// Whether the surface can take focus at all.
+  /// Whether the surface can take focus, and whether its [shortcuts] do
+  /// anything.
+  ///
+  /// In [NavigationMode.directional] an unavailable surface stays a stop, so
+  /// that a reader on a remote can find it; [pressable] is what takes a surface
+  /// out there.
   final bool enabled;
 
   /// Whether it reacts to the pointer and fires its callbacks.
@@ -124,14 +129,19 @@ class PlassInteractive extends StatefulWidget {
   /// mode. [enabled] alone does that only in [NavigationMode.traditional]: in
   /// [NavigationMode.directional] an unavailable control stays a stop so a
   /// reader on a remote can find it, and a surface with nothing to press is
-  /// not a control to find. That holds for the node the surface makes for
-  /// itself; a [focusNode] the component was handed is left as it was given.
+  /// not a control to find. That holds for a [focusNode] the component was
+  /// handed as much as for the node the surface makes for itself.
   final bool pressable;
 
   /// The cursor over it.
   final MouseCursor cursor;
 
   /// Drive focus from outside. Left out, the surface owns one of its own.
+  ///
+  /// While the surface holds the node it decides whether the node can take the
+  /// focus, from [enabled], [pressable] and the navigation mode, by setting
+  /// its [FocusNode.canRequestFocus]. It gives the node back with the value it
+  /// had when the surface took it.
   final FocusNode? focusNode;
 
   /// Takes focus as it is inserted into the tree.
@@ -174,65 +184,182 @@ class PlassInteractive extends StatefulWidget {
   State<PlassInteractive> createState() => PlassInteractiveState();
 }
 
-/// A focus node that can be told to refuse the focus outright.
-///
-/// [FocusableActionDetector] decides whether its node may take the focus from
-/// the navigation mode, and in [NavigationMode.directional] the answer is yes
-/// even while it is disabled. This node overrules that while it is [inert],
-/// without the detector being handed a different node: a swapped node leaves
-/// the detector believing the old one still holds the focus, and it would
-/// draw a ring round a surface nothing is focused on.
-class _PlassFocusNode extends FocusNode {
-  bool _inert = false;
+/// A node a component handed to a surface: what it allowed before a surface
+/// took it, and how many surfaces hold it now.
+class _Loan {
+  _Loan(this.canRequestFocus);
 
-  /// Whether the node refuses the focus, whatever the detector says.
-  set inert(bool value) {
-    if (value == _inert) {
-      return;
-    }
+  /// The [FocusNode.canRequestFocus] it is given back with.
+  final bool canRequestFocus;
 
-    _inert = value;
-
-    // What setting `canRequestFocus` to `false` does, which is what the
-    // detector does for a disabled node in the traditional mode.
-    if (value && hasFocus) {
-      unfocus(disposition: UnfocusDisposition.previouslyFocusedChild);
-    }
-  }
-
-  @override
-  bool get canRequestFocus => !_inert && super.canRequestFocus;
+  int holders = 0;
 }
+
+/// Every handed node a surface holds.
+///
+/// Kept for all surfaces rather than by each one, because a node can pass from
+/// one surface to the next within a frame: the new surface takes it before the
+/// old one lets go, and the old one must neither give the new one's decision
+/// back as the caller's nor leave its own behind.
+final Expando<_Loan> _loans = Expando<_Loan>('PlassInteractive');
 
 /// The state behind a [PlassInteractive]. Public so that a component holding a
 /// [GlobalKey] to one can ask it to take focus.
+///
+/// Built on [Focus], [Shortcuts] and [Actions] directly rather than on a
+/// [FocusableActionDetector], which decides for itself whether its node can
+/// take the focus: it lets any node do so in [NavigationMode.directional], and
+/// it would make a surface with nothing to press a stop for a remote whenever
+/// the node was handed in from outside.
 class PlassInteractiveState extends State<PlassInteractive> {
   bool _hovered = false;
   bool _pressed = false;
-  bool _focusVisible = false;
   Offset? _pointer;
 
-  /// The node the surface uses when the component handed it none. Made here
-  /// rather than left to the detector so that [PlassInteractive.pressable] can
-  /// reach it.
-  final _PlassFocusNode _ownNode = _PlassFocusNode();
+  /// Whether the node, or something inside the surface, holds the focus.
+  bool _focused = false;
+
+  /// Whether the focus system is in its traditional highlight mode, which a
+  /// key puts it in and a touch takes it out of. A ring is drawn only then.
+  bool _keyboard = false;
+
+  /// Whether the node can take the focus now.
+  bool _takesFocus = false;
+
+  /// The node the surface uses when the component handed it none.
+  final FocusNode _ownNode = FocusNode(debugLabel: 'PlassInteractive');
+
+  /// The handed node this surface holds, if any.
+  FocusNode? _borrowed;
+
+  /// What a keyboard, or a screen reader, does to the surface. Made once: the
+  /// callbacks read [widget] when they run.
+  late final Map<Type, Action<Intent>> _actions = <Type, Action<Intent>>{
+    ActivateIntent: CallbackAction<ActivateIntent>(
+      onInvoke: (ActivateIntent intent) {
+        _activate();
+        return null;
+      },
+    ),
+    ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+      onInvoke: (ButtonActivateIntent intent) {
+        _activate();
+        return null;
+      },
+    ),
+  };
+
+  FocusNode get _node => widget.focusNode ?? _ownNode;
 
   @override
   void initState() {
     super.initState();
-    _ownNode.inert = !widget.pressable;
+    _keyboard = FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+    FocusManager.instance.addHighlightModeListener(_handleHighlightMode);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _decide();
   }
 
   @override
   void didUpdateWidget(PlassInteractive oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _ownNode.inert = !widget.pressable;
+    _decide();
   }
 
   @override
   void dispose() {
+    FocusManager.instance.removeHighlightModeListener(_handleHighlightMode);
+    _borrow(null);
     _ownNode.dispose();
     super.dispose();
+  }
+
+  /// Decides whether the node can take the focus, and tells the node.
+  ///
+  /// [PlassInteractive.enabled] decides it in [NavigationMode.traditional]. In
+  /// [NavigationMode.directional] an unavailable control stays a stop, as a
+  /// [FocusableActionDetector] leaves it, so a reader on a remote can find it.
+  /// A surface with nothing to press is a stop in neither.
+  void _decide() {
+    _borrow(widget.focusNode);
+
+    _takesFocus =
+        widget.pressable &&
+        switch (MediaQuery.maybeNavigationModeOf(context)) {
+          NavigationMode.traditional || null => widget.enabled,
+          NavigationMode.directional => true,
+        };
+
+    // Written here, next to where a handed node is given back, rather than
+    // handed to the `Focus` below, which would write it on a node and never
+    // give it back. A node that gives up the focus this way hands it to
+    // whatever held it before.
+    _node.canRequestFocus = _takesFocus;
+  }
+
+  /// Takes [node] from the component, and gives back the one held before.
+  void _borrow(FocusNode? node) {
+    final FocusNode? previous = _borrowed;
+
+    if (identical(node, previous)) {
+      return;
+    }
+
+    _borrowed = node;
+
+    if (node != null) {
+      // `canRequestFocus` reads `false` under a node that keeps its
+      // descendants from the focus, such as an `ExcludeFocus`, whatever the
+      // node itself says. Taken as the caller's word only where nothing above
+      // it says otherwise, which is always the case for a node that is not in
+      // the tree yet; left at the default where something does.
+      final _Loan loan = _loans[node] ??= _Loan(
+        node.ancestors.every((FocusNode ancestor) => ancestor.descendantsAreFocusable)
+            ? node.canRequestFocus
+            : true,
+      );
+      loan.holders += 1;
+    }
+
+    if (previous != null) {
+      final _Loan loan = _loans[previous]!;
+      loan.holders -= 1;
+
+      if (loan.holders == 0) {
+        _loans[previous] = null;
+        previous.canRequestFocus = loan.canRequestFocus;
+      }
+    }
+  }
+
+  void _handleFocusChange(bool focused) {
+    if (_focused == focused) {
+      return;
+    }
+
+    setState(() => _focused = focused);
+    widget.onFocusChange?.call(focused);
+  }
+
+  void _handleHighlightMode(FocusHighlightMode mode) {
+    final keyboard = mode == FocusHighlightMode.traditional;
+
+    if (!mounted || keyboard == _keyboard) {
+      return;
+    }
+
+    // Every surface on the screen hears this whenever the reader moves
+    // between the keyboard and a pointer. Only one that is holding the focus
+    // has a ring to draw or take away.
+    if (_focused && _takesFocus) {
+      setState(() => _keyboard = keyboard);
+    } else {
+      _keyboard = keyboard;
+    }
   }
 
   void _setPointer(Offset position) {
@@ -264,81 +391,78 @@ class PlassInteractiveState extends State<PlassInteractive> {
     final state = PlassInteraction(
       hovered: widget.interactive && _hovered,
       pressed: widget.interactive && widget.pressable && _pressed,
-      focusVisible: _focusVisible,
+      // The focus ring only appears on what CSS calls `:focus-visible` — a
+      // keyboard reaching the control, never a mouse clicking it. Flutter's
+      // name for the same distinction is the highlight mode. Something inside
+      // the surface holding the focus counts, as it does for
+      // `FocusableActionDetector`; a component whose inner stops draw rings of
+      // their own asks `Focus.of` for the primary focus as well.
+      focusVisible: _focused && _keyboard && _takesFocus,
       pointer: _pointer,
     );
 
-    return FocusableActionDetector(
-      enabled: widget.enabled,
-      descendantsAreFocusable: true,
-      // The component wraps its own `Semantics` around whatever this builds, so
-      // a focus node of its own would be a second node above that one — and a
-      // chip would reach a screen reader as an unnamed focusable thing
-      // containing a button. Every caller says what it is; this only has to
-      // make it reachable.
-      includeFocusSemantics: false,
-      focusNode: widget.focusNode ?? _ownNode,
-      autofocus: widget.autofocus,
-      mouseCursor: widget.cursor,
-      onFocusChange: widget.onFocusChange,
-      // The focus ring only appears on what CSS calls `:focus-visible` — a
-      // keyboard reaching the control, never a mouse clicking it. This is
-      // Flutter's name for the same distinction.
-      //
-      // Hover is deliberately *not* taken from this widget's own
-      // `onShowHoverHighlight`, which is gated on the focus system's highlight
-      // mode: whether the pointer is over the surface is the whole question, and
-      // the `MouseRegion` below answers exactly it.
-      onShowFocusHighlight: (bool value) {
-        if (_focusVisible != value) {
-          setState(() => _focusVisible = value);
-        }
-      },
-      shortcuts: widget.shortcuts,
-      actions: <Type, Action<Intent>>{
-        ActivateIntent: CallbackAction<ActivateIntent>(
-          onInvoke: (ActivateIntent intent) {
-            _activate();
-            return null;
-          },
-        ),
-        ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
-          onInvoke: (ButtonActivateIntent intent) {
-            _activate();
-            return null;
-          },
-        ),
-      },
-      child: MouseRegion(
-        onEnter: (PointerEnterEvent event) {
-          _setPointer(event.localPosition);
-          setState(() => _hovered = true);
-        },
-        onExit: (PointerExitEvent event) => setState(() => _hovered = false),
-        onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
-        child: Listener(
-          onPointerDown: (PointerDownEvent event) => _setPointer(event.localPosition),
-          onPointerMove: (PointerMoveEvent event) => _setPointer(event.localPosition),
-          child: GestureDetector(
-            behavior: widget.pressable ? widget.behavior : HitTestBehavior.deferToChild,
-            // Described by whatever `Semantics` the component put around this,
-            // which knows about `readOnly` and `loading` and this does not.
-            excludeFromSemantics: true,
-            // Present whenever the surface is pressable, even when nothing will
-            // happen: the recogniser is what stops a tap on an unavailable
-            // control reaching whatever is behind it. A row that navigates
-            // should not navigate because someone tried the disabled button
-            // inside it.
-            onTap: widget.pressable ? _activate : null,
-            onLongPress: widget.pressable && widget.interactive ? widget.onLongPress : null,
-            onTapDown: widget.pressable
-                ? (TapDownDetails details) => setState(() => _pressed = true)
-                : null,
-            onTapUp: widget.pressable
-                ? (TapUpDetails details) => setState(() => _pressed = false)
-                : null,
-            onTapCancel: widget.pressable ? () => setState(() => _pressed = false) : null,
-            child: Builder(builder: (BuildContext context) => widget.builder(context, state)),
+    // The shortcuts and the actions are in the tree whether the surface is
+    // enabled or not, with nothing in them while it is not, so that the shape
+    // of the tree above the content never changes with it.
+    return Shortcuts(
+      shortcuts: widget.enabled ? widget.shortcuts : const <ShortcutActivator, Intent>{},
+      // The focus node `Shortcuts` makes can never take the focus, so all its
+      // semantics could say is "not focusable". Said, it is an annotation of
+      // its own above the component's node, which a parent that keeps its
+      // children apart makes an empty node round that one.
+      includeSemantics: false,
+      child: Actions(
+        actions: widget.enabled ? _actions : const <Type, Action<Intent>>{},
+        // Not told `canRequestFocus`, which `_decide` has written on the node
+        // already. Left out, the `Focus` writes back only what it reads off
+        // the node.
+        child: Focus(
+          focusNode: _node,
+          autofocus: widget.autofocus,
+          // The component wraps its own `Semantics` around whatever this
+          // builds, so a focus node of its own would be a second node above
+          // that one — and a chip would reach a screen reader as an unnamed
+          // focusable thing containing a button. Every caller says what it is;
+          // this only has to make it reachable.
+          includeSemantics: false,
+          onFocusChange: _handleFocusChange,
+          // Hover is deliberately *not* taken from the focus system's
+          // highlight mode: whether the pointer is over the surface is the
+          // whole question, and this `MouseRegion` answers exactly it.
+          child: MouseRegion(
+            cursor: widget.cursor,
+            onEnter: (PointerEnterEvent event) {
+              _setPointer(event.localPosition);
+              setState(() => _hovered = true);
+            },
+            onExit: (PointerExitEvent event) => setState(() => _hovered = false),
+            onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
+            child: Listener(
+              onPointerDown: (PointerDownEvent event) => _setPointer(event.localPosition),
+              onPointerMove: (PointerMoveEvent event) => _setPointer(event.localPosition),
+              child: GestureDetector(
+                behavior: widget.pressable ? widget.behavior : HitTestBehavior.deferToChild,
+                // Described by whatever `Semantics` the component put around
+                // this, which knows about `readOnly` and `loading` and this
+                // does not.
+                excludeFromSemantics: true,
+                // Present whenever the surface is pressable, even when nothing
+                // will happen: the recogniser is what stops a tap on an
+                // unavailable control reaching whatever is behind it. A row
+                // that navigates should not navigate because someone tried the
+                // disabled button inside it.
+                onTap: widget.pressable ? _activate : null,
+                onLongPress: widget.pressable && widget.interactive ? widget.onLongPress : null,
+                onTapDown: widget.pressable
+                    ? (TapDownDetails details) => setState(() => _pressed = true)
+                    : null,
+                onTapUp: widget.pressable
+                    ? (TapUpDetails details) => setState(() => _pressed = false)
+                    : null,
+                onTapCancel: widget.pressable ? () => setState(() => _pressed = false) : null,
+                child: Builder(builder: (BuildContext context) => widget.builder(context, state)),
+              ),
+            ),
           ),
         ),
       ),

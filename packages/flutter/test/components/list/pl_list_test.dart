@@ -331,40 +331,57 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('is not a focus stop while it cannot be pressed, on a remote either', (
+      testWidgets('is a focus stop on a remote only while it can be pressed, on any focus node', (
         WidgetTester tester,
       ) async {
         final before = FocusNode(debugLabel: 'before');
         addTearDown(before.dispose);
+        final given = FocusNode(debugLabel: 'given');
+        addTearDown(given.dispose);
 
         // Directional navigation is where an unavailable control is still a
         // stop, so a reader can find it. A row that cannot be pressed was never
-        // one, whether it has nothing to do or is disabled.
-        for (final bool disabled in <bool>[false, true]) {
-          await tester.pumpWidget(
-            host(
-              MediaQuery(
-                data: const MediaQueryData(navigationMode: NavigationMode.directional),
-                child: afterFocusStop(
-                  before,
-                  PlList(
-                    children: <Widget>[
-                      PlListItem(
-                        onPressed: disabled ? () {} : null,
-                        disabled: disabled,
-                        child: const Text('Billing'),
-                      ),
-                    ],
+        // one, whether it has nothing to do or is disabled, and whether it
+        // makes its own focus node or is handed one.
+        for (final bool handed in <bool>[false, true]) {
+          // Each way the row can be, in turn, on one row.
+          for (final (bool onPressed, bool disabled) in <(bool, bool)>[
+            (false, false),
+            (true, true),
+            (true, false),
+            (true, true),
+            (false, false),
+          ]) {
+            await tester.pumpWidget(
+              host(
+                MediaQuery(
+                  data: const MediaQueryData(navigationMode: NavigationMode.directional),
+                  child: afterFocusStop(
+                    before,
+                    PlList(
+                      children: <Widget>[
+                        PlListItem(
+                          onPressed: onPressed ? () {} : null,
+                          disabled: disabled,
+                          focusNode: handed ? given : null,
+                          child: const Text('Billing'),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+                width: 320,
               ),
-              width: 320,
-            ),
-          );
+            );
 
-          await _tabFrom(tester, before);
+            await _tabFrom(tester, before);
 
-          expect(_holdsFocus(tester), isFalse, reason: 'disabled $disabled');
+            expect(
+              _holdsFocus(tester),
+              onPressed && !disabled,
+              reason: 'handed $handed, onPressed $onPressed, disabled $disabled',
+            );
+          }
         }
       });
     });
