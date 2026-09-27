@@ -151,6 +151,48 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('each word says on its own node that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlNavigationMenu(items: menu(onPricing: () {})),
+            width: 600,
+            height: 400,
+            overlay: true,
+          ),
+        );
+
+        // A button that opens a panel and a link, each with its tap and its
+        // focus on the node that names it, and nothing round them saying it
+        // too.
+        expect(
+          tester.getSemantics(find.text('Product')),
+          isSemantics(
+            label: 'Product',
+            isButton: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(
+          tester.getSemantics(find.text('Pricing')),
+          isSemantics(
+            label: 'Pricing',
+            isLink: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsExactly(2));
+
+        handle.dispose();
+      });
+
       testWidgets('an item with links opens a panel instead', (WidgetTester tester) async {
         final List<String?> seen = <String?>[];
 

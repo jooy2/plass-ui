@@ -305,6 +305,66 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says on the node that names it that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        for (final String? semanticLabel in <String?>[null, 'Team plan']) {
+          final String name = semanticLabel ?? 'Team\nShared projects';
+
+          await tester.pumpWidget(
+            host(
+              PlCard(
+                onPressed: () {},
+                semanticLabel: semanticLabel,
+                title: const Text('Team'),
+                child: const Text('Shared projects'),
+              ),
+              width: 360,
+            ),
+          );
+
+          // Beside the name and the tap, as a `PlButton` has them, whether the
+          // card is named by what it holds or keeps that apart under a name
+          // of its own. Nothing round it or inside it says it too.
+          expect(
+            semanticsNodeLabelled(tester, name),
+            isSemantics(
+              label: name,
+              isButton: true,
+              isFocusable: true,
+              isFocused: false,
+              hasTapAction: true,
+              hasFocusAction: true,
+            ),
+            reason: name,
+          );
+          expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsOne, reason: name);
+
+          tester.semantics.performAction(find.semantics.byLabel(name), SemanticsAction.focus);
+          await tester.pumpAndSettle();
+
+          expect(
+            semanticsNodeLabelled(tester, name),
+            isSemantics(label: name, isFocusable: true, isFocused: true),
+            reason: name,
+          );
+
+          FocusManager.instance.primaryFocus?.unfocus();
+          await tester.pumpAndSettle();
+        }
+
+        // A card that cannot be pressed takes no focus and does not say it can.
+        await tester.pumpWidget(
+          host(const PlCard(title: Text('Team'), child: Text('Shared projects')), width: 360),
+        );
+
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsNothing);
+
+        handle.dispose();
+      });
+
       testWidgets('is named by what it holds when it has no semanticLabel', (
         WidgetTester tester,
       ) async {

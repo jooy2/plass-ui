@@ -190,6 +190,11 @@ class PlCard extends StatelessWidget {
       focusNode: focusNode,
       autofocus: autofocus,
       builder: (BuildContext context, PlassInteraction state) {
+        // Said on the card's own node, which is in here: folded in from round
+        // the surface it would be said above the node, and under a named
+        // card, which keeps what it holds apart, it would be a node of its own.
+        final focus = plassFocusSemanticsOf(context);
+
         return Semantics(
           container: pressable,
           button: pressable ? true : null,
@@ -199,6 +204,10 @@ class PlCard extends StatelessWidget {
           // title and the body, where one node used to say all three as its
           // name. Unnamed, what it holds is its name, as before.
           explicitChildNodes: pressable && semanticLabel != null,
+          // Nothing while the card cannot be pressed, which is when the
+          // surface takes no focus.
+          focused: focus.focused,
+          onFocus: focus.onFocus,
           onTap: onPressed,
           child: _sheet(context, state),
         );

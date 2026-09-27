@@ -471,6 +471,37 @@ void main() {
       });
     });
 
+    group('semantics', () {
+      testWidgets('says on each row\'s own node that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, const _Host(expanded: <String>{'src'}));
+
+        // Tab reaches one row, and the arrow keys every row that is not
+        // disabled, so each of those says so on the node that names it,
+        // beside its tap. Nothing round a row says it too.
+        const List<String> reachable = <String>['src', 'index.ts', 'components', 'README.md'];
+
+        for (final String label in reachable) {
+          expect(
+            tester.getSemantics(find.text(label)),
+            isSemantics(label: label, isFocusable: true, hasTapAction: true, hasFocusAction: true),
+            reason: label,
+          );
+        }
+
+        expect(
+          tester.getSemantics(find.text('package-lock.json')),
+          isSemantics(label: 'package-lock.json', isFocusable: false, hasFocusAction: false),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsExactly(reachable.length));
+
+        handle.dispose();
+      });
+    });
+
     group('a disabled row', () {
       testWidgets('does not report when it is pressed', (WidgetTester tester) async {
         PlTreeNode? pressed;

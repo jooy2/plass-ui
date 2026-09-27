@@ -1,4 +1,5 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -39,6 +40,51 @@ void main() {
             isToggled: true,
             hasTapAction: true,
           ),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('says on the node that names it that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(PlToggle(onPressedChanged: (bool _) {}, child: const Text('Bold'))),
+        );
+
+        // As a `PlButton` does: one node with the name, the state, the tap and
+        // the focus, and no second node round it that takes the focus.
+        expect(
+          semanticsOf(tester, find.byType(PlToggle)),
+          isSemantics(
+            label: 'Bold',
+            isButton: true,
+            hasToggledState: true,
+            isFocusable: true,
+            isFocused: false,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsOne);
+
+        tester.semantics.performAction(find.semantics.byLabel('Bold'), SemanticsAction.focus);
+        await tester.pumpAndSettle();
+
+        expect(
+          semanticsOf(tester, find.byType(PlToggle)),
+          isSemantics(label: 'Bold', isFocusable: true, isFocused: true),
+        );
+
+        // Disabled, it gives the focus up and says it cannot take it.
+        await tester.pumpWidget(host(const PlToggle(disabled: true, child: Text('Bold'))));
+        await tester.pumpAndSettle();
+
+        expect(
+          semanticsOf(tester, find.byType(PlToggle)),
+          isSemantics(label: 'Bold', isFocusable: false, hasFocusAction: false),
         );
 
         handle.dispose();

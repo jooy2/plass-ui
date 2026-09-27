@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -184,6 +185,38 @@ void main() {
 
         expect(rings(), 0);
         expect(tester.state(find.byType(_Probe)), same(resting));
+      });
+
+      testWidgets('says on a step\'s own node that it can take the focus while it can be pressed', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, PlStepper(steps: steps, active: 1, onActiveChanged: (int _) {}));
+
+        // Beside the tap on the node that names the step, and on no node round
+        // it. A step ahead of the reader cannot be pressed yet, so it says
+        // neither.
+        for (final String label in <String>['Account', 'Verify']) {
+          expect(
+            tester.getSemantics(find.text(label)),
+            isSemantics(
+              isButton: true,
+              isFocusable: true,
+              hasTapAction: true,
+              hasFocusAction: true,
+            ),
+            reason: label,
+          );
+        }
+
+        expect(
+          tester.getSemantics(find.text('Profile')),
+          isSemantics(isButton: false, isFocusable: false, hasFocusAction: false),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsExactly(2));
+
+        handle.dispose();
       });
 
       testWidgets('does not call a step ahead disabled', (WidgetTester tester) async {

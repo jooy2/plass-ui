@@ -672,12 +672,15 @@ class _PlGalleryState extends State<PlGallery> {
     return Semantics(
       button: true,
       label: '${item.semanticLabel} — ${_where(index + 1, widget.items.length)}',
-      // The caption is drawn inside the tile, whose own semantics replace
-      // everything under it, so the words it shows are said here instead.
+      // The caption is drawn inside the tile, whose own semantics are left
+      // out below, so the words it shows are said here instead.
       hint: shown ? <String?>[item.title, item.description].nonNulls.join('\n') : null,
-      excludeSemantics: true,
       child: PlassInteractive(
         onTap: () => _choose(index),
+        // Folded into the node above, so the tile says it can take the focus.
+        // That is why what the tile draws is left out below rather than
+        // everything under the node: the focus is said under it too.
+        focusSemantics: true,
         builder: (BuildContext context, PlassInteraction state) {
           final bool lit = state.hovered || state.pressed || state.focusVisible;
 
@@ -685,20 +688,22 @@ class _PlGalleryState extends State<PlGallery> {
           // comes and goes. Put in only while focused, it moved the tile a
           // level down the tree, which built the tile again and loaded its
           // picture again every time the focus arrived or left.
-          return CustomPaint(
-            foregroundPainter: state.focusVisible
-                ? PlassFocusRingPainter(color: tokens.family(_color).ring, borderRadius: radius)
-                : null,
-            child: AnimatedContainer(
-              duration: motion,
-              curve: tokens.motionEase,
-              decoration: BoxDecoration(
-                borderRadius: radius,
-                boxShadow: widget.hover == PlGalleryHover.lift && lit
-                    ? tokens.elevation(2)
-                    : const <BoxShadow>[],
+          return ExcludeSemantics(
+            child: CustomPaint(
+              foregroundPainter: state.focusVisible
+                  ? PlassFocusRingPainter(color: tokens.family(_color).ring, borderRadius: radius)
+                  : null,
+              child: AnimatedContainer(
+                duration: motion,
+                curve: tokens.motionEase,
+                decoration: BoxDecoration(
+                  borderRadius: radius,
+                  boxShadow: widget.hover == PlGalleryHover.lift && lit
+                      ? tokens.elevation(2)
+                      : const <BoxShadow>[],
+                ),
+                child: body(lit),
               ),
-              child: body(lit),
             ),
           );
         },

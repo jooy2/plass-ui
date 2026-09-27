@@ -1200,13 +1200,12 @@ class _BarButtonState extends State<_BarButton> {
       button: true,
       toggled: widget.pressed,
       label: widget.label,
-      // The copy button draws its own word as well as carrying it, and a reader
-      // told "Copy, Copy" has been told once too often. The label supersedes
-      // what is inside it, which is also what makes the button findable by the
-      // name it answers to rather than by the text that happens to be on it.
-      excludeSemantics: true,
       child: PlassInteractive(
         onTap: widget.onPressed,
+        // Folded into the node above, so the button says it can take the
+        // focus. That is why what it draws is left out below rather than
+        // everything under the node: the focus is said under it too.
+        focusSemantics: true,
         builder: (BuildContext context, PlassInteraction state) {
           final bool lit = state.hovered || state.pressed || widget.pressed == true;
           final Color ink = lit ? palette.foreground : palette.dim;
@@ -1242,7 +1241,12 @@ class _BarButtonState extends State<_BarButton> {
             child: button,
           );
 
-          return button;
+          // The copy button draws its own word as well as carrying it, and a
+          // reader told "Copy, Copy" has been told once too often. The label
+          // supersedes what is drawn, which is also what makes the button
+          // findable by the name it answers to rather than by the text that
+          // happens to be on it.
+          return ExcludeSemantics(child: button);
         },
       ),
     );

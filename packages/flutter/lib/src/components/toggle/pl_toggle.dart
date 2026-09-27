@@ -304,6 +304,9 @@ class _PlToggleState extends State<PlToggle> {
           onTap: activate,
           focusNode: widget.focusNode,
           autofocus: widget.autofocus,
+          // Folded into the node above, so the toggle says it can take the
+          // focus, as a `PlButton` does.
+          focusSemantics: true,
           builder: (BuildContext context, PlassInteraction state) => shell(state),
         ),
       ),

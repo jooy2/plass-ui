@@ -708,6 +708,10 @@ class _TreeRow extends StatelessWidget {
         enabled: !node.disabled,
         interactive: !node.disabled,
         focusNode: focusNode,
+        // Folded into the row's node above, so the row says it can take the
+        // focus. Only the row that holds the tree's one Tab stop is reached by
+        // Tab, but every row takes the focus from the arrow keys.
+        focusSemantics: true,
         onFocusChange: (bool has) {
           if (has) onFocused();
         },

@@ -842,6 +842,40 @@ void main() {
     });
 
     group('the dots', () {
+      testWidgets('say on their own nodes that they can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(const _Harness(), width: 360));
+        await tester.pumpAndSettle();
+
+        // Beside the name and the tap on the node that names each dot, as the
+        // React dot's `<button>` has them.
+        for (final String name in <String>['Slide 1 of 3', 'Slide 2 of 3', 'Slide 3 of 3']) {
+          expect(
+            tester.getSemantics(
+              find.byWidgetPredicate(
+                (Widget widget) =>
+                    widget is Semantics &&
+                    widget.properties.button == true &&
+                    widget.properties.label == name,
+              ),
+            ),
+            isSemantics(
+              label: name,
+              isButton: true,
+              isFocusable: true,
+              hasTapAction: true,
+              hasFocusAction: true,
+            ),
+            reason: name,
+          );
+        }
+
+        handle.dispose();
+      });
+
       testWidgets('gives each dot a 24px press target around the dot it draws', (
         WidgetTester tester,
       ) async {

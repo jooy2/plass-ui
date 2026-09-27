@@ -295,6 +295,36 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says on a sortable heading\'s own node that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(table(), width: 640));
+        await tester.pumpAndSettle();
+
+        // Beside its tap, as the React build's `<button>` is, on the node that
+        // names the heading. A heading that does not sort is not a stop. The
+        // grid's own headings, which the semantics tree holds, rather than the
+        // pinned band's copies over them.
+        expect(
+          tester.getSemantics(find.text('Customer').first),
+          isSemantics(
+            label: 'Customer',
+            isButton: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(
+          tester.getSemantics(find.text('Invoice').first),
+          isSemantics(label: 'Invoice', isFocusable: false, hasFocusAction: false),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('fades the chevron of a column that is not sorted, and only that one', (
         WidgetTester tester,
       ) async {

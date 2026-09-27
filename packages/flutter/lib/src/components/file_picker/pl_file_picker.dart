@@ -475,6 +475,9 @@ class _PlFilePickerState extends State<PlFilePicker> {
           : _usable
           ? SystemMouseCursors.click
           : SystemMouseCursors.basic,
+      // Folded into the one node over the label and the box, put round this
+      // further down, so the picker says it can take the focus.
+      focusSemantics: true,
       builder: (BuildContext context, PlassInteraction state) {
         final lit = widget.dragging && !_inert;
         final warm = (state.hovered || state.pressed) && !_inert;

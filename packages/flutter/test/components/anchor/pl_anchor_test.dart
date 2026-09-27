@@ -162,6 +162,42 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('says on each row\'s own node that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlAnchor(
+            items: <PlAnchorItem>[
+              PlAnchorItem(target: GlobalKey(), label: const Text('Intro')),
+              PlAnchorItem(target: GlobalKey(), label: const Text('Usage')),
+            ],
+          ),
+        );
+
+        // Beside the link and its tap on the node that names the row, and on
+        // no node round it.
+        for (final String label in <String>['Intro', 'Usage']) {
+          expect(
+            semanticsNodeLabelled(tester, label),
+            isSemantics(
+              label: label,
+              isLink: true,
+              isFocusable: true,
+              hasTapAction: true,
+              hasFocusAction: true,
+            ),
+            reason: label,
+          );
+        }
+
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsExactly(2));
+
+        handle.dispose();
+      });
     });
 
     group('the tracking', () {

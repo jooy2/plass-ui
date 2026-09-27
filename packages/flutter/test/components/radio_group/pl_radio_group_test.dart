@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -498,6 +499,58 @@ void main() {
     });
 
     group('accessibility', () {
+      testWidgets('the option that holds the set\'s stop says it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        String value = 'team';
+
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return PlRadioGroup<String>(
+                  options: plans,
+                  value: value,
+                  autofocus: true,
+                  onChanged: (String next) => setState(() => value = next),
+                );
+              },
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // On the option's own node, with its name, its state and its tap, and
+        // only on the one option Tab reaches.
+        for (final String chosen in <String>['Team', 'Enterprise']) {
+          for (final String label in <String>['Starter', 'Team', 'Enterprise']) {
+            expect(
+              tester.getSemantics(find.text(label)),
+              label == chosen
+                  ? isSemantics(
+                      label: label,
+                      isChecked: true,
+                      isFocusable: true,
+                      isFocused: true,
+                      hasTapAction: true,
+                      hasFocusAction: true,
+                    )
+                  : isSemantics(label: label, isFocusable: false, hasFocusAction: false),
+              reason: '$label, with $chosen chosen',
+            );
+          }
+
+          expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsOne);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+        }
+
+        handle.dispose();
+      });
+
       testWidgets('an option says it is one of a set', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(

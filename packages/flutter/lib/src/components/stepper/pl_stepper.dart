@@ -407,6 +407,9 @@ class _Step extends StatelessWidget {
       interactive: reachable,
       pressable: reachable,
       cursor: reachable ? SystemMouseCursors.click : MouseCursor.defer,
+      // Folded into the step's node, put round this further down, so a step
+      // that can be pressed says it can take the focus.
+      focusSemantics: true,
       builder: (BuildContext context, PlassInteraction state) {
         // The ring's `CustomPaint` stays in the tree and only its painter
         // comes and goes. Put in only while focused, it moved the step a

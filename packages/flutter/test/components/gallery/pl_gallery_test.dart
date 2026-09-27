@@ -575,6 +575,38 @@ void main() {
       });
     });
 
+    group('tiles that can be chosen', () {
+      testWidgets('say on their own nodes that they can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlGallery(items: items, onItemSelected: (PlGalleryItem item, int index) {}),
+        );
+
+        // Beside the name on the node that names each tile, and on no node
+        // round them: one stop for each picture.
+        for (final String name in <String>[
+          'A harbour — 1 of 4',
+          'A bridge — 2 of 4',
+          'A hillside — 3 of 4',
+          'A market — 4 of 4',
+        ]) {
+          expect(
+            tester.getSemantics(find.bySemanticsLabel(name)),
+            isSemantics(label: name, isButton: true, isFocusable: true, hasFocusAction: true),
+            reason: name,
+          );
+        }
+
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsExactly(items.length));
+
+        handle.dispose();
+      });
+    });
+
     group('captions', () {
       testWidgets('says nothing by default', (WidgetTester tester) async {
         await _pump(tester, PlGallery(items: items));

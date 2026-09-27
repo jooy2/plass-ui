@@ -173,6 +173,60 @@ void main() {
         expect(find.text('Cost'), findsOneWidget);
       });
 
+      testWidgets('says on an entry\'s own node, and on the fold\'s, that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlLineChart(
+            series: series,
+            categories: months,
+            legend: const PlChartLegend(maxEntries: 1),
+          ),
+        );
+
+        /// The node a legend button of [name] makes.
+        SemanticsNode button(String name) {
+          return tester.getSemantics(
+            find.byWidgetPredicate(
+              (Widget widget) =>
+                  widget is Semantics &&
+                  widget.properties.button == true &&
+                  widget.properties.label == name,
+            ),
+          );
+        }
+
+        // Beside the name, the state and the tap on the node that names each,
+        // and on no node round them.
+        expect(
+          button('Revenue'),
+          isSemantics(
+            label: 'Revenue',
+            isButton: true,
+            hasCheckedState: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(
+          button('1 more'),
+          isSemantics(
+            label: '1 more',
+            isButton: true,
+            hasExpandedState: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+
+        handle.dispose();
+      });
+
       for (final PlassSide side in <PlassSide>[PlassSide.left, PlassSide.right]) {
         testWidgets('stacks the entries beside the plot on the ${side.name}', (
           WidgetTester tester,

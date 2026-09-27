@@ -371,6 +371,9 @@ class _Trigger extends StatelessWidget {
         enabled: !item.disabled,
         interactive: !item.disabled,
         onTap: onPressed,
+        // Folded into the node that says what the word is, below, so the
+        // trigger says it can take the focus.
+        focusSemantics: true,
         builder: (BuildContext context, PlassInteraction state) {
           final bool hovered = !item.disabled && state.hovered;
           // The accent for an open panel's word, and for the screen the reader

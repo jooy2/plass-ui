@@ -390,6 +390,46 @@ void main() {
       expect(seen.single, '#22c55e');
     });
 
+    testWidgets('says on a swatch\'s own node that it can take the focus', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          PlColorPicker(
+            inline: true,
+            value: '#ff0000',
+            swatches: const <String>['#22c55e'],
+            onValueChanged: (String _) {},
+          ),
+          width: 400,
+          height: 500,
+          overlay: true,
+        ),
+      );
+
+      // Beside its name and its tap, as the React `<button>` is, and on no
+      // node round it.
+      expect(
+        semanticsNodeLabelled(tester, '#22c55e'),
+        isSemantics(
+          label: '#22c55e',
+          isButton: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+        ),
+      );
+
+      expect(
+        semanticsNodeLabelled(tester, 'Swatches'),
+        isSemantics(label: 'Swatches', isFocusable: false, hasFocusAction: false),
+      );
+
+      handle.dispose();
+    });
+
     testWidgets('keeps the focus Tab gives the square, and moves it with the arrow keys', (
       WidgetTester tester,
     ) async {

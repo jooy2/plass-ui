@@ -15,9 +15,12 @@
 /// None of this is exported from `plass_ui.dart` — it is the library talking to
 /// itself. Semantics deliberately stay out: what a surface *is* to a screen
 /// reader differs for every component, and a wrapper that guessed would be a
-/// wrapper each component had to work around.
+/// wrapper each component had to work around. The one exception is that the
+/// surface can take the focus, which a component asks for with
+/// [PlassInteractive.focusSemantics].
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -63,6 +66,29 @@ class PlassInteraction {
 /// Builds a surface from the state the pointer and the keyboard put it in.
 typedef PlassInteractionBuilder = Widget Function(BuildContext context, PlassInteraction state);
 
+/// What a `Semantics` inside [PlassInteractive.builder] says about the focus,
+/// read from [context] there: whether the surface holds it, or `null` while
+/// the surface cannot take it, and how a screen reader moves it there.
+///
+/// The same words a [Focus] says, for a component whose node is inside the
+/// builder and cannot have them folded in by [PlassInteractive.focusSemantics],
+/// because they would be said above it. Handed to the node itself, they also
+/// hold on a node with `explicitChildNodes`, under which anything said apart
+/// would be a node of its own.
+({bool? focused, VoidCallback? onFocus}) plassFocusSemanticsOf(BuildContext context) {
+  final FocusNode node = Focus.of(context);
+
+  if (!node.canRequestFocus) {
+    return (focused: null, onFocus: null);
+  }
+
+  return (
+    focused: node.hasPrimaryFocus,
+    // Left off on iOS, as a `Focus` leaves it: flutter/flutter#150030.
+    onFocus: defaultTargetPlatform == TargetPlatform.iOS ? null : node.requestFocus,
+  );
+}
+
 /// Wraps [builder] in the whole interaction apparatus.
 ///
 /// A surface that should stay reachable by pointer but out of the tab order —
@@ -91,6 +117,7 @@ class PlassInteractive extends StatefulWidget {
     this.behavior = HitTestBehavior.opaque,
     this.shortcuts = defaultShortcuts,
     this.onFocusChange,
+    this.focusSemantics = false,
     super.key,
   });
 
@@ -161,6 +188,21 @@ class PlassInteractive extends StatefulWidget {
 
   /// Called when the surface gains or loses focus, however it was reached.
   final ValueChanged<bool>? onFocusChange;
+
+  /// Whether the surface tells a screen reader that it can take the focus,
+  /// whether it holds it, and how to move it there, as a [Focus] does.
+  ///
+  /// For a component whose `Semantics` is round the surface rather than inside
+  /// [builder]: what this says is folded into that node, which a
+  /// `MergeSemantics` or a `container` there makes one node with the name, the
+  /// state and the tap. A component whose `Semantics` is inside [builder]
+  /// leaves it off. Said above that node, it would be folded into whatever is
+  /// round the surface, or be a focusable node of its own with the named one
+  /// inside it.
+  ///
+  /// Anything round the surface that leaves its descendants out of the
+  /// semantics tree, such as `excludeSemantics`, leaves this out too.
+  final bool focusSemantics;
 
   /// <kbd>Enter</kbd>, the numpad <kbd>Enter</kbd> and <kbd>Space</kbd> — what
   /// activates a button on every platform.
@@ -401,6 +443,44 @@ class PlassInteractiveState extends State<PlassInteractive> {
       pointer: _pointer,
     );
 
+    // Hover is deliberately *not* taken from the focus system's highlight
+    // mode: whether the pointer is over the surface is the whole question, and
+    // this `MouseRegion` answers exactly it.
+    final Widget surface = MouseRegion(
+      cursor: widget.cursor,
+      onEnter: (PointerEnterEvent event) {
+        _setPointer(event.localPosition);
+        setState(() => _hovered = true);
+      },
+      onExit: (PointerExitEvent event) => setState(() => _hovered = false),
+      onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
+      child: Listener(
+        onPointerDown: (PointerDownEvent event) => _setPointer(event.localPosition),
+        onPointerMove: (PointerMoveEvent event) => _setPointer(event.localPosition),
+        child: GestureDetector(
+          behavior: widget.pressable ? widget.behavior : HitTestBehavior.deferToChild,
+          // Described by whatever `Semantics` the component put around this,
+          // which knows about `readOnly` and `loading` and this does not.
+          excludeFromSemantics: true,
+          // Present whenever the surface is pressable, even when nothing will
+          // happen: the recogniser is what stops a tap on an unavailable
+          // control reaching whatever is behind it. A row that navigates
+          // should not navigate because someone tried the disabled button
+          // inside it.
+          onTap: widget.pressable ? _activate : null,
+          onLongPress: widget.pressable && widget.interactive ? widget.onLongPress : null,
+          onTapDown: widget.pressable
+              ? (TapDownDetails details) => setState(() => _pressed = true)
+              : null,
+          onTapUp: widget.pressable
+              ? (TapUpDetails details) => setState(() => _pressed = false)
+              : null,
+          onTapCancel: widget.pressable ? () => setState(() => _pressed = false) : null,
+          child: Builder(builder: (BuildContext context) => widget.builder(context, state)),
+        ),
+      ),
+    );
+
     // The shortcuts and the actions are in the tree whether the surface is
     // enabled or not, with nothing in them while it is not, so that the shape
     // of the tree above the content never changes with it.
@@ -419,50 +499,24 @@ class PlassInteractiveState extends State<PlassInteractive> {
         child: Focus(
           focusNode: _node,
           autofocus: widget.autofocus,
-          // The component wraps its own `Semantics` around whatever this
-          // builds, so a focus node of its own would be a second node above
-          // that one — and a chip would reach a screen reader as an unnamed
-          // focusable thing containing a button. Every caller says what it is;
-          // this only has to make it reachable.
+          // Said below instead, when the component asks for it. A `Focus`
+          // reads whether its node can take the focus before it has put the
+          // node in the tree, and keeps that until the node changes, so a
+          // surface behind an `ExcludeFocus` would say it can.
           includeSemantics: false,
           onFocusChange: _handleFocusChange,
-          // Hover is deliberately *not* taken from the focus system's
-          // highlight mode: whether the pointer is over the surface is the
-          // whole question, and this `MouseRegion` answers exactly it.
-          child: MouseRegion(
-            cursor: widget.cursor,
-            onEnter: (PointerEnterEvent event) {
-              _setPointer(event.localPosition);
-              setState(() => _hovered = true);
+          child: Builder(
+            builder: (BuildContext context) {
+              // Read here, under the `Focus`, once the node is in the tree,
+              // and again whenever the node or the surface changes. Nothing
+              // is said unless the component asks: one whose own `Semantics`
+              // is inside the builder would have a second node above it.
+              final focus = widget.focusSemantics
+                  ? plassFocusSemanticsOf(context)
+                  : (focused: null, onFocus: null);
+
+              return Semantics(focused: focus.focused, onFocus: focus.onFocus, child: surface);
             },
-            onExit: (PointerExitEvent event) => setState(() => _hovered = false),
-            onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
-            child: Listener(
-              onPointerDown: (PointerDownEvent event) => _setPointer(event.localPosition),
-              onPointerMove: (PointerMoveEvent event) => _setPointer(event.localPosition),
-              child: GestureDetector(
-                behavior: widget.pressable ? widget.behavior : HitTestBehavior.deferToChild,
-                // Described by whatever `Semantics` the component put around
-                // this, which knows about `readOnly` and `loading` and this
-                // does not.
-                excludeFromSemantics: true,
-                // Present whenever the surface is pressable, even when nothing
-                // will happen: the recogniser is what stops a tap on an
-                // unavailable control reaching whatever is behind it. A row
-                // that navigates should not navigate because someone tried the
-                // disabled button inside it.
-                onTap: widget.pressable ? _activate : null,
-                onLongPress: widget.pressable && widget.interactive ? widget.onLongPress : null,
-                onTapDown: widget.pressable
-                    ? (TapDownDetails details) => setState(() => _pressed = true)
-                    : null,
-                onTapUp: widget.pressable
-                    ? (TapUpDetails details) => setState(() => _pressed = false)
-                    : null,
-                onTapCancel: widget.pressable ? () => setState(() => _pressed = false) : null,
-                child: Builder(builder: (BuildContext context) => widget.builder(context, state)),
-              ),
-            ),
           ),
         ),
       ),

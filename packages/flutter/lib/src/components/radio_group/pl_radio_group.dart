@@ -471,6 +471,10 @@ class _Radio<T> extends StatelessWidget {
             enabled: !disabled,
             focusNode: focusNode,
             autofocus: autofocus,
+            // Folded into the option's merged node. Only the option that
+            // holds the set's one stop says it can take the focus: the others
+            // are behind the `ExcludeFocus`.
+            focusSemantics: true,
             cursor: disabled
                 ? SystemMouseCursors.forbidden
                 : readOnly

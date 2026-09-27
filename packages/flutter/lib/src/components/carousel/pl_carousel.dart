@@ -806,17 +806,21 @@ class _Dot extends StatelessWidget {
       selected: current,
       label: label,
       onTap: onPressed,
-      child: ExcludeSemantics(
-        child: PlassInteractive(
-          onTap: onPressed,
-          enabled: onPressed != null,
-          interactive: onPressed != null,
-          cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
-          builder: (BuildContext context, PlassInteraction state) {
-            // The ring goes round the whole press target rather than the dot,
-            // and the painter stays in the tree when there is no ring to draw,
-            // so the focus arriving does not build the dot again.
-            return CustomPaint(
+      child: PlassInteractive(
+        onTap: onPressed,
+        enabled: onPressed != null,
+        interactive: onPressed != null,
+        cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
+        // Folded into the node above, so the dot says it can take the focus.
+        // That is why what it draws is left out below rather than everything
+        // under the node: the focus is said under it too.
+        focusSemantics: true,
+        builder: (BuildContext context, PlassInteraction state) {
+          // The ring goes round the whole press target rather than the dot,
+          // and the painter stays in the tree when there is no ring to draw,
+          // so the focus arriving does not build the dot again.
+          return ExcludeSemantics(
+            child: CustomPaint(
               foregroundPainter: state.focusVisible
                   ? PlassFocusRingPainter(
                       color: ring,
@@ -845,9 +849,9 @@ class _Dot extends StatelessWidget {
                   ),
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

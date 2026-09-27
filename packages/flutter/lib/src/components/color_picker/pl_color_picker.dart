@@ -1061,6 +1061,9 @@ class _Swatch extends StatelessWidget {
         enabled: !inert,
         interactive: !inert,
         cursor: inert ? SystemMouseCursors.basic : SystemMouseCursors.click,
+        // Folded into the node above, so the swatch says it can take the
+        // focus.
+        focusSemantics: true,
         builder: (BuildContext context, PlassInteraction state) {
           Widget dot = Container(
             width: size,

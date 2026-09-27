@@ -320,6 +320,39 @@ void main() {
       });
     });
 
+    group('the buttons in the bar', () {
+      testWidgets('say on their own nodes that they can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlCodeBlock(
+            code: 'const a = 1;',
+            rawToggle: true,
+            lines: const <PlCodeLine>[
+              <PlCodeToken>[PlCodeToken('const', PlCodeTokenKind.keyword), PlCodeToken(' a = 1;')],
+            ],
+          ),
+        );
+
+        // Beside the name that replaces what each draws, and on no node round
+        // them: the two buttons are the block's only stops.
+        for (final String label in <String>['Raw', 'Copy']) {
+          expect(
+            tester.getSemantics(find.bySemanticsLabel(label)),
+            isSemantics(label: label, isButton: true, isFocusable: true, hasFocusAction: true),
+            reason: label,
+          );
+        }
+
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsExactly(2));
+
+        handle.dispose();
+      });
+    });
+
     group('copying', () {
       testWidgets('puts the code on the clipboard and says so', (WidgetTester tester) async {
         String? written;

@@ -1448,6 +1448,34 @@ void main() {
         expect(find.byType(Image), findsNWidgets(2));
       });
 
+      testWidgets('says on the picture\'s own node that it can take the focus once it can open', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlImage(image: _ok, ratio: 1, semanticLabel: 'A portrait', preview: true),
+          overlay: true,
+        );
+        await _decode(tester);
+
+        // Beside its name and its tap, and on no node round it.
+        expect(
+          semanticsNodeLabelled(tester, 'A portrait — preview'),
+          isSemantics(
+            label: 'A portrait — preview',
+            isButton: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsOne);
+
+        handle.dispose();
+      });
+
       testWidgets('describes the picture it opens', (WidgetTester tester) async {
         final SemanticsHandle handle = tester.ensureSemantics();
 

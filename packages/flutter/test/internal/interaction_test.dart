@@ -273,6 +273,96 @@ void main() {
 
         handle.dispose();
       });
+
+      /// A surface named by a `Semantics` round it, as a toggle's is.
+      Widget named({required bool focusSemantics, bool enabled = true, bool excluded = false}) {
+        return host(
+          Semantics(
+            container: true,
+            button: true,
+            label: 'Surface',
+            child: ExcludeFocus(
+              excluding: excluded,
+              child: PlassInteractive(
+                key: _subject,
+                onTap: () {},
+                enabled: enabled,
+                interactive: enabled,
+                focusSemantics: focusSemantics,
+                builder: (BuildContext context, PlassInteraction state) {
+                  return const SizedBox.square(dimension: 40);
+                },
+              ),
+            ),
+          ),
+        );
+      }
+
+      testWidgets('folds the focus into the node round it only when asked', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(named(focusSemantics: false));
+
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsNothing);
+
+        await tester.pumpWidget(named(focusSemantics: true));
+
+        expect(
+          semanticsNodeLabelled(tester, 'Surface'),
+          isSemantics(
+            label: 'Surface',
+            isButton: true,
+            isFocusable: true,
+            isFocused: false,
+            hasFocusAction: true,
+          ),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsOne);
+
+        tester.semantics.performAction(find.semantics.byLabel('Surface'), SemanticsAction.focus);
+        await tester.pumpAndSettle();
+
+        expect(_nodeOf(tester).hasPrimaryFocus, isTrue);
+        expect(
+          semanticsNodeLabelled(tester, 'Surface'),
+          isSemantics(label: 'Surface', isFocusable: true, isFocused: true),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('says the surface cannot take the focus in the frame it stops being able to', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        // Disabled, or behind an `ExcludeFocus` from the first frame on, as
+        // one option of a set with a roving stop is: a `Focus` reads its node
+        // before the node is in the tree, and would say it can.
+        for (final (bool enabled, bool excluded) in <(bool, bool)>[
+          (false, false),
+          (true, true),
+          (true, false),
+          (false, false),
+          (true, true),
+        ]) {
+          await tester.pumpWidget(
+            named(focusSemantics: true, enabled: enabled, excluded: excluded),
+          );
+
+          final bool can = enabled && !excluded;
+
+          expect(
+            semanticsNodeLabelled(tester, 'Surface'),
+            isSemantics(label: 'Surface', isFocusable: can, hasFocusAction: can),
+            reason: 'enabled $enabled, excluded $excluded',
+          );
+        }
+
+        handle.dispose();
+      });
     });
 
     group('a handed node', () {

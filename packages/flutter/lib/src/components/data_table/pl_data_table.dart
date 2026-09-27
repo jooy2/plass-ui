@@ -918,6 +918,9 @@ class _SortableHeader extends StatelessWidget {
       // A focus stop with Enter and Space, as the React build's `<button>` is.
       child: PlassInteractive(
         onTap: onPressed,
+        // Folded into the node above, so the heading says it can take the
+        // focus.
+        focusSemantics: true,
         builder: (BuildContext context, PlassInteraction state) {
           return CustomPaint(
             foregroundPainter: state.focusVisible

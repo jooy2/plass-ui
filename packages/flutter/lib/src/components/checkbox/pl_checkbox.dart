@@ -217,6 +217,9 @@ class PlCheckbox extends StatelessWidget {
       enabled: !disabled,
       focusNode: focusNode,
       autofocus: autofocus,
+      // Folded into the merged node round the row, so the checkbox says it
+      // can take the focus.
+      focusSemantics: true,
       cursor: disabled
           ? SystemMouseCursors.forbidden
           : readOnly

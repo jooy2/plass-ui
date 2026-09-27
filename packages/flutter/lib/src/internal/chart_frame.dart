@@ -2274,9 +2274,12 @@ class _LegendFold extends StatelessWidget {
       expanded: open,
       label: said,
       onTap: onTap,
-      excludeSemantics: true,
       child: PlassInteractive(
         onTap: onTap,
+        // Folded into the node above, so the fold says it can take the focus.
+        // That is why the drawn word is left out below rather than everything
+        // under the node: the focus is said under it too.
+        focusSemantics: true,
         builder: (BuildContext context, PlassInteraction state) {
           // Eased under the pointer, as the React button's `color` is.
           final Widget word = PlassInk(
@@ -2294,7 +2297,7 @@ class _LegendFold extends StatelessWidget {
                     borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
                   )
                 : null,
-            child: word,
+            child: ExcludeSemantics(child: word),
           );
         },
       ),
@@ -2431,12 +2434,15 @@ class _LegendEntry extends StatelessWidget {
       checked: on,
       label: name,
       onTap: onTap,
-      excludeSemantics: true,
       child: MouseRegion(
         onEnter: (PointerEnterEvent _) => onHover(true),
         onExit: (PointerExitEvent _) => onHover(false),
         child: PlassInteractive(
           onTap: onTap,
+          // Folded into the node above, so the entry says it can take the
+          // focus. That is why the drawn entry is left out below rather than
+          // everything under the node: the focus is said under it too.
+          focusSemantics: true,
           builder: (BuildContext context, PlassInteraction state) {
             return CustomPaint(
               foregroundPainter: state.focusVisible
@@ -2445,7 +2451,7 @@ class _LegendEntry extends StatelessWidget {
                       borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
                     )
                   : null,
-              child: row,
+              child: ExcludeSemantics(child: row),
             );
           },
         ),

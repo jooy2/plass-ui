@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -149,6 +150,44 @@ void main() {
         expect(
           tester.getSemantics(find.byType(PlSwitch)),
           isSemantics(label: 'Wi-Fi', hasToggledState: true, isToggled: true, hasTapAction: true),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('says on the node that names it that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlSwitch(value: false, onChanged: (bool _) {}, label: const Text('Wi-Fi')),
+            width: 200,
+          ),
+        );
+
+        // One node with the name, the state, the tap and the focus, as a
+        // `PlButton` has, and no second one round it that takes the focus.
+        expect(
+          semanticsOf(tester, find.byType(PlSwitch)),
+          isSemantics(
+            label: 'Wi-Fi',
+            hasToggledState: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsOne);
+
+        await tester.pumpWidget(
+          host(const PlSwitch(value: false, label: Text('Wi-Fi')), width: 200),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          semanticsOf(tester, find.byType(PlSwitch)),
+          isSemantics(label: 'Wi-Fi', isFocusable: false, hasFocusAction: false),
         );
 
         handle.dispose();

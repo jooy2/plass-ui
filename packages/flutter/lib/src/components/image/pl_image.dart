@@ -840,6 +840,9 @@ class _PlImageState extends State<PlImage> {
         enabled: ready,
         interactive: ready,
         cursor: SystemMouseCursors.zoomIn,
+        // Folded into the picture's node, put round this further down, so a
+        // preview says it can take the focus.
+        focusSemantics: true,
         builder: (BuildContext context, PlassInteraction state) {
           return CustomPaint(
             foregroundPainter: state.focusVisible

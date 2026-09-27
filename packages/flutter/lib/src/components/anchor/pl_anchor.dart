@@ -323,6 +323,9 @@ class _Row extends StatelessWidget {
     final Widget row = PlassInteractive(
       onTap: onPressed,
       cursor: SystemMouseCursors.click,
+      // Folded into the node that names the row, below, so the row says it
+      // can take the focus.
+      focusSemantics: true,
       builder: (BuildContext context, PlassInteraction state) {
         final Color? fill = lit
             ? family.soft

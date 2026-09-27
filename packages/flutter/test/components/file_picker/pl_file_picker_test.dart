@@ -463,6 +463,23 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('the box says on its own node that it can take the focus', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await _pump(tester, const _Harness());
+
+        // Beside its tap, on the one node over the label and the box, and on
+        // no node round it.
+        expect(
+          tester.getSemantics(find.text('Choose files')),
+          isSemantics(isButton: true, isFocusable: true, hasTapAction: true, hasFocusAction: true),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsOne);
+
+        handle.dispose();
+      });
+
       testWidgets('the box is named by the field label, then by its own words', (
         WidgetTester tester,
       ) async {
