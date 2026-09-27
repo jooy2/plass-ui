@@ -676,6 +676,9 @@ class _PlGalleryState extends State<PlGallery> {
       // The caption is drawn inside the tile, whose own semantics are left
       // out below, so the words it shows are said here instead.
       hint: shown ? <String?>[item.title, item.description].nonNulls.join('\n') : null,
+      // `PlassInteractive` keeps its press off the semantics tree, so the tap a
+      // screen reader, Switch Access or Voice Access makes is declared here.
+      onTap: () => _choose(index),
       child: PlassInteractive(
         onTap: () => _choose(index),
         // Folded into the node above, so the tile says it can take the focus.

@@ -351,6 +351,63 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('are pressed by a screen reader', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (MethodCall call) async => null,
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+
+        String? copied;
+
+        await _pump(
+          tester,
+          PlCodeBlock(
+            code: 'const a = 1;',
+            rawToggle: true,
+            onCopy: (String value) => copied = value,
+            lines: const <PlCodeLine>[
+              <PlCodeToken>[PlCodeToken('const', PlCodeTokenKind.keyword), PlCodeToken(' a = 1;')],
+            ],
+          ),
+        );
+
+        // The tap is on the node that names each button, and it is the only
+        // one there: nothing round them or inside them offers a second.
+        for (final String label in <String>['Raw', 'Copy']) {
+          expect(
+            tester.getSemantics(find.bySemanticsLabel(label)),
+            isSemantics(label: label, isButton: true, hasTapAction: true),
+            reason: label,
+          );
+        }
+
+        expect(find.semantics.byAction(SemanticsAction.tap), findsExactly(2));
+
+        tester.semantics.tap(find.semantics.byLabel('Raw'));
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('Raw')),
+          isSemantics(hasToggledState: true, isToggled: true),
+        );
+
+        tester.semantics.tap(find.semantics.byLabel('Copy'));
+        await tester.pump();
+
+        expect(copied, 'const a = 1;');
+
+        await tester.pump(const Duration(seconds: 3));
+        handle.dispose();
+      });
     });
 
     group('copying', () {

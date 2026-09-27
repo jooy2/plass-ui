@@ -770,6 +770,13 @@ class _Toast extends StatelessWidget {
       child: Center(child: slot),
     );
 
+    /// What the action does, whether a pointer, a key or a screen reader
+    /// presses it: the caller's callback, and the toast goes with it.
+    void act() {
+      toast.onAction?.call();
+      onClose();
+    }
+
     // Every toast is a live region, whatever its priority. A toast appears
     // somewhere the reader is not, so without one a "Saved" arrives and leaves
     // unheard. Flutter's live region has no second, assertive level to give a
@@ -844,14 +851,16 @@ class _Toast extends StatelessWidget {
                     if (toast.actionLabel != null)
                       line(
                         PlassInteractive(
-                          onTap: () {
-                            toast.onAction?.call();
-                            onClose();
-                          },
+                          onTap: act,
                           builder: (BuildContext context, PlassInteraction state) {
                             return Semantics(
                               container: true,
                               button: true,
+                              // `PlassInteractive` keeps its press off the
+                              // semantics tree, so the tap a screen reader,
+                              // Switch Access or Voice Access makes is
+                              // declared here.
+                              onTap: act,
                               child: DefaultTextStyle.merge(
                                 style: TextStyle(
                                   color: accent,

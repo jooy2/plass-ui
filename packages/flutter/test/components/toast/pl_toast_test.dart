@@ -313,6 +313,40 @@ void main() {
         expect(find.text('Deleted'), findsNothing);
       });
 
+      testWidgets('a screen reader presses the action', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        var undone = 0;
+
+        await tester.pumpWidget(
+          _app(
+            timeout: Duration.zero,
+            messages: <PlToast>[
+              PlToast(
+                title: const Text('Deleted'),
+                actionLabel: const Text('Undo'),
+                onAction: () => undone += 1,
+              ),
+            ],
+          ),
+        );
+
+        await _raise(tester);
+
+        // On the node that names the action, beside its role.
+        expect(
+          tester.getSemantics(find.text('Undo')),
+          isSemantics(label: 'Undo', isButton: true, hasTapAction: true),
+        );
+
+        tester.semantics.tap(find.semantics.byLabel('Undo'));
+        await tester.pumpAndSettle();
+
+        expect(undone, 1);
+        expect(find.text('Deleted'), findsNothing);
+
+        handle.dispose();
+      });
+
       testWidgets('a toast keeps its state when the one above it leaves', (
         WidgetTester tester,
       ) async {

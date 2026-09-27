@@ -605,6 +605,34 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('are chosen by a screen reader', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final List<int> chosen = <int>[];
+
+        await _pump(
+          tester,
+          PlGallery(
+            items: items,
+            onItemSelected: (PlGalleryItem item, int index) => chosen.add(index),
+          ),
+        );
+
+        // On the node that names each tile, and on no other: one tap for each
+        // picture.
+        expect(
+          tester.getSemantics(find.bySemanticsLabel('A bridge — 2 of 4')),
+          isSemantics(label: 'A bridge — 2 of 4', isButton: true, hasTapAction: true),
+        );
+        expect(find.semantics.byAction(SemanticsAction.tap), findsExactly(items.length));
+
+        tester.semantics.tap(find.semantics.byLabel('A bridge — 2 of 4'));
+        await _settle(tester);
+
+        expect(chosen, <int>[1]);
+
+        handle.dispose();
+      });
     });
 
     group('captions', () {

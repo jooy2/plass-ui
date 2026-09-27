@@ -1200,6 +1200,9 @@ class _BarButtonState extends State<_BarButton> {
       button: true,
       toggled: widget.pressed,
       label: widget.label,
+      // `PlassInteractive` keeps its press off the semantics tree, so the tap a
+      // screen reader, Switch Access or Voice Access makes is declared here.
+      onTap: widget.onPressed,
       child: PlassInteractive(
         onTap: widget.onPressed,
         // Folded into the node above, so the button says it can take the
