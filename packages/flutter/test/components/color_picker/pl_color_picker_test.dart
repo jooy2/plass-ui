@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -6,6 +7,7 @@ import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/color.dart';
 
 import '../../support/host.dart';
+import '../../support/text_input.dart';
 
 void main() {
   group('colour arithmetic', () {
@@ -229,34 +231,200 @@ void main() {
       expect(focused(), isTrue);
       expect(tester.testTextInput.isVisible, isTrue);
 
-      // The field is read-only while the picker is read-only or disabled, as
-      // the React input is, and stays in the focus order, as that one does. So
-      // it takes the focus then and no tap, as a read-only Material field does.
-      for (final (String state, bool readOnly, bool disabled) in <(String, bool, bool)>[
-        ('read-only', true, false),
-        ('disabled', false, true),
+      // A read-only field takes the focus and no tap, as a read-only Material
+      // field does.
+      tester.widget<EditableText>(find.byType(EditableText)).focusNode.unfocus();
+      await tester.pumpWidget(build(readOnly: true));
+      await tester.pump();
+
+      expect(
+        field(),
+        isSemantics(
+          label: 'Colour value',
+          isReadOnly: true,
+          hasTapAction: false,
+          hasFocusAction: true,
+        ),
+      );
+
+      await perform(SemanticsAction.focus);
+
+      expect(focused(), isTrue);
+
+      // A disabled one takes neither, and lets go of the focus it held.
+      await tester.pumpWidget(build(disabled: true));
+      await tester.pump();
+
+      expect(focused(), isFalse);
+      expect(
+        field(),
+        isSemantics(label: 'Colour value', hasTapAction: false, hasFocusAction: false),
+      );
+
+      handle.dispose();
+    });
+
+    testWidgets('disables the value field while disabled, and not while read-only', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      Widget picker({bool readOnly = false, bool disabled = false}) =>
+          PlColorPicker(inline: true, value: '#ff0000', readOnly: readOnly, disabled: disabled);
+
+      Future<void> build(Widget child) => tester.pumpWidget(
+        host(afterFocusStop(before, child), width: 400, height: 560, overlay: true),
+      );
+
+      SemanticsNode field() => tester.getSemantics(find.byType(EditableText));
+      FocusNode focus() => tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+
+      /// Whether Tab from the stop before the picker reaches the field, past
+      /// the square and the hue rail.
+      Future<bool> tabbedIn() async {
+        before.requestFocus();
+        await tester.pump();
+
+        for (var step = 0; step < 4 && !focus().hasFocus; step += 1) {
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+        }
+
+        return focus().hasFocus;
+      }
+
+      // Read-only, it is a field that can be read and not changed, and Tab
+      // reaches it.
+      await build(picker(readOnly: true));
+
+      expect(
+        field(),
+        isSemantics(
+          isTextField: true,
+          isReadOnly: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          label: 'Colour value',
+          value: '#ff0000',
+        ),
+      );
+      expect(await tabbedIn(), isTrue);
+
+      // Disabled, by itself or by a fieldset round it, it was read-only, and
+      // by itself a Tab stop, beside swatches that were disabled. It is a
+      // text field that is unavailable, as the React `<input disabled>` is,
+      // which is what the web draws for it.
+      for (final (String state, Widget child) in <(String, Widget)>[
+        ('disabled', picker(disabled: true)),
+        ('in a disabled fieldset', PlFieldset(disabled: true, children: <Widget>[picker()])),
       ]) {
-        tester.widget<EditableText>(find.byType(EditableText)).focusNode.unfocus();
-        await tester.pumpWidget(build(readOnly: readOnly, disabled: disabled));
+        await build(child);
         await tester.pump();
 
         expect(
           field(),
           isSemantics(
-            label: 'Colour value',
-            isReadOnly: true,
+            isTextField: true,
+            isReadOnly: false,
+            hasEnabledState: true,
+            isEnabled: false,
             hasTapAction: false,
-            hasFocusAction: true,
+            hasFocusAction: false,
+            label: 'Colour value',
+            value: '#ff0000',
           ),
           reason: state,
         );
+        expect(focus().canRequestFocus, isFalse, reason: state);
+        expect(await tabbedIn(), isFalse, reason: state);
 
-        await perform(SemanticsAction.focus);
+        // A disabled fieldset takes the pointer away as well, so the press
+        // misses there.
+        await tester.tap(find.byType(EditableText), warnIfMissed: false);
+        await tester.pump();
 
-        expect(focused(), isTrue, reason: state);
+        expect(focus().hasFocus, isFalse, reason: state);
+        expect(tester.testTextInput.hasAnyClients, isFalse, reason: state);
       }
 
       handle.dispose();
+    });
+
+    testWidgets('takes no text into the value field while disabled, by any way in', (
+      WidgetTester tester,
+    ) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+
+      final SemanticsHandle handle = tester.ensureSemantics();
+      final TextEditingController name = TextEditingController();
+      addTearDown(name.dispose);
+      final List<String> seen = <String>[];
+
+      Widget build({required bool disabled}) => host(
+        AutofillGroup(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              PlTextField(fullWidth: true, controller: name),
+              PlColorPicker(
+                inline: true,
+                value: '#ff0000',
+                disabled: disabled,
+                onValueChanged: seen.add,
+              ),
+            ],
+          ),
+        ),
+        width: 400,
+        height: 640,
+        overlay: true,
+      );
+
+      final Finder nameEditor = find.byType(EditableText).first;
+      final Finder editor = find.descendant(
+        of: find.byType(PlColorPicker),
+        matching: find.byType(EditableText),
+      );
+
+      // The field is no longer read-only while disabled, so the two ways in
+      // that need no focus are shut on it. A pen put down on it while it can
+      // be written in is offered it, and one put down on it disabled is
+      // offered nothing.
+      await tester.pumpWidget(build(disabled: false));
+
+      expect(await scribble(tester, editor), 1);
+
+      await tester.pumpWidget(build(disabled: true));
+      await tester.pump();
+
+      expect(tester.testTextInput.hasAnyClients, isFalse);
+      expect(await scribble(tester, editor), 0);
+      expect(tester.testTextInput.hasAnyClients, isFalse);
+
+      // Autofill writes into every field of its group while one of them has
+      // the keyboard, and reaches the field beside the picker only.
+      await tester.showKeyboard(nameEditor);
+      await autofill(tester, <Finder, String>{nameEditor: 'Ada', editor: '#00ff00'});
+
+      expect(name.text, 'Ada');
+      expect(seen, isEmpty);
+      expect(tester.widget<EditableText>(editor).controller.text, '#ff0000');
+
+      // A screen reader finds nothing on it that writes text.
+      final SemanticsData node = tester.getSemantics(editor).getSemanticsData();
+
+      for (final SemanticsAction action in <SemanticsAction>[
+        SemanticsAction.setText,
+        SemanticsAction.paste,
+        SemanticsAction.cut,
+      ]) {
+        expect(node.hasAction(action), isFalse, reason: action.name);
+      }
+
+      handle.dispose();
+      debugDefaultTargetPlatformOverride = null;
     });
 
     testWidgets('reports the square s two channels together', (WidgetTester tester) async {

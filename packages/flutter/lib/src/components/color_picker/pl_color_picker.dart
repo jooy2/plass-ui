@@ -283,8 +283,6 @@ class _PlColorPickerState extends State<PlColorPicker> {
   /// [PlColorPicker.disabled], or a disabled [PlFieldset] around it.
   bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
 
-  bool get _inert => _disabled || widget.readOnly;
-
   @override
   void didUpdateWidget(PlColorPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -359,7 +357,8 @@ class _PlColorPickerState extends State<PlColorPicker> {
       editable: widget.editable,
       size: _size,
       color: _color,
-      inert: _inert,
+      disabled: _disabled,
+      readOnly: widget.readOnly,
       invalid: widget.inline && invalid,
       labels: widget.labels,
     );
@@ -531,7 +530,8 @@ class _ColorPanel extends StatelessWidget {
     required this.editable,
     required this.size,
     required this.color,
-    required this.inert,
+    required this.disabled,
+    required this.readOnly,
     required this.invalid,
     required this.labels,
   });
@@ -547,7 +547,8 @@ class _ColorPanel extends StatelessWidget {
   final bool editable;
   final PlassSize size;
   final PlassColor color;
-  final bool inert;
+  final bool disabled;
+  final bool readOnly;
 
   /// Marks the square and the rails invalid. Only an inline panel says so: in a
   /// popup the trigger does.
@@ -558,6 +559,7 @@ class _ColorPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final PlassTokens tokens = PlassTheme.of(context);
     final PlassColorFamily family = tokens.family(color);
+    final bool inert = disabled || readOnly;
     final double thumb = _thumbSize[size]!;
     final double radius = tokens.radii[size]!;
     final Color pure = hsvToColor(PlassHsv(model.hsv.h, 100, 100));
@@ -733,29 +735,46 @@ class _ColorPanel extends StatelessWidget {
                       // and put the name on a node of its own.
                       child: Semantics(
                         container: true,
+                        enabled: !disabled,
                         label: labels.value,
                         // A screen reader's tap and focus, which the editor
-                        // answers neither of on its own. The field is read-only
-                        // while the picker is read-only or disabled, as the
-                        // React input is, so it takes no tap then, as a
-                        // read-only Material `TextField` takes none, and it
-                        // stays in the focus order, as the React input does.
+                        // answers neither of on its own. As on a Material
+                        // `TextField`, a read-only field takes the focus and no
+                        // tap, and a disabled one takes neither.
                         onTap: inert ? null : () => plassTapEditor(editorKey),
-                        onFocus: () => plassFocusEditor(editorKey),
-                        child: EditableText(
-                          key: editorKey,
-                          controller: controller,
-                          focusNode: focusNode,
-                          readOnly: inert,
-                          onChanged: onTyped,
-                          style: TextStyle(
-                            color: tokens.fg,
-                            fontSize: metaText[size]!,
-                            fontFamily: 'monospace',
+                        onFocus: disabled ? null : () => plassFocusEditor(editorKey),
+                        // A disabled field leaves the focus order, as the React
+                        // `<input disabled>` does, so Tab passes it and nothing
+                        // is typed into it. The `ExcludeFocus` is in the tree
+                        // either way, so turning `disabled` off does not build
+                        // the editor again.
+                        child: ExcludeFocus(
+                          excluding: disabled,
+                          child: EditableText(
+                            key: editorKey,
+                            controller: controller,
+                            focusNode: focusNode,
+                            // The caller's alone, so a disabled field is still
+                            // announced as a text field, as the React input is.
+                            // It takes no text because it cannot take the
+                            // focus, and the two ways in that need none are
+                            // shut below.
+                            readOnly: readOnly,
+                            onChanged: onTyped,
+                            style: TextStyle(
+                              color: tokens.fg,
+                              fontSize: metaText[size]!,
+                              fontFamily: 'monospace',
+                            ),
+                            cursorColor: family.accent,
+                            backgroundCursorColor: tokens.mutedFg,
+                            selectionColor: family.softPress,
+                            enableInteractiveSelection: !disabled,
+                            // A pen on an iPad and autofill both write into a
+                            // field without its focus.
+                            stylusHandwritingEnabled: !disabled,
+                            autofillHints: disabled ? null : const <String>[],
                           ),
-                          cursorColor: family.accent,
-                          backgroundCursorColor: tokens.mutedFg,
-                          selectionColor: family.softPress,
                         ),
                       ),
                     ),

@@ -141,7 +141,7 @@ A chosen swatch is ticked in black or white, decided by relative luminance. A fi
 
 `error` turns the control invalid, which re-points the whole colour family at `danger`, the edge, the ring and the message turn over together. `invalid` does the same without a message.
 
-A `readOnly` picker shows its colour and takes nothing: the rails keep their values and lose their tab stops. A `disabled` one leaves the tab order.
+A `readOnly` picker shows its colour and takes nothing: the rails keep their values and lose their tab stops, and the value field stays a tab stop that cannot be typed into. A `disabled` one leaves the tab order, the value field included.
 
 <Demo src="color-picker/states" :min-height="180">
 

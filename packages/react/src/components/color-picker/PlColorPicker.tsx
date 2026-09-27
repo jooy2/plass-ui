@@ -244,7 +244,8 @@ interface PanelProps {
   swatches: readonly string[] | false;
   editable: boolean;
   size: PlassSize;
-  inert: boolean;
+  disabled: boolean;
+  readOnly: boolean;
   /** Marks the square and the rails invalid. Only an inline panel says so: in a popup the trigger does. */
   invalid: boolean;
   labels: PlColorPickerLabels;
@@ -301,11 +302,13 @@ function ColorPanel({
   swatches,
   editable,
   size,
-  inert,
+  disabled,
+  readOnly,
   invalid,
   labels,
   className
 }: PanelProps) {
+  const inert = disabled || readOnly;
   const thumb = thumbSizes[size];
   const offset = -thumb / 2;
   const pure = cssColor({ h: hsv.h, s: 100, v: 100 });
@@ -537,10 +540,14 @@ function ColorPanel({
               style={{ backgroundColor: cssColor(hsv, alphaValue) }}
             />
           </span>
+          {/* Disabled with the picker, as a disabled `<fieldset>` round it
+              makes it, so it leaves the tab order and is announced as
+              unavailable, and only read-only while the picker is. */}
           <input
             type="text"
             value={text}
-            readOnly={inert}
+            disabled={disabled}
+            readOnly={readOnly}
             spellCheck={false}
             autoComplete="off"
             aria-label={labels.value}
@@ -761,7 +768,6 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
     const fieldsetDisabled = useFieldsetDisabled(root);
     const isDisabled = disabled || fieldsetDisabled;
 
-    const inert = isDisabled || readOnly;
     const isInvalid = invalid ?? Boolean(error);
     const fieldId = React.useId();
 
@@ -784,7 +790,8 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
         swatches={swatches}
         editable={editable}
         size={size}
-        inert={inert}
+        disabled={isDisabled}
+        readOnly={readOnly}
         invalid={inline && isInvalid}
         labels={labels}
         className={inline ? classNames?.control : undefined}

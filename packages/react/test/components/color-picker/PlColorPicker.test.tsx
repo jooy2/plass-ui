@@ -355,6 +355,25 @@ describe('PlColorPicker', () => {
         .toHaveAttribute('aria-disabled', 'true');
     });
 
+    it('disables the value field while disabled, and leaves it read-only while read-only', async () => {
+      const screen = await render(<PlColorPicker inline disabled defaultValue="#ff0000" />);
+      const field = screen.getByRole('textbox', { name: 'Colour value' });
+
+      // It was read-only, so it stayed a Tab stop and was announced as
+      // read-only beside swatches that were disabled.
+      await expect.element(field).toBeDisabled();
+      await expect.element(field).not.toHaveAttribute('readonly');
+
+      await screen.rerender(<PlColorPicker inline readOnly defaultValue="#ff0000" />);
+
+      await expect.element(field).toBeEnabled();
+      await expect.element(field).toHaveAttribute('readonly');
+
+      (field.element() as HTMLInputElement).focus();
+
+      expect(document.activeElement).toBe(field.element());
+    });
+
     it('takes nothing inside a disabled fieldset, until the fieldset is enabled', async () => {
       const onValueChange = vi.fn();
 

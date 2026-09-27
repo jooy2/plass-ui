@@ -141,7 +141,7 @@ PlColorPicker(
 
 `error`는 컨트롤을 invalid로 만들고, 그러면 색 계열 전체가 `danger`로 넘어갑니다. 가장자리, 링, 메시지가 함께 뒤집힙니다. `invalid`는 메시지 없이 같은 일을 합니다.
 
-`readOnly` 피커는 색을 보여 주고 아무것도 받지 않습니다. 레일은 값을 지키고 tab stop을 잃습니다. `disabled`는 tab 순서에서 빠집니다.
+`readOnly` 피커는 색을 보여 주고 아무것도 받지 않습니다. 레일은 값을 지키고 tab stop을 잃지만, 값 필드는 입력만 막힌 채 tab stop으로 남습니다. `disabled`는 값 필드까지 tab 순서에서 빠집니다.
 
 <Demo src="color-picker/states" :min-height="180">
 
