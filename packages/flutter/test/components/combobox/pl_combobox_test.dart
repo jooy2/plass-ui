@@ -13,6 +13,7 @@ import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
 import '../../support/host.dart';
+import '../../support/text_input.dart';
 
 const List<PlComboboxOption<String>> _cities = <PlComboboxOption<String>>[
   PlComboboxOption<String>(value: 'seoul', label: 'Seoul'),
@@ -3000,6 +3001,161 @@ void main() {
         );
 
         expect(_rows(tester), isNot(contains('Lisbon')));
+      });
+
+      testWidgets('is passed by Tab while disabled, and reached by it otherwise', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode();
+        addTearDown(before.dispose);
+
+        Future<bool> tabbedIn({required bool disabled}) async {
+          await tester.pumpWidget(
+            _host(
+              afterFocusStop(
+                before,
+                PlCombobox<String>(
+                  options: _cities,
+                  value: 'seoul',
+                  disabled: disabled,
+                  onChanged: (String? _) {},
+                ),
+              ),
+            ),
+          );
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          return tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+        }
+
+        expect(await tabbedIn(disabled: false), isTrue);
+        expect(await tabbedIn(disabled: true), isFalse);
+      });
+
+      testWidgets('is a text field while disabled, unavailable rather than read-only', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        // Read-only, the field was no text input to iOS or Android, which read
+        // it as dimmed words rather than as a dimmed text field, as a browser
+        // reads the React `<input disabled>`.
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: 'seoul',
+              disabled: true,
+              semanticLabel: 'City',
+              onChanged: (String? _) {},
+            ),
+          ),
+        );
+
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(
+          semanticsOf(tester, find.byType(PlCombobox<String>)),
+          isSemantics(
+            isTextField: true,
+            isReadOnly: false,
+            hasEnabledState: true,
+            isEnabled: false,
+            label: 'City',
+            value: 'Seoul',
+          ),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('takes no text while disabled, by any way in', (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+
+        final handle = tester.ensureSemantics();
+        final name = TextEditingController();
+        final cityFocus = FocusNode();
+        addTearDown(name.dispose);
+        addTearDown(cityFocus.dispose);
+        final List<String> queries = <String>[];
+
+        Widget build({required bool disabled}) => _host(
+          AutofillGroup(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlTextField(fullWidth: true, controller: name),
+                PlCombobox<String>(
+                  options: _cities,
+                  value: 'seoul',
+                  disabled: disabled,
+                  focusNode: cityFocus,
+                  onChanged: (String? _) {},
+                  onQueryChanged: queries.add,
+                ),
+              ],
+            ),
+          ),
+        );
+
+        final Finder nameEditor = find.byType(EditableText).first;
+        final Finder editor = find.descendant(
+          of: find.byType(PlCombobox<String>),
+          matching: find.byType(EditableText),
+        );
+        String text() => tester.widget<EditableText>(editor).controller.text;
+
+        // A pen put down on the field while it can be written in is offered it.
+        await tester.pumpWidget(build(disabled: false));
+
+        expect(await scribble(tester, editor), 1);
+        expect(tester.testTextInput.hasAnyClients, isTrue);
+
+        // Disabled while it has the keyboard, the field lets the focus go, and
+        // the keyboard with it, and a pen, a press and a focus the caller asks
+        // for bring neither back.
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pump();
+
+        expect(cityFocus.hasFocus, isFalse);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+        expect(await scribble(tester, editor), 0);
+
+        await tester.tap(find.byType(PlCombobox<String>));
+        cityFocus.requestFocus();
+        await tester.pump();
+
+        expect(cityFocus.hasFocus, isFalse);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        // Autofill writes into every field of its group while one of them has
+        // the keyboard, and reaches the field beside this one only.
+        queries.clear();
+        await tester.showKeyboard(nameEditor);
+        await autofill(tester, <Finder, String>{nameEditor: 'Ada', editor: 'Lis'});
+
+        expect(name.text, 'Ada');
+        expect(text(), 'Seoul');
+        expect(queries, isEmpty);
+
+        // A screen reader finds nothing on it that writes text.
+        final SemanticsData node = semanticsOf(
+          tester,
+          find.byType(PlCombobox<String>),
+        ).getSemanticsData();
+
+        for (final SemanticsAction action in <SemanticsAction>[
+          SemanticsAction.setText,
+          SemanticsAction.paste,
+          SemanticsAction.cut,
+        ]) {
+          expect(node.hasAction(action), isFalse, reason: action.name);
+        }
+
+        handle.dispose();
+        debugDefaultTargetPlatformOverride = null;
       });
     });
     group('hotKeys', () {

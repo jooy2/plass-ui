@@ -1112,7 +1112,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     Widget editor = EditableText(
       controller: _text,
       focusNode: _focusNode,
-      readOnly: widget.readOnly || _disabled,
+      // The caller's alone, so a disabled field is still announced as a text
+      // field, as the React `<input disabled>` is. It takes no text because it
+      // cannot take the focus, and the two ways in that need none are shut
+      // below.
+      readOnly: widget.readOnly,
       autofocus: widget.autofocus,
       maxLines: 1,
       minLines: 1,
@@ -1153,8 +1157,18 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       selectionColor: family.softPress,
       showSelectionHandles: false,
       enableInteractiveSelection: !_disabled,
+      // A pen on an iPad and autofill both write into a field without its
+      // focus.
+      stylusHandwritingEnabled: !_disabled,
+      autofillHints: _disabled ? null : const <String>[],
       cursorOpacityAnimates: true,
     );
+
+    // A disabled field leaves the focus order, as the React `<input disabled>`
+    // does, so Tab passes it, no ring is drawn on it and nothing is typed into
+    // it. The `ExcludeFocus` is in the tree either way, so turning `disabled`
+    // off does not build the editor again.
+    editor = ExcludeFocus(excluding: _disabled, child: editor);
 
     if (widget.placeholder != null) {
       // The placeholder is drawn under the text rather than by the editor, which

@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 
 import '../../support/host.dart';
+import '../../support/text_input.dart';
 
 /// The shell: the box with the field's own radius on it.
 BoxDecoration shellOf(WidgetTester tester) {
@@ -183,15 +184,110 @@ void main() {
         expect(typed, 'ada');
       });
 
-      testWidgets('does not take text while disabled', (WidgetTester tester) async {
-        final controller = TextEditingController();
-        addTearDown(controller.dispose);
+      testWidgets('takes no text while disabled, by any way in', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        final name = TextEditingController();
+        final city = TextEditingController(text: 'Seoul');
+        final cityFocus = FocusNode();
+        addTearDown(name.dispose);
+        addTearDown(city.dispose);
+        addTearDown(cityFocus.dispose);
 
-        await tester.pumpWidget(
-          host(PlTextField(fullWidth: true, controller: controller, disabled: true), width: 300),
+        Widget build({required bool disabled}) => host(
+          AutofillGroup(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlTextField(fullWidth: true, controller: name),
+                PlTextField(
+                  fullWidth: true,
+                  controller: city,
+                  focusNode: cityFocus,
+                  disabled: disabled,
+                ),
+              ],
+            ),
+          ),
+          width: 300,
         );
 
-        expect(tester.widget<EditableText>(find.byType(EditableText)).readOnly, isTrue);
+        final Finder nameEditor = find.byType(EditableText).first;
+        final Finder cityEditor = find.byType(EditableText).last;
+
+        // Disabled while it has the keyboard, the field lets the focus go, and
+        // the keyboard with it.
+        await tester.pumpWidget(build(disabled: false));
+        await tester.showKeyboard(cityEditor);
+        expect(tester.testTextInput.hasAnyClients, isTrue);
+
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pump();
+
+        expect(cityFocus.hasFocus, isFalse);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        // Neither a press nor a focus the caller asks for brings it back.
+        await tester.tap(find.byType(PlTextField).last);
+        cityFocus.requestFocus();
+        await tester.pump();
+
+        expect(cityFocus.hasFocus, isFalse);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        // Autofill writes into every field of its group, focused or not, while
+        // one of them has the keyboard. It reaches the field beside this one
+        // and not this one.
+        await tester.showKeyboard(nameEditor);
+        await autofill(tester, <Finder, String>{nameEditor: 'Ada', cityEditor: 'Busan'});
+
+        expect(name.text, 'Ada');
+        expect(city.text, 'Seoul');
+
+        // A screen reader finds nothing on it that writes text.
+        final SemanticsData node = semanticsOf(
+          tester,
+          find.byType(PlTextField).last,
+        ).getSemanticsData();
+
+        for (final SemanticsAction action in <SemanticsAction>[
+          SemanticsAction.setText,
+          SemanticsAction.paste,
+          SemanticsAction.cut,
+        ]) {
+          expect(node.hasAction(action), isFalse, reason: action.name);
+        }
+
+        handle.dispose();
+      });
+
+      testWidgets('offers an iPad pen nothing to write in while disabled', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+
+        final city = TextEditingController(text: 'Seoul');
+        addTearDown(city.dispose);
+
+        Widget build({required bool disabled}) => host(
+          PlTextField(fullWidth: true, controller: city, disabled: disabled),
+          width: 300,
+          overlay: true,
+        );
+
+        // A pen put down on a field that can be written in is offered it, which
+        // is what shows the pen is being put down where iOS would.
+        await tester.pumpWidget(build(disabled: false));
+
+        expect(await scribble(tester, find.byType(EditableText)), 1);
+
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pump();
+
+        expect(await scribble(tester, find.byType(EditableText)), 0);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+        expect(city.text, 'Seoul');
+
+        debugDefaultTargetPlatformOverride = null;
       });
     });
 
@@ -438,6 +534,50 @@ void main() {
             isReadOnly: true,
             label: 'Email',
             value: 'ada@example.com',
+          ),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('is a text field while disabled, unavailable rather than read-only', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        Widget build({bool readOnly = false}) => host(
+          PlTextField(fullWidth: true, semanticLabel: 'Email', disabled: true, readOnly: readOnly),
+          width: 300,
+        );
+
+        // Read-only, the field was no text input to iOS or Android, which read
+        // it as dimmed words rather than as a dimmed text field, as a browser
+        // reads the React `<input disabled>`.
+        await tester.pumpWidget(build());
+
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(
+          semanticsOf(tester, find.byType(PlTextField)),
+          isSemantics(
+            isTextField: true,
+            isReadOnly: false,
+            hasEnabledState: true,
+            isEnabled: false,
+            label: 'Email',
+          ),
+        );
+
+        // Read-only as well is said as well.
+        await tester.pumpWidget(build(readOnly: true));
+
+        expect(
+          semanticsOf(tester, find.byType(PlTextField)),
+          isSemantics(
+            isTextField: true,
+            isReadOnly: true,
+            hasEnabledState: true,
+            isEnabled: false,
+            label: 'Email',
           ),
         );
 

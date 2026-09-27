@@ -856,7 +856,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
     Widget editor = EditableText(
       controller: _controller,
       focusNode: _focusNode,
-      readOnly: !_editable,
+      // The caller's alone, so a disabled field is still announced as a text
+      // field, as the React `<input disabled>` is. It takes no text because it
+      // cannot take the focus, and the two ways in that need none are shut
+      // below.
+      readOnly: widget.readOnly,
       autofocus: widget.autofocus,
       keyboardType: const TextInputType.numberWithOptions(signed: true, decimal: true),
       onChanged: _onTyped,
@@ -883,6 +887,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
       selectionColor: family.softPress,
       showSelectionHandles: false,
       enableInteractiveSelection: !_disabled,
+      // A pen on an iPad and autofill both write into a field without its
+      // focus.
+      stylusHandwritingEnabled: !_disabled,
+      autofillHints: _disabled ? null : const <String>[],
       cursorOpacityAnimates: true,
     );
 

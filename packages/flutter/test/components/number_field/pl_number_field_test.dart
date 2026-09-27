@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -11,6 +12,7 @@ import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
+import '../../support/text_input.dart';
 
 /// A field wired to a variable, which is how every caller uses it.
 class _Harness extends StatefulWidget {
@@ -1673,6 +1675,117 @@ void main() {
 
         expect(await tabbedIn(disabled: false), isTrue);
         expect(await tabbedIn(disabled: true), isFalse);
+      });
+
+      testWidgets('is a text field while disabled, unavailable rather than read-only', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        // Read-only, the field was no text input to iOS or Android, which read
+        // it as dimmed words rather than as a dimmed text field, as a browser
+        // reads the React `<input disabled>`.
+        await tester.pumpWidget(
+          host(
+            PlNumberField(
+              value: 5,
+              disabled: true,
+              semanticLabel: 'Guests',
+              onChanged: (double? _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(semanticsTextFields(tester), hasLength(1));
+        expect(
+          semanticsOf(tester, find.byType(PlNumberField)),
+          isSemantics(
+            isTextField: true,
+            isReadOnly: false,
+            hasEnabledState: true,
+            isEnabled: false,
+            label: 'Guests',
+            value: '5',
+          ),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('takes no text while disabled, by any way in', (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+
+        final handle = tester.ensureSemantics();
+        final name = TextEditingController();
+        addTearDown(name.dispose);
+        double? value = 5;
+
+        Widget build({required bool disabled}) => host(
+          AutofillGroup(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlTextField(fullWidth: true, controller: name),
+                StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) => PlNumberField(
+                    value: value,
+                    disabled: disabled,
+                    semanticLabel: 'Guests',
+                    onChanged: (double? next) => setState(() => value = next),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          width: 320,
+          overlay: true,
+        );
+
+        final Finder nameEditor = find.byType(EditableText).first;
+        final Finder editor = find.descendant(
+          of: find.byType(PlNumberField),
+          matching: find.byType(EditableText),
+        );
+
+        // A pen put down on the field while it can be written in is offered it,
+        // and one put down on it disabled is offered nothing.
+        await tester.pumpWidget(build(disabled: false));
+
+        expect(await scribble(tester, editor), 1);
+
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pump();
+
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+        expect(await scribble(tester, editor), 0);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        // Autofill writes into every field of its group while one of them has
+        // the keyboard, and reaches the field beside this one only.
+        await tester.showKeyboard(nameEditor);
+        await autofill(tester, <Finder, String>{nameEditor: 'Ada', editor: '12'});
+
+        expect(name.text, 'Ada');
+        expect(value, 5);
+        expect(tester.widget<EditableText>(editor).controller.text, '5');
+
+        // A screen reader finds nothing on it that writes text.
+        final SemanticsData node = semanticsOf(
+          tester,
+          find.byType(PlNumberField),
+        ).getSemanticsData();
+
+        for (final SemanticsAction action in <SemanticsAction>[
+          SemanticsAction.setText,
+          SemanticsAction.paste,
+          SemanticsAction.cut,
+        ]) {
+          expect(node.hasAction(action), isFalse, reason: action.name);
+        }
+
+        handle.dispose();
+        debugDefaultTargetPlatformOverride = null;
       });
     });
     group('hotKeys', () {

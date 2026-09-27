@@ -366,7 +366,13 @@ class _PlTextFieldState extends State<PlTextField> {
     Widget control = EditableText(
       controller: _controller,
       focusNode: _focusNode,
-      readOnly: widget.readOnly || _disabled,
+      // The caller's alone. A disabled field is still a text field, as the React
+      // `<input disabled>` is, and a read-only one is not a text input to iOS or
+      // Android, which would announce a disabled field as static text. Text is
+      // kept out of it because it cannot take the focus, so it never holds a
+      // connection to the keyboard, and the two ways in that need no focus are
+      // shut below.
+      readOnly: widget.readOnly,
       autofocus: widget.autofocus,
       obscureText: widget.obscureText,
       keyboardType:
@@ -402,6 +408,12 @@ class _PlTextFieldState extends State<PlTextField> {
       // here is made by dragging and has no handles to adjust afterwards.
       showSelectionHandles: false,
       enableInteractiveSelection: !_disabled,
+      // Handwriting with a pen on an iPad lands in a field that does not have
+      // the focus, and opens a connection of its own.
+      stylusHandwritingEnabled: !_disabled,
+      // Autofill writes into every field of an `AutofillGroup` that takes part,
+      // focused or not. `null` is the editor's own way of taking no part.
+      autofillHints: _disabled ? null : const <String>[],
       cursorOpacityAnimates: true,
     );
 

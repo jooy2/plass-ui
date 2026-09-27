@@ -98,10 +98,13 @@ final Map<String, _Control> _controls = <String, _Control>{
       readOnly: readOnly,
     ),
   ),
+  // Typed over the label of the value it holds rather than as a query: a
+  // combobox puts its text back to that label when the focus leaves it, as it
+  // does when the field is disabled, and that is not what is being asked here.
   'PlCombobox': _Control(
     (PlassVariant variant, {bool disabled = false, bool readOnly = false}) => PlCombobox<String>(
       options: _options,
-      value: null,
+      value: 'kr-11',
       variant: variant,
       fullWidth: true,
       onChanged: (String? value) {},
@@ -109,7 +112,7 @@ final Map<String, _Control> _controls = <String, _Control>{
       readOnly: readOnly,
     ),
     editor: true,
-    typed: 'Seo',
+    typed: 'Seoul',
   ),
   // Held rather than typed: a number field goes back to the value its parent
   // holds when the focus leaves it, as it does when the field is disabled, and
