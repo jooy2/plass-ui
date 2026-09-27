@@ -6,7 +6,7 @@
 
 ### Added
 
-- **A double tap on a `PlWindowPane` title bar maximizes the window, and another restores it, as a double click does in the React build.** Only the maximize button did. It works on a window whose `controls` include that button and reports through `onMaximizedChanged`. A press on a caption button, in the gap between two of them or on `actions` stays that control's own, so a button pressed twice is pressed twice, and a drag of a `draggable` bar still moves the window from the first pixel.
+- **A double tap on a `PlWindowPane` title bar maximizes the window, and another restores it, as a double click does in the React build.** Only the maximize button did. It works on a window whose `controls` include that button and reports through `onMaximizedChanged`. A press on a caption button, in the gap between two of them, above or below them within the bar or on `actions` stays that control's own, so a button pressed twice is pressed twice, and a drag of a `draggable` bar still moves the window from the first pixel. On `windows7` the buttons hang from the top edge of the bar, and a double tap below them is the bar's.
 
 - **`PlAnimateSplit` takes `mode`, so a line can leave one part at a time.** The React split had `mode="out"` and the Flutter one had no exit at all. `PlassAnimateMode.exit` runs each part's entrance backwards, in the order the parts would have arrived or the other way round with `reverse`, and holds them gone; with animations turned off, each part is there until its turn and gone from then on, as every other exit is.
 
@@ -75,6 +75,8 @@
 - **A chart legend's switched-off entry fades instead of going grey.** The swatch went part-transparent and the name was recoloured to the muted ink, which read as a second kind of text rather than as the same entry, off. The whole row now fades as one thing — swatch and name together, at one opacity — which is what a control that has been switched off looks like everywhere else in the library. The line through the name stays, because it is the half of "off" that survives being read in one colour. The React build makes the same change.
 
 ### Fixed
+
+- **A drag that starts on a `PlWindowPane`'s caption buttons, just above or below them or on `actions` leaves the window where it is, and Aero's buttons hang from the top edge of the title bar, as in the React build.** A drag of a `draggable` bar moved the window wherever it started, a caption button included, and a mouse press that wandered a few pixels on a caption button was lost to it. The buttons now take every press along the height of the bar around them, and the bar's `actions` every press on them, so the window stays where it is and a press that wanders is still a press. On `windows7` the buttons sat 5px down the bar under top corners drawn square for the edge they hang from; they now hang from it and take only their own height, so the bar below them drags the window and takes a double tap as the rest of the bar does.
 
 - **A line, bar, area, scatter or pie chart lets go of the legend entry under the pointer when it is built again without that entry.** An entry taken out from under the pointer, with its series or with the whole legend once fewer than two series were left, stayed hovered, so once the data brought a series back to that place every other series faded for it, wherever the pointer was by then.
 

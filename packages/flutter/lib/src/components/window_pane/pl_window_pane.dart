@@ -6,7 +6,7 @@ import 'dart:math' as math;
 import 'dart:ui' show FlutterView;
 
 import 'package:flutter/gestures.dart'
-    show kDoubleTapSlop, kDoubleTapTimeout, kPrimaryButton, kTouchSlop;
+    show PanGestureRecognizer, kDoubleTapSlop, kDoubleTapTimeout, kPrimaryButton, kTouchSlop;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -276,9 +276,10 @@ class _PlWindowPaneState extends State<PlWindowPane> {
   /// The window itself, so a gesture can measure it.
   final GlobalKey _paneKey = GlobalKey();
 
-  /// The last press a caption button or the bar's `actions` took. It is theirs
-  /// rather than the bar's, so a button pressed twice is pressed twice and the
-  /// window stays the size it was.
+  /// The last press the caption buttons or the bar's `actions` took. It is
+  /// theirs rather than the bar's, so a button pressed twice is pressed twice
+  /// and the window stays the size it was, and a drag that starts on one leaves
+  /// the window where it is.
   int? _claimedPointer;
 
   /// The press on the bar that is still a tap, where it went down, and whether
@@ -658,32 +659,30 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     required PlassLabels labels,
     required PlassTokens tokens,
   }) {
-    // The set as a whole, the gaps between the buttons included, as the React
-    // build's group keeps a double click in it from reaching the bar.
+    // The set as a whole claims a press, as the React build's group keeps a
+    // press and a double click anywhere in it from reaching the bar.
     final Widget buttons = _WindowControlSet(
-      builder: (bool pointed) => Listener(
-        behavior: HitTestBehavior.opaque,
-        onPointerDown: _claim,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            for (int i = 0; i < order.length; i += 1) ...<Widget>[
-              if (i > 0) SizedBox(width: metrics.gap),
-              _WindowButton(
-                os: widget.os,
-                control: order[i],
-                chrome: chrome,
-                metrics: metrics,
-                colors: colors,
-                maximized: widget.maximized,
-                active: widget.active,
-                pointed: pointed,
-                label: _labelFor(order[i], labels),
-                onPressed: () => _press(order[i]),
-              ),
-            ],
+      hanging: chrome.shape == PlWindowControlShape.aero,
+      onPointerDown: _claim,
+      builder: (bool pointed) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (int i = 0; i < order.length; i += 1) ...<Widget>[
+            if (i > 0) SizedBox(width: metrics.gap),
+            _WindowButton(
+              os: widget.os,
+              control: order[i],
+              chrome: chrome,
+              metrics: metrics,
+              colors: colors,
+              maximized: widget.maximized,
+              active: widget.active,
+              pointed: pointed,
+              label: _labelFor(order[i], labels),
+              onPressed: () => _press(order[i]),
+            ),
           ],
-        ),
+        ],
       ),
     );
 
@@ -769,6 +768,22 @@ class _PlWindowPaneState extends State<PlWindowPane> {
     // maximize button that has just been pressed and take the focus off it.
     final bool movable = !widget.maximized;
 
+    // A press the caption buttons or the `actions` took is never offered to the
+    // drag, as the React set and actions stop it before it reaches the bar: a
+    // drag that starts on a button leaves the window where it is.
+    final Map<Type, GestureRecognizerFactory> drag = <Type, GestureRecognizerFactory>{};
+
+    if (movable) {
+      drag[_BarDragRecognizer] = GestureRecognizerFactoryWithHandlers<_BarDragRecognizer>(
+        () => _BarDragRecognizer(claimed: (int pointer) => pointer == _claimedPointer),
+        (_BarDragRecognizer recognizer) {
+          recognizer
+            ..onStart = _dragStart
+            ..onUpdate = _dragUpdate;
+        },
+      );
+    }
+
     return _MoveHandle(
       enabled: movable,
       label: widget.moveLabel ?? labels.moveWindow,
@@ -780,25 +795,29 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       onMove: (_MoveWindowIntent intent) => _step(intent, metrics.frame + metrics.bar),
       child: MouseRegion(
         cursor: movable ? SystemMouseCursors.move : MouseCursor.defer,
-        child: GestureDetector(
+        child: RawGestureDetector(
           behavior: HitTestBehavior.opaque,
-          onPanStart: movable
-              ? (DragStartDetails details) {
-                  _grippedAt = _at;
-                  _travel = Offset.zero;
-                }
-              : null,
-          onPanUpdate: movable
-              ? (DragUpdateDetails details) {
-                  _travel += details.delta;
-                  _moveTo(_grippedAt + _travel);
-                }
-              : null,
+          gestures: drag,
+          semantics: _BarDragSemantics(onDrag: movable ? _dragBy : null),
           child: held,
         ),
       ),
     );
   }
+
+  void _dragStart(DragStartDetails details) {
+    _grippedAt = _at;
+    _travel = Offset.zero;
+  }
+
+  void _dragUpdate(DragUpdateDetails details) {
+    _travel += details.delta;
+    _moveTo(_grippedAt + _travel);
+  }
+
+  /// A whole drag in one step, which is what a screen reader's scroll on the
+  /// bar asks for.
+  void _dragBy(DragUpdateDetails details) => _moveTo(_at + details.delta);
 
   String _labelFor(PlWindowControl control, PlassLabels labels) {
     switch (control) {
@@ -931,14 +950,33 @@ class _WindowColors {
 /// [pressBrightness], as the React plate's `brightness(95%)` does.
 const double _plateHoverBrightness = 1.1;
 
-/// The caption buttons as one set, which knows whether the pointer is over it.
+/// The caption buttons as one set, which knows whether the pointer is over it
+/// and takes every press that lands on it.
 ///
 /// The traffic lights show their marks while the pointer is anywhere over the
 /// three, the gaps between them included, as the React set's `group/controls`
-/// does: the three are one control in three parts. As tall as the bar, as the
-/// React set stretches across it, and the buttons centred in it.
+/// does: the three are one control in three parts. The set is as tall as the
+/// bar, as the React set stretches across it, with the buttons centred in it,
+/// so a press or a double tap just above or below a button is the set's and
+/// neither drags the window nor maximizes it.
+///
+/// Aero's set is the one that does not stretch, as the React one does not: it
+/// hangs from the top edge of the bar and is only as tall as its buttons, so
+/// the bar under it is still the bar.
 class _WindowControlSet extends StatefulWidget {
-  const _WindowControlSet({required this.builder});
+  const _WindowControlSet({
+    required this.hanging,
+    required this.onPointerDown,
+    required this.builder,
+  });
+
+  /// Whether the set hangs from the top edge of the bar rather than filling
+  /// its height.
+  final bool hanging;
+
+  /// A press anywhere on the set, which is how the bar tells that the press is
+  /// not its own.
+  final PointerDownEventListener onPointerDown;
 
   /// The buttons, told whether the pointer is over the set.
   final Widget Function(bool pointed) builder;
@@ -958,14 +996,69 @@ class _WindowControlSetState extends State<_WindowControlSet> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
+    final Widget buttons = widget.builder(_pointed);
+    final Widget column = widget.hanging
+        ? buttons
+        : SizedBox(
+            height: double.infinity,
+            child: Center(child: buttons),
+          );
+
+    // The pointer and the press answer to the same box, as both are the React
+    // set's own.
+    final Widget set = MouseRegion(
       onEnter: (PointerEnterEvent event) => _point(true),
       onExit: (PointerExitEvent event) => _point(false),
-      child: SizedBox(
-        height: double.infinity,
-        child: Center(child: widget.builder(_pointed)),
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: widget.onPointerDown,
+        child: column,
       ),
     );
+
+    if (widget.hanging) {
+      return Align(alignment: Alignment.topCenter, child: set);
+    }
+
+    return set;
+  }
+}
+
+/// The title bar's drag, which is never offered a press the caption buttons or
+/// the bar's `actions` took.
+///
+/// Turned away before the gesture arena rather than beaten in it, so a caption
+/// button is left alone with its press: a press that wanders a few pixels on
+/// the button is still a press, and a drag that starts on it moves nothing.
+class _BarDragRecognizer extends PanGestureRecognizer {
+  _BarDragRecognizer({required this.claimed});
+
+  /// Whether a press is one the bar has to leave alone.
+  final bool Function(int pointer) claimed;
+
+  @override
+  void addPointer(PointerDownEvent event) {
+    if (claimed(event.pointer)) {
+      return;
+    }
+
+    super.addPointer(event);
+  }
+}
+
+/// What a screen reader's scroll on a title bar that drags does: it moves the
+/// window by the step it asks for, as the scroll a plain pan is given does.
+class _BarDragSemantics extends SemanticsGestureDelegate {
+  const _BarDragSemantics({required this.onDrag});
+
+  /// Moves the window, or `null` where the bar does not drag.
+  final GestureDragUpdateCallback? onDrag;
+
+  @override
+  void assignSemantics(RenderSemanticsGestureHandler renderObject) {
+    renderObject
+      ..onHorizontalDragUpdate = onDrag
+      ..onVerticalDragUpdate = onDrag;
   }
 }
 

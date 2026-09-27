@@ -2118,6 +2118,210 @@ void main() {
         expect(maximized, isTrue);
       });
     });
+
+    group('caption buttons in the bar', () {
+      /// Every offset the window asked to be moved to, what it last asked to
+      /// be, and how often its minimize button was pressed.
+      late List<Offset> moved;
+      late bool maximized;
+      late int minimizes;
+
+      /// A window on [os] whose bar drags and whose `maximized` is fed back.
+      Future<void> pumpWindow(WidgetTester tester, PlWindowOs os, {Widget? actions}) async {
+        moved = <Offset>[];
+        maximized = false;
+        minimizes = 0;
+
+        await _pumpFree(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) => PlWindowPane(
+              os: os,
+              title: const Text('Notes'),
+              actions: actions,
+              width: 300,
+              draggable: true,
+              maximized: maximized,
+              onOffsetChanged: (Offset value) => moved.add(value),
+              onMaximizedChanged: (bool value) => setState(() => maximized = value),
+              onMinimizedChanged: (bool value) => minimizes += 1,
+            ),
+          ),
+        );
+      }
+
+      /// The title bar, inside the window's frame.
+      Rect barOf(WidgetTester tester, PlWindowOs os) {
+        final PlWindowMetrics metrics = windowMetrics(os, PlassSize.md);
+        final Rect pane = _drawn(tester);
+
+        return Rect.fromLTWH(
+          pane.left + metrics.frame,
+          pane.top + metrics.frame,
+          pane.width - metrics.frame * 2,
+          metrics.bar,
+        );
+      }
+
+      /// Two taps at [at], as close together as a hand makes them.
+      Future<void> doubleTapAt(WidgetTester tester, Offset at) async {
+        await tester.tapAt(at);
+        await tester.pump(const Duration(milliseconds: 80));
+        await tester.tapAt(at);
+        await tester.pumpAndSettle();
+      }
+
+      /// A press at [at] that travels well past the slop of a drag.
+      Future<void> dragFrom(
+        WidgetTester tester,
+        Offset at, {
+        PointerDeviceKind kind = PointerDeviceKind.touch,
+      }) async {
+        final TestGesture gesture = await tester.startGesture(at, kind: kind);
+
+        for (int i = 0; i < 4; i += 1) {
+          await gesture.moveBy(const Offset(15, 8));
+          await tester.pump();
+        }
+
+        await gesture.up();
+
+        if (kind == PointerDeviceKind.mouse) {
+          await gesture.removePointer();
+        }
+
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets('hang from the top edge of the bar on Aero', (WidgetTester tester) async {
+        await pumpWindow(tester, PlWindowOs.windows7);
+
+        final double top = barOf(tester, PlWindowOs.windows7).top;
+
+        for (final String name in <String>['Minimize', 'Maximize', 'Close']) {
+          expect(tester.getRect(find.bySemanticsLabel(name)).top, top, reason: name);
+        }
+      });
+
+      testWidgets('take a press and a double tap just above or below one, off the bar', (
+        WidgetTester tester,
+      ) async {
+        for (final PlWindowOs os in <PlWindowOs>[
+          PlWindowOs.macos,
+          PlWindowOs.macosx,
+          PlWindowOs.windowsxp,
+          PlWindowOs.linux,
+        ]) {
+          await pumpWindow(tester, os);
+
+          final Rect bar = barOf(tester, os);
+          final Rect button = tester.getRect(find.bySemanticsLabel('Minimize'));
+
+          // Inside the bar, and clear of the button above it and below it.
+          for (final Offset at in <Offset>[
+            Offset(button.center.dx, (bar.top + button.top) / 2),
+            Offset(button.center.dx, (button.bottom + bar.bottom) / 2),
+          ]) {
+            final String reason = '${os.name}, ${at.dy - bar.top}px down the bar';
+
+            expect(button.contains(at), isFalse, reason: reason);
+
+            await doubleTapAt(tester, at);
+
+            expect(maximized, isFalse, reason: reason);
+
+            await dragFrom(tester, at);
+
+            expect(moved, isEmpty, reason: reason);
+          }
+
+          expect(minimizes, 0, reason: os.name);
+        }
+      });
+
+      testWidgets('leave the bar under Aero\'s to the bar, which drags and maximizes', (
+        WidgetTester tester,
+      ) async {
+        await pumpWindow(tester, PlWindowOs.windows7);
+
+        final PlWindowMetrics metrics = windowMetrics(PlWindowOs.windows7, PlassSize.md);
+        final Rect bar = barOf(tester, PlWindowOs.windows7);
+        // Under the foot of buttons that hang from the top of the bar, and
+        // above the foot of buttons centred in it.
+        final Offset under = Offset(
+          tester.getCenter(find.bySemanticsLabel('Minimize')).dx,
+          bar.top + metrics.control.height + (metrics.bar - metrics.control.height) / 4,
+        );
+
+        await dragFrom(tester, under);
+
+        expect(moved, isNotEmpty);
+
+        await doubleTapAt(tester, under);
+
+        expect(maximized, isTrue);
+        expect(minimizes, 0);
+      });
+
+      testWidgets(
+        'keep a drag that starts on one off the window, and take a press that wanders on one',
+        (WidgetTester tester) async {
+          for (final PlWindowOs os in <PlWindowOs>[PlWindowOs.macos, PlWindowOs.windows11]) {
+            for (final PointerDeviceKind kind in <PointerDeviceKind>[
+              PointerDeviceKind.touch,
+              PointerDeviceKind.mouse,
+            ]) {
+              final String reason = '${os.name}, ${kind.name}';
+
+              await pumpWindow(tester, os);
+              await dragFrom(
+                tester,
+                tester.getCenter(find.bySemanticsLabel('Minimize')),
+                kind: kind,
+              );
+
+              // Dragged off the button, the press is let go of rather than
+              // pressed, and the window stays where it is.
+              expect(moved, isEmpty, reason: reason);
+              expect(minimizes, 0, reason: reason);
+
+              // A few pixels on the button, it is still a press.
+              final TestGesture press = await tester.startGesture(
+                tester.getCenter(find.bySemanticsLabel('Minimize')),
+                kind: kind,
+              );
+
+              await press.moveBy(const Offset(5, 3));
+              await tester.pump();
+              await press.up();
+
+              if (kind == PointerDeviceKind.mouse) {
+                await press.removePointer();
+              }
+
+              await tester.pumpAndSettle();
+
+              expect(moved, isEmpty, reason: reason);
+              expect(minimizes, 1, reason: reason);
+            }
+          }
+        },
+      );
+
+      testWidgets('keep a drag that starts on the bar\'s actions off the window as well', (
+        WidgetTester tester,
+      ) async {
+        await pumpWindow(tester, PlWindowOs.windows11, actions: const Text('Share'));
+        await dragFrom(tester, tester.getCenter(find.text('Share')));
+
+        expect(moved, isEmpty);
+
+        // The rest of the bar still drags.
+        await dragFrom(tester, tester.getCenter(find.text('Notes')));
+
+        expect(moved, isNotEmpty);
+      });
+    });
   });
 }
 
