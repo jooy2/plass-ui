@@ -101,8 +101,9 @@ class PlGaugeChart extends StatelessWidget {
   /// Named, it is one image saying one thing, which saves a reader hearing the
   /// two end labels as loose numbers. The name carries the reading, and a
   /// [center] of the caller's own, the [caption] and what [empty] draws are
-  /// read after it. Unnamed there is nothing to call it, so the reading in the
-  /// middle is read as the text it already is.
+  /// read after it; an empty dial draws no reading, so its name is this alone.
+  /// Unnamed there is nothing to call it, so the reading in the middle is read
+  /// as the text it already is.
   final String? semanticLabel;
 
   /// What is drawn when there is nothing to draw.
@@ -249,11 +250,14 @@ class PlGaugeChart extends StatelessWidget {
     // The words the dial writes that its name does not already say join the
     // name after it: a center of the caller's own, the caption, or what an
     // empty dial draws in place of the arc. As the React image is described by
-    // them.
+    // them. An empty dial is called by its name alone: it draws no reading, so
+    // it says none.
     return Semantics(
       container: true,
       image: true,
-      label: value == null ? semanticLabel : '$semanticLabel: ${_write(value!)} / ${_write(max)}',
+      label: value == null || range == 0
+          ? semanticLabel
+          : '$semanticLabel: ${_write(value!)} / ${_write(max)}',
       child: dial,
     );
   }

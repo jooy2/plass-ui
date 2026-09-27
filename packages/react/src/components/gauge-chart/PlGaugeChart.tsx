@@ -357,12 +357,14 @@ export function PlGaugeChart({
         // Named, the dial is one image saying one thing — which is what it is,
         // and it saves a reader hearing the two end labels as loose numbers.
         // Unnamed there is nothing to call it, so it stays a plain box and the
-        // reading in the middle is read as the text it already is.
+        // reading in the middle is read as the text it already is. An empty
+        // dial is called by its name alone: it draws no reading, so it says
+        // none, and the empty state's words follow as its description.
         role={label === undefined ? undefined : 'img'}
         aria-label={
           label === undefined
             ? undefined
-            : value === null
+            : value === null || nothing
               ? label
               : `${label}: ${formatValue(value)} / ${formatValue(max)}`
         }

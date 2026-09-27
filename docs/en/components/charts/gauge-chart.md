@@ -118,7 +118,8 @@ The reading is **real text, not a label painted into the drawing**, so it can be
 ## Accessibility
 
 - With a `label` the dial is one named image saying one thing: `"Storage used: 1.36 / 2"`. That saves a reader hearing the two end labels as loose numbers.
-- The words the dial writes that its name does not already say are read after the name: a `center` of your own, then the `caption`, such as "TB of 2 TB used", or the words of the empty state when `min` and `max` are the same. The number written in the middle is not read a second time.
+- The words the dial writes that its name does not already say are read after the name: a `center` of your own, then the `caption`, such as "TB of 2 TB used". The number written in the middle is not read a second time.
+- When `min` and `max` are the same, the dial draws no reading, so its name is the `label` alone, followed by the words of its empty state.
 - Without one it stays a plain box, and the reading in the middle is read as the text it already is.
 - The value is never carried by colour alone. A threshold changes the family; the number in the middle says the same thing in words.
 - The arc sweeps to a new reading rather than jumping to it, and the sweep is a length rather than a transform. The numbers written across the dial are never resampled.

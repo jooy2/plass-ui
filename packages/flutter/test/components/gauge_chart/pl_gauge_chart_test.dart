@@ -131,7 +131,7 @@ void main() {
       expect(find.bySemanticsLabel('Quota: 68 / 100\nNearly\nof quota'), findsOneWidget);
     });
 
-    testWidgets('reads what a named dial draws when it has nothing to draw', (
+    testWidgets('reads a named dial with nothing to draw by its name alone, then what it draws', (
       WidgetTester tester,
     ) async {
       await _pump(
@@ -145,7 +145,9 @@ void main() {
         ),
       );
 
-      expect(find.bySemanticsLabel('Quota: 5 / 10\nNo scale'), findsOneWidget);
+      // It draws no reading, so its name says none: the words it draws in
+      // place of the arc follow it, once.
+      expect(find.bySemanticsLabel('Quota\nNo scale'), findsOneWidget);
     });
 
     testWidgets('takes the highest band at or below the reading', (WidgetTester tester) async {

@@ -247,14 +247,17 @@ describe('PlGaugeChart', () => {
         .toHaveAccessibleDescription('Nearly of quota');
     });
 
-    it('describes a named dial by what its empty state says', async () => {
+    it('names an empty dial by its name alone, and describes it by what its empty state says', async () => {
       const screen = await render(
         <PlGaugeChart label="Quota" value={5} min={10} max={10} empty={<em>No scale</em>} />
       );
 
-      await expect
-        .element(screen.getByRole('img', { name: 'Quota: 5 / 10' }))
-        .toHaveAccessibleDescription('No scale');
+      const plot = screen.getByRole('img');
+
+      // It draws no reading, so its name says none: the words it draws in
+      // place of the arc follow it, once.
+      await expect.element(plot).toHaveAccessibleName('Quota');
+      await expect.element(plot).toHaveAccessibleDescription('No scale');
     });
 
     it('has no description when it writes nothing its name does not say', async () => {
