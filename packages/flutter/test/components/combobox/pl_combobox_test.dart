@@ -29,11 +29,8 @@ const List<PlComboboxOption<String>> _more = <PlComboboxOption<String>>[
   PlComboboxOption<String>(value: 'rome', label: 'Rome'),
 ];
 
-/// One of the two glyphs at the end of the field.
-///
-/// Not `find.bySemanticsLabel`: the field merges its descendants' semantics, so
-/// that finder lands on the whole control and a tap on it goes to the editor.
-/// This is the button itself.
+/// One of the two glyphs at the end of the field, by the name a screen reader
+/// gives it.
 Finder _adornment(String label) {
   return find.byWidgetPredicate(
     (Widget widget) => widget is Semantics && widget.properties.label == label,
@@ -2390,6 +2387,118 @@ void main() {
           semanticsOf(tester, find.byType(PlCombobox<String>)),
           isSemantics(label: 'City', isTextField: true, isExpanded: true),
         );
+
+        handle.dispose();
+      });
+
+      testWidgets('keeps its name and its tap, with the chevron and the × on nodes of their own', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        String? value;
+
+        Widget build({bool disabled = false}) {
+          return _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
+                options: _cities,
+                value: value,
+                clearable: true,
+                disabled: disabled,
+                onChanged: (String? next) => setState(() => value = next),
+                semanticLabel: 'City',
+              ),
+            ),
+          );
+        }
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlCombobox<String>));
+        SemanticsNode text() => tester.getSemantics(find.byType(EditableText));
+        bool open() => tester.widget<PlassAnchoredPortal>(find.byType(PlassAnchoredPortal)).open;
+
+        void tap(SemanticsNode node) => node.owner!.performAction(node.id, SemanticsAction.tap);
+
+        // With nothing chosen there is no ×, and the chevron alone was folded
+        // into the text's node, which a screen reader met as a button named
+        // "Open" whose tap was the chevron's.
+        await tester.pumpWidget(build());
+
+        final SemanticsNode chevron = semanticsNodeLabelled(tester, 'Open')!;
+
+        expect(chevron.id, isNot(text().id));
+        expect(
+          chevron,
+          isSemantics(
+            label: 'Open',
+            isButton: true,
+            isTextField: false,
+            hasEnabledState: true,
+            isEnabled: true,
+            hasTapAction: true,
+          ),
+        );
+        expect(text().label, isEmpty);
+        expect(text(), isSemantics(isTextField: true, isButton: false, hasTapAction: false));
+        expect(
+          field(),
+          isSemantics(label: 'City', isTextField: true, isButton: false, hasTapAction: true),
+        );
+
+        // The field's tap is a press on the field: it opens the list, and
+        // leaves an open one open.
+        tap(field());
+        await tester.pumpAndSettle();
+        expect(open(), isTrue);
+
+        tap(field());
+        await tester.pumpAndSettle();
+        expect(open(), isTrue);
+
+        // The chevron's closes it.
+        tap(semanticsNodeLabelled(tester, 'Open')!);
+        await tester.pumpAndSettle();
+        expect(open(), isFalse);
+
+        // With a value, the × is a node of its own as well, and takes the value.
+        value = 'seoul';
+        await tester.pumpWidget(build());
+
+        final SemanticsNode clear = semanticsNodeLabelled(tester, 'Clear')!;
+
+        expect(clear.id, isNot(text().id));
+        expect(
+          clear,
+          isSemantics(
+            label: 'Clear',
+            isButton: true,
+            hasEnabledState: true,
+            isEnabled: true,
+            hasTapAction: true,
+          ),
+        );
+        expect(field(), isSemantics(label: 'City', isButton: false));
+
+        tap(clear);
+        await tester.pumpAndSettle();
+        expect(value, isNull);
+
+        // A disabled field's chevron is still a button of its own, one that
+        // says it cannot be pressed, and neither the field nor its text is a
+        // button or takes a tap.
+        await tester.pumpWidget(build(disabled: true));
+
+        expect(
+          semanticsNodeLabelled(tester, 'Open'),
+          isSemantics(
+            label: 'Open',
+            isButton: true,
+            hasEnabledState: true,
+            isEnabled: false,
+            hasTapAction: false,
+          ),
+        );
+        expect(text(), isSemantics(isTextField: true, isButton: false, hasTapAction: false));
+        expect(field(), isSemantics(label: 'City', isButton: false, hasTapAction: false));
 
         handle.dispose();
       });

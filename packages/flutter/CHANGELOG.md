@@ -80,6 +80,8 @@
 
 ### Fixed
 
+- **A `PlCombobox`'s chevron and × are buttons of their own to a screen reader, and a screen reader's tap on the field opens the list.** Whenever the × was not showing, the chevron was folded into the field's text, so a screen reader met the text as a button named "Open", or the `openLabel`, even with a `semanticLabel`. Its tap was the chevron's, which closed an open list. The chevron and the × now sit beside the text as the React build's buttons do, and each says whether it can be pressed. A tap on the field its `semanticLabel` names focuses the text and opens the list, as a press on the field does, and leaves an open list open.
+
 - **Leaving a `PlNumberField` calls `onCommitted` only when something is left to settle: a number typed since the value last settled, the repeats of a held stepper the focus left before it was let go, or a box that reads as a number other than the value, as in the React build.** Every blur called it. So a Tab through the field, or a mouse press on its padding or an adornment, which takes the focus out and gives it back, reported the value the field already had. A press on a stepper of a field that did not have the focus, a held stepper let go of, and `Enter` each reported it a second time on the way out, after the press or the key had settled it. The box is still written back in its settled form on every blur.
 
 - **A `PlAppLogo` given `onPressed` can be reached and pressed from the keyboard.** `Tab` reaches it, `Enter` and `Space` press it, and the family's focus ring is drawn round it while a keyboard holds the focus, as on every other button. Before, it answered only a pointer: it took no focus and no key, so a keyboard could not press it.

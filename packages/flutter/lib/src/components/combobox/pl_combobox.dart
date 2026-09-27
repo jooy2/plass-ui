@@ -1049,6 +1049,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       readOnly: widget.readOnly,
       enabled: !_disabled,
       label: widget.semanticLabel,
+      // A screen reader's tap is a press on the field, as a click on the React
+      // input is: it focuses the text and opens the list, and leaves an open
+      // list open. The chevron's own tap is on the chevron's own node.
+      onTap: _disabled ? null : _pressField,
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );
   }
@@ -1196,7 +1200,13 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       double turns = 0,
     }) {
       return Semantics(
+        // A node of its own, as the React chevron and × are buttons of their
+        // own beside the input. Folded into the text's node, the chevron named
+        // the field "Open", made it a button, and gave it the chevron's tap,
+        // which closed an open list.
+        container: true,
         button: true,
+        enabled: onTap != null,
         label: label,
         onTap: onTap,
         child: GestureDetector(
