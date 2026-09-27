@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
+import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -426,6 +427,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
   bool _focused = false;
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode());
+
+  /// The editor, which a screen reader's tap and focus are handed to.
+  final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
 
   /// [PlNumberField.disabled], or a disabled [PlFieldset] around it.
   bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
@@ -854,6 +858,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
           );
 
     Widget editor = EditableText(
+      key: _editor,
       controller: _controller,
       focusNode: _focusNode,
       // The caller's alone, so a disabled field is still announced as a text
@@ -1271,6 +1276,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
       // input is: a `semanticLabel` is its `aria-label`, and a visible label,
       // merged in below, is its `<label>`.
       label: widget.semanticLabel ?? (widget.label == null ? widget.placeholder : null),
+      // A screen reader's tap and focus, which the editor answers neither of on
+      // its own. As on a Material `TextField`, a read-only field takes the focus
+      // and no tap, and a disabled one takes neither.
+      onTap: _editable ? () => plassTapEditor(_editor) : null,
+      onFocus: _disabled ? null : () => plassFocusEditor(_editor),
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );
   }

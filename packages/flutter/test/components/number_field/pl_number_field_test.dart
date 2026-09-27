@@ -1627,8 +1627,15 @@ void main() {
         expect(settled, <double?>[6]);
         expect(_editorFocused(tester), isFalse);
 
-        // A stepper at the end of the range has nothing to press.
-        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>['Decrease']);
+        // A stepper at the end of the range has nothing to press. The field's
+        // own tap, which puts the caret in it, is not a stepper's.
+        expect(
+          semanticsLabelsWithAction(
+            tester,
+            SemanticsAction.tap,
+          ).where(<String>{'Increase', 'Decrease'}.contains),
+          <String>['Decrease'],
+        );
 
         tester.semantics.tap(find.semantics.byLabel('Decrease'));
         await tester.pumpAndSettle();
@@ -1675,6 +1682,76 @@ void main() {
 
         expect(await tabbedIn(disabled: false), isTrue);
         expect(await tabbedIn(disabled: true), isFalse);
+      });
+
+      testWidgets('takes a screen reader s tap and focus, as a Material field does', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final focus = FocusNode();
+        addTearDown(focus.dispose);
+
+        Widget build({bool readOnly = false, bool disabled = false}) => host(
+          PlNumberField(
+            value: 5,
+            semanticLabel: 'Guests',
+            focusNode: focus,
+            readOnly: readOnly,
+            disabled: disabled,
+            onChanged: (double? _) {},
+          ),
+          width: 320,
+        );
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlNumberField));
+
+        Future<void> perform(SemanticsAction action) async {
+          field().owner!.performAction(field().id, action);
+          await tester.pump();
+        }
+
+        // Neither was on the node, so a screen reader on the web, which only
+        // moves the focus onto the field's `<input>`, never put the caret in
+        // the field, and TalkBack's double tap did nothing.
+        await tester.pumpWidget(build());
+
+        expect(field(), isSemantics(label: 'Guests', hasTapAction: true, hasFocusAction: true));
+
+        await perform(SemanticsAction.focus);
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // Focused with the keyboard put away, the field gets it back.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        await perform(SemanticsAction.focus);
+
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        focus.unfocus();
+        await tester.pump();
+        await perform(SemanticsAction.tap);
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // A read-only field takes the focus and no tap, and a disabled one
+        // takes neither.
+        focus.unfocus();
+        await tester.pumpWidget(build(readOnly: true));
+
+        expect(field(), isSemantics(label: 'Guests', hasTapAction: false, hasFocusAction: true));
+
+        await perform(SemanticsAction.focus);
+
+        expect(focus.hasFocus, isTrue);
+
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pump();
+
+        expect(field(), isSemantics(label: 'Guests', hasTapAction: false, hasFocusAction: false));
+
+        handle.dispose();
       });
 
       testWidgets('is a text field while disabled, unavailable rather than read-only', (

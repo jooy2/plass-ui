@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/keys.dart';
@@ -274,6 +275,9 @@ class _PlOtpFieldState extends State<PlOtpField> {
 
   FocusNode get _focusNode => widget.focusNode ?? (_ownedFocus ??= FocusNode());
 
+  /// The editor, which a screen reader's focus is handed to.
+  final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
+
   int get _slots => widget.length.clamp(_minLength, _maxLength);
 
   @override
@@ -405,6 +409,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
       child: Opacity(
         opacity: 0,
         child: EditableText(
+          key: _editor,
           controller: _controller,
           focusNode: _focusNode,
           readOnly: widget.readOnly || _disabled,
@@ -512,6 +517,10 @@ class _PlOtpFieldState extends State<PlOtpField> {
       // action that gives it are declared here.
       focused: _focused,
       onTap: _disabled ? null : _focusAtEnd,
+      // A screen reader moving the focus onto the field, which is all a screen
+      // reader on the web does to the field's `<input>`. It takes the focus as
+      // a press gives it, with the caret at the first empty slot.
+      onFocus: _disabled ? null : () => plassFocusEditor(_editor, focus: _focusAtEnd),
       child: IntrinsicWidth(child: stack),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -363,6 +364,67 @@ void main() {
         );
 
         expect(semanticsLabels(tester), <String>['Verification code']);
+
+        handle.dispose();
+      });
+
+      testWidgets('takes a screen reader s focus, with the caret at the first empty slot', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final TextEditingController controller = TextEditingController(text: '12');
+        final FocusNode focus = FocusNode();
+        addTearDown(controller.dispose);
+        addTearDown(focus.dispose);
+
+        Widget build({bool disabled = false}) => host(
+          PlOtpField(
+            length: 6,
+            controller: controller,
+            focusNode: focus,
+            disabled: disabled,
+            semanticLabel: 'Verification code',
+          ),
+        );
+
+        SemanticsNode field() => tester.getSemantics(find.byType(PlOtpField));
+
+        Future<void> perform(SemanticsAction action) async {
+          field().owner!.performAction(field().id, action);
+          await tester.pump();
+        }
+
+        // A screen reader on the web only moves the focus onto the field's
+        // `<input>`, which nothing on the node answered, so it never put the
+        // caret in the row.
+        await tester.pumpWidget(build());
+
+        expect(
+          field(),
+          isSemantics(label: 'Verification code', hasTapAction: true, hasFocusAction: true),
+        );
+
+        controller.selection = const TextSelection.collapsed(offset: 0);
+        await perform(SemanticsAction.focus);
+
+        expect(focus.hasFocus, isTrue);
+        expect(controller.selection, const TextSelection.collapsed(offset: 2));
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // Focused with the keyboard put away, the row gets it back.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        await perform(SemanticsAction.focus);
+
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // A disabled row takes neither.
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pump();
+
+        expect(
+          field(),
+          isSemantics(label: 'Verification code', hasTapAction: false, hasFocusAction: false),
+        );
 
         handle.dispose();
       });

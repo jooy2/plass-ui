@@ -3035,6 +3035,70 @@ void main() {
         expect(await tabbedIn(disabled: true), isFalse);
       });
 
+      testWidgets('takes a screen reader s focus, and leaves the list shut', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final focus = FocusNode();
+        addTearDown(focus.dispose);
+
+        Widget build({bool readOnly = false, bool disabled = false}) => _host(
+          PlCombobox<String>(
+            options: _cities,
+            value: 'seoul',
+            semanticLabel: 'City',
+            focusNode: focus,
+            readOnly: readOnly,
+            disabled: disabled,
+            onChanged: (String? _) {},
+          ),
+        );
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlCombobox<String>));
+
+        Future<void> perform(SemanticsAction action) async {
+          field().owner!.performAction(field().id, action);
+          await tester.pumpAndSettle();
+        }
+
+        // A screen reader on the web only moves the focus onto the field's
+        // `<input>`, which nothing on the node answered, so it never put the
+        // caret in the field. Focusing the React input leaves its list shut.
+        await tester.pumpWidget(build());
+
+        expect(field(), isSemantics(label: 'City', hasTapAction: true, hasFocusAction: true));
+
+        await perform(SemanticsAction.focus);
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(_inList('Lisbon'), findsNothing);
+
+        // Focused with the keyboard put away, the field gets it back.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        await perform(SemanticsAction.focus);
+
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // A read-only field takes it too, and a disabled one does not.
+        focus.unfocus();
+        await tester.pumpWidget(build(readOnly: true));
+        await tester.pumpAndSettle();
+
+        expect(field(), isSemantics(label: 'City', hasFocusAction: true));
+
+        await perform(SemanticsAction.focus);
+
+        expect(focus.hasFocus, isTrue);
+
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pumpAndSettle();
+
+        expect(field(), isSemantics(label: 'City', hasTapAction: false, hasFocusAction: false));
+
+        handle.dispose();
+      });
+
       testWidgets('is a text field while disabled, unavailable rather than read-only', (
         WidgetTester tester,
       ) async {

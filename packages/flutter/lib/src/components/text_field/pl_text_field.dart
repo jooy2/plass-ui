@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
+import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -226,6 +227,10 @@ class _PlTextFieldState extends State<PlTextField> {
 
   FocusNode? _owned;
   TextEditingController? _fallback;
+
+  /// The editor, which a screen reader's tap and focus are handed to.
+  final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
+
   bool _hovered = false;
   bool _pressed = false;
 
@@ -364,6 +369,7 @@ class _PlTextFieldState extends State<PlTextField> {
     );
 
     Widget control = EditableText(
+      key: _editor,
       controller: _controller,
       focusNode: _focusNode,
       // The caller's alone. A disabled field is still a text field, as the React
@@ -622,6 +628,11 @@ class _PlTextFieldState extends State<PlTextField> {
       // input is: a `semanticLabel` is its `aria-label`, and a visible label,
       // merged in below, is its `<label>`.
       label: widget.semanticLabel ?? (widget.label == null ? widget.placeholder : null),
+      // A screen reader's tap and focus, which the editor answers neither of on
+      // its own. As on a Material `TextField`, a read-only field takes the focus
+      // and no tap, and a disabled one takes neither.
+      onTap: _disabled || widget.readOnly ? null : () => plassTapEditor(_editor),
+      onFocus: _disabled ? null : () => plassFocusEditor(_editor),
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );
   }

@@ -190,6 +190,75 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('gives the value field a screen reader s tap and focus', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      Widget build({bool readOnly = false, bool disabled = false}) => host(
+        PlColorPicker(inline: true, value: '#ff0000', readOnly: readOnly, disabled: disabled),
+        width: 400,
+        height: 560,
+        overlay: true,
+      );
+
+      SemanticsNode field() => tester.getSemantics(find.byType(EditableText));
+      bool focused() => tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
+
+      Future<void> perform(SemanticsAction action) async {
+        field().owner!.performAction(field().id, action);
+        await tester.pump();
+      }
+
+      // Neither was on the node, so a screen reader on the web, which only
+      // moves the focus onto the field's `<input>`, never put the caret in the
+      // field, and TalkBack's double tap did nothing.
+      await tester.pumpWidget(build());
+
+      expect(field(), isSemantics(label: 'Colour value', hasTapAction: true, hasFocusAction: true));
+
+      await perform(SemanticsAction.focus);
+
+      expect(focused(), isTrue);
+      expect(tester.testTextInput.isVisible, isTrue);
+
+      tester.widget<EditableText>(find.byType(EditableText)).focusNode.unfocus();
+      await tester.pump();
+      await perform(SemanticsAction.tap);
+
+      expect(focused(), isTrue);
+      expect(tester.testTextInput.isVisible, isTrue);
+
+      // The field is read-only while the picker is read-only or disabled, as
+      // the React input is, and stays in the focus order, as that one does. So
+      // it takes the focus then and no tap, as a read-only Material field does.
+      for (final (String state, bool readOnly, bool disabled) in <(String, bool, bool)>[
+        ('read-only', true, false),
+        ('disabled', false, true),
+      ]) {
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode.unfocus();
+        await tester.pumpWidget(build(readOnly: readOnly, disabled: disabled));
+        await tester.pump();
+
+        expect(
+          field(),
+          isSemantics(
+            label: 'Colour value',
+            isReadOnly: true,
+            hasTapAction: false,
+            hasFocusAction: true,
+          ),
+          reason: state,
+        );
+
+        await perform(SemanticsAction.focus);
+
+        expect(focused(), isTrue, reason: state);
+      }
+
+      handle.dispose();
+    });
+
     testWidgets('reports the square s two channels together', (WidgetTester tester) async {
       final SemanticsHandle handle = tester.ensureSemantics();
 

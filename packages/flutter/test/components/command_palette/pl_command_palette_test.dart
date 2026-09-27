@@ -518,6 +518,58 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('gives the field a screen reader s tap and focus', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        SemanticsNode field() => semanticsNodeLabelled(tester, 'Search commands')!;
+        FocusNode focus() => tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+
+        Future<void> perform(SemanticsAction action) async {
+          field().owner!.performAction(field().id, action);
+          await tester.pumpAndSettle();
+        }
+
+        // Neither was on the node, so a screen reader on the web, which only
+        // moves the focus onto the field's `<input>`, never put the caret in
+        // the field, and TalkBack's double tap did nothing.
+        expect(
+          field(),
+          isSemantics(
+            isTextField: true,
+            label: 'Search commands',
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+
+        focus().unfocus();
+        await tester.pumpAndSettle();
+        await perform(SemanticsAction.focus);
+
+        expect(focus().hasFocus, isTrue);
+
+        // Focused with the keyboard put away, the field gets it back from
+        // either.
+        for (final SemanticsAction action in <SemanticsAction>[
+          SemanticsAction.focus,
+          SemanticsAction.tap,
+        ]) {
+          await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+          expect(tester.testTextInput.isVisible, isFalse, reason: action.name);
+
+          await perform(action);
+
+          expect(tester.testTextInput.isVisible, isTrue, reason: action.name);
+        }
+
+        expect(find.text('Open'), findsOneWidget);
+
+        handle.dispose();
+      });
+
       testWidgets('names the field by a placeholder of the caller s own', (
         WidgetTester tester,
       ) async {
@@ -542,7 +594,7 @@ void main() {
         handle.dispose();
       });
 
-      testWidgets('offers a screen reader no tap but the rows, and closes on Escape', (
+      testWidgets('offers no tap but the field and the rows, and closes on Escape', (
         WidgetTester tester,
       ) async {
         final SemanticsHandle handle = tester.ensureSemantics();
@@ -554,6 +606,7 @@ void main() {
         // tap closed the palette. The React backdrop is hidden from a screen
         // reader while the dialog is open.
         expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>[
+          'Search commands',
           'New document\nCtrl N',
           'Open',
           'Copy\nPut it on the clipboard',

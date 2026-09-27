@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/hot_keys/pl_hot_keys.dart';
+import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 // The same vocabulary [PlHotKeys] draws, read rather than written.
@@ -207,6 +208,10 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
 
   final TextEditingController _query = TextEditingController();
   final FocusNode _field = FocusNode(debugLabel: 'PlCommandPalette');
+
+  /// The search field's editor, which a screen reader's tap and focus are
+  /// handed to.
+  final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
   final ScrollController _scroll = ScrollController();
   final PlassRowReveal _reveal = PlassRowReveal();
   int _highlighted = 0;
@@ -426,7 +431,13 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
           // something is typed and the placeholder is gone.
           child: Semantics(
             label: placeholderText,
+            // A screen reader's tap and focus, which the editor answers neither
+            // of on its own. A screen reader on the web does nothing but move
+            // the focus onto the field's `<input>`.
+            onTap: () => plassTapEditor(_editor),
+            onFocus: () => plassFocusEditor(_editor),
             child: EditableText(
+              key: _editor,
               controller: _query,
               focusNode: _field,
               onChanged: (String _) {

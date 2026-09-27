@@ -697,6 +697,87 @@ void main() {
         expect(await tabbedIn(disabled: false), isTrue);
         expect(await tabbedIn(disabled: true), isFalse);
       });
+
+      testWidgets('takes a screen reader s tap and focus, as a Material field does', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final focus = FocusNode();
+        addTearDown(focus.dispose);
+
+        Widget build({bool readOnly = false, bool disabled = false}) => host(
+          PlTextField(
+            fullWidth: true,
+            semanticLabel: 'Email',
+            focusNode: focus,
+            readOnly: readOnly,
+            disabled: disabled,
+          ),
+          width: 300,
+        );
+
+        SemanticsNode field() => semanticsOf(tester, find.byType(PlTextField));
+
+        Future<void> perform(SemanticsAction action) async {
+          field().owner!.performAction(field().id, action);
+          await tester.pump();
+        }
+
+        // Neither was on the node: the editor keeps its focus off the tree and
+        // the shell keeps its press off it, so a screen reader on the web,
+        // which only moves the focus onto the field's `<input>`, never put the
+        // caret in the field, and TalkBack's double tap did nothing.
+        await tester.pumpWidget(build());
+
+        expect(field(), isSemantics(label: 'Email', hasTapAction: true, hasFocusAction: true));
+
+        await perform(SemanticsAction.focus);
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // Focused with the keyboard put away, the field gets it back.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        expect(tester.testTextInput.isVisible, isFalse);
+
+        await perform(SemanticsAction.focus);
+
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // A tap puts the caret in, and the keyboard up with it.
+        focus.unfocus();
+        await tester.pump();
+
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        await perform(SemanticsAction.tap);
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        await perform(SemanticsAction.tap);
+
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // A read-only field takes the focus and no tap.
+        focus.unfocus();
+        await tester.pumpWidget(build(readOnly: true));
+
+        expect(field(), isSemantics(label: 'Email', hasTapAction: false, hasFocusAction: true));
+
+        await perform(SemanticsAction.focus);
+
+        expect(focus.hasFocus, isTrue);
+
+        // A disabled one takes neither.
+        await tester.pumpWidget(build(disabled: true));
+        await tester.pump();
+
+        expect(field(), isSemantics(label: 'Email', hasTapAction: false, hasFocusAction: false));
+
+        handle.dispose();
+      });
     });
     group('hotKeys', () {
       /// A field with a chord map, under a listener that counts what got past it.

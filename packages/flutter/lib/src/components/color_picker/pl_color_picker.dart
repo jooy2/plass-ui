@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/color.dart';
+import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -269,6 +270,10 @@ class _PlColorPickerState extends State<PlColorPicker> {
   /// inside the panel's build was a new node on every keystroke, and the field
   /// lost focus and the keyboard with each one.
   final FocusNode _textFocus = FocusNode();
+
+  /// The value field's editor, which a screen reader's tap and focus are
+  /// handed to.
+  final GlobalKey<EditableTextState> _textEditor = GlobalKey<EditableTextState>();
   bool _open = false;
 
   String get _written => formatColor(_model.hsv, widget.alpha ? _model.alpha : 1, widget.format);
@@ -338,6 +343,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
       onChanged: _commit,
       controller: _text,
       focusNode: _textFocus,
+      editorKey: _textEditor,
       onTyped: (String next) {
         final PlassColorValue? parsed = parseColor(next);
 
@@ -518,6 +524,7 @@ class _ColorPanel extends StatelessWidget {
     required this.onChanged,
     required this.controller,
     required this.focusNode,
+    required this.editorKey,
     required this.onTyped,
     required this.withAlpha,
     required this.swatches,
@@ -533,6 +540,7 @@ class _ColorPanel extends StatelessWidget {
   final void Function(PlassColorValue next, {String? typed}) onChanged;
   final TextEditingController controller;
   final FocusNode focusNode;
+  final GlobalKey<EditableTextState> editorKey;
   final ValueChanged<String> onTyped;
   final bool withAlpha;
   final List<String> swatches;
@@ -726,7 +734,16 @@ class _ColorPanel extends StatelessWidget {
                       child: Semantics(
                         container: true,
                         label: labels.value,
+                        // A screen reader's tap and focus, which the editor
+                        // answers neither of on its own. The field is read-only
+                        // while the picker is read-only or disabled, as the
+                        // React input is, so it takes no tap then, as a
+                        // read-only Material `TextField` takes none, and it
+                        // stays in the focus order, as the React input does.
+                        onTap: inert ? null : () => plassTapEditor(editorKey),
+                        onFocus: () => plassFocusEditor(editorKey),
                         child: EditableText(
+                          key: editorKey,
                           controller: controller,
                           focusNode: focusNode,
                           readOnly: inert,

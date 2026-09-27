@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/components/chip/pl_chip.dart';
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -581,6 +582,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode(debugLabel: 'PlCombobox'));
 
+  /// The editor, which a screen reader's focus is handed to.
+  final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
+
   /// [PlCombobox.disabled], or a disabled [PlFieldset] around it.
   bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
 
@@ -1084,6 +1088,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       // input is: it focuses the text and opens the list, and leaves an open
       // list open. The chevron's own tap is on the chevron's own node.
       onTap: _disabled ? null : _pressField,
+      // A screen reader moving the focus onto the field, which is all a screen
+      // reader on the web does to the field's `<input>`. The editor answers no
+      // focus of its own, and a focus leaves the list as it is, as focusing the
+      // React input does.
+      onFocus: _disabled ? null : () => plassFocusEditor(_editor),
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );
   }
@@ -1110,6 +1119,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     );
 
     Widget editor = EditableText(
+      key: _editor,
       controller: _text,
       focusNode: _focusNode,
       // The caller's alone, so a disabled field is still announced as a text
