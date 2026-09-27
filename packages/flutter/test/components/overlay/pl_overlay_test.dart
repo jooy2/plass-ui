@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -153,6 +154,27 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.bySemanticsLabel('Overlay'), findsOneWidget);
+
+        handle.dispose();
+      });
+
+      testWidgets('offers a screen reader no tap on the content or the backdrop', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final state = await _pump(tester, const _Harness(dismissible: true));
+
+        // The press that keeps a press on the content from counting as one
+        // outside it put a tap that did nothing on the content, and the
+        // backdrop of a dismissible overlay was a node the size of the screen
+        // with no name whose tap closed it.
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), isEmpty);
+        expect(semanticsLabels(tester), contains('Saving your work…'));
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(state.open, isFalse);
 
         handle.dispose();
       });

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -392,6 +393,31 @@ void main() {
             'Unavailable',
           ]),
         );
+
+        handle.dispose();
+      });
+
+      testWidgets('offers a screen reader no tap but the rows, and closes on Escape', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        // The backdrop was a node the size of the screen with no name whose
+        // tap closed the palette. The React backdrop is hidden from a screen
+        // reader while the dialog is open.
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>[
+          'New document\nCtrl N',
+          'Open',
+          'Copy\nPut it on the clipboard',
+        ]);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Open'), findsNothing);
 
         handle.dispose();
       });

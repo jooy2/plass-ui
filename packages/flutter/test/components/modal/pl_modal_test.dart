@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -303,6 +304,31 @@ void main() {
         await _pump(tester, const _Harness());
 
         expect(tester.getSemantics(find.text('Delete this project?')), isSemantics(isHeader: true));
+
+        handle.dispose();
+      });
+
+      testWidgets('offers a screen reader no tap but the ×, and closes on Escape', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        final state = await _pump(tester, const _Harness());
+
+        // The press that keeps a press on the sheet from counting as one
+        // outside it put a tap that did nothing on the heading, and the
+        // backdrop was a node the size of the screen with no name whose tap
+        // closed the modal. The React backdrop is hidden from a screen reader
+        // while the dialog is open.
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>['Close']);
+        expect(
+          semanticsNodeLabelled(tester, 'Delete this project?'),
+          isSemantics(label: 'Delete this project?', isHeader: true, hasTapAction: false),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(state.open, isFalse);
 
         handle.dispose();
       });

@@ -165,6 +165,9 @@ class PlOverlay extends StatelessWidget {
               // whole of what an outside press means.
               : GestureDetector(
                   behavior: HitTestBehavior.opaque,
+                  // The pointer's alone. On the semantics tree it would be a
+                  // tap that does nothing, on the content.
+                  excludeFromSemantics: true,
                   onTap: () {},
                   child: DefaultTextStyle.merge(
                     style: TextStyle(color: tokens.fg),

@@ -232,6 +232,10 @@ class PlModal extends StatelessWidget {
               child: GestureDetector(
                 // A press on the sheet is not a press outside it.
                 behavior: HitTestBehavior.opaque,
+                // The pointer's alone. On the semantics tree it would be a tap
+                // that does nothing, on the heading, with the description
+                // pulled into the heading's name.
+                excludeFromSemantics: true,
                 onTap: () {},
                 child: fullScreen
                     ? _sheet(context, tokens, close)

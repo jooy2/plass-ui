@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -154,6 +155,31 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(tester.state<_HarnessState>(find.byType(_Harness)).open, isFalse);
+      });
+
+      testWidgets('offers a screen reader no tap but the ×, and closes on Escape', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(host(const _Harness(), overlay: true, width: 480, height: 640));
+        await tester.pumpAndSettle();
+
+        // The press that keeps a press on the panel from counting as one
+        // outside it put a tap that did nothing on the heading, and the scrim
+        // was a node the size of the screen with no name whose tap closed the
+        // drawer.
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>['Close']);
+        expect(
+          semanticsNodeLabelled(tester, 'Filters'),
+          isSemantics(label: 'Filters', isHeader: true, hasTapAction: false),
+        );
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(tester.state<_HarnessState>(find.byType(_Harness)).open, isFalse);
+
+        handle.dispose();
       });
 
       testWidgets('drops the × when it is told to, and draws it otherwise', (

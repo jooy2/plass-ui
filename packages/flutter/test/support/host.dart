@@ -176,3 +176,26 @@ List<String> semanticsLabels(WidgetTester tester) {
 
   return labels;
 }
+
+/// The label of every node on the semantics tree that offers [action], in tree
+/// order, and an empty string for a node with no name.
+///
+/// Walked the same way [semanticsLabels] walks it, so it reaches a layer lifted
+/// into an overlay, which `find.semantics.byAction` does not.
+List<String> semanticsLabelsWithAction(WidgetTester tester, SemanticsAction action) {
+  final List<String> labels = <String>[];
+
+  bool visit(SemanticsNode node) {
+    if (node.getSemanticsData().hasAction(action)) {
+      labels.add(node.label);
+    }
+
+    node.visitChildren(visit);
+
+    return true;
+  }
+
+  tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+  return labels;
+}

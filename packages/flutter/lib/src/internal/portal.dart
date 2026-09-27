@@ -263,6 +263,11 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
     // nothing behind it is reached even where nothing is painted.
     backdrop = GestureDetector(
       behavior: HitTestBehavior.opaque,
+      // Not handed to a screen reader, as the React backdrop is hidden from one
+      // while the layer is open. On the tree it would be a node the size of the
+      // screen with no name, whose tap closes the layer. A reader closes it with
+      // Escape, or with a button the layer draws.
+      excludeFromSemantics: true,
       onTap: widget.onDismiss == null ? null : _dismiss,
       child: backdrop,
     );
