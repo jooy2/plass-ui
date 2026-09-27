@@ -227,6 +227,12 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
+
+    // A palette built open asks for the field as one opened later does. An app
+    // that builds the palette only while it is open always builds it open.
+    if (widget.open) {
+      _focusField();
+    }
   }
 
   @override
@@ -240,7 +246,7 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
 
     if (widget.open && !oldWidget.open) {
       _highlighted = 0;
-      WidgetsBinding.instance.addPostFrameCallback((_) => _field.requestFocus());
+      _focusField();
     }
 
     // The query is dropped on the way *out* rather than on the way in, so the
@@ -257,6 +263,23 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
     _field.dispose();
     _scroll.dispose();
     super.dispose();
+  }
+
+  /// Puts the focus in the field once this frame is over, as the React input's
+  /// `autoFocus` does.
+  ///
+  /// The sheet is not in the tree yet, because the portal lifts it after this
+  /// frame, and a field that is not in the tree keeps the request until it
+  /// joins. The portal then asks its own scope for the focus, and a scope hands
+  /// that on to the child that last asked for it. Without the request the scope
+  /// keeps the focus itself: the arrows, `Enter` and `Escape` still work,
+  /// because they are read off the keyboard, but typed words go nowhere.
+  void _focusField() {
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      if (mounted && widget.open) {
+        _field.requestFocus();
+      }
+    });
   }
 
   /// Everything the palette listens to, in one place.

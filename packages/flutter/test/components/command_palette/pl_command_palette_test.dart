@@ -382,6 +382,86 @@ void main() {
       });
     });
 
+    group('focus', () {
+      FocusNode field(WidgetTester tester) {
+        return tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+      }
+
+      /// A focus stop, and the palette after it once [built], which is how an
+      /// app that builds the palette only while it is open has it.
+      Widget page(FocusNode opener, {required bool built, bool open = true}) {
+        return host(
+          Column(
+            children: <Widget>[
+              Focus(focusNode: opener, child: const SizedBox.square(dimension: 1)),
+              if (built) PlCommandPalette(items: commands, open: open),
+            ],
+          ),
+          width: 700,
+          height: 500,
+          overlay: true,
+        );
+      }
+
+      testWidgets('puts it in the field when the palette is built open', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(const _Host(), width: 700, height: 500, overlay: true));
+        await tester.pumpAndSettle();
+
+        expect(field(tester).hasPrimaryFocus, isTrue);
+
+        // Typed straight in, with no tap on the field first. The palette's own
+        // scope held the focus, and the words went nowhere.
+        tester.testTextInput.enterText('copy');
+        await tester.pumpAndSettle();
+
+        expect(find.text('Copy'), findsOneWidget);
+        expect(find.text('New document'), findsNothing);
+      });
+
+      testWidgets('puts it in the field when the palette is opened later', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        await tester.pumpWidget(
+          host(const _Host(open: false, shortcut: 'Mod+K'), width: 700, height: 500, overlay: true),
+        );
+
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        await tester.pumpAndSettle();
+
+        expect(field(tester).hasPrimaryFocus, isTrue);
+
+        debugDefaultTargetPlatformOverride = null;
+      });
+
+      testWidgets('gives it back to where it was when a palette built open closes', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode opener = FocusNode(debugLabel: 'opener');
+        addTearDown(opener.dispose);
+
+        await tester.pumpWidget(page(opener, built: false));
+        opener.requestFocus();
+        await tester.pump();
+
+        await tester.pumpWidget(page(opener, built: true));
+        await tester.pumpAndSettle();
+
+        expect(field(tester).hasPrimaryFocus, isTrue);
+
+        await tester.pumpWidget(page(opener, built: true, open: false));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(EditableText), findsNothing);
+        expect(opener.hasPrimaryFocus, isTrue);
+      });
+    });
+
     group('accessibility', () {
       testWidgets('names each row once, by what it draws', (WidgetTester tester) async {
         final SemanticsHandle handle = tester.ensureSemantics();
