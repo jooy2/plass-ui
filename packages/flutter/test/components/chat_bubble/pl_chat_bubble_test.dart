@@ -1,3 +1,5 @@
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -270,6 +272,120 @@ void main() {
 
         await tester.tap(find.text('Prop conventions'));
         expect(opened, 1);
+      });
+
+      testWidgets('with nothing to open, is no focus stop in either navigation mode', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode();
+        addTearDown(before.dispose);
+
+        for (final NavigationMode mode in NavigationMode.values) {
+          for (final bool pressable in <bool>[true, false]) {
+            await tester.pumpWidget(
+              host(
+                MediaQuery(
+                  data: MediaQueryData(navigationMode: mode),
+                  child: afterFocusStop(
+                    before,
+                    PlChatBubble(
+                      preview: PlChatBubbleLinkPreview(
+                        onPressed: pressable ? () {} : null,
+                        title: const Text('Prop conventions'),
+                      ),
+                      child: const Text('Have a look'),
+                    ),
+                  ),
+                ),
+                width: 400,
+              ),
+            );
+
+            before.requestFocus();
+            await tester.pump();
+            await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+            await tester.pump();
+
+            final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+            // The card is the bubble's only stop, and only while it opens
+            // something, as the React card is a link only with an `href`.
+            expect(
+              focused != null &&
+                  find
+                      .ancestor(
+                        of: find.byElementPredicate((Element element) => element == focused),
+                        matching: find.byType(PlChatBubble),
+                      )
+                      .evaluate()
+                      .isNotEmpty,
+              pressable,
+              reason: '$mode, pressable $pressable',
+            );
+          }
+        }
+      });
+
+      testWidgets('with nothing to open, lets a press through to what is round it', (
+        WidgetTester tester,
+      ) async {
+        var round = 0;
+        var opened = 0;
+
+        for (final bool pressable in <bool>[true, false]) {
+          await tester.pumpWidget(
+            host(
+              GestureDetector(
+                onTap: () => round += 1,
+                child: PlChatBubble(
+                  preview: PlChatBubbleLinkPreview(
+                    onPressed: pressable ? () => opened += 1 : null,
+                    title: const Text('Prop conventions'),
+                  ),
+                  child: const Text('Have a look'),
+                ),
+              ),
+              width: 400,
+            ),
+          );
+
+          await tester.tap(find.text('Prop conventions'));
+          await tester.pump();
+        }
+
+        // The card that opens something takes its press, and the one that
+        // does not hands it on.
+        expect(opened, 1);
+        expect(round, 1);
+      });
+
+      testWidgets('with nothing to open, says nothing about the focus', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            const PlChatBubble(
+              preview: PlChatBubbleLinkPreview(title: Text('Prop conventions')),
+              child: Text('Have a look'),
+            ),
+            width: 400,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Prop conventions')),
+          isSemantics(
+            isLink: false,
+            isFocusable: false,
+            hasTapAction: false,
+            hasFocusAction: false,
+          ),
+        );
+        expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsNothing);
+
+        handle.dispose();
       });
     });
   });

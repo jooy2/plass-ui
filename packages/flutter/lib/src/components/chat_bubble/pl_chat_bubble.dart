@@ -574,11 +574,19 @@ class _Preview extends StatelessWidget {
     final radius = BorderRadius.circular(tokens.radii[PlassSize.sm]!);
     final ink = DefaultTextStyle.of(context).style.color!;
     final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+    final pressable = preview.onPressed != null;
 
+    // A card with nothing to open is the React build's plain `<div>`: no focus
+    // stop in any navigation mode and no claim on the tap, so a press on it
+    // reaches whatever is round the bubble. Switched with `pressable` rather
+    // than by leaving the wrapper out, which keeps the same widgets above the
+    // card, and the picture in it, when `onPressed` comes or goes.
     return PlassInteractive(
       onTap: preview.onPressed,
-      interactive: preview.onPressed != null,
-      cursor: preview.onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
+      enabled: pressable,
+      interactive: pressable,
+      pressable: pressable,
+      cursor: pressable ? SystemMouseCursors.click : MouseCursor.defer,
       builder: (BuildContext context, PlassInteraction state) {
         // The wash eases as the pointer arrives and leaves, as the React card's
         // `background-color` does, and at once under reduced motion. Only how

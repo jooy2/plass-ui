@@ -360,6 +360,20 @@ void main() {
       );
 
       await _expectFocusStop(tester, 'Prop conventions');
+
+      // A card with nothing to open takes no focus and says nothing of it.
+      await tester.pumpWidget(
+        host(
+          const PlChatBubble(
+            preview: PlChatBubbleLinkPreview(title: Text('Prop conventions')),
+            child: Text('Have a look'),
+          ),
+          width: 400,
+        ),
+      );
+
+      _expectNoFocus(tester, 'Prop conventions');
+      expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsNothing);
     });
 
     _testSemantics('PlToast action', (WidgetTester tester) async {
