@@ -301,15 +301,20 @@ class PlChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: spacing,
+          // Each part keyed, because a filter chip that is chosen can gain a
+          // mark in front of the label and a count behind it in the same
+          // build. Found by its place alone, a part that stayed would then
+          // match neither end of the row and be built again from scratch.
           children: <Widget>[
-            ?startIcon,
-            // Keyed, because a filter chip that is chosen can gain a mark in
-            // front of the label and a count behind it in the same build.
-            // Found by its place alone, the label would then match neither
-            // end of the row and be built again from scratch.
+            if (startIcon != null)
+              KeyedSubtree(key: const ValueKey<String>('start'), child: startIcon!),
             if (child != null) Flexible(key: const ValueKey<String>('label'), child: child!),
-            ?endIcon,
-            if (count != null) _countPlate(context, tokens, family, fontSize: fontSize),
+            if (endIcon != null) KeyedSubtree(key: const ValueKey<String>('end'), child: endIcon!),
+            if (count != null)
+              KeyedSubtree(
+                key: const ValueKey<String>('count'),
+                child: _countPlate(context, tokens, family, fontSize: fontSize),
+              ),
           ],
         ),
       ),

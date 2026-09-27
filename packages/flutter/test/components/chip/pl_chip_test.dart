@@ -57,43 +57,58 @@ void main() {
         expect(find.text('Errors'), findsOneWidget);
       });
 
-      testWidgets('keeps its label as things come and go on both sides of it at once', (
+      testWidgets('keeps each of its parts as the others come and go around it', (
         WidgetTester tester,
       ) async {
-        Widget chip({bool start = false, bool end = false, bool counted = false}) {
+        Widget chip((bool, bool, bool) parts) {
+          final (bool start, bool end, bool counted) = parts;
+
           return host(
             PlChip(
               onPressed: () {},
               selected: start,
-              startIcon: start ? const Icon(IconData(0xe000)) : null,
-              endIcon: end ? const Icon(IconData(0xe001)) : null,
-              count: counted ? const Text('12') : null,
+              startIcon: start ? const _Probe('S') : null,
+              endIcon: end ? const _Probe('E') : null,
+              count: counted ? const _Probe('12') : null,
               child: const _Probe('Unread'),
             ),
           );
         }
 
-        await tester.pumpWidget(chip());
+        Map<String, State<_Probe>> probes() {
+          return <String, State<_Probe>>{
+            for (final State<_Probe> state in tester.stateList<State<_Probe>>(find.byType(_Probe)))
+              state.widget.text: state,
+          };
+        }
 
-        final State<_Probe> resting = tester.state<State<_Probe>>(find.byType(_Probe));
+        final List<(bool, bool, bool)> combinations = <(bool, bool, bool)>[
+          for (final bool start in <bool>[false, true])
+            for (final bool end in <bool>[false, true])
+              for (final bool counted in <bool>[false, true]) (start, end, counted),
+        ];
 
-        // Each step changes what is in front of the label and what is behind
-        // it in one build, as a filter chip that gains a mark and a count when
-        // it is chosen does.
-        for (final (bool start, bool end, bool counted) in <(bool, bool, bool)>[
-          (true, false, true),
-          (false, true, false),
-          (true, true, true),
-          (false, false, false),
-        ]) {
-          await tester.pumpWidget(chip(start: start, end: end, counted: counted));
+        // Every change between two sets of parts in one build, as a filter
+        // chip that gains a mark in front of the label and a count behind it
+        // when it is chosen makes.
+        for (final (bool, bool, bool) from in combinations) {
+          for (final (bool, bool, bool) to in combinations) {
+            await tester.pumpWidget(chip(from));
 
-          // Built again from scratch, the probe is a different object.
-          expect(
-            tester.state<State<_Probe>>(find.byType(_Probe)),
-            same(resting),
-            reason: 'start $start, end $end, count $counted',
-          );
+            final Map<String, State<_Probe>> before = probes();
+
+            await tester.pumpWidget(chip(to));
+
+            final Map<String, State<_Probe>> after = probes();
+
+            // Built again from scratch, a part that stayed is a different
+            // object.
+            for (final MapEntry<String, State<_Probe>> part in before.entries) {
+              if (after.containsKey(part.key)) {
+                expect(after[part.key], same(part.value), reason: '${part.key}, $from to $to');
+              }
+            }
+          }
         }
       });
     });
