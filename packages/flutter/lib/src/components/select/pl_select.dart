@@ -732,6 +732,11 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
       },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        // The option's own node below carries its tap, and none while it is
+        // disabled. Left on the tree, this one would wrap it in a node of its
+        // own with no name, so a screen reader would meet every option twice,
+        // and a disabled one would offer a tap that takes nothing.
+        excludeFromSemantics: true,
         onTap: () => _take(index),
         child: Semantics(
           container: true,

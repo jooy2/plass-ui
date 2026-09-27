@@ -1524,6 +1524,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
+        // The row's own node below carries its tap, and none while it is
+        // disabled or the field cannot be changed. Left on the tree, this one
+        // would wrap it in a node of its own with no name, so a screen reader
+        // would meet every row twice, and a row it cannot take would offer a
+        // tap that takes nothing.
+        excludeFromSemantics: true,
         onTap: () => _take(index),
         child: Semantics(
           container: true,

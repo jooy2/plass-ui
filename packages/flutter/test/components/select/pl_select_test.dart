@@ -427,6 +427,50 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('meets each option once, with its name, its state and a tap it can take', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await _pump(tester, const _Harness(value: 'kr-11'));
+
+        await tester.tap(_trigger());
+        await tester.pumpAndSettle();
+
+        // The trigger, then every option that can be chosen. An unnamed node
+        // round each option carried a tap of its own, round a disabled one as
+        // well, so a screen reader met every option twice.
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.tap), <String>[
+          'City',
+          'Seoul',
+          'Tokyo',
+          'Taipei',
+        ]);
+        expect(
+          semanticsNodeLabelled(tester, 'Seoul'),
+          isSemantics(
+            label: 'Seoul',
+            hasSelectedState: true,
+            isSelected: true,
+            isInMutuallyExclusiveGroup: true,
+            hasEnabledState: true,
+            isEnabled: true,
+            hasTapAction: true,
+          ),
+        );
+        expect(
+          semanticsNodeLabelled(tester, 'Singapore'),
+          isSemantics(
+            label: 'Singapore',
+            hasSelectedState: true,
+            isInMutuallyExclusiveGroup: true,
+            hasEnabledState: true,
+            hasTapAction: false,
+          ),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('an error re-points the family at danger', (WidgetTester tester) async {
         await _pump(tester, const _Harness(error: Text('Pick one.')));
 

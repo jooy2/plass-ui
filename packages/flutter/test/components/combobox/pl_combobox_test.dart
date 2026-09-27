@@ -2394,6 +2394,59 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('meets each row once, with its name, its state and a tap it can take', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: 'seoul',
+              onChanged: (String? _) {},
+              semanticLabel: 'City',
+            ),
+          ),
+        );
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        // An unnamed node round each row carried a tap of its own, round a
+        // disabled row as well, so a screen reader met every row twice.
+        final List<String> tapped = semanticsLabelsWithAction(tester, SemanticsAction.tap);
+        final List<String> rows = <String>[
+          for (final PlComboboxOption<String> option in _cities) option.label,
+        ];
+
+        expect(tapped, isNot(contains('')));
+        expect(tapped.where(rows.contains), <String>['Seoul', 'Lisbon']);
+        expect(
+          semanticsNodeLabelled(tester, 'Seoul'),
+          isSemantics(
+            label: 'Seoul',
+            hasSelectedState: true,
+            isSelected: true,
+            isInMutuallyExclusiveGroup: true,
+            hasEnabledState: true,
+            isEnabled: true,
+            hasTapAction: true,
+          ),
+        );
+        expect(
+          semanticsNodeLabelled(tester, 'Quito'),
+          isSemantics(
+            label: 'Quito',
+            hasSelectedState: true,
+            isInMutuallyExclusiveGroup: true,
+            hasEnabledState: true,
+            hasTapAction: false,
+          ),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('leaves the rows unlisted when nothing has opened them', (
         WidgetTester tester,
       ) async {
