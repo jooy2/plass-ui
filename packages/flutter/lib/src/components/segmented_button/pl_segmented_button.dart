@@ -138,6 +138,9 @@ class PlSegmentedButton<T> extends StatefulWidget {
   final bool fullWidth;
 
   /// Shows which one is taken but does not let it be changed.
+  ///
+  /// The set keeps its focus stop, and the arrow keys move the focus between
+  /// the segments without changing which one is taken.
   final bool readOnly;
 
   /// Unavailable. The light goes out.
@@ -193,6 +196,11 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
   /// stand grey on the gradient for the length of the change.
   bool _inkAtOnce = false;
 
+  /// The segment the arrow keys moved the focus stop to in a read-only set,
+  /// where they cannot move the choice, or `null` while the stop is on the
+  /// chosen one.
+  int? _highlight;
+
   @override
   FocusNode? get callerStop => widget.focusNode;
 
@@ -206,6 +214,14 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
   int get _chosen => widget.segments.indexWhere((PlSegment<T> one) => one.value == widget.value);
 
   int get _focused {
+    final highlight = _highlight;
+
+    if (highlight != null &&
+        highlight < widget.segments.length &&
+        !widget.segments[highlight].disabled) {
+      return highlight;
+    }
+
     final chosen = _chosen;
 
     if (chosen >= 0) {
@@ -228,6 +244,14 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
   void didUpdateWidget(PlSegmentedButton<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     keepStop(oldWidget.focusNode);
+
+    // The stop goes back to the chosen segment when the choice changes, and
+    // when the set stops or starts being read-only, so a segment the arrows
+    // reached in a read-only set never holds the stop of a live one.
+    if (oldWidget.value != widget.value || oldWidget.readOnly != widget.readOnly) {
+      _highlight = null;
+    }
+
     _syncKeys();
     WidgetsBinding.instance.addPostFrameCallback((Duration _) => _measure());
   }
@@ -281,8 +305,14 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
     }
   }
 
+  /// Moves the focus stop to the next segment in [step]'s direction that is
+  /// not disabled, wrapping.
+  ///
+  /// In a live set the choice goes with it. In a read-only one only the stop
+  /// moves, so each segment can still be reached and heard, as the arrows do
+  /// in a read-only set in the React build.
   void _move(int step) {
-    if (!_interactive || widget.segments.isEmpty) {
+    if (_disabled || widget.segments.isEmpty) {
       return;
     }
 
@@ -293,7 +323,12 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
       index = (index + step + count) % count;
 
       if (!widget.segments[index].disabled) {
-        widget.onChanged!(widget.segments[index].value);
+        if (widget.readOnly) {
+          keepStop(widget.focusNode);
+          setState(() => _highlight = index);
+        } else {
+          widget.onChanged!(widget.segments[index].value);
+        }
 
         return;
       }
@@ -463,7 +498,10 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
       child: Semantics(
         container: true,
         label: widget.semanticLabel,
-        enabled: _interactive,
+        // Read-only is not disabled: the set keeps its focus stop, so it says it
+        // is available and cannot be changed, as `aria-readonly` does.
+        enabled: !_disabled,
+        readOnly: widget.readOnly,
         child: widget.fullWidth ? set : IntrinsicWidth(child: set),
       ),
     );
@@ -724,7 +762,10 @@ class _Tile<T> extends StatelessWidget {
             container: true,
             inMutuallyExclusiveGroup: true,
             checked: chosen,
-            enabled: onPressed != null,
+            // Read-only is not disabled here either, for the reason the set gives,
+            // and only the tap action goes.
+            enabled: !disabled,
+            readOnly: readOnly,
             onTap: onPressed,
             child: body,
           );

@@ -80,6 +80,16 @@ int drainsOf(WidgetTester tester, Finder finder) {
       .length;
 }
 
+/// The segment reading [label], found only while it holds the focus.
+Finder focusedSegment(String label) {
+  return find.ancestor(
+    of: find.text(label),
+    matching: find.byWidgetPredicate(
+      (Widget widget) => widget is Focus && (widget.focusNode?.hasPrimaryFocus ?? false),
+    ),
+  );
+}
+
 void main() {
   group('PlSegmentedButton', () {
     group('rendering', () {
@@ -459,6 +469,87 @@ void main() {
         expect(value, 'calendar');
         expect(before.hasFocus, isFalse);
       });
+
+      testWidgets('move the focus and not the choice while read-only, wrapping', (
+        WidgetTester tester,
+      ) async {
+        String? chosen;
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlSegmentedButton<String>(
+                segments: const <PlSegment<String>>[
+                  PlSegment<String>(value: 'list', label: Text('List')),
+                  PlSegment<String>(value: 'board', label: Text('Board')),
+                  PlSegment<String>(value: 'calendar', label: Text('Calendar'), disabled: true),
+                ],
+                value: 'list',
+                readOnly: true,
+                onChanged: (String next) => chosen = next,
+              ),
+            ),
+            width: 480,
+          ),
+        );
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(focusedSegment('List'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(focusedSegment('Board'), findsOneWidget);
+
+        // Past the disabled one and round to the start.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(focusedSegment('List'), findsOneWidget);
+        expect(chosen, isNull);
+        expect(before.hasFocus, isFalse);
+      });
+
+      testWidgets('give the focus back to the chosen segment as a read-only set turns live', (
+        WidgetTester tester,
+      ) async {
+        bool readOnly = true;
+        late StateSetter rebuild;
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                return PlSegmentedButton<String>(
+                  segments: views,
+                  value: 'list',
+                  readOnly: readOnly,
+                  autofocus: true,
+                  onChanged: (String _) {},
+                );
+              },
+            ),
+            width: 480,
+          ),
+        );
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(focusedSegment('Board'), findsOneWidget);
+
+        rebuild(() => readOnly = false);
+        await tester.pumpAndSettle();
+
+        expect(focusedSegment('List'), findsOneWidget);
+      });
     });
 
     group('accessibility', () {
@@ -475,6 +566,136 @@ void main() {
           tester.getSemantics(find.text('Board')),
           isSemantics(isInMutuallyExclusiveGroup: true, isChecked: true),
         );
+
+        handle.dispose();
+      });
+
+      testWidgets('the set and its segments are read-only rather than disabled while read-only', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlSegmentedButton<String>(
+              segments: const <PlSegment<String>>[
+                PlSegment<String>(value: 'list', label: Text('List')),
+                PlSegment<String>(value: 'board', label: Text('Board')),
+                PlSegment<String>(value: 'calendar', label: Text('Calendar'), disabled: true),
+              ],
+              value: 'list',
+              readOnly: true,
+              semanticLabel: 'View',
+              onChanged: (String _) {},
+            ),
+            width: 480,
+          ),
+        );
+
+        // The set keeps its focus stop, so a screen reader has to hear segments
+        // that cannot be changed rather than segments that are unavailable.
+        expect(
+          semanticsNodeLabelled(tester, 'View'),
+          isSemantics(hasEnabledState: true, isEnabled: true, isReadOnly: true),
+        );
+
+        expect(
+          tester.getSemantics(find.text('List')),
+          isSemantics(
+            isInMutuallyExclusiveGroup: true,
+            hasCheckedState: true,
+            isChecked: true,
+            hasEnabledState: true,
+            isEnabled: true,
+            isReadOnly: true,
+            hasTapAction: false,
+          ),
+        );
+        expect(
+          tester.getSemantics(find.text('Board')),
+          isSemantics(
+            isInMutuallyExclusiveGroup: true,
+            hasCheckedState: true,
+            isChecked: false,
+            hasEnabledState: true,
+            isEnabled: true,
+            isReadOnly: true,
+            hasTapAction: false,
+          ),
+        );
+        expect(
+          tester.getSemantics(find.text('Calendar')),
+          isSemantics(hasEnabledState: true, isEnabled: false, hasTapAction: false),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('a segment disabled on its own in a live set is the only one unavailable', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlSegmentedButton<String>(
+              segments: const <PlSegment<String>>[
+                PlSegment<String>(value: 'list', label: Text('List')),
+                PlSegment<String>(value: 'board', label: Text('Board'), disabled: true),
+              ],
+              value: 'list',
+              semanticLabel: 'View',
+              onChanged: (String _) {},
+            ),
+            width: 480,
+          ),
+        );
+
+        expect(
+          semanticsNodeLabelled(tester, 'View'),
+          isSemantics(hasEnabledState: true, isEnabled: true, isReadOnly: false),
+        );
+        expect(
+          tester.getSemantics(find.text('List')),
+          isSemantics(hasEnabledState: true, isEnabled: true, hasTapAction: true),
+        );
+        expect(
+          tester.getSemantics(find.text('Board')),
+          isSemantics(hasEnabledState: true, isEnabled: false, hasTapAction: false),
+        );
+
+        handle.dispose();
+      });
+
+      testWidgets('a disabled set, or one without `onChanged`, is unavailable throughout', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        for (final bool disabled in <bool>[true, false]) {
+          await tester.pumpWidget(
+            host(
+              PlSegmentedButton<String>(
+                segments: views,
+                value: 'list',
+                semanticLabel: 'View',
+                disabled: disabled,
+                onChanged: disabled ? (String _) {} : null,
+              ),
+              width: 480,
+            ),
+          );
+
+          expect(
+            semanticsNodeLabelled(tester, 'View'),
+            isSemantics(hasEnabledState: true, isEnabled: false),
+          );
+
+          for (final String label in <String>['List', 'Board', 'Calendar']) {
+            expect(
+              tester.getSemantics(find.text(label)),
+              isSemantics(hasEnabledState: true, isEnabled: false, hasTapAction: false),
+            );
+          }
+        }
 
         handle.dispose();
       });

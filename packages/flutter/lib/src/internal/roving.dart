@@ -23,7 +23,8 @@ mixin PlassRovingStop<W extends StatefulWidget> on State<W> {
   /// Keeps focus in the group across a rebuild that may move the stop.
   ///
   /// Called from `didUpdateWidget` with the old widget's node, which is before
-  /// the rebuild has moved anything.
+  /// the rebuild has moved anything, or with the current one before a
+  /// `setState` that moves the stop.
   void keepStop(FocusNode? oldCallerStop) {
     final FocusNode previous = oldCallerStop ?? _ownStop;
 

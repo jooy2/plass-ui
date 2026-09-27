@@ -197,7 +197,7 @@ Both are sized against the label rather than against the row. An icon-only segme
 ::: fw flutter
 
 - Each segment is announced as one of a mutually exclusive set, taken or not. A segmented button **is** "exactly one of these". Built out of toggles it would announce four independent switches, three of which happen to be off.
-- **One** focus stop for the whole set: exactly one segment is in the tab order and the rest are wrapped in an `ExcludeFocus`. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the choice, wrapping at both ends.
+- **One** focus stop for the whole set: exactly one segment is in the tab order and the rest are wrapped in an `ExcludeFocus`. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the choice, wrapping at both ends. In a `readOnly` set they move the focus and leave the choice where it is, and the set and its segments are announced as read-only rather than unavailable.
 - A segment's focus ring turns **inward**, because a ring drawn outside one inside a groove would be painted over its neighbours.
 - Give the set a `semanticLabel`. It has no visible label of its own.
 
