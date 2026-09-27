@@ -876,6 +876,55 @@ void main() {
         expect(state.value, 40);
       });
 
+      testWidgets('brings the keyboard back as a press lands round the number', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, const _Harness(value: 25));
+
+        // The shell's own padding, before the start of the editor.
+        final Rect editor = tester.getRect(find.byType(EditableText));
+        final Offset padding = Offset(editor.left - 6, editor.center.dy);
+        final TextEditingController controller = tester
+            .widget<EditableText>(find.byType(EditableText))
+            .controller;
+
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(_editorFocused(tester), isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // The keyboard put away under the focus, as Android's back does. The
+        // press brings it back, and leaves the caret where it was.
+        controller.selection = const TextSelection.collapsed(offset: 1);
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        expect(tester.testTextInput.isVisible, isFalse);
+
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(controller.selection, const TextSelection.collapsed(offset: 1));
+
+        // A read-only field takes the focus and opens no keyboard, and a
+        // disabled one takes neither.
+        FocusManager.instance.primaryFocus!.unfocus();
+        await _pump(tester, const _Harness(value: 25, readOnly: true));
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(_editorFocused(tester), isTrue);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        FocusManager.instance.primaryFocus!.unfocus();
+        await _pump(tester, const _Harness(value: 25, disabled: true));
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(_editorFocused(tester), isFalse);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+      });
+
       testWidgets('reads what was typed and settles it on the way out', (
         WidgetTester tester,
       ) async {

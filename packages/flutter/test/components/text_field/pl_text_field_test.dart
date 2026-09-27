@@ -184,6 +184,104 @@ void main() {
         expect(typed, 'ada');
       });
 
+      testWidgets('brings the keyboard back as a press lands round the text', (
+        WidgetTester tester,
+      ) async {
+        final focus = FocusNode();
+        final controller = TextEditingController(text: 'Seoul');
+        addTearDown(focus.dispose);
+        addTearDown(controller.dispose);
+        const Key icon = Key('icon');
+
+        Widget build({bool readOnly = false, bool disabled = false}) => host(
+          PlTextField(
+            fullWidth: true,
+            controller: controller,
+            focusNode: focus,
+            readOnly: readOnly,
+            disabled: disabled,
+            startIcon: const SizedBox.square(key: icon, dimension: 16),
+          ),
+          width: 300,
+        );
+
+        await tester.pumpWidget(build());
+
+        // The shell's own padding, past the end of the editor.
+        final Rect editor = tester.getRect(find.byType(EditableText));
+        final Offset padding = Offset(editor.right + 6, editor.center.dy);
+
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // The keyboard put away under the focus, as Android's back does. A press
+        // on the text brings it back only if it moves the caret; a press round
+        // the text brings it back every time, and leaves the caret where it was.
+        controller.selection = const TextSelection.collapsed(offset: 2);
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        expect(tester.testTextInput.isVisible, isFalse);
+
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(controller.selection, const TextSelection.collapsed(offset: 2));
+
+        // And a press on an adornment, which draws what it holds and takes no
+        // press of its own.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        await tester.tapAt(tester.getCenter(find.byKey(icon)));
+        await tester.pump();
+
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(controller.selection, const TextSelection.collapsed(offset: 2));
+
+        // A read-only field takes the focus and opens no keyboard.
+        focus.unfocus();
+        await tester.pumpWidget(build(readOnly: true));
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+
+        // A disabled one takes neither.
+        focus.unfocus();
+        await tester.pumpWidget(build(disabled: true));
+        await tester.tapAt(padding);
+        await tester.pump();
+
+        expect(focus.hasFocus, isFalse);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+      });
+
+      testWidgets('puts the caret in, and selects nothing, as a press lands round the text', (
+        WidgetTester tester,
+      ) async {
+        // A desktop selects the whole text as the focus arrives from Tab, as a
+        // browser does. A press is not Tab: it puts the caret in, as a click
+        // beside the React input does.
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+        final controller = TextEditingController(text: 'Seoul');
+        addTearDown(controller.dispose);
+
+        await tester.pumpWidget(
+          host(PlTextField(fullWidth: true, controller: controller), width: 300),
+        );
+
+        final Rect editor = tester.getRect(find.byType(EditableText));
+        await tester.tapAt(Offset(editor.right + 6, editor.center.dy));
+        await tester.pump();
+
+        expect(controller.selection, const TextSelection.collapsed(offset: 5));
+
+        debugDefaultTargetPlatformOverride = null;
+      });
+
       testWidgets('takes no text while disabled, by any way in', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         final name = TextEditingController();

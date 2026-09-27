@@ -579,8 +579,12 @@ class _PlTextFieldState extends State<PlTextField> {
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
         // Pressing the shell's own padding puts the caret in the field, the way
-        // pressing anywhere inside a native input does.
-        onTap: _disabled ? null : _focusNode.requestFocus,
+        // pressing anywhere inside a native input does, and asks for the
+        // keyboard as a Material `TextField` does on every tap: a field that
+        // holds the focus with its keyboard put away gets it back, which a
+        // focus request alone would not do. A read-only field takes the focus
+        // and opens no keyboard.
+        onTap: _disabled ? null : () => plassTapEditor(_editor),
         // The press half of the light. On a touch screen there is no hover at
         // all, and this is the layer that carries the effect there.
         onTapDown: (TapDownDetails details) {

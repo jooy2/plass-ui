@@ -783,8 +783,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   }
 
   /// Focuses the field, and opens the list whenever it can be picked from.
+  ///
+  /// The press asks for the keyboard, as a text field's does, so a field that
+  /// holds the focus with its keyboard put away gets it back. A read-only field
+  /// takes the focus and opens no keyboard.
   void _pressField() {
-    _focusNode.requestFocus();
+    plassTapEditor(_editor);
     _openList();
   }
 

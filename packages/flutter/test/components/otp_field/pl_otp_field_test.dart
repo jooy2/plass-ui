@@ -315,6 +315,44 @@ void main() {
         expect(controller.selection.baseOffset, 2);
       });
 
+      testWidgets('brings the keyboard back as the row is pressed', (WidgetTester tester) async {
+        final TextEditingController controller = TextEditingController(text: '12');
+        final FocusNode focus = FocusNode();
+        addTearDown(controller.dispose);
+        addTearDown(focus.dispose);
+
+        Widget build({bool readOnly = false}) => host(
+          PlOtpField(length: 6, controller: controller, focusNode: focus, readOnly: readOnly),
+        );
+
+        await tester.pumpWidget(build());
+        await tester.tap(find.byType(PlOtpField));
+        await tester.pump();
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.isVisible, isTrue);
+
+        // The keyboard put away under the focus, as Android's back does. The
+        // editor takes no press, so the row's press is the only way back to it.
+        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+        expect(tester.testTextInput.isVisible, isFalse);
+
+        await tester.tap(find.byType(PlOtpField));
+        await tester.pump();
+
+        expect(tester.testTextInput.isVisible, isTrue);
+        expect(controller.selection, const TextSelection.collapsed(offset: 2));
+
+        // A read-only row takes the focus and opens no keyboard.
+        focus.unfocus();
+        await tester.pumpWidget(build(readOnly: true));
+        await tester.tap(find.byType(PlOtpField));
+        await tester.pump();
+
+        expect(focus.hasFocus, isTrue);
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+      });
+
       testWidgets('stays readable but not typeable when it is read-only', (
         WidgetTester tester,
       ) async {

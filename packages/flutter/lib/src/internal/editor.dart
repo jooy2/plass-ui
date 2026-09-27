@@ -1,4 +1,4 @@
-/// What a screen reader's tap and focus do to a field built on an
+/// What a tap and a screen reader's focus do to a field built on an
 /// [EditableText].
 ///
 /// The editor answers neither on its own: its focus is kept off the semantics
@@ -7,15 +7,21 @@
 /// them. The focus is the one that matters most: a screen reader on the web
 /// moves the browser's focus onto the field's `<input>`, and that arrives as
 /// nothing but a focus action.
+///
+/// The tap is also what a press on the field does. The editor asks for the
+/// keyboard only when a press on its text moves the caret, and hears nothing of
+/// a press round the text, or of any press on a field whose editor takes none.
 library;
 
 import 'package:flutter/widgets.dart';
 
-/// A screen reader's tap on a field: a caret at the end of the text if it has
-/// no selection yet, and the keyboard, which brings the focus with it.
+/// A tap on a field, from a screen reader or from a press on the field: a caret
+/// at the end of the text if it has no selection yet, and the keyboard, which
+/// brings the focus with it.
 ///
 /// A field that holds the focus with its keyboard put away gets the keyboard
-/// back, which a focus request alone would not do.
+/// back, which a focus request alone would not do, and a caret already placed
+/// stays where it is. A read-only field takes the focus and opens no keyboard.
 void plassTapEditor(GlobalKey<EditableTextState> editor) {
   final EditableTextState? state = editor.currentState;
 

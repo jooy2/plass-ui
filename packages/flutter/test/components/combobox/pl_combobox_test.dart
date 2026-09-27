@@ -376,6 +376,90 @@ void main() {
           expect(find.text('Lisbon'), findsOneWidget);
         });
 
+        testWidgets('brings the keyboard back, on the text and beside it', (
+          WidgetTester tester,
+        ) async {
+          await pump(tester);
+
+          final Finder editor = find.byType(EditableText);
+          final Rect box = tester.getRect(
+            find
+                .descendant(
+                  of: find.byType(PlCombobox<String>),
+                  matching: find.byType(PlassSurfaceBox),
+                )
+                .first,
+          );
+
+          await tester.tap(editor);
+          await tester.pumpAndSettle();
+
+          expect(tester.widget<EditableText>(editor).focusNode.hasFocus, isTrue);
+          expect(tester.testTextInput.isVisible, isTrue);
+
+          // The keyboard put away under the focus, as Android's back does. A
+          // press on the empty text leaves the caret where it is, which on its
+          // own asks for no keyboard.
+          await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+          expect(tester.testTextInput.isVisible, isFalse);
+
+          await tester.tap(editor);
+          await tester.pumpAndSettle();
+
+          expect(tester.testTextInput.isVisible, isTrue);
+
+          await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
+          await tester.tapAt(box.centerLeft + const Offset(4, 0));
+          await tester.pumpAndSettle();
+
+          expect(tester.testTextInput.isVisible, isTrue);
+        });
+
+        testWidgets('takes the focus and no keyboard while read-only, and neither while disabled', (
+          WidgetTester tester,
+        ) async {
+          Future<Rect> pumpAs({bool readOnly = false, bool disabled = false}) async {
+            await tester.pumpWidget(
+              _host(
+                PlCombobox<String>(
+                  options: _cities,
+                  value: 'seoul',
+                  readOnly: readOnly,
+                  disabled: disabled,
+                  onChanged: (String? _) {},
+                ),
+              ),
+            );
+
+            return tester.getRect(
+              find
+                  .descendant(
+                    of: find.byType(PlCombobox<String>),
+                    matching: find.byType(PlassSurfaceBox),
+                  )
+                  .first,
+            );
+          }
+
+          final Rect box = await pumpAs(readOnly: true);
+          await tester.tapAt(box.centerLeft + const Offset(4, 0));
+          await tester.pumpAndSettle();
+
+          expect(tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus, isTrue);
+          expect(tester.testTextInput.hasAnyClients, isFalse);
+
+          FocusManager.instance.primaryFocus!.unfocus();
+          await pumpAs(disabled: true);
+          await tester.tapAt(box.centerLeft + const Offset(4, 0));
+          await tester.pumpAndSettle();
+
+          expect(
+            tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+            isFalse,
+          );
+          expect(tester.testTextInput.hasAnyClients, isFalse);
+        });
+
         testWidgets('that drags across the text leaves the list shut', (WidgetTester tester) async {
           await pump(tester);
 

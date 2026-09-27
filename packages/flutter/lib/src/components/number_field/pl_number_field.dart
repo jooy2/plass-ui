@@ -1200,7 +1200,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
-        onTap: _disabled ? null : _focusNode.requestFocus,
+        // A press round the text asks for the keyboard, as a text field's does,
+        // so a field that holds the focus with its keyboard put away gets it
+        // back. A read-only field takes the focus and opens no keyboard.
+        onTap: _disabled ? null : () => plassTapEditor(_editor),
         // The press half of the light. On a touch screen there is no hover at
         // all, and this is the layer that carries the effect there.
         onTapDown: (TapDownDetails details) {

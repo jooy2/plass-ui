@@ -339,12 +339,17 @@ class _PlOtpFieldState extends State<PlOtpField> {
 
   /// Pressing anywhere in the row puts the caret at the first empty slot, which
   /// is where the next character is going to land whatever was pressed.
+  ///
+  /// The press asks for the keyboard, as a text field's does, so a row that
+  /// holds the focus with its keyboard put away gets it back: the editor takes
+  /// no press of its own to ask for it. A read-only row takes the focus and
+  /// opens no keyboard.
   void _focusAtEnd() {
     if (_disabled) {
       return;
     }
 
-    _focusNode.requestFocus();
+    plassTapEditor(_editor);
     _controller.selection = TextSelection.collapsed(offset: _controller.text.length);
   }
 
