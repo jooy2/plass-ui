@@ -262,6 +262,35 @@ void main() {
         expect(find.bySemanticsLabel('I agree'), findsOneWidget);
         handle.dispose();
       });
+
+      testWidgets('says a semanticLabel in place of its label rather than before it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlCheckbox(
+              value: false,
+              onChanged: (bool _) {},
+              semanticLabel: 'Accept the terms',
+              label: const Text('I agree'),
+            ),
+            width: 300,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.byType(PlCheckbox)),
+          isSemantics(
+            label: 'Accept the terms',
+            hasCheckedState: true,
+            isChecked: false,
+            hasTapAction: true,
+          ),
+        );
+
+        handle.dispose();
+      });
     });
   });
 }

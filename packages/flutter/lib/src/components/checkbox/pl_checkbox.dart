@@ -96,6 +96,9 @@ class PlCheckbox extends StatelessWidget {
   final bool disabled;
 
   /// The name a screen reader announces, for a checkbox with no visible [label].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it.
   final String? semanticLabel;
 
   /// Drive focus from outside.
@@ -240,9 +243,14 @@ class PlCheckbox extends StatelessWidget {
                   spacing: 2,
                   children: <Widget>[
                     if (label != null)
-                      DefaultTextStyle.merge(
-                        style: TextStyle(color: disabled ? tokens.mutedFg : tokens.fg),
-                        child: label!,
+                      // A `semanticLabel` is the name in its place, so the
+                      // drawn words are then not read after it.
+                      ExcludeSemantics(
+                        excluding: semanticLabel != null,
+                        child: DefaultTextStyle.merge(
+                          style: TextStyle(color: disabled ? tokens.mutedFg : tokens.fg),
+                          child: label!,
+                        ),
                       ),
                     if (description != null)
                       DefaultTextStyle.merge(

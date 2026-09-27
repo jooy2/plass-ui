@@ -252,6 +252,11 @@ class _PlCalendarState extends State<PlCalendar> {
 
     return Semantics(
       container: true,
+      // What is drawn keeps nodes of its own, so the name is the name alone:
+      // the row of weekday initials used to be merged into it, which named the
+      // calendar "Departure date Sun Mon Tue Wed Thu Fri Sat", or, unnamed,
+      // "Sun Mon Tue Wed Thu Fri Sat".
+      explicitChildNodes: true,
       label: widget.semanticLabel,
       child: PlassSurfaceBox(
         surface: sheetSurface(tokens, variant: widget.variant, elevation: widget.elevation),

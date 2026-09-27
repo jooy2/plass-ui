@@ -194,6 +194,9 @@ class PlTextField extends StatefulWidget {
   final int? maxLength;
 
   /// The name a screen reader announces, for a field with no visible [label].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it.
   final String? semanticLabel;
 
   /// Drive focus from outside.
@@ -483,16 +486,21 @@ class _PlTextFieldState extends State<PlTextField> {
     );
 
     // One widget for both placements, so the label a reader taps and the label
-    // a screen reader reads are the same widget wherever it is drawn.
+    // a screen reader reads are the same widget wherever it is drawn. A
+    // `semanticLabel` is the name in its place, so the drawn words are then not
+    // read after it, which ran the two together as "Email Your email".
     final Widget? labelNode = widget.label == null
         ? null
-        : DefaultTextStyle.merge(
-            style: TextStyle(
-              color: _disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
+        : ExcludeSemantics(
+            excluding: widget.semanticLabel != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: _disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
+              child: widget.label!,
             ),
-            child: widget.label!,
           );
 
     if (notched) {

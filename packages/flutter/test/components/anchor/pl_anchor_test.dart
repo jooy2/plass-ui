@@ -135,6 +135,33 @@ void main() {
         // guess at a shape nobody wrote.
         expect(second - first, 12);
       });
+
+      testWidgets('keeps its heading out of its name', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlAnchor(
+            semanticLabel: 'Contents',
+            label: const Text('On this page'),
+            items: <PlAnchorItem>[PlAnchorItem(target: GlobalKey(), label: const Text('Intro'))],
+          ),
+        );
+
+        // The list is named "Contents" and the heading is a node of its own
+        // inside it, as the words inside the React `<nav>` are. Merged, the
+        // two ran together as one name and the whole list became a heading.
+        expect(
+          semanticsNodeLabelled(tester, 'Contents'),
+          isSemantics(label: 'Contents', isHeader: false),
+        );
+        expect(
+          semanticsNodeLabelled(tester, 'On this page'),
+          isSemantics(label: 'On this page', isHeader: true),
+        );
+
+        handle.dispose();
+      });
     });
 
     group('the tracking', () {

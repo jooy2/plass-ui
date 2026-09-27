@@ -181,6 +181,9 @@ class PlSlider extends StatefulWidget {
   final bool disabled;
 
   /// The name a screen reader announces, for a slider with no visible [label].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it.
   final String? semanticLabel;
 
   /// Drive focus from outside. Reaches the first thumb.
@@ -521,13 +524,18 @@ class _PlSliderState extends State<PlSlider> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               if (widget.label != null)
-                DefaultTextStyle.merge(
-                  style: TextStyle(
-                    color: _disabled ? tokens.mutedFg : tokens.fg,
-                    fontSize: meta,
-                    fontWeight: FontWeight.w600,
+                // A `semanticLabel` is the name in its place, so the drawn
+                // words are then not read after it.
+                ExcludeSemantics(
+                  excluding: widget.semanticLabel != null,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(
+                      color: _disabled ? tokens.mutedFg : tokens.fg,
+                      fontSize: meta,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    child: widget.label!,
                   ),
-                  child: widget.label!,
                 ),
               if (widget.showValue) ...<Widget>[
                 const Spacer(),

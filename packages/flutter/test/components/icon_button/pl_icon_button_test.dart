@@ -22,6 +22,25 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is the label alone, even when the glyph has words of its own', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(PlIconButton(icon: const Text('+'), label: 'Add an item', onPressed: () {})),
+        );
+
+        // A glyph drawn as a character used to be read after the name: "Add an
+        // item +".
+        expect(
+          tester.getSemantics(find.byType(PlIconButton)),
+          isSemantics(label: 'Add an item', isButton: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('draws the glyph it was given', (WidgetTester tester) async {
         await tester.pumpWidget(host(PlIconButton(icon: _glyph, label: 'Add', onPressed: () {})));
 

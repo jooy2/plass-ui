@@ -361,6 +361,26 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says a semanticLabel in place of its label rather than before it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const PlTextField(fullWidth: true, semanticLabel: 'Email', label: Text('Your email')),
+            width: 300,
+          ),
+        );
+
+        // Not "Email Your email": the two are two names for one field.
+        expect(
+          semanticsOf(tester, find.byType(PlTextField)),
+          isSemantics(isTextField: true, label: 'Email'),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is passed by Tab while disabled, and reached by it otherwise', (
         WidgetTester tester,
       ) async {

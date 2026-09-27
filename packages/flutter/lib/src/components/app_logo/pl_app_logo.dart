@@ -108,6 +108,9 @@ class PlAppLogo extends StatelessWidget {
   ///
   /// Leave it out when [name] is set: the wordmark beside the mark already says
   /// the product's name.
+  ///
+  /// It takes the place of anything the [child] says itself, such as a letter
+  /// drawn as the mark or an image's own label, which is not read after it.
   final String? semanticLabel;
 
   /// The product's name, set beside the mark.
@@ -199,10 +202,17 @@ class PlAppLogo extends StatelessWidget {
     }
 
     // Decorative once the name is written out beside it, so the product is
-    // announced once rather than twice.
+    // announced once rather than twice. A `semanticLabel` is what the picture
+    // says, as an `alt` is on the web, so it takes the place of whatever the
+    // artwork would say about itself rather than being read ahead of it.
     mark = name != null
         ? ExcludeSemantics(child: mark)
-        : Semantics(label: semanticLabel, image: semanticLabel != null, child: mark);
+        : Semantics(
+            label: semanticLabel,
+            image: semanticLabel != null,
+            excludeSemantics: semanticLabel != null,
+            child: mark,
+          );
 
     Widget content = mark;
 

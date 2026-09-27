@@ -165,8 +165,8 @@ class PlFloatingActionButton extends StatelessWidget {
             focusNode: focusNode,
             autofocus: autofocus,
             startIcon: icon,
-            // The words on the key are its name already. A `semanticLabel` as
-            // well would be merged with them and read twice.
+            // The words on the key are its name already, so it needs no
+            // `semanticLabel` to say them again in their place.
             child: Text(label),
           )
         : PlIconButton(

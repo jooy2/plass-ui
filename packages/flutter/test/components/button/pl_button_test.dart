@@ -119,6 +119,56 @@ void main() {
         expect(find.bySemanticsLabel('Add'), findsOneWidget);
         handle.dispose();
       });
+
+      testWidgets('says a semanticLabel in place of what it draws, and keeps every state', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlButton(
+              onPressed: () {},
+              semanticLabel: 'Copy',
+              startIcon: const Text('+'),
+              endIcon: const Text('>'),
+              child: const Text('⧉'),
+            ),
+          ),
+        );
+
+        // The name alone, as `aria-label` is on the web, rather than "Copy" and
+        // then every glyph on the key. Only the drawn words go: the button is
+        // still a focusable, enabled button with a tap.
+        expect(
+          tester.getSemantics(find.byType(PlButton)),
+          isSemantics(
+            label: 'Copy',
+            isButton: true,
+            hasEnabledState: true,
+            isEnabled: true,
+            isFocusable: true,
+            hasTapAction: true,
+            hasFocusAction: true,
+          ),
+        );
+        expect(find.bySemanticsLabel(RegExp('⧉')), findsNothing);
+
+        handle.dispose();
+      });
+
+      testWidgets('reads what it draws again once the semanticLabel is taken away', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(PlButton(onPressed: () {}, semanticLabel: 'Copy', child: const Text('⧉'))),
+        );
+        await tester.pumpWidget(host(PlButton(onPressed: () {}, child: const Text('⧉'))));
+
+        expect(tester.getSemantics(find.byType(PlButton)), isSemantics(label: '⧉', isButton: true));
+
+        handle.dispose();
+      });
     });
 
     group('style props', () {

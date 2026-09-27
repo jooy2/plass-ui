@@ -236,6 +236,21 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says its semanticLabel in place of what the mark says itself', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, const PlAppLogo(semanticLabel: 'Acme', child: Text('A')));
+
+        // What the picture says, as an `alt` is on the web, and not "Acme"
+        // followed by the letter the mark is drawn with.
+        expect(semanticsLabels(tester), <String>['Acme']);
+        expect(semanticsNodeLabelled(tester, 'Acme'), isSemantics(isImage: true));
+
+        handle.dispose();
+      });
+
       testWidgets('becomes a button when it is given something to do', (WidgetTester tester) async {
         int pressed = 0;
 

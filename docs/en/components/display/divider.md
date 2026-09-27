@@ -192,7 +192,7 @@ Both are `double`s, logical pixels, which is what every other length in the pack
 
 - A divider says nothing unless it is given a `semanticLabel`, which is the honest default: a rule between two things is usually the layout speaking, not the content.
 - Naming one makes it a semantics node with that name. Pass it when the rule is carrying meaning. An "OR" between two sign-in routes is, a rule inside a card is not.
-- The label set into the line is still drawn as text, so it is read where it sits; `semanticLabel` is for the divider itself.
+- Without a `semanticLabel`, the label set into the line is plain text and is read where it sits. With one, the divider is announced once, by that name, and the drawn label is not read as well.
 
 :::
 

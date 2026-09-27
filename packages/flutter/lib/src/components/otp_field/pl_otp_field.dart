@@ -239,6 +239,9 @@ class PlOtpField extends StatefulWidget {
   final bool readOnly;
 
   /// The name a screen reader announces for the row.
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it.
   final String? semanticLabel;
 
   /// Drive focus from outside. Left out, the row owns a node of its own.
@@ -468,13 +471,18 @@ class _PlOtpFieldState extends State<PlOtpField> {
       spacing: stackGap[_size]!,
       children: <Widget>[
         if (widget.label != null)
-          DefaultTextStyle.merge(
-            style: TextStyle(
-              color: _disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
+          // A `semanticLabel` is the name in its place, so the drawn words are
+          // then not read after it.
+          ExcludeSemantics(
+            excluding: widget.semanticLabel != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: _disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
+              child: widget.label!,
             ),
-            child: widget.label!,
           ),
         slots,
         if (widget.description != null)

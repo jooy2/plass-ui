@@ -1113,6 +1113,30 @@ void main() {
     });
 
     group('accessibility', () {
+      testWidgets('says a semanticLabel in place of its label rather than before it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlNumberField(
+              value: 5,
+              semanticLabel: 'Number of guests',
+              label: const Text('Guests'),
+              onChanged: (double? _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(
+          semanticsOf(tester, find.byType(PlNumberField)),
+          isSemantics(isTextField: true, label: 'Number of guests', value: '5'),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is announced as a text field holding what it shows', (
         WidgetTester tester,
       ) async {

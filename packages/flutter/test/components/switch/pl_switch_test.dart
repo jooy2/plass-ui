@@ -130,6 +130,30 @@ void main() {
     });
 
     group('accessibility', () {
+      testWidgets('says a semanticLabel in place of its label rather than before it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlSwitch(
+              value: true,
+              onChanged: (bool _) {},
+              semanticLabel: 'Wi-Fi',
+              label: const Text('Wireless network'),
+            ),
+            width: 300,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.byType(PlSwitch)),
+          isSemantics(label: 'Wi-Fi', hasToggledState: true, isToggled: true, hasTapAction: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('reports what it is toggled to', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(host(PlSwitch(value: true, onChanged: (bool _) {}), width: 200));

@@ -346,6 +346,26 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('says a semanticLabel in place of its label rather than before it', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            const PlOtpField(
+              length: 4,
+              semanticLabel: 'Verification code',
+              label: Text('Enter the code'),
+            ),
+          ),
+        );
+
+        expect(semanticsLabels(tester), <String>['Verification code']);
+
+        handle.dispose();
+      });
     });
     group('hotKeys', () {
       testWidgets('answers a chord pressed in the row', (WidgetTester tester) async {

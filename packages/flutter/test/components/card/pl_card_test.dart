@@ -226,6 +226,57 @@ void main() {
         expect(pressed, 1);
       });
 
+      testWidgets('is named by its semanticLabel alone, and keeps what it holds beside it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlCard(
+              onPressed: () {},
+              semanticLabel: 'Team plan',
+              title: const Text('Team'),
+              child: const Text('Shared projects'),
+            ),
+            width: 360,
+          ),
+        );
+
+        // The name, and not the name with the title and the body run on after
+        // it as one long one. What the card holds is still read, as nodes of
+        // its own inside the button.
+        final SemanticsNode card = semanticsNodeLabelled(tester, 'Team plan')!;
+
+        expect(card, isSemantics(label: 'Team plan', isButton: true, hasTapAction: true));
+        expect(semanticsNodeLabelled(tester, 'Team'), isNotNull);
+        expect(semanticsNodeLabelled(tester, 'Shared projects'), isNotNull);
+
+        handle.dispose();
+      });
+
+      testWidgets('is named by what it holds when it has no semanticLabel', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlCard(
+              onPressed: () {},
+              title: const Text('Team'),
+              child: const Text('Shared projects'),
+            ),
+            width: 360,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Shared projects')),
+          isSemantics(label: 'Team\nShared projects', isButton: true),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets(
         'keeps what it holds when it is handed onPressed or interactive, and loses them',
         (WidgetTester tester) async {

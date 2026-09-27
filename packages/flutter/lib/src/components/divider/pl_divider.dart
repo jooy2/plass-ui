@@ -100,6 +100,9 @@ class PlDivider extends StatelessWidget {
   /// A separator is not named by its own content, so a visible label does not
   /// become the accessible name on its own — a screen reader would announce a
   /// bare "separator" and read the word "OR" as loose text somewhere nearby.
+  ///
+  /// Given one, the [child] set into the line is not read as well, so the
+  /// divider is announced once, by this name.
   final String? semanticLabel;
 
   @override
@@ -133,6 +136,9 @@ class PlDivider extends StatelessWidget {
       // say the divider is decoration unless it was given a name — which is
       // what an unnamed rule is.
       container: semanticLabel != null,
+      // A named divider says its name once, as the React build's does, rather
+      // than the name and then the words set into the line: "Or OR".
+      excludeSemantics: semanticLabel != null,
       child: divider,
     );
   }

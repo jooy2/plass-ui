@@ -21,6 +21,29 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says a semanticLabel in place of what it draws', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(const PlToggle(defaultPressed: true, semanticLabel: 'Bold', child: Text('B'))),
+        );
+
+        // "Bold", as `aria-label` names a toggle on the web, rather than "Bold"
+        // and then the letter drawn on it. The state stays on the node.
+        expect(
+          semanticsOf(tester, find.byType(PlToggle)),
+          isSemantics(
+            label: 'Bold',
+            isButton: true,
+            hasToggledState: true,
+            isToggled: true,
+            hasTapAction: true,
+          ),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('goes on when it is pressed, and off again', (WidgetTester tester) async {
         final List<bool> seen = <bool>[];
 

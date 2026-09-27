@@ -183,6 +183,9 @@ class PlButton extends StatefulWidget {
 
   /// The name a screen reader announces. Required on an icon-only button, where
   /// there is no label to read.
+  ///
+  /// It takes the place of what the button draws: the [child] and the icons
+  /// are not read after it, as the React build's `aria-label` is not.
   final String? semanticLabel;
 
   @override
@@ -376,35 +379,43 @@ class _PlButtonState extends State<PlButton> {
      * The layers
      * -------------------------------------------------------------------- */
 
-    final content = Padding(
-      padding: EdgeInsets.symmetric(horizontal: iconOnly ? 0 : paddingX[_density]![_size]!),
-      child: DefaultTextStyle.merge(
-        style: TextStyle(
-          fontSize: fontSize,
-          fontWeight: FontWeight.w600,
-          // `leading-none`: the label is one line, so the line box is the type
-          // size and the button's own height does the centring.
-          height: 1,
-          // Which is only true with the leading split evenly. Flutter's default
-          // hands the (here negative) leading out in proportion to the font's
-          // ascent and descent, which pushes every label up by two or three
-          // pixels — visible on a 24px control and wrong on all of them. CSS
-          // splits it in half, and so does this.
-          leadingDistribution: TextLeadingDistribution.even,
-        ),
-        maxLines: 1,
-        softWrap: false,
-        textAlign: TextAlign.center,
-        child: IconTheme.merge(
-          data: IconThemeData(size: glyph),
-          // The label and its glyphs ease to a new ink with the fill, as the
-          // React build's `color` does under the house transition.
-          child: PlassInk(
-            color: ink,
-            child: Row(
-              mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _slots(glyph: glyph),
+    // A `semanticLabel` is the button's name, and what is drawn on the key is
+    // then a picture of it: left in, the button's merge would read the two one
+    // after the other, "Copy ⧉", where the React build's `aria-label` takes
+    // the place of the content. Only what is drawn goes; the focus, the tap and
+    // the state are on the nodes above it, so the button keeps every one.
+    final content = ExcludeSemantics(
+      excluding: widget.semanticLabel != null,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: iconOnly ? 0 : paddingX[_density]![_size]!),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.w600,
+            // `leading-none`: the label is one line, so the line box is the type
+            // size and the button's own height does the centring.
+            height: 1,
+            // Which is only true with the leading split evenly. Flutter's default
+            // hands the (here negative) leading out in proportion to the font's
+            // ascent and descent, which pushes every label up by two or three
+            // pixels — visible on a 24px control and wrong on all of them. CSS
+            // splits it in half, and so does this.
+            leadingDistribution: TextLeadingDistribution.even,
+          ),
+          maxLines: 1,
+          softWrap: false,
+          textAlign: TextAlign.center,
+          child: IconTheme.merge(
+            data: IconThemeData(size: glyph),
+            // The label and its glyphs ease to a new ink with the fill, as the
+            // React build's `color` does under the house transition.
+            child: PlassInk(
+              color: ink,
+              child: Row(
+                mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: _slots(glyph: glyph),
+              ),
             ),
           ),
         ),

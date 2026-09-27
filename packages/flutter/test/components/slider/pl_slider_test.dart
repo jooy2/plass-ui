@@ -315,6 +315,30 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('says a semanticLabel in place of its label rather than before it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlSlider(
+              values: const <double>[42],
+              semanticLabel: 'Volume',
+              label: const Text('Loudness'),
+              onChanged: (List<double> _) {},
+            ),
+            width: 300,
+          ),
+        );
+
+        expect(
+          semanticsOf(tester, find.byType(PlSlider)),
+          isSemantics(isSlider: true, label: 'Volume', value: '42'),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is moved a step by the adjust actions of a screen reader', (
         WidgetTester tester,
       ) async {

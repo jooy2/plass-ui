@@ -154,6 +154,10 @@ class PlCard extends StatelessWidget {
 
   /// The name a screen reader gives a pressable card. Left out, the card is
   /// named by what is in it.
+  ///
+  /// Given one, the card is named by it alone, and what the card holds keeps
+  /// nodes of its own inside the card rather than being read as part of the
+  /// name.
   final String? semanticLabel;
 
   /// Drive focus from outside.
@@ -190,6 +194,11 @@ class PlCard extends StatelessWidget {
           container: pressable,
           button: pressable ? true : null,
           label: pressable ? semanticLabel : null,
+          // Named, the card is called by that name alone, and what it holds is
+          // read after it rather than run on into it: "Team plan", then the
+          // title and the body, where one node used to say all three as its
+          // name. Unnamed, what it holds is its name, as before.
+          explicitChildNodes: pressable && semanticLabel != null,
           onTap: onPressed,
           child: _sheet(context, state),
         );

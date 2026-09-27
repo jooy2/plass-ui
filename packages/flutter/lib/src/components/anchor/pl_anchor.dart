@@ -258,6 +258,10 @@ class _PlAnchorState extends State<PlAnchor> {
 
     return Semantics(
       container: true,
+      // The heading keeps a node of its own, as the React build's text inside
+      // its `<nav>` does. Merged, its words ran on after the list's name, and
+      // its heading flag made the whole list a heading.
+      explicitChildNodes: true,
       label: widget.semanticLabel ?? PlassTheme.labelsOf(context).onThisPage,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

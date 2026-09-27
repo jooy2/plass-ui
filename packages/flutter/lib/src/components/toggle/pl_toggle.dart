@@ -121,7 +121,8 @@ class PlToggle extends StatefulWidget {
   /// The name a screen reader gives it.
   ///
   /// Required in practice on a toggle with an icon and no label, which has no
-  /// accessible name otherwise.
+  /// accessible name otherwise. It takes the place of what the toggle draws,
+  /// which is not read after it.
   final String? semanticLabel;
 
   /// An external focus node, for a caller that has to move focus here itself.
@@ -236,9 +237,15 @@ class _PlToggleState extends State<PlToggle> {
         ),
       );
 
-      content = Padding(
-        padding: EdgeInsets.symmetric(horizontal: iconOnly ? 0 : paddingX[density]![size]!),
-        child: content,
+      // A `semanticLabel` is the name, and takes the place of what is drawn
+      // rather than being read ahead of it, as `aria-label` does on the web.
+      // Only what is drawn goes: the state and the tap are on the node above.
+      content = ExcludeSemantics(
+        excluding: widget.semanticLabel != null,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: iconOnly ? 0 : paddingX[density]![size]!),
+          child: content,
+        ),
       );
 
       Widget toggle = SizedBox(

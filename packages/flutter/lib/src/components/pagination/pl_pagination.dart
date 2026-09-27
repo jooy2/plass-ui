@@ -278,14 +278,15 @@ class PlPagination extends StatelessWidget {
                 density: density,
                 elevation: elevation,
                 disabled: disabled,
-                semanticLabel: (pageLabel ?? words.paginationPage)(number),
                 onPressed: () => go(number),
-                // The digit is drawn and not read: `semanticLabel` already says
-                // "Page 3", and a label that merged both would announce the
-                // number twice. The current page is marked selected, which is
-                // merged into the button and is what a screen reader says in
-                // place of the web's `aria-current`.
+                // The name, "Page 3", is said in place of the digit, which is
+                // drawn and not read. The current page is marked selected,
+                // which is what a screen reader says in place of the web's
+                // `aria-current`. Both are on the words, which the button's
+                // merge folds in, rather than in a `semanticLabel`, which takes
+                // the place of everything the key holds, the selection too.
                 child: Semantics(
+                  label: (pageLabel ?? words.paginationPage)(number),
                   selected: number == current ? true : null,
                   child: ExcludeSemantics(
                     child: Text(

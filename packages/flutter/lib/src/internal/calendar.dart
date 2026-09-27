@@ -724,9 +724,9 @@ class _PlassCalendarState extends State<PlassCalendar> {
     }
 
     // Named by the month and the year they show, and described by what they do.
-    // A `semanticLabel` is merged ahead of the drawn words, so "Choose a month"
-    // would be read before which month is on screen. The purpose goes in a hint
-    // on the words instead, which the button's own merge folds into the button.
+    // A `semanticLabel` takes the place of the drawn words, so "Choose a month"
+    // would be read and which month is on screen would not. The purpose goes in
+    // a hint on the words instead, which the button's own merge folds into it.
     final monthButton = announced(
       label: widget.names.months[widget.month.month - 1],
       hint: labels.chooseMonth,

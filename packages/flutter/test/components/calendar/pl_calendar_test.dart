@@ -625,6 +625,24 @@ void main() {
           findsOneWidget,
         );
       });
+
+      testWidgets('is called by that name alone, with the weekdays as nodes of their own', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          PlCalendar(value: july27, onChanged: (DateTime? _) {}, semanticLabel: 'Departure date'),
+        );
+
+        // The row of weekday initials used to be merged into the calendar's
+        // own node, which named it "Departure date Sun Mon Tue …".
+        expect(semanticsNodeLabelled(tester, 'Departure date'), isNotNull);
+        expect(semanticsNodeLabelled(tester, 'Sun'), isNotNull);
+
+        handle.dispose();
+      });
     });
   });
 }

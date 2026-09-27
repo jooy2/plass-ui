@@ -106,6 +106,28 @@ void main() {
         expect(find.bySemanticsLabel('Or'), findsOneWidget);
         handle.dispose();
       });
+
+      testWidgets('says its name once, rather than its name and then the label', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(const PlDivider(semanticLabel: 'Or', child: Text('OR')), width: 200),
+        );
+
+        // The words set into the line are the name said once, as the React
+        // divider's `aria-label` is, and not "Or OR".
+        expect(semanticsLabels(tester), <String>['Or']);
+        handle.dispose();
+      });
+
+      testWidgets('leaves an unnamed label to be read where it sits', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(host(const PlDivider(child: Text('OR')), width: 200));
+
+        expect(semanticsLabels(tester), <String>['OR']);
+        handle.dispose();
+      });
     });
   });
 }

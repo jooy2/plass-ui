@@ -2360,6 +2360,30 @@ void main() {
     });
 
     group('accessibility', () {
+      testWidgets('says a semanticLabel in place of its label rather than before it', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              semanticLabel: 'City',
+              label: const Text('Where to'),
+            ),
+          ),
+        );
+
+        expect(
+          semanticsOf(tester, find.byType(PlCombobox<String>)),
+          isSemantics(label: 'City', isTextField: true, isExpanded: false),
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('is a text field that says whether the list is open', (
         WidgetTester tester,
       ) async {
