@@ -53,6 +53,22 @@ describe('PlHeatmapChart', () => {
       await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
     });
 
+    it('is described by what its empty state says', async () => {
+      // The words are drawn inside the picture, where nothing is read, so the
+      // description is the one way to them.
+      const screen = await render(
+        <PlHeatmapChart
+          label="Traffic"
+          series={[{ name: 'Mon', data: [null, null] }]}
+          empty={<em>Nothing yet</em>}
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Traffic' }))
+        .toHaveAccessibleDescription('Nothing yet');
+    });
+
     it('writes both axes down the side and along the bottom', async () => {
       const screen = await render(
         <PlHeatmapChart label="Traffic" series={WEEK} categories={HOURS} />

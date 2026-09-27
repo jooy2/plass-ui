@@ -98,6 +98,22 @@ describe('PlScatterChart', () => {
       expect(marks(plot.element()).length).toBe(2);
     });
 
+    it('is described by what its empty state says', async () => {
+      // The words are drawn inside the picture, where nothing is read, so the
+      // description is the one way to them.
+      const screen = await render(
+        <PlScatterChart
+          label="Spend"
+          series={[{ name: 'Q1', data: [{ x: 1, y: null }] }]}
+          empty={<em>Nothing yet</em>}
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Spend' }))
+        .toHaveAccessibleDescription('Nothing yet');
+    });
+
     it('puts numbers on the category axis rather than indices', async () => {
       const screen = await render(<PlScatterChart label="Spend" series={SPEND} />);
 

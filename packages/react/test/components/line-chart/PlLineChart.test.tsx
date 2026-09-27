@@ -103,6 +103,25 @@ describe('PlLineChart', () => {
       expect(screen.getByRole('table').query()).toBeNull();
     });
 
+    it('is described by what its empty state says', async () => {
+      // The words are drawn inside the picture, where nothing is read, so the
+      // description is the one way to them. The label pack's words when the
+      // caller has none of their own.
+      const screen = await render(<PlLineChart label="Sessions" series={[]} />);
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Sessions' }))
+        .toHaveAccessibleDescription('Nothing here');
+
+      await screen.rerender(
+        <PlLineChart label="Sessions" series={[]} empty={<em>No data yet</em>} />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Sessions' }))
+        .toHaveAccessibleDescription('No data yet');
+    });
+
     it('leaves a gap out of the table rather than writing it as a zero', async () => {
       const screen = await render(
         <PlLineChart

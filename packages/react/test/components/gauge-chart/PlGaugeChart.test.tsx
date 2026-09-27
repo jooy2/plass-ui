@@ -213,11 +213,57 @@ describe('PlGaugeChart', () => {
 
   describe('accessibility', () => {
     it('is a plain box when it has no name to be called by', async () => {
-      const screen = await render(<PlGaugeChart value={68} />);
+      const screen = await render(<PlGaugeChart value={68} caption="of quota" />);
 
       expect(screen.getByRole('img').query()).toBeNull();
-      // The reading is still text, so it is still read.
+      // The reading is still text, so it is still read, and there is no image
+      // for anything to describe.
       await expect.element(screen.getByText('68')).toBeInTheDocument();
+      expect(screen.container.querySelector('[aria-describedby]')).toBeNull();
+    });
+
+    it('describes a named dial by its caption, leaving the number to its name', async () => {
+      const screen = await render(<PlGaugeChart label="Quota" value={68} caption="of quota" />);
+
+      // Inside the image the caption is never read, so it is in the
+      // description; the number is in the name already, so it is not.
+      await expect
+        .element(screen.getByRole('img', { name: 'Quota: 68 / 100' }))
+        .toHaveAccessibleDescription('of quota');
+    });
+
+    it('describes a named dial by a center of its own, then the caption', async () => {
+      const screen = await render(
+        <PlGaugeChart
+          label="Quota"
+          value={68}
+          center={<strong>Nearly</strong>}
+          caption="of quota"
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Quota: 68 / 100' }))
+        .toHaveAccessibleDescription('Nearly of quota');
+    });
+
+    it('describes a named dial by what its empty state says', async () => {
+      const screen = await render(
+        <PlGaugeChart label="Quota" value={5} min={10} max={10} empty={<em>No scale</em>} />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Quota: 5 / 10' }))
+        .toHaveAccessibleDescription('No scale');
+    });
+
+    it('has no description when it writes nothing its name does not say', async () => {
+      const screen = await render(<PlGaugeChart label="Quota" value={68} />);
+
+      const plot = screen.getByRole('img', { name: 'Quota: 68 / 100' });
+
+      await expect.element(screen.getByText('68')).toBeInTheDocument();
+      expect(plot.element().hasAttribute('aria-describedby')).toBe(false);
     });
   });
 });

@@ -1266,6 +1266,7 @@ export function CartesianChart({
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
+  const emptyId = React.useId();
 
   const legendOptions: PlassChartLegend =
     legend === false
@@ -1977,7 +1978,9 @@ export function CartesianChart({
         // Never the bare prop: `label` is optional, and a focusable `role="img"`
         // with nothing to be called by is a tab stop that announces silence.
         aria-label={label ?? words.chart}
-        aria-describedby={nothing ? undefined : summaryId}
+        // An empty chart is described by the words it draws instead, which
+        // are inside the picture and so read only through this reference.
+        aria-describedby={nothing ? emptyId : summaryId}
         onPointerMove={(event) => {
           if (tooltipMode === 'none') {
             return;
@@ -2016,6 +2019,7 @@ export function CartesianChart({
       >
         {nothing ? (
           <div
+            id={emptyId}
             className={cx(
               'flex h-full items-center justify-center text-(--plass-muted-fg)',
               metaTextClasses[size]

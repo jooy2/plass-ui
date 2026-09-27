@@ -49,6 +49,18 @@ describe('PlAreaChart', () => {
       await expect.element(screen.getByRole('cell', { name: '20' })).toBeInTheDocument();
     });
 
+    it('is described by what its empty state says', async () => {
+      // The words are drawn inside the picture, where nothing is read, so the
+      // description is the one way to them.
+      const screen = await render(
+        <PlAreaChart label="Storage by tier" series={[]} empty={<em>Nothing yet</em>} />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Storage by tier' }))
+        .toHaveAccessibleDescription('Nothing yet');
+    });
+
     it('reflects a changed curve on re-render', async () => {
       const screen = await render(
         <PlAreaChart

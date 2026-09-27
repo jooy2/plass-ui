@@ -41,6 +41,18 @@ describe('PlPieChart', () => {
       await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
     });
 
+    it('is described by what its empty state says', async () => {
+      // The words are drawn inside the picture, where nothing is read, so the
+      // description is the one way to them.
+      const screen = await render(
+        <PlPieChart label="Traffic" data={[0, 0]} empty={<em>Nothing yet</em>} />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Traffic' }))
+        .toHaveAccessibleDescription('Nothing yet');
+    });
+
     it('renders its table on a server, where it has no width yet', () => {
       const html = renderToString(
         <PlPieChart label="Traffic" categories={SOURCES} data={[40, 25, 20, 15]} />
@@ -97,6 +109,45 @@ describe('PlPieChart', () => {
 
       await expect.element(screen.getByRole('img', { name: 'Traffic' })).toBeInTheDocument();
       expect(screen.getByText('100').query()).toBeNull();
+    });
+
+    it('is read ahead of the slices, and once', async () => {
+      const screen = await render(
+        <PlPieChart
+          label="Traffic"
+          shape="donut"
+          categories={['Search', 'Social']}
+          data={[10, 20]}
+          center={
+            <>
+              <strong>30</strong> visits
+            </>
+          }
+        />
+      );
+
+      const plot = screen.getByRole('img', { name: 'Traffic' });
+
+      // Inside the picture the centre is never read, so it is in the
+      // description, and there only: the summary after it holds the slices.
+      await expect
+        .element(plot)
+        .toHaveAccessibleDescription('30 visits , Search 10 · 33.3%, Social 20 · 66.7%');
+    });
+
+    it('is not read on a pie, which does not draw it', async () => {
+      const screen = await render(
+        <PlPieChart
+          label="Traffic"
+          categories={['Search', 'Social']}
+          data={[10, 20]}
+          center="30 visits"
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Traffic' }))
+        .toHaveAccessibleDescription('Search 10 · 33.3%, Social 20 · 66.7%');
     });
   });
 

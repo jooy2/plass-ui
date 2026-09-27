@@ -98,6 +98,54 @@ void main() {
       expect(find.bySemanticsLabel('Quota'), findsNothing);
       // The reading is still text, so it is still read.
       expect(find.text('68'), findsOneWidget);
+      expect(find.bySemanticsLabel('68'), findsOneWidget);
+    });
+
+    testWidgets('reads a named dial by its name, then its caption, and the number once', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlGaugeChart(value: 68, caption: Text('of quota'), semanticLabel: 'Quota'),
+      );
+
+      // The number is in the name already, so the one written in the middle
+      // is not read again; the caption is, as the React image is described by
+      // it.
+      expect(find.bySemanticsLabel('Quota: 68 / 100\nof quota'), findsOneWidget);
+    });
+
+    testWidgets('reads a center of the caller own after the name, then the caption', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlGaugeChart(
+          value: 68,
+          center: Text('Nearly'),
+          caption: Text('of quota'),
+          semanticLabel: 'Quota',
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Quota: 68 / 100\nNearly\nof quota'), findsOneWidget);
+    });
+
+    testWidgets('reads what a named dial draws when it has nothing to draw', (
+      WidgetTester tester,
+    ) async {
+      await _pump(
+        tester,
+        const PlGaugeChart(
+          value: 5,
+          min: 10,
+          max: 10,
+          empty: Text('No scale'),
+          semanticLabel: 'Quota',
+        ),
+      );
+
+      expect(find.bySemanticsLabel('Quota: 5 / 10\nNo scale'), findsOneWidget);
     });
 
     testWidgets('takes the highest band at or below the reading', (WidgetTester tester) async {

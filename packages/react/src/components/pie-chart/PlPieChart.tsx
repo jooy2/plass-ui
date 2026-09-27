@@ -154,6 +154,8 @@ export function PlPieChart({
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
+  const emptyId = React.useId();
+  const centreId = React.useId();
 
   const formatValue = React.useCallback(
     (value: number) =>
@@ -221,6 +223,9 @@ export function PlPieChart({
   const outer = Math.max(0, Math.min(width / 2, semi ? plotHeight : plotHeight / 2) - 2);
   const centreY = semi ? Math.min(plotHeight, plotHeight / 2 + outer / 2) : plotHeight / 2;
   const inner = outer * clamp(innerRadius ?? holes[shape], 0, 0.95);
+  // Whether the caller's content is in the hole, which a pie without one never
+  // has. The drawing and the description both ask, so they cannot disagree.
+  const centred = Boolean(center) && inner > 0;
 
   // Decided by the data alone. The box has no width on a server and before the
   // first measurement, and a pie that said "nothing here" until then would say
@@ -353,7 +358,11 @@ export function PlPieChart({
         // Never the bare prop: `label` is optional, and a focusable `role="img"`
         // with nothing to be called by is a tab stop that announces silence.
         aria-label={label ?? words.chart}
-        aria-describedby={nothing ? undefined : summaryId}
+        // What the hole holds and the empty state's words are inside the
+        // picture, so they are read only through this reference: the centre
+        // ahead of the slices, as it is the figure the ring was drawn around,
+        // and the empty state's words in place of them.
+        aria-describedby={nothing ? emptyId : centred ? `${centreId} ${summaryId}` : summaryId}
         onPointerLeave={() => setActive(null)}
         onBlur={() => setActive(null)}
         onKeyDown={(event) => {
@@ -407,6 +416,7 @@ export function PlPieChart({
       >
         {nothing ? (
           <div
+            id={emptyId}
             className={cx(
               'flex h-full items-center justify-center text-(--plass-muted-fg)',
               metaTextClasses[size]
@@ -483,8 +493,9 @@ export function PlPieChart({
           </svg>
         ) : null}
 
-        {center && inner > 0 ? (
+        {centred ? (
           <div
+            id={centreId}
             className="pointer-events-none absolute flex flex-col items-center justify-center text-center"
             // The box is the same either way round: its centre is the plot's
             // own centre, so measuring from the start edge and from the left
@@ -525,12 +536,15 @@ export function PlPieChart({
       {/* Every slice and its share, which is the reading a sighted reader takes
           from the angles — and not the table, which `aria-describedby` would
           flatten into one string of every value, ahead of anything else, on
-          every focus. The table is a sibling in the reading order either way. */}
+          every focus. The table is a sibling in the reading order either way.
+          Read after the centre, when there is one, and parted from it the way
+          two slices are parted, or the last word of the centre would run into
+          the name of the first slice. */}
       {nothing ? null : (
         <span id={summaryId} className={srOnlyClasses}>
           {arcs.map((arc, index) => (
             <React.Fragment key={arc.index}>
-              {index > 0 ? ', ' : null}
+              {index > 0 || centred ? ', ' : null}
               {slices[arc.index]?.name} {values[arc.index]?.label ?? share(arc.value)}
             </React.Fragment>
           ))}

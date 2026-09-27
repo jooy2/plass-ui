@@ -93,6 +93,22 @@ describe('PlTimelineChart', () => {
 
       await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
     });
+
+    it('is described by what its empty state says', async () => {
+      // The words are drawn inside the picture, where nothing is read, so the
+      // description is the one way to them.
+      const screen = await render(
+        <PlTimelineChart
+          label="Plan"
+          series={[{ name: 'Design', data: [] }]}
+          empty={<em>Nothing planned</em>}
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Plan' }))
+        .toHaveAccessibleDescription('Nothing planned');
+    });
   });
 
   describe('the time axis', () => {

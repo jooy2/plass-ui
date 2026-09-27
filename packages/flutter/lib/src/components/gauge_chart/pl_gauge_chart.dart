@@ -99,8 +99,10 @@ class PlGaugeChart extends StatelessWidget {
   /// What the dial is called.
   ///
   /// Named, it is one image saying one thing, which saves a reader hearing the
-  /// two end labels as loose numbers. Unnamed there is nothing to call it, so
-  /// the reading in the middle is read as the text it already is.
+  /// two end labels as loose numbers. The name carries the reading, and a
+  /// [center] of the caller's own, the [caption] and what [empty] draws are
+  /// read after it. Unnamed there is nothing to call it, so the reading in the
+  /// middle is read as the text it already is.
   final String? semanticLabel;
 
   /// What is drawn when there is nothing to draw.
@@ -216,7 +218,13 @@ class PlGaugeChart extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           color: tokens.fg,
                         ),
-                        child: reading,
+                        // A named dial says its number in its name, so the
+                        // number written here is not read a second time. A
+                        // center of the caller's own is read, after the name.
+                        child: ExcludeSemantics(
+                          excluding: semanticLabel != null && center == null,
+                          child: reading,
+                        ),
                       ),
                       if (caption != null)
                         DefaultTextStyle.merge(
@@ -238,11 +246,14 @@ class PlGaugeChart extends StatelessWidget {
       return dial;
     }
 
+    // The words the dial writes that its name does not already say join the
+    // name after it: a center of the caller's own, the caption, or what an
+    // empty dial draws in place of the arc. As the React image is described by
+    // them.
     return Semantics(
       container: true,
       image: true,
       label: value == null ? semanticLabel : '$semanticLabel: ${_write(value!)} / ${_write(max)}',
-      excludeSemantics: true,
       child: dial,
     );
   }

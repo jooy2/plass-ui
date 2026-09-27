@@ -143,6 +143,9 @@ export function PlGaugeChart({
   const hostRef = React.useRef<HTMLDivElement>(null);
   const width = useMeasuredWidth(hostRef);
   const words = useLabels();
+  const emptyId = React.useId();
+  const centreId = React.useId();
+  const captionId = React.useId();
 
   const formatValue = React.useCallback(
     (each: number) =>
@@ -320,6 +323,21 @@ export function PlGaugeChart({
 
   const tickCount = ticks === false ? 0 : Math.max(2, Math.floor(ticks));
 
+  /*
+   * What a named dial is described by: the words it writes that its name does
+   * not already say. The name carries the reading, so the number written in
+   * the hole is left out and a caller's own `center` is not, and the caption
+   * follows it. An empty dial is described by the words it draws in place of
+   * the arc. All of them are inside the image, so this reference is the one
+   * way they are read, and each is read once.
+   */
+  const dialDrawn = !nothing && width > 0 && outer > 0;
+  const described = [
+    nothing ? emptyId : null,
+    dialDrawn && hasContent(center) ? centreId : null,
+    dialDrawn && caption ? captionId : null
+  ].filter((id) => id !== null);
+
   return (
     <ChartSurface
       {...box}
@@ -348,9 +366,13 @@ export function PlGaugeChart({
               ? label
               : `${label}: ${formatValue(value)} / ${formatValue(max)}`
         }
+        aria-describedby={
+          label === undefined || described.length === 0 ? undefined : described.join(' ')
+        }
       >
         {nothing ? (
           <div
+            id={emptyId}
             className={cx(
               'flex h-full items-center justify-center text-(--plass-muted-fg)',
               metaTextClasses[size]
@@ -472,13 +494,17 @@ export function PlGaugeChart({
               }}
             >
               <span
+                id={hasContent(center) ? centreId : undefined}
                 className="font-semibold text-(--plass-fg) tabular-nums"
                 style={{ fontSize: readingSize }}
               >
                 {reading}
               </span>
               {caption ? (
-                <span className={cx('text-(--plass-muted-fg)', metaTextClasses[size])}>
+                <span
+                  id={captionId}
+                  className={cx('text-(--plass-muted-fg)', metaTextClasses[size])}
+                >
                   {caption}
                 </span>
               ) : null}
