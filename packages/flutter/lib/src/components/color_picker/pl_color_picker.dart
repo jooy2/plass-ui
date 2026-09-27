@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/color.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -274,7 +275,10 @@ class _PlColorPickerState extends State<PlColorPicker> {
 
   bool get _empty => widget.value == '';
 
-  bool get _inert => widget.disabled || widget.readOnly;
+  /// [PlColorPicker.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
+  bool get _inert => _disabled || widget.readOnly;
 
   @override
   void didUpdateWidget(PlColorPicker oldWidget) {
@@ -371,7 +375,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
             if (widget.label != null)
               DefaultTextStyle.merge(
                 style: TextStyle(
-                  color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                  color: _disabled ? tokens.mutedFg : tokens.fg,
                   fontSize: metaText[_size]!,
                   fontWeight: FontWeight.w600,
                 ),
@@ -404,7 +408,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
       description: widget.description,
       error: widget.error,
       invalid: widget.invalid,
-      disabled: widget.disabled,
+      disabled: _disabled,
       readOnly: widget.readOnly,
       fullWidth: widget.fullWidth,
       clearable: widget.clearable,

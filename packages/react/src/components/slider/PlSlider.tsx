@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Slider as BaseUISlider } from '@base-ui/react/slider';
 import {
@@ -221,7 +222,7 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
       getAriaLabel,
       getAriaValueText,
       showValue = false,
-      disabled = false,
+      disabled: disabledProp = false,
       className,
       style,
       ...props
@@ -230,6 +231,7 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
   ) {
     const descriptionId = React.useId();
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 

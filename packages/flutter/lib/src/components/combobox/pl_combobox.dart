@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/components/chip/pl_chip.dart';
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/ink.dart';
@@ -403,7 +404,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   Widget _labelNode(PlassTokens tokens, double meta) {
     return DefaultTextStyle.merge(
       style: TextStyle(
-        color: widget.disabled ? tokens.mutedFg : tokens.fg,
+        color: _disabled ? tokens.mutedFg : tokens.fg,
         fontSize: meta,
         fontWeight: FontWeight.w600,
       ),
@@ -562,14 +563,17 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode(debugLabel: 'PlCombobox'));
 
+  /// [PlCombobox.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
   bool get _usable =>
-      !widget.disabled &&
+      !_disabled &&
       !widget.readOnly &&
       (widget.multiple ? widget.onValuesChanged != null : widget.onChanged != null);
 
   /// Whether the list opens: to be picked from, or, while read-only, to be
   /// looked through, as Base UI opens a read-only combobox.
-  bool get _openable => _usable || (widget.readOnly && !widget.disabled);
+  bool get _openable => _usable || (widget.readOnly && !_disabled);
 
   List<T> get _chosen => widget.multiple
       ? widget.values
@@ -1045,7 +1049,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       textField: true,
       expanded: _open,
       readOnly: widget.readOnly,
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       label: widget.semanticLabel,
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );
@@ -1069,13 +1073,13 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       hovered: _hovered,
       focused: _focused,
       readOnly: widget.readOnly,
-      disabled: widget.disabled,
+      disabled: _disabled,
     );
 
     Widget editor = EditableText(
       controller: _text,
       focusNode: _focusNode,
-      readOnly: widget.readOnly || widget.disabled,
+      readOnly: widget.readOnly || _disabled,
       autofocus: widget.autofocus,
       maxLines: 1,
       minLines: 1,
@@ -1114,7 +1118,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       backgroundCursorColor: tokens.mutedFg,
       selectionColor: family.softPress,
       showSelectionHandles: false,
-      enableInteractiveSelection: !widget.disabled,
+      enableInteractiveSelection: !_disabled,
       cursorOpacityAnimates: true,
     );
 
@@ -1152,9 +1156,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // instead, without taking part in deciding what the press was, and opens
     // the list as a press anywhere else on the field does.
     editor = Listener(
-      onPointerDown: widget.disabled ? null : _onTextDown,
-      onPointerMove: widget.disabled ? null : _onTextMove,
-      onPointerUp: widget.disabled ? null : _onTextUp,
+      onPointerDown: _disabled ? null : _onTextDown,
+      onPointerMove: _disabled ? null : _onTextMove,
+      onPointerUp: _disabled ? null : _onTextUp,
       onPointerCancel: (PointerCancelEvent event) => _pressedAt = null,
       child: editor,
     );
@@ -1168,13 +1172,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                 size: size,
                 color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
                 density: PlassDensity.compact,
-                disabled: widget.disabled,
+                disabled: _disabled,
                 deleteLabel: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(
                   _labelOf(value),
                 ),
-                onDeleted: widget.readOnly || widget.disabled || !_usable
-                    ? null
-                    : () => _remove(value),
+                onDeleted: widget.readOnly || _disabled || !_usable ? null : () => _remove(value),
                 child: Text(_labelOf(value)),
               ),
           ]
@@ -1216,8 +1218,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       );
     }
 
-    final showClear =
-        widget.clearable && !widget.readOnly && !widget.disabled && _chosen.isNotEmpty;
+    final showClear = widget.clearable && !widget.readOnly && !_disabled && _chosen.isNotEmpty;
 
     // With chips in it the field cannot have a fixed height — they wrap — so the
     // height becomes a minimum and the padding is what keeps a one-row combobox
@@ -1306,7 +1307,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     shell = plassStateFilter(
       child: shell,
-      disabled: widget.disabled,
+      disabled: _disabled,
       readOnly: widget.readOnly,
       lit: false,
     );
@@ -1317,7 +1318,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       shell = PlassFieldNotch(
         size: size,
         density: _density,
-        disabled: widget.disabled,
+        disabled: _disabled,
         edge: notchEdgePainter(
           tokens,
           family,
@@ -1326,7 +1327,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           hovered: _hovered,
           focused: _focused,
           readOnly: widget.readOnly,
-          disabled: widget.disabled,
+          disabled: _disabled,
         ),
         label: _labelNode(tokens, metaText[size]!),
         child: shell,
@@ -1343,7 +1344,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     }
 
     shell = MouseRegion(
-      cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
+      cursor: _disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
       onEnter: (PointerEnterEvent event) => setState(() => _hovered = true),
       onExit: (PointerExitEvent event) => setState(() {
         _hovered = false;
@@ -1359,7 +1360,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         // does. While the list is up, a press on the field leaves it open: the
         // portal counts the field as inside the list, and only the chevron
         // closes it.
-        onTap: widget.disabled ? null : _pressField,
+        onTap: _disabled ? null : _pressField,
         // The press half of the light. On a touch screen there is no hover at
         // all, and this is the layer that carries the effect there.
         onTapDown: (TapDownDetails details) {

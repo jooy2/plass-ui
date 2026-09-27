@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { StarIcon, StarOutlineIcon } from '../../internal/icons.js';
@@ -125,7 +126,7 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
       emptyIcon,
       clearable = true,
       readOnly = false,
-      disabled = false,
+      disabled: disabledProp = false,
       name: nameProp,
       required = false,
       size: sizeProp,
@@ -140,6 +141,7 @@ export const PlRating = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlRatin
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const labels = useLabels();
     const label = labelProp ?? labels.rating;
     // The pack answers a score and the lack of one as two entries, so a

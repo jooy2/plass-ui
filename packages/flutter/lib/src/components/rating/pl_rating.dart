@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/date.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -163,7 +164,10 @@ class _PlRatingState extends State<PlRating> {
 
   bool _focusVisible = false;
 
-  bool get _interactive => !widget.readOnly && !widget.disabled && widget.onChanged != null;
+  /// [PlRating.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
+  bool get _interactive => !widget.readOnly && !_disabled && widget.onChanged != null;
 
   int get _stars => widget.count < 1 ? 1 : widget.count;
 
@@ -281,11 +285,7 @@ class _PlRatingState extends State<PlRating> {
     // not, for the reason given below, and painted straight onto the canvas
     // while it is available, rather than through an `Opacity` at 1, which is a
     // layer all the same.
-    row = PlassFiltered(
-      colorFilter: null,
-      opacity: widget.disabled ? disabledOpacity : 1,
-      child: row,
-    );
+    row = PlassFiltered(colorFilter: null, opacity: _disabled ? disabledOpacity : 1, child: row);
 
     // Everything from here out is in the tree whether the row can be used or
     // only read, with only its settings switching, for the reason
@@ -304,7 +304,7 @@ class _PlRatingState extends State<PlRating> {
       includeFocusSemantics: false,
       mouseCursor: readOnly
           ? MouseCursor.defer
-          : widget.disabled
+          : _disabled
           ? SystemMouseCursors.forbidden
           : SystemMouseCursors.click,
       onShowFocusHighlight: (bool value) {

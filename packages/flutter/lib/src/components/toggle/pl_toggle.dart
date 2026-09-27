@@ -4,6 +4,7 @@ library;
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/button_group.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
@@ -149,7 +150,8 @@ class _PlToggleState extends State<PlToggle> {
     final PlassDensity density =
         widget.density ?? group?.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
     final PlassElevation elevation = widget.elevation ?? group?.elevation ?? 0;
-    final bool disabled = widget.disabled ?? group?.disabled ?? false;
+    final bool disabled =
+        (widget.disabled ?? group?.disabled ?? false) || PlassFieldsetScope.disabledOf(context);
 
     final String? value = widget.value;
     final bool inSet = set != null && value != null;

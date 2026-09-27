@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { useDefaults } from '../../internal/defaults.js';
-import { FormControl, leaveFormControl, useFormReport } from '../../internal/form.js';
+import { FormControl, leaveFormControl, useFormReport, useDisabled } from '../../internal/form.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { CloseIcon } from '../../internal/icons.js';
 import { useLabels } from '../../internal/labels.js';
@@ -371,7 +371,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       showRejections = true,
       removeLabel: removeLabelProp,
       fullWidth = true,
-      disabled = false,
+      disabled: disabledProp = false,
       readOnly = false,
       required = false,
       name,
@@ -383,6 +383,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const labels = useLabels();
     const removeLabel = removeLabelProp ?? labels.removeItem;
     const size = sizeProp ?? defaults.size ?? 'md';

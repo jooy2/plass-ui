@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
@@ -157,10 +158,20 @@ const checkedTextClasses: Record<PlassVariant, string> = {
  */
 export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegmentProps>(
   function PlSegment(
-    { value, startIcon, endIcon, disabled = false, className, children, onPointerMove, ...props },
+    {
+      value,
+      startIcon,
+      endIcon,
+      disabled: disabledProp = false,
+      className,
+      children,
+      onPointerMove,
+      ...props
+    },
     ref
   ) {
     const { variant, size, density, fullWidth } = React.useContext(SegmentedButtonContext);
+    const disabled = useDisabled(disabledProp);
 
     return (
       <BaseUIRadio.Root
@@ -260,7 +271,7 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
     value: valueProp,
     defaultValue = null,
     onValueChange,
-    disabled = false,
+    disabled: disabledProp = false,
     readOnly = false,
     name,
     fullWidth = false,
@@ -272,6 +283,7 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
   ref
 ) {
   const defaults = useDefaults();
+  const disabled = useDisabled(disabledProp);
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

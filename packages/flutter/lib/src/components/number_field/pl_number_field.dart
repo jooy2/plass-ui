@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/ink.dart';
@@ -345,7 +346,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode());
 
-  bool get _editable => !widget.readOnly && !widget.disabled;
+  /// [PlNumberField.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
+  bool get _editable => !widget.readOnly && !_disabled;
 
   @override
   void initState() {
@@ -636,7 +640,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       hovered: _hovered,
       focused: _focused,
       readOnly: widget.readOnly,
-      disabled: widget.disabled,
+      disabled: _disabled,
     );
 
     // One widget for both placements, so the label a reader taps and the label
@@ -645,7 +649,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
         ? null
         : DefaultTextStyle.merge(
             style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
+              color: _disabled ? tokens.mutedFg : tokens.fg,
               fontSize: meta,
               fontWeight: FontWeight.w600,
             ),
@@ -675,14 +679,14 @@ class _PlNumberFieldState extends State<PlNumberField> {
       backgroundCursorColor: tokens.mutedFg,
       selectionColor: family.softPress,
       showSelectionHandles: false,
-      enableInteractiveSelection: !widget.disabled,
+      enableInteractiveSelection: !_disabled,
       cursorOpacityAnimates: true,
     );
 
     // A disabled field leaves the focus order, as a disabled button does, so Tab
     // passes it and no ring is drawn on it. The `ExcludeFocus` is in the tree
     // either way, so turning `disabled` off does not build the editor again.
-    editor = ExcludeFocus(excluding: widget.disabled, child: editor);
+    editor = ExcludeFocus(excluding: _disabled, child: editor);
 
     if (widget.placeholder != null) {
       editor = Stack(
@@ -770,7 +774,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       // Faded of its own only at its limit in a field that is not disabled: a
       // disabled field is already drawn at half by the state filter round it,
       // and a second fade would draw the stepper at a quarter.
-      final faded = !widget.disabled && _atEdge(direction);
+      final faded = !_disabled && _atEdge(direction);
       final box = scale.size * _stepperScale;
 
       return PlassInteractive(
@@ -905,7 +909,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
 
     shell = plassStateFilter(
       child: shell,
-      disabled: widget.disabled,
+      disabled: _disabled,
       readOnly: widget.readOnly,
       lit: false,
     );
@@ -916,7 +920,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       shell = PlassFieldNotch(
         size: size,
         density: _density,
-        disabled: widget.disabled,
+        disabled: _disabled,
         edge: notchEdgePainter(
           tokens,
           family,
@@ -925,7 +929,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
           hovered: _hovered,
           focused: _focused,
           readOnly: widget.readOnly,
-          disabled: widget.disabled,
+          disabled: _disabled,
         ),
         label: labelNode!,
         child: shell,
@@ -942,7 +946,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
     }
 
     shell = MouseRegion(
-      cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
+      cursor: _disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() {
         _hovered = false;
@@ -952,7 +956,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         excludeFromSemantics: true,
-        onTap: widget.disabled ? null : _focusNode.requestFocus,
+        onTap: _disabled ? null : _focusNode.requestFocus,
         // The press half of the light. On a touch screen there is no hover at
         // all, and this is the layer that carries the effect there.
         onTapDown: (TapDownDetails details) {
@@ -1021,7 +1025,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       container: true,
       textField: true,
       readOnly: widget.readOnly,
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       label: widget.semanticLabel,
       value: _controller.text.isEmpty ? null : _controller.text,
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),

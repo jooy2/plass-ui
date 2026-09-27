@@ -53,6 +53,28 @@ export function useFormReport(name: string | undefined, read: () => unknown, ena
   }, [report, name, enabled]);
 }
 
+/**
+ * Whether a `PlFieldset` around the caller is disabled, the nearest one or any
+ * further out.
+ *
+ * Base UI hands a disabled fieldset to every `Field` inside it through a
+ * context of its own, and the browser disables a native control inside a
+ * `<fieldset disabled>`. Neither reaches the look, which a shell draws from its
+ * own `disabled`, nor a control that is neither in a `Field` nor native, such
+ * as a slider's track or a segmented button's segments. `PlFieldset` hands the
+ * answer Base UI gives its fields down through this as well, and a control
+ * counts it in wherever it reads its own `disabled`.
+ */
+export const FieldsetDisabledContext = /* @__PURE__ */ React.createContext(false);
+
+/**
+ * A control's `disabled`, with a disabled `PlFieldset` around it counted in, so
+ * a control in one draws itself exactly as it would with `disabled` of its own.
+ */
+export function useDisabled(disabled: boolean | undefined): boolean {
+  return React.useContext(FieldsetDisabledContext) || disabled === true;
+}
+
 /** Every `<fieldset>` around `element`, nearest first. */
 function fieldsetsAround(element: Element): HTMLFieldSetElement[] {
   const fieldsets: HTMLFieldSetElement[] = [];

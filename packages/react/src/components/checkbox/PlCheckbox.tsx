@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Checkbox as BaseUICheckbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
@@ -219,7 +220,7 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
       description,
       error,
       invalid,
-      disabled = false,
+      disabled: disabledProp = false,
       readOnly = false,
       className,
       classNames,
@@ -229,6 +230,7 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 

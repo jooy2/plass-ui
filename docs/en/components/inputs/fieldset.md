@@ -62,7 +62,7 @@ What the shared axes mean across the library is in [prop conventions](../../desi
 
 ### disabled
 
-The reason to use a fieldset rather than a <Fw react="`<div>`" flutter="`Column`" />. Turning it on takes every control inside out of the tab order <Fw react="and out of the form" flutter="and out of the pointer's reach, and drains the group" />, without the fieldset knowing what any of them are.
+The reason to use a fieldset rather than a <Fw react="`<div>`" flutter="`Column`" />. Turning it on takes every control inside out of the tab order <Fw react="and out of the form" flutter="and out of the pointer's reach" />, without the fieldset knowing what any of them are. Each control draws itself disabled, exactly as it does with a `disabled` of its own, and the legend and anything else that is not a control are drawn as they are.
 
 <Demo src="fieldset/disabled" :min-height="280">
 
@@ -129,7 +129,7 @@ Two fieldsets on one card is the usual arrangement, and it is what makes the no-
 - The legend is read out with the controls inside, so write a phrase that still reads correctly in front of each of them: "Billing address", not "Where should we send it?".
 - It is a real `<fieldset>`, which is a `group`, and the legend names it.
 - The legend is a `<div>` pointed at by `aria-labelledby` rather than a rendered `<legend>`. That is Base UI's decision, and it is what makes the group an ordinary flex container: a real `<legend>` is lifted out of its fieldset's content box by every browser, so a `gap` would put no space under it at all.
-- `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does, no context, no prop threading, and nothing to forget on a control that was added later.
+- `disabled` on the fieldset is the native attribute, so it disables descendants the way the platform does, with no prop threading and nothing to forget on a control that was added later. A link is not a control, so a `PlButton` rendered as an `<a>` stays live and is drawn that way.
 
 :::
 
@@ -137,7 +137,7 @@ Two fieldsets on one card is the usual arrangement, and it is what makes the no-
 
 - The legend is read once, before the controls, rather than in front of each of them, so write it as a name for the whole group: "Billing address", not "Where should we send it?".
 - It is one semantics container, and the legend and the description are the first things in it. The container itself has no name: Flutter's semantics have no group role for a legend to name.
-- `disabled` takes the pointer and the focus away from everything inside, a control a widget three levels down drew included, and drains the group. A control inside still reports itself to a screen reader as enabled, because Flutter has no attribute that every widget below reads the way a browser applies `<fieldset disabled>`. Give a field that has to say it is unavailable its own `disabled`.
+- `disabled` takes the pointer and the focus away from everything inside, a control a widget three levels down drew included. Every control of this package inside reports itself to a screen reader as unavailable, as it does with a `disabled` of its own. A widget from somewhere else still reports itself as enabled, because Flutter has no attribute that every widget below reads the way a browser applies `<fieldset disabled>`.
 
 :::
 
@@ -147,7 +147,7 @@ Two fieldsets on one card is the usual arrangement, and it is what makes the no-
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `disabled` as the native `<fieldset>` attribute | the pointer taken away, the focus taken away, the group drained | There is no such cascade in Flutter. This does the three things the attribute actually buys; what it cannot do is make a field inside _report_ itself as unavailable, so a field that has to say so is given its own `disabled`. |
+| `disabled` as the native `<fieldset>` attribute | the pointer and the focus taken away, and the state handed down to every control of this package inside | There is no such cascade in Flutter. The controls of this package read the fieldset and draw and report themselves as disabled; a widget from somewhere else is out of reach but still reports itself as enabled. |
 | a `<fieldset>` whose browser border, padding, margin and `min-width` are undone | a `Column` | There is nothing to undo. |
 | the legend as part of every control's accessible name | the legend as plain text at the top of one unnamed semantics container, not marked as a header | Flutter's semantics have no group role for a legend to name, and prefixing every control's own name would say the group's name once per control. |
 | `children` | `children: List<Widget>` | The stack is laid out here, so it counts what it is given. |

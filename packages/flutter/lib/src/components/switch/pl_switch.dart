@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -135,13 +136,14 @@ class PlSwitch extends StatelessWidget {
   /// Takes focus as it is inserted into the tree.
   final bool autofocus;
 
-  bool get _disabled => disabled || onChanged == null;
-
-  bool get _interactive => !_disabled && !readOnly;
-
   @override
   Widget build(BuildContext context) {
     final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    // Its own `disabled`, a missing `onChanged` or a disabled [PlFieldset]
+    // around it.
+    final bool disabled =
+        this.disabled || onChanged == null || PlassFieldsetScope.disabledOf(context);
+    final bool interactive = !disabled && !readOnly;
     final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
     final tokens = PlassTheme.of(context);
@@ -171,7 +173,7 @@ class PlSwitch extends StatelessWidget {
           borderRadius: BorderRadius.circular(rail.height),
           color: value ? null : tokens.track,
           gradient: value ? family.fill : null,
-          boxShadow: value && _interactive ? <BoxShadow>[tokens.lift(family)] : null,
+          boxShadow: value && interactive ? <BoxShadow>[tokens.lift(family)] : null,
         ),
         child: Stack(
           children: <Widget>[
@@ -197,7 +199,7 @@ class PlSwitch extends StatelessWidget {
 
       rails = plassStateFilter(
         child: rails,
-        disabled: _disabled,
+        disabled: disabled,
         readOnly: readOnly,
         hovered: state.hovered,
         reduceMotion: reduceMotion,
@@ -217,12 +219,12 @@ class PlSwitch extends StatelessWidget {
     }
 
     Widget field = PlassInteractive(
-      onTap: _interactive ? () => onChanged!(!value) : null,
-      interactive: _interactive,
-      enabled: !_disabled,
+      onTap: interactive ? () => onChanged!(!value) : null,
+      interactive: interactive,
+      enabled: !disabled,
       focusNode: focusNode,
       autofocus: autofocus,
-      cursor: _disabled
+      cursor: disabled
           ? SystemMouseCursors.forbidden
           : readOnly
           ? SystemMouseCursors.basic
@@ -236,7 +238,7 @@ class PlSwitch extends StatelessWidget {
                 children: <Widget>[
                   if (label != null)
                     DefaultTextStyle.merge(
-                      style: TextStyle(color: _disabled ? tokens.mutedFg : tokens.fg),
+                      style: TextStyle(color: disabled ? tokens.mutedFg : tokens.fg),
                       child: label!,
                     ),
                   if (description != null)
@@ -302,10 +304,10 @@ class PlSwitch extends StatelessWidget {
         // Read-only is not disabled: the switch keeps its place in the focus
         // order, so it says it is available and cannot be changed, as
         // `aria-readonly` does, and only the tap action goes.
-        enabled: !_disabled,
+        enabled: !disabled,
         readOnly: readOnly,
         label: semanticLabel,
-        onTap: _interactive ? () => onChanged!(!value) : null,
+        onTap: interactive ? () => onChanged!(!value) : null,
         child: field,
       ),
     );

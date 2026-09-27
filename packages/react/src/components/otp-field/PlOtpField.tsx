@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { Field } from '@base-ui/react/field';
@@ -234,7 +235,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
       invalid,
       name,
       required = false,
-      disabled = false,
+      disabled: disabledProp = false,
       readOnly = false,
       autoFocus = false,
       slotLabel: slotLabelProp,
@@ -247,6 +248,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const labels = useLabels();
     const slotLabel = slotLabelProp ?? labels.otpSlot;
     const nameId = React.useId();

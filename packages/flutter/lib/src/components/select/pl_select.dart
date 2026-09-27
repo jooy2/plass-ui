@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/ink.dart';
@@ -240,7 +241,10 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
 
   FocusNode get _focusNode => widget.focusNode ?? (_owned ??= FocusNode(debugLabel: 'PlSelect'));
 
-  bool get _usable => !widget.disabled && !widget.readOnly && widget.onChanged != null;
+  /// [PlSelect.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
+  bool get _usable => !_disabled && !widget.readOnly && widget.onChanged != null;
 
   int get _chosen =>
       widget.options.indexWhere((PlSelectOption<T> option) => option.value == widget.value);
@@ -353,7 +357,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
             child: DefaultTextStyle.merge(
               style: TextStyle(
-                color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                color: _disabled ? tokens.mutedFg : tokens.fg,
                 fontSize: meta,
                 fontWeight: FontWeight.w600,
               ),
@@ -363,9 +367,9 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
 
     Widget trigger = PlassInteractive(
       onTap: _open ? () => _take(_highlighted) : _openList,
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       interactive: _usable,
-      cursor: widget.disabled
+      cursor: _disabled
           ? SystemMouseCursors.forbidden
           : _usable
           ? SystemMouseCursors.click
@@ -396,7 +400,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           hovered: state.hovered,
           focused: state.focusVisible || _open,
           readOnly: widget.readOnly,
-          disabled: widget.disabled,
+          disabled: _disabled,
         );
 
         Widget shell = ConstrainedBox(
@@ -451,7 +455,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
 
         shell = plassStateFilter(
           child: shell,
-          disabled: widget.disabled,
+          disabled: _disabled,
           readOnly: widget.readOnly,
           lit: false,
         );
@@ -462,7 +466,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           shell = PlassFieldNotch(
             size: size,
             density: _density,
-            disabled: widget.disabled,
+            disabled: _disabled,
             edge: notchEdgePainter(
               tokens,
               family,
@@ -471,7 +475,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
               hovered: state.hovered,
               focused: state.focusVisible || _open,
               readOnly: widget.readOnly,
-              disabled: widget.disabled,
+              disabled: _disabled,
             ),
             label: labelNode!,
             child: shell,
@@ -490,7 +494,7 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           button: true,
           expanded: _open,
           readOnly: widget.readOnly,
-          enabled: !widget.disabled,
+          enabled: !_disabled,
           // The field's label names the trigger, as the React build's label
           // does through Base UI's Field. What is chosen is the value.
           label: widget.semanticLabel ?? plassTextOf(widget.label),

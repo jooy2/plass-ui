@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Popover } from '@base-ui/react/popover';
-import { FormControl, leaveFormControl } from './form.js';
+import { FormControl, leaveFormControl, useDisabled } from './form.js';
 import { glowPointerMove } from './glow.js';
 import { CloseIcon } from './icons.js';
 import { WidthSizer } from './sizer.js';
@@ -294,7 +294,7 @@ export function PickerShell({
   invalid,
   startIcon,
   fullWidth = false,
-  disabled = false,
+  disabled: disabledProp = false,
   readOnly = false,
   required = false,
   id,
@@ -334,6 +334,7 @@ export function PickerShell({
   const hasError = error !== undefined && error !== null && error !== false && error !== '';
   const isInvalid = invalid ?? hasError;
   const family: PlassColor = isInvalid ? 'danger' : color;
+  const disabled = useDisabled(disabledProp);
   const lit = !disabled && !readOnly;
   const inert = disabled || readOnly;
   const controlRef = React.useRef<HTMLInputElement>(null);

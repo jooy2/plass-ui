@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/button_group.dart';
 import 'package:plass_ui/src/internal/css.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -224,7 +225,12 @@ class _PlButtonState extends State<PlButton> {
   /// it can be reached; `disabled` does both.
   bool get _inert => widget.loading || widget.readOnly;
 
-  bool get _disabled => (widget.disabled ?? _group?.disabled ?? false) || widget.onPressed == null;
+  /// Its own `disabled`, its group's, a missing `onPressed` or a disabled
+  /// [PlFieldset] around it.
+  bool get _disabled =>
+      (widget.disabled ?? _group?.disabled ?? false) ||
+      widget.onPressed == null ||
+      PlassFieldsetScope.disabledOf(context);
 
   bool get _interactive => !_disabled && !_inert;
 

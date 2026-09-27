@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Switch as BaseUISwitch } from '@base-ui/react/switch';
 import { Field } from '@base-ui/react/field';
@@ -201,7 +202,7 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
       error,
       invalid,
       labelPlacement = 'end',
-      disabled = false,
+      disabled: disabledProp = false,
       readOnly = false,
       className,
       classNames,
@@ -211,6 +212,7 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 

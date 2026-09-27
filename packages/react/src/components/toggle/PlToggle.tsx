@@ -5,6 +5,7 @@ import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Toggle as BaseUIToggle } from '@base-ui/react/toggle';
 import { ButtonGroupContext } from '../../internal/button-group.js';
+import { useDisabled } from '../../internal/form.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -239,7 +240,7 @@ export const PlToggle = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTo
     const color = colorProp ?? group?.color ?? defaults.color ?? 'primary';
     const density = densityProp ?? group?.density ?? defaults.density ?? 'default';
     const elevation = elevationProp ?? group?.elevation ?? 0;
-    const disabled = disabledProp ?? group?.disabled ?? false;
+    const disabled = useDisabled(disabledProp ?? group?.disabled);
 
     const iconOnly = !hasContent(children);
 

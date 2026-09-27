@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Select as BaseUISelect } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
@@ -219,7 +220,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       invalid,
       startIcon,
       fullWidth = false,
-      disabled = false,
+      disabled: disabledProp = false,
       readOnly = false,
       required = false,
       name,
@@ -233,6 +234,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/calendar.dart';
 import 'package:plass_ui/src/internal/date.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/picker.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -166,6 +167,9 @@ class _PlCalendarState extends State<PlCalendar> {
   PlPickerLabels get _labels =>
       widget.labels ?? PlassTheme.defaultsOf(context).labels ?? PlPickerLabels.english;
 
+  /// [PlCalendar.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
@@ -202,7 +206,7 @@ class _PlCalendarState extends State<PlCalendar> {
     final tokens = PlassTheme.of(context);
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
     final radius = BorderRadius.circular(tokens.radii[_size]!);
-    final inert = widget.disabled || widget.onChanged == null;
+    final inert = _disabled || widget.onChanged == null;
 
     Widget calendar = PlassCalendar(
       month: _month,
@@ -222,6 +226,10 @@ class _PlCalendarState extends State<PlCalendar> {
       autofocus: widget.autofocus && !inert,
       disabled: inert,
     );
+
+    // The calendar is drained once, below, and a fieldset around it is not told
+    // to the header's buttons a second time.
+    calendar = PlassFieldsetScope(disabled: false, child: calendar);
 
     // The design language's one use of opacity, and the reason it is allowed
     // here: the page shows *through* an unavailable control. A missing

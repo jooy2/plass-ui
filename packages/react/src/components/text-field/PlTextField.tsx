@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
@@ -213,7 +214,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     loading = false,
     fullWidth = false,
     readOnly = false,
-    disabled = false,
+    disabled: disabledProp = false,
     type = 'text',
     hotKeys,
     onKeyDown,
@@ -225,6 +226,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
   ref
 ) {
   const defaults = useDefaults();
+  const disabled = useDisabled(disabledProp);
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

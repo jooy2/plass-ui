@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlCheckbox } from '../checkbox/PlCheckbox.js';
@@ -354,7 +355,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
       toSourceLabel: toSourceLabelProp,
       movedLabel: movedLabelProp,
       height = 220,
-      disabled = false,
+      disabled: disabledProp = false,
       variant = 'glass',
       size: sizeProp,
       color: colorProp,
@@ -365,6 +366,7 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const labels = useLabels();
     const sourceLabel = sourceLabelProp ?? labels.transferAvailable;
     const targetLabel = targetLabelProp ?? labels.transferSelected;

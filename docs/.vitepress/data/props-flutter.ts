@@ -3028,8 +3028,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'bool',
       default: 'false',
       description: {
-        ko: '안의 모든 것에서 포인터와 focus를 거두고 묶음을 비웁니다. 브라우저의 fieldset 같은 cascade가 여기에는 없습니다',
-        en: 'Takes the pointer and the focus away from everything inside, and drains the group. There is no browser-style cascade here'
+        ko: '안의 모든 것에서 포인터와 focus를 거둡니다. 안에 있는 이 패키지의 컨트롤은 모두 스스로 비활성으로 그려지고 그렇게 알립니다',
+        en: 'Takes the pointer and the focus away from everything inside. Every control of this package inside draws itself disabled and says so'
       }
     }),
     from('PlFieldset', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' })

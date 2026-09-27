@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Fieldset as BaseUIFieldset } from '@base-ui/react/fieldset';
+import { FieldsetDisabledContext, useDisabled } from '../../internal/form.js';
 import {
   cx,
   hasContent,
@@ -51,6 +52,9 @@ export const PlFieldset = /* @__PURE__ */ React.forwardRef<HTMLFieldSetElement, 
     ref
   ) {
     const hasLegend = hasContent(legend) || hasContent(description);
+    // Counted in with a disabled fieldset further out, as Base UI and the
+    // browser both count it.
+    const inherited = useDisabled(disabled);
 
     return (
       <BaseUIFieldset.Root
@@ -82,7 +86,9 @@ export const PlFieldset = /* @__PURE__ */ React.forwardRef<HTMLFieldSetElement, 
           </BaseUIFieldset.Legend>
         ) : null}
 
-        {children}
+        <FieldsetDisabledContext.Provider value={inherited}>
+          {children}
+        </FieldsetDisabledContext.Provider>
       </BaseUIFieldset.Root>
     );
   }

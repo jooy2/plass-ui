@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
@@ -200,7 +201,10 @@ class _PlSliderState extends State<PlSlider> {
   int? _active;
   int? _hovered;
 
-  bool get _disabled => widget.disabled || widget.onChanged == null;
+  /// Its own `disabled`, a missing `onChanged` or a disabled [PlFieldset]
+  /// around it.
+  bool get _disabled =>
+      widget.disabled || widget.onChanged == null || PlassFieldsetScope.disabledOf(context);
 
   bool get _vertical => widget.orientation == PlassOrientation.vertical;
 

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { Combobox as BaseUICombobox } from '@base-ui/react/combobox';
@@ -365,7 +366,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   invalid,
   startIcon,
   fullWidth = false,
-  disabled = false,
+  disabled: disabledProp = false,
   readOnly = false,
   required = false,
   name,
@@ -384,6 +385,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   ...props
 }: PlComboboxProps<Multiple>) {
   const defaults = useDefaults();
+  const disabled = useDisabled(disabledProp);
   const labels = useLabels();
   const openLabel = openLabelProp ?? labels.open;
   const clearLabel = clearLabelProp ?? labels.clear;

@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/ink.dart';
@@ -195,7 +196,10 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
   @override
   FocusNode? get callerStop => widget.focusNode;
 
-  bool get _disabled => widget.disabled || widget.onChanged == null;
+  /// Its own `disabled`, a missing `onChanged` or a disabled [PlFieldset]
+  /// around it.
+  bool get _disabled =>
+      widget.disabled || widget.onChanged == null || PlassFieldsetScope.disabledOf(context);
 
   bool get _interactive => !_disabled && !widget.readOnly;
 

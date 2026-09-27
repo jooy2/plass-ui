@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
 import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
@@ -249,7 +250,7 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
       description,
       error,
       invalid,
-      disabled = false,
+      disabled: disabledProp = false,
       readOnly = false,
       className,
       classNames,
@@ -260,6 +261,7 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 

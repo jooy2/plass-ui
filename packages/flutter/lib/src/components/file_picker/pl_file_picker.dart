@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/chart.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
@@ -354,7 +355,10 @@ class _PlFilePickerState extends State<PlFilePicker> {
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
-  bool get _inert => widget.disabled || widget.readOnly;
+  /// [PlFilePicker.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
+  bool get _inert => _disabled || widget.readOnly;
 
   bool get _usable => !_inert && widget.onBrowse != null && widget.onFilesChanged != null;
 
@@ -455,7 +459,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
         ? null
         : DefaultTextStyle.merge(
             style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
+              color: _disabled ? tokens.mutedFg : tokens.fg,
               fontSize: meta,
               fontWeight: FontWeight.w600,
             ),
@@ -464,9 +468,9 @@ class _PlFilePickerState extends State<PlFilePicker> {
 
     Widget zone = PlassInteractive(
       onTap: _usable ? _browse : null,
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       interactive: _usable,
-      cursor: widget.disabled
+      cursor: _disabled
           ? SystemMouseCursors.forbidden
           : _usable
           ? SystemMouseCursors.click
@@ -578,7 +582,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
 
         box = plassStateFilter(
           child: box,
-          disabled: widget.disabled,
+          disabled: _disabled,
           readOnly: widget.readOnly,
           lit: false,
         );
@@ -590,12 +594,12 @@ class _PlFilePickerState extends State<PlFilePicker> {
           box = PlassFieldNotch(
             size: size,
             density: _density,
-            disabled: widget.disabled,
+            disabled: _disabled,
             edge: _DashedEdge(
               // Focus takes the line rather than a ring around it, and the
               // dimming a disabled box gets from the filter has to be said
               // here: this is painted outside it.
-              color: widget.disabled
+              color: _disabled
                   ? edge.withValues(alpha: edge.a * disabledOpacity)
                   : state.focusVisible
                   ? family.ring
@@ -638,7 +642,7 @@ class _PlFilePickerState extends State<PlFilePicker> {
     zone = Semantics(
       container: true,
       button: true,
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       readOnly: widget.readOnly,
       onTap: _usable ? _browse : null,
       child: zone,

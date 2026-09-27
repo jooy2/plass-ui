@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
@@ -273,7 +274,7 @@ export function PlNumberField({
   startIcon,
   endIcon,
   fullWidth = false,
-  disabled = false,
+  disabled: disabledProp = false,
   readOnly = false,
   required = false,
   name,
@@ -286,6 +287,7 @@ export function PlNumberField({
   ...props
 }: PlNumberFieldProps) {
   const defaults = useDefaults();
+  const disabled = useDisabled(disabledProp);
   const labels = useLabels();
   const incrementLabel = incrementLabelProp ?? labels.increase;
   const decrementLabel = decrementLabelProp ?? labels.decrease;

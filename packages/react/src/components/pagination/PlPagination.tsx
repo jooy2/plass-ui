@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlButton } from '../button/PlButton.js';
@@ -242,7 +243,7 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
       boundaryCount = 1,
       showEdges = false,
       showArrows = true,
-      disabled = false,
+      disabled: disabledProp = false,
       getPageHref,
       renderLink,
       label: labelProp,
@@ -259,6 +260,7 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const labels = useLabels();
     const label = labelProp ?? labels.pagination;
     const previousLabel = previousLabelProp ?? labels.paginationPrevious;

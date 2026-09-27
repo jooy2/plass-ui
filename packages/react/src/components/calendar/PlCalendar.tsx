@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { popupPaddingClasses, popupSlots } from '../../internal/picker.js';
-import { useFormReport } from '../../internal/form.js';
+import { FieldsetDisabledContext, useDisabled, useFormReport } from '../../internal/form.js';
 import { inertProps } from '../../internal/inert.js';
 import {
   isValidDate,
@@ -165,7 +165,7 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
       weekStartsOn: weekStartsOnProp,
       showOutsideDays = true,
       autoFocus = false,
-      disabled = false,
+      disabled: disabledProp = false,
       name,
       labels: labelOverrides,
       className,
@@ -175,6 +175,7 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
     ref
   ) {
     const defaults = useDefaults();
+    const disabled = useDisabled(disabledProp);
     const locale = localeProp ?? defaults.locale;
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
@@ -246,23 +247,27 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
         style={{ ...popupSlots(color, elevation), ...style }}
         {...props}
       >
-        <Calendar
-          size={size}
-          color={color}
-          locale={locale}
-          weekStartsOn={firstDay}
-          month={month}
-          onMonthChange={setMonth}
-          precision={precision}
-          selected={[value]}
-          onSelect={select}
-          minDate={minDate}
-          maxDate={maxDate}
-          shouldDisableDate={shouldDisableDate}
-          showOutsideDays={showOutsideDays}
-          autoFocus={autoFocus}
-          labels={labels}
-        />
+        {/* The sheet is drawn disabled once, above, and a fieldset around it
+            is not told to the buttons on it a second time. */}
+        <FieldsetDisabledContext.Provider value={false}>
+          <Calendar
+            size={size}
+            color={color}
+            locale={locale}
+            weekStartsOn={firstDay}
+            month={month}
+            onMonthChange={setMonth}
+            precision={precision}
+            selected={[value]}
+            onSelect={select}
+            minDate={minDate}
+            maxDate={maxDate}
+            shouldDisableDate={shouldDisableDate}
+            showOutsideDays={showOutsideDays}
+            autoFocus={autoFocus}
+            labels={labels}
+          />
+        </FieldsetDisabledContext.Provider>
 
         {name ? <input type="hidden" name={name} value={submitted} disabled={disabled} /> : null}
       </div>

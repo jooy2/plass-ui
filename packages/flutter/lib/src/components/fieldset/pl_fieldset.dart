@@ -3,8 +3,8 @@ library;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/scales.dart';
-import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/theme/tokens.dart';
 import 'package:plass_ui/src/types.dart';
@@ -24,16 +24,12 @@ import 'package:plass_ui/src/types.dart';
 /// [PlCard] or a [PlBox] when one is wanted. What it owns is the legend, the
 /// gap the controls stand at, and [disabled].
 ///
-/// **[disabled] is the one thing said differently from the React build**, and
-/// the difference is the platform's. There, a `<fieldset disabled>` is an
-/// attribute the browser applies to every control inside it, including one a
-/// component three levels down rendered and never heard of. There is no such
-/// cascade in Flutter, so this does the three things that cascade actually
-/// buys: the pointer is taken away, the focus is taken away, and the group is
-/// drained the way every disabled surface in the package is. A field inside
-/// still reports itself as enabled to a screen reader, which is the part that
-/// cannot be reproduced without every widget agreeing to look — so a field that
-/// has to *say* it is unavailable is given its own `disabled`.
+/// [disabled] reaches every control inside, including one a widget three
+/// levels down drew and never heard of. The fieldset takes the pointer and the
+/// focus away from everything in it and hands its state down: every control of
+/// this package in it draws itself disabled once, as it does with a `disabled`
+/// of its own, and says so to a screen reader. Anything else in the group, a
+/// line of text or a widget from somewhere else, is drawn as it is.
 class PlFieldset extends StatelessWidget {
   /// Creates a group.
   const PlFieldset({
@@ -58,8 +54,8 @@ class PlFieldset extends StatelessWidget {
   /// A line under the legend.
   final Widget? description;
 
-  /// Takes the pointer and the focus away from everything inside, and drains
-  /// the group.
+  /// Disables every control inside at once: takes the pointer and the focus
+  /// away from everything in the group, and draws each control disabled.
   final bool disabled;
 
   /// The type scale of the legend and the gap between the controls.
@@ -104,16 +100,21 @@ class PlFieldset extends StatelessWidget {
       ],
     );
 
+    // Counted in with a disabled fieldset further out, as the React build and
+    // the browser both count it.
+    final bool inherited = PlassFieldsetScope.disabledOf(context) || disabled;
+
     // In the tree whether the group is disabled or not, with only their flags
-    // switching, for the reason `plassStateFilter` gives: wrapped round the
-    // group only while it is disabled, every field in it would be built again
-    // from scratch each time `disabled` changed, and lose what was typed into
-    // it. A group has no light of its own to answer the pointer with.
+    // switching: wrapped round the group only while it is disabled, every field
+    // in it would be built again from scratch each time `disabled` changed, and
+    // lose what was typed into it. The group itself is not drained. Each control
+    // in it draws itself disabled from the scope, and a group drained on top of
+    // that would drain every field twice.
     group = ExcludeFocus(
       excluding: disabled,
       child: IgnorePointer(
         ignoring: disabled,
-        child: plassStateFilter(child: group, disabled: disabled, lit: false),
+        child: PlassFieldsetScope(disabled: inherited, child: group),
       ),
     );
 

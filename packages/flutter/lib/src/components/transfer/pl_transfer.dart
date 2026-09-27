@@ -10,6 +10,7 @@ import 'package:plass_ui/src/components/checkbox/pl_checkbox.dart';
 import 'package:plass_ui/src/components/icon_button/pl_icon_button.dart';
 import 'package:plass_ui/src/components/text_field/pl_text_field.dart';
 import 'package:plass_ui/src/internal/date.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/search.dart';
@@ -176,6 +177,9 @@ class _PlTransferState extends State<PlTransfer> {
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+
+  /// [PlTransfer.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
 
   late List<String> _ownValue = List<String>.of(widget.defaultValue);
   final Set<String> _ticked = <String>{};
@@ -417,7 +421,7 @@ class _PlTransferState extends State<PlTransfer> {
   /// row near the screen.
   Widget _row(PlTransferItem item, PlassSize size) {
     final bool ticked = _ticked.contains(item.value);
-    final bool disabled = widget.disabled || item.disabled;
+    final bool disabled = _disabled || item.disabled;
     final FocusNode node = _focusFor(item.value);
     final _PlTransferRow? last = _rows[item.value];
 
@@ -495,9 +499,7 @@ class _PlTransferState extends State<PlTransfer> {
               color: _color,
               variant: arrows,
               label: widget.toTargetLabel ?? PlassTheme.labelsOf(context).transferToSelected,
-              onPressed: widget.disabled || !canSend
-                  ? null
-                  : () => _move(sourceRows, toTarget: true),
+              onPressed: _disabled || !canSend ? null : () => _move(sourceRows, toTarget: true),
               // The glyph points right, and the selected list is at the end of
               // the row, which is the left under RTL, so both arrows turn there.
               icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 2 : 0),
@@ -507,9 +509,7 @@ class _PlTransferState extends State<PlTransfer> {
               color: _color,
               variant: arrows,
               label: widget.toSourceLabel ?? PlassTheme.labelsOf(context).transferToAvailable,
-              onPressed: widget.disabled || !canReturn
-                  ? null
-                  : () => _move(targetRows, toTarget: false),
+              onPressed: _disabled || !canReturn ? null : () => _move(targetRows, toTarget: false),
               // The same glyph turned, which is the one allowance the
               // no-transform rule makes: a wedge has no text in it to resample.
               icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 0 : 2),
@@ -590,7 +590,7 @@ class _PlTransferState extends State<PlTransfer> {
             color: _color,
             value: all,
             indeterminate: some,
-            disabled: widget.disabled || movable.isEmpty,
+            disabled: _disabled || movable.isEmpty,
             // One sentence with the list's name in it, so the two lists' ticks
             // are told apart by ear as they are by eye, and a language puts the
             // name where its own grammar puts it: Korean and Japanese before the
@@ -657,7 +657,7 @@ class _PlTransferState extends State<PlTransfer> {
         tokens.family(_color),
         variant: widget.variant,
         elevation: 0,
-        disabled: widget.disabled,
+        disabled: _disabled,
       ),
       borderRadius: BorderRadius.circular(tokens.radii[size]!),
       duration: tokens.motionDurationSlow,
@@ -683,7 +683,7 @@ class _PlTransferState extends State<PlTransfer> {
                 density: _density,
                 variant: PlassVariant.ghost,
                 fullWidth: true,
-                disabled: widget.disabled,
+                disabled: _disabled,
                 placeholder: widget.searchLabel ?? PlassTheme.labelsOf(context).search,
                 semanticLabel: widget.searchLabel ?? PlassTheme.labelsOf(context).search,
                 onChanged: (String _) => setState(() {}),

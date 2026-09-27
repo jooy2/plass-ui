@@ -5,6 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { Button as BaseUIButton } from '@base-ui/react/button';
 import { useRender } from '@base-ui/react/use-render';
 import { ButtonGroupContext } from '../../internal/button-group.js';
+import { useDisabled } from '../../internal/form.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { Spinner } from '../../internal/icons.js';
 import { loadingLabel } from '../../internal/loading.js';
@@ -228,7 +229,11 @@ export const PlButton = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlBu
     const color = colorProp ?? group?.color ?? defaults.color ?? 'primary';
     const density = densityProp ?? group?.density ?? defaults.density ?? 'default';
     const elevation = elevationProp ?? group?.elevation ?? 1;
-    const disabled = disabledProp ?? group?.disabled ?? false;
+    // A disabled `PlFieldset` reaches a `<button>` and not what `render` puts
+    // in its place: the browser disables no `<a>`, so a link in one still goes
+    // where it points, and is drawn as live as it is.
+    const inFieldset = useDisabled(false);
+    const disabled = (disabledProp ?? group?.disabled ?? false) || (inFieldset && !render);
 
     const iconOnly = !hasContent(children);
     // `disabled` and `readOnly` change how the button looks; `loading` only stops

@@ -62,7 +62,7 @@ PlFieldset(
 
 ### disabled
 
-<Fw react="`<div>`" flutter="`Column`" /> 대신 fieldset을 쓰는 이유입니다. 켜면 fieldset이 안의 컨트롤이 무엇인지 몰라도 그 모두가 <Fw react="tab 순서에서도 폼에서도 빠집니다." flutter="tab 순서에서 빠지고, 포인터가 닿지 않으며, 흐리게 그려집니다." />
+<Fw react="`<div>`" flutter="`Column`" /> 대신 fieldset을 쓰는 이유입니다. 켜면 fieldset이 안의 컨트롤이 무엇인지 몰라도 그 모두가 <Fw react="tab 순서에서도 폼에서도 빠지고" flutter="tab 순서에서 빠지고 포인터도 닿지 않으며" />, 각 컨트롤은 자기 `disabled`를 받았을 때와 똑같이 비활성으로 그려집니다. legend처럼 컨트롤이 아닌 것은 그대로 그려집니다.
 
 <Demo src="fieldset/disabled" :min-height="280">
 
@@ -129,7 +129,7 @@ legend의 타입 스케일과 컨트롤 사이의 간격이고, 시트 사다리
 - legend는 안의 컨트롤과 함께 읽히므로, 각각 앞에 놓아도 말이 되는 구절로 쓰세요. "받는 주소"이지 "어디로 보낼까요?"가 아닙니다.
 - 진짜 `<fieldset>`이고, 그것이 `group`이며, legend가 이름을 냅니다.
 - legend는 그려진 `<legend>`가 아니라 `aria-labelledby`가 가리키는 `<div>`입니다. Base UI의 결정이고, 그 덕에 묶음이 평범한 flex 컨테이너가 됩니다. 진짜 `<legend>`는 모든 브라우저가 fieldset의 content box 밖으로 들어 올리므로, `gap`이 그 아래에 아무 공간도 만들지 못합니다.
-- fieldset의 `disabled`는 네이티브 속성이라 플랫폼이 하는 방식으로 자손을 비활성화합니다. context도, prop을 꿰는 일도, 나중에 추가된 컨트롤에서 잊을 것도 없습니다.
+- fieldset의 `disabled`는 네이티브 속성이라 플랫폼이 하는 방식으로 자손을 비활성화합니다. prop을 꿰는 일도, 나중에 추가된 컨트롤에서 잊을 것도 없습니다. 링크는 컨트롤이 아니므로 `<a>`로 렌더링한 `PlButton`은 그대로 동작하고, 그렇게 그려집니다.
 
 :::
 
@@ -137,7 +137,7 @@ legend의 타입 스케일과 컨트롤 사이의 간격이고, 시트 사다리
 
 - legend는 컨트롤마다 앞에서 읽히지 않고, 컨트롤보다 먼저 한 번만 읽힙니다. 그러니 묶음 전체의 이름이 되는 구절로 쓰세요. "받는 주소"이지 "어디로 보낼까요?"가 아닙니다.
 - semantics 컨테이너 하나이고, legend와 description이 그 안의 맨 앞에 있습니다. 컨테이너 자체에는 이름이 없습니다. legend가 이름을 붙일 group role이 Flutter의 semantics에는 없기 때문입니다.
-- `disabled`는 안에 있는 모든 것에서 포인터와 focus를 거두고, 묶음은 흐려집니다. 세 단계 아래의 widget이 그린 컨트롤도 마찬가지입니다. 다만 안의 컨트롤은 스크린 리더에 여전히 사용할 수 있다고 알립니다. 브라우저가 `<fieldset disabled>`를 적용하듯 아래의 모든 widget이 읽는 속성이 Flutter에는 없기 때문입니다. 쓸 수 없다고 알려야 하는 필드에는 자기 `disabled`를 주세요.
+- `disabled`는 안에 있는 모든 것에서 포인터와 focus를 거둡니다. 세 단계 아래의 widget이 그린 컨트롤도 마찬가지입니다. 안에 있는 이 패키지의 컨트롤은 자기 `disabled`를 받았을 때처럼 스크린 리더에 쓸 수 없다고 알립니다. 다른 곳에서 온 widget은 여전히 사용할 수 있다고 알립니다. 브라우저가 `<fieldset disabled>`를 적용하듯 아래의 모든 widget이 읽는 속성이 Flutter에는 없기 때문입니다.
 
 :::
 
@@ -147,7 +147,7 @@ legend의 타입 스케일과 컨트롤 사이의 간격이고, 시트 사다리
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| 네이티브 `<fieldset>` 속성인 `disabled` | 포인터를 거두고, focus를 거두고, 묶음이 흐려집니다 | Flutter에는 그런 cascade가 없습니다. 그 속성이 실제로 사 주는 세 가지를 대신 합니다. 못 하는 것은 안의 필드가 스스로 "쓸 수 없음"이라고 _말하게_ 하는 것이라, 그렇게 알려야 하는 필드에는 자기 `disabled`를 주세요. |
+| 네이티브 `<fieldset>` 속성인 `disabled` | 포인터와 focus를 거두고, 안에 있는 이 패키지의 모든 컨트롤에 상태를 내려 줍니다 | Flutter에는 그런 cascade가 없습니다. 이 패키지의 컨트롤은 fieldset을 읽고 스스로 비활성으로 그려지며 그렇게 알립니다. 다른 곳에서 온 widget은 닿지는 않지만 여전히 사용할 수 있다고 알립니다. |
 | 브라우저의 border·padding·margin·`min-width`를 되돌린 `<fieldset>` | `Column` | 되돌릴 것이 없습니다. |
 | 모든 컨트롤의 접근 가능한 이름에 들어가는 legend | header로 표시되지 않은 평범한 글자로, 이름 없는 semantics 컨테이너 하나의 맨 위에 놓인 legend | legend가 이름을 붙일 group role이 Flutter의 semantics에는 없고, 컨트롤 이름마다 앞에 붙이면 묶음의 이름을 컨트롤 수만큼 말하게 됩니다. |
 | `children` | `children: List<Widget>` | 스택을 여기서 배치하므로 받은 것을 셉니다. |

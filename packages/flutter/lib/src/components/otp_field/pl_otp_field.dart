@@ -4,6 +4,7 @@ library;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -256,6 +257,9 @@ class _PlOtpFieldState extends State<PlOtpField> {
   PlassDensity get _density =>
       widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
+  /// [PlOtpField.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
   TextEditingController? _fallback;
   FocusNode? _ownedFocus;
   bool _focused = false;
@@ -329,7 +333,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
   /// Pressing anywhere in the row puts the caret at the first empty slot, which
   /// is where the next character is going to land whatever was pressed.
   void _focusAtEnd() {
-    if (widget.disabled) {
+    if (_disabled) {
       return;
     }
 
@@ -400,7 +404,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
         child: EditableText(
           controller: _controller,
           focusNode: _focusNode,
-          readOnly: widget.readOnly || widget.disabled,
+          readOnly: widget.readOnly || _disabled,
           autofocus: widget.autofocus,
           keyboardType: widget.charset == PlOtpCharset.numeric
               ? TextInputType.number
@@ -433,7 +437,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
           // the tree either way, so turning `disabled` off keeps the editor.
           child: plassHotKeyScope(
             hotKeys: widget.hotKeys,
-            child: ExcludeFocus(excluding: widget.disabled, child: editor),
+            child: ExcludeFocus(excluding: _disabled, child: editor),
           ),
         ),
       ],
@@ -441,13 +445,13 @@ class _PlOtpFieldState extends State<PlOtpField> {
 
     slots = plassStateFilter(
       child: slots,
-      disabled: widget.disabled,
+      disabled: _disabled,
       readOnly: widget.readOnly,
       lit: false,
     );
 
     slots = MouseRegion(
-      cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
+      cursor: _disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
       onEnter: (PointerEnterEvent event) => setState(() => _hovered = true),
       onExit: (PointerExitEvent event) => setState(() => _hovered = false),
       child: GestureDetector(
@@ -466,7 +470,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
         if (widget.label != null)
           DefaultTextStyle.merge(
             style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
+              color: _disabled ? tokens.mutedFg : tokens.fg,
               fontSize: meta,
               fontWeight: FontWeight.w600,
             ),
@@ -490,7 +494,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
       container: true,
       textField: true,
       readOnly: widget.readOnly,
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       label: widget.semanticLabel,
       // The code itself, unmasked or not, is what a screen reader should read
       // back — the boxes are a drawing of it.
@@ -499,7 +503,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
       // tree, and the press over the row excludes itself. So focus and the
       // action that gives it are declared here.
       focused: _focused,
-      onTap: widget.disabled ? null : _focusAtEnd,
+      onTap: _disabled ? null : _focusAtEnd,
       child: IntrinsicWidth(child: stack),
     );
   }
@@ -521,7 +525,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
     // that distinction is deliberately dropped: a slot is put in focus by
     // pressing it as often as by typing into it, and the ring is the only thing
     // saying which character the next keystroke lands on.
-    final bool active = _focused && index == caret && !widget.readOnly && !widget.disabled;
+    final bool active = _focused && index == caret && !widget.readOnly && !_disabled;
 
     final BorderRadius corners = BorderRadius.circular(radius);
 
@@ -534,7 +538,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
         hovered: _hovered,
         focused: active,
         readOnly: widget.readOnly,
-        disabled: widget.disabled,
+        disabled: _disabled,
       ),
       borderRadius: corners,
       child: Center(

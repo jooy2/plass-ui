@@ -5,6 +5,7 @@ import 'dart:ui' show PathMetric;
 
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -103,13 +104,14 @@ class PlCheckbox extends StatelessWidget {
   /// Takes focus as it is inserted into the tree.
   final bool autofocus;
 
-  bool get _disabled => disabled || onChanged == null;
-
-  bool get _interactive => !_disabled && !readOnly;
-
   @override
   Widget build(BuildContext context) {
     final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    // Its own `disabled`, a missing `onChanged` or a disabled [PlFieldset]
+    // around it.
+    final bool disabled =
+        this.disabled || onChanged == null || PlassFieldsetScope.disabledOf(context);
+    final bool interactive = !disabled && !readOnly;
     final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
 
     final tokens = PlassTheme.of(context);
@@ -145,7 +147,7 @@ class PlCheckbox extends StatelessWidget {
           border: marked
               ? null
               : Border.all(
-                  color: _interactive && state.hovered ? family.line : tokens.border,
+                  color: interactive && state.hovered ? family.line : tokens.border,
                   width: hairline,
                 ),
         ),
@@ -179,7 +181,7 @@ class PlCheckbox extends StatelessWidget {
 
       surface = plassStateFilter(
         child: surface,
-        disabled: _disabled,
+        disabled: disabled,
         readOnly: readOnly,
         // A filled tick brightens under the pointer the way a filled key does;
         // an empty one answers with its hairline instead — which is what this
@@ -207,12 +209,12 @@ class PlCheckbox extends StatelessWidget {
     }
 
     Widget field = PlassInteractive(
-      onTap: _interactive ? () => onChanged!(!value) : null,
-      interactive: _interactive,
-      enabled: !_disabled,
+      onTap: interactive ? () => onChanged!(!value) : null,
+      interactive: interactive,
+      enabled: !disabled,
       focusNode: focusNode,
       autofocus: autofocus,
-      cursor: _disabled
+      cursor: disabled
           ? SystemMouseCursors.forbidden
           : readOnly
           ? SystemMouseCursors.basic
@@ -239,7 +241,7 @@ class PlCheckbox extends StatelessWidget {
                   children: <Widget>[
                     if (label != null)
                       DefaultTextStyle.merge(
-                        style: TextStyle(color: _disabled ? tokens.mutedFg : tokens.fg),
+                        style: TextStyle(color: disabled ? tokens.mutedFg : tokens.fg),
                         child: label!,
                       ),
                     if (description != null)
@@ -291,10 +293,10 @@ class PlCheckbox extends StatelessWidget {
         // Read-only is not disabled: the box keeps its place in the focus order,
         // so it says it is available and cannot be changed, as `aria-readonly`
         // does, and only the tap action goes.
-        enabled: !_disabled,
+        enabled: !disabled,
         readOnly: readOnly,
         label: semanticLabel,
-        onTap: _interactive ? () => onChanged!(!value) : null,
+        onTap: interactive ? () => onChanged!(!value) : null,
         child: field,
       ),
     );

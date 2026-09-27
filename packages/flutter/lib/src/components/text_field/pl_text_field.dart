@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/keys.dart';
@@ -224,9 +225,12 @@ class _PlTextFieldState extends State<PlTextField> {
   /// not one the text is laid out from.
   Offset? _pointer;
 
+  /// [PlTextField.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
   /// Whether the shell answers a pointer at all. The light is a claim that the
   /// surface answers, and neither a disabled nor a read-only field does.
-  bool get _lit => !widget.disabled && !widget.readOnly;
+  bool get _lit => !_disabled && !widget.readOnly;
 
   /// Whether the light is standing down while the field is being typed into.
   ///
@@ -340,13 +344,13 @@ class _PlTextFieldState extends State<PlTextField> {
       hovered: _hovered,
       focused: _focused,
       readOnly: widget.readOnly,
-      disabled: widget.disabled,
+      disabled: _disabled,
     );
 
     Widget control = EditableText(
       controller: _controller,
       focusNode: _focusNode,
-      readOnly: widget.readOnly || widget.disabled,
+      readOnly: widget.readOnly || _disabled,
       autofocus: widget.autofocus,
       obscureText: widget.obscureText,
       keyboardType:
@@ -380,14 +384,14 @@ class _PlTextFieldState extends State<PlTextField> {
       // puts under a selection are Material's and Cupertino's, so a selection
       // here is made by dragging and has no handles to adjust afterwards.
       showSelectionHandles: false,
-      enableInteractiveSelection: !widget.disabled,
+      enableInteractiveSelection: !_disabled,
       cursorOpacityAnimates: true,
     );
 
     // A disabled field leaves the focus order, as a disabled button does, so Tab
     // passes it and no ring is drawn on it. The `ExcludeFocus` is in the tree
     // either way, so turning `disabled` off does not build the editor again.
-    control = ExcludeFocus(excluding: widget.disabled, child: control);
+    control = ExcludeFocus(excluding: _disabled, child: control);
 
     // The placeholder is drawn under the text rather than by the editor, which
     // has no notion of one.
@@ -466,7 +470,7 @@ class _PlTextFieldState extends State<PlTextField> {
 
     shell = plassStateFilter(
       child: shell,
-      disabled: widget.disabled,
+      disabled: _disabled,
       readOnly: widget.readOnly,
       lit: false,
     );
@@ -477,7 +481,7 @@ class _PlTextFieldState extends State<PlTextField> {
         ? null
         : DefaultTextStyle.merge(
             style: TextStyle(
-              color: widget.disabled ? tokens.mutedFg : tokens.fg,
+              color: _disabled ? tokens.mutedFg : tokens.fg,
               fontSize: meta,
               fontWeight: FontWeight.w600,
             ),
@@ -490,7 +494,7 @@ class _PlTextFieldState extends State<PlTextField> {
       shell = PlassFieldNotch(
         size: size,
         density: _density,
-        disabled: widget.disabled,
+        disabled: _disabled,
         edge: notchEdgePainter(
           tokens,
           family,
@@ -499,7 +503,7 @@ class _PlTextFieldState extends State<PlTextField> {
           hovered: _hovered,
           focused: _focused,
           readOnly: widget.readOnly,
-          disabled: widget.disabled,
+          disabled: _disabled,
         ),
         label: labelNode!,
         child: shell,
@@ -519,7 +523,7 @@ class _PlTextFieldState extends State<PlTextField> {
     }
 
     shell = MouseRegion(
-      cursor: widget.disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
+      cursor: _disabled ? SystemMouseCursors.forbidden : SystemMouseCursors.text,
       onEnter: (PointerEnterEvent event) => setState(() => _hovered = true),
       onExit: (PointerExitEvent event) => setState(() {
         _hovered = false;
@@ -531,7 +535,7 @@ class _PlTextFieldState extends State<PlTextField> {
         excludeFromSemantics: true,
         // Pressing the shell's own padding puts the caret in the field, the way
         // pressing anywhere inside a native input does.
-        onTap: widget.disabled ? null : _focusNode.requestFocus,
+        onTap: _disabled ? null : _focusNode.requestFocus,
         // The press half of the light. On a touch screen there is no hover at
         // all, and this is the layer that carries the effect there.
         onTapDown: (TapDownDetails details) {
@@ -570,7 +574,7 @@ class _PlTextFieldState extends State<PlTextField> {
       container: true,
       textField: true,
       readOnly: widget.readOnly,
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       label: widget.semanticLabel,
       child: widget.fullWidth ? stack : IntrinsicWidth(child: stack),
     );

@@ -24,6 +24,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
+import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
@@ -216,9 +217,12 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
   FocusNode get _focusNode =>
       widget.focusNode ?? (_owned ??= FocusNode(debugLabel: 'PlassPickerShell'));
 
+  /// [PlassPickerShell.disabled], or a disabled [PlFieldset] around it.
+  bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
+
   /// A read-only picker does not open. What it holds is something to read, and a
   /// calendar whose every cell was inert would be a menu of nothing.
-  bool get _usable => !widget.disabled && !widget.readOnly;
+  bool get _usable => !_disabled && !widget.readOnly;
 
   /// Empties the control, closes the popup if it is up, and keeps the focus on
   /// the control.
@@ -274,7 +278,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
             excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
             child: DefaultTextStyle.merge(
               style: TextStyle(
-                color: widget.disabled ? tokens.mutedFg : tokens.fg,
+                color: _disabled ? tokens.mutedFg : tokens.fg,
                 fontSize: meta,
                 fontWeight: FontWeight.w600,
               ),
@@ -284,9 +288,9 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
 
     final trigger = PlassInteractive(
       onTap: () => widget.onOpenChanged(!widget.open),
-      enabled: !widget.disabled,
+      enabled: !_disabled,
       interactive: _usable,
-      cursor: widget.disabled
+      cursor: _disabled
           ? SystemMouseCursors.forbidden
           : _usable
           ? SystemMouseCursors.click
@@ -307,7 +311,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           hovered: state.hovered,
           focused: focusVisible || widget.open,
           readOnly: widget.readOnly,
-          disabled: widget.disabled,
+          disabled: _disabled,
         );
 
         Widget shell = ConstrainedBox(
@@ -364,7 +368,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
 
         shell = plassStateFilter(
           child: shell,
-          disabled: widget.disabled,
+          disabled: _disabled,
           readOnly: widget.readOnly,
           lit: false,
         );
@@ -375,7 +379,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           shell = PlassFieldNotch(
             size: size,
             density: widget.density,
-            disabled: widget.disabled,
+            disabled: _disabled,
             edge: notchEdgePainter(
               tokens,
               family,
@@ -384,7 +388,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
               hovered: state.hovered,
               focused: focusVisible || widget.open,
               readOnly: widget.readOnly,
-              disabled: widget.disabled,
+              disabled: _disabled,
             ),
             label: labelNode!,
             child: shell,
@@ -407,7 +411,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
           button: true,
           expanded: widget.open,
           readOnly: widget.readOnly,
-          enabled: !widget.disabled,
+          enabled: !_disabled,
           // The field's label names the trigger, and what is chosen is the value.
           label: widget.semanticLabel ?? plassTextOf(widget.label),
           value: widget.semanticValue,
