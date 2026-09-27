@@ -220,7 +220,7 @@ The shell is a `PlTextField`'s, to the pixel. A form where the quantity box is a
 ::: fw flutter
 
 - The field is announced as a text field holding what it shows, so a screen reader reads `$1,240.00` rather than `1240`. What is drawn is what is read.
-- Both steppers carry a name already; `incrementLabel` and `decrementLabel` are what change them. Each is its own focus stop, after the number.
+- Both steppers carry a name already; `incrementLabel` and `decrementLabel` are what change them. Neither is a focus stop, as in the React build: the arrow keys in the number do everything the steppers do, so <kbd>Tab</kbd> goes from the number to the next control. A screen reader can still press them.
 - A stepper that has run into the end of the range is announced as unavailable, not merely dimmed.
 - The arrow keys are bound **inside** the field, closer to the editor than an app's own text-editing shortcuts, which is what keeps the up arrow moving the number rather than the caret.
 - `allowWheelScrub` is off by default, and even on it wants the field focused _and_ the pointer over it. A page that scrolls under the pointer and a field that changes under it are the same gesture, and only one of them was meant.

@@ -211,18 +211,6 @@ void main() {
       await _expectFocusStop(tester, 'Due');
     });
 
-    _testSemantics('PlNumberField steppers', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        host(PlNumberField(value: 10, max: 10, onChanged: (double? next) {}), width: 320),
-      );
-
-      // Inside the field's own node, which takes the focus for the editor.
-      await _expectFocusStop(tester, 'Decrease', alone: false);
-
-      // A stepper at the end of the range has no step to take, and no focus.
-      _expectNoFocus(tester, 'Increase');
-    });
-
     _testSemantics('PlBottomNavigation', (WidgetTester tester) async {
       await tester.pumpWidget(
         host(
@@ -469,6 +457,21 @@ void main() {
       await tester.pumpWidget(host(PlAlert(onClose: () {}, child: const Text('Note')), width: 400));
 
       await _expectFocusStop(tester, 'Dismiss');
+    });
+  });
+
+  group('a control named inside its surface that takes no focus says nothing of it', () {
+    _testSemantics('PlNumberField steppers', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        host(PlNumberField(value: 5, onChanged: (double? next) {}), width: 320),
+      );
+
+      // Out of the focus order, as the React steppers are, and still pressed
+      // by a screen reader.
+      for (final String name in <String>['Decrease', 'Increase']) {
+        _expectNoFocus(tester, name);
+        expect(semanticsNodeLabelled(tester, name), isSemantics(hasTapAction: true), reason: name);
+      }
     });
   });
 }

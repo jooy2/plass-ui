@@ -36,7 +36,7 @@ class _ProbeState extends State<_Probe> {
 
 /// A control, and what in it has to survive the ring.
 class _Case {
-  const _Case(this.build, {this.held, this.height, this.settle, this.reach});
+  const _Case(this.build, {this.held, this.height, this.settle});
 
   final Widget Function() build;
 
@@ -50,10 +50,6 @@ class _Case {
   /// Anything the control needs done before the keyboard reaches it, such as
   /// a picture decoding.
   final Future<void> Function(WidgetTester tester)? settle;
-
-  /// How the keyboard gets to the part with the ring, for a control whose
-  /// first stop draws a ring round the whole of it instead, or `null` to Tab.
-  final Future<void> Function(WidgetTester tester)? reach;
 
   Finder get finder => held == null ? find.byType(_Probe) : held!();
 }
@@ -311,17 +307,11 @@ final Map<String, _Case> _cases = <String, _Case>{
     ),
     height: 400,
   ),
-  // The stepper, and not the field: the field's own ring is round the
-  // steppers too, and it is always in the tree.
+  // The field's own ring, which is round the steppers too. A stepper takes no
+  // focus and draws no ring of its own.
   'PlNumberField': _Case(
     () => const PlNumberField(value: 42),
     held: _inside((Widget widget) => widget is PlNumberField, PlassGlyph),
-    reach: (WidgetTester tester) async {
-      final Finder glyph = _inside((Widget widget) => widget is PlNumberField, PlassGlyph)();
-
-      Focus.of(tester.element(glyph)).requestFocus();
-      await tester.pumpAndSettle();
-    },
   ),
   'PlOtpField': _Case(
     () => const PlOtpField(length: 4),
@@ -471,8 +461,6 @@ void main() {
         // scrolling box can draw one round its heading's as well, so this asks
         // for one or more.
         Finder round() => find.ancestor(of: control.finder, matching: _ring);
-
-        await control.reach?.call(tester);
 
         for (int stops = 0; stops < 12 && round().evaluate().isEmpty; stops += 1) {
           await tester.sendKeyEvent(LogicalKeyboardKey.tab);

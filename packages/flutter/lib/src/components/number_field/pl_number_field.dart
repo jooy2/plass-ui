@@ -780,7 +780,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       // Kept for the press that ends the hold, which arrives in the same
       // pointer event, and dropped after it. A hold that ended where the
       // stepper can no longer be pressed has no press to swallow, and the next
-      // one, from the keyboard, is a step.
+      // one is a step.
       scheduleMicrotask(() => _repeated = false);
     }
   }
@@ -1050,21 +1050,6 @@ class _PlNumberFieldState extends State<PlNumberField> {
             ),
           );
 
-          button = CustomPaint(
-            foregroundPainter: state.focusVisible
-                ? PlassFocusRingPainter(
-                    color: family.ring,
-                    borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
-                    offset: -focusRingWidth,
-                  )
-                : null,
-            child: button,
-          );
-
-          // Said on the stepper's own node, which is in here, and nothing while
-          // it has no step to take, which is when it takes no focus.
-          final focus = plassFocusSemanticsOf(context);
-
           // A held stepper repeats, which is the difference between a spinner
           // and two buttons: nobody presses `+` forty times.
           return Listener(
@@ -1080,8 +1065,6 @@ class _PlNumberFieldState extends State<PlNumberField> {
               label: direction > 0
                   ? widget.incrementLabel ?? PlassTheme.labelsOf(context).increase
                   : widget.decrementLabel ?? PlassTheme.labelsOf(context).decrease,
-              focused: focus.focused,
-              onFocus: focus.onFocus,
               // `PlassInteractive` keeps its tap off the semantics tree, so the
               // press a screen reader makes is given here. It is one step, the
               // click a Base UI stepper answers with no pointer behind it: no
@@ -1108,7 +1091,14 @@ class _PlNumberFieldState extends State<PlNumberField> {
       // arrow keys with nothing to step until the field was focused again. A
       // stepper at its limit counts too, and a press on it leaves the focus
       // where it was.
-      return TextFieldTapRegion(child: control);
+      //
+      // And out of the focus order in every navigation mode, as the React
+      // stepper is `tabIndex: -1`: the keys that step the number are the
+      // editor's, so a keyboard has nothing to do on a stepper, and a stop on
+      // each was two more Tab presses on the way past the field.
+      // A pointer and a screen reader still press it, and a mouse press brings
+      // the focus into the editor rather than onto the stepper.
+      return TextFieldTapRegion(child: ExcludeFocus(child: control));
     }
 
     Widget shell = Row(

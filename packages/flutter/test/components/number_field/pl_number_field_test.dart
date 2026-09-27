@@ -752,10 +752,8 @@ void main() {
         expect(settled, <double?>[3]);
         expect(value, 3);
 
-        // The next press, from the keyboard on the other stepper, is a step.
-        Focus.of(tester.element(_minus())).requestFocus();
-        await tester.pump();
-        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        // The next press, on the other stepper, is a step.
+        await tester.tap(_minus());
         await tester.pumpAndSettle();
 
         expect(value, 2);
@@ -1759,6 +1757,78 @@ void main() {
 
         expect(await tabbedIn(disabled: false), isTrue);
         expect(await tabbedIn(disabled: true), isFalse);
+      });
+
+      testWidgets('Tab goes from the number to the next control, past the steppers', (
+        WidgetTester tester,
+      ) async {
+        final before = FocusNode();
+        final after = FocusNode();
+        addTearDown(before.dispose);
+        addTearDown(after.dispose);
+
+        for (final PlNumberFieldSteppers steppers in <PlNumberFieldSteppers>[
+          PlNumberFieldSteppers.end,
+          PlNumberFieldSteppers.split,
+        ]) {
+          await tester.pumpWidget(
+            host(
+              afterFocusStop(
+                before,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    PlNumberField(value: 5, steppers: steppers, onChanged: (double? _) {}),
+                    Focus(focusNode: after, child: const SizedBox.square(dimension: 1)),
+                  ],
+                ),
+              ),
+              width: 320,
+            ),
+          );
+          before.requestFocus();
+          await tester.pump();
+
+          // As the React steppers are `tabIndex: -1`: the number is the one
+          // stop, with a `split` stepper in front of it as well as after.
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          expect(_editorFocused(tester), isTrue, reason: '$steppers');
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+
+          expect(after.hasPrimaryFocus, isTrue, reason: '$steppers');
+        }
+      });
+
+      testWidgets('a stepper takes no focus in either navigation mode', (
+        WidgetTester tester,
+      ) async {
+        for (final NavigationMode mode in NavigationMode.values) {
+          await tester.pumpWidget(
+            host(
+              MediaQuery(
+                data: MediaQueryData(navigationMode: mode),
+                child: PlNumberField(value: 5, onChanged: (double? _) {}),
+              ),
+              width: 320,
+            ),
+          );
+
+          // A remote's arrows land only where a node can take the focus, and
+          // no stepper can: the up and down keys belong to the number.
+          for (final Finder stepper in <Finder>[_minus(), _plus()]) {
+            final FocusNode node = Focus.of(tester.element(stepper));
+
+            node.requestFocus();
+            await tester.pump();
+
+            expect(node.canRequestFocus, isFalse, reason: '$mode');
+            expect(node.hasFocus, isFalse, reason: '$mode');
+          }
+        }
       });
 
       testWidgets('takes a screen reader s tap and focus, as a Material field does', (
