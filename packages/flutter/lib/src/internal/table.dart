@@ -37,6 +37,7 @@ class PlassGridColumn {
   /// Creates a column.
   const PlassGridColumn({
     required this.cell,
+    this.id,
     this.header,
     this.width,
     this.flex = 1,
@@ -45,6 +46,13 @@ class PlassGridColumn {
 
   /// Builds the cell for the row at [index].
   final Widget Function(int index) cell;
+
+  /// What the column is known by from one build to the next, so what its cells
+  /// hold stays with it as a column is put in front of it or taken away.
+  ///
+  /// Left out, a column is known by its place among the columns that have no
+  /// id either.
+  final Object? id;
 
   /// The heading, already wearing whatever the caller wanted it to wear.
   final Widget? header;
@@ -161,8 +169,12 @@ class _PlassGridState extends State<PlassGrid> {
   final GlobalKey _gridKey = GlobalKey();
 
   /// One key per column, on the real header's cells, so the pinned band can be
-  /// given the widths the grid actually laid out.
-  final List<GlobalKey> _headerKeys = <GlobalKey>[];
+  /// given the widths the grid actually laid out. Held by the column's identity
+  /// and kept in the columns' order.
+  Map<Object, GlobalKey> _headerKeys = <Object, GlobalKey>{};
+
+  /// One key per cell, by its row's identity and its column's.
+  Map<(Object, Object), GlobalKey> _cellKeys = <(Object, Object), GlobalKey>{};
 
   /// Those widths, once they have been read.
   List<double>? _columnWidths;
@@ -187,12 +199,6 @@ class _PlassGridState extends State<PlassGrid> {
   bool get _lit => widget.hoverable || _interactive;
 
   @override
-  void initState() {
-    super.initState();
-    _syncKeys();
-  }
-
-  @override
   void dispose() {
     _hovered.dispose();
     _focused.dispose();
@@ -203,7 +209,6 @@ class _PlassGridState extends State<PlassGrid> {
   @override
   void didUpdateWidget(PlassGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _syncKeys();
 
     // The columns changed under the measurement, so it is worth nothing.
     if (widget.columns.length != oldWidget.columns.length) {
@@ -220,14 +225,16 @@ class _PlassGridState extends State<PlassGrid> {
     }
   }
 
-  void _syncKeys() {
-    while (_headerKeys.length < widget.columns.length) {
-      _headerKeys.add(GlobalKey());
-    }
+  /// What each column is known by: the id it was given, or its place among the
+  /// columns given none, told apart from any column before it that was given
+  /// the same.
+  List<Object> _columnIds() {
+    final seen = <Object?, int>{};
 
-    if (_headerKeys.length > widget.columns.length) {
-      _headerKeys.removeRange(widget.columns.length, _headerKeys.length);
-    }
+    return <Object>[
+      for (final column in widget.columns)
+        (column.id, seen.update(column.id, (int count) => count + 1, ifAbsent: () => 0)),
+    ];
   }
 
   /// Reads how wide the grid actually laid each column out.
@@ -242,7 +249,7 @@ class _PlassGridState extends State<PlassGrid> {
 
     final next = <double>[];
 
-    for (final key in _headerKeys) {
+    for (final key in _headerKeys.values) {
       final box = key.currentContext?.findRenderObject() as RenderBox?;
 
       if (box == null || !box.hasSize) {
@@ -295,12 +302,17 @@ class _PlassGridState extends State<PlassGrid> {
   /// again from scratch as `onRowPressed` or `hoverable` came or went, and a
   /// field in it lost what was typed into it. A row that cannot be pressed
   /// claims no tap, keeps the cursor of whatever is under it, and is no stop.
+  ///
+  /// [key] goes on the part of a row's cell that is the same in every column,
+  /// inside the stop the first one has, so that a cell moving into the first
+  /// column or out of it takes its element along.
   Widget _cell(
     Widget content, {
     required PlassAlign align,
     required EdgeInsets padding,
     int? row,
     bool first = false,
+    Key? key,
   }) {
     Widget cell = Padding(
       padding: padding,
@@ -321,6 +333,7 @@ class _PlassGridState extends State<PlassGrid> {
     final bool interactive = _interactive;
 
     cell = MouseRegion(
+      key: key,
       cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
       onEnter: (_) => _hover(row, over: true),
       onExit: (_) => _hover(row, over: false),
@@ -397,6 +410,48 @@ class _PlassGridState extends State<PlassGrid> {
       );
     }
 
+    // Every cell is keyed by its column, so what it holds stays with its column
+    // as a column is put in front of it or taken away, a data table's ticks
+    // above all. Matched by place, each cell took over the element of the one
+    // that was there before: one of another kind was built from scratch, and
+    // one of the same kind was handed its neighbour's state.
+    //
+    // Global keys, for two reasons. A [Table] wants every cell's key different
+    // from every other cell's, across rows as well, so a key is the row's and
+    // the column's together. And the first cell of a row is inside the row's
+    // focus stop, so the column that stops being first, or starts, moves in or
+    // out of the stop, and only a global key takes its element with it.
+    final List<Object> columnIds = _columnIds();
+    final headerKeys = <Object, GlobalKey>{
+      for (final id in columnIds) id: _headerKeys[id] ?? GlobalKey(),
+    };
+    final cellKeys = <(Object, Object), GlobalKey>{};
+
+    GlobalKey cellKey(Object row, Object column) {
+      return cellKeys[(row, column)] = _cellKeys[(row, column)] ?? GlobalKey();
+    }
+
+    TableRow dataRow(int index) {
+      final LocalKey? key = widget.rowKey?.call(index);
+      // A row with no key is matched by its place, and so are its cells.
+      final Object rowId = key ?? index;
+
+      return TableRow(
+        key: key,
+        children: <Widget>[
+          for (var column = 0; column < widget.columns.length; column += 1)
+            _cell(
+              widget.columns[column].cell(index),
+              align: widget.columns[column].align,
+              padding: padding,
+              row: index,
+              first: column == 0,
+              key: cellKey(rowId, columnIds[column]),
+            ),
+        ],
+      );
+    }
+
     final grid = Table(
       key: _gridKey,
       columnWidths: <int, TableColumnWidth>{
@@ -418,27 +473,22 @@ class _PlassGridState extends State<PlassGrid> {
           decoration: BoxDecoration(border: Border(bottom: headRule)),
           children: <Widget>[
             for (var index = 0; index < widget.columns.length; index += 1)
-              // Keyed only so the pinned band can be told how wide the grid
-              // laid this column out. Nothing else reads them.
-              KeyedSubtree(key: _headerKeys[index], child: headerCell(widget.columns[index])),
+              // Keyed by the column, as every cell is, and read as well: the
+              // pinned band is told how wide the grid laid this column out.
+              KeyedSubtree(
+                key: headerKeys[columnIds[index]],
+                child: headerCell(widget.columns[index]),
+              ),
           ],
         ),
-        for (var index = 0; index < widget.rowCount; index += 1)
-          TableRow(
-            key: widget.rowKey?.call(index),
-            children: <Widget>[
-              for (var column = 0; column < widget.columns.length; column += 1)
-                _cell(
-                  widget.columns[column].cell(index),
-                  align: widget.columns[column].align,
-                  padding: padding,
-                  row: index,
-                  first: column == 0,
-                ),
-            ],
-          ),
+        for (var index = 0; index < widget.rowCount; index += 1) dataRow(index),
       ],
     );
+
+    // Only the keys of what is drawn now, so a row that has gone does not keep
+    // its keys for ever.
+    _headerKeys = headerKeys;
+    _cellKeys = cellKeys;
 
     final bool lit = widget.hoverable || _interactive;
     final tint = widget.rowTint;

@@ -383,6 +383,10 @@ class PlDataTable<T> extends StatefulWidget {
 /// A row, and where it is in [PlDataTable.rows].
 typedef _Indexed<T> = ({int index, T row});
 
+/// What the grid knows the tick column by. Not a string, so no column's own
+/// [PlDataTableColumn.key] can be it.
+enum _TickColumn { id }
+
 class _PlDataTableState<T> extends State<PlDataTable<T>> {
   late TextEditingController _search;
   PlassSort? _sort;
@@ -662,6 +666,7 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
     final columns = <PlassGridColumn>[
       if (_ticks)
         PlassGridColumn(
+          id: _TickColumn.id,
           // Measured rather than fixed, and it has to be: the box is a
           // different size on every rung of the ladder and sits inside the
           // grid's own horizontal padding, so any number written here would be
@@ -705,6 +710,9 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
         ),
       for (final column in widget.columns)
         PlassGridColumn(
+          // Known by its key rather than its place, so a tick column coming or
+          // going in front of it leaves what its cells hold where it was.
+          id: column.key,
           width: column.width,
           flex: column.flex,
           align: column.align,

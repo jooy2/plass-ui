@@ -648,6 +648,106 @@ void main() {
         expect(find.byType(PlCheckbox), findsNothing);
       });
 
+      testWidgets('keeps what each cell holds with its column as the tick column comes and goes', (
+        WidgetTester tester,
+      ) async {
+        final List<PlDataTableColumn<Invoice>> probed = <PlDataTableColumn<Invoice>>[
+          PlDataTableColumn<Invoice>(
+            key: 'id',
+            header: const _Probe('Invoice'),
+            cell: (Invoice row, int _) => _Probe(row.id),
+          ),
+          PlDataTableColumn<Invoice>(
+            key: 'customer',
+            header: const _Probe('Customer'),
+            cell: (Invoice row, int _) => _Probe(row.customer),
+          ),
+        ];
+
+        // Each probe by what it says, and only the grid's: the pinned band
+        // holds a copy of every heading.
+        Map<String, _ProbeState> probes() {
+          return <String, _ProbeState>{
+            for (final _ProbeState state in tester.stateList<_ProbeState>(
+              find.descendant(of: find.byType(Table), matching: find.byType(_Probe)),
+            ))
+              state.widget.text: state,
+          };
+        }
+
+        await tester.pumpWidget(host(table(columns: probed), width: 640));
+        await tester.pumpAndSettle();
+
+        final Map<String, _ProbeState> resting = probes();
+
+        expect(resting, hasLength(8));
+
+        // On and off, both ways, so the first column moves out of the row's
+        // stop and back into it.
+        for (final PlDataTableSelection selection in <PlDataTableSelection>[
+          PlDataTableSelection.multiple,
+          PlDataTableSelection.none,
+          PlDataTableSelection.single,
+          PlDataTableSelection.none,
+        ]) {
+          await tester.pumpWidget(host(table(columns: probed, selection: selection), width: 640));
+          await tester.pumpAndSettle();
+
+          final Map<String, _ProbeState> now = probes();
+
+          expect(now.keys, unorderedEquals(resting.keys), reason: selection.name);
+
+          for (final MapEntry<String, _ProbeState> probe in resting.entries) {
+            expect(now[probe.key], same(probe.value), reason: '${probe.key}, ${selection.name}');
+          }
+        }
+      });
+
+      testWidgets(
+        'keeps what is typed into a field in the first column, and the focus, as the tick column comes and goes',
+        (WidgetTester tester) async {
+          Widget build(PlDataTableSelection selection) {
+            return host(
+              table(
+                selection: selection,
+                columns: <PlDataTableColumn<Invoice>>[
+                  // In the row's own stop until the ticks come in front of it.
+                  PlDataTableColumn<Invoice>(
+                    key: 'note',
+                    header: const Text('Note'),
+                    cell: (Invoice row, int index) =>
+                        index == 0 ? const PlTextField(semanticLabel: 'Note') : Text(row.id),
+                  ),
+                  PlDataTableColumn<Invoice>(
+                    key: 'customer',
+                    header: const Text('Customer'),
+                    cell: (Invoice row, int _) => Text(row.customer),
+                  ),
+                ],
+              ),
+              width: 640,
+            );
+          }
+
+          await tester.pumpWidget(build(PlDataTableSelection.none));
+          await tester.enterText(find.byType(EditableText), 'late');
+          await tester.pump();
+
+          for (final PlDataTableSelection selection in <PlDataTableSelection>[
+            PlDataTableSelection.multiple,
+            PlDataTableSelection.none,
+          ]) {
+            await tester.pumpWidget(build(selection));
+            await tester.pumpAndSettle();
+
+            final EditableText field = tester.widget<EditableText>(find.byType(EditableText));
+
+            expect(field.controller.text, 'late', reason: selection.name);
+            expect(field.focusNode.hasPrimaryFocus, isTrue, reason: selection.name);
+          }
+        },
+      );
+
       testWidgets('ticks a row and hands back its key and its row', (WidgetTester tester) async {
         List<Object>? keys;
         List<Invoice>? picked;
