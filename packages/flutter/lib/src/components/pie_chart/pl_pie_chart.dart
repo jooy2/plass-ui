@@ -202,14 +202,8 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
   void didUpdateWidget(PlPieChart oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // A slice that is no longer there has nothing left to read, so the
-    // reading is let go rather than moved onto whichever slice took its place.
-    if (_active != null && _active! >= widget.data.length) {
-      _active = null;
-    }
-
-    // And a legend entry taken out from under the pointer, which reports no
-    // exit, so that the other slices are not left faded for it.
+    // A legend entry taken out from under the pointer reports no exit, so it
+    // is let go here rather than leaving the other slices faded for it.
     if (_hovered != null && !legendHasEntry(widget.legend, widget.data.length, _hovered!)) {
       _hovered = null;
     }
@@ -255,6 +249,17 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
     ];
 
     final List<bool> visible = <bool>[for (int i = 0; i < slices.length; i += 1) !_off.contains(i)];
+
+    // A slice that no longer draws an arc, because it left the data or is now
+    // worth nothing or a gap, has nothing left to read, so the reading is let
+    // go in the build that finds it gone, as the frame lets go of a column,
+    // rather than left standing with every other slice faded for it. A slice
+    // that still draws one goes on being read.
+    if (_active != null &&
+        (_active! >= values.length || !_drawn(values[_active!], visible[_active!]))) {
+      _active = null;
+    }
+
     final List<Color> colors = <Color>[
       for (int i = 0; i < slices.length; i += 1) seriesColor(values[i].color, i, tokens.chart),
     ];

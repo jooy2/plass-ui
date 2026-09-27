@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **A `PlPieChart` lets go of the slice it is reading once it is rendered again with that slice drawing no arc.** A slice that left the data went on being read as "0 · 0%", or "0 · NaN%" when the slices left summed to 0, and a slice now worth 0 or a gap went on being read as worth nothing, each with every other slice faded for it. A slice that still draws an arc is still read. The Flutter build makes the same change.
+
 - **`Home` and `End` on a line, bar or area chart whose tooltip is in `item` mode read the whole column they move to, as in the Flutter build.** With the pointer still over the plot, either key read only the one value nearest where the pointer last was, where the arrow keys read the whole column, since a key brings no pointer to measure against.
 
 - **A `PlHeatmapChart` rendered again without the cell it is reading lets go of it, as in the Flutter build.** A cell the data turned into a gap, or a treemap tile whose value no longer had an area to be, was kept: nothing was read while it was gone, `Escape` was taken with nothing to clear, and once the data brought the cell back it was read again, with its card and drawn whole. A cell that is still there is still read.

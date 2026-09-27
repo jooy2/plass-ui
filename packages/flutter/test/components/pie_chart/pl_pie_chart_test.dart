@@ -690,6 +690,9 @@ void main() {
         expect(said(tester), isEmpty);
         expect(find.byType(PlassChartTooltipCard), findsNothing);
 
+        await tester.pumpAndSettle();
+        expect(_sliceAlphas(tester), everyElement(1));
+
         // And the walk starts again from the slices that are there.
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
         await tester.pump();
@@ -697,6 +700,52 @@ void main() {
 
         await tester.pumpAndSettle();
       });
+
+      for (final (String name, PlassChartDatum last) in <(String, PlassChartDatum)>[
+        ('worth nothing', const PlassChartDatum(0)),
+        ('a gap', const PlassChartDatum.gap()),
+      ]) {
+        testWidgets('lets go of a slice that is $name when it is built again', (
+          WidgetTester tester,
+        ) async {
+          List<PlassChartDatum> data = traffic;
+          late StateSetter setData;
+
+          await tabTo(
+            tester,
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                setData = setState;
+
+                return PlPieChart(data: data, categories: sources);
+              },
+            ),
+          );
+
+          // The last slice, which the next build draws no arc for.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+          await tester.pump();
+          expect(said(tester), 'Referral, 15 · 15%');
+
+          setData(() => data = <PlassChartDatum>[...traffic.sublist(0, 3), last]);
+          await tester.pump();
+
+          expect(said(tester), isEmpty);
+          expect(find.byType(PlassChartTooltipCard), findsNothing);
+
+          await tester.pumpAndSettle();
+          expect(_sliceAlphas(tester), <Matcher>[for (int i = 0; i < 3; i += 1) equals(1)]);
+
+          // Let go rather than held, so the slice coming back does not bring
+          // the reading back with it.
+          setData(() => data = traffic);
+          await tester.pump();
+
+          expect(said(tester), isEmpty);
+
+          await tester.pumpAndSettle();
+        });
+      }
 
       testWidgets('keeps reading a slice that is still there when it is built again', (
         WidgetTester tester,

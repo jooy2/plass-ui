@@ -377,6 +377,70 @@ describe('PlPieChart', () => {
         .toBe('Search Search');
     });
 
+    describe('rendered again', () => {
+      const chart = (data: (number | null)[]) => (
+        <PlPieChart label="Traffic" categories={SOURCES} data={data} />
+      );
+
+      /** What the live region is saying. */
+      const said = (container: HTMLElement) =>
+        container.querySelector('[role="status"]')?.textContent;
+
+      it.each([
+        ['without it', [40, 25, 20]],
+        ['with it worth nothing', [40, 25, 20, 0]],
+        ['with it a gap', [40, 25, 20, null]]
+      ])('lets go of the slice it is reading %s', async (_, data) => {
+        // Off the legend, whose entry an earlier test may have left the mouse
+        // on, and which dims the other slices without a key.
+        await commands.parkPointer();
+
+        const screen = await render(chart([40, 25, 20, 15]));
+        const plot = screen.getByRole('img', { name: 'Traffic' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        // The last slice, which the next render draws no arc for.
+        arrow(plot.element(), 'ArrowLeft');
+        await expect.poll(() => said(screen.container)).toBe('Referral, 15 · 15%');
+
+        await screen.rerender(chart(data));
+
+        expect(said(screen.container)).toBe('');
+        expect(screen.container.querySelector('[data-plass-tooltip]')).toBeNull();
+        expect(slices(plot.element()).map((slice) => slice.getAttribute('opacity'))).toEqual([
+          '1',
+          '1',
+          '1'
+        ]);
+
+        // Let go rather than held, so the slice coming back does not bring the
+        // reading back with it.
+        await screen.rerender(chart([40, 25, 20, 15]));
+
+        expect(said(screen.container)).toBe('');
+
+        // And the walk starts again from the slices that are there.
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => said(screen.container)).toBe('Search, 40 · 40%');
+      });
+
+      it('keeps reading a slice that still draws an arc', async () => {
+        const screen = await render(chart([40, 25, 20, 15]));
+        const plot = screen.getByRole('img', { name: 'Traffic' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        arrow(plot.element(), 'ArrowRight');
+        await expect.poll(() => said(screen.container)).toBe('Search, 40 · 40%');
+
+        await screen.rerender(chart([40, 25, 0]));
+
+        expect(said(screen.container)).toBe('Search, 40 · 61.5%');
+        expect(screen.container.querySelector('[data-plass-tooltip]')).not.toBeNull();
+      });
+    });
+
     it('is a tab stop only while there is something on it', async () => {
       const screen = await render(<PlPieChart label="Traffic" data={[0, 0]} />);
 

@@ -256,6 +256,15 @@ export function PlPieChart({
     angle += span;
   });
 
+  /* A slice that no longer draws an arc, because it left the data or is now
+     worth nothing or a gap, has nothing left to read, so the reading is let go
+     rather than reading it as "0 · 0%" with every other slice faded for it.
+     Let go in the render that finds it gone, and React renders again before
+     anything is painted. A slice that still draws one goes on being read. */
+  if (active !== null && !arcs.some((arc) => arc.index === active)) {
+    setActive(null);
+  }
+
   /* A slice's value and what part of the whole it is, which is the reading a
      sighted reader takes from the angle. One writing of it, because the tooltip
      and the summary a screen reader is handed have to agree. */
