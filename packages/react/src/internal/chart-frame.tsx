@@ -1706,8 +1706,14 @@ export function CartesianChart({
     clearActive();
   }
 
+  /* Every key arrives here, `Home` and `End` as well as a step, and none of
+     them brings a pointer, so the pointer's place is let go: `item` mode then
+     reads the whole column the key moved to, rather than the one value
+     nearest where the pointer last was. */
   const goTo = (at: number | null) => {
     const bounded = at === null ? null : Math.min(walkLength - 1, Math.max(0, at));
+
+    setPointer(null);
 
     if (markBuilder) {
       const mark = bounded === null ? undefined : markList[bounded];
@@ -1719,8 +1725,6 @@ export function CartesianChart({
   };
 
   const step = (delta: number) => {
-    setPointer(null);
-
     const current = markBuilder ? (activeAt === -1 ? null : activeAt) : columnIndex;
 
     goTo((current ?? (delta > 0 ? -1 : walkLength)) + delta);

@@ -70,6 +70,8 @@
 
 ### Fixed
 
+- **`Home` and `End` on a line, bar or area chart whose tooltip is in `item` mode read the whole column they move to, as in the Flutter build.** With the pointer still over the plot, either key read only the one value nearest where the pointer last was, where the arrow keys read the whole column, since a key brings no pointer to measure against.
+
 - **A `PlHeatmapChart` rendered again without the cell it is reading lets go of it, as in the Flutter build.** A cell the data turned into a gap, or a treemap tile whose value no longer had an area to be, was kept: nothing was read while it was gone, `Escape` was taken with nothing to clear, and once the data brought the cell back it was read again, with its card and drawn whole. A cell that is still there is still read.
 
 - **A `fixed` `PlHeader` or `PlFooter` that spans only the content of a `PlPageLayout` no longer covers the sidebars.** A fixed bar spans the window whatever `headerSpan` or `footerSpan` says, but the layout reserved its height only in the column beside the sidebars, so the bar covered the top or the bottom edge of each sidebar and the end of its resize handle. The layout now measures a fixed bar whatever its span, so the sidebars start below a fixed header and end above a fixed footer, whether the page or only the content scrolls. A bar meant to sit between the sidebars is `sticky`.

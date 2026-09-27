@@ -671,6 +671,43 @@ describe('PlLineChart', () => {
       expect(document.querySelectorAll('[data-plass-tooltip] li').length).toBe(1);
     });
 
+    it.each(['Home', 'End'])(
+      'reads the whole column %s moves to with mode="item" and the pointer still over the plot',
+      async (key) => {
+        const screen = await render(
+          <PlLineChart
+            label="Sessions"
+            categories={MONTHS}
+            height={200}
+            tooltip={{ mode: 'item' }}
+            series={[
+              { name: 'High', data: [100, 100, 100, 100] },
+              { name: 'Low', data: [1, 1, 1, 1] }
+            ]}
+          />
+        );
+
+        const plot = screen.getByRole('img', { name: 'Sessions' });
+
+        await expect.element(plot).toBeInTheDocument();
+
+        // Near the high series, and left there: one value of the column under it.
+        await plot.hover({ position: { x: 120, y: 12 } });
+
+        const status = screen.getByRole('status');
+
+        await expect.element(status).toMatchTextContent(/^\w+, High: 100$/);
+
+        // A key brings no pointer, so the column it lands on is read whole.
+        press(plot.element(), key);
+
+        const column = key === 'Home' ? 'Jan' : 'Apr';
+
+        await expect.element(status).toHaveTextContent(`${column}, High: 100, Low: 1`);
+        expect(document.querySelectorAll('[data-plass-tooltip] li').length).toBe(2);
+      }
+    );
+
     it('shows the whole column with mode="index"', async () => {
       const screen = await render(
         <PlLineChart
