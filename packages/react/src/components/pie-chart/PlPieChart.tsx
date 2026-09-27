@@ -223,14 +223,17 @@ export function PlPieChart({
   const outer = Math.max(0, Math.min(width / 2, semi ? plotHeight : plotHeight / 2) - 2);
   const centreY = semi ? Math.min(plotHeight, plotHeight / 2 + outer / 2) : plotHeight / 2;
   const inner = outer * clamp(innerRadius ?? holes[shape], 0, 0.95);
-  // Whether the caller's content is in the hole, which a pie without one never
-  // has. The drawing and the description both ask, so they cannot disagree.
-  const centred = Boolean(center) && inner > 0;
 
   // Decided by the data alone. The box has no width on a server and before the
   // first measurement, and a pie that said "nothing here" until then would say
   // it to a crawler, and would leave the table out of the page it rendered.
   const nothing = total <= 0;
+
+  // Whether the caller's content is in the hole, which a pie without one never
+  // has, and an empty ring never has either: it draws no ring, and its empty
+  // state's words sit where the hole would be. The drawing and the description
+  // both ask, so they cannot disagree.
+  const centred = !nothing && Boolean(center) && inner > 0;
 
   // The 2px between two slices, as the angle that subtends it at the rim. Wider
   // for a small pie than for a large one, which is the point: the gap is a

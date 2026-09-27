@@ -135,6 +135,29 @@ describe('PlPieChart', () => {
         .toHaveAccessibleDescription('30 visits , Search 10 · 33.3%, Social 20 · 66.7%');
     });
 
+    it.each(['donut', 'semi'] as const)(
+      'is left out of an empty %s, which draws only its empty state',
+      async (shape) => {
+        const chart = (data: number[]) => (
+          <PlPieChart label="Traffic" shape={shape} data={data} center={<strong>100</strong>} />
+        );
+
+        // Drawn first with something in it, so the ring has been measured and
+        // has a hole by the time it is emptied.
+        const screen = await render(chart([40, 60]));
+
+        await expect.element(screen.getByText('100')).toBeInTheDocument();
+
+        await screen.rerender(chart([0, 0]));
+
+        await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+        expect(screen.getByText('100').query()).toBeNull();
+        await expect
+          .element(screen.getByRole('img', { name: 'Traffic' }))
+          .toHaveAccessibleDescription('Nothing here');
+      }
+    );
+
     it('is not read on a pie, which does not draw it', async () => {
       const screen = await render(
         <PlPieChart
