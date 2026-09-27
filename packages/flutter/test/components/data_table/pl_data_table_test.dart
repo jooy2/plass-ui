@@ -1404,6 +1404,56 @@ void main() {
         },
       );
 
+      testWidgets('keeps what its cells hold as the height around it is bounded and then not', (
+        WidgetTester tester,
+      ) async {
+        Widget build({required bool bounded}) {
+          return host(
+            // One widget either way, so only the constraints change.
+            OverflowBox(
+              alignment: Alignment.topCenter,
+              maxHeight: bounded ? 100 : double.infinity,
+              child: PlDataTable<Invoice>(
+                columns: probed,
+                rows: rows,
+                rowKey: (Invoice row, int _) => row.id,
+              ),
+            ),
+            width: 640,
+          );
+        }
+
+        await tester.pumpWidget(build(bounded: true));
+        await tester.pumpAndSettle();
+
+        final List<State<_Probe>> resting = tester
+            .stateList<State<_Probe>>(find.byType(_Probe))
+            .toList();
+
+        expect(resting, hasLength(6));
+
+        for (final bool bounded in <bool>[false, true, false]) {
+          await tester.pumpWidget(build(bounded: bounded));
+          await tester.pumpAndSettle();
+
+          expect(
+            tester.getSize(find.byType(PlDataTable<Invoice>)).height,
+            bounded ? 100 : greaterThan(100),
+            reason: 'bounded $bounded',
+          );
+
+          final List<State<_Probe>> now = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          expect(now, hasLength(resting.length), reason: 'bounded $bounded');
+
+          for (var index = 0; index < resting.length; index += 1) {
+            expect(now[index], same(resting[index]), reason: 'probe $index, bounded $bounded');
+          }
+        }
+      });
+
       for (final NavigationMode mode in NavigationMode.values) {
         testWidgets('is no focus stop while nothing listens to its rows, ${mode.name}', (
           WidgetTester tester,

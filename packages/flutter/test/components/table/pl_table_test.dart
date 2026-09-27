@@ -697,8 +697,7 @@ void main() {
 
       testWidgets('lays out where nothing bounds its height', (WidgetTester tester) async {
         // A table inside the page's own scroll view is handed an unbounded
-        // height, and a column with a flexible child in one of those is not a
-        // layout — it is an assertion.
+        // height, and has to lay out in one as tall as its rows.
         await tester.pumpWidget(
           host(
             SingleChildScrollView(
@@ -710,6 +709,60 @@ void main() {
 
         expect(tester.takeException(), isNull);
         expect(find.text('#400'), findsOneWidget);
+      });
+
+      testWidgets('keeps what its cells hold as the height around it is bounded and then not', (
+        WidgetTester tester,
+      ) async {
+        Widget table({required bool bounded}) {
+          return host(
+            // One widget either way, so only the constraints change.
+            OverflowBox(
+              alignment: Alignment.topCenter,
+              maxHeight: bounded ? 200 : double.infinity,
+              child: PlTable<_Build>(
+                rows: _many,
+                columns: <PlTableColumn<_Build>>[
+                  PlTableColumn<_Build>(
+                    header: const Text('Build'),
+                    cell: (_Build row, int index) => _Probe(row.id),
+                  ),
+                ],
+              ),
+            ),
+            width: 420,
+          );
+        }
+
+        await tester.pumpWidget(table(bounded: true));
+        await tester.pumpAndSettle();
+
+        final List<State<_Probe>> resting = tester
+            .stateList<State<_Probe>>(find.byType(_Probe))
+            .toList();
+
+        expect(resting, hasLength(_many.length));
+
+        for (final bool bounded in <bool>[false, true, false]) {
+          await tester.pumpWidget(table(bounded: bounded));
+          await tester.pumpAndSettle();
+
+          expect(
+            tester.getSize(find.byType(PlTable<_Build>)).height,
+            bounded ? 200 : greaterThan(200),
+            reason: 'bounded $bounded',
+          );
+
+          final List<State<_Probe>> now = tester
+              .stateList<State<_Probe>>(find.byType(_Probe))
+              .toList();
+
+          expect(now, hasLength(resting.length), reason: 'bounded $bounded');
+
+          for (var index = 0; index < resting.length; index += 1) {
+            expect(now[index], same(resting[index]), reason: 'probe $index, bounded $bounded');
+          }
+        }
       });
 
       testWidgets('leaves the caption above what scrolls', (WidgetTester tester) async {

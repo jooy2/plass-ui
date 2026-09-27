@@ -770,88 +770,85 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
       borderRadius: BorderRadius.circular(tokens.radii[size]!),
       child: DefaultTextStyle.merge(
         style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            // The grid gives way when there is a height to give way *to*. A
-            // `Flexible` in a column with nothing bounding its height is not a
-            // layout, it is an assertion.
-            final bool bounded = constraints.hasBoundedHeight;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (widget.caption != null)
-                  ExcludeSemantics(
-                    excluding: captionName != null,
-                    child: PlassTableBand(
-                      size: size,
-                      density: density,
-                      child: DefaultTextStyle.merge(
-                        style: TextStyle(
-                          color: tokens.mutedFg,
-                          fontSize: metaText[size]!,
-                          fontWeight: FontWeight.w600,
-                          height: 1.4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if (widget.caption != null)
+              ExcludeSemantics(
+                excluding: captionName != null,
+                child: PlassTableBand(
+                  size: size,
+                  density: density,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(
+                      color: tokens.mutedFg,
+                      fontSize: metaText[size]!,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
+                    ),
+                    child: widget.caption!,
+                  ),
+                ),
+              ),
+            if (widget.searchable || widget.toolbar != null)
+              PlassTableBand(
+                size: size,
+                density: density,
+                child: Row(
+                  spacing: gap[size]!,
+                  children: <Widget>[
+                    if (widget.searchable)
+                      Expanded(
+                        child: PlTextField(
+                          size: size,
+                          color: color,
+                          density: density,
+                          controller: _search,
+                          onChanged: _goSearch,
+                          placeholder: widget.searchPlaceholder ?? labels.search,
+                          semanticLabel: widget.searchLabel ?? labels.search,
                         ),
-                        child: widget.caption!,
+                      )
+                    else
+                      const Spacer(),
+                    ?widget.toolbar,
+                  ],
+                ),
+              ),
+            // The grid gives way when there is a height to give way to. In a
+            // `Flexible` whether the height is bounded or not: a loose one in a
+            // column that takes only the room it needs asks nothing of a
+            // height that is not there, and a wrapper that came and went with
+            // the bound built the whole grid again, and what every cell held
+            // with it.
+            Flexible(child: grid),
+            if (hasFooter)
+              PlassTableBand(
+                size: size,
+                density: density,
+                top: true,
+                child: Row(
+                  spacing: gap[size]!,
+                  children: <Widget>[
+                    DefaultTextStyle.merge(
+                      style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
+                      child: widget.footer ?? Text('${shown.length} / $total'),
+                    ),
+                    const Spacer(),
+                    if (widget.paging == PlDataTablePaging.pages)
+                      PlPagination(
+                        size: size,
+                        color: color,
+                        density: density,
+                        count: pageCount,
+                        page: _currentPage(ordered.length),
+                        onPageChanged: _goPage,
                       ),
-                    ),
-                  ),
-                if (widget.searchable || widget.toolbar != null)
-                  PlassTableBand(
-                    size: size,
-                    density: density,
-                    child: Row(
-                      spacing: gap[size]!,
-                      children: <Widget>[
-                        if (widget.searchable)
-                          Expanded(
-                            child: PlTextField(
-                              size: size,
-                              color: color,
-                              density: density,
-                              controller: _search,
-                              onChanged: _goSearch,
-                              placeholder: widget.searchPlaceholder ?? labels.search,
-                              semanticLabel: widget.searchLabel ?? labels.search,
-                            ),
-                          )
-                        else
-                          const Spacer(),
-                        ?widget.toolbar,
-                      ],
-                    ),
-                  ),
-                if (bounded) Flexible(child: grid) else grid,
-                if (hasFooter)
-                  PlassTableBand(
-                    size: size,
-                    density: density,
-                    top: true,
-                    child: Row(
-                      spacing: gap[size]!,
-                      children: <Widget>[
-                        DefaultTextStyle.merge(
-                          style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
-                          child: widget.footer ?? Text('${shown.length} / $total'),
-                        ),
-                        const Spacer(),
-                        if (widget.paging == PlDataTablePaging.pages)
-                          PlPagination(
-                            size: size,
-                            color: color,
-                            density: density,
-                            count: pageCount,
-                            page: _currentPage(ordered.length),
-                            onPageChanged: _goPage,
-                          ),
-                      ],
-                    ),
-                  ),
-              ],
-            );
-          },
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );

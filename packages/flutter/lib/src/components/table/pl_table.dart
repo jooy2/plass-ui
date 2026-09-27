@@ -259,41 +259,37 @@ class PlTable<T> extends StatelessWidget {
       borderRadius: BorderRadius.circular(tokens.radii[size]!),
       child: DefaultTextStyle.merge(
         style: TextStyle(color: tokens.fg, fontSize: text.size, height: text.height),
-        child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            // The grid gives way when there is a height to give way *to*, so a
-            // table in a box smaller than its rows scrolls rather than
-            // overflowing it. Only then: a `Flexible` in a column with nothing
-            // bounding its height is not a layout, it is an assertion — which
-            // is exactly what a table inside a page's own scroll view would
-            // hand it.
-            final bool bounded = constraints.hasBoundedHeight;
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (caption != null)
-                  ExcludeSemantics(
-                    excluding: captionName != null,
-                    child: PlassTableBand(
-                      size: size,
-                      density: density,
-                      child: DefaultTextStyle.merge(
-                        style: TextStyle(
-                          color: tokens.mutedFg,
-                          fontSize: metaText[size]!,
-                          fontWeight: FontWeight.w600,
-                          height: 1.4,
-                        ),
-                        child: caption!,
-                      ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if (caption != null)
+              ExcludeSemantics(
+                excluding: captionName != null,
+                child: PlassTableBand(
+                  size: size,
+                  density: density,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(
+                      color: tokens.mutedFg,
+                      fontSize: metaText[size]!,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
                     ),
+                    child: caption!,
                   ),
-                if (bounded) Flexible(child: grid) else grid,
-              ],
-            );
-          },
+                ),
+              ),
+            // The grid gives way when there is a height to give way to, so a
+            // table in a box smaller than its rows scrolls rather than
+            // overflowing it. In a `Flexible` whether the height is bounded or
+            // not: a loose one in a column that takes only the room it needs
+            // asks nothing of a height that is not there, which is what a
+            // table inside a page's own scroll view is handed, and a wrapper
+            // that came and went with the bound built the whole grid again,
+            // and what every cell held with it.
+            Flexible(child: grid),
+          ],
         ),
       ),
     );
