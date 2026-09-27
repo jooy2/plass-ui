@@ -4,6 +4,7 @@ library;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -320,6 +321,8 @@ class _Row extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final BorderRadius radius = BorderRadius.circular(tokens.radii[PlassSize.xs]!);
+
     final Widget row = PlassInteractive(
       onTap: onPressed,
       cursor: SystemMouseCursors.click,
@@ -333,7 +336,7 @@ class _Row extends StatelessWidget {
             ? tokens.glassHover
             : null;
 
-        return AnimatedContainer(
+        final Widget surface = AnimatedContainer(
           duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
               ? Duration.zero
               : tokens.motionDuration,
@@ -346,7 +349,7 @@ class _Row extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: fill,
-            borderRadius: BorderRadius.circular(tokens.radii[PlassSize.xs]!),
+            borderRadius: radius,
             border: BorderDirectional(
               start: BorderSide(color: lit ? family.accent : const Color(0x00000000), width: 2),
             ),
@@ -379,6 +382,17 @@ class _Row extends StatelessWidget {
               ),
             ),
           ),
+        );
+
+        // The house ring, flush round the row, as the React row draws it
+        // while the keyboard has brought the focus there. In the tree with no
+        // painter at rest, so the label is not built again as the ring comes
+        // and goes.
+        return CustomPaint(
+          foregroundPainter: state.focusVisible
+              ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+              : null,
+          child: surface,
         );
       },
     );

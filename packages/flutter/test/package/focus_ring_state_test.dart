@@ -122,6 +122,11 @@ final Map<String, _Case> _cases = <String, _Case>{
     () => PlAlert(onClose: () {}, child: const Text('Saved.')),
     held: _inside((Widget widget) => widget is PlAlert, AnimatedOpacity),
   ),
+  'PlAnchor': _Case(
+    () => PlAnchor(
+      items: <PlAnchorItem>[PlAnchorItem(target: GlobalKey(), label: const _Probe())],
+    ),
+  ),
   'PlAppLogo': _Case(
     () => PlAppLogo(
       name: const _Probe(),

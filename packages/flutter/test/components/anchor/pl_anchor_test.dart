@@ -1,9 +1,12 @@
 import 'dart:ui' show Tristate;
 
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -197,6 +200,75 @@ void main() {
         expect(find.semantics.byFlag(SemanticsFlag.isFocusable), findsExactly(2));
 
         handle.dispose();
+      });
+
+      testWidgets('draws the focus ring round a row only while the keyboard has it there', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+        addTearDown(
+          () => FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic,
+        );
+
+        await _pump(
+          tester,
+          afterFocusStop(
+            before,
+            PlAnchor(
+              color: PlassColor.danger,
+              items: <PlAnchorItem>[
+                PlAnchorItem(target: GlobalKey(), label: const Text('Intro')),
+                PlAnchorItem(target: GlobalKey(), label: const Text('Usage')),
+              ],
+            ),
+          ),
+        );
+
+        List<PlassFocusRingPainter> rings() => tester
+            .widgetList<CustomPaint>(
+              find.descendant(of: find.byType(PlAnchor), matching: find.byType(CustomPaint)),
+            )
+            .map((CustomPaint paint) => paint.foregroundPainter)
+            .whereType<PlassFocusRingPainter>()
+            .toList();
+
+        Finder ringRound(String label) => find.ancestor(
+          of: find.text(label),
+          matching: find.byWidgetPredicate(
+            (Widget widget) =>
+                widget is CustomPaint && widget.foregroundPainter is PlassFocusRingPainter,
+          ),
+        );
+
+        expect(rings(), isEmpty, reason: 'at rest');
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        // The house ring, flush round the row in the list's own family, as
+        // the React row's `focusRingClasses` draws it.
+        final PlassTokens tokens = PlassTheme.of(tester.element(find.byType(PlAnchor)));
+
+        expect(rings(), hasLength(1));
+        expect(ringRound('Intro'), findsOneWidget);
+        expect(rings().single.color, tokens.family(PlassColor.danger).ring);
+        expect(rings().single.borderRadius, BorderRadius.circular(tokens.radii[PlassSize.xs]!));
+        expect(rings().single.offset, focusRingOffset);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        expect(rings(), hasLength(1));
+        expect(ringRound('Usage'), findsOneWidget);
+
+        // The row keeps the focus; a touch screen draws no ring round it.
+        FocusManager.instance.highlightStrategy = FocusHighlightStrategy.alwaysTouch;
+        await tester.pump();
+
+        expect(rings(), isEmpty, reason: 'in the touch highlight mode');
       });
     });
 
