@@ -328,7 +328,10 @@ class PlCombobox<T> extends StatefulWidget {
   /// The name of what the field holds.
   final Widget? label;
 
-  /// Where the [label] goes — above the field, or in its top edge.
+  /// Where the [label] goes — above the field, in its top edge, or inside it
+  /// where the text would be typed until the field is focused, open or holds
+  /// a value. With a [startIcon] a floating label stays in the edge, because
+  /// the icon is where it would rest.
   ///
   /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
   final PlassFieldLabelPlacement? labelPlacement;
@@ -417,9 +420,15 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   PlassFieldLabelPlacement get _labelPlacement =>
       widget.labelPlacement ?? PlassTheme.labelPlacementOf(context) ?? PlassFieldLabelPlacement.top;
 
-  /// A notch with nothing in it is a gap in the edge for no reason, so the
-  /// placement only takes effect where there is a label to put there.
-  bool get _notched => _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
+  /// Whether the edge is cut for the label, and whether the label may also
+  /// come down into the field. See [resolveNotch].
+  ({bool notched, bool float}) get _placement => resolveNotch(
+    _labelPlacement,
+    hasLabel: widget.label != null,
+    startTaken: widget.startIcon != null,
+  );
+
+  bool get _notched => _placement.notched;
 
   /// One widget for both placements, so the label a reader taps and the label a
   /// screen reader reads are the same widget wherever it is drawn. A
@@ -429,11 +438,15 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     return ExcludeSemantics(
       excluding: widget.semanticLabel != null,
       child: DefaultTextStyle.merge(
-        style: TextStyle(
-          color: _disabled ? tokens.mutedFg : tokens.fg,
-          fontSize: meta,
-          fontWeight: FontWeight.w600,
-        ),
+        // In a notch the size and the ink are the notch's, since a floating
+        // label changes both as it moves.
+        style: _notched
+            ? const TextStyle(fontWeight: FontWeight.w600)
+            : TextStyle(
+                color: _disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
         child: widget.label!,
       ),
     );
@@ -1361,22 +1374,34 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: _text,
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
-              return value.text.isEmpty
-                  ? IgnorePointer(
-                      child: ExcludeSemantics(
-                        child: Text(
-                          widget.placeholder!,
-                          style: TextStyle(
-                            color: tokens.mutedFg,
-                            fontSize: scale.size,
-                            height: scale.height,
-                            leadingDistribution: TextLeadingDistribution.even,
-                          ),
-                          maxLines: 1,
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink();
+              if (value.text.isNotEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              final bool float = _placement.float;
+              Widget placeholder = Text(
+                widget.placeholder!,
+                style: TextStyle(
+                  color: float ? null : tokens.mutedFg,
+                  fontSize: scale.size,
+                  height: scale.height,
+                  leadingDistribution: TextLeadingDistribution.even,
+                ),
+                maxLines: 1,
+              );
+
+              // Out of the way while a floating label rests where it is
+              // written, and back over the same time as the label rises.
+              if (float) {
+                placeholder = PlassInk(
+                  color: !_focused && !_open && _chosen.isEmpty
+                      ? tokens.mutedFg.withValues(alpha: 0)
+                      : tokens.mutedFg,
+                  child: placeholder,
+                );
+              }
+
+              return IgnorePointer(child: ExcludeSemantics(child: placeholder));
             },
           ),
           editor,
@@ -1594,25 +1619,44 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     );
 
     if (_notched) {
+      final bool float = _placement.float;
+
       // No ring here: an outline is a rectangle and the label is sitting on the
       // edge it would be drawn along, so the edge itself thickens instead.
-      shell = PlassFieldNotch(
-        size: size,
-        density: _density,
-        disabled: _disabled,
-        edge: notchEdgePainter(
-          tokens,
-          family,
-          variant: widget.variant,
-          borderRadius: radius,
-          hovered: _hovered,
-          focused: _focused,
-          readOnly: widget.readOnly,
+      Widget notch(bool resting, Widget shell) {
+        return PlassFieldNotch(
+          size: size,
+          density: _density,
           disabled: _disabled,
-        ),
-        label: _labelNode(tokens, metaText[size]!),
-        child: shell,
-      );
+          float: float,
+          resting: resting,
+          edge: notchEdgePainter(
+            tokens,
+            family,
+            variant: widget.variant,
+            borderRadius: radius,
+            hovered: _hovered,
+            focused: _focused,
+            readOnly: widget.readOnly,
+            disabled: _disabled,
+          ),
+          label: _labelNode(tokens, metaText[size]!),
+          child: shell,
+        );
+      }
+
+      // A floating label rests only in a field with nothing typed, nothing
+      // chosen, no focus and no list open. The text is followed as it changes
+      // without building the shell again; the rest arrives with a rebuild.
+      shell = float
+          ? ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _text,
+              child: shell,
+              builder: (BuildContext context, TextEditingValue value, Widget? shell) {
+                return notch(value.text.isEmpty && _chosen.isEmpty && !_focused && !_open, shell!);
+              },
+            )
+          : notch(false, shell);
     } else {
       // Kept in the tree with no painter while unfocused, so the focus arriving
       // does not build the editor again without its text input connection.

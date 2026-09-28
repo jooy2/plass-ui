@@ -42,15 +42,15 @@ PlassTheme.merge(
 
 ## The settings
 
-|                  |                                                                             |
-| ---------------- | --------------------------------------------------------------------------- |
-| `size`           | The rung of the size ladder every component starts from                     |
-| `color`          | The semantic family they start from                                         |
-| `density`        | How tightly they pack their content                                         |
-| `labelPlacement` | Where a field puts its label: above the box, or in its top edge             |
-| `locale`         | The BCP 47 tag the date, time and number components format and read against |
-| `weekStartsOn`   | Which day their weeks start on, as `Date` counts them. Sunday is `0`        |
-| `labels`         | The words the components say that `Intl` has no opinion about               |
+|                  |                                                                               |
+| ---------------- | ----------------------------------------------------------------------------- |
+| `size`           | The rung of the size ladder every component starts from                       |
+| `color`          | The semantic family they start from                                           |
+| `density`        | How tightly they pack their content                                           |
+| `labelPlacement` | Where a field's label goes: above the box, in its top edge, or floating in it |
+| `locale`         | The BCP 47 tag the date, time and number components format and read against   |
+| `weekStartsOn`   | Which day their weeks start on, as `Date` counts them. Sunday is `0`          |
+| `labels`         | The words the components say that `Intl` has no opinion about                 |
 
 ::: fw react
 

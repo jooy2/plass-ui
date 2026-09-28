@@ -863,6 +863,27 @@ void main() {
         expect(find.byType(PlassFieldNotch), findsOneWidget);
         expect(find.text('Departure'), findsOneWidget);
       });
+
+      testWidgets('keeps a floating label in the notch, since its glyph is where it would rest', (
+        WidgetTester tester,
+      ) async {
+        await _pump(
+          tester,
+          PlDatePicker(
+            value: null,
+            label: const Text('Departure'),
+            labelPlacement: PlassFieldLabelPlacement.float,
+            onChanged: (DateTime? _) {},
+          ),
+        );
+
+        final field = tester.getRect(find.byType(PlDatePicker));
+
+        expect(
+          tester.getRect(find.text('Departure')).center.dy,
+          closeTo(field.top + notchRise(PlassSize.md), 0.5),
+        );
+      });
     });
   });
 }

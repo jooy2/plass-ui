@@ -8,7 +8,12 @@ import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
 import { Spinner } from '../../internal/icons.js';
 import { useFieldLight } from '../../internal/glow.js';
-import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
+import {
+  FieldNotch,
+  floatControlClassName,
+  notchShellStyle,
+  resolveNotch
+} from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import {
   controlHeightClasses,
@@ -88,17 +93,15 @@ export interface PlTextFieldProps extends PlassStyleProps, NativeControlProps {
   resize?: PlTextFieldResize;
   /**
    * The name of what the field holds, wired to the control by Base UI's Field.
-   * `labelPlacement` decides whether it sits above the box or in its top edge.
-   *
-   * There is no floating variant on purpose, and a notch is not one: a floating
-   * label is animated out of the control as the caret arrives, which needs a
-   * `transform` on the thing being typed into, and a label that moves under the
-   * caret is the one effect this library rules out on a control. The notch is
-   * where it always was.
+   * `labelPlacement` decides whether it sits above the box, in its top edge, or
+   * inside it until the field is focused or filled.
    */
   label?: React.ReactNode;
   /**
-   * Where the `label` goes — above the control, or in its top edge.
+   * Where the `label` goes — above the control, in its top edge, or inside it
+   * where the value would be written until the field is focused or filled, and
+   * in its top edge from then on. With a `startIcon` a `float` label stays in
+   * the edge, because the icon is where it would rest.
    * Falls back to the nearest `PlassProvider`, then to `top`.
    * @default 'top'
    */
@@ -217,6 +220,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     readOnly = false,
     disabled: disabledProp = false,
     type = 'text',
+    placeholder,
     hotKeys,
     onKeyDown,
     className,
@@ -232,9 +236,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
   const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
-  // A notch with nothing in it is a gap in the edge for no reason, so the
-  // placement only takes effect where there is a label to put there.
-  const notched = labelPlacement === 'notch' && hasContent(label);
+  const { notched, float } = resolveNotch(labelPlacement, label, hasContent(startIcon));
 
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
@@ -292,7 +294,9 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     'placeholder:text-(--plass-muted-fg)',
     'caret-(--p-accent) selection:bg-(--p-soft-press)',
     'disabled:cursor-not-allowed',
-    multiline ? `block ${resizeClasses[resize]}` : 'self-stretch'
+    multiline ? `block ${resizeClasses[resize]}` : 'self-stretch',
+    // The hook a resting label reads the field's emptiness through.
+    float ? floatControlClassName : ''
   ].join(' ');
 
   // `1lh` keeps an adornment centred on the first line rather than on the whole
@@ -340,6 +344,7 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
         variant={variant}
         disabled={disabled}
         readOnly={readOnly}
+        float={float}
         label={labelNode}
       >
         <span
@@ -372,6 +377,9 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
             // thing that has the focus, and `hotKeys` on a wrapper would fire for
             // a key pressed on the label beside it.
             onKeyDown={hotKeyHandler(hotKeys, onKeyDown)}
+            // `:placeholder-shown` is how a resting label knows the field is
+            // empty, and it never matches an input that has no placeholder.
+            placeholder={float ? placeholder || ' ' : placeholder}
             {...(multiline ? { render: <textarea rows={rows} /> } : { type })}
             {...props}
           />

@@ -177,7 +177,10 @@ class PlSelect<T> extends StatefulWidget {
   /// The name of what the select holds.
   final Widget? label;
 
-  /// Where the [label] goes — above the trigger, or in its top edge.
+  /// Where the [label] goes — above the trigger, in its top edge, or inside it
+  /// where the choice would be written until the select is focused, open or
+  /// holds a value. With a [startIcon] a floating label stays in the edge,
+  /// because the icon is where it would rest.
   ///
   /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
   final PlassFieldLabelPlacement? labelPlacement;
@@ -362,9 +365,11 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(tokens.radii[size]!);
     final chosen = _chosen;
-    // A notch with nothing in it is a gap in the edge for no reason, so the
-    // placement only takes effect where there is a label to put there.
-    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
+    final (:notched, :float) = resolveNotch(
+      _labelPlacement,
+      hasLabel: widget.label != null,
+      startTaken: widget.startIcon != null,
+    );
 
     // One widget for both placements, so the label a reader taps and the label
     // a screen reader reads are the same widget wherever it is drawn — the
@@ -374,11 +379,15 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
         : ExcludeSemantics(
             excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
             child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: _disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: meta,
-                fontWeight: FontWeight.w600,
-              ),
+              // In a notch the size and the ink are the notch's, since a
+              // floating label changes both as it moves.
+              style: notched
+                  ? const TextStyle(fontWeight: FontWeight.w600)
+                  : TextStyle(
+                      color: _disabled ? tokens.mutedFg : tokens.fg,
+                      fontSize: meta,
+                      fontWeight: FontWeight.w600,
+                    ),
               child: widget.label!,
             ),
           );
@@ -410,6 +419,10 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
         }
       },
       builder: (BuildContext context, PlassInteraction state) {
+        // A floating label rests only while nothing is chosen, the trigger
+        // does not have the focus and the list is shut.
+        final bool resting = float && chosen < 0 && !_focusNode.hasFocus && !_open;
+
         final surface = fieldSurface(
           tokens,
           family,
@@ -450,9 +463,13 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
                   // its widest label, and the chevron belongs against that
                   // rather than out at the end of a box nobody asked for.
                   if (widget.fullWidth)
-                    Expanded(child: _value(tokens, scale, chosen: chosen))
+                    Expanded(
+                      child: _value(tokens, scale, chosen: chosen, float: float, resting: resting),
+                    )
                   else
-                    Flexible(child: _value(tokens, scale, chosen: chosen)),
+                    Flexible(
+                      child: _value(tokens, scale, chosen: chosen, float: float, resting: resting),
+                    ),
                   // The chevron is the one thing here that may turn: it is a
                   // glyph, not a label, and nothing about it resamples.
                   AnimatedRotation(
@@ -485,6 +502,8 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             size: size,
             density: _density,
             disabled: _disabled,
+            float: float,
+            resting: resting,
             edge: notchEdgePainter(
               tokens,
               family,
@@ -615,14 +634,24 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
   /// The samples are laid out and not painted, so the trigger is as wide as the
   /// longest thing it could ever say: a field that shrank when a shorter option
   /// was taken would move out from under the pointer that took it.
-  Widget _value(PlassTokens tokens, PlassTextScale scale, {required int chosen}) {
+  Widget _value(
+    PlassTokens tokens,
+    PlassTextScale scale, {
+    required int chosen,
+    required bool float,
+    required bool resting,
+  }) {
     // A `fullWidth` trigger takes its width from its container, so it lays out
-    // no samples: every label built there would be work for nothing.
+    // no samples: every label built there would be work for nothing. A
+    // floating label is one of them, since it rests where the value is written
+    // and at the value's size, and a trigger as wide as its longest option
+    // would otherwise cut its own name short the moment the name came down.
     final samples = widget.fullWidth
         ? const <Widget>[]
         : <Widget?>[
             for (final option in widget.options) _sample(_label(option)),
             _sample(widget.placeholder),
+            if (float) _sample(widget.label),
           ].nonNulls.toList();
 
     return DefaultTextStyle.merge(
@@ -650,6 +679,13 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
           // its name it would be said twice.
           if (chosen >= 0)
             ExcludeSemantics(child: _label(widget.options[chosen]))
+          else if (widget.placeholder != null && float)
+            // Out of the way while a floating label rests where it is written,
+            // and back over the same time as the label rises.
+            PlassInk(
+              color: resting ? tokens.mutedFg.withValues(alpha: 0) : tokens.mutedFg,
+              child: widget.placeholder!,
+            )
           else
             widget.placeholder ?? const SizedBox.shrink(),
         ],

@@ -9,6 +9,7 @@ import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/keys.dart';
 import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
@@ -49,10 +50,8 @@ const Map<PlassSize, double> _multilinePaddingY = <PlassSize, double>{
 /// [label], [description] and [error] are parameters rather than three widgets a
 /// caller wires together: the arrangement is fixed, and what a caller wants to
 /// decide is what goes in each slot. [labelPlacement] decides whether the label
-/// sits above the box or in its top edge; there is still no floating label on
-/// purpose, and a notch is not one — a floating label is animated out of the
-/// control as the caret arrives, which moves text under the caret, and the
-/// notch is where it always was.
+/// sits above the box, in its top edge, or inside it until the field is
+/// focused or filled.
 class PlTextField extends StatefulWidget {
   /// Creates a field.
   const PlTextField({
@@ -140,7 +139,10 @@ class PlTextField extends StatefulWidget {
   /// The name of what the field holds.
   final Widget? label;
 
-  /// Where the [label] goes — above the control, or in its top edge.
+  /// Where the [label] goes — above the control, in its top edge, or inside it
+  /// where the text would be written until the field is focused or filled,
+  /// and in its top edge from then on. With a [startIcon] a floating label
+  /// stays in the edge, because the icon is where it would rest.
   ///
   /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
   final PlassFieldLabelPlacement? labelPlacement;
@@ -353,9 +355,11 @@ class _PlTextFieldState extends State<PlTextField> {
     final scale = controlTextLeading[size]!;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(tokens.radii[size]!);
-    // A notch with nothing in it is a gap in the edge for no reason, so the
-    // placement only takes effect where there is a label to put there.
-    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
+    final (:notched, :float) = resolveNotch(
+      _labelPlacement,
+      hasLabel: widget.label != null,
+      startTaken: widget.startIcon != null,
+    );
 
     final surface = fieldSurface(
       tokens,
@@ -438,22 +442,31 @@ class _PlTextFieldState extends State<PlTextField> {
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: _controller,
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
-              return value.text.isEmpty
-                  ? IgnorePointer(
-                      child: ExcludeSemantics(
-                        child: Text(
-                          widget.placeholder!,
-                          style: TextStyle(
-                            color: tokens.mutedFg,
-                            fontSize: scale.size,
-                            height: scale.height,
-                            leadingDistribution: TextLeadingDistribution.even,
-                          ),
-                          maxLines: widget.multiline ? widget.rows : 1,
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink();
+              if (value.text.isNotEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              Widget placeholder = Text(
+                widget.placeholder!,
+                style: TextStyle(
+                  color: float ? null : tokens.mutedFg,
+                  fontSize: scale.size,
+                  height: scale.height,
+                  leadingDistribution: TextLeadingDistribution.even,
+                ),
+                maxLines: widget.multiline ? widget.rows : 1,
+              );
+
+              // Out of the way while a floating label rests where it is
+              // written, and back over the same time as the label rises.
+              if (float) {
+                placeholder = PlassInk(
+                  color: _focused ? tokens.mutedFg : tokens.mutedFg.withValues(alpha: 0),
+                  child: placeholder,
+                );
+              }
+
+              return IgnorePointer(child: ExcludeSemantics(child: placeholder));
             },
           ),
           control,
@@ -536,11 +549,15 @@ class _PlTextFieldState extends State<PlTextField> {
         : ExcludeSemantics(
             excluding: widget.semanticLabel != null,
             child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: _disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: meta,
-                fontWeight: FontWeight.w600,
-              ),
+              // In a notch the size and the ink are the notch's, since a
+              // floating label changes both as it moves.
+              style: notched
+                  ? const TextStyle(fontWeight: FontWeight.w600)
+                  : TextStyle(
+                      color: _disabled ? tokens.mutedFg : tokens.fg,
+                      fontSize: meta,
+                      fontWeight: FontWeight.w600,
+                    ),
               child: widget.label!,
             ),
           );
@@ -548,23 +565,41 @@ class _PlTextFieldState extends State<PlTextField> {
     if (notched) {
       // No ring here: an outline is a rectangle and the label is sitting on the
       // edge it would be drawn along, so the edge itself thickens instead.
-      shell = PlassFieldNotch(
-        size: size,
-        density: _density,
-        disabled: _disabled,
-        edge: notchEdgePainter(
-          tokens,
-          family,
-          variant: widget.variant,
-          borderRadius: radius,
-          hovered: _hovered,
-          focused: _focused,
-          readOnly: widget.readOnly,
+      Widget notch(bool resting, Widget shell) {
+        return PlassFieldNotch(
+          size: size,
+          density: _density,
           disabled: _disabled,
-        ),
-        label: labelNode!,
-        child: shell,
-      );
+          float: float,
+          resting: resting,
+          edge: notchEdgePainter(
+            tokens,
+            family,
+            variant: widget.variant,
+            borderRadius: radius,
+            hovered: _hovered,
+            focused: _focused,
+            readOnly: widget.readOnly,
+            disabled: _disabled,
+          ),
+          label: labelNode!,
+          child: shell,
+        );
+      }
+
+      // A floating label follows the text as well as the focus, including text
+      // a caller writes into the controller while the field is idle. Only the
+      // notch is built again as it changes; the shell with the editor in it is
+      // handed through untouched.
+      shell = float
+          ? ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _controller,
+              child: shell,
+              builder: (BuildContext context, TextEditingValue value, Widget? shell) {
+                return notch(value.text.isEmpty && !_focused, shell!);
+              },
+            )
+          : notch(false, shell);
     } else {
       // The ring belongs to the shell rather than to the editor inside it, so it
       // traces the glass edge rather than a rectangle floating inside it. The

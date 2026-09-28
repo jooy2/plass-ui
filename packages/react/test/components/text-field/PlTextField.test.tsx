@@ -668,5 +668,57 @@ describe('PlTextField', () => {
 
       expect(document.querySelector('legend > label')).toHaveClass('my-label');
     });
+
+    it('floats the same label in the same notch, still naming the control', async () => {
+      const screen = await render(<PlTextField label="Email" labelPlacement="float" />);
+      const input = screen.getByRole('textbox', { name: 'Email' }).element();
+      const legend = document.querySelector('legend');
+
+      expect(legend?.querySelector('label')?.getAttribute('for')).toBe(input.id);
+      expect(legend?.parentElement?.parentElement).toHaveClass('plass-notch-float');
+      expect(document.querySelectorAll('label')).toHaveLength(1);
+    });
+
+    it('gives a floating field a blank placeholder to read its emptiness through', async () => {
+      const screen = await render(
+        <div>
+          <PlTextField label="Email" labelPlacement="float" />
+          <PlTextField label="Name" labelPlacement="float" placeholder="Ada" />
+        </div>
+      );
+
+      // `:placeholder-shown` never matches an input with no placeholder, and a
+      // caller's own is left as it is.
+      expect(screen.getByRole('textbox', { name: 'Email' }).element()).toHaveAttribute(
+        'placeholder',
+        ' '
+      );
+      expect(screen.getByRole('textbox', { name: 'Name' }).element()).toHaveAttribute(
+        'placeholder',
+        'Ada'
+      );
+    });
+
+    it('keeps a floating label in the notch beside a start icon', async () => {
+      const screen = await render(
+        <PlTextField label="Price" labelPlacement="float" startIcon={<span>$</span>} />
+      );
+
+      expect(document.querySelector('legend')?.textContent).toBe('Price');
+      expect(document.querySelector('.plass-notch-float')).toBeNull();
+      expect(screen.getByRole('textbox', { name: 'Price' }).element()).not.toHaveAttribute(
+        'placeholder'
+      );
+    });
+
+    it('takes a float from the provider', async () => {
+      await render(
+        <PlassProvider labelPlacement="float">
+          <PlTextField label="Email" />
+        </PlassProvider>
+      );
+
+      expect(document.querySelector('.plass-notch-float legend')?.textContent).toBe('Email');
+    });
   });
 });

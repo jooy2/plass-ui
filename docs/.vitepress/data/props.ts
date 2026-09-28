@@ -32,7 +32,7 @@ const COLOR = "'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'inf
 const VARIANT = "'solid' | 'glass' | 'ghost'";
 const DENSITY = "'default' | 'compact'";
 const ELEVATION = '0 | 1 | 2 | 3';
-const LABEL_PLACEMENT = "'top' | 'notch'";
+const LABEL_PLACEMENT = "'top' | 'notch' | 'float'";
 
 /**
  * Where a labelled control puts its label, written once: it means the same
@@ -45,8 +45,8 @@ const labelPlacement: PropRow = {
   default: "'top'",
   shared: true,
   description: {
-    ko: '라벨이 놓이는 자리. notch는 컨트롤 위쪽 테두리를 끊고 그 자리에 라벨을 앉힙니다',
-    en: 'Where the label goes. notch cuts a gap in the control’s own top edge and sits the label in it'
+    ko: '라벨이 놓이는 자리. notch는 컨트롤 위쪽 테두리를 끊고 그 자리에 라벨을 앉히고, float는 컨트롤이 비어 있고 포커스가 없는 동안 라벨을 안에 두었다가 notch로 올립니다',
+    en: 'Where the label goes. notch cuts a gap in the control’s own top edge and sits the label in it; float keeps the label inside the control while it is empty and unfocused, and raises it into the notch after that'
   }
 };
 

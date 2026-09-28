@@ -22,6 +22,12 @@ class TextFieldLabelPlacement extends StatelessWidget {
           ),
           PlTextField(
             fullWidth: true,
+            label: Text('Email'),
+            labelPlacement: PlassFieldLabelPlacement.float,
+            placeholder: 'you@example.com',
+          ),
+          PlTextField(
+            fullWidth: true,
             variant: PlassVariant.solid,
             label: Text('Password'),
             labelPlacement: PlassFieldLabelPlacement.notch,
@@ -32,8 +38,8 @@ class TextFieldLabelPlacement extends StatelessWidget {
             multiline: true,
             rows: 3,
             label: Text('Note'),
-            labelPlacement: PlassFieldLabelPlacement.notch,
-            description: Text('A notch works the same on a multiline field.'),
+            labelPlacement: PlassFieldLabelPlacement.float,
+            description: Text('A notch and a floating label work the same on a multiline field.'),
           ),
         ],
       ),

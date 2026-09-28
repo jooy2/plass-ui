@@ -10,7 +10,12 @@ import { PlChip } from '../chip/PlChip.js';
 import { CheckIcon, ChevronIcon, CloseIcon, PlusIcon } from '../../internal/icons.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import { useFieldLight } from '../../internal/glow.js';
-import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
+import {
+  FieldNotch,
+  floatControlClassName,
+  notchShellStyle,
+  resolveNotch
+} from '../../internal/notch.js';
 import {
   chipRemoveClasses,
   controlHeightClasses,
@@ -150,7 +155,10 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   /** The name of what the field holds, wired to it by Base UI's Field. */
   label?: React.ReactNode;
   /**
-   * Where the `label` goes — above the field, or in its top edge.
+   * Where the `label` goes — above the field, in its top edge, or inside it
+   * where the text would be typed until the field is focused or holds a value.
+   * With a `startIcon` a `float` label stays in the edge, because the icon is
+   * where it would rest.
    * Falls back to the nearest `PlassProvider`, then to `top`.
    * @default 'top'
    */
@@ -395,9 +403,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
   const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
-  // A notch with nothing in it is a gap in the edge for no reason, so the
-  // placement only takes effect where there is a label to put there.
-  const notched = labelPlacement === 'notch' && hasContent(label);
+  const { notched, float } = resolveNotch(labelPlacement, label, hasContent(startIcon));
 
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
@@ -540,11 +546,21 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   const renderInput = (afterChips: boolean) => (
     <BaseUICombobox.Input
       ref={inputRef}
-      placeholder={placeholder}
+      // `:placeholder-shown` is how a resting label knows the field is empty,
+      // and it never matches an input that has no placeholder.
+      placeholder={float ? placeholder || ' ' : placeholder}
       // On the input rather than on the stack `...props` lands on: a chord is
       // answered by the thing that has the focus.
       onKeyDown={hotKeyHandler(hotKeys, undefined)}
-      className={cx(inputClasses, isMultiple && 'min-w-16', isMultiple && afterChips && 'ms-1.5')}
+      className={cx(
+        inputClasses,
+        isMultiple && 'min-w-16',
+        isMultiple && afterChips && 'ms-1.5',
+        // The hook a resting label reads the field's emptiness through. Not
+        // once a chip is there: the text after the chips is empty then, and
+        // the field is not.
+        float && !afterChips && floatControlClassName
+      )}
     />
   );
 
@@ -629,6 +645,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
           variant={variant}
           disabled={disabled}
           readOnly={readOnly}
+          float={float}
           label={labelNode}
         >
           <BaseUICombobox.InputGroup

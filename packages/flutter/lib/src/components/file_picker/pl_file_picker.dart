@@ -272,6 +272,8 @@ class PlFilePicker extends StatefulWidget {
   final Widget? label;
 
   /// Where the [label] goes — above the box, or in its top edge.
+  /// [PlassFieldLabelPlacement.float] puts it in the edge as well: the box
+  /// always has words of its own where a floating label would rest.
   ///
   /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
   final PlassFieldLabelPlacement? labelPlacement;
@@ -449,9 +451,13 @@ class _PlFilePickerState extends State<PlFilePicker> {
     final size = _size;
     final meta = metaText[size]!;
     final radius = BorderRadius.circular(tokens.radii[size]!);
-    // A notch with nothing in it is a gap in the edge for no reason, so the
-    // placement only takes effect where there is a label to put there.
-    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
+    // The box always has words of its own where a floating label would rest,
+    // so a float is a notch here.
+    final (:notched, float: _) = resolveNotch(
+      _labelPlacement,
+      hasLabel: widget.label != null,
+      startTaken: true,
+    );
 
     // One widget for both placements, so the label a reader taps and the label
     // a screen reader reads are the same widget wherever it is drawn.

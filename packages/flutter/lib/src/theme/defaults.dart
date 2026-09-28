@@ -58,8 +58,8 @@ class PlassDefaults {
   /// How tightly they pack their content.
   final PlassDensity? density;
 
-  /// Where a labelled control puts its label — above the box, or in the box's
-  /// top edge.
+  /// Where a labelled control puts its label — above the box, in the box's top
+  /// edge, or inside the box until it is focused or filled.
   ///
   /// Here for the same reason [density] is: a product whose forms notch their
   /// labels notches all of them, and the decision is the application's rather

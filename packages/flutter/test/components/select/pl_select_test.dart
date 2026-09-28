@@ -728,6 +728,44 @@ void main() {
           closeTo(field.top + notchRise(PlassSize.md), 0.5),
         );
       });
+
+      testWidgets('rests a floating label in an empty trigger and raises it for a value', (
+        WidgetTester tester,
+      ) async {
+        Widget select(String? value) {
+          return host(
+            PlSelect<String>(
+              options: _cities,
+              value: value,
+              label: const Text('City'),
+              labelPlacement: PlassFieldLabelPlacement.float,
+              placeholder: const Text('Pick one'),
+              onChanged: (String? _) {},
+            ),
+            width: 320,
+          );
+        }
+
+        // The label, and not the copy of its words laid out unseen in the
+        // trigger to hold it wide enough for them, which comes before it.
+        final Finder label = find.text('City').last;
+
+        await tester.pumpWidget(select(null));
+
+        final field = tester.getRect(find.byType(PlSelect<String>));
+        final double edge = field.top + notchRise(PlassSize.md);
+
+        // Resting on the middle of the trigger, half its height below the edge.
+        expect(
+          tester.getRect(label).center.dy,
+          closeTo(edge + controlHeight[PlassSize.md]! / 2, 0.5),
+        );
+
+        await tester.pumpWidget(select('kr-11'));
+        await tester.pumpAndSettle();
+
+        expect(tester.getRect(label).center.dy, closeTo(edge, 0.5));
+      });
     });
 
     group('the highlight\'s fill', () {

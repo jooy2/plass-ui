@@ -7,7 +7,7 @@ import { FormControl, leaveFormControl, useFormReport, useDisabled } from '../..
 import { glowPointerMove } from '../../internal/glow.js';
 import { CloseIcon } from '../../internal/icons.js';
 import { useLabels } from '../../internal/labels.js';
-import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
+import { FieldNotch, notchShellStyle, resolveNotch } from '../../internal/notch.js';
 import {
   controlTextLeadingClasses,
   disabledClasses,
@@ -81,7 +81,9 @@ export interface PlFilePickerProps
   /** The name of what the box collects. */
   label?: React.ReactNode;
   /**
-   * Where the `label` goes — above the box, or in its top edge.
+   * Where the `label` goes — above the box, or in its top edge. `float` puts it
+   * in the edge as well: the box always has words of its own where a floating
+   * label would rest.
    * Falls back to the nearest `PlassProvider`, then to `top`.
    * @default 'top'
    */
@@ -390,9 +392,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
     const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
-    // A notch with nothing in it is a gap in the edge for no reason, so the
-    // placement only takes effect where there is a label to put there.
-    const notched = labelPlacement === 'notch' && hasContent(label);
+    const { notched } = resolveNotch(labelPlacement, label, true);
 
     const inputRef = React.useRef<HTMLInputElement>(null);
     const buttonRef = React.useRef<HTMLButtonElement>(null);

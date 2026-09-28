@@ -3576,6 +3576,38 @@ void main() {
         expect(find.byType(PlassFieldNotch), findsOneWidget);
         expect(find.text('City'), findsOneWidget);
       });
+
+      testWidgets('rests a floating label only while a multiple field holds no chip', (
+        WidgetTester tester,
+      ) async {
+        Widget combobox(List<String> values) {
+          return host(
+            PlCombobox<String>.multiple(
+              options: _cities,
+              values: values,
+              label: const Text('Cities'),
+              labelPlacement: PlassFieldLabelPlacement.float,
+              onChanged: (List<String> _) {},
+            ),
+            width: 320,
+          );
+        }
+
+        await tester.pumpWidget(combobox(const <String>[]));
+
+        final field = tester.getRect(find.byType(PlCombobox<String>));
+        final double edge = field.top + notchRise(PlassSize.md);
+
+        expect(
+          tester.getRect(find.text('Cities')).center.dy,
+          closeTo(edge + controlHeight[PlassSize.md]! / 2, 0.5),
+        );
+
+        await tester.pumpWidget(combobox(const <String>['seoul']));
+        await tester.pumpAndSettle();
+
+        expect(tester.getRect(find.text('Cities')).center.dy, closeTo(edge, 0.5));
+      });
     });
 
     group('the highlight\'s fill', () {

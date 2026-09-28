@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/notch.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 import '../../support/text_input.dart';
@@ -1311,6 +1312,194 @@ void main() {
         );
 
         expect(find.byType(PlassFieldNotch), findsNothing);
+      });
+    });
+
+    group('a floating label', () {
+      /// A floating field of the default size, and the node that focuses it.
+      Future<FocusNode> pumpFloating(
+        WidgetTester tester, {
+        TextEditingController? controller,
+        Widget? startIcon,
+        bool disableAnimations = false,
+      }) async {
+        final node = FocusNode();
+        addTearDown(node.dispose);
+
+        await tester.pumpWidget(
+          host(
+            PlTextField(
+              fullWidth: true,
+              controller: controller,
+              focusNode: node,
+              startIcon: startIcon,
+              label: const Text('Email'),
+              labelPlacement: PlassFieldLabelPlacement.float,
+              placeholder: 'you@example.com',
+            ),
+            width: 320,
+            disableAnimations: disableAnimations,
+          ),
+        );
+
+        return node;
+      }
+
+      /// Whether the label is on the edge, where a notched label sits.
+      bool inNotch(WidgetTester tester) {
+        final field = tester.getRect(find.byType(PlTextField));
+        final label = tester.getRect(find.text('Email'));
+
+        return (label.center.dy - (field.top + notchRise(PlassSize.md))).abs() < 0.5;
+      }
+
+      /// Whether the top edge is drawn where the label's gap would be cut.
+      bool edgeWhole(WidgetTester tester) {
+        final clip = tester.widget<ClipPath>(
+          find.descendant(of: find.byType(PlassFieldNotch), matching: find.byType(ClipPath)),
+        );
+        final Path path = clip.clipper!.getClip(const Size(320, 40));
+        final double x =
+            notchInset(PlassDensity.standard, PlassSize.md, PlassTokens.radius) +
+            notchPad(PlassSize.md) +
+            2;
+
+        return path.contains(Offset(x, 0));
+      }
+
+      /// How much of the placeholder's ink is showing.
+      double placeholderAlpha(WidgetTester tester) {
+        return styleOf(tester, 'you@example.com').color!.a;
+      }
+
+      testWidgets('rests where the text is written while the field is empty and idle', (
+        WidgetTester tester,
+      ) async {
+        await pumpFloating(tester);
+
+        final editor = tester.getRect(find.byType(EditableText));
+        final label = tester.getRect(find.text('Email'));
+
+        // In the middle of the line, starting where the text starts, set in the
+        // text's own size, with the edge whole over it and the placeholder out
+        // of the way.
+        expect(label.center.dy, closeTo(editor.center.dy, 0.5));
+        expect(label.left, closeTo(editor.left, 0.5));
+        expect(styleOf(tester, 'Email').fontSize, controlTextLeading[PlassSize.md]!.size);
+        expect(edgeWhole(tester), isTrue);
+        expect(placeholderAlpha(tester), 0);
+      });
+
+      testWidgets('rises into the notch once the field has the focus', (WidgetTester tester) async {
+        final node = await pumpFloating(tester);
+
+        node.requestFocus();
+        await tester.pumpAndSettle();
+
+        final field = tester.getRect(find.byType(PlTextField));
+        final label = tester.getRect(find.text('Email'));
+
+        expect(inNotch(tester), isTrue);
+        expect(
+          label.left,
+          closeTo(
+            field.left +
+                notchInset(PlassDensity.standard, PlassSize.md, PlassTokens.radius) +
+                notchPad(PlassSize.md),
+            0.5,
+          ),
+        );
+        expect(styleOf(tester, 'Email').fontSize, metaText[PlassSize.md]);
+        expect(edgeWhole(tester), isFalse);
+        expect(placeholderAlpha(tester), 1);
+      });
+
+      testWidgets('opens the gap as it starts to rise and closes it only once it is back down', (
+        WidgetTester tester,
+      ) async {
+        final node = await pumpFloating(tester);
+
+        // The frame the focus lands in starts the ease, and the one after it is
+        // the first to move the label.
+        node.requestFocus();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.pump(const Duration(milliseconds: 16));
+
+        // Open before the word has reached the edge, so it never crosses a line.
+        expect(inNotch(tester), isFalse);
+        expect(edgeWhole(tester), isFalse);
+
+        await tester.pumpAndSettle();
+        node.unfocus();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.pump(const Duration(milliseconds: 16));
+
+        // Still open while the word is on its way down, so the line never runs
+        // through it.
+        expect(inNotch(tester), isFalse);
+        expect(edgeWhole(tester), isFalse);
+
+        await tester.pumpAndSettle();
+
+        expect(edgeWhole(tester), isTrue);
+      });
+
+      testWidgets('stays in the notch once the field holds text', (WidgetTester tester) async {
+        final node = await pumpFloating(tester);
+
+        node.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(EditableText), 'a@b.c');
+        node.unfocus();
+        await tester.pumpAndSettle();
+
+        expect(inNotch(tester), isTrue);
+      });
+
+      testWidgets('rises for text written into the controller while the field is idle', (
+        WidgetTester tester,
+      ) async {
+        final controller = TextEditingController();
+        addTearDown(controller.dispose);
+
+        await pumpFloating(tester, controller: controller);
+        expect(inNotch(tester), isFalse);
+
+        controller.text = 'a@b.c';
+        await tester.pumpAndSettle();
+
+        expect(inNotch(tester), isTrue);
+      });
+
+      testWidgets('stays in the notch beside a start icon, which is where it would rest', (
+        WidgetTester tester,
+      ) async {
+        await pumpFloating(tester, startIcon: const SizedBox.square(dimension: 16));
+
+        expect(inNotch(tester), isTrue);
+        expect(edgeWhole(tester), isFalse);
+      });
+
+      testWidgets('arrives at once under reduced motion', (WidgetTester tester) async {
+        final node = await pumpFloating(tester, disableAnimations: true);
+
+        // One frame to hand the focus over and one to build for it. With the
+        // ease, the label would not have left its rest yet.
+        node.requestFocus();
+        await tester.pump();
+        await tester.pump();
+
+        expect(inNotch(tester), isTrue);
+        expect(edgeWhole(tester), isFalse);
+
+        node.unfocus();
+        await tester.pump();
+        await tester.pump();
+
+        expect(inNotch(tester), isFalse);
+        expect(edgeWhole(tester), isTrue);
       });
     });
   });

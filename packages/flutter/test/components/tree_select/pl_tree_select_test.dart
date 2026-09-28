@@ -1,6 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
+import 'package:plass_ui/src/internal/notch.dart';
+import 'package:plass_ui/src/internal/scales.dart';
 
 import '../../support/host.dart';
 
@@ -422,6 +424,39 @@ void main() {
 
         expect(find.text('Asia'), findsOneWidget);
         expect(find.text('France'), findsNothing);
+      });
+    });
+
+    group('labelPlacement', () {
+      testWidgets('rests a floating label in an empty trigger and raises it while open', (
+        WidgetTester tester,
+      ) async {
+        // Every picker draws `internal/picker`'s shell, and this is the one of
+        // them with nothing at its start by default.
+        await _pump(
+          tester,
+          PlTreeSelect(
+            items: items,
+            label: const Text('Region'),
+            labelPlacement: PlassFieldLabelPlacement.float,
+            onValueChanged: (Set<String> _) {},
+          ),
+        );
+
+        // The label, and not the copy of its words laid out unseen in the
+        // trigger to hold it wide enough for them, which comes before it.
+        final Finder label = find.text('Region').last;
+        final field = tester.getRect(find.byType(PlTreeSelect));
+        final double edge = field.top + notchRise(PlassSize.md);
+
+        expect(
+          tester.getRect(label).center.dy,
+          closeTo(edge + controlHeight[PlassSize.md]! / 2, 0.5),
+        );
+
+        await _open(tester);
+
+        expect(tester.getRect(label).center.dy, closeTo(edge, 0.5));
       });
     });
   });

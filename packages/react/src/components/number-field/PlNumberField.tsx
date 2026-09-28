@@ -10,7 +10,12 @@ import { Field } from '@base-ui/react/field';
 import { MinusIcon, PlusIcon } from '../../internal/icons.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import { useFieldLight } from '../../internal/glow.js';
-import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
+import {
+  FieldNotch,
+  floatControlClassName,
+  notchShellStyle,
+  resolveNotch
+} from '../../internal/notch.js';
 import {
   controlHeightClasses,
   controlTextLeadingClasses,
@@ -143,13 +148,15 @@ export interface PlNumberFieldProps
   decrementLabel?: string;
   /**
    * The name of what the field holds, wired to the control by Base UI's Field.
-   * `labelPlacement` decides whether it sits above the box or in its top edge.
-   * There is still no floating variant on purpose: a floating label needs a
-   * `transform` on the thing being typed into, and the notch does not move.
+   * `labelPlacement` decides whether it sits above the box, in its top edge, or
+   * inside it until the field is focused or filled.
    */
   label?: React.ReactNode;
   /**
-   * Where the `label` goes — above the control, or in its top edge.
+   * Where the `label` goes — above the control, in its top edge, or inside it
+   * where the number would be written until the field is focused or filled.
+   * With a `startIcon` or `split` steppers a `float` label stays in the edge,
+   * because that is where it would rest.
    * Falls back to the nearest `PlassProvider`, then to `top`.
    * @default 'top'
    */
@@ -297,9 +304,12 @@ export function PlNumberField({
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
   const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
-  // A notch with nothing in it is a gap in the edge for no reason, so the
-  // placement only takes effect where there is a label to put there.
-  const notched = labelPlacement === 'notch' && hasContent(label);
+  const showSteppers = steppers !== 'none' && !readOnly;
+  const { notched, float } = resolveNotch(
+    labelPlacement,
+    label,
+    hasContent(startIcon) || (showSteppers && steppers === 'split')
+  );
 
   const hasError = hasContent(error);
   const isInvalid = invalid ?? hasError;
@@ -332,8 +342,6 @@ export function PlNumberField({
       <PlusIcon />
     </BaseUINumberField.Increment>
   );
-
-  const showSteppers = steppers !== 'none' && !readOnly;
 
   // One element for both placements, so the label a reader clicks and the label
   // a screen reader reads are the same element wherever it is drawn.
@@ -397,6 +405,7 @@ export function PlNumberField({
           variant={variant}
           disabled={disabled}
           readOnly={readOnly}
+          float={float}
           label={labelNode}
         >
           <BaseUINumberField.Group
@@ -449,7 +458,9 @@ export function PlNumberField({
             ) : null}
 
             <BaseUINumberField.Input
-              placeholder={placeholder}
+              // `:placeholder-shown` is how a resting label knows the field is
+              // empty, and it never matches an input that has no placeholder.
+              placeholder={float ? placeholder || ' ' : placeholder}
               // On the input rather than on the stack `...props` lands on: a chord
               // is answered by the thing that has the focus.
               onKeyDown={hotKeyHandler(hotKeys, undefined)}
@@ -464,7 +475,8 @@ export function PlNumberField({
                 steppers === 'split' && showSteppers ? 'text-center' : '',
                 'placeholder:text-(--plass-muted-fg)',
                 'caret-(--p-accent) selection:bg-(--p-soft-press)',
-                'disabled:cursor-not-allowed'
+                'disabled:cursor-not-allowed',
+                float ? floatControlClassName : ''
               ]
                 .filter(Boolean)
                 .join(' ')}

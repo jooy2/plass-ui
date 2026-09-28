@@ -1,4 +1,6 @@
-/// The label in the field's own top edge — [PlassFieldLabelPlacement.notch].
+/// The label in the field's own top edge — [PlassFieldLabelPlacement.notch],
+/// and the [PlassFieldLabelPlacement.float] that rests inside the field until
+/// it is wanted there.
 ///
 /// One module because every field-shaped control in the library draws the same
 /// notch: a [PlTextField], a select's trigger, a combobox, a number field, a
@@ -18,7 +20,14 @@
 /// line instead, which is also why the focus ring goes: a ring is a rectangle
 /// and the label is sitting on the edge it would be drawn along, so the edge
 /// itself thickens and takes the family's colour.
+///
+/// **A floating label is the same label.** It comes down into the field by
+/// its own position and font size, and the gap closes over where it was. The
+/// web package does the same with the same legend, folded to nothing under a
+/// resting label.
 library;
+
+import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
@@ -58,6 +67,27 @@ double notchInset(PlassDensity density, PlassSize size, Map<PlassSize, double> r
 /// box**: the cut is drawn across the label's middle, so lifting it by half its
 /// own height puts that middle exactly on the control's top edge.
 double notchRise(PlassSize size) => metaText[size]! / 2;
+
+/// What a control's `labelPlacement` comes to once its label and its start
+/// are known.
+///
+/// `notched` is whether the edge is cut at all: for a notch and for a float,
+/// and only where there is a label, since a notch with nothing in it is a gap
+/// in the edge for no reason. `float` is whether the label may also come down
+/// into the control, which it cannot where the control draws something at its
+/// start — [startTaken] — because that is where it would rest.
+({bool notched, bool float}) resolveNotch(
+  PlassFieldLabelPlacement placement, {
+  required bool hasLabel,
+  required bool startTaken,
+}) {
+  final bool notched = placement != PlassFieldLabelPlacement.top && hasLabel;
+
+  return (
+    notched: notched,
+    float: notched && placement == PlassFieldLabelPlacement.float && !startTaken,
+  );
+}
 
 /// The line the notch is cut into: a colour and a width.
 class PlassNotchEdge {
@@ -205,14 +235,21 @@ CustomPainter? notchEdgePainter(
 class _NotchClipper extends CustomClipper<Path> {
   _NotchClipper({
     required this.gap,
+    required this.rest,
     required this.inset,
     required this.pad,
     required this.rise,
     required this.width,
     required this.textDirection,
-  }) : super(reclip: gap);
+  }) : super(reclip: Listenable.merge(<Listenable>[gap, rest]));
 
   final ValueListenable<double> gap;
+
+  /// How far a floating label has come down, `1` once it is all the way in.
+  /// The gap is shut only then: it opens as the label starts to rise, so the
+  /// word never crosses a line on the way up, and closes once the label is
+  /// down, so the line never runs through it on the way down.
+  final Animation<double> rest;
   final double inset;
   final double pad;
   final double rise;
@@ -220,7 +257,7 @@ class _NotchClipper extends CustomClipper<Path> {
   final TextDirection textDirection;
 
   Rect cut(Size size) {
-    final double extent = gap.value + pad * 2;
+    final double extent = rest.value >= 1 ? 0 : gap.value + pad * 2;
     final double start = textDirection == TextDirection.rtl ? size.width - inset - extent : inset;
 
     // Tall enough to take the whole top line out and nothing else: down to just
@@ -239,7 +276,8 @@ class _NotchClipper extends CustomClipper<Path> {
 
   @override
   bool shouldReclip(_NotchClipper oldClipper) {
-    return oldClipper.inset != inset ||
+    return oldClipper.rest != rest ||
+        oldClipper.inset != inset ||
         oldClipper.pad != pad ||
         oldClipper.rise != rise ||
         oldClipper.width != width ||
@@ -261,6 +299,8 @@ class PlassFieldNotch extends StatefulWidget {
     required this.child,
     this.edgeWidth = focusRingWidth,
     this.disabled = false,
+    this.float = false,
+    this.resting = false,
     super.key,
   });
 
@@ -279,12 +319,25 @@ class PlassFieldNotch extends StatefulWidget {
   /// the whole of it out.
   final double edgeWidth;
 
-  /// The name of what the control holds, styled by the control itself — the
-  /// same widget the stacked placement renders, so the two cannot drift.
+  /// The name of what the control holds, the same widget the stacked
+  /// placement renders, so the two cannot drift. Its size and its ink are the
+  /// notch's to set, since they change as a floating label moves; anything
+  /// else about it, such as its weight, is the control's.
   final Widget label;
 
   /// Unavailable, which mutes the label the way the stacked one is muted.
   final bool disabled;
+
+  /// The label may come down into the control while it is empty and idle —
+  /// [PlassFieldLabelPlacement.float] on a control with nothing drawn at its
+  /// start. The control decides both halves of that, since only it knows what
+  /// its start holds.
+  final bool float;
+
+  /// Whether a floating label is resting now: the control holds nothing, does
+  /// not have the focus and has no popup open. Only the control knows all
+  /// three. Read only when [float] is set.
+  final bool resting;
 
   /// The control's shell.
   final Widget child;
@@ -293,15 +346,59 @@ class PlassFieldNotch extends StatefulWidget {
   State<PlassFieldNotch> createState() => _PlassFieldNotchState();
 }
 
-class _PlassFieldNotchState extends State<PlassFieldNotch> {
+class _PlassFieldNotchState extends State<PlassFieldNotch> with SingleTickerProviderStateMixin {
   /// The label's width, written during its layout and read during the edge's
   /// paint — which is the frame after, in the same frame, because painting
   /// happens once every layout is done. A rebuild would be a frame late and
   /// would show the gap at the wrong width until it arrived.
   final ValueNotifier<double> _gap = ValueNotifier<double>(0);
 
+  /// How far a floating label has come down: `0` in the notch, `1` resting in
+  /// the control. Made the first time a floating label is drawn, so a notch
+  /// whose label never floats carries no controller for it.
+  AnimationController? _controller;
+
+  bool get _rests => widget.float && widget.resting;
+
+  AnimationController get _floating =>
+      _controller ??= AnimationController(vsync: this, value: _rests ? 1 : 0);
+
+  /// Where the label is between the notch and its rest, read by the label and
+  /// by the clip that cuts its gap.
+  Animation<double> get _rest => widget.float ? _floating : kAlwaysDismissedAnimation;
+
+  @override
+  void didUpdateWidget(PlassFieldNotch oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final bool was = oldWidget.float && oldWidget.resting;
+
+    if (was == _rests) {
+      return;
+    }
+
+    if (!widget.float) {
+      return;
+    }
+
+    final double target = _rests ? 1 : 0;
+
+    // Arrives at once for a reader who asked for less motion, as every
+    // transition in the library does.
+    if (MediaQuery.maybeDisableAnimationsOf(context) ?? false) {
+      _floating.value = target;
+
+      return;
+    }
+
+    final tokens = PlassTheme.of(context);
+
+    _floating.animateTo(target, duration: tokens.motionDuration, curve: tokens.motionEase);
+  }
+
   @override
   void dispose() {
+    _controller?.dispose();
     _gap.dispose();
     super.dispose();
   }
@@ -313,6 +410,8 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> {
     final double rise = notchRise(size);
     final double inset = notchInset(widget.density, size, tokens.radii);
     final double pad = notchPad(size);
+    final Color ink = widget.disabled ? tokens.mutedFg : tokens.fg;
+    final Animation<double> rest = _rest;
 
     return Padding(
       // The lift, kept in the layout so the label does not run into whatever is
@@ -328,6 +427,7 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> {
                 child: ClipPath(
                   clipper: _NotchClipper(
                     gap: _gap,
+                    rest: rest,
                     inset: inset,
                     pad: pad,
                     rise: rise,
@@ -338,22 +438,46 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> {
                 ),
               ),
             ),
-          PositionedDirectional(
-            top: -rise,
-            start: inset + pad,
-            child: _MeasuredWidth(
-              gap: _gap,
-              child: DefaultTextStyle.merge(
-                // The line box is the font size and nothing else, which is what
-                // makes half of it the right lift.
-                style: TextStyle(
-                  height: 1,
-                  fontSize: metaText[size]!,
-                  color: widget.disabled ? tokens.mutedFg : tokens.fg,
+          AnimatedBuilder(
+            animation: rest,
+            child: widget.label,
+            builder: (BuildContext context, Widget? label) {
+              final double t = rest.value;
+              // Resting, the label is set in the control's own text, starts
+              // where the value does and sits on the middle of the first line,
+              // which is half the control's height down from the edge. It is
+              // set again at every size on the way rather than scaled.
+              final double fontSize = lerpDouble(
+                metaText[size]!,
+                controlTextLeading[size]!.size,
+                t,
+              )!;
+              final double middle = controlHeight[size]! / 2 * t;
+              final double shift = (paddingX[widget.density]![size]! - inset - pad) * t;
+
+              return PositionedDirectional(
+                top: middle - fontSize / 2,
+                start: inset + pad + shift,
+                // A press on a resting label lands on the control under it, as
+                // it would on the placeholder it stands in for.
+                child: IgnorePointer(
+                  ignoring: _rests,
+                  child: _MeasuredWidth(
+                    gap: _gap,
+                    child: DefaultTextStyle.merge(
+                      // The line box is the font size and nothing else, which is
+                      // what makes half of it the right lift.
+                      style: TextStyle(
+                        height: 1,
+                        fontSize: fontSize,
+                        color: Color.lerp(ink, tokens.mutedFg, t),
+                      ),
+                      child: label!,
+                    ),
+                  ),
                 ),
-                child: widget.label,
-              ),
-            ),
+              );
+            },
           ),
         ],
       ),

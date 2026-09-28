@@ -2795,6 +2795,115 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The float label
+ *
+ * `labelPlacement="float"`: a notched field whose label rests inside the
+ * control, where the value would be written, while the control is empty,
+ * nothing in the field has the focus and no popup of its is open. The moment
+ * any of the three stops being true, the label rises into the notch and the
+ * placeholder it was standing in for comes back.
+ *
+ * `internal/notch.tsx` draws the same fieldset and legend a `notch` does and
+ * hands this block its numbers as custom properties on the frame. It is CSS
+ * rather than Tailwind because the condition is a relation between three
+ * elements — the frame's focus, the control's emptiness and a trigger's popup
+ * — and because an input can say it is empty through `:placeholder-shown`
+ * before any script has run, so a server-rendered field is right on its first
+ * frame.
+ *
+ * **The label moves on `top`, `inset-inline-start` and `font-size`,** never on
+ * a transform: it is set again at every size on the way rather than scaled, so
+ * no frame of it is a resampled picture of the word. Its line box is held at
+ * the notch's height throughout, which is what keeps the legend, and the edge
+ * drawn across its middle, where they are while the word grows and shrinks.
+ *
+ * **The gap folds rather than fades.** A legend cannot fill its own gap, so the
+ * legend is folded to nothing under a resting label and the fieldset draws its
+ * whole top edge again. It opens at once as the label starts to rise, so the
+ * word never crosses a line on its way up, and closes only once the label has
+ * come all the way down, so the line never runs through it on the way down.
+ * ------------------------------------------------------------------------- */
+
+.plass-notch-float > fieldset > legend {
+  max-width: 100%;
+  white-space: nowrap;
+  transition: max-width 0s;
+}
+
+.plass-notch-float > fieldset > legend > * {
+  display: block;
+  position: relative;
+  top: 0;
+  inset-inline-start: 0;
+  margin-inline: var(--p-notch-pad);
+  line-height: var(--p-notch-leading);
+  transition-property: top, inset-inline-start, font-size, color;
+  transition-duration: var(--plass-duration);
+  transition-timing-function: var(--plass-ease);
+}
+
+/*
+ * At rest. Three ways to know the control is empty, one for each kind of
+ * control: an input's `:placeholder-shown`, a select trigger's
+ * `data-placeholder`, and `data-empty` on the frame from a component that knows
+ * and has no control that can say so, a picker's trigger. Autofill counts as a
+ * value before the reader has accepted it, since its text is already drawn where
+ * the label would rest.
+ *
+ * The same condition is written out in front of each of the three rules below,
+ * since the stylesheet ships to projects whose own build may not lower nesting.
+ */
+.plass-notch-float:not(:focus-within):not(:has([data-popup-open])):is(
+    [data-empty],
+    :has(.plass-float-control:placeholder-shown:not(:autofill)),
+    :has(.plass-float-control[data-placeholder])
+  )
+  > fieldset
+  > legend {
+  max-width: 0.01px;
+  transition-delay: var(--p-float-fold, var(--plass-duration));
+  /* A press on the words lands on the control under them, as it would on the
+     placeholder they stand in for. A select opens on the pointer going down on
+     its trigger, which a label in front of it would swallow. */
+  pointer-events: none;
+}
+
+.plass-notch-float:not(:focus-within):not(:has([data-popup-open])):is(
+    [data-empty],
+    :has(.plass-float-control:placeholder-shown:not(:autofill)),
+    :has(.plass-float-control[data-placeholder])
+  )
+  > fieldset
+  > legend
+  > * {
+  top: var(--p-float-y);
+  inset-inline-start: var(--p-float-x, 0px);
+  font-size: var(--p-float-text);
+  color: var(--plass-muted-fg);
+}
+
+.plass-notch-float:not(:focus-within):not(:has([data-popup-open])):is(
+    [data-empty],
+    :has(.plass-float-control:placeholder-shown:not(:autofill)),
+    :has(.plass-float-control[data-placeholder])
+  )
+  .plass-float-control::placeholder,
+.plass-notch-float:not(:focus-within):not(:has([data-popup-open])):is(
+    [data-empty],
+    :has(.plass-float-control:placeholder-shown:not(:autofill)),
+    :has(.plass-float-control[data-placeholder])
+  )
+  .plass-float-placeholder {
+  color: transparent;
+}
+
+/* The placeholder comes back as the label leaves, over the same time. */
+.plass-notch-float .plass-float-control::placeholder,
+.plass-notch-float .plass-float-placeholder {
+  transition: color var(--plass-duration) var(--plass-ease);
+}
+
+/* ---------------------------------------------------------------------------
  * Reduced motion
  *
  * Nothing in Plass animates on its own except a spinner, so this is about the
@@ -2816,6 +2925,18 @@
      do. */
   .plass-fill::before,
   .plass-fill-layer {
+    transition-duration: 0ms;
+  }
+
+  /* A float label arrives where it is going, and the gap under it opens and
+     closes with it rather than a moment after. */
+  .plass-notch-float {
+    --p-float-fold: 0ms;
+  }
+
+  .plass-notch-float > fieldset > legend > *,
+  .plass-notch-float .plass-float-control::placeholder,
+  .plass-notch-float .plass-float-placeholder {
     transition-duration: 0ms;
   }
 

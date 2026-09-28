@@ -206,6 +206,8 @@ class PlColorPicker extends StatefulWidget {
   final Widget? label;
 
   /// Where the [label] goes — above the control, or in its top edge.
+  /// [PlassFieldLabelPlacement.float] puts it in the edge as well: the swatch
+  /// at the trigger's start is where a floating label would rest.
   ///
   /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
   final PlassFieldLabelPlacement? labelPlacement;

@@ -26,6 +26,7 @@ import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/dismiss.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
+import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/notch.dart';
@@ -164,7 +165,10 @@ class PlassPickerShell extends StatefulWidget {
   /// The name of what the control holds.
   final Widget? label;
 
-  /// Where the [label] goes — above the trigger, or in its top edge.
+  /// Where the [label] goes — above the trigger, in its top edge, or inside it
+  /// until the trigger is focused, open or holds a value. A trigger with a
+  /// [startIcon] keeps a floating label in the edge, because the glyph is
+  /// where it would rest.
   ///
   /// Resolved here rather than in each of the six pickers that draw this shell:
   /// they all hand their parameters straight through, and one resolution cannot
@@ -265,9 +269,11 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
         widget.labelPlacement ??
         PlassTheme.labelPlacementOf(context) ??
         PlassFieldLabelPlacement.top;
-    // A notch with nothing in it is a gap in the edge for no reason, so the
-    // placement only takes effect where there is a label to put there.
-    final notched = placement == PlassFieldLabelPlacement.notch && widget.label != null;
+    final (:notched, :float) = resolveNotch(
+      placement,
+      hasLabel: widget.label != null,
+      startTaken: widget.startIcon != null,
+    );
 
     // One widget for both placements, so the label a reader taps and the label
     // a screen reader reads are the same widget wherever it is drawn — the
@@ -277,11 +283,15 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
         : ExcludeSemantics(
             excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
             child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: _disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: meta,
-                fontWeight: FontWeight.w600,
-              ),
+              // In a notch the size and the ink are the notch's, since a
+              // floating label changes both as it moves.
+              style: notched
+                  ? const TextStyle(fontWeight: FontWeight.w600)
+                  : TextStyle(
+                      color: _disabled ? tokens.mutedFg : tokens.fg,
+                      fontSize: meta,
+                      fontWeight: FontWeight.w600,
+                    ),
               child: widget.label!,
             ),
           );
@@ -303,6 +313,9 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
         // focus, and the × inside the trigger is a stop of its own that draws its
         // own ring.
         final bool focusVisible = state.focusVisible && Focus.of(context).hasPrimaryFocus;
+        // A floating label rests only while nothing is chosen, nothing in the
+        // trigger has the focus and the popup is shut.
+        final bool resting = float && widget.empty && !_focusNode.hasFocus && !widget.open;
         final surface = fieldSurface(
           tokens,
           family,
@@ -340,9 +353,13 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
                   if (widget.startIcon != null)
                     PlassFieldAdornment(size: size, child: widget.startIcon!),
                   if (widget.fullWidth)
-                    Expanded(child: _value(tokens, scale))
+                    Expanded(
+                      child: _value(tokens, scale, float: float, resting: resting),
+                    )
                   else
-                    Flexible(child: _value(tokens, scale)),
+                    Flexible(
+                      child: _value(tokens, scale, float: float, resting: resting),
+                    ),
                   if (widget.clearable && !widget.empty && _usable)
                     // Drawn at the size of the text, and pressed from a 24px
                     // square through the scope round the trigger. A focus stop
@@ -380,6 +397,8 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
             size: size,
             density: widget.density,
             disabled: _disabled,
+            float: float,
+            resting: resting,
             edge: notchEdgePainter(
               tokens,
               family,
@@ -482,11 +501,20 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
   /// The whole stack is excluded from semantics: the samples are there to be
   /// measured and never read, and the display itself is already on the node
   /// above as its value.
-  Widget _value(PlassTokens tokens, PlassTextScale scale) {
+  Widget _value(
+    PlassTokens tokens,
+    PlassTextScale scale, {
+    required bool float,
+    required bool resting,
+  }) {
     // A `fullWidth` shell takes its width from its container, so it lays out no
     // samples: every one built there, and every picture in one, would be work
-    // for nothing.
-    final samples = widget.fullWidth ? const <Widget>[] : widget.samples;
+    // for nothing. A floating label is one of them, since it rests where the
+    // value is written and at the value's size.
+    final String? floatSample = float ? plassTextOf(widget.label) : null;
+    final samples = widget.fullWidth
+        ? const <Widget>[]
+        : <Widget>[...widget.samples, if (floatSample != null) Text(floatSample)];
 
     return ExcludeSemantics(
       child: DefaultTextStyle.merge(
@@ -510,7 +538,21 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
                 maintainState: true,
                 child: sample,
               ),
-            widget.display,
+            // Out of the way while a floating label rests where it is written,
+            // and back over the same time as the label rises. Only an empty
+            // trigger's words can rest under the label, so they are the only
+            // words this ever hides.
+            if (float)
+              PlassInk(
+                color: resting
+                    ? tokens.mutedFg.withValues(alpha: 0)
+                    : widget.empty
+                    ? tokens.mutedFg
+                    : tokens.fg,
+                child: widget.display,
+              )
+            else
+              widget.display,
           ],
         ),
       ),

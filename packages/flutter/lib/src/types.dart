@@ -470,6 +470,21 @@ enum PlassFieldLabelPlacement {
   /// back a row of vertical space and ties the name to the box rather than to
   /// whatever is above it.
   notch,
+
+  /// Inside the control, where its value would be written, while the control
+  /// is empty and does not have the focus; it rises into the notch the moment
+  /// either stops being true, and comes back down when both are true again.
+  /// At rest it is set in the control's own text and muted, so it reads as the
+  /// placeholder it stands in for, and the placeholder waits until the label
+  /// has risen.
+  ///
+  /// The label moves on its position and its font size, never on a
+  /// transform, so no frame of it is a scaled picture of the word. A control
+  /// that draws something at its start — a `startIcon`, a picker's glyph, a
+  /// number field's split steppers — keeps the label in the notch, because
+  /// the place it would rest is taken, and so does a [PlFilePicker], whose box
+  /// has words of its own there.
+  float,
 }
 
 /// A day of the week, **Sunday first**.

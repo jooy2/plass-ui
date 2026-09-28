@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * The label in the field's own top edge — `labelPlacement="notch"`.
+ * The label in the field's own top edge — `labelPlacement="notch"`, and the
+ * `float` that rests inside the field until it is wanted there.
  *
  * One module because every field-shaped control in the library draws the same
  * notch: a PlTextField, a PlSelect's trigger, a PlCombobox, a PlNumberField, a
@@ -24,11 +25,21 @@
  * transparent for the length of it; `notchShellStyle` is that one declaration,
  * written inline because it has to beat a `hover:` and a `disabled` rule that
  * are already in the class string.
+ *
+ * **A `float` label is the same legend.** It comes down into the field by its
+ * own position and font size, and the legend folds to nothing under it so the
+ * edge closes over where the gap was. What decides that it rests is a relation
+ * between the frame's focus, the control's emptiness and whether a popup is
+ * open, which is plain CSS in `styles.css` under "The float label" rather than
+ * a state this component holds: an input says it is empty through
+ * `:placeholder-shown` before any script has run, and so does a select's
+ * trigger through `data-placeholder`. This file hands that stylesheet its
+ * numbers and its hooks.
  */
 
 import * as React from 'react';
-import { cx, metaTextClasses, radiusClasses, transitionClasses } from './styles.js';
-import type { PlassDensity, PlassSize, PlassVariant } from '../types.js';
+import { cx, hasContent, metaTextClasses, radiusClasses, transitionClasses } from './styles.js';
+import type { PlassDensity, PlassFieldLabelPlacement, PlassSize, PlassVariant } from '../types.js';
 
 /**
  * How far the edge is lifted above the control, which is **half the label's
@@ -96,6 +107,65 @@ const padClasses: Record<PlassSize, string> = {
   lg: 'px-1',
   xl: 'px-1'
 };
+
+/**
+ * What the stylesheet lays a `float` label out with, per size.
+ *
+ * - `--p-notch-pad` is `padClasses` as a length. A floating legend carries it
+ *   as the label's margin rather than as its own padding, because the legend
+ *   folds to nothing while the label rests, and padding is the one part of a
+ *   box that cannot fold.
+ * - `--p-notch-leading` is `metaTextClasses` as a length. The label's line
+ *   box stays that tall at every font size it passes through, so the legend,
+ *   and the edge drawn across its middle, never move while the word grows.
+ * - `--p-float-y` is half of `controlHeightClasses`: the middle of the
+ *   control's first line, measured from the edge, which is where a single-line
+ *   field's text sits and, by the multiline padding, where a textarea's first
+ *   row does too.
+ * - `--p-float-text` is `controlTextClasses`, the size the value is written in.
+ */
+const floatClasses: Record<PlassSize, string> = {
+  xs: '[--p-notch-pad:0.125rem] [--p-notch-leading:0.625rem] [--p-float-y:0.75rem] [--p-float-text:0.6875rem]',
+  sm: '[--p-notch-pad:0.125rem] [--p-notch-leading:0.6875rem] [--p-float-y:1rem] [--p-float-text:0.8125rem]',
+  md: '[--p-notch-pad:0.25rem] [--p-notch-leading:0.75rem] [--p-float-y:1.25rem] [--p-float-text:0.875rem]',
+  lg: '[--p-notch-pad:0.25rem] [--p-notch-leading:0.8125rem] [--p-float-y:1.5rem] [--p-float-text:1rem]',
+  xl: '[--p-notch-pad:0.25rem] [--p-notch-leading:0.875rem] [--p-float-y:1.75rem] [--p-float-text:1.125rem]'
+};
+
+/**
+ * How far a resting label moves along from where it sits on the edge, so that
+ * it starts where the value does: `paddingXClasses - insetClasses -
+ * padClasses`. Nothing on the default track, where the inset was worked out
+ * from the padding in the first place; a little back towards the start on the
+ * compact one, where the corner pushed the notch past the text.
+ */
+const floatShiftClasses: Record<PlassDensity, Record<PlassSize, string>> = {
+  default: { xs: '', sm: '', md: '', lg: '', xl: '' },
+  compact: {
+    xs: '[--p-float-x:-0.25rem]',
+    sm: '[--p-float-x:-0.25rem]',
+    md: '[--p-float-x:-0.375rem]',
+    lg: '[--p-float-x:-0.25rem]',
+    xl: '[--p-float-x:-0.25rem]'
+  }
+};
+
+/**
+ * The hook a resting label reads the control's emptiness through, on the
+ * element that has one to give: an `<input>`, whose `:placeholder-shown` says
+ * so, or a select's trigger, whose `data-placeholder` does. An input with no
+ * placeholder of its own is given a blank one, since `:placeholder-shown`
+ * never matches an input that has none.
+ */
+export const floatControlClassName = 'plass-float-control';
+
+/**
+ * What a resting label stands in for, which steps aside while the label is
+ * there: the placeholder written in a trigger, a picker's words for nothing
+ * chosen. An input's own placeholder is reached through the control's
+ * `::placeholder` instead.
+ */
+export const floatPlaceholderClassName = 'plass-float-placeholder';
 
 /**
  * The edge the notch is cut into, at rest.
@@ -183,6 +253,26 @@ const edgeFocusClasses = /* @__PURE__ */ [
  */
 export const notchShellStyle: React.CSSProperties = { borderColor: 'transparent' };
 
+/**
+ * What a control's `labelPlacement` comes to once its label and its start are
+ * known.
+ *
+ * `notched` is whether the edge is cut at all: for `notch` and for `float`, and
+ * only where there is a label, since a notch with nothing in it is a gap in the
+ * edge for no reason. `float` is whether the label may also come down into the
+ * control, which it cannot where the control draws something at its start —
+ * `startTaken` — because that is where it would rest.
+ */
+export function resolveNotch(
+  placement: PlassFieldLabelPlacement,
+  label: React.ReactNode,
+  startTaken: boolean
+): { notched: boolean; float: boolean } {
+  const notched = placement !== 'top' && hasContent(label);
+
+  return { notched, float: notched && placement === 'float' && !startTaken };
+}
+
 export interface FieldNotchProps {
   /**
    * Whether to draw one at all. `false` renders the shell and nothing else, so
@@ -211,6 +301,20 @@ export interface FieldNotchProps {
    */
   edgeClassName?: string;
   /**
+   * The label comes down into the control while it is empty and idle —
+   * `labelPlacement="float"` on a control with nothing drawn at its start.
+   * The caller decides both halves of that, since only it knows what its start
+   * holds, and passes `notched` as well: a floating label is in the notch for
+   * as long as it is not resting.
+   */
+  float?: boolean;
+  /**
+   * Whether the control holds nothing, from a component that knows and has no
+   * control that can say so itself — a picker's trigger. Left out, the control
+   * marked with `floatControlClassName` says it.
+   */
+  empty?: boolean;
+  /**
    * The element that names the control, ready to render: a `Field.Label` for a
    * field that has one, or the `<span>` an `aria-labelledby` points at. The
    * same element the stacked placement renders, so the two cannot drift.
@@ -236,6 +340,8 @@ export function FieldNotch({
   disabled = false,
   readOnly = false,
   edgeClassName,
+  float = false,
+  empty,
   label,
   children
 }: FieldNotchProps) {
@@ -244,7 +350,14 @@ export function FieldNotch({
   }
 
   return (
-    <div className={cx('group/field relative flex w-full', riseGapClasses[size])}>
+    <div
+      className={cx(
+        'group/field relative flex w-full',
+        riseGapClasses[size],
+        float && `plass-notch-float ${floatClasses[size]} ${floatShiftClasses[density][size]}`
+      )}
+      data-empty={(float && empty) || undefined}
+    >
       {children}
 
       {/* `role="presentation"` because this is a border with a word in it and
@@ -276,7 +389,10 @@ export function FieldNotch({
             'pointer-events-auto font-semibold leading-none',
             metaTextClasses[size],
             insetClasses[density][size],
-            padClasses[size],
+            // A floating legend carries its air on the label instead, and none
+            // of its own — not even the 2px the browser gives every legend —
+            // or it could not fold to nothing. See `floatClasses`.
+            float ? 'px-0' : padClasses[size],
             disabled ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
           )}
         >

@@ -295,7 +295,10 @@ class PlNumberField extends StatefulWidget {
   /// The name of what the field holds.
   final Widget? label;
 
-  /// Where the [label] goes — above the control, or in its top edge.
+  /// Where the [label] goes — above the control, in its top edge, or inside
+  /// it where the number would be written until the field is focused or
+  /// filled. With a [startIcon] or [PlNumberFieldSteppers.split] steppers a
+  /// floating label stays in the edge, because that is where it would rest.
   ///
   /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
   final PlassFieldLabelPlacement? labelPlacement;
@@ -863,9 +866,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
     final padX = paddingX[_density]![size]!;
     final showSteppers = widget.steppers != PlNumberFieldSteppers.none && !widget.readOnly;
     final split = widget.steppers == PlNumberFieldSteppers.split;
-    // A notch with nothing in it is a gap in the edge for no reason, so the
-    // placement only takes effect where there is a label to put there.
-    final notched = _labelPlacement == PlassFieldLabelPlacement.notch && widget.label != null;
+    final (:notched, :float) = resolveNotch(
+      _labelPlacement,
+      hasLabel: widget.label != null,
+      startTaken: widget.startIcon != null || (showSteppers && split),
+    );
 
     final surface = fieldSurface(
       tokens,
@@ -887,11 +892,15 @@ class _PlNumberFieldState extends State<PlNumberField> {
         : ExcludeSemantics(
             excluding: widget.semanticLabel != null,
             child: DefaultTextStyle.merge(
-              style: TextStyle(
-                color: _disabled ? tokens.mutedFg : tokens.fg,
-                fontSize: meta,
-                fontWeight: FontWeight.w600,
-              ),
+              // In a notch the size and the ink are the notch's, since a
+              // floating label changes both as it moves.
+              style: notched
+                  ? const TextStyle(fontWeight: FontWeight.w600)
+                  : TextStyle(
+                      color: _disabled ? tokens.mutedFg : tokens.fg,
+                      fontSize: meta,
+                      fontWeight: FontWeight.w600,
+                    ),
               child: widget.label!,
             ),
           );
@@ -959,23 +968,32 @@ class _PlNumberFieldState extends State<PlNumberField> {
           ValueListenableBuilder<TextEditingValue>(
             valueListenable: _controller,
             builder: (BuildContext context, TextEditingValue value, Widget? child) {
-              return value.text.isEmpty
-                  ? IgnorePointer(
-                      child: ExcludeSemantics(
-                        child: Text(
-                          widget.placeholder!,
-                          textAlign: split && showSteppers ? TextAlign.center : TextAlign.start,
-                          style: TextStyle(
-                            color: tokens.mutedFg,
-                            fontSize: scale.size,
-                            height: scale.height,
-                            leadingDistribution: TextLeadingDistribution.even,
-                          ),
-                          maxLines: 1,
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink();
+              if (value.text.isNotEmpty) {
+                return const SizedBox.shrink();
+              }
+
+              Widget placeholder = Text(
+                widget.placeholder!,
+                textAlign: split && showSteppers ? TextAlign.center : TextAlign.start,
+                style: TextStyle(
+                  color: float ? null : tokens.mutedFg,
+                  fontSize: scale.size,
+                  height: scale.height,
+                  leadingDistribution: TextLeadingDistribution.even,
+                ),
+                maxLines: 1,
+              );
+
+              // Out of the way while a floating label rests where it is
+              // written, and back over the same time as the label rises.
+              if (float) {
+                placeholder = PlassInk(
+                  color: _focused ? tokens.mutedFg : tokens.mutedFg.withValues(alpha: 0),
+                  child: placeholder,
+                );
+              }
+
+              return IgnorePointer(child: ExcludeSemantics(child: placeholder));
             },
           ),
           editor,
@@ -1223,23 +1241,41 @@ class _PlNumberFieldState extends State<PlNumberField> {
     if (notched) {
       // No ring here: an outline is a rectangle and the label is sitting on the
       // edge it would be drawn along, so the edge itself thickens instead.
-      shell = PlassFieldNotch(
-        size: size,
-        density: _density,
-        disabled: _disabled,
-        edge: notchEdgePainter(
-          tokens,
-          family,
-          variant: widget.variant,
-          borderRadius: radius,
-          hovered: _hovered,
-          focused: _focused,
-          readOnly: widget.readOnly,
+      Widget notch(bool resting, Widget shell) {
+        return PlassFieldNotch(
+          size: size,
+          density: _density,
           disabled: _disabled,
-        ),
-        label: labelNode!,
-        child: shell,
-      );
+          float: float,
+          resting: resting,
+          edge: notchEdgePainter(
+            tokens,
+            family,
+            variant: widget.variant,
+            borderRadius: radius,
+            hovered: _hovered,
+            focused: _focused,
+            readOnly: widget.readOnly,
+            disabled: _disabled,
+          ),
+          label: labelNode!,
+          child: shell,
+        );
+      }
+
+      // A floating label follows the text as well as the focus, including a
+      // value set from outside while the field is idle. Only the notch is
+      // built again as it changes; the shell with the editor in it is handed
+      // through untouched.
+      shell = float
+          ? ValueListenableBuilder<TextEditingValue>(
+              valueListenable: _controller,
+              child: shell,
+              builder: (BuildContext context, TextEditingValue value, Widget? shell) {
+                return notch(value.text.isEmpty && !_focused, shell!);
+              },
+            )
+          : notch(false, shell);
     } else {
       // Kept in the tree with no painter while unfocused, so the focus arriving
       // does not build the editor again without its text input connection.

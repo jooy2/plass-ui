@@ -5,7 +5,8 @@ import { FormControl, leaveFormControl, useDisabled, useFieldsetDisabled } from 
 import { glowPointerMove } from './glow.js';
 import { CloseIcon } from './icons.js';
 import { WidthSizer } from './sizer.js';
-import { FieldNotch, notchShellStyle } from './notch.js';
+import { textOf } from './text.js';
+import { FieldNotch, floatPlaceholderClassName, notchShellStyle, resolveNotch } from './notch.js';
 import { useDefaults } from './defaults.js';
 import {
   chipRemoveClasses,
@@ -219,7 +220,10 @@ export interface PlassPickerShellProps
   /** The name of what the control holds. */
   label?: React.ReactNode;
   /**
-   * Where the `label` goes — above the trigger, or in its top edge.
+   * Where the `label` goes — above the trigger, in its top edge, or inside it
+   * where the value would be written until the trigger is focused, open or
+   * holds a value. A trigger that draws a glyph at its start keeps a `float`
+   * label in the edge, because the glyph is where it would rest.
    * Falls back to the nearest `PlassProvider`, then to `top`.
    * @default 'top'
    */
@@ -327,9 +331,7 @@ export function PickerShell({
   // disagree with itself the way six can.
   const defaults = useDefaults();
   const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
-  // A notch with nothing in it is a gap in the edge for no reason, so the
-  // placement only takes effect where there is a label to put there.
-  const notched = labelPlacement === 'notch' && hasContent(label);
+  const { notched, float } = resolveNotch(labelPlacement, label, hasContent(startIcon));
 
   const hasError = error !== undefined && error !== null && error !== false && error !== '';
   const isInvalid = invalid ?? hasError;
@@ -385,6 +387,10 @@ export function PickerShell({
           variant={variant}
           disabled={disabled}
           readOnly={readOnly}
+          float={float}
+          // The trigger is a button with words in it, which has no emptiness
+          // of its own to say; the picker knows.
+          empty={empty}
           label={labelNode}
         >
           <span
@@ -462,15 +468,25 @@ export function PickerShell({
                         id={valueId}
                         className={cx(
                           'w-full truncate',
-                          empty ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)'
+                          empty ? 'text-(--plass-muted-fg)' : 'text-(--plass-fg)',
+                          float && floatPlaceholderClassName
                         )}
                       >
                         {display}
                       </span>
                       {/* A `fullWidth` trigger takes its width from its container, so
                       it renders no samples: every value written there would be
-                      work for nothing. */}
-                      {fullWidth ? null : <WidthSizer samples={samples ?? []} />}
+                      work for nothing. A `float` label is one of them, since it
+                      rests where the value is written and at the value's size. */}
+                      {fullWidth ? null : (
+                        <WidthSizer
+                          samples={
+                            float
+                              ? [...(samples ?? []), textOf(label)].filter(Boolean)
+                              : (samples ?? [])
+                          }
+                        />
+                      )}
                     </span>
                   </Popover.Trigger>
                 );

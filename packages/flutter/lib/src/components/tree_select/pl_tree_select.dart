@@ -266,7 +266,10 @@ class PlTreeSelect extends StatefulWidget {
   /// The name of what the control holds.
   final Widget? label;
 
-  /// Where the [label] goes — above the trigger, or in its top edge.
+  /// Where the [label] goes — above the trigger, in its top edge, or inside it
+  /// where the choice would be written until the trigger is focused, open or
+  /// holds a value. With a [startIcon] a floating label stays in the edge,
+  /// because the icon is where it would rest.
   ///
   /// Falls back to the nearest [PlassTheme], then to [PlassFieldLabelPlacement.top].
   final PlassFieldLabelPlacement? labelPlacement;

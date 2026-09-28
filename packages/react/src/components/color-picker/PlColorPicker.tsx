@@ -103,7 +103,9 @@ export interface PlColorPickerProps
   /** The name of what the control holds. */
   label?: React.ReactNode;
   /**
-   * Where the `label` goes — above the trigger, or in its top edge.
+   * Where the `label` goes — above the trigger, or in its top edge. `float`
+   * puts it in the edge as well: the swatch at the trigger's start is where a
+   * floating label would rest.
    * Falls back to the nearest `PlassProvider`, then to `top`.
    * @default 'top'
    */

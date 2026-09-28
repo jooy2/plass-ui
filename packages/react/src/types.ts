@@ -165,6 +165,19 @@ export type PlassCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end
  *   it. The label stops being a line of the form and becomes part of the field,
  *   which buys back a row of vertical space and ties the name to the box rather
  *   than to whatever is above it.
+ * - `float` — inside the control, where its value would be written, while the
+ *   control is empty and nothing in it has the focus; it rises into the notch
+ *   the moment either stops being true, and comes back down when both are true
+ *   again. At rest it is set in the control's own text and muted, so it reads
+ *   as the placeholder it stands in for, and the placeholder waits until the
+ *   label has risen.
+ *
+ * A `float` label moves on its position and its font size and never on a
+ * `transform`: it is set again at every size on the way, so no frame of it is
+ * a scaled picture of the word. A control that draws something at its start —
+ * a `startIcon`, a picker's glyph, a number field's split steppers — keeps a
+ * `float` label in the notch, because the place it would rest is taken, and so
+ * does a `PlFilePicker`, whose box has words of its own there.
  *
  * The cut is a real one — a `<legend>` in a `<fieldset>`, which is the only way
  * to take a segment out of a border without knowing what is behind it. Nothing
@@ -194,7 +207,7 @@ export type PlassCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end
  * lying across the two after it, which is worse than the label above the row
  * that it keeps.
  */
-export type PlassFieldLabelPlacement = 'top' | 'notch';
+export type PlassFieldLabelPlacement = 'top' | 'notch' | 'float';
 
 /**
  * What a surface is made of. This is the library's own name, and the two

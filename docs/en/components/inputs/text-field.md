@@ -114,11 +114,13 @@ All three are widgets, and all three are part of the field's own semantics node,
 
 :::
 
-There is no floating-label variant. A floating label is animated out of the control as the caret arrives, which needs a `transform` on the thing being typed into, and a label that moves under the caret is the one effect this library rules out on a control.
-
 ### labelPlacement
 
 `top` is the default: the label is a line of the form, above the box. `notch` puts it in the field's own top edge with the hairline cut away behind it, which buys back a row of vertical space and ties the name to the box rather than to whatever is above it.
+
+`float` starts the label inside the field, where the value would be written, in the field's own text size and in the muted ink of the placeholder it stands in for. It rises into the notch as soon as the field takes the focus or holds a value, the placeholder appears behind it, and it comes back down once the field is empty and loses the focus again. It moves by its position and its font size rather than by a transform, so no frame of it is a scaled picture of the word, and under reduced motion it arrives at once. The gap in the edge opens as the label starts to rise and closes only after it is back down, so the line never crosses the word.
+
+A `float` label stays in the notch wherever the field draws something at its start, because that is where the label would rest: a field with a `startIcon`, a `PlNumberField` with `split` steppers, the date, time and colour pickers with their glyph, and a `PlFilePicker`, whose box has words of its own there.
 
 The cut is real — a `legend` in a `fieldset` on the web, a gap in the painted border on Flutter — because a Plass field is translucent and the page behind it belongs to the application. There is nothing to paint over the line with.
 
@@ -126,7 +128,7 @@ Two things follow from the label sitting on the edge. Focus **thickens the edge*
 
 Only `glass` has a hairline to cut. On `solid` and `ghost` the label sits in the same place with nothing to take out from under it, so a form that mixes the three keeps one baseline for its labels.
 
-<Demo src="text-field/label-placement" :min-height="380">
+<Demo src="text-field/label-placement" :min-height="450">
 
 ::: fw react
 

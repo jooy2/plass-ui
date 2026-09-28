@@ -114,11 +114,13 @@ PlButton과 같은 사다리입니다. `xs` 24px · `sm` 32px · `md` 40px · `l
 
 :::
 
-floating label variant는 없습니다. floating label은 캐럿이 들어올 때 컨트롤 밖으로 애니메이션되는 라벨이라 입력 중인 대상에 `transform`을 걸어야 하는데, 캐럿 아래에서 움직이는 라벨은 이 라이브러리가 컨트롤에 대해 유일하게 금지하는 효과입니다.
-
 ### labelPlacement
 
 기본값은 `top`입니다. 라벨이 상자 위, 폼의 한 줄을 차지합니다. `notch`는 라벨을 필드 자신의 위쪽 테두리에 넣고 그 자리의 hairline을 끊어냅니다. 세로 한 줄을 돌려받고, 이름이 위에 있는 무언가가 아니라 상자에 붙습니다.
+
+`float`는 라벨을 필드 안, 값이 적힐 자리에 먼저 둡니다. 글자 크기는 필드의 글자와 같고, placeholder 자리에 대신 놓이므로 색도 placeholder처럼 흐립니다. 필드가 포커스를 받거나 값을 가지면 라벨은 곧바로 노치로 올라가고, placeholder가 그 뒤에 나타납니다. 필드가 비었고 포커스도 잃으면 다시 내려옵니다. 라벨은 `transform`이 아니라 위치와 글자 크기로 움직이므로, 어느 프레임에서도 글자를 확대한 그림이 되지 않습니다. 움직임을 줄이도록 설정한 환경에서는 한 번에 자리를 옮깁니다. 테두리의 틈은 라벨이 오르기 시작할 때 열리고 다 내려온 뒤에야 닫히므로, 선이 글자를 가로지르는 순간이 없습니다.
+
+필드가 시작 쪽에 무언가를 그리면 `float` 라벨은 노치에 머뭅니다. 라벨이 내려앉을 자리가 이미 차 있기 때문입니다. `startIcon`이 있는 필드, `split` 버튼을 쓰는 `PlNumberField`, 글리프가 있는 날짜·시간·색 피커, 그리고 상자 안에 자체 문구가 있는 `PlFilePicker`가 그렇습니다.
 
 끊는 것은 진짜입니다. 웹에서는 `fieldset` 안의 `legend`가, Flutter에서는 테두리를 그리는 painter가 그 구간을 비웁니다. Plass 필드는 반투명하고 그 뒤의 페이지는 애플리케이션의 것이라, 선 위에 덧칠할 색이 라이브러리에는 없습니다.
 
@@ -126,7 +128,7 @@ floating label variant는 없습니다. floating label은 캐럿이 들어올 �
 
 끊을 hairline이 있는 것은 `glass`뿐입니다. `solid`와 `ghost`에서는 라벨이 같은 자리에 놓이고 아래에서 덜어낼 선이 없을 뿐이라, 셋을 섞어 쓴 폼에서도 라벨의 기준선은 하나로 남습니다.
 
-<Demo src="text-field/label-placement" :min-height="380">
+<Demo src="text-field/label-placement" :min-height="450">
 
 ::: fw react
 

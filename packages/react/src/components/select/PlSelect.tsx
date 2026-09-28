@@ -9,7 +9,13 @@ import { CheckIcon, ChevronIcon } from '../../internal/icons.js';
 import { WidthSizer } from '../../internal/sizer.js';
 import { textOf } from '../../internal/text.js';
 import { glowPointerMove } from '../../internal/glow.js';
-import { FieldNotch, notchShellStyle } from '../../internal/notch.js';
+import {
+  FieldNotch,
+  floatControlClassName,
+  floatPlaceholderClassName,
+  notchShellStyle,
+  resolveNotch
+} from '../../internal/notch.js';
 import { hotKeyHandler } from '../../internal/keys.js';
 import {
   controlHeightClasses,
@@ -101,7 +107,10 @@ export interface PlSelectProps
   /** The name of what the select holds, wired to the trigger by Base UI's Field. */
   label?: React.ReactNode;
   /**
-   * Where the `label` goes — above the trigger, or in its top edge.
+   * Where the `label` goes — above the trigger, in its top edge, or inside it
+   * where the choice would be written until the select is focused, open or
+   * holds a value. With a `startIcon` a `float` label stays in the edge,
+   * because the icon is where it would rest.
    * Falls back to the nearest `PlassProvider`, then to `top`.
    * @default 'top'
    */
@@ -239,9 +248,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
     const labelPlacement = labelPlacementProp ?? defaults.labelPlacement ?? 'top';
-    // A notch with nothing in it is a gap in the edge for no reason, so the
-    // placement only takes effect where there is a label to put there.
-    const notched = labelPlacement === 'notch' && hasContent(label);
+    const { notched, float } = resolveNotch(labelPlacement, label, hasContent(startIcon));
 
     const hasError = hasContent(error);
     const isInvalid = invalid ?? hasError;
@@ -293,14 +300,22 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
     // so is a placeholder. Drawn, a list of 250 countries with a flag in each
     // would ask for 250 flags to hold one trigger open; read, it asks for none,
     // and the width is held to the words, which are what is long.
+    //
+    // A `float` label is sampled too, since it rests where the value is
+    // written and at the value's size: a trigger as wide as its longest option
+    // would otherwise cut its own name short the moment the name came down.
+    // Read as its words here rather than inside the memo, so a label written
+    // inline does not rebuild every sample on every render.
+    const floatSample = float ? textOf(label) : '';
     const sizerSamples = React.useMemo(
       () =>
         fullWidth
           ? []
           : [...items.map((item) => item.label ?? String(item.value)), placeholder]
               .map(textOf)
+              .concat(floatSample)
               .filter((sample) => sample !== ''),
-      [fullWidth, items, placeholder]
+      [fullWidth, items, placeholder, floatSample]
     );
 
     // One element for both placements, so the label a reader clicks and the
@@ -361,6 +376,7 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
             variant={variant}
             disabled={disabled}
             readOnly={readOnly}
+            float={float}
             label={labelNode}
           >
             <BaseUISelect.Trigger
@@ -393,6 +409,9 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
                 // popup it opens: a trigger is a field, and what a pointer is
                 // over is the box the reader sees. A locked one carries none.
                 lit ? 'plass-glow' : '',
+                // The hook a resting label reads the select's emptiness
+                // through: Base UI marks the trigger `data-placeholder`.
+                float ? floatControlClassName : '',
                 classNames?.control
               ]
                 .filter(Boolean)
@@ -413,7 +432,8 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
                     'w-full truncate text-start',
                     // The placeholder is muted the same way a PlTextField's is, so
                     // an empty select and an empty field read as equally empty.
-                    'data-[placeholder]:text-(--plass-muted-fg)'
+                    'data-[placeholder]:text-(--plass-muted-fg)',
+                    float ? floatPlaceholderClassName : ''
                   ].join(' ')}
                   placeholder={placeholder}
                 />
