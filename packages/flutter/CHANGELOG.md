@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.7.0 (2026-09-28)
+
 ### Breaking changes
 
 - **`PlChartAxis.grid` is a `bool?`, and a cartesian chart draws its grid and axes as the React chart does.** Left out, `grid` casts rules on the value axis, and on the category axis only when that axis measures, so a `PlScatterChart` now draws its vertical gridlines, as React's does. The gridline at zero is drawn in `chartBaseline`, a step firmer than the rest, and the category axis draws its own rule in `chartAxis` on the zero line, neither of which the Flutter chart drew. `grid: true` on `xAxis` casts the category axis' rules on any chart, and code that read `grid` as a `bool` reads `grid ?? true` for the old answer.
