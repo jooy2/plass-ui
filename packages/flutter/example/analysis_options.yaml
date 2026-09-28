@@ -6,3 +6,6 @@ formatter:
 analyzer:
   errors:
     unused_import: error
+  exclude:
+    - build/**
+    - web/**
