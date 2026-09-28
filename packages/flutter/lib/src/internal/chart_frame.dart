@@ -47,7 +47,7 @@ class PlChartAxis {
     this.max,
     this.tickCount = 5,
     this.scale = PlassChartScale.linear,
-    this.grid = true,
+    this.grid,
     this.thickness,
     this.tickAngle = 0,
     this.format,
@@ -94,7 +94,13 @@ class PlChartAxis {
   final PlassChartScale scale;
 
   /// Rules across the plot at each tick.
-  final bool grid;
+  ///
+  /// Left out, the value axis casts them and the category axis does not,
+  /// unless it is a second value axis, a `PlScatterChart`'s, where reading a
+  /// mark's x off the picture is half of what the reader came for. That is
+  /// the only arrangement where the grid helps read a value without turning a
+  /// chart of columns into graph paper, as the React axis has it.
+  final bool? grid;
 
   /// Overrides the band the axis reserves, in logical pixels.
   final double? thickness;
@@ -1868,19 +1874,54 @@ class _FramePainter extends CustomPainter {
       ..strokeWidth = hairline
       ..style = PaintingStyle.stroke;
 
+    // The rule at zero, which is the line the marks grow from, a step firmer
+    // than the rest of the grid, as the React chart draws it.
+    final baseline = Paint()
+      ..color = tokens.chartBaseline
+      ..strokeWidth = hairline
+      ..style = PaintingStyle.stroke;
+
     // The grid is a rule per tick and nothing else — no frame, no border. A
     // chart drawn inside a box is a chart with two edges where the design
     // language wants none.
-    if (yAxis.grid && !yAxis.hidden) {
+    if ((yAxis.grid ?? true) && !yAxis.hidden) {
       for (final double tick in layout.scale.ticks) {
         final double at = layout.valuePx(tick);
 
         canvas.drawLine(
           layout.horizontal ? Offset(at, box.top) : Offset(box.left, at),
           layout.horizontal ? Offset(at, box.bottom) : Offset(box.right, at),
-          grid,
+          tick.abs() < 1e-9 ? baseline : grid,
         );
       }
+    }
+
+    // The category axis' own rules, one at each tick, on a chart whose
+    // categories run across: a second value axis casts them unless told not
+    // to, and a band of categories only when asked.
+    if (!xAxis.hidden && !layout.horizontal && (xAxis.grid ?? layout.categoryScale != null)) {
+      for (int i = 0; i < layout.count; i += 1) {
+        final double at = box.left + layout.categoryPx(i);
+
+        canvas.drawLine(Offset(at, box.top), Offset(at, box.bottom), grid);
+      }
+    }
+
+    // The category axis' rule, at the baseline rather than at the bottom of
+    // the plot: on a chart with negative values those are not the same line,
+    // and the one the bars grow from is the one that means zero.
+    if (!xAxis.hidden) {
+      final axis = Paint()
+        ..color = tokens.chartAxis
+        ..strokeWidth = hairline
+        ..style = PaintingStyle.stroke;
+      final double zero = layout.zeroPx;
+
+      canvas.drawLine(
+        layout.horizontal ? Offset(zero, box.top) : Offset(box.left, zero),
+        layout.horizontal ? Offset(zero, box.bottom) : Offset(box.right, zero),
+        axis,
+      );
     }
 
     if (!yAxis.hidden) {

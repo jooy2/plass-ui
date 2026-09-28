@@ -6,9 +6,10 @@
 /// out of the theme rather than out of the test. Recording the calls and
 /// reading the alphas back answers it without naming a palette colour.
 ///
-/// Only [drawPath] is recorded, with the layers it was drawn into. Everything
-/// else a painter asks for — the grid lines, the clips, the text — is accepted
-/// and dropped, which is what [noSuchMethod] is doing here.
+/// [drawPath] is recorded with the layers it was drawn into, and [drawLine]
+/// on its own, for the rules of a chart's grid and axes. Everything else a
+/// painter asks for — the clips, the text — is accepted and dropped, which is
+/// what [noSuchMethod] is doing here.
 library;
 
 import 'dart:ui';
@@ -32,6 +33,9 @@ class RecordingCanvas implements Canvas {
   /// The opacity whatever is drawn now lands at, one entry for each `save` or
   /// layer still open.
   final List<double> _open = <double>[1];
+
+  /// Every straight line drawn, its two ends and its paint, in the order drawn.
+  final List<(Offset, Offset, Paint)> lines = <(Offset, Offset, Paint)>[];
 
   /// Only the fills, which is what a mark's colour and its alpha are on.
   List<Paint> get fills =>
@@ -64,6 +68,9 @@ class RecordingCanvas implements Canvas {
     paths.add(path);
     opacities.add(paint.color.a * _open.last);
   }
+
+  @override
+  void drawLine(Offset p1, Offset p2, Paint paint) => lines.add((p1, p2, paint));
 
   @override
   void noSuchMethod(Invocation invocation) {}

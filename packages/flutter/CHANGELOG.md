@@ -63,6 +63,7 @@
 
 ### Changed
 
+- **`PlChartAxis.grid` is a `bool?`, and a cartesian chart draws its grid and axes as the React chart does.** Left out, `grid` casts rules on the value axis, and on the category axis only when that axis measures, so a `PlScatterChart` now draws its vertical gridlines, as React's does. The gridline at zero is drawn in `chartBaseline`, a step firmer than the rest, and the category axis draws its own rule in `chartAxis` on the zero line, neither of which the Flutter chart drew. `grid: true` on `xAxis` casts the category axis' rules on any chart, and code that read `grid` as a `bool` reads `grid ?? true` for the old answer.
 - **A `PlTextField`'s `startIcon` and `endIcon` stay muted while the field is focused, as a `PlNumberField`'s do.** They eased to the family's accent as the field took the focus, which dyed the content of a glass field that the family otherwise reaches only at its edge, its ring and its caret. The focus still shows on those three.
 
 - **A `readOnly` `PlCombobox` opens its list to be looked through, as it does in the React build.** A read-only field never opened, so the options it held a choice between could not be seen. The list now opens on a press, on the chevron and with the arrow keys, and a row taken there changes nothing.

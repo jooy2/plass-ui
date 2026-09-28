@@ -1846,11 +1846,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlassChartAxis', 'hidden', { type: 'bool', default: 'false' }),
     from('PlassChartAxis', 'label', { type: 'String?' }),
     from('PlassChartAxis', 'grid', {
-      type: 'bool',
-      default: 'true',
+      type: 'bool?',
       description: {
-        ko: '이 축의 tick마다 plot을 가로지르는 격자선. 값 축에서만 읽습니다',
-        en: 'The gridlines this axis casts across the plot at its ticks. Read on the value axis only'
+        ko: '이 축의 tick마다 plot을 가로지르는 격자선. 주지 않으면 `yAxis`는 켜지고, `xAxis`는 x가 값을 잴 때만 켜집니다',
+        en: 'The gridlines this axis casts across the plot at its ticks. Left out, on for `yAxis`, and for `xAxis` only when the x axis measures'
       }
     }),
     from('PlassChartAxis', 'min', { type: 'double?' }),
