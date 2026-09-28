@@ -13,6 +13,8 @@
 /// should be rather than deciding it here.
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -186,6 +188,13 @@ class _PlassGridState extends State<PlassGrid> {
   /// The view the rows scroll in, which the keyboard moves as well.
   final ScrollController _scroll = ScrollController();
 
+  /// The view the grid scrolls sideways in once its columns need more room
+  /// than the sheet has, which the keyboard moves as well.
+  final ScrollController _sideways = ScrollController();
+
+  /// How wide the sheet is, handed across the sideways view to the grid.
+  final _SheetWidth _sheet = _SheetWidth();
+
   /// Which row the pointer is over, whether or not the grid lights it.
   ///
   /// Followed all the time, so a grid that starts lighting rows lights the one
@@ -203,6 +212,7 @@ class _PlassGridState extends State<PlassGrid> {
     _hovered.dispose();
     _focused.dispose();
     _scroll.dispose();
+    _sideways.dispose();
     super.dispose();
   }
 
@@ -614,11 +624,28 @@ class _PlassGridState extends State<PlassGrid> {
       ],
     );
 
-    // A grid held by `maxHeight`, or by a box too small for it, is a tab stop
-    // while it scrolls, so rows past the edge are in reach of a keyboard in a
-    // table where no cell takes the focus. Round the pinned header as well as
-    // the rows, so the ring is drawn over the band rather than under it, and
-    // inside the box, because the sheet clips at its rounded corner.
+    // As wide as the sheet, or as wide as the columns at their narrowest when
+    // that is wider, and then the grid scrolls sideways, as the React sheet
+    // does with `overflow-x: auto`: a browser's table shrinks its columns to
+    // their content's narrowest before it overflows. The pinned header is in
+    // what scrolls, so it moves with the columns it names. There whether or
+    // not there is anything to scroll, so nothing is built again as the sheet
+    // narrows or widens.
+    scrolling = _SheetBox(
+      sheet: _sheet,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        controller: _sideways,
+        child: _GridWidth(sheet: _sheet, child: scrolling),
+      ),
+    );
+
+    // A grid held by `maxHeight`, by a box too small for it, or by a sheet too
+    // narrow for its columns is a tab stop while it scrolls, so rows and
+    // columns past the edge are in reach of a keyboard in a table where no
+    // cell takes the focus. Round the pinned header as well as the rows, so
+    // the ring is drawn over the band rather than under it, and inside the
+    // box, because the sheet clips at its rounded corner.
     //
     // The table's name is on the stop, which holds the table: a stop is
     // announced by its name. The table hands down its `semanticLabel`, or the
@@ -630,6 +657,7 @@ class _PlassGridState extends State<PlassGrid> {
       label: widget.semanticLabel,
       child: PlassKeyboardScroll(
         vertical: _scroll,
+        horizontal: _sideways,
         borderRadius: BorderRadius.circular(tokens.radii[size]!),
         ringOffset: -focusRingWidth,
         color: widget.color,
@@ -932,6 +960,160 @@ class _RenderWidthReport extends RenderProxyBox {
 
     _reported = size.width;
     onChanged();
+  }
+}
+
+/// How wide the sheet is, handed from the box round the sideways view to the
+/// grid inside it.
+///
+/// A view that scrolls sideways lays out what it holds with no width to go by,
+/// and the grid needs one: its columns share out what the sheet has left over,
+/// and shrink until they reach their content's narrowest before the grid is
+/// any wider than the sheet. Read in layout rather than through a
+/// `LayoutBuilder`, which answers no question about its size before it has
+/// been laid out, and a popup that measures a table in it asks one.
+class _SheetWidth {
+  /// How wide the box round the view was laid out, or `null` before it was.
+  double? width;
+
+  /// The grid inside the view, while it is in the tree.
+  _RenderGridWidth? grid;
+}
+
+/// The box round the sideways view, which reads how wide the sheet is.
+class _SheetBox extends SingleChildRenderObjectWidget {
+  const _SheetBox({required this.sheet, required super.child});
+
+  final _SheetWidth sheet;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderSheetBox(sheet);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderSheetBox renderObject) {
+    renderObject.sheet = sheet;
+  }
+}
+
+class _RenderSheetBox extends RenderProxyBox {
+  _RenderSheetBox(this.sheet);
+
+  _SheetWidth sheet;
+
+  @override
+  void performLayout() {
+    final double width = constraints.maxWidth;
+
+    // The grid is laid out inside the view with the same constraints however
+    // wide the sheet is, so it is told to lay itself out again when the sheet
+    // changes width, from the one place that knows. A layout callback is
+    // where a box may change what is under it while it is being laid out.
+    if (width != sheet.width) {
+      sheet.width = width;
+      invokeLayoutCallback<BoxConstraints>((BoxConstraints _) => sheet.grid?.markNeedsLayout());
+    }
+
+    super.performLayout();
+  }
+}
+
+/// The grid inside the sideways view, laid out as wide as the sheet, or as
+/// wide as its columns at their narrowest when that is wider.
+class _GridWidth extends SingleChildRenderObjectWidget {
+  const _GridWidth({required this.sheet, required super.child});
+
+  final _SheetWidth sheet;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderGridWidth(sheet);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderGridWidth renderObject) {
+    renderObject.sheet = sheet;
+  }
+}
+
+class _RenderGridWidth extends RenderProxyBox {
+  _RenderGridWidth(this._sheet);
+
+  _SheetWidth _sheet;
+
+  set sheet(_SheetWidth value) {
+    if (identical(value, _sheet)) {
+      return;
+    }
+
+    if (attached && identical(_sheet.grid, this)) {
+      _sheet.grid = null;
+    }
+
+    _sheet = value;
+
+    if (attached) {
+      _sheet.grid = this;
+    }
+
+    markNeedsLayout();
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _sheet.grid = this;
+  }
+
+  @override
+  void detach() {
+    if (identical(_sheet.grid, this)) {
+      _sheet.grid = null;
+    }
+
+    super.detach();
+  }
+
+  /// The width to lay the grid out at under [constraints].
+  ///
+  /// A sheet with no width of its own, one inside something that scrolls
+  /// sideways itself, leaves the grid as wide as its content wants to be.
+  double _widthFor(RenderBox child, BoxConstraints constraints) {
+    final double? sheet = _sheet.width;
+
+    final double width = sheet != null && sheet.isFinite
+        ? math.max(sheet, child.getMinIntrinsicWidth(double.infinity))
+        : child.getMaxIntrinsicWidth(double.infinity);
+
+    return constraints.constrainWidth(width);
+  }
+
+  BoxConstraints _childConstraints(RenderBox child, BoxConstraints constraints) {
+    final double width = _widthFor(child, constraints);
+
+    return constraints.copyWith(minWidth: width, maxWidth: width);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final RenderBox? child = this.child;
+
+    if (child == null) {
+      return constraints.smallest;
+    }
+
+    return constraints.constrain(child.getDryLayout(_childConstraints(child, constraints)));
+  }
+
+  @override
+  void performLayout() {
+    final RenderBox? child = this.child;
+
+    if (child == null) {
+      size = constraints.smallest;
+
+      return;
+    }
+
+    child.layout(_childConstraints(child, constraints), parentUsesSize: true);
+    size = constraints.constrain(child.size);
   }
 }
 

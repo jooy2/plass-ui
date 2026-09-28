@@ -125,6 +125,16 @@ BoxDecoration _rowDecoration(WidgetTester tester, int index) {
   return (bands.painter! as dynamic).decorationOf(index - 1) as BoxDecoration;
 }
 
+/// The view the rows scroll in, beside the one the grid scrolls sideways in.
+final Finder _rowsView = find.byWidgetPredicate(
+  (Widget widget) => widget is SingleChildScrollView && widget.scrollDirection == Axis.vertical,
+);
+
+/// The view the grid scrolls sideways in.
+final Finder _sidewaysView = find.byWidgetPredicate(
+  (Widget widget) => widget is SingleChildScrollView && widget.scrollDirection == Axis.horizontal,
+);
+
 void main() {
   group('PlTable', () {
     group('shapes', () {
@@ -890,7 +900,7 @@ void main() {
       }
 
       ScrollController controllerOf(WidgetTester tester) {
-        return tester.widget<SingleChildScrollView>(find.byType(SingleChildScrollView)).controller!;
+        return tester.widget<SingleChildScrollView>(_rowsView).controller!;
       }
 
       testWidgets('scrolls a grid past its cap from a stop of its own', (
@@ -1072,6 +1082,138 @@ void main() {
       });
     });
 
+    group('a grid wider than its sheet', () {
+      /// Four columns of 240 each, which a sheet 640 wide cannot hold.
+      List<PlTableColumn<_Build>> wide() {
+        return <PlTableColumn<_Build>>[
+          for (final String name in <String>['Build', 'Branch', 'Runner', 'Reason'])
+            PlTableColumn<_Build>(
+              header: Text(name),
+              width: 240,
+              cell: (_Build row, int index) => Text('${row.id} $name'),
+            ),
+        ];
+      }
+
+      for (final bool pinned in <bool>[false, true]) {
+        testWidgets('scrolls sideways rather than cutting its columns off, '
+            'stickyHeader $pinned', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            host(
+              PlTable<_Build>(
+                rows: _many,
+                columns: wide(),
+                stickyHeader: pinned,
+                maxHeight: pinned ? 200 : null,
+              ),
+              width: 640,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          // The pinned band overflowed a sheet too narrow for its columns.
+          expect(tester.takeException(), isNull);
+
+          final Rect sheet = tester.getRect(find.byType(PlTable<_Build>));
+          final ScrollController controller = tester
+              .widget<SingleChildScrollView>(_sidewaysView)
+              .controller!;
+
+          // The last column is past the sheet's edge, and in reach by scrolling.
+          expect(tester.getRect(find.text('#400 Reason')).left, greaterThan(sheet.right));
+          expect(controller.position.maxScrollExtent, greaterThan(300));
+
+          controller.jumpTo(controller.position.maxScrollExtent);
+          await tester.pumpAndSettle();
+
+          final Rect last = tester.getRect(find.text('#400 Reason'));
+
+          expect(last.left, greaterThan(sheet.left));
+          expect(last.right, lessThanOrEqualTo(sheet.right));
+
+          // A pinned band scrolls with the columns it names.
+          if (pinned) {
+            // The band and the heading under it, which are one `Text`.
+            expect(find.text('Reason'), findsNWidgets(2));
+
+            final List<Rect> headings = <Rect>[
+              for (int index = 0; index < 2; index += 1)
+                tester.getRect(find.text('Reason').at(index)),
+            ];
+
+            expect(headings.first.left, headings.last.left);
+            expect(headings.first.left, greaterThan(sheet.left));
+          }
+        });
+      }
+
+      testWidgets('shrinks its columns to their content before it scrolls', (
+        WidgetTester tester,
+      ) async {
+        // Words that wrap, in columns that share the sheet out between them.
+        await tester.pumpWidget(
+          host(
+            PlTable<_Build>(
+              rows: _rows,
+              columns: <PlTableColumn<_Build>>[
+                for (final String name in <String>['Build', 'Branch'])
+                  PlTableColumn<_Build>(
+                    header: Text(name),
+                    cell: (_Build row, int index) =>
+                        Text('${row.branch} was built again from the start on every runner'),
+                  ),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final ScrollController controller = tester
+            .widget<SingleChildScrollView>(_sidewaysView)
+            .controller!;
+
+        expect(controller.position.maxScrollExtent, 0);
+        expect(
+          tester.getRect(find.byType(PlTable<_Build>)).right,
+          greaterThanOrEqualTo(tester.getRect(find.text('Branch')).right),
+        );
+      });
+
+      testWidgets('scrolls sideways from the keyboard', (WidgetTester tester) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(afterFocusStop(before, PlTable<_Build>(rows: _rows, columns: wide())), width: 640),
+        );
+        await tester.pumpAndSettle();
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+
+        // No cell takes the focus, so the grid is a stop of its own while it
+        // has somewhere to scroll, and the arrows along it move it.
+        expect(before.hasFocus, isFalse);
+
+        final ScrollController controller = tester
+            .widget<SingleChildScrollView>(_sidewaysView)
+            .controller!;
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(controller.offset, 40);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pumpAndSettle();
+
+        expect(controller.offset, 0);
+      });
+    });
+
     group('a pinned header', () {
       testWidgets('draws no band until it is asked for one', (WidgetTester tester) async {
         await tester.pumpWidget(_table(rows: _many, maxHeight: 200));
@@ -1205,7 +1347,7 @@ void main() {
         final double band = tester.getTopLeft(find.byType(IntrinsicHeight)).dy;
         final double row = tester.getTopLeft(find.text('#400')).dy;
 
-        await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -120));
+        await tester.drag(_rowsView, const Offset(0, -120));
         await tester.pumpAndSettle();
 
         expect(tester.getTopLeft(find.byType(IntrinsicHeight)).dy, band);
@@ -1227,7 +1369,7 @@ void main() {
         final double band = tester.getTopLeft(find.byType(IntrinsicHeight)).dy;
         final double row = tester.getTopLeft(find.text('#400')).dy;
 
-        await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -120));
+        await tester.drag(_rowsView, const Offset(0, -120));
         await tester.pumpAndSettle();
 
         expect(tester.getTopLeft(find.byType(IntrinsicHeight)).dy, band);

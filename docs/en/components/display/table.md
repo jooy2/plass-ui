@@ -128,6 +128,8 @@ A column says how to get a cell out of a row, and that is all it says: `cell` is
 
 Width comes in two forms, and they are different questions. `width` is a length in logical pixels, for the column that has to be exactly that wide, a fixed-width action column, a status pill. `flex` is a share of whatever is left after every column has room for its content, which is what the React build's `width: '30%'` actually means once a table has to add up to its own width.
 
+When the sheet is too narrow for every column, the columns shrink to their content's narrowest first, wrapping their text, as a browser's table does. Past that, the grid scrolls sideways inside the sheet, as the React one does, and a pinned header scrolls with it.
+
 :::
 
 `align` is `start` by default. Numbers usually want `end`, so their digits line up in a column.
@@ -327,7 +329,7 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 - The grid is a real `Table`, so it is announced as a table with rows and cells in it, and a screen reader can move through it a cell at a time.
 - A heading is announced as the column's header, which is what puts the name of the column in front of every number under it.
 - `caption` is drawn at the top of the sheet. A caption that is a `Text` names the table, and its words are read once, as that name. A caption built of other widgets is read as the line above the grid instead. `semanticLabel` names the table over either, for a caption with no words of its own or a name that has to differ from what is drawn.
-- A grid taller than `maxHeight`, or than the box it is in, scrolls inside the sheet. While it does, the grid is a tab stop, so the arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> reach the rows past the edge of a table whose cells take no focus. The stop is announced by the table's name: `semanticLabel`, or the words of a `Text` caption. Under `NavigationMode.directional`, a remote's D-pad, the arrow keys scroll the grid only while the grid itself holds the focus; an arrow from a control inside it moves the focus to the next control, which the grid scrolls into view.
+- A grid wider than its sheet, or taller than `maxHeight` or than the box it is in, scrolls inside the sheet. While it does, the grid is a tab stop, so the arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> reach the rows and columns past the edge of a table whose cells take no focus. The stop is announced by the table's name: `semanticLabel`, or the words of a `Text` caption. Under `NavigationMode.directional`, a remote's D-pad, the arrow keys scroll the grid only while the grid itself holds the focus; an arrow from a control inside it moves the focus to the next control, which the grid scrolls into view.
 - A row that answers a press keeps its row semantics: the tap action is on the cells, and nothing calls a row a button. A row announced as a button is a row whose cells have been orphaned from the table they belong to.
 - The row's focus stop is in its first cell, and the ring is painted by the row itself. Inset, because the sheet clips at its rounded corner and a ring outside the first or last row would come back with its top or bottom sliced off.
 - Every cell is as tall as the tallest one in its row, so a row answers a press on all of itself rather than only on the line of text that happens to be longest.
@@ -342,7 +344,6 @@ Nothing changes for a caller on the client. A module with `'use client'` at the 
 | --- | --- | --- |
 | `key` names the property, `render` is optional | `cell` is required | Dart has no `row[key]` on an arbitrary type. Writing the accessor is cheaper than widening the row to `dynamic`. |
 | `width: number \| string` | `width: double` and `flex: double` | Pixels stay pixels; a percentage becomes a share of the leftover width, which is what a percentage of a table that must add up to its own width already was. |
-| `overflow-x: auto` on the sheet | — | The grid is as wide as the sheet. Wrap it in a `SingleChildScrollView` when the columns need more room than there is. The _vertical_ scroll is the table's own either way. |
 | `getRowKey` | `rowKey` | Same job, Flutter's spelling, and it hands back a `LocalKey` rather than a `React.Key`. |
 | `onRowClick` | `onRowPressed` | The package's name for the thing a press calls. |
 | `maxHeight: number \| string` | `maxHeight: double` | Pixels stay pixels. There is no CSS length to accept. |

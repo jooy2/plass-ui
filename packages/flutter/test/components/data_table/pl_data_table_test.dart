@@ -132,6 +132,16 @@ Widget table({
   );
 }
 
+/// The view the rows scroll in, beside the one the grid scrolls sideways in.
+final Finder _rowsView = find.byWidgetPredicate(
+  (Widget widget) => widget is SingleChildScrollView && widget.scrollDirection == Axis.vertical,
+);
+
+/// The view the grid scrolls sideways in.
+final Finder _sidewaysView = find.byWidgetPredicate(
+  (Widget widget) => widget is SingleChildScrollView && widget.scrollDirection == Axis.horizontal,
+);
+
 void main() {
   group('PlDataTable', () {
     group('rendering', () {
@@ -1203,6 +1213,66 @@ void main() {
       });
     });
 
+    group('a grid wider than its sheet', () {
+      for (final bool pinned in <bool>[false, true]) {
+        testWidgets('scrolls sideways rather than cutting its columns off, '
+            'stickyHeader $pinned', (WidgetTester tester) async {
+          // Three columns of 240 and the tick column, which a sheet 640 wide
+          // cannot hold.
+          await tester.pumpWidget(
+            host(
+              PlDataTable<Invoice>(
+                rows: rows,
+                rowKey: (Invoice row, int _) => row.id,
+                selection: PlDataTableSelection.multiple,
+                stickyHeader: pinned,
+                maxHeight: pinned ? 160 : null,
+                columns: <PlDataTableColumn<Invoice>>[
+                  for (final PlDataTableColumn<Invoice> column in columnsOf())
+                    PlDataTableColumn<Invoice>(
+                      key: column.key,
+                      header: column.header,
+                      value: column.value,
+                      cell: column.cell,
+                      align: column.align,
+                      width: 240,
+                    ),
+                ],
+              ),
+              width: 640,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(tester.takeException(), isNull);
+
+          final Rect sheet = tester.getRect(find.byType(PlDataTable<Invoice>));
+          final ScrollController controller = tester
+              .widget<SingleChildScrollView>(_sidewaysView)
+              .controller!;
+
+          expect(tester.getRect(find.text(r'$340')).right, greaterThan(sheet.right));
+
+          controller.jumpTo(controller.position.maxScrollExtent);
+          await tester.pumpAndSettle();
+
+          final Rect total = tester.getRect(find.text(r'$340'));
+
+          expect(total.left, greaterThan(sheet.left));
+          expect(total.right, lessThanOrEqualTo(sheet.right));
+
+          if (pinned) {
+            // The band and the heading under it.
+            expect(find.text('Total'), findsNWidgets(2));
+            expect(
+              tester.getRect(find.text('Total').at(0)).left,
+              tester.getRect(find.text('Total').at(1)).left,
+            );
+          }
+        });
+      }
+    });
+
     group('the keyboard', () {
       /// One plain column, so nothing in the grid takes the focus.
       final List<PlDataTableColumn<Invoice>> plain = <PlDataTableColumn<Invoice>>[
@@ -1263,7 +1333,7 @@ void main() {
         );
 
         final ScrollController controller = tester
-            .widget<SingleChildScrollView>(find.byType(SingleChildScrollView))
+            .widget<SingleChildScrollView>(_rowsView)
             .controller!;
 
         await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
