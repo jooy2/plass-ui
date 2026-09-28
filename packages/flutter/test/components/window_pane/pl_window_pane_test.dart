@@ -978,7 +978,7 @@ void main() {
     }
 
     for (final NavigationMode mode in NavigationMode.values) {
-      testWidgets('grows the corner past the edge of the screen only in traditional navigation, '
+      testWidgets('hands on an arrow past the edge of the screen only in directional navigation, '
           '${mode.name}', (WidgetTester tester) async {
         Size? sized;
 
@@ -1030,12 +1030,14 @@ void main() {
         expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
         await tester.pumpAndSettle();
 
-        expect(sized!.width, traditional ? greaterThan(900) : closeTo(900, 0.5));
+        expect(sized!.width, closeTo(900, 0.5));
 
         expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), traditional);
         await tester.pumpAndSettle();
 
-        expect(sized!.width, traditional ? greaterThan(900) : closeTo(900, 0.5));
+        // Held to the box it is laid out in, in both, so what is reported is
+        // what is drawn.
+        expect(sized!.width, closeTo(900, 0.5));
       });
     }
 
@@ -1086,6 +1088,48 @@ void main() {
       expect(cursor(), SystemMouseCursors.basic);
 
       handle.dispose();
+    });
+
+    testWidgets('reports no size past the box it is laid out in', (WidgetTester tester) async {
+      Size? sized;
+
+      await _pumpFree(
+        tester,
+        SizedBox(
+          width: 400,
+          height: 400,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: PlWindowPane(
+              title: const Text('Notes'),
+              width: 390,
+              height: 200,
+              resizable: true,
+              onResize: (Size value) => sized = value,
+            ),
+          ),
+        ),
+      );
+
+      Focus.of(
+        tester.element(
+          find
+              .descendant(
+                of: find.byType(FocusableActionDetector),
+                matching: find.byType(MouseRegion),
+              )
+              .last,
+        ),
+      ).requestFocus();
+      await tester.pump();
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      // The box holds the window at 400 whatever it is told, so 406 would be a
+      // size nobody sees.
+      expect(sized!.width, closeTo(400, 0.5));
+      expect(tester.getSize(find.byType(PlWindowPane)).width, closeTo(400, 0.5));
     });
 
     testWidgets('puts its handles away while it is maximized', (WidgetTester tester) async {

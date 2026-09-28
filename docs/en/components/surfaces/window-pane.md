@@ -123,6 +123,18 @@ The title bar drags and the eight edges and corners resize. Both are off by defa
 
 A resize stops at `minWidth` and `minHeight`, and `onResize` reports the size it stopped at. `minHeight` is never less than the title bar and the frame round it, which is also where a resize stops when it is not given. Dragging a left or a top edge moves the window as well as resizing it, so `onOffsetChange` fires during those too.
 
+::: fw react
+
+A resize has no ceiling: a window made wider than its container overflows it, at the size `onResize` reports, as an absolutely placed box does.
+
+:::
+
+::: fw flutter
+
+A resize stops at the box the window is laid out in, which is as wide and as tall as it can be drawn, and `onResize` reports that size rather than one past it. A Flutter layout hands every box its largest size, and a window past it would be reported at a size nobody sees.
+
+:::
+
 The title bar of a `draggable` window is also a stop in the tab order, ahead of the window's buttons, named **Move window** or whatever `moveLabel` says. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the window 16px a press and 64px with <kbd>Shift</kbd>, the way the arrow points in either writing direction, and stop where the title bar would leave the screen. The stop is there whenever the bar drags.
 
 Every move, by the pointer or by a key, goes through `offset`. Pass it with <Fw react="onOffsetChange" flutter="onOffsetChanged" code /> and the window is controlled: it reports where it should go and stays where it is drawn until the new offset comes back. That is also how to offer a move that needs no drag at all, such as a row of buttons that each add a step to the offset your app holds.
