@@ -2909,6 +2909,23 @@
   transition: color var(--plass-duration) var(--plass-ease);
 }
 
+/*
+ * A press that went down on the control comes up on it. The focus the press
+ * hands the control ends the rest before the button is let go, so the label is
+ * back in reach of the pointer while it is still lying over the words, and a
+ * quick click on them came up on the label. The browser then sent the click to
+ * the frame round both, and a picker that opens on a click, such as
+ * `PlTreeSelect`, stayed shut. The label lets the pointer through until that
+ * press is over.
+ *
+ * Only a press on the control: one on the label itself leaves the control out
+ * of the chain `:active` marks, so clicking a risen label still focuses the
+ * field.
+ */
+.plass-notch-float:has(> :not(fieldset):active) > fieldset > legend {
+  pointer-events: none;
+}
+
 /* ---------------------------------------------------------------------------
  * Reduced motion
  *

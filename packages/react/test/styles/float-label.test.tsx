@@ -297,6 +297,48 @@ describe('a floating label', () => {
     expect(restsIn(label, trigger)).toBe(false);
   });
 
+  it('opens a picker when a quick click lands on the words the label rests on', async () => {
+    await render(
+      <PlTreeSelect
+        items={[{ id: 'seoul', label: 'Seoul' }]}
+        label="Region"
+        labelPlacement="float"
+        placeholder="Pick a region"
+      />
+    );
+    const trigger = document.querySelector<HTMLElement>('button[aria-haspopup]')!;
+    const words = glyphsOf(notchOf().label);
+    const box = trigger.getBoundingClientRect();
+
+    // The press gives the trigger the focus, which ends the rest before the
+    // release, while the label is still lying over the words. A script lets go
+    // at once, so the release comes before the label has moved off them.
+    await userEvent.click(trigger, {
+      position: { x: words.left - box.left + 4, y: (words.top + words.bottom) / 2 - box.top }
+    });
+
+    await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('still hands a click on the risen label to its control', async () => {
+    await render(
+      <PlTreeSelect
+        items={[{ id: 'seoul', label: 'Seoul' }]}
+        defaultValue={['seoul']}
+        label="Region"
+        labelPlacement="float"
+      />
+    );
+    const trigger = document.querySelector<HTMLElement>('button[aria-haspopup]')!;
+    const { label } = notchOf();
+
+    expect(restsIn(label, trigger)).toBe(false);
+
+    await userEvent.click(label);
+
+    await expect.poll(() => trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
   it('arrives at once under reduced motion', async () => {
     await emulateMedia({ reducedMotion: 'reduce' });
 

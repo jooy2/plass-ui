@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **A quick click on the words of a resting `float` label opens the `PlTreeSelect` under it.** The press gave the trigger the focus, which ended the rest and put the label back in reach of the pointer while it was still lying over the words. A release that came before the label had moved off them landed on the label, the browser gave the click to the frame round both rather than to the trigger, and the picker stayed shut. The label now lets the pointer through until a press that went down on the control is over, and a click on the label once it has risen still reaches the control.
+
 ## 1.7.0 (2026-09-28)
 
 ### Added
