@@ -50,6 +50,42 @@ void main() {
       });
     });
 
+    for (final PlassAlign align in <PlassAlign>[PlassAlign.start, PlassAlign.center]) {
+      testWidgets('keeps one gap between its ends when it has no middle, ${align.name}', (
+        WidgetTester tester,
+      ) async {
+        // As narrow as it can be: its intrinsic width, which is what a bar in a
+        // row of its own shrinks to.
+        Future<double> narrowest(Widget? middle) async {
+          await tester.pumpWidget(
+            host(
+              Align(
+                alignment: Alignment.topLeft,
+                child: IntrinsicWidth(
+                  child: PlHeader(
+                    align: align,
+                    brand: const <Widget>[SizedBox(width: 40, height: 20)],
+                    actions: const <Widget>[SizedBox(width: 40, height: 20)],
+                    child: middle,
+                  ),
+                ),
+              ),
+              width: 800,
+            ),
+          );
+
+          return tester.getSize(find.byType(PlHeader)).width;
+        }
+
+        final double none = await narrowest(null);
+        final double empty = await narrowest(const SizedBox.shrink());
+
+        // A middle with nothing in it still stands between two gaps, and no
+        // middle at all leaves one, as the React bar draws no middle then.
+        expect(empty - none, greaterThan(0));
+      });
+    }
+
     group('align: center', () {
       testWidgets('puts the middle on the bar own midline', (WidgetTester tester) async {
         await tester.pumpWidget(

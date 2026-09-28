@@ -179,6 +179,20 @@ class PlHeader extends StatelessWidget {
     final bool hasBrand = brand != null && brand!.isNotEmpty;
     final bool hasActions = actions != null && actions!.isNotEmpty;
     final Widget middle = child ?? const SizedBox.shrink();
+    final double gap = _barGap[size]!;
+
+    // The gaps are the middle's padding rather than the row's spacing, so a
+    // bar with no middle keeps one gap between its ends rather than one on
+    // each side of an empty middle, as the React bar draws no middle then.
+    // The same widgets either way, so the ends are not built again as the
+    // middle comes and goes.
+    EdgeInsetsDirectional around({required bool brandSide, required bool actionsSide}) {
+      if (child == null) {
+        return EdgeInsetsDirectional.only(start: brandSide && actionsSide ? gap : 0);
+      }
+
+      return EdgeInsetsDirectional.only(start: brandSide ? gap : 0, end: actionsSide ? gap : 0);
+    }
 
     // Centred, both ends take an equal share by construction and the middle
     // takes its own width in the space between them — so the middle lands on
@@ -192,7 +206,6 @@ class PlHeader extends StatelessWidget {
     final Widget row = centred
         ? Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: _barGap[size]!,
             children: <Widget>[
               Expanded(
                 child: Align(
@@ -204,7 +217,13 @@ class PlHeader extends StatelessWidget {
                   child: hasBrand ? slot(brand!, MainAxisAlignment.start) : const SizedBox.shrink(),
                 ),
               ),
-              Flexible(child: middle),
+              Flexible(
+                child: Padding(
+                  // Both ends are always there when centred, each half the bar.
+                  padding: around(brandSide: true, actionsSide: true),
+                  child: middle,
+                ),
+              ),
               Expanded(
                 child: Align(
                   alignment: AlignmentDirectional.centerEnd,
@@ -217,16 +236,18 @@ class PlHeader extends StatelessWidget {
             ],
           )
         : Row(
-            spacing: _barGap[size]!,
             children: <Widget>[
               if (hasBrand) slot(brand!, MainAxisAlignment.start),
               Expanded(
-                child: Align(
-                  alignment: align == PlassAlign.end
-                      ? AlignmentDirectional.centerEnd
-                      : AlignmentDirectional.centerStart,
-                  heightFactor: 1,
-                  child: middle,
+                child: Padding(
+                  padding: around(brandSide: hasBrand, actionsSide: hasActions),
+                  child: Align(
+                    alignment: align == PlassAlign.end
+                        ? AlignmentDirectional.centerEnd
+                        : AlignmentDirectional.centerStart,
+                    heightFactor: 1,
+                    child: middle,
+                  ),
                 ),
               ),
               if (hasActions) slot(actions!, MainAxisAlignment.end),
