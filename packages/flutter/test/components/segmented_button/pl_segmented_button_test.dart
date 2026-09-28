@@ -410,8 +410,41 @@ void main() {
 
         expect(opacityOf(tester, find.text('List')), 1);
         expect(drainsOf(tester, find.text('List')), 0);
+        // By opacity alone, as the React segment's `data-[disabled]:opacity-50`
+        // fades it: its ink is the muted one already.
         expect(opacityOf(tester, find.text('Board')), disabledOpacity);
-        expect(drainsOf(tester, find.text('Board')), 1);
+        expect(drainsOf(tester, find.text('Board')), 0);
+      });
+
+      testWidgets('writes the chosen segment of a disabled set in the tile\'s ink', (
+        WidgetTester tester,
+      ) async {
+        for (final PlassVariant variant in <PlassVariant>[PlassVariant.glass, PlassVariant.solid]) {
+          await tester.pumpWidget(
+            host(
+              PlSegmentedButton<String>(
+                key: ValueKey<PlassVariant>(variant),
+                segments: views,
+                value: 'board',
+                variant: variant,
+                disabled: true,
+                onChanged: (String _) {},
+              ),
+              width: 480,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          final PlassColorFamily family = PlassTokens.light().family(PlassColor.primary);
+
+          // As the React label keeps its checked colour; the set's own filter
+          // drains it with everything else.
+          expect(
+            tester.renderObject<RenderParagraph>(find.text('Board')).text.style!.color,
+            variant == PlassVariant.solid ? family.onSolid : family.accent,
+            reason: variant.name,
+          );
+        }
       });
     });
 

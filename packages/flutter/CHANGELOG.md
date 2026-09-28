@@ -81,6 +81,7 @@
 
 ### Fixed
 
+- **A `PlSegmentedButton` segment disabled on its own fades by opacity alone, and the chosen segment of a disabled set keeps the tile's ink, as in the React build.** The lone disabled segment was drained of its colour as well as faded, and the chosen segment of a disabled set was written in the muted ink rather than in the on-fill or accent ink the set's own filter then drains.
 - **A `PlHeader` with no middle keeps one gap between its brand and its actions, as the React bar does, so it can be as narrow as the React one.** The Flutter bar kept an empty middle between two gaps, one gap wider than the React bar at its narrowest.
 - **A key or a move that changes nothing reports nothing, in both builds, as Base UI's slider reports nothing at an end.** An arrow at the end of a range still reported the value it left unchanged: through `PlPanes` `onResize` and `onResizeEnd`, `PlSidebar` `onResize` and `onResizeEnd`, a `PlWindowPane` corner's `onResize` and a `PlColorPicker`'s `onValueChange` from its square and its opacity rail in both builds, and through a Flutter `PlSlider`'s `onChanged` and `onChangeEnd`. Each now reports only a value that moved, and a drag held against a limit reports nothing either.
 - **A `PlWindowPane` resize stops at the box the window is laid out in, and `onResize` reports the size the window is drawn at.** The box held the window at its largest size whatever it was told, but a corner dragged or stepped past it went on reporting a larger one, so a caller that stored the size stored one nobody saw.

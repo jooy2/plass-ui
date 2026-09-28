@@ -667,10 +667,13 @@ class _Tile<T> extends StatelessWidget {
             ? SystemMouseCursors.basic
             : SystemMouseCursors.click,
         builder: (BuildContext context, PlassInteraction state) {
-          final ink = disabled
-              ? tokens.mutedFg
-              : onTile
+          // A chosen segment is written in the tile's ink even in a disabled
+          // set, which the set's own filter drains, as the React label keeps
+          // its checked colour.
+          final ink = onTile
               ? (variant == PlassVariant.solid ? family.onSolid : family.accent)
+              : disabled
+              ? tokens.mutedFg
               : state.hovered
               ? tokens.fg
               : tokens.mutedFg;
@@ -707,7 +710,14 @@ class _Tile<T> extends StatelessWidget {
             ),
           );
 
-          body = plassStateFilter(child: body, disabled: faded, lit: false);
+          // A segment disabled on its own in a live set fades by opacity alone,
+          // as the React segment's `data-[disabled]:opacity-50` does: its ink
+          // is already the muted one.
+          body = PlassFiltered(
+            colorFilter: null,
+            opacity: faded ? disabledOpacity : 1,
+            child: body,
+          );
 
           // The interaction light, on the segment and not on the groove: a
           // groove is not pressed, the tile in it is. Its colour follows where
