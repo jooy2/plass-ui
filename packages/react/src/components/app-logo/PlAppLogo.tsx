@@ -6,6 +6,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import {
   controlSlots,
   cx,
+  focusRingClasses,
   hasContent,
   markRestClasses,
   metaTextClasses,
@@ -170,6 +171,10 @@ export const PlAppLogo = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlApp
         className: cx(
           'inline-flex items-center text-(--plass-fg) [&_svg]:h-full [&_svg]:w-auto',
           gapClasses[size],
+          // The house ring when a `render` makes the logo a link or a button,
+          // as the Flutter logo draws it, rather than the browser's own
+          // outline. It only ever shows on something the keyboard reached.
+          focusRingClasses,
           className
         ),
         style: { ...controlSlots(color, 1, variant), ...style },

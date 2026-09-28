@@ -109,4 +109,21 @@ describe('PlAppLogo', () => {
       await expect.element(screen.getByRole('link')).toHaveAttribute('href', '/');
     });
   });
+
+  describe('as a link', () => {
+    it('draws the house ring, not the browser outline, when the keyboard reaches it', async () => {
+      await render(
+        <PlAppLogo name="Acme" render={<a href="#home" className="logo-under-test" />}>
+          <svg />
+        </PlAppLogo>
+      );
+
+      const element = document.querySelector<HTMLElement>('.logo-under-test')!;
+
+      // As the Flutter logo draws it. The ring is the house one, drawn in the
+      // colour family's own ring, only where the focus is visible.
+      expect(element).toHaveClass('focus-visible:[outline:2px_solid_var(--p-ring)]');
+      expect(element.style.getPropertyValue('--p-ring')).toMatch(/--plass-primary-ring/);
+    });
+  });
 });

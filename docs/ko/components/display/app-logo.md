@@ -139,13 +139,13 @@ PlAppLogo(semanticLabel: 'Acme', child: Image.asset('assets/logo.png'));
 
 ::: fw react
 
-- 홈으로 가는 로고라면 그렇게 알려야 합니다. `render={<a href="/" />}`는 그림에 클릭 핸들러를 붙이는 대신 목적지가 있는 진짜 링크로 만듭니다.
+- 홈으로 가는 로고라면 그렇게 알려야 합니다. `render={<a href="/" />}`는 그림에 클릭 핸들러를 붙이는 대신 목적지가 있는 진짜 링크로 만듭니다. 링크는 모든 링크처럼 <kbd>Enter</kbd>에만 반응하고, 키보드가 focus를 쥐고 있는 동안 하우스 focus ring을 그립니다.
 
 :::
 
 ::: fw flutter
 
-- `onPressed`를 주면 로고는 버튼이 되고 focus stop을 가집니다. Flutter에는 로고를 링크로 만들 요소가 없기 때문입니다. <kbd>Tab</kbd>으로 닿고 <kbd>Enter</kbd>나 <kbd>Space</kbd>로 누르며, focus ring은 키보드가 focus를 쥐고 있을 때에만 그려집니다.
+- `onPressed`를 주면 로고는 버튼이 되고 focus stop을 가집니다. Flutter에는 로고를 링크로 만들 요소가 없기 때문입니다. <kbd>Tab</kbd>으로 닿고 모든 버튼처럼 <kbd>Enter</kbd>나 <kbd>Space</kbd>로 누르며(링크로 그린 React 로고는 <kbd>Enter</kbd>에만 반응합니다), focus ring은 키보드가 focus를 쥐고 있을 때에만 그려집니다.
 - `onPressed`가 없는 로고는 role도 focus stop도 더하지 않습니다.
 
 :::

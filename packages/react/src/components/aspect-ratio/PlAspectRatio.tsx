@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
-import { cx, radiusClasses } from '../../internal/styles.js';
+import { cx, focusRingClasses, radiusClasses } from '../../internal/styles.js';
 import type { PlassSize } from '../../types.js';
 
 /**
@@ -115,6 +115,7 @@ export const PlAspectRatio = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
   ) {
     const defaults = useDefaults();
     const size = sizeProp ?? defaults.size ?? 'md';
+    const color = defaults.color ?? 'primary';
 
     const classNames = cx(
       // `overflow-hidden` is not decoration: without it a `cover` image spills
@@ -124,6 +125,10 @@ export const PlAspectRatio = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       stretchClasses,
       fitClasses[fit],
       rounded ? radiusClasses[size] : '',
+      // The house ring when `render={<a href="…" />}` makes the box a link,
+      // rather than the browser's own outline. It only ever shows on
+      // something the keyboard reached.
+      focusRingClasses,
       className
     );
 
@@ -132,7 +137,11 @@ export const PlAspectRatio = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       ref,
       props: {
         className: classNames,
-        style: { aspectRatio: ratio, ...style },
+        style: {
+          aspectRatio: ratio,
+          '--p-ring': `var(--plass-${color}-ring)`,
+          ...style
+        } as React.CSSProperties,
         children,
         ...props
       }
