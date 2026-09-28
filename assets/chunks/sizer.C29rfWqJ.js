@@ -1,0 +1,1 @@
+import{j as n}from"./jsx-runtime.BjG_zV1W.js";function i({samples:e}){return e.length===0?null:n.jsx("span",{"aria-hidden":"true",className:"invisible h-0 min-h-0 overflow-hidden",children:e.map((a,t)=>n.jsx("span",{"data-sample":a,className:"block whitespace-nowrap before:content-[attr(data-sample)]"},`${t}:${a}`))})}export{i as W};

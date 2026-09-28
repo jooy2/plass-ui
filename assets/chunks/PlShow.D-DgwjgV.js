@@ -1,0 +1,1 @@
+import{r as m}from"./index.BC-ZOPMe.js";import{f as p}from"./styles.D4E1TB_Z.js";import{u as n}from"./useRender.COoM-lmu.js";const d=m.forwardRef(function({from:r,until:o,render:a,className:s,children:t,...e},f){return n({render:a,ref:f,props:{className:p("plass-show",s),"data-from":r,"data-until":o,children:t,...e}})});export{d as P};

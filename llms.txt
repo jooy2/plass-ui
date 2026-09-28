@@ -1,0 +1,200 @@
+# Plass
+
+> Plass is a UI component library that ships one design language for two frameworks: `plass-ui` on npm for React, and `plass_ui` on pub.dev for Flutter. Both hold the same components under the same names, the same prop vocabulary and the same tokens, and the two version independently.
+
+Every component page covers both frameworks. The hooks, and the three components marked React only, exist in the React package alone. The links below are the English pages; the Korean ones are the same paths under `/ko/`.
+
+## Guide
+
+- [Getting started](https://plass.cdget.com/guide/getting-started): installing either package, the one-line CSS setup and dark mode
+- [Setting defaults](https://plass.cdget.com/guide/defaults): setting `size`, `color`, `locale` and the rest once for everything below
+- [Translating the words](https://plass.cdget.com/guide/locales): the words the components say about themselves, and the packs that translate them
+- [Browser support](https://plass.cdget.com/browser-support): the oldest browsers the React package works in, and what decides them
+
+## Examples
+
+- [Admin dashboard](https://plass.cdget.com/examples/dashboard): a back office with a nav rail, figures and a table with bulk actions
+- [Landing page](https://plass.cdget.com/examples/landing): a marketing page with a feature grid, pricing and an FAQ
+- [Sign-up](https://plass.cdget.com/examples/signup): a three-step form with real validation
+
+## Components
+
+- [All components](https://plass.cdget.com/components/): every component on one page, each as a running preview
+
+## Charts
+
+- [PlAreaChart](https://plass.cdget.com/components/charts/area-chart): a line with the space under it filled, alone or stacked
+- [PlBarChart](https://plass.cdget.com/components/charts/bar-chart): lengths compared, on an axis that starts at zero
+- [PlGaugeChart](https://plass.cdget.com/components/charts/gauge-chart): one number on a known scale, drawn as a dial
+- [PlHeatmapChart](https://plass.cdget.com/components/charts/heatmap-chart): a magnitude per cell, as a grid or a treemap
+- [PlLineChart](https://plass.cdget.com/components/charts/line-chart): a value against time, or against anything else with an order
+- [PlPieChart](https://plass.cdget.com/components/charts/pie-chart): parts of a whole, at a glance
+- [PlScatterChart](https://plass.cdget.com/components/charts/scatter-chart): two numbers per point, and whether they move together
+- [PlSparkline](https://plass.cdget.com/components/charts/sparkline): a word-sized chart with no axes, grid or legend
+- [PlTimelineChart](https://plass.cdget.com/components/charts/timeline-chart): work against time, a row per thing and a bar per stretch of it
+
+## Display
+
+- [PlAppLogo](https://plass.cdget.com/components/display/app-logo): a product's mark with its name beside it
+- [PlAvatar](https://plass.cdget.com/components/display/avatar): a picture of a person or a thing that is never an empty box
+- [PlBadge](https://plass.cdget.com/components/display/badge): a small mark in the corner of something else, such as an unread count
+- [PlBlockquote](https://plass.cdget.com/components/display/blockquote): somebody else's words, set apart from your own
+- [PlBreadcrumb](https://plass.cdget.com/components/display/breadcrumb): the trail of pages above the one being read
+- [PlChip](https://plass.cdget.com/components/display/chip): a compact token, such as a tag, a filter or a status
+- [PlCodeBlock](https://plass.cdget.com/components/display/code-block): a highlighted viewer for one line of code or a thousand
+- [PlDataList](https://plass.cdget.com/components/display/data-list): labels and the values that go with them
+- [PlDataTable](https://plass.cdget.com/components/display/data-table): a table that sorts, filters, pages and selects its own rows
+- [PlDivider](https://plass.cdget.com/components/display/divider): a rule between two things
+- [PlGallery](https://plass.cdget.com/components/display/gallery): a set of pictures in one of four layouts
+- [PlHighlight](https://plass.cdget.com/components/display/highlight): marks the words a reader is looking for inside text
+- [PlHotKeys](https://plass.cdget.com/components/display/hot-keys): a keyboard key, or a combination of them
+- [PlIcon](https://plass.cdget.com/components/display/icon): a glyph from any icon set, at a known size and colour
+- [PlImage](https://plass.cdget.com/components/display/image): a picture, with its space reserved and its failure drawn
+- [PlList](https://plass.cdget.com/components/display/list): a stack of rows on one sheet
+- [PlMockup](https://plass.cdget.com/components/display/mockup): a phone, tablet, monitor or laptop with anything on its screen
+- [PlStat](https://plass.cdget.com/components/display/stat): one figure and what has happened to it
+- [PlTable](https://plass.cdget.com/components/display/table): a grid of data, given as columns and rows
+- [PlTextLink](https://plass.cdget.com/components/display/text-link): a link, in a sentence or on its own
+- [PlTimeline](https://plass.cdget.com/components/display/timeline): a sequence of steps in the order they happen
+- [PlTree](https://plass.cdget.com/components/display/tree): a hierarchy opened one branch at a time
+- [PlTypography](https://plass.cdget.com/components/display/typography): the library's type scale, from `h1` to `overline`
+- [PlVisuallyHidden](https://plass.cdget.com/components/display/visually-hidden): content for a screen reader and nobody else; React only
+
+## Feedback
+
+- [PlAlert](https://plass.cdget.com/components/feedback/alert): a message about something that happened, set into the page it is about
+- [PlConfirmProvider](https://plass.cdget.com/components/feedback/confirm): one confirm dialog, asked for from anywhere and awaited
+- [PlDrawer](https://plass.cdget.com/components/feedback/drawer): a panel attached to one edge of the window, over the page or beside it
+- [PlEmpty](https://plass.cdget.com/components/feedback/empty): the place where there is nothing, such as an empty list or a failed request
+- [PlMeter](https://plass.cdget.com/components/feedback/meter): a quantity inside a range, drawn as a bar
+- [PlModal](https://plass.cdget.com/components/feedback/modal): a dialog that takes the page away until it is answered
+- [PlOverlay](https://plass.cdget.com/components/feedback/overlay): a scrim over the whole page that stops it being used
+- [PlPopconfirm](https://plass.cdget.com/components/feedback/popconfirm): a question asked beside the control that raised it
+- [PlPopover](https://plass.cdget.com/components/feedback/popover): a sheet that opens beside the thing that opened it
+- [PlProgressBox](https://plass.cdget.com/components/feedback/progress-box): progress as a row of small plates that light up
+- [PlProgressCircular](https://plass.cdget.com/components/feedback/progress-circular): a ring that fills, where there is no room for a bar
+- [PlProgressLinear](https://plass.cdget.com/components/feedback/progress-linear): a bar that fills as the work gets done
+- [PlSkeleton](https://plass.cdget.com/components/feedback/skeleton): the shape of something that has not loaded yet
+- [PlToast](https://plass.cdget.com/components/feedback/toast): a message that appears on its own, says what happened and leaves
+- [PlTooltip](https://plass.cdget.com/components/feedback/tooltip): a short label shown while the pointer or the focus rests on something
+- [PlTour](https://plass.cdget.com/components/feedback/tour): a guided walk over a screen that already exists
+
+## Inputs
+
+- [PlButton](https://plass.cdget.com/components/inputs/button): a control that runs an action
+- [PlButtonGroup](https://plass.cdget.com/components/inputs/button-group): a run of buttons that belong together
+- [PlCalendar](https://plass.cdget.com/components/inputs/calendar): a month on the page rather than in a popup
+- [PlCheckbox](https://plass.cdget.com/components/inputs/checkbox): a single yes or no
+- [PlColorPicker](https://plass.cdget.com/components/inputs/color-picker): a colour chosen by eye, on a saturation square and a hue rail
+- [PlCombobox](https://plass.cdget.com/components/inputs/combobox): a field you can type into and also choose from
+- [PlDatePicker](https://plass.cdget.com/components/inputs/date-picker): one day, chosen from a calendar in a popup
+- [PlDateRangePicker](https://plass.cdget.com/components/inputs/date-range-picker): a span between two days
+- [PlDateTimePicker](https://plass.cdget.com/components/inputs/date-time-picker): a day and a time in one popup
+- [PlFieldset](https://plass.cdget.com/components/inputs/fieldset): a named group of controls that answer one question together
+- [PlFilePicker](https://plass.cdget.com/components/inputs/file-picker): a box you drop files on, or click to open the file dialog
+- [PlFloatingActionButton](https://plass.cdget.com/components/inputs/floating-action-button): the one action a screen is about, floating over it
+- [PlForm](https://plass.cdget.com/components/inputs/form): a form that knows which of its fields is wrong
+- [PlIconButton](https://plass.cdget.com/components/inputs/icon-button): a round button with only a glyph in it
+- [PlNumberField](https://plass.cdget.com/components/inputs/number-field): a field that only holds a number
+- [PlOtpField](https://plass.cdget.com/components/inputs/otp-field): a row of one-character slots for a code or a PIN
+- [PlPagination](https://plass.cdget.com/components/inputs/pagination): the strip of page numbers under a long list
+- [PlRadioGroup](https://plass.cdget.com/components/inputs/radio-group): a set of options where exactly one is chosen
+- [PlRating](https://plass.cdget.com/components/inputs/rating): a score out of five as a row of stars
+- [PlSegmentedButton](https://plass.cdget.com/components/inputs/segmented-button): two or more choices in one pill, exactly one taken
+- [PlSelect](https://plass.cdget.com/components/inputs/select): one value chosen from a list
+- [PlSlider](https://plass.cdget.com/components/inputs/slider): a value chosen along a range
+- [PlSwitch](https://plass.cdget.com/components/inputs/switch): an on and off that takes effect at once
+- [PlTextField](https://plass.cdget.com/components/inputs/text-field): single-line or multi-line text input
+- [PlTimePicker](https://plass.cdget.com/components/inputs/time-picker): a time of day, chosen from columns
+- [PlToggle](https://plass.cdget.com/components/inputs/toggle): a button that stays down, and a group of them that share one state
+- [PlTransfer](https://plass.cdget.com/components/inputs/transfer): two lists and the buttons that move items between them
+- [PlTreeSelect](https://plass.cdget.com/components/inputs/tree-select): a value chosen out of a hierarchy rather than a list
+
+## Layout
+
+- [PlAspectRatio](https://plass.cdget.com/components/layout/aspect-ratio): a box that keeps a proportion at any width
+- [PlContainer](https://plass.cdget.com/components/layout/container): the space at the sides of a page, and an optional maximum width
+- [PlFlex](https://plass.cdget.com/components/layout/flex): a row or a column and the gap between the things in it; React only
+- [PlFooter](https://plass.cdget.com/components/layout/footer): the sheet at the end of a page
+- [PlGrid](https://plass.cdget.com/components/layout/grid): a twelve-column row and the cells in it
+- [PlHeader](https://plass.cdget.com/components/layout/header): the bar across the top of a page
+- [PlPageLayout](https://plass.cdget.com/components/layout/page-layout): the skeleton of a page, with its header, footer, sidebars and landmarks
+- [PlPanes](https://plass.cdget.com/components/layout/panes): regions with draggable handles between them
+- [PlPortal](https://plass.cdget.com/components/layout/portal): children rendered somewhere else in the document; React only
+- [PlScrollArea](https://plass.cdget.com/components/layout/scroll-area): a bounded box that scrolls, with the library's own scrollbar
+- [PlScrollZone](https://plass.cdget.com/components/layout/scroll-zone): a strip of anything, scrolled in one direction
+- [PlShow](https://plass.cdget.com/components/layout/show): content shown at some widths and not others
+- [PlSidebar](https://plass.cdget.com/components/layout/sidebar): a column beside the content that becomes a drawer in a narrow window
+- [PlStack](https://plass.cdget.com/components/layout/stack): things piled up, overlapping
+
+## Navigation
+
+- [PlAnchor](https://plass.cdget.com/components/navigation/anchor): a table of contents that follows the reader down the page
+- [PlBackTop](https://plass.cdget.com/components/navigation/back-top): a button back to the top, shown once the page has scrolled far enough
+- [PlBottomNavigation](https://plass.cdget.com/components/navigation/bottom-navigation): a row of destinations held against the bottom edge of the window
+- [PlCommandPalette](https://plass.cdget.com/components/navigation/command-palette): everything an application can do, behind one field
+- [PlFloatingBottomNavigation](https://plass.cdget.com/components/navigation/floating-bottom-navigation): a row of round destinations floating above the bottom edge
+- [PlMenu](https://plass.cdget.com/components/navigation/menu): a list of actions that appears when something is pressed
+- [PlMenubar](https://plass.cdget.com/components/navigation/menubar): the strip of words at the top of an application, each opening a menu
+- [PlNavigationMenu](https://plass.cdget.com/components/navigation/navigation-menu): a site's navigation, where some destinations open a panel of more
+- [PlStepper](https://plass.cdget.com/components/navigation/stepper): a process the reader is moving through, and where they are in it
+
+## Surfaces
+
+- [PlAccordion](https://plass.cdget.com/components/surfaces/accordion): a stack of sections that fold open
+- [PlBox](https://plass.cdget.com/components/surfaces/box): a sheet of glass that groups content and does nothing else
+- [PlCard](https://plass.cdget.com/components/surfaces/card): the sheet a screen is grouped onto, with title and footer slots
+- [PlCarousel](https://plass.cdget.com/components/surfaces/carousel): a strip of slides, one of which is in view
+- [PlChatBubble](https://plass.cdget.com/components/surfaces/chat-bubble): one message in a conversation
+- [PlCollapsible](https://plass.cdget.com/components/surfaces/collapsible): one section that folds, standing on its own
+- [PlHoverCard](https://plass.cdget.com/components/surfaces/hover-card): a preview of what is behind a link, shown when the pointer rests on it
+- [PlHowToSteps](https://plass.cdget.com/components/surfaces/how-to-steps): numbered instructions, with what to do under each one
+- [PlPill](https://plass.cdget.com/components/surfaces/pill): a floating lozenge holding a little live information
+- [PlSpoiler](https://plass.cdget.com/components/surfaces/spoiler): content covered until somebody asks to see it
+- [PlTabs](https://plass.cdget.com/components/surfaces/tabs): a set of panels, one of which is shown
+- [PlToolbar](https://plass.cdget.com/components/surfaces/toolbar): a bar of controls with a start and an end
+- [PlWindowPane](https://plass.cdget.com/components/surfaces/window-pane): a window drawn the way one of eight systems draws it
+
+## Transitions
+
+- [PlAnimateAppear](https://plass.cdget.com/components/transitions/animate-appear): a list of things settling into place one after another
+- [PlAnimateBlink](https://plass.cdget.com/components/transitions/animate-blink): content pulsing between full opacity and a floor
+- [PlAnimateCounter](https://plass.cdget.com/components/transitions/animate-counter): a number counting up to its value
+- [PlAnimateFade](https://plass.cdget.com/components/transitions/animate-fade): content arriving or leaving on opacity alone
+- [PlAnimateFloat](https://plass.cdget.com/components/transitions/animate-float): content drifting gently without going anywhere
+- [PlAnimateGrow](https://plass.cdget.com/components/transitions/animate-grow): content unfolding from a point
+- [PlAnimateHeadline](https://plass.cdget.com/components/transitions/animate-headline): one line replacing the one above it, on a timer
+- [PlAnimateLighting](https://plass.cdget.com/components/transitions/animate-lighting): a light travelling around the outside of something
+- [PlAnimateMarquee](https://plass.cdget.com/components/transitions/animate-marquee): content scrolling steadily past without end
+- [PlAnimateReveal](https://plass.cdget.com/components/transitions/animate-reveal): content uncovered behind a moving edge
+- [PlAnimateRotate](https://plass.cdget.com/components/transitions/animate-rotate): content turning about a point
+- [PlAnimateScramble](https://plass.cdget.com/components/transitions/animate-scramble): a line of text resolving out of noise
+- [PlAnimateShake](https://plass.cdget.com/components/transitions/animate-shake): a refusal, played when something is rejected
+- [PlAnimateSlide](https://plass.cdget.com/components/transitions/animate-slide): content travelling in from one edge
+- [PlAnimateSplit](https://plass.cdget.com/components/transitions/animate-split): a line of text arriving one part at a time
+- [PlAnimateTyping](https://plass.cdget.com/components/transitions/animate-typing): text appearing one character at a time
+- [PlAnimateZoom](https://plass.cdget.com/components/transitions/animate-zoom): content arriving from the middle of where it will end up
+
+## Hooks
+
+- [usePlBreakpoint](https://plass.cdget.com/hooks/use-breakpoint): which breakpoint the window is at, and a responsive value resolved there; React only
+- [usePlColorScheme](https://plass.cdget.com/hooks/use-color-scheme): the dark mode toggle, and a script that prevents the flash; React only
+- [usePlDisclosure](https://plass.cdget.com/hooks/use-disclosure): one boolean and the callbacks that change it; React only
+- [usePlElementSize](https://plass.cdget.com/hooks/use-element-size): how big an element is, kept up to date; React only
+- [usePlHotKeys](https://plass.cdget.com/hooks/use-hot-keys): keyboard shortcuts bound outside any one control; React only
+- [usePlMediaQuery](https://plass.cdget.com/hooks/use-media-query): whether the window matches a CSS media query; React only
+- [usePlOnScreen](https://plass.cdget.com/hooks/use-on-screen): whether an element is on screen; React only
+- [usePlReducedMotion](https://plass.cdget.com/hooks/use-reduced-motion): whether the reader has asked for less movement; React only
+
+## Design
+
+- [Design language](https://plass.cdget.com/design/design-language): the tinted-glass rule, and the surfaces, shadows and motion that follow from it
+- [Colour](https://plass.cdget.com/design/color): the six colour families, their measured contrast and how to override them
+- [Right to left](https://plass.cdget.com/design/rtl): how every component lays itself out for a right-to-left language
+- [Breakpoints](https://plass.cdget.com/design/breakpoints): the five named widths, and how to move them
+- [Prop conventions](https://plass.cdget.com/design/prop-conventions): what the shared props mean, and the rules a new prop is named by
+
+## Optional
+
+- [Full descriptions](https://plass.cdget.com/llms-full.txt): every page above described at length in one file, with the design language and the shared prop vocabulary
+- [Changelog](https://plass.cdget.com/changelog): every release of both packages, newest first

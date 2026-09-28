@@ -1,0 +1,1 @@
+import{j as m}from"./jsx-runtime.BjG_zV1W.js";import{r as o}from"./index.BC-ZOPMe.js";import{P as r}from"./page-layout.DGhp463o.js";import"./breakpoints.DlJye0kM.js";import"./media.CdpFwNj5.js";function x({children:e}){const t=o.useContext(r),s=o.useMemo(()=>({...t,present:!0}),[t]);return m.jsx(r.Provider,{value:s,children:e})}export{x as NestedLayout};
