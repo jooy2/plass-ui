@@ -56,6 +56,21 @@ void main() {
       expect(find.text('Nothing here'), findsOneWidget);
     });
 
+    testWidgets('draws nothing in a box too small for a dial, and says no more than its reading', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(const PlGaugeChart(value: 68, semanticLabel: 'Quota'), width: 3, height: 3),
+      );
+      await tester.pumpAndSettle();
+
+      // As the React gauge draws nothing there. The empty state's words said
+      // under a reading told a reader there was nothing to read.
+      expect(tester.takeException(), isNull);
+      expect(find.text('Nothing here'), findsNothing);
+      expect(find.bySemanticsLabel('Quota: 68 / 100'), findsOneWidget);
+    });
+
     testWidgets('takes every sweep from a half-dial to a ring', (WidgetTester tester) async {
       for (final double sweep in <double>[90, 180, 270, 360]) {
         await _pump(tester, PlGaugeChart(value: 40, sweep: sweep, semanticLabel: 'Quota'));

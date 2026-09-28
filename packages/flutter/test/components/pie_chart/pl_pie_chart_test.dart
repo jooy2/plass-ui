@@ -178,6 +178,21 @@ void main() {
       expect(node.value, isEmpty);
     });
 
+    testWidgets('draws nothing in a box too small for a pie, rather than its empty state', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const PlPieChart(data: traffic, categories: sources, legend: PlChartLegend(hidden: true)),
+          width: 3,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Nothing here'), findsNothing);
+    });
+
     testWidgets('puts the caller content in the hole of a donut', (WidgetTester tester) async {
       await _pump(
         tester,

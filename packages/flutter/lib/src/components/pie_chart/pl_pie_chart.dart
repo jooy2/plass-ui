@@ -329,7 +329,14 @@ class _PlPieChartState extends State<PlPieChart> with SingleTickerProviderStateM
         final double centreY = semi ? math.min(height, height / 2 + outer / 2) : height / 2;
         final double inner = outer * (widget.innerRadius ?? _holes[widget.shape]!).clamp(0.0, 0.95);
 
-        if (nothing || outer <= 0) {
+        // A box too small to draw in draws nothing, as the React pie does: the
+        // empty state's words are for a pie with no data, and said under data
+        // they would tell a reader there is none.
+        if (!nothing && outer <= 0) {
+          return SizedBox(width: width, height: height);
+        }
+
+        if (nothing) {
           return SizedBox(
             width: width,
             height: height,

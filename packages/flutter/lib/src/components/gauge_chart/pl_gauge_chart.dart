@@ -163,7 +163,13 @@ class PlGaugeChart extends StatelessWidget {
                 : const <String>[],
           );
 
-          if (box.outer <= 0 || range == 0) {
+          // A dial too small to draw draws nothing, as the React gauge does. The
+          // empty state's words are for a gauge with no range to read.
+          if (range != 0 && box.outer <= 0) {
+            return const SizedBox.shrink();
+          }
+
+          if (range == 0) {
             return Center(
               child:
                   empty ??
