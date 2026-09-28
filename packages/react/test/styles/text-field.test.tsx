@@ -1,6 +1,7 @@
 /**
- * The colour a `PlTextField`'s adornments are drawn in, which only the
- * stylesheet can answer.
+ * The colour a `PlTextField`'s adornments are drawn in, and where a notched
+ * label sits as the field takes the focus, which only the stylesheet can
+ * answer.
  *
  * A glass field's family reaches its edge, its ring and its caret, and an
  * adornment is not one of them. It is read with `src/standalone.css` loaded the
@@ -9,7 +10,7 @@
  * adornment's is the one `--plass-muted-fg` resolves to either way.
  */
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
+import { commands, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlTextField } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -74,5 +75,26 @@ describe('the text field stylesheet', () => {
 
     expect(getComputedStyle(start).color).toBe(muted);
     expect(getComputedStyle(end).color).toBe(muted);
+  });
+
+  it('keeps a notched label where it was as the focus thickens the edge', async () => {
+    const screen = await render(<PlTextField label="Email" labelPlacement="notch" />);
+    const input = screen.getByRole('textbox', { name: 'Email' }).element() as HTMLElement;
+    const edge = document.querySelector('fieldset') as HTMLElement;
+    const label = document.querySelector('legend > label') as HTMLElement;
+    const before = label.getBoundingClientRect();
+
+    // A press rather than `focus()`: a text input matches `:focus-visible`
+    // however it is focused by a person, and that is the rule that thickens
+    // the edge.
+    await userEvent.click(input);
+    await expect.poll(() => input.matches(':focus-visible')).toBe(true);
+
+    const after = label.getBoundingClientRect();
+
+    // The edge has taken its extra pixel, and the label has not moved with it.
+    expect(getComputedStyle(edge).borderInlineStartWidth).toBe('2px');
+    expect(after.left).toBe(before.left);
+    expect(after.top).toBe(before.top);
   });
 });

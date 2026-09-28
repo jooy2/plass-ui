@@ -64,10 +64,28 @@ const riseGapClasses: Record<PlassSize, string> = {
  * the curve takes a bite out of the arc instead of out of a straight line,
  * which is what pushes the compact track's labels a few pixels past their
  * values at the small end. A corner is not a place a label can go.
+ *
+ * Less `--p-notch-grow`, which is how much thicker than the hairline the edge
+ * is drawn at that moment. A legend is laid out from the inside of its
+ * fieldset's border, so the pixel focus adds to the edge would otherwise push
+ * the label a pixel along with it, and the name would shift each time the
+ * field took or lost the focus.
  */
 const insetClasses: Record<PlassDensity, Record<PlassSize, string>> = {
-  default: { xs: 'ms-2', sm: 'ms-2.5', md: 'ms-3', lg: 'ms-5', xl: 'ms-6' },
-  compact: { xs: 'ms-2', sm: 'ms-2.5', md: 'ms-3', lg: 'ms-3.5', xl: 'ms-4' }
+  default: {
+    xs: 'ms-[calc(0.5rem_-_var(--p-notch-grow,0px))]',
+    sm: 'ms-[calc(0.625rem_-_var(--p-notch-grow,0px))]',
+    md: 'ms-[calc(0.75rem_-_var(--p-notch-grow,0px))]',
+    lg: 'ms-[calc(1.25rem_-_var(--p-notch-grow,0px))]',
+    xl: 'ms-[calc(1.5rem_-_var(--p-notch-grow,0px))]'
+  },
+  compact: {
+    xs: 'ms-[calc(0.5rem_-_var(--p-notch-grow,0px))]',
+    sm: 'ms-[calc(0.625rem_-_var(--p-notch-grow,0px))]',
+    md: 'ms-[calc(0.75rem_-_var(--p-notch-grow,0px))]',
+    lg: 'ms-[calc(0.875rem_-_var(--p-notch-grow,0px))]',
+    xl: 'ms-[calc(1rem_-_var(--p-notch-grow,0px))]'
+  }
 };
 
 /** The air either side of the label, inside the cut. Tighter at the two small sizes. */
@@ -142,9 +160,14 @@ const edgeDisabledClasses: Record<PlassVariant, string> = {
  * The width is `:focus-visible` while the colour above is `:focus-within`, so a
  * field that was clicked into reads as active and a field that was tabbed to
  * reads as focused, exactly as the two rules on the shell do today.
+ *
+ * The extra pixel is also written to `--p-notch-grow`, which the legend's
+ * inset takes back off, so the edge thickens inward and the label stays where
+ * it was.
  */
 const edgeFocusClasses = /* @__PURE__ */ [
   'group-has-[:focus-visible]/field:[border-width:2px]',
+  'group-has-[:focus-visible]/field:[--p-notch-grow:1px]',
   'group-has-[:focus-visible]/field:forced-colors:[border-color:Highlight]'
 ].join(' ');
 
