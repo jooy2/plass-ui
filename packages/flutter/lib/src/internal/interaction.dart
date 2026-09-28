@@ -77,22 +77,27 @@ typedef PlassInteractionBuilder = Widget Function(BuildContext context, PlassInt
 /// would be a node of its own.
 ///
 /// A node that a [PlassFocusHolder] round it holds the focus for says it holds
-/// it too.
-({bool? focused, VoidCallback? onFocus}) plassFocusSemanticsOf(BuildContext context) {
+/// it too, and says whether the popup it opens is open as [expanded], which is
+/// `null` for any other node. A component that says whether it is expanded
+/// for a reason of its own says that instead.
+({bool? focused, VoidCallback? onFocus, bool? expanded}) plassFocusSemanticsOf(
+  BuildContext context,
+) {
   final FocusNode node = Focus.of(context);
 
   if (!node.canRequestFocus) {
-    return (focused: null, onFocus: null);
+    return (focused: null, onFocus: null, expanded: null);
   }
 
   // Asked every time, so the node is told whenever a holder round it takes
-  // the focus or gives it up.
+  // the focus or gives it up, and whenever its popup opens or shuts.
   final bool held = PlassFocusHolder.holdsFor(context, node);
 
   return (
     focused: node.hasPrimaryFocus || held,
     // Left off on iOS, as a `Focus` leaves it: flutter/flutter#150030.
     onFocus: defaultTargetPlatform == TargetPlatform.iOS ? null : node.requestFocus,
+    expanded: PlassFocusHolder.expandedFor(context, node),
   );
 }
 
@@ -107,11 +112,16 @@ typedef PlassInteractionBuilder = Widget Function(BuildContext context, PlassInt
 /// inside it that can take the focus says it holds it: through
 /// [plassFocusSemanticsOf], or through [holdsFor] for a control whose [Focus]
 /// speaks for it.
+///
+/// That node is the trigger, so it also says whether the popup is [open], as
+/// a trigger's `aria-expanded` does, open or shut: through
+/// [plassFocusSemanticsOf], or through [expandedFor].
 class PlassFocusHolder extends InheritedWidget {
   /// Wraps the control [node] holds the focus for.
   const PlassFocusHolder({
     required this.node,
     required this.holding,
+    required this.open,
     required super.child,
     super.key,
   });
@@ -122,33 +132,52 @@ class PlassFocusHolder extends InheritedWidget {
   /// Whether [node] holds the primary focus.
   final bool holding;
 
+  /// Whether the popup the control opens is open.
+  final bool open;
+
+  /// The holder round [context] when [focusNode] is the outermost node inside
+  /// it that can take the focus, with no node between the two that can.
+  static PlassFocusHolder? _standingIn(BuildContext context, FocusNode focusNode) {
+    final PlassFocusHolder? holder = context.dependOnInheritedWidgetOfExactType<PlassFocusHolder>();
+
+    if (holder == null) {
+      return null;
+    }
+
+    for (final FocusNode ancestor in focusNode.ancestors) {
+      if (identical(ancestor, holder.node)) {
+        return holder;
+      }
+
+      if (ancestor.canRequestFocus) {
+        return null;
+      }
+    }
+
+    return null;
+  }
+
   /// Whether a holder round [context] holds the focus for [focusNode]: it
   /// holds the primary focus, and no node between the two can take the focus.
   ///
   /// Read again whenever the holder takes the focus or gives it up.
   static bool holdsFor(BuildContext context, FocusNode focusNode) {
-    final PlassFocusHolder? holder = context.dependOnInheritedWidgetOfExactType<PlassFocusHolder>();
+    return _standingIn(context, focusNode)?.holding ?? false;
+  }
 
-    if (holder == null || !holder.holding) {
-      return false;
-    }
-
-    for (final FocusNode ancestor in focusNode.ancestors) {
-      if (identical(ancestor, holder.node)) {
-        return true;
-      }
-
-      if (ancestor.canRequestFocus) {
-        return false;
-      }
-    }
-
-    return false;
+  /// Whether the popup opened by the control [focusNode] belongs to is open,
+  /// or `null` when no holder round [context] stands for it.
+  ///
+  /// Read again whenever the popup opens or shuts.
+  static bool? expandedFor(BuildContext context, FocusNode focusNode) {
+    return _standingIn(context, focusNode)?.open;
   }
 
   @override
   bool updateShouldNotify(PlassFocusHolder oldWidget) {
-    return holding != oldWidget.holding || !identical(node, oldWidget.node);
+    return holding != oldWidget.holding ||
+        open != oldWidget.open ||
+        !identical(node, oldWidget.node);
   }
 }
 
@@ -576,9 +605,14 @@ class PlassInteractiveState extends State<PlassInteractive> {
               // is inside the builder would have a second node above it.
               final focus = widget.focusSemantics
                   ? plassFocusSemanticsOf(context)
-                  : (focused: null, onFocus: null);
+                  : (focused: null, onFocus: null, expanded: null);
 
-              return Semantics(focused: focus.focused, onFocus: focus.onFocus, child: surface);
+              return Semantics(
+                focused: focus.focused,
+                onFocus: focus.onFocus,
+                expanded: focus.expanded,
+                child: surface,
+              );
             },
           ),
         ),

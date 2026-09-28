@@ -410,6 +410,7 @@ class _Step extends StatelessWidget {
           link: interactive ? true : null,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           enabled: interactive ? null : !item.disabled,
           // The step the reader is on is a *page*, not the chosen one of a set
           // of options — which is why it is a header rather than a selection.
@@ -487,6 +488,7 @@ class _Fold extends StatelessWidget {
           label: label,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: onPressed,
           child: mark,
         );

@@ -237,6 +237,7 @@ class PlTextLink extends StatelessWidget {
           enabled: onPressed != null,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: onPressed,
           // Drawn for nobody and read to everybody: the arrow says "leaves the
           // app" only to a reader who can see it.

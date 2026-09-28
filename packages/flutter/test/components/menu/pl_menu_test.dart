@@ -807,6 +807,69 @@ void main() {
         handle.dispose();
       });
 
+      for (final bool chip in <bool>[false, true]) {
+        final String name = chip ? 'Filter' : 'Open';
+
+        testWidgets('says whether it is open on the trigger\'s own node, '
+            '${chip ? 'a trigger named inside its surface' : 'a PlButton'}', (
+          WidgetTester tester,
+        ) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+
+          await tester.pumpWidget(
+            host(
+              PlMenu(
+                items: const <PlMenuEntry>[PlMenuItem(label: 'Cut')],
+                label: 'Actions',
+                trigger: (BuildContext context, VoidCallback open, bool isOpen) => chip
+                    ? PlChip(onPressed: open, child: Text(name))
+                    : PlButton(onPressed: open, child: Text(name)),
+              ),
+              overlay: true,
+            ),
+          );
+
+          Tristate expanded() {
+            return semanticsNodeLabelled(
+              tester,
+              name,
+            )!.getSemanticsData().flagsCollection.isExpanded;
+          }
+
+          // Collapsed while it is shut and expanded while it is open, as the
+          // React trigger's `aria-expanded` says, which it did not say at all.
+          expect(expanded(), Tristate.isFalse);
+
+          await tester.tap(find.text(name));
+          await tester.pumpAndSettle();
+
+          expect(find.text('Cut'), findsOneWidget);
+          expect(expanded(), Tristate.isTrue);
+
+          await tester.tap(find.text('Cut'));
+          await tester.pumpAndSettle();
+
+          expect(expanded(), Tristate.isFalse);
+
+          handle.dispose();
+        });
+      }
+
+      testWidgets('says nothing of being expanded on a control that opens no menu', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(host(PlButton(onPressed: () {}, child: const Text('Save'))));
+
+        expect(
+          semanticsNodeLabelled(tester, 'Save')!.getSemanticsData().flagsCollection.isExpanded,
+          Tristate.none,
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('marks a ticked row as checked and a chosen one as selected', (
         WidgetTester tester,
       ) async {

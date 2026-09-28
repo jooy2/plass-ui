@@ -336,7 +336,7 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
         row = Semantics(
           button: interactive ? true : null,
           enabled: interactive ? true : null,
-          expanded: interactive && widget.details != null ? widget.expanded : null,
+          expanded: interactive && widget.details != null ? widget.expanded : focus.expanded,
           focused: focus.focused,
           onFocus: focus.onFocus,
           onTap: widget.onPressed,

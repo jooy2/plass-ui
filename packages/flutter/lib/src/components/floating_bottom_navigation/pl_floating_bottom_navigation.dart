@@ -481,6 +481,7 @@ class _PlFloatingBottomNavigationState<T> extends State<PlFloatingBottomNavigati
           label: item.label,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: interactive ? () => widget.onChanged?.call(item.value) : null,
           child: ExcludeSemantics(child: content),
         );

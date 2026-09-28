@@ -710,7 +710,8 @@ class _PlMenuState extends State<PlMenu> {
     // and a focus scope lifted with them would take the keyboard away from the
     // widget that knows what to do with it. That node says nothing to a screen
     // reader, since it has no name and is not a stop; the trigger inside it
-    // says it holds the focus while the node does.
+    // says it holds the focus while the node does, and whether the menu is
+    // open, as the React trigger's `aria-expanded` does.
     final Widget trigger = Focus(
       focusNode: _focusNode,
       onKeyEvent: _onKey,
@@ -718,6 +719,7 @@ class _PlMenuState extends State<PlMenu> {
       child: PlassFocusHolder(
         node: _focusNode,
         holding: _holding,
+        open: _open,
         child: Builder(
           builder: (BuildContext context) => widget.trigger(context, _openMenu, _open),
         ),

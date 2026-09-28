@@ -380,6 +380,7 @@ class PlBottomNavigation<T> extends StatelessWidget {
           label: item.label,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: interactive ? () => onChanged?.call(item.value) : null,
           child: ExcludeSemantics(child: content),
         );

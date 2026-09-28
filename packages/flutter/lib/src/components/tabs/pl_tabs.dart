@@ -860,6 +860,7 @@ class _Tab<T> extends StatelessWidget {
             enabled: onPressed != null,
             focused: focus.focused,
             onFocus: focus.onFocus,
+            expanded: focus.expanded,
             onTap: onPressed,
             child: body,
           );

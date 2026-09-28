@@ -304,6 +304,7 @@ class PlListItem extends StatelessWidget {
                 selected: selected,
                 focused: focus.focused,
                 onFocus: focus.onFocus,
+                expanded: focus.expanded,
                 onTap: interactive ? onPressed : null,
                 child: _body(
                   tokens,

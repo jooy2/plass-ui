@@ -208,6 +208,7 @@ class PlCard extends StatelessWidget {
           // surface takes no focus.
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: onPressed,
           child: _sheet(context, state),
         );

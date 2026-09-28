@@ -861,6 +861,7 @@ class _Toast extends StatelessWidget {
                               button: true,
                               focused: focus.focused,
                               onFocus: focus.onFocus,
+                              expanded: focus.expanded,
                               // `PlassInteractive` keeps its press off the
                               // semantics tree, so the tap a screen reader,
                               // Switch Access or Voice Access makes is

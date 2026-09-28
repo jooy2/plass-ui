@@ -632,6 +632,7 @@ class _PlButtonState extends State<PlButton> {
               return Semantics(
                 focused: focus.focused,
                 onFocus: focus.onFocus,
+                expanded: focus.expanded,
                 child: MouseRegion(
                   onEnter: (PointerEnterEvent event) {
                     _setPointer(event.localPosition);

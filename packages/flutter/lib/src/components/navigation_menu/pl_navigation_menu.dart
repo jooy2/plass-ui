@@ -686,6 +686,7 @@ class _Link extends StatelessWidget {
           button: false,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: choose,
           child: row,
         );

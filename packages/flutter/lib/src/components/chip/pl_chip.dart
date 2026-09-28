@@ -199,6 +199,7 @@ class PlChip extends StatelessWidget {
           enabled: pressable ? !disabled : null,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: interactive ? onPressed : null,
           child: _shell(
             context,

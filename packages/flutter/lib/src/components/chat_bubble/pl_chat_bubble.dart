@@ -682,6 +682,7 @@ class _Preview extends StatelessWidget {
           link: preview.onPressed != null,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           onTap: preview.onPressed,
           child: card,
         );

@@ -1309,6 +1309,7 @@ class _WindowButton extends StatelessWidget {
           label: label,
           focused: focus.focused,
           onFocus: focus.onFocus,
+          expanded: focus.expanded,
           // The gesture underneath is kept off the tree, so the node carries the
           // press itself, as every other caller of `PlassInteractive` does.
           onTap: onPressed,

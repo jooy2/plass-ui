@@ -781,6 +781,7 @@ class _Tile<T> extends StatelessWidget {
             readOnly: readOnly,
             focused: focus.focused,
             onFocus: focus.onFocus,
+            expanded: focus.expanded,
             onTap: onPressed,
             child: body,
           );
