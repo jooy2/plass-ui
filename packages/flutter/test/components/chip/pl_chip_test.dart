@@ -145,6 +145,31 @@ void main() {
         expect(pressed, 0);
       });
 
+      testWidgets('says it is disabled, with the not-allowed cursor, with nothing to press', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(host(const PlChip(disabled: true, child: Text('Tag'))));
+
+        // As the React chip's shell carries `aria-disabled` and
+        // `cursor-not-allowed` without an `onClick`. Not a button, and no stop.
+        expect(
+          tester.getSemantics(find.text('Tag')),
+          isSemantics(isButton: false, hasEnabledState: true, isEnabled: false, isFocusable: false),
+        );
+        expect(
+          tester
+              .widgetList<MouseRegion>(
+                find.descendant(of: find.byType(PlChip), matching: find.byType(MouseRegion)),
+              )
+              .first
+              .cursor,
+          SystemMouseCursors.forbidden,
+        );
+
+        handle.dispose();
+      });
+
       testWidgets('stays a button that cannot be used while disabled', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await tester.pumpWidget(

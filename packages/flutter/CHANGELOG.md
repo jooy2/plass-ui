@@ -81,6 +81,7 @@
 
 ### Fixed
 
+- **A disabled `PlChip` with nothing to press says it is disabled and shows the not-allowed cursor, as the React chip does.** Only a chip with `onPressed` said so; one without deferred the cursor to whatever was under it and said nothing of being disabled. It is still no button and no focus stop.
 - **A `PlAnchor`'s `label` is read as the words above its list rather than as a heading, as the React build draws it in a plain `<span>`.** The list is already named, by `semanticLabel` or "On this page", and a heading of its own put the label among the page's sections for a reader moving by heading.
 - **A screen reader hears a `PlCalendar`'s weekday headings by their whole names, "Sunday" rather than "Sun", as the React column headers are labelled.** The short names drawn above the grid were also what was read. They are still what is drawn, and the calendar's `names.weekdays` is what is read, in every picker that draws a calendar.
 - **Every key pressed in a `PlTextField`, `PlNumberField` or `PlCombobox` puts its pointer light out, as it does in the React build, except Tab, Escape and a modifier held down.** The light went out only for a character typed or a caret moved from the keyboard, so the arrows moving a combobox's highlight through its list and Enter in a field of one line left it lit.

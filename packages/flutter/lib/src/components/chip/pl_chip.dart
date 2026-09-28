@@ -180,9 +180,11 @@ class PlChip extends StatelessWidget {
       enabled: interactive,
       interactive: interactive,
       pressable: pressable,
+      // Any disabled chip shows the not-allowed cursor, pressable or not, as
+      // the React chip's shell does.
       cursor: interactive
           ? SystemMouseCursors.click
-          : pressable
+          : pressable || disabled
           ? SystemMouseCursors.forbidden
           : MouseCursor.defer,
       focusNode: focusNode,
@@ -192,11 +194,14 @@ class PlChip extends StatelessWidget {
         // chip cannot be pressed, which is when it takes no focus.
         final focus = plassFocusSemanticsOf(context);
 
+        // A disabled chip with nothing to press still says it is disabled, on
+        // a node of its own, as the React chip's shell carries
+        // `aria-disabled`.
         return Semantics(
-          container: pressable,
+          container: pressable || disabled,
           button: pressable ? true : null,
           selected: pressable ? selected : null,
-          enabled: pressable ? !disabled : null,
+          enabled: pressable || disabled ? !disabled : null,
           focused: focus.focused,
           onFocus: focus.onFocus,
           expanded: focus.expanded,
