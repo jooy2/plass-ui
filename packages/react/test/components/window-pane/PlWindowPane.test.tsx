@@ -45,6 +45,19 @@ describe('PlWindowPane', () => {
       await expect.element(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
     });
 
+    it('keeps the grab cursor off the buttons and the actions, where nothing drags', async () => {
+      const screen = await render(
+        <PlWindowPane title="Notes" draggable actions={<button type="button">Share</button>} />
+      );
+      const set = screen.getByRole('button', { name: 'Minimize' }).element().parentElement!;
+      const actions = screen.getByRole('button', { name: 'Share' }).element().parentElement!;
+
+      // The bar under them carries `cursor-grab`; the space round the buttons
+      // is not something a drag takes hold of, as on the Flutter bar.
+      expect(set).toHaveClass('cursor-default');
+      expect(actions).toHaveClass('cursor-default');
+    });
+
     it('takes every system it names', async () => {
       const screen = await render(<PlWindowPane title="Notes" os="macos" />);
 

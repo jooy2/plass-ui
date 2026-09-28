@@ -826,6 +826,9 @@ export function PlWindowControls({
       // the originals behave — the three are one control in three parts.
       className={cx(
         'group/controls flex shrink-0 items-center',
+        // Nothing here drags the window, so the bar's grab cursor stops at the
+        // set, the space round the buttons included.
+        'cursor-default',
         // Aero's group hangs off the top edge of the window rather than sitting
         // in the middle of the bar. Everything else is centred in it.
         aero ? 'self-start' : 'self-stretch'

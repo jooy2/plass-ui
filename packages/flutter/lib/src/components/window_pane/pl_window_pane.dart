@@ -742,7 +742,12 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         if (!chrome.controlsAtEnd) buttons,
         if (!chrome.controlsAtEnd) SizedBox(width: metrics.padX),
         Expanded(child: leading),
-        if (widget.actions != null) Listener(onPointerDown: _claim, child: widget.actions),
+        // Nothing here drags the window, so the bar's grab cursor stops here.
+        if (widget.actions != null)
+          MouseRegion(
+            cursor: SystemMouseCursors.basic,
+            child: Listener(onPointerDown: _claim, child: widget.actions),
+          ),
         if (chrome.controlsAtEnd) buttons,
       ],
     );
@@ -810,8 +815,11 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         () => _BarDragRecognizer(claimed: (int pointer) => pointer == _claimedPointer),
         (_BarDragRecognizer recognizer) {
           recognizer
+            ..onDown = _grab
             ..onStart = _dragStart
-            ..onUpdate = _dragUpdate;
+            ..onUpdate = _dragUpdate
+            ..onEnd = _letGo
+            ..onCancel = _letGoNow;
         },
       );
     }
@@ -826,7 +834,13 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       ),
       onMove: (_MoveWindowIntent intent) => _step(intent, metrics.frame + metrics.bar),
       child: MouseRegion(
-        cursor: movable ? SystemMouseCursors.move : MouseCursor.defer,
+        // The hand that takes hold of the window, closing while it drags, as
+        // the React bar's `cursor-grab` and `active:cursor-grabbing`.
+        cursor: !movable
+            ? MouseCursor.defer
+            : _grabbing
+            ? SystemMouseCursors.grabbing
+            : SystemMouseCursors.grab,
         child: RawGestureDetector(
           behavior: HitTestBehavior.opaque,
           gestures: drag,
@@ -840,6 +854,25 @@ class _PlWindowPaneState extends State<PlWindowPane> {
         ),
       ),
     );
+  }
+
+  /// Whether a press on the bar is holding the window, which closes the hand
+  /// the pointer shows, from the press rather than from the drag, as `:active`
+  /// does.
+  bool _grabbing = false;
+
+  void _grab(DragDownDetails details) {
+    if (!_grabbing) {
+      setState(() => _grabbing = true);
+    }
+  }
+
+  void _letGo(DragEndDetails details) => _letGoNow();
+
+  void _letGoNow() {
+    if (_grabbing && mounted) {
+      setState(() => _grabbing = false);
+    }
   }
 
   void _dragStart(DragStartDetails details) {
@@ -1040,6 +1073,9 @@ class _WindowControlSetState extends State<_WindowControlSet> {
     // The pointer and the press answer to the same box, as both are the React
     // set's own.
     final Widget set = MouseRegion(
+      // Nothing in the set drags the window, so the bar's grab cursor stops at
+      // it, the space round the buttons included. Each button shows its own.
+      cursor: SystemMouseCursors.basic,
       onEnter: (PointerEnterEvent event) => _point(true),
       onExit: (PointerExitEvent event) => _point(false),
       child: Listener(

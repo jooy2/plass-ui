@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/gestures.dart' show PointerDeviceKind, kDoubleTapTimeout, kPressTimeout;
+import 'package:flutter/rendering.dart' show RendererBinding;
 import 'package:flutter/semantics.dart' show SemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -1037,6 +1038,55 @@ void main() {
         expect(sized!.width, traditional ? greaterThan(900) : closeTo(900, 0.5));
       });
     }
+
+    testWidgets('shows the grab hand over a bar that drags, and none over its buttons', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await _pumpFree(
+        tester,
+        const PlWindowPane(title: Text('Notes'), width: 300, draggable: true),
+      );
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+
+      MouseCursor cursor() => RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1)!;
+
+      // The hand that takes hold of the window, as the React bar's
+      // `cursor-grab`, closing while the bar is held down.
+      await mouse.moveTo(tester.getCenter(find.text('Notes')));
+      await tester.pump();
+
+      expect(cursor(), SystemMouseCursors.grab);
+
+      await mouse.down(tester.getCenter(find.text('Notes')));
+      await tester.pump();
+
+      expect(cursor(), SystemMouseCursors.grabbing);
+
+      await mouse.up();
+      await tester.pump();
+
+      expect(cursor(), SystemMouseCursors.grab);
+
+      // Between two caption buttons nothing drags, and the hand is not shown.
+      final Rect minimize = tester.getRect(find.bySemanticsLabel('Minimize'));
+      final Rect maximize = tester.getRect(find.bySemanticsLabel('Maximize'));
+      final Offset gap = Offset(
+        (math.min(minimize.right, maximize.right) + math.max(minimize.left, maximize.left)) / 2,
+        minimize.center.dy,
+      );
+
+      await mouse.moveTo(gap);
+      await tester.pump();
+
+      expect(cursor(), SystemMouseCursors.basic);
+
+      handle.dispose();
+    });
 
     testWidgets('puts its handles away while it is maximized', (WidgetTester tester) async {
       await _pumpFree(

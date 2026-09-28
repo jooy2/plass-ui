@@ -81,6 +81,7 @@
 
 ### Fixed
 
+- **A `PlWindowPane`'s draggable title bar shows the grab hand, closing while the bar is held, and no hand over the caption buttons and `actions`, where nothing drags, in both builds.** The Flutter bar showed the move cursor, and both builds showed their drag cursor in the space round the caption buttons and the actions. The Flutter bar now shows `grab` and `grabbing`, as the React bar's `cursor-grab` and `active:cursor-grabbing`, and both show the default cursor over the buttons' column and the actions.
 - **A disabled `PlChip` with nothing to press says it is disabled and shows the not-allowed cursor, as the React chip does.** Only a chip with `onPressed` said so; one without deferred the cursor to whatever was under it and said nothing of being disabled. It is still no button and no focus stop.
 - **A `PlAnchor`'s `label` is read as the words above its list rather than as a heading, as the React build draws it in a plain `<span>`.** The list is already named, by `semanticLabel` or "On this page", and a heading of its own put the label among the page's sections for a reader moving by heading.
 - **A screen reader hears a `PlCalendar`'s weekday headings by their whole names, "Sunday" rather than "Sun", as the React column headers are labelled.** The short names drawn above the grid were also what was read. They are still what is drawn, and the calendar's `names.weekdays` is what is read, in every picker that draws a calendar.

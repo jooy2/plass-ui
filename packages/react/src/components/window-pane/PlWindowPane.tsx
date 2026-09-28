@@ -938,7 +938,8 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
           // maximizes through, exactly as it does not through the caption
           // buttons: an action pressed twice is pressed twice.
           <span
-            className="flex shrink-0 items-center"
+            // Nothing here drags the window either.
+            className="flex shrink-0 cursor-default items-center"
             style={{ gap: Math.round(metrics.title * 0.5) }}
             onPointerDown={(event) => event.stopPropagation()}
             onDoubleClick={(event) => event.stopPropagation()}
