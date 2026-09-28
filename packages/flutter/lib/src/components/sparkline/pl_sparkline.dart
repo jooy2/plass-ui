@@ -286,7 +286,12 @@ class _SparklinePainter extends CustomPainter {
           ..shader = LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: <Color>[ink.withValues(alpha: 0.32), ink.withValues(alpha: 0.02)],
+            // A share of the alpha the colour was given, as the React stops mix
+            // it with transparent.
+            colors: <Color>[
+              ink.withValues(alpha: ink.a * 0.32),
+              ink.withValues(alpha: ink.a * 0.02),
+            ],
           ).createShader(Offset.zero & size),
       );
     }

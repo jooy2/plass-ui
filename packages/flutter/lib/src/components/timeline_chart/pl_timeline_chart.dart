@@ -385,10 +385,10 @@ class PlTimelineChart extends StatelessWidget {
           Radius.circular(math.min(radius, math.min(width / 2, thickness / 2))),
         ),
         Paint()
-          ..color = (one.color == null ? colors[mark.series] : tokens.family(one.color!).accent)
-              // A shade under whole until the pointer or a key reaches the
-              // span, and eased up to it and back.
-              .withValues(alpha: lerpDouble(0.92, 1, layout.markLit(mark))!),
+          ..color = _shaded(
+            one.color == null ? colors[mark.series] : tokens.family(one.color!).accent,
+            lerpDouble(0.92, 1, layout.markLit(mark))!,
+          ),
       );
     }
   }
@@ -479,3 +479,7 @@ _Span? _place(PlassTimelinePoint span) {
 /// read it out either. One that crosses an edge is on the chart, cut where the
 /// axis ends.
 bool _inWindow(_Span one, ValueScale scale) => one.to >= scale.min && one.from <= scale.max;
+
+/// [color] a shade under whole, [by], until the pointer or a key reaches its
+/// span, on top of the alpha it was given, as the React span's opacity is.
+Color _shaded(Color color, double by) => color.withValues(alpha: color.a * by);

@@ -347,8 +347,10 @@ class PlBarChart extends StatelessWidget {
         canvas.drawPath(
           path,
           Paint()
+            // On top of the alpha the colour was given, as the React bar's
+            // opacity is.
             ..color = ink.withValues(
-              alpha: lerpDouble(0.92, 1, layout.columnLit(category))! * alpha,
+              alpha: ink.a * lerpDouble(0.92, 1, layout.columnLit(category))! * alpha,
             ),
         );
 

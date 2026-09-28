@@ -96,8 +96,9 @@ void paintLineSeries(
     final bool dots =
         markers == PlChartMarkers.all ||
         (markers == PlChartMarkers.auto && one.length <= _autoMarkerLimit);
-    // Whole whatever alpha the colour carries: a fade is the layer's.
-    final Color color = layout.colors[s].withValues(alpha: 1);
+    // As it was given, alpha and all, as the React stroke takes it. A fade is
+    // the layer's, on top of it.
+    final Color color = layout.colors[s];
     // Faded while the legend points at another series, and eased there.
     final double alpha = _openFade(canvas, layout, s);
 
@@ -148,7 +149,10 @@ void paintLineSeries(
               : LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: <Color>[color.withValues(alpha: 0.28), color.withValues(alpha: 0.02)],
+                  colors: <Color>[
+                    color.withValues(alpha: color.a * 0.28),
+                    color.withValues(alpha: color.a * 0.02),
+                  ],
                 ).createShader(
                   Rect.fromLTWH(
                     layout.plot.left,
@@ -157,7 +161,7 @@ void paintLineSeries(
                     layout.plot.height,
                   ),
                 )
-          ..color = stacked ? color.withValues(alpha: 0.7) : const Color(0xFF000000),
+          ..color = stacked ? color.withValues(alpha: color.a * 0.7) : const Color(0xFF000000),
       );
     }
 
@@ -257,7 +261,7 @@ void paintLineSeries(
         ..drawCircle(
           marker.at,
           marker.r - markGap / 2,
-          Paint()..color = (one[marker.index].color ?? color).withValues(alpha: 1),
+          Paint()..color = one[marker.index].color ?? color,
         );
     }
 

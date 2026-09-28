@@ -6,11 +6,11 @@
 /// out of the theme rather than out of the test. Recording the calls and
 /// reading the alphas back answers it without naming a palette colour.
 ///
-/// [drawPath] is recorded with the layers it was drawn into, and [drawLine]
-/// [drawCircle] and [drawParagraph] on their own, for the rules of a chart's grid and axes and
-/// the dots of its markers. Everything else a
-/// painter asks for — the clips, the text — is accepted and dropped, which is
-/// what [noSuchMethod] is doing here.
+/// [drawPath] is recorded with the layers it was drawn into, and [drawLine],
+/// [drawCircle], [drawRRect] and [drawParagraph] on their own, for the rules
+/// of a chart's grid and axes, the dots of its markers, its cells and spans,
+/// and its labels. Everything else a painter asks for, such as the clips, is
+/// accepted and dropped, which is what [noSuchMethod] is doing here.
 library;
 
 import 'dart:ui';
@@ -85,6 +85,12 @@ class RecordingCanvas implements Canvas {
 
   @override
   void drawCircle(Offset c, double radius, Paint paint) => circles.add((c, radius, paint));
+
+  /// The paint of every rounded rectangle drawn, in order.
+  final List<Paint> rrects = <Paint>[];
+
+  @override
+  void drawRRect(RRect rrect, Paint paint) => rrects.add(paint);
 
   @override
   void noSuchMethod(Invocation invocation) {}

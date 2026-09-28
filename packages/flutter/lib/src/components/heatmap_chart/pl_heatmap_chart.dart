@@ -850,8 +850,9 @@ class _HeatmapPainter extends CustomPainter {
           box,
           Radius.circular(math.min(_cellRadius, math.min(w / 2, h / 2))),
         ),
-        Paint()
-          ..color = (cell.value.color ?? ramp[step]).withValues(alpha: lerpDouble(0.94, 1, lift)!),
+        // On top of the alpha the colour was given, as the React cell's
+        // opacity is.
+        Paint()..color = _shaded(cell.value.color ?? ramp[step], lerpDouble(0.94, 1, lift)!),
       );
 
       /* A tile says what it is and a cell says how much. On the grid the two
@@ -947,3 +948,6 @@ class _HeatmapPainter extends CustomPainter {
       old.plotWidth != plotWidth ||
       old.plotHeight != plotHeight;
 }
+
+/// [color] at [by] of the alpha it was given.
+Color _shaded(Color color, double by) => color.withValues(alpha: color.a * by);

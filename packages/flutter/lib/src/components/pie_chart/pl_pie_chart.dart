@@ -802,7 +802,10 @@ class _PiePainter extends CustomPainter {
 
       canvas.drawPath(
         arcPath(centreX, centreY, outer, inner, arc.start + room, arc.end - room),
-        Paint()..color = color.withValues(alpha: lerpDouble(1, 0.32, ease.of(arc.index))!),
+        // On top of the alpha the colour was given, as the React slice's
+        // opacity is.
+        Paint()
+          ..color = color.withValues(alpha: color.a * lerpDouble(1, 0.32, ease.of(arc.index))!),
       );
     }
 

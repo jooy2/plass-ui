@@ -410,12 +410,10 @@ class PlScatterChart extends StatelessWidget {
       // over the fill, as the React mark's is, so its inner half covers the
       // edge of the fill: the colour shows to half the ring's width inside the
       // mark's radius, and the ring runs to half its width outside it. The fill
-      // is whole whatever alpha its colour carries: a fade is the layer's.
+      // keeps the alpha its colour was given, as the React mark's does; a fade
+      // is the layer's, on top of it.
       canvas
-        ..drawPath(
-          path,
-          Paint()..color = (value.color ?? layout.colors[mark.series]).withValues(alpha: 1),
-        )
+        ..drawPath(path, Paint()..color = value.color ?? layout.colors[mark.series])
         ..drawPath(
           path,
           Paint()
