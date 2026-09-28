@@ -178,11 +178,18 @@ void main() {
             equals(1),
           ]);
         } else {
+          // Search's band, the upper one, also parts itself from Direct's
+          // with a stroke of the surface along its lower edge.
           expect(canvas.paints.map((Paint paint) => paint.color.a), <Matcher>[
             closeTo(0.7, 1e-6),
             closeTo(0.7, 1e-6),
+            equals(1),
           ]);
-          expect(canvas.opacities, <Matcher>[closeTo(0.7 * 0.28, 1e-6), closeTo(0.7, 1e-6)]);
+          expect(canvas.opacities, <Matcher>[
+            closeTo(0.7 * 0.28, 1e-6),
+            closeTo(0.7, 1e-6),
+            equals(1),
+          ]);
         }
 
         await mouse.removePointer();
@@ -332,10 +339,12 @@ void main() {
           ),
         );
 
-        // As the React build draws them: both bands, then the six markers,
-        // each a ring and a dot, then the six labels, so the band above
-        // Direct's lies under its markers and its labels rather than over them.
+        // As the React build draws them: both bands, the upper one with the
+        // gap along its lower edge, then the six markers, each a ring and a
+        // dot, then the six labels, so the band above Direct's lies under its
+        // markers and its labels rather than over them.
         expect(_paintMarks(tester).marks, <String>[
+          'path',
           'path',
           'path',
           for (int i = 0; i < 12; i += 1) 'disc',
@@ -367,13 +376,14 @@ void main() {
         final _MarkCanvas canvas = _paintMarks(tester);
 
         // Direct's band in a layer with its three markers cut out of it, out to
-        // the edge of the ring, then Search's band, then Direct's markers in a
-        // layer of their own, then Search's.
+        // the edge of the ring, then Search's band and the gap along its lower
+        // edge, then Direct's markers in a layer of their own, then Search's.
         expect(canvas.marks, <String>[
           'layer',
           'path',
           for (int i = 0; i < 3; i += 1) 'cut',
           'end',
+          'path',
           'path',
           'layer',
           for (int i = 0; i < 6; i += 1) 'disc',
