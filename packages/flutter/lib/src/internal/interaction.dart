@@ -75,6 +75,9 @@ typedef PlassInteractionBuilder = Widget Function(BuildContext context, PlassInt
 /// because they would be said above it. Handed to the node itself, they also
 /// hold on a node with `explicitChildNodes`, under which anything said apart
 /// would be a node of its own.
+///
+/// A node that a [PlassFocusHolder] round it holds the focus for says it holds
+/// it too.
 ({bool? focused, VoidCallback? onFocus}) plassFocusSemanticsOf(BuildContext context) {
   final FocusNode node = Focus.of(context);
 
@@ -82,11 +85,71 @@ typedef PlassInteractionBuilder = Widget Function(BuildContext context, PlassInt
     return (focused: null, onFocus: null);
   }
 
+  // Asked every time, so the node is told whenever a holder round it takes
+  // the focus or gives it up.
+  final bool held = PlassFocusHolder.holdsFor(context, node);
+
   return (
-    focused: node.hasPrimaryFocus,
+    focused: node.hasPrimaryFocus || held,
     // Left off on iOS, as a `Focus` leaves it: flutter/flutter#150030.
     onFocus: defaultTargetPlatform == TargetPlatform.iOS ? null : node.requestFocus,
   );
+}
+
+/// Says that [node], which is round a control, holds the focus on the
+/// control's behalf.
+///
+/// A popup whose rows are painted in an overlay takes its keys on a node of
+/// its own round the trigger, above the trigger's own shortcuts, which would
+/// otherwise keep <kbd>Enter</kbd> and <kbd>Space</kbd> for the trigger. That
+/// node is not a stop and has no name, so it says nothing to a screen reader:
+/// the trigger does. While [node] holds the primary focus, the outermost node
+/// inside it that can take the focus says it holds it: through
+/// [plassFocusSemanticsOf], or through [holdsFor] for a control whose [Focus]
+/// speaks for it.
+class PlassFocusHolder extends InheritedWidget {
+  /// Wraps the control [node] holds the focus for.
+  const PlassFocusHolder({
+    required this.node,
+    required this.holding,
+    required super.child,
+    super.key,
+  });
+
+  /// The node round the control.
+  final FocusNode node;
+
+  /// Whether [node] holds the primary focus.
+  final bool holding;
+
+  /// Whether a holder round [context] holds the focus for [focusNode]: it
+  /// holds the primary focus, and no node between the two can take the focus.
+  ///
+  /// Read again whenever the holder takes the focus or gives it up.
+  static bool holdsFor(BuildContext context, FocusNode focusNode) {
+    final PlassFocusHolder? holder = context.dependOnInheritedWidgetOfExactType<PlassFocusHolder>();
+
+    if (holder == null || !holder.holding) {
+      return false;
+    }
+
+    for (final FocusNode ancestor in focusNode.ancestors) {
+      if (identical(ancestor, holder.node)) {
+        return true;
+      }
+
+      if (ancestor.canRequestFocus) {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  @override
+  bool updateShouldNotify(PlassFocusHolder oldWidget) {
+    return holding != oldWidget.holding || !identical(node, oldWidget.node);
+  }
 }
 
 /// Wraps [builder] in the whole interaction apparatus.

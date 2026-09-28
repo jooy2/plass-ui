@@ -17,10 +17,7 @@ import '../support/host.dart';
 /// Checks that the node named [name] can take the focus and does not hold it,
 /// with the action that moves the focus there beside its tap, that no node
 /// round it says so as well, and that the action moves the focus there.
-///
-/// [alone] is `false` for a control that sits inside another focus stop of
-/// its own, whose node is round it and says so for itself.
-Future<void> _expectFocusStop(WidgetTester tester, String name, {bool alone = true}) async {
+Future<void> _expectFocusStop(WidgetTester tester, String name) async {
   final SemanticsNode? node = semanticsNodeLabelled(tester, name);
 
   expect(node, isNotNull, reason: name);
@@ -36,7 +33,7 @@ Future<void> _expectFocusStop(WidgetTester tester, String name, {bool alone = tr
     reason: name,
   );
 
-  for (SemanticsNode? around = node!.parent; alone && around != null; around = around.parent) {
+  for (SemanticsNode? around = node!.parent; around != null; around = around.parent) {
     expect(around, isSemantics(isFocusable: false, hasFocusAction: false), reason: 'round $name');
   }
 
@@ -269,10 +266,8 @@ void main() {
       );
 
       // Tab skips the words that are not the bar's stop, but the arrow keys
-      // move the focus onto them, so each says it can take it. Each word is
-      // inside the node of its `PlMenu`, which takes the focus while the menu
-      // is open.
-      await _expectFocusStop(tester, 'Edit', alone: false);
+      // move the focus onto them, so each says it can take it.
+      await _expectFocusStop(tester, 'Edit');
 
       // The word says the focus its own node holds, which is where the arrow
       // keys put it, and not the focus of its menu's node round it.

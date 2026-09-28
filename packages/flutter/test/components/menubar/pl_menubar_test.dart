@@ -333,6 +333,36 @@ void main() {
         expect(find.text('Copy'), findsNothing);
       });
 
+      testWidgets('says the word holds the focus while its menu is open', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await reach(tester, const PlMenubar(menus: three));
+        await press(tester, LogicalKeyboardKey.enter);
+        expect(find.text('New'), findsOneWidget);
+
+        final List<String> focused = <String>[];
+
+        bool visit(SemanticsNode node) {
+          if (node.getSemanticsData().flagsCollection.isFocused == Tristate.isTrue) {
+            focused.add(node.label);
+          }
+
+          node.visitChildren(visit);
+
+          return true;
+        }
+
+        tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+        // The open menu holds the focus on a node round the word, which the
+        // word says is its own.
+        expect(focused, <String>['File']);
+
+        handle.dispose();
+      });
+
       testWidgets('hands the focus back to the word when its menu closes', (
         WidgetTester tester,
       ) async {

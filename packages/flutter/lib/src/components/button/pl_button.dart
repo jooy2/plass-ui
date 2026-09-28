@@ -15,6 +15,7 @@ import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -620,33 +621,48 @@ class _PlButtonState extends State<PlButton> {
               },
             ),
           },
-          child: MouseRegion(
-            onEnter: (PointerEnterEvent event) {
-              _setPointer(event.localPosition);
-              setState(() => _hovered = true);
+          // Said below instead, which is where a menu holding the focus round
+          // the button while it is open is heard: the button says it holds the
+          // focus then, where its `Focus` would say it does not.
+          includeFocusSemantics: false,
+          child: Builder(
+            builder: (BuildContext context) {
+              final focus = plassFocusSemanticsOf(context);
+
+              return Semantics(
+                focused: focus.focused,
+                onFocus: focus.onFocus,
+                child: MouseRegion(
+                  onEnter: (PointerEnterEvent event) {
+                    _setPointer(event.localPosition);
+                    setState(() => _hovered = true);
+                  },
+                  onExit: (PointerExitEvent event) => setState(() => _hovered = false),
+                  onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
+                  child: Listener(
+                    onPointerDown: (PointerDownEvent event) => _setPointer(event.localPosition),
+                    onPointerMove: (PointerMoveEvent event) => _setPointer(event.localPosition),
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      // Described by the `Semantics` above, which knows about
+                      // `readOnly` and `loading` and this does not.
+                      excludeFromSemantics: true,
+                      // Always present, even when nothing will happen: the
+                      // recogniser is what stops a tap on an unavailable button
+                      // reaching whatever is behind it. A row that navigates
+                      // should not navigate because someone tried the disabled
+                      // button inside it.
+                      onTap: _activate,
+                      onLongPress: _interactive ? widget.onLongPress : null,
+                      onTapDown: (TapDownDetails details) => setState(() => _pressed = true),
+                      onTapUp: (TapUpDetails details) => setState(() => _pressed = false),
+                      onTapCancel: () => setState(() => _pressed = false),
+                      child: surface,
+                    ),
+                  ),
+                ),
+              );
             },
-            onExit: (PointerExitEvent event) => setState(() => _hovered = false),
-            onHover: (PointerHoverEvent event) => _setPointer(event.localPosition),
-            child: Listener(
-              onPointerDown: (PointerDownEvent event) => _setPointer(event.localPosition),
-              onPointerMove: (PointerMoveEvent event) => _setPointer(event.localPosition),
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                // Described by the `Semantics` above, which knows about
-                // `readOnly` and `loading` and this does not.
-                excludeFromSemantics: true,
-                // Always present, even when nothing will happen: the recogniser
-                // is what stops a tap on an unavailable button reaching whatever
-                // is behind it. A row that navigates should not navigate because
-                // someone tried the disabled button inside it.
-                onTap: _activate,
-                onLongPress: _interactive ? widget.onLongPress : null,
-                onTapDown: (TapDownDetails details) => setState(() => _pressed = true),
-                onTapUp: (TapUpDetails details) => setState(() => _pressed = false),
-                onTapCancel: () => setState(() => _pressed = false),
-                child: surface,
-              ),
-            ),
           ),
         ),
       ),

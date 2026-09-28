@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/icons.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
+import 'package:plass_ui/src/internal/interaction.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 import 'package:plass_ui/src/theme/theme.dart';
@@ -384,6 +385,10 @@ class _PlMenuState extends State<PlMenu> {
   /// by being asked to, when the menu opens.
   final FocusNode _focusNode = FocusNode(debugLabel: 'PlMenu', skipTraversal: true);
 
+  /// Whether [_focusNode] holds the primary focus, which the trigger inside it
+  /// says is its own.
+  bool _holding = false;
+
   bool _open = false;
 
   /// The node inside the trigger that held the focus when the menu opened, and
@@ -401,9 +406,22 @@ class _PlMenuState extends State<PlMenu> {
   DateTime _typedAt = DateTime.fromMillisecondsSinceEpoch(0);
 
   @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(_handleFocus);
+  }
+
+  @override
   void dispose() {
+    _focusNode.removeListener(_handleFocus);
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _handleFocus() {
+    if (_focusNode.hasPrimaryFocus != _holding) {
+      setState(() => _holding = _focusNode.hasPrimaryFocus);
+    }
   }
 
   /// The entries of the deepest open menu, flattened out of their groups.
@@ -686,14 +704,24 @@ class _PlMenuState extends State<PlMenu> {
   Widget build(BuildContext context) {
     final PlassTokens tokens = PlassTheme.of(context);
 
-    // Focus stays on the trigger while the popup is up, which is what `PlSelect`
-    // does and for the same reason: the rows are painted in an overlay, and a
-    // focus scope lifted with them would take the keyboard away from the widget
-    // that knows what to do with it.
+    // The focus stays round the trigger while the popup is up, on a node of
+    // the menu's own that takes the keys ahead of the trigger's shortcuts,
+    // which would keep Enter and Space: the rows are painted in an overlay,
+    // and a focus scope lifted with them would take the keyboard away from the
+    // widget that knows what to do with it. That node says nothing to a screen
+    // reader, since it has no name and is not a stop; the trigger inside it
+    // says it holds the focus while the node does.
     final Widget trigger = Focus(
       focusNode: _focusNode,
       onKeyEvent: _onKey,
-      child: Builder(builder: (BuildContext context) => widget.trigger(context, _openMenu, _open)),
+      includeSemantics: false,
+      child: PlassFocusHolder(
+        node: _focusNode,
+        holding: _holding,
+        child: Builder(
+          builder: (BuildContext context) => widget.trigger(context, _openMenu, _open),
+        ),
+      ),
     );
 
     return PlassAnchoredPortal(

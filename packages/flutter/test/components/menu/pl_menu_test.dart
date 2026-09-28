@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -30,6 +32,26 @@ Widget menu(
 Future<void> openMenu(WidgetTester tester) async {
   await tester.tap(find.text('Open'));
   await tester.pumpAndSettle();
+}
+
+/// The label of every node on the semantics tree that says it holds the focus,
+/// in tree order.
+List<String> _focusedLabels(WidgetTester tester) {
+  final List<String> labels = <String>[];
+
+  bool visit(SemanticsNode node) {
+    if (node.getSemanticsData().flagsCollection.isFocused == Tristate.isTrue) {
+      labels.add(node.label);
+    }
+
+    node.visitChildren(visit);
+
+    return true;
+  }
+
+  tester.binding.renderViews.first.debugSemantics?.visitChildren(visit);
+
+  return labels;
 }
 
 /// Whether the trigger is drawing its focus ring.
@@ -713,6 +735,74 @@ void main() {
         await openMenu(tester);
 
         expect(find.bySemanticsLabel('Actions'), findsOneWidget);
+
+        handle.dispose();
+      });
+
+      testWidgets('says the trigger holds the focus while it is open, and nothing round it', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final FocusNode button = FocusNode(debugLabel: 'trigger');
+        addTearDown(button.dispose);
+
+        await tester.pumpWidget(
+          host(
+            PlMenu(
+              items: const <PlMenuEntry>[PlMenuItem(label: 'Cut')],
+              label: 'Actions',
+              trigger: (BuildContext context, VoidCallback open, bool isOpen) =>
+                  PlButton(onPressed: open, focusNode: button, child: const Text('Open')),
+            ),
+            overlay: true,
+          ),
+        );
+
+        // The node the menu takes its keys on is round the trigger. Said to a
+        // screen reader, it was a focusable node with no name, whose focus
+        // action moved the focus to it rather than to the trigger.
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.focus), <String>['Open']);
+
+        button.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+
+        // The menu's own node holds the focus while it is open, and the trigger
+        // says it does, where the node round it used to.
+        expect(find.text('Cut'), findsOneWidget);
+        expect(button.hasPrimaryFocus, isFalse);
+        expect(_focusedLabels(tester), <String>['Open']);
+        expect(semanticsLabelsWithAction(tester, SemanticsAction.focus), <String>['Open']);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(button.hasPrimaryFocus, isTrue);
+        expect(_focusedLabels(tester), <String>['Open']);
+
+        handle.dispose();
+      });
+
+      testWidgets('says a trigger named inside its surface holds the focus while it is open', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlMenu(
+              items: const <PlMenuEntry>[PlMenuItem(label: 'Cut')],
+              trigger: (BuildContext context, VoidCallback open, bool isOpen) =>
+                  PlChip(onPressed: open, child: const Text('Filter')),
+            ),
+            overlay: true,
+          ),
+        );
+        await tester.tap(find.text('Filter'));
+        await tester.pumpAndSettle();
+
+        expect(_focusedLabels(tester), <String>['Filter']);
 
         handle.dispose();
       });
