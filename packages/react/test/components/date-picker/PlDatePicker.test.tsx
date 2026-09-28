@@ -531,6 +531,21 @@ describe('PlDatePicker', () => {
       expect(screen.getByRole('button').element()).toBeDisabled();
     });
 
+    it('looks and reads disabled inside a disabled native `<fieldset>`', async () => {
+      const screen = await render(
+        <fieldset disabled>
+          <PlDatePicker label="Departure" />
+        </fieldset>
+      );
+      const trigger = screen.getByRole('button').element();
+
+      // The browser disables the button on its own; the field is drawn as a
+      // disabled one too, as a `PlFieldset` and its own `disabled` draw it.
+      expect(trigger).toBeDisabled();
+      expect(trigger.closest('.opacity-50')).not.toBeNull();
+      expect(trigger.closest('[data-disabled]')).not.toBeNull();
+    });
+
     it('keeps a read-only picker focusable but unopenable', async () => {
       const screen = await render(<PlDatePicker readOnly defaultValue={JULY_27} />);
 

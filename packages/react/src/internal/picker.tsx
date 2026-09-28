@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { Popover } from '@base-ui/react/popover';
-import { FormControl, leaveFormControl, useDisabled } from './form.js';
+import { FormControl, leaveFormControl, useDisabled, useFieldsetDisabled } from './form.js';
 import { glowPointerMove } from './glow.js';
 import { CloseIcon } from './icons.js';
 import { WidthSizer } from './sizer.js';
@@ -334,7 +334,12 @@ export function PickerShell({
   const hasError = error !== undefined && error !== null && error !== false && error !== '';
   const isInvalid = invalid ?? hasError;
   const family: PlassColor = isInvalid ? 'danger' : color;
-  const disabled = useDisabled(disabledProp);
+  // A native `<fieldset disabled>` round the field disables the trigger button
+  // but draws nothing, so it is counted in here as a `PlFieldset` is, and the
+  // field looks and reads as disabled, as the colour picker's panel does.
+  const [root, setRoot] = React.useState<HTMLDivElement | null>(null);
+  const fieldsetDisabled = useFieldsetDisabled(root);
+  const disabled = useDisabled(disabledProp) || fieldsetDisabled;
   const lit = !disabled && !readOnly;
   const inert = disabled || readOnly;
   const controlRef = React.useRef<HTMLInputElement>(null);
@@ -358,6 +363,7 @@ export function PickerShell({
 
   return (
     <Field.Root
+      ref={setRoot}
       disabled={disabled}
       invalid={isInvalid}
       className={cx(
