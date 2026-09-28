@@ -130,6 +130,29 @@ PlCommandPalette(
 
 질의는 들어올 때가 아니라 **나갈 때** 버려집니다. 그래야 시트가 사라지면서 마지막 검색어를 번쩍 보여 주지 않습니다.
 
+## Accessibility
+
+- 시트는 modal dialog입니다. 뒤의 페이지에는 닿지 않고, <kbd>Esc</kbd>로 닫히며, focus는 독자가 있던 자리로 돌아갑니다. 보이는 제목이 없으므로 `label`이 접근 가능한 이름입니다.
+- 화살표 키는 focus를 필드에 둔 채 목록의 하이라이트를 옮기므로, 필드가 모든 키 입력을 그대로 받습니다.
+- 하이라이트는 **하나**입니다. 포인터와 화살표 키가 같은 표시를 움직이므로, 하이라이트된 행 둘을 보며 <kbd>Enter</kbd>가 어느 쪽을 실행할지 고민할 일이 없습니다.
+- `disabled` 명령은 목록에 남고 실행되지 않습니다. 고를 수 없다고 사라지는 항목은 독자가 계속 찾아 헤매게 되는 항목입니다.
+
+::: fw react
+
+- 필드는 `combobox`이고 목록은 그 `listbox`이며, Base UI가 `aria-activedescendant`로 잇습니다.
+- 그룹 제목은 `role="presentation"`입니다. 두 번째 목록이 아니라 같은 목록의 시각적 묶음입니다.
+- 전체가 `<body>` 끝으로 portal되고, backdrop과 viewport가 `.plass-portal`을 지닙니다. CSS reset을 범위 지정한 호스트가 같은 reset을 거는 자리가 그것입니다.
+
+:::
+
+::: fw flutter
+
+- 시트는 가장 가까운 `Overlay`로 들려 올라가고, 시스템 뒤로 가기도 <kbd>Esc</kbd>처럼 시트를 닫습니다. 필드의 이름은 React 입력처럼 placeholder입니다.
+- 명령마다 label, 설명, 단축키로 이름 붙은 버튼 노드 하나이고, 하이라이트된 동안 **selected**로, `disabled`인 동안 사용할 수 없다고 읽힙니다.
+- 그룹 제목은 그 명령들 위의 글자 한 줄로 읽힙니다.
+
+:::
+
 ::: fw flutter
 
 ## React 빌드와 다른 점
@@ -146,12 +169,3 @@ PlCommandPalette(
 | 맞은 명령 가운데 처음 100개와, 몇 개가 더 있는지 알리는 한 줄 | 맞은 명령 전부 | 긴 목록은 스크롤되는 대로 만들어지므로, 가장자리 너머의 행은 닿기 전까지 비용이 들지 않습니다. |
 
 :::
-
-## Accessibility
-
-- 시트는 focus trap과 scrim과 <kbd>Esc</kbd>를 갖춘 dialog이고, focus는 독자가 있던 자리로 돌아갑니다. 보이는 제목이 없으므로 `label`이 접근 가능한 이름입니다.
-- 필드는 `combobox`이고 목록은 그 `listbox`이며, Base UI가 `aria-activedescendant`로 잇습니다. 화살표 키가 focus를 옮기지 않고 하이라이트만 옮기므로 필드가 모든 키 입력을 그대로 받습니다.
-- 하이라이트는 **하나**입니다. 포인터와 화살표 키가 같은 표시를 움직이므로, 하이라이트된 행 둘을 보며 <kbd>Enter</kbd>가 어느 쪽을 실행할지 고민할 일이 없습니다.
-- 그룹 제목은 `role="presentation"`입니다. 두 번째 목록이 아니라 같은 목록의 시각적 묶음입니다.
-- `disabled` 명령은 목록에 남고 실행되지 않습니다. 고를 수 없다고 사라지는 항목은 독자가 계속 찾아 헤매게 되는 항목입니다.
-- 전체가 `<body>` 끝으로 portal되고, backdrop과 viewport가 `.plass-portal`을 지닙니다. CSS reset을 범위 지정한 호스트가 같은 reset을 거는 자리가 그것입니다.

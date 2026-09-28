@@ -130,6 +130,29 @@ Pass `open` with `onOpenChange`. The palette still asks, the keystroke fires `on
 
 The query is dropped on the way **out** rather than on the way in, so the sheet never flashes the last search as it fades.
 
+## Accessibility
+
+- The sheet is a modal dialog: the page behind it is out of reach, <kbd>Esc</kbd> closes it, and the focus goes back to wherever the reader was. It has no visible title, so `label` is its accessible name.
+- The arrow keys move a highlight through the list while the focus stays in the field, so the field keeps every keystroke.
+- The highlight is **one** mark: the pointer and the arrow keys move the same thing, so a reader is never looking at two highlighted rows wondering which <kbd>Enter</kbd> would run.
+- A `disabled` command stays in the list and cannot be run. An option that vanishes when it cannot be chosen is one the reader will keep looking for.
+
+::: fw react
+
+- The field is a `combobox` and the list is its `listbox`, wired with `aria-activedescendant` by Base UI.
+- A group heading is `role="presentation"`. It is a visual grouping of the same list, not a second list.
+- The whole thing is portalled to the end of `<body>`, and the backdrop and the viewport carry `.plass-portal`, which is where a host that scopes a CSS reset hangs the same reset.
+
+:::
+
+::: fw flutter
+
+- The sheet is lifted into the nearest `Overlay`, and the system back closes it as <kbd>Esc</kbd> does. The field is named by its placeholder, as the React input is.
+- Each command is one button node named by its label, its description and its shortcut, marked **selected** while it is highlighted, and announced as unavailable while it is `disabled`.
+- A group heading is read as the line of text above its commands.
+
+:::
+
 ::: fw flutter
 
 ## Differences from the React build
@@ -146,12 +169,3 @@ The query is dropped on the way **out** rather than on the way in, so the sheet 
 | the first 100 matches, and a line saying how many more | every match | A long list is built as it scrolls, so the rows past the edge cost nothing until they are reached. |
 
 :::
-
-## Accessibility
-
-- The sheet is a dialog with a focus trap, a scrim, <kbd>Esc</kbd> to close, and focus returned to wherever the reader was. It has no visible title, so `label` is its accessible name.
-- The field is a `combobox` and the list is its `listbox`, wired with `aria-activedescendant` by Base UI, so the arrow keys move a highlight without moving focus, and the field keeps every keystroke.
-- The highlight is **one** mark: the pointer and the arrow keys move the same thing, so a reader is never looking at two highlighted rows wondering which <kbd>Enter</kbd> would run.
-- A group heading is `role="presentation"`. It is a visual grouping of the same list, not a second list.
-- A `disabled` command stays in the list and cannot be run. An option that vanishes when it cannot be chosen is one the reader will keep looking for.
-- The whole thing is portalled to the end of `<body>`, and the backdrop and the viewport carry `.plass-portal`, which is where a host that scopes a CSS reset hangs the same reset.
