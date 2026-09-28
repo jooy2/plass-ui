@@ -81,6 +81,9 @@ void paintLineSeries(
   // first pass and drawn in the second.
   final marks = <List<_Marker>>[];
 
+  // The first band drawn, whose lower edge is the axis.
+  final int firstVisible = layout.visible.indexOf(true);
+
   for (int s = 0; s < layout.values.length; s += 1) {
     if (!layout.visible[s]) {
       marks.add(const <_Marker>[]);
@@ -162,6 +165,19 @@ void paintLineSeries(
     // along the top: the band above would then be separated from it by a
     // coloured stroke, and a stroke between two marks is ink that is not data.
     final bool banded = filled && stacked;
+
+    // The 2px of surface between this band and the one under it, as the React
+    // band draws it. On the *lower* edge, so the top of the stack keeps its
+    // silhouette, and not on the first band, whose lower edge is the axis.
+    if (banded && s != firstVisible) {
+      canvas.drawPath(
+        linePath(floor, curve),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = markGap
+          ..color = layout.tokens.surface,
+      );
+    }
 
     if (!banded) {
       final Path path = linePath(line, curve);

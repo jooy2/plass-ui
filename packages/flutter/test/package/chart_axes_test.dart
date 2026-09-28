@@ -197,4 +197,47 @@ void main() {
 
     expect(faded, <Matcher>[closeTo(0.28, 1e-6)]);
   });
+
+  testWidgets('draws a line of surface between the bands of a stacked area, not under the first', (
+    WidgetTester tester,
+  ) async {
+    await _pump(
+      tester,
+      const PlAreaChart(
+        stacking: PlAreaStacking.total,
+        categories: <PlassChartCategory>[
+          PlassChartCategory.text('Mon'),
+          PlassChartCategory.text('Tue'),
+        ],
+        series: <PlassChartSeries>[
+          PlassChartSeries(
+            name: 'A',
+            data: <PlassChartDatum>[PlassChartDatum(3), PlassChartDatum(5)],
+          ),
+          PlassChartSeries(
+            name: 'B',
+            data: <PlassChartDatum>[PlassChartDatum(2), PlassChartDatum(4)],
+          ),
+          PlassChartSeries(
+            name: 'C',
+            data: <PlassChartDatum>[PlassChartDatum(1), PlassChartDatum(2)],
+          ),
+        ],
+      ),
+    );
+
+    final RecordingCanvas canvas = _paint(tester, find.byType(PlAreaChart));
+
+    // One on the lower edge of each band but the first, as the React band's
+    // `--plass-chart-gap` stroke.
+    expect(
+      canvas.paints.where(
+        (Paint paint) =>
+            paint.style == PaintingStyle.stroke &&
+            paint.strokeWidth == 2 &&
+            paint.color.toARGB32() == tokens.surface.toARGB32(),
+      ),
+      hasLength(2),
+    );
+  });
 }

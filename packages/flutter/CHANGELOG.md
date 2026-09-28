@@ -82,6 +82,7 @@
 
 ### Fixed
 
+- **The bands of a stacked `PlAreaChart` are parted by a 2px line of the surface, as in the React build.** Two bands of neighbouring colours ran into each other with nothing between them. The line is on each band's lower edge, so the top of the stack keeps its outline, and not under the first band, whose lower edge is the axis.
 - **A line or area series' value labels fade with it while the legend points at another series, as the React labels do.** The series faded and its numbers stayed whole, so the labels of the series in the background read as loudly as those of the one being pointed at.
 - **`markers: auto` on a `PlLineChart` or `PlAreaChart` counts each series' own points, as the React chart does, so a short series on a long chart keeps its dots.** It counted the chart's categories, and a series of three points on a chart of twenty drew none.
 - **The chips of a `multiple` `PlCombobox` are reached and taken off from the keyboard as the React build's are.** Each chip's × was a Tab stop, and there was no other way to a chip from the keyboard. The chips and their ×s are now out of the Tab order: ← at the start of the text goes to the last chip, the arrows along the row walk the chips and go back to the text past either end, and Backspace or Delete on a chip takes it off and moves to the chip in its place. Backspace in an empty field takes the last chip off. Each chip says whether the field is disabled or read-only, and a pointer and a screen reader still press its ×.
