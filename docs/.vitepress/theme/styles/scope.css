@@ -21,15 +21,12 @@
  */
 
 /*
- * `.plass-portal` is the second entry point, and it is here before anything
- * needs it.
+ * `.plass-portal` is the second entry point.
  *
  * A popup rendered through a portal lands at the end of `<body>` — outside the
  * `.plass-scope` element the preview mounted into, and therefore outside every
- * rule in this file. The library's convention is that a portalled positioner
- * carries that class, so a host that scopes its reset can hang the same reset
- * off it. Nothing in 0.0.1 portals yet; the hook exists so the first component
- * that does is not also a change to this file.
+ * rule in this file. Every portalled positioner in the library carries that
+ * class, so a host that scopes its reset hangs the same reset off it.
  *
  * An app with Tailwind's real Preflight applied globally needs none of this.
  */

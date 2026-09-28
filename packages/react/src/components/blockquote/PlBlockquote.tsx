@@ -141,8 +141,8 @@ function QuoteMarkIcon() {
  * name. VitePress's `.vp-doc blockquote` sets a grey `border-left`, a
  * `padding-left` and a `color`, all at a specificity a one-class utility cannot
  * outrank, so a rule drawn on the quote itself would silently come out grey and
- * a pixel too thin. Moving the drawing onto a wrapper is what lets the docs undo
- * VitePress's version without also undoing this one.
+ * a pixel too thin. Drawn on a wrapper, the quote looks the same whatever a host
+ * stylesheet does to `blockquote`.
  *
  * The wrapper is a `<figure>` when there is an attribution and a `<div>` when
  * there is not, because the HTML spec is explicit that the attribution goes

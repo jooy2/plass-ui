@@ -867,15 +867,6 @@ export type PlassChartLabelColor = 'series' | 'ink';
 export type PlassChartSort = 'none' | 'ascending' | 'descending';
 
 /**
- * What the pointer uncovers.
- *
- * - `index` — every series at the category under the pointer, with a crosshair.
- *   The default on anything with a shared x axis, because the question a line
- *   chart is asked is "what happened in March", not "what is this pixel".
- * - `item` — the one mark being pointed at.
- * - `none` — no tooltip. The values still have to be readable some other way.
- */
-/**
  * How much of a chart a pointer summons.
  *
  * - `index` — every series at the category the pointer is over, with a
