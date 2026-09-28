@@ -467,7 +467,10 @@ class _PlTextFieldState extends State<PlTextField> {
     control = PlassEditorPress(
       onPress: _disabled ? null : () => plassTapEditor(_editor),
       // The arrows leave the field under directional navigation.
-      child: PlassEditorArrows(editor: _editor, child: control),
+      child: PlassEditorArrows(
+        editor: _editor,
+        child: PlassEditorKeys(onKey: _quieten, child: control),
+      ),
     );
 
     control = plassHotKeyScope(hotKeys: widget.hotKeys, child: control);

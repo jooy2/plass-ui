@@ -1248,7 +1248,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       onPress: _disabled ? null : _pressField,
       // Left and right leave the field at either end of the text under
       // directional navigation. Up and down are the list's.
-      child: PlassEditorArrows(editor: _editor, vertical: false, child: editor),
+      child: PlassEditorArrows(
+        editor: _editor,
+        vertical: false,
+        child: PlassEditorKeys(onKey: _quieten, child: editor),
+      ),
     );
 
     editor = plassHotKeyScope(hotKeys: widget.hotKeys, child: editor);

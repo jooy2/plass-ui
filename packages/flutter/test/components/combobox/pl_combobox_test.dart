@@ -3590,6 +3590,38 @@ void main() {
         return update;
       }
 
+      testWidgets('goes out as the arrow keys move the highlight through the list', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>(null);
+        await pumpHeld(tester, value: value);
+
+        await rest(tester);
+
+        // The arrows open the list and walk it: typing as much as a letter
+        // is, as the React field's keydown puts the light out for every key.
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+
+        expect(_lit(tester), 'Lisbon');
+        expect(bloomIsLit(tester), isFalse);
+      });
+
+      testWidgets('stays lit through Tab and a modifier held down', (WidgetTester tester) async {
+        final ValueNotifier<String?> value = ValueNotifier<String?>(null);
+        await pumpHeld(tester, value: value);
+
+        await rest(tester);
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isTrue);
+
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      });
+
       testWidgets('stays lit as a value handed in is written into the focused field', (
         WidgetTester tester,
       ) async {

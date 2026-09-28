@@ -81,6 +81,7 @@
 
 ### Fixed
 
+- **Every key pressed in a `PlTextField`, `PlNumberField` or `PlCombobox` puts its pointer light out, as it does in the React build, except Tab, Escape and a modifier held down.** The light went out only for a character typed or a caret moved from the keyboard, so the arrows moving a combobox's highlight through its list and Enter in a field of one line left it lit.
 - **A mouse press on the padding or on a drawn adornment of a focused `PlTextField` or `PlNumberField` keeps the focus in the field, in both builds.** The two builds and the two fields each did something different: the React text field kept the focus for a press on its padding and lost it for one on an adornment, the React number field lost it for both, and the Flutter fields lost it and took it back. A press anywhere in the field now keeps the focus there, and a button or a link in an adornment still takes its own press.
 - **A press anywhere inside the border of a `PlColorPicker` value field puts the caret in it, as a click on the React `<input>`'s own padding does.** The inset between the border and the text took no press, so a press just short of the text did nothing. It now focuses the field, with the text cursor over it.
 - **A press on the text of a disabled `PlTextField`, `PlNumberField`, `PlCombobox` or `PlColorPicker` value field no longer moves its selection, as a React `<input disabled>` ignores a click.** Nothing was typed, but the editor took the press itself and moved the caret to where it landed. A disabled field's editor now takes no press.

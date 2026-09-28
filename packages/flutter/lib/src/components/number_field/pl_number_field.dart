@@ -989,7 +989,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
       onPress: _disabled ? null : () => plassTapEditor(_editor),
       // Left and right leave the field at either end of the number under
       // directional navigation. Up and down step it, and are answered below.
-      child: PlassEditorArrows(editor: _editor, vertical: false, child: editor),
+      child: PlassEditorArrows(
+        editor: _editor,
+        vertical: false,
+        child: PlassEditorKeys(onKey: _quieten, child: editor),
+      ),
     );
 
     // Bound *inside* the field rather than around it: a `Shortcuts` closer to

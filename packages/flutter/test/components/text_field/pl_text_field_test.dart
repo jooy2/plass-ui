@@ -568,6 +568,22 @@ void main() {
         return rest(tester);
       }
 
+      testWidgets('goes out as Enter is pressed in a field of one line', (
+        WidgetTester tester,
+      ) async {
+        final TextEditingController controller = TextEditingController(text: 'Seoul');
+        addTearDown(controller.dispose);
+
+        await focusAndRest(tester, controller);
+
+        // A key the editor moves no caret for, and a key all the same, as the
+        // React field's keydown puts the light out.
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pump();
+
+        expect(bloomIsLit(tester), isFalse);
+      });
+
       testWidgets('stays lit as Tab brings the focus in under a resting pointer', (
         WidgetTester tester,
       ) async {

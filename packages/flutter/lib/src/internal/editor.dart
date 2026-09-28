@@ -264,3 +264,55 @@ class PlassEditorArrows extends StatelessWidget {
     );
   }
 }
+
+/// Hears every key pressed in the editor in [child] before anything round it
+/// answers the key, and calls [onKey] for each one that is not a key a reader
+/// presses to leave the field or to hold a modifier.
+///
+/// What puts a field's pointer light out: a key that moves a list's highlight
+/// or submits the field is typing as much as a letter is, whoever answers it,
+/// as the React field's `keydown` on its shell hears every key but those.
+class PlassEditorKeys extends StatelessWidget {
+  /// Wraps the editor.
+  const PlassEditorKeys({required this.onKey, required this.child, super.key});
+
+  /// Called for a key pressed or repeated in the editor.
+  final VoidCallback onKey;
+
+  /// The editor.
+  final Widget child;
+
+  /// The keys that leave the light on, as the React field's `leavingKeys`.
+  static final Set<LogicalKeyboardKey> _leaving = <LogicalKeyboardKey>{
+    LogicalKeyboardKey.tab,
+    LogicalKeyboardKey.escape,
+    LogicalKeyboardKey.shiftLeft,
+    LogicalKeyboardKey.shiftRight,
+    LogicalKeyboardKey.controlLeft,
+    LogicalKeyboardKey.controlRight,
+    LogicalKeyboardKey.altLeft,
+    LogicalKeyboardKey.altRight,
+    LogicalKeyboardKey.metaLeft,
+    LogicalKeyboardKey.metaRight,
+    LogicalKeyboardKey.capsLock,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      // Not a stop, and nothing to say: it only listens.
+      canRequestFocus: false,
+      skipTraversal: true,
+      includeSemantics: false,
+      onKeyEvent: (FocusNode node, KeyEvent event) {
+        if ((event is KeyDownEvent || event is KeyRepeatEvent) &&
+            !_leaving.contains(event.logicalKey)) {
+          onKey();
+        }
+
+        return KeyEventResult.ignored;
+      },
+      child: child,
+    );
+  }
+}
