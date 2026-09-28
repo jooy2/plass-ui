@@ -658,8 +658,12 @@ void main() {
         expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), traditional);
         await tester.pump();
 
-        expect(seen, isNotEmpty);
-        expect(seen.last == '#ff0000', !traditional);
+        // At the end of the rail nothing moved, so nothing is reported.
+        if (traditional) {
+          expect(seen.last, isNot('#ff0000'));
+        } else {
+          expect(seen, isEmpty);
+        }
 
         handle.dispose();
       });

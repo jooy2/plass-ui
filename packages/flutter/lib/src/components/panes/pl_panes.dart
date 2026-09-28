@@ -267,6 +267,12 @@ class _PlPanesState extends State<PlPanes> {
     next[index] = sized / extent;
     next[index + 1] = (pair - sized) / extent;
 
+    // A move that leaves the line where it was, a pane held at its limit,
+    // reports nothing.
+    if (sized == start) {
+      return next;
+    }
+
     setState(() => _fractions = next);
     widget.onResize?.call(<double>[for (final double fraction in next) fraction * 100]);
 
@@ -355,13 +361,16 @@ class _PlPanesState extends State<PlPanes> {
         final double before = _current(extent)[index];
         final List<double>? next = _resize(index, steps * _keyboardStep, extent);
 
+        final bool moved = next != null && next[index] != before;
+
         // A key press is a whole gesture on its own — there is no "let go" to
-        // wait for, so the settled callback fires with it.
-        if (next != null) {
+        // wait for, so the settled callback fires with it, when it moved the
+        // line at all.
+        if (moved) {
           _settle(next);
         }
 
-        return next != null && next[index] != before;
+        return moved;
       },
     );
   }

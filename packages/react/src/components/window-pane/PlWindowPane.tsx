@@ -747,10 +747,13 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       if (!root) return;
 
       const rect = root.getBoundingClientRect();
-      resizeTo({
-        width: Math.max(floor.width, rect.width + dx),
-        height: Math.max(floor.height, rect.height + dy)
-      });
+      const width = Math.max(floor.width, rect.width + dx);
+      const height = Math.max(floor.height, rect.height + dy);
+
+      // A key that leaves the size where it was, at the floor, reports nothing.
+      if (width === rect.width && height === rect.height) return;
+
+      resizeTo({ width, height });
     }
 
     const wanted =

@@ -458,9 +458,12 @@ void main() {
             mode == NavigationMode.traditional,
           );
 
+          // It reports nothing either, having moved nothing.
+          expect(settled, isEmpty);
+
           // An arrow that moves the edge is kept in both.
           expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), isTrue);
-          expect(settled.last, 224);
+          expect(settled, <double>[224]);
         });
       }
     });

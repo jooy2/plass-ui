@@ -507,6 +507,30 @@ describe('PlWindowPane', () => {
       expect(screen.getByRole('button', { name: 'Resize window' }).query()).toBeNull();
     });
 
+    it('reports nothing for a key that moves the corner nowhere', async () => {
+      const onResize = vi.fn();
+      const screen = await render(
+        <PlWindowPane
+          title="Notes"
+          resizable
+          width={300}
+          height={200}
+          minWidth={300}
+          onResize={onResize}
+          // As the house reset has it: the test page loads no stylesheet.
+          style={{ boxSizing: 'border-box' }}
+        />
+      );
+
+      // At its narrowest, as the Flutter corner reports nothing there.
+      screen
+        .getByRole('button', { name: 'Resize window' })
+        .element()
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+
+      expect(onResize).not.toHaveBeenCalled();
+    });
+
     it('gives one corner a name and a keyboard path', async () => {
       const screen = await render(<PlWindowPane title="Notes" resizable width={300} />);
 

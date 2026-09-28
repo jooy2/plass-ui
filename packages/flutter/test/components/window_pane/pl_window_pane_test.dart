@@ -967,7 +967,8 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        expect(sized!.width, closeTo(200, 0.5));
+        // And reports nothing, having changed nothing.
+        expect(sized, isNull);
 
         // An arrow that changes the size is kept in both.
         expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);

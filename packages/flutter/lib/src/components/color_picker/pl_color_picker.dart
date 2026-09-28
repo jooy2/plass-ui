@@ -599,9 +599,14 @@ class _ColorPanel extends StatelessWidget {
               final double saturation = (model.hsv.s + dx).clamp(0, 100).toDouble();
               final double value = (model.hsv.v + dy).clamp(0, 100).toDouble();
 
-              onChanged(PlassColorValue(PlassHsv(model.hsv.h, saturation, value), model.alpha));
+              final bool moved = saturation != model.hsv.s || value != model.hsv.v;
 
-              return saturation != model.hsv.s || value != model.hsv.v;
+              // A step that moves nothing, at an edge, reports nothing.
+              if (moved) {
+                onChanged(PlassColorValue(PlassHsv(model.hsv.h, saturation, value), model.alpha));
+              }
+
+              return moved;
             },
             // Black over white: the brightness ramp has to be above the
             // saturation ramp or the bottom of the square never reaches black.
@@ -659,7 +664,9 @@ class _ColorPanel extends StatelessWidget {
                   ? step.clamp(0, 360).toDouble()
                   : (step + 360) % 360;
 
-              onChanged(PlassColorValue(model.hsv.copyWith(h: hue), model.alpha));
+              if (hue != model.hsv.h) {
+                onChanged(PlassColorValue(model.hsv.copyWith(h: hue), model.alpha));
+              }
 
               return hue != model.hsv.h;
             },
@@ -700,7 +707,9 @@ class _ColorPanel extends StatelessWidget {
               onNudge: (int dx, int dy) {
                 final double alpha = (model.alpha + (dx + dy) / 100).clamp(0, 1);
 
-                onChanged(PlassColorValue(model.hsv, alpha));
+                if (alpha != model.alpha) {
+                  onChanged(PlassColorValue(model.hsv, alpha));
+                }
 
                 return alpha != model.alpha;
               },

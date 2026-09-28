@@ -267,6 +267,12 @@ class _PlSidebarState extends State<PlSidebar> {
 
   void _resize(double next, {required bool settled}) {
     final double sized = _clamp(next);
+
+    // A move that leaves the width where it was, at a limit, reports nothing.
+    if (sized == _width.value) {
+      return;
+    }
+
     _width.value = sized;
     widget.onResize?.call(sized);
 

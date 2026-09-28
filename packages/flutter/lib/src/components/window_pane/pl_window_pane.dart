@@ -615,11 +615,7 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       }
     }
 
-    final Size size = Size(width, height);
-
-    _resizeTo(size);
-
-    return size != box.size;
+    return _resizeTo(Size(width, height)) != box.size;
   }
 
   /// Takes the window to [size], held to the box it is laid out in.
@@ -627,7 +623,10 @@ class _PlWindowPaneState extends State<PlWindowPane> {
   /// The box's constraints are what the window is drawn at whatever it is
   /// told, so a size past them is held to them before it is reported: the
   /// size `onResize` hands a caller is the one on the screen.
-  void _resizeTo(Size size) {
+  ///
+  /// A size the window already has is not reported again, and is handed back
+  /// as it is.
+  Size _resizeTo(Size size) {
     Size next = size;
     final RenderObject? box = _paneKey.currentContext?.findRenderObject();
 
@@ -635,10 +634,16 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       final BoxConstraints room = box.constraints;
 
       next = Size(math.min(next.width, room.maxWidth), math.min(next.height, room.maxHeight));
+
+      if (next == box.size) {
+        return next;
+      }
     }
 
     setState(() => _sized = next);
     widget.onResize?.call(next);
+
+    return next;
   }
 
   /// One arrow key on the title bar, which moves the window the way the arrow

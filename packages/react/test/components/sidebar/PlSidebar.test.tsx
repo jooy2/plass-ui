@@ -225,6 +225,34 @@ describe('PlSidebar', () => {
       expect(onResizeEnd.mock.lastCall?.[0]).not.toBe(200);
     });
 
+    it('reports nothing for a key that moves the edge nowhere', async () => {
+      const onResize = vi.fn();
+      const onResizeEnd = vi.fn();
+
+      const screen = await render(
+        <PlSidebar
+          collapseBelow="none"
+          resizable
+          width={200}
+          maxWidth={200}
+          onResize={onResize}
+          onResizeEnd={onResizeEnd}
+          // The width the stylesheet gives it, which the test page does not load.
+          style={{ width: 'var(--p-sidebar-w)', boxSizing: 'border-box' }}
+        >
+          Links
+        </PlSidebar>
+      );
+
+      screen
+        .getByRole('separator')
+        .element()
+        .dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+
+      expect(onResize).not.toHaveBeenCalled();
+      expect(onResizeEnd).not.toHaveBeenCalled();
+    });
+
     it('clamps what a drag or a key press may set', async () => {
       const onResizeEnd = vi.fn();
 

@@ -410,14 +410,14 @@ function ColorPanel({
           }
 
           event.preventDefault();
-          onChange({
-            hsv: {
-              h: hsv.h,
-              s: clamp(hsv.s + step.x, 0, 100),
-              v: clamp(hsv.v + step.y, 0, 100)
-            },
-            alpha: alphaValue
-          });
+
+          const s = clamp(hsv.s + step.x, 0, 100);
+          const v = clamp(hsv.v + step.y, 0, 100);
+
+          // A step that moves nothing, at an edge, reports nothing.
+          if (s !== hsv.s || v !== hsv.v) {
+            onChange({ hsv: { h: hsv.h, s, v }, alpha: alphaValue });
+          }
         }}
         className={cx(
           wellClasses,
@@ -491,7 +491,14 @@ function ColorPanel({
             labels.alpha,
             alphaValue * 100,
             100,
-            (delta) => onChange({ hsv, alpha: clamp(alphaValue + delta / 100, 0, 1) }),
+            (delta) => {
+              const next = clamp(alphaValue + delta / 100, 0, 1);
+
+              // A step past either end moves nothing, and reports nothing.
+              if (next !== alphaValue) {
+                onChange({ hsv, alpha: next });
+              }
+            },
             (to) => onChange({ hsv, alpha: to })
           )}
           className={cx(

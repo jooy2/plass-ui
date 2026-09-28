@@ -313,6 +313,11 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
         pair,
         resize(delta: number) {
           const sized = Math.min(upper, Math.max(lower, start + delta));
+
+          // A move that leaves the line where it was, a pane held at its limit,
+          // reports nothing.
+          if (sized === start) return current;
+
           const next = [...current];
           next[index] = sized / extent;
           next[index + 1] = (pair - sized) / extent;
@@ -375,8 +380,10 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
 
       const next = held.resize(pixels);
       // A key press is a whole gesture on its own — there is no "let go" to wait
-      // for, so the settled callback fires with it.
-      onResizeEnd?.(next.map((fraction) => fraction * 100));
+      // for, so the settled callback fires with it, when it moved the line.
+      if (next !== held.current) {
+        onResizeEnd?.(next.map((fraction) => fraction * 100));
+      }
     }
 
     const handleClassNames = cx(

@@ -400,7 +400,11 @@ class _PlSliderState extends State<PlSlider> {
     final double value = _valueAt(_fraction(next), index);
     final bool moved = value != widget.values[index];
 
-    _report(index, value, ended: true);
+    // A key that moves the thumb nowhere, at an end of the rail or against the
+    // other thumb, reports nothing, as Base UI's slider reports nothing then.
+    if (moved) {
+      _report(index, value, ended: true);
+    }
 
     // An arrow that moved the thumb nowhere, at an end of the rail or against
     // the other thumb, goes on to the focus system under directional

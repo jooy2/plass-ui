@@ -280,6 +280,29 @@ describe('PlPanes', () => {
       expect(settled.mock.calls[0][0]).toHaveLength(2);
     });
 
+    it('reports nothing for a key that moves the line nowhere', async () => {
+      const resized = vi.fn();
+      const settled = vi.fn();
+      await render(
+        <div style={{ width: '400px', height: '200px' }}>
+          <PlPanes className="split-under-test" onResize={resized} onResizeEnd={settled}>
+            <PlPane minSize="50%" defaultSize="50%">
+              One
+            </PlPane>
+            <PlPane>Two</PlPane>
+          </PlPanes>
+        </div>
+      );
+
+      handles()[0].focus();
+      await userPress('ArrowLeft');
+
+      // The first pane is at its minimum, as the Flutter handle reports nothing
+      // there, and as Base UI's slider reports nothing at an end.
+      expect(resized).not.toHaveBeenCalled();
+      expect(settled).not.toHaveBeenCalled();
+    });
+
     it('never drags a pane past its minimum', async () => {
       await render(
         <Split>

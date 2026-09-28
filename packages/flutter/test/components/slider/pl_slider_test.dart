@@ -300,6 +300,36 @@ void main() {
           expect(await tester.sendKeyEvent(LogicalKeyboardKey.end), isTrue);
         });
 
+        testWidgets('reports nothing for a key that moves the thumb nowhere, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          final List<List<double>> changed = <List<double>>[];
+          final List<List<double>> ended = <List<double>>[];
+
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                mode,
+                PlSlider(
+                  values: const <double>[100],
+                  autofocus: true,
+                  onChanged: changed.add,
+                  onChangeEnd: ended.add,
+                ),
+              ),
+              width: 300,
+            ),
+          );
+          await tester.pump();
+
+          // At the end of the rail, as Base UI's slider reports nothing there.
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+          await tester.sendKeyEvent(LogicalKeyboardKey.end);
+
+          expect(changed, isEmpty);
+          expect(ended, isEmpty);
+        });
+
         testWidgets('moves with the arrows across the rail only in traditional navigation, '
             '${mode.name}', (WidgetTester tester) async {
           for (final PlassOrientation orientation in PlassOrientation.values) {

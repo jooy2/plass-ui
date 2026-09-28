@@ -376,7 +376,12 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       const node = rootRef.current;
       if (!node) return;
 
-      const next = applyWidth(node.getBoundingClientRect().width + pixels);
+      const before = node.getBoundingClientRect().width;
+      const next = applyWidth(before + pixels);
+
+      // A key that leaves the width where it was, at a limit, reports nothing.
+      if (next === before) return;
+
       onResize?.(next);
       // A key press is a whole gesture on its own — there is no "let go" to
       // wait for, so the settled callback fires with it.

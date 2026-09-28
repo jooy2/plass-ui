@@ -191,6 +191,26 @@ describe('PlColorPicker', () => {
       await expect.element(opacity).toHaveAttribute('aria-valuenow', '100');
     });
 
+    it('reports nothing for a key that moves the square or a rail nowhere', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlColorPicker inline alpha defaultValue="#ff0000" onValueChange={onValueChange} />
+      );
+      const key = (name: string, pressed: string) =>
+        screen
+          .getByRole('slider', { name })
+          .element()
+          .dispatchEvent(new KeyboardEvent('keydown', { key: pressed, bubbles: true }));
+
+      // Red at full strength and opacity: the square at its top corner on the
+      // right, and the opacity rail at its end.
+      key('Saturation and brightness', 'ArrowRight');
+      key('Saturation and brightness', 'ArrowUp');
+      key('Opacity', 'ArrowUp');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('leaves a key it does not answer to alone', async () => {
       const onValueChange = vi.fn();
 
