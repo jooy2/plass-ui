@@ -404,6 +404,7 @@ class PlassChartLayout {
     this.marks = const <PlassChartMark>[],
     this.activeMark,
     this.ease,
+    this.seriesKeys = const <String>[],
   });
 
   /// Where the marks may be drawn.
@@ -471,10 +472,23 @@ class PlassChartLayout {
   /// [activeMark] say, or `null` to draw every mark in its state at once.
   final PlassMarkEase? ease;
 
+  /// What each series is known by from one build to the next, from
+  /// [legendKeys], by index. A series' easing is held by it, so a series ahead
+  /// of it leaving the data does not start it over.
+  final List<String> seriesKeys;
+
+  /// What the series at [series] is known by.
+  String seriesKey(int series) => series < seriesKeys.length ? seriesKeys[series] : '$series';
+
+  /// What [mark] is known by from one build to the next: the key of its series,
+  /// from the mark itself or from its legend entry, and its own place in it.
+  (String, int) markIdentity(PlassChartMark mark) =>
+      (mark.key ?? seriesKey(mark.series), mark.index);
+
   /// How far [series] has faded while the legend points at another, from `0`
   /// to `1`: [dimmedByHover], eased.
   double faded(int series) =>
-      ease?.of(_fadeKey(series)) ?? (dimmedByHover(hovered, series, visible) ? 1 : 0);
+      ease?.of(_fadeKey(seriesKey(series))) ?? (dimmedByHover(hovered, series, visible) ? 1 : 0);
 
   /// The opacity [series] is drawn at: whole, or 0.28 while the legend points
   /// at another, and on the way between the two while it eases.
@@ -483,11 +497,11 @@ class PlassChartLayout {
   /// How far the column at [index] has come up as it is read, from `0` to `1`.
   double columnLit(int index) => ease?.of(_columnKey(index)) ?? (index == activeIndex ? 1 : 0);
 
-  /// How far the mark of [series] at [index] has come up as the pointer or a
-  /// key reached it, from `0` to `1`.
-  double markLit(int series, int index) =>
-      ease?.of(_markKey(series, index)) ??
-      (activeMark?.series == series && activeMark?.index == index ? 1 : 0);
+  /// How far [mark] has come up as the pointer or a key reached it, from `0`
+  /// to `1`.
+  double markLit(PlassChartMark mark) =>
+      ease?.of(_markKey(markIdentity(mark))) ??
+      (activeMark != null && markIdentity(activeMark!) == markIdentity(mark) ? 1 : 0);
 
   /// How many categories there are.
   int get count => categories.length;
@@ -573,17 +587,20 @@ class PlassChartLayout {
         marks: built,
         activeMark: active,
         ease: ease,
+        seriesKeys: seriesKeys,
       );
 }
 
-/// What a series fading for the legend is called in a [PlassMarkEase].
-Object _fadeKey(int series) => ('fade', series);
+/// What a series fading for the legend is called in a [PlassMarkEase]: by the
+/// key its series is known by rather than by its place, which moves when a
+/// series ahead of it leaves.
+Object _fadeKey(String series) => ('fade', series);
 
 /// What a column coming up under the crosshair is called there.
 Object _columnKey(int index) => ('column', index);
 
-/// And a mark the pointer or a key reached.
-Object _markKey(int series, int index) => ('mark', series, index);
+/// And a mark the pointer or a key reached, by what it is known by.
+Object _markKey((String, int) mark) => ('mark', mark.$1, mark.$2);
 
 /// Draws the marks a particular chart is made of.
 typedef PlassChartMarkPainter = void Function(Canvas canvas, PlassChartLayout layout);
@@ -1155,6 +1172,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
           tokens: tokens,
           categoryScale: categoryScale,
           ease: _ease,
+          seriesKeys: keys,
         );
 
         /* `nearest` is the one mode that changes how the press is *read* rather
@@ -1177,10 +1195,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
         /// Which mark [mark] is, as the reading holds on to it: the key its
         /// series is known by, from the mark itself or from its legend entry,
         /// and its own place in that series.
-        (String, int) held(PlassChartMark mark) => (
-          mark.key ?? (mark.series < keys.length ? keys[mark.series] : '${mark.series}'),
-          mark.index,
-        );
+        (String, int) held(PlassChartMark mark) => base.markIdentity(mark);
 
         final (String, int)? heldMark = _heldMark;
         final PlassChartMark? active = heldMark == null
@@ -1208,9 +1223,9 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
         _ease.aim(
           <Object>{
             for (int i = 0; i < visible.length; i += 1)
-              if (dimmedByHover(_hovered, i, visible)) _fadeKey(i),
+              if (dimmedByHover(_hovered, i, visible)) _fadeKey(layout.seriesKey(i)),
             if (layout.activeIndex != null) _columnKey(layout.activeIndex!),
-            if (active != null) _markKey(active.series, active.index),
+            if (active != null) _markKey(layout.markIdentity(active)),
           },
           duration: (MediaQuery.maybeDisableAnimationsOf(context) ?? false)
               ? Duration.zero

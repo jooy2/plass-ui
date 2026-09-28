@@ -386,7 +386,7 @@ class PlScatterChart extends StatelessWidget {
       // A pixel bigger under the crosshair, grown and shrunk over the house
       // duration as the React mark's `scale` is. Only the size eases: where
       // the mark stands is data, and moves at once.
-      final double r = mark.r > 0 ? mark.r + layout.markLit(mark.series, mark.index) : mark.r;
+      final double r = mark.r > 0 ? mark.r + layout.markLit(mark) : mark.r;
       final Path path = markPath(shapeOf(mark.series), mark.centre.dx, mark.centre.dy, r);
       // The React `scale` grows the ring with the mark, so it widens by the
       // ratio the radius grew by.

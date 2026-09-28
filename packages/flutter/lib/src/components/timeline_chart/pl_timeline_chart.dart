@@ -388,7 +388,7 @@ class PlTimelineChart extends StatelessWidget {
           ..color = (one.color == null ? colors[mark.series] : tokens.family(one.color!).accent)
               // A shade under whole until the pointer or a key reaches the
               // span, and eased up to it and back.
-              .withValues(alpha: lerpDouble(0.92, 1, layout.markLit(mark.series, mark.index))!),
+              .withValues(alpha: lerpDouble(0.92, 1, layout.markLit(mark))!),
       );
     }
   }

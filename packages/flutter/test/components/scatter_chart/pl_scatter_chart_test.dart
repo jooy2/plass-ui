@@ -546,6 +546,68 @@ void main() {
       expect(halfway, lessThan(grown));
     });
 
+    testWidgets('keeps the mark being read grown as a series ahead of it leaves the data', (
+      WidgetTester tester,
+    ) async {
+      final FocusNode before = FocusNode();
+      addTearDown(before.dispose);
+
+      final PlassChartSeries first = PlassChartSeries(
+        id: 'first',
+        name: 'Q1',
+        data: <PlassChartDatum>[_at(10, 22)],
+      );
+      final PlassChartSeries second = PlassChartSeries(
+        id: 'second',
+        name: 'Q2',
+        data: <PlassChartDatum>[_at(20, 40), _at(30, 35)],
+      );
+
+      List<PlassChartSeries> series = <PlassChartSeries>[first, second];
+      late StateSetter setSeries;
+
+      await _pump(
+        tester,
+        afterFocusStop(
+          before,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              setSeries = setState;
+
+              return PlScatterChart(series: series);
+            },
+          ),
+        ),
+      );
+
+      before.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+
+      // Onto Q2's first point, grown all the way.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+
+      double widest() => _marks(
+        tester,
+      ).map((_Mark mark) => mark.fill.width).reduce((double a, double b) => a > b ? a : b);
+
+      final double grown = widest();
+
+      // Q1 leaves, and Q2 is now first in the list. Its easing is held by the
+      // series rather than by its place, so the mark stays grown rather than
+      // coming up again from rest.
+      setSeries(() => series = <PlassChartSeries>[second]);
+      await tester.pump();
+
+      expect(widest(), closeTo(grown, 1e-3));
+
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('fades the other series as a legend entry is pointed at, over the house duration', (
       WidgetTester tester,
     ) async {
