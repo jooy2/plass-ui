@@ -277,7 +277,11 @@ class _PlAnchorState extends State<PlAnchor> {
                 height: text.height,
                 fontWeight: FontWeight.w600,
               ),
-              child: Semantics(header: true, child: widget.label!),
+              // Words above the list rather than a heading in the page's
+              // outline, as the React build draws them in a plain `<span>`:
+              // the list is already named, and a heading of its own would put
+              // "On this page" among the page's sections.
+              child: widget.label!,
             ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

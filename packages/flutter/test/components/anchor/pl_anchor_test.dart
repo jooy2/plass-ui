@@ -139,7 +139,9 @@ void main() {
         expect(second - first, 12);
       });
 
-      testWidgets('keeps its heading out of its name', (WidgetTester tester) async {
+      testWidgets('keeps the words above its list out of its name, and out of the outline', (
+        WidgetTester tester,
+      ) async {
         final SemanticsHandle handle = tester.ensureSemantics();
 
         await _pump(
@@ -151,16 +153,17 @@ void main() {
           ),
         );
 
-        // The list is named "Contents" and the heading is a node of its own
-        // inside it, as the words inside the React `<nav>` are. Merged, the
-        // two ran together as one name and the whole list became a heading.
+        // The list is named "Contents" and the words above it are a node of
+        // their own inside it, as the words inside the React `<nav>` are, and
+        // not a heading, as the React `<span>` is not one. Merged, the two ran
+        // together as one name.
         expect(
           semanticsNodeLabelled(tester, 'Contents'),
           isSemantics(label: 'Contents', isHeader: false),
         );
         expect(
           semanticsNodeLabelled(tester, 'On this page'),
-          isSemantics(label: 'On this page', isHeader: true),
+          isSemantics(label: 'On this page', isHeader: false),
         );
 
         handle.dispose();
