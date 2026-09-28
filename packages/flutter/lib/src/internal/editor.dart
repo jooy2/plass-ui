@@ -83,7 +83,7 @@ class PlassEditorPress extends StatefulWidget {
   const PlassEditorPress({super.key, required this.onPress, required this.child});
 
   /// What a tap on the text does, usually [plassTapEditor], or `null` for
-  /// nothing, as on a disabled field.
+  /// nothing, as on a disabled field, whose editor then takes no press at all.
   final VoidCallback? onPress;
 
   /// The editor, and whatever is drawn in its place, such as a placeholder.
@@ -138,7 +138,11 @@ class _PlassEditorPressState extends State<PlassEditorPress> {
       onPointerMove: live ? _move : null,
       onPointerUp: live ? _up : null,
       onPointerCancel: (PointerCancelEvent event) => _pressedAt = null,
-      child: widget.child,
+      // A field nothing answers a press on, a disabled one, keeps the pointer
+      // off its editor as well, which would otherwise take the press itself
+      // and move the selection, as a React `<input disabled>` ignores a click.
+      // In the tree either way, so the editor is not built again.
+      child: IgnorePointer(ignoring: !live, child: widget.child),
     );
   }
 }

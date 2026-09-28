@@ -471,6 +471,25 @@ void main() {
       });
     });
 
+    group('a disabled field', () {
+      testWidgets('leaves its selection alone when its text is pressed', (
+        WidgetTester tester,
+      ) async {
+        final TextEditingController text = TextEditingController(text: 'Ada Lovelace');
+        addTearDown(text.dispose);
+        text.selection = const TextSelection.collapsed(offset: 3);
+
+        await tester.pumpWidget(host(PlTextField(controller: text, disabled: true), width: 320));
+
+        await tester.tapAt(tester.getTopLeft(find.byType(EditableText)) + const Offset(4, 8));
+        await tester.pumpAndSettle();
+
+        // As a React `<input disabled>` ignores the click. The editor took the
+        // press itself and moved the caret to where it landed.
+        expect(text.selection, const TextSelection.collapsed(offset: 3));
+      });
+    });
+
     group('the interaction light', () {
       /// Whether the shell's bloom is lit: the first of the two layers of the
       /// light.
