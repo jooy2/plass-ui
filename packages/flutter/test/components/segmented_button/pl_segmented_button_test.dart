@@ -548,7 +548,44 @@ void main() {
         expect(before.hasFocus, isFalse);
       });
 
-      testWidgets('give the focus back to the chosen segment as a read-only set turns live', (
+      testWidgets('keep the focus where the arrows put it as the choice changes from outside', (
+        WidgetTester tester,
+      ) async {
+        String value = 'list';
+        late StateSetter rebuild;
+        await tester.pumpWidget(
+          host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                return PlSegmentedButton<String>(
+                  segments: views,
+                  value: value,
+                  readOnly: true,
+                  autofocus: true,
+                  onChanged: (String _) {},
+                );
+              },
+            ),
+            width: 480,
+          ),
+        );
+        await tester.pump();
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pumpAndSettle();
+
+        expect(focusedSegment('Board'), findsOneWidget);
+
+        rebuild(() => value = 'calendar');
+        await tester.pumpAndSettle();
+
+        // As Base UI keeps its highlighted item.
+        expect(focusedSegment('Board'), findsOneWidget);
+      });
+
+      testWidgets('keep the focus where the arrows put it as a read-only set turns live', (
         WidgetTester tester,
       ) async {
         bool readOnly = true;
@@ -581,7 +618,8 @@ void main() {
         rebuild(() => readOnly = false);
         await tester.pumpAndSettle();
 
-        expect(focusedSegment('List'), findsOneWidget);
+        // As Base UI keeps its highlighted item.
+        expect(focusedSegment('Board'), findsOneWidget);
       });
 
       for (final NavigationMode mode in NavigationMode.values) {
@@ -673,11 +711,12 @@ void main() {
           expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown), traditional);
           expect(chosen, traditional ? 'board' : isNull);
 
-          // Left and right move it in both.
+          // Left and right move it in both, from where the stop is: past Board
+          // in traditional navigation.
           chosen = null;
 
           expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
-          expect(chosen, 'board');
+          expect(chosen, traditional ? 'calendar' : 'board');
         });
       }
 

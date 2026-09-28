@@ -162,12 +162,10 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
     super.didUpdateWidget(oldWidget);
     keepStop(oldWidget.focusNode);
 
-    // The stop goes back to the chosen option when the choice changes, and
-    // when the set stops or starts being read-only, so an option the arrows
-    // reached in a read-only set never holds the stop of a live one.
-    if (oldWidget.value != widget.value || oldWidget.readOnly != widget.readOnly) {
-      _highlight = null;
-    }
+    // The stop stays where the arrows or a press last put it as the choice
+    // changes from outside and as `readOnly` comes and goes, as Base UI keeps
+    // its highlighted item: it goes back to the chosen option only when the one it
+    // rests on can no longer take it.
   }
 
   /// Its own `disabled`, a missing `onChanged` or a disabled [PlFieldset]
@@ -234,10 +232,12 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
       }
 
       if (!widget.options[index].disabled) {
-        if (widget.readOnly) {
-          keepStop(widget.focusNode);
-          setState(() => _highlight = index);
-        } else {
+        // The stop goes with the arrows in either kind of set. In a live
+        // one the choice goes with it; in a read-only one only the stop.
+        keepStop(widget.focusNode);
+        setState(() => _highlight = index);
+
+        if (!widget.readOnly) {
           widget.onChanged!(widget.options[index].value);
         }
 
@@ -301,7 +301,11 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
           disabled: _disabled || widget.options[index].disabled,
           readOnly: widget.readOnly,
           onPressed: _interactive && !widget.options[index].disabled
-              ? () => widget.onChanged!(widget.options[index].value)
+              ? () {
+                  // The stop goes to what was pressed, as Base UI highlights it.
+                  setState(() => _highlight = index);
+                  widget.onChanged!(widget.options[index].value);
+                }
               : null,
           // Exactly one option is a focus stop, and the arrows move it. Every
           // other one is reachable by pointer and invisible to the tab key.

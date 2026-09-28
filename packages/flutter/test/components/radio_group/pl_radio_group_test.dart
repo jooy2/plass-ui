@@ -198,7 +198,8 @@ void main() {
             chosen = null;
 
             expect(await tester.sendKeyEvent(along), isTrue, reason: orientation.name);
-            expect(chosen, 'team', reason: orientation.name);
+            // From where the stop is: past Team in traditional navigation.
+            expect(chosen, traditional ? 'enterprise' : 'team', reason: orientation.name);
           }
         });
       }
@@ -424,7 +425,7 @@ void main() {
         expect(focusedOption('Team'), findsOneWidget);
       });
 
-      testWidgets('give the stop back to the chosen option as the choice changes from outside', (
+      testWidgets('keep the stop where the arrows put it as the choice changes from outside', (
         WidgetTester tester,
       ) async {
         String value = 'starter';
@@ -457,10 +458,11 @@ void main() {
         rebuild(() => value = 'enterprise');
         await tester.pumpAndSettle();
 
-        expect(focusedOption('Enterprise'), findsOneWidget);
+        // As Base UI keeps its highlighted item.
+        expect(focusedOption('Team'), findsOneWidget);
       });
 
-      testWidgets('give the stop back to the chosen option as a read-only set turns live', (
+      testWidgets('keep the stop where the arrows put it as a read-only set turns live', (
         WidgetTester tester,
       ) async {
         bool readOnly = true;
@@ -493,7 +495,8 @@ void main() {
         rebuild(() => readOnly = false);
         await tester.pumpAndSettle();
 
-        expect(focusedOption('Starter'), findsOneWidget);
+        // As Base UI keeps its highlighted item.
+        expect(focusedOption('Team'), findsOneWidget);
       });
 
       testWidgets('do nothing in a disabled set and hand the key on, read-only or not', (
