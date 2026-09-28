@@ -81,6 +81,7 @@
 
 ### Fixed
 
+- **A screen reader hears a `PlCalendar`'s weekday headings by their whole names, "Sunday" rather than "Sun", as the React column headers are labelled.** The short names drawn above the grid were also what was read. They are still what is drawn, and the calendar's `names.weekdays` is what is read, in every picker that draws a calendar.
 - **Every key pressed in a `PlTextField`, `PlNumberField` or `PlCombobox` puts its pointer light out, as it does in the React build, except Tab, Escape and a modifier held down.** The light went out only for a character typed or a caret moved from the keyboard, so the arrows moving a combobox's highlight through its list and Enter in a field of one line left it lit.
 - **A mouse press on the padding or on a drawn adornment of a focused `PlTextField` or `PlNumberField` keeps the focus in the field, in both builds.** The two builds and the two fields each did something different: the React text field kept the focus for a press on its padding and lost it for one on an adornment, the React number field lost it for both, and the Flutter fields lost it and took it back. A press anywhere in the field now keeps the focus there, and a button or a link in an adornment still takes its own press.
 - **A press anywhere inside the border of a `PlColorPicker` value field puts the caret in it, as a click on the React `<input>`'s own padding does.** The inset between the border and the text took no press, so a press just short of the text did nothing. It now focuses the field, with the text cursor over it.

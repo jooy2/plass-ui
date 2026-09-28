@@ -832,6 +832,9 @@ class _PlassCalendarState extends State<PlassCalendar> {
     final side = cellSize[widget.size]!;
     final weeks = calendarWeeks(widget.month, widget.weekStartsOn);
     final short = widget.names.weekdayRow(widget.weekStartsOn);
+    // What a screen reader hears for each column: the whole name, "Sunday"
+    // rather than "Sun", as the React column header is labelled.
+    final long = widget.names.weekdayRow(widget.weekStartsOn, short: false);
     final band = orderedRange(widget.rangeStart, widget.rangeEnd);
     final now = todayDate();
 
@@ -840,13 +843,14 @@ class _PlassCalendarState extends State<PlassCalendar> {
       children: <Widget>[
         Row(
           children: <Widget>[
-            for (final String label in short)
+            for (int column = 0; column < short.length; column += 1)
               SizedBox(
                 width: side,
                 height: side,
                 child: Center(
                   child: Text(
-                    label,
+                    short[column],
+                    semanticsLabel: long[column],
                     style: TextStyle(
                       color: tokens.mutedFg,
                       fontSize: metaText[widget.size]!,

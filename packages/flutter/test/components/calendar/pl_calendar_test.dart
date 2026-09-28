@@ -741,9 +741,12 @@ void main() {
         );
 
         // The row of weekday initials used to be merged into the calendar's
-        // own node, which named it "Departure date Sun Mon Tue …".
+        // own node, which named it "Departure date Sun Mon Tue …". Each is read
+        // by its whole name, as the React column headers are.
         expect(semanticsNodeLabelled(tester, 'Departure date'), isNotNull);
-        expect(semanticsNodeLabelled(tester, 'Sun'), isNotNull);
+        expect(semanticsNodeLabelled(tester, 'Sunday'), isNotNull);
+        expect(semanticsNodeLabelled(tester, 'Sun'), isNull);
+        expect(find.text('Sun'), findsOneWidget);
 
         handle.dispose();
       });
