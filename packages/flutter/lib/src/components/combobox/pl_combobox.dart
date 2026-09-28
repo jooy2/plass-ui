@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/components/chip/pl_chip.dart';
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -54,6 +55,12 @@ class _MoveIntent extends Intent {
   const _MoveIntent(this.by);
 
   final int by;
+}
+
+/// Opens a closed list from a remote's Select key, under directional
+/// navigation, where the arrows do not open it.
+class _OpenIntent extends Intent {
+  const _OpenIntent();
 }
 
 /// Escape: closes the list, or with the list closed empties a field that holds
@@ -832,17 +839,35 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     return -1;
   }
 
-  void _move(int by) {
+  /// Opens the list, or moves the highlight [by] rows through the open one,
+  /// and says whether the key did anything.
+  ///
+  /// An open list keeps the arrows whatever they do, as a `PlSelect` keeps
+  /// them: an arrow handed on would take the focus off the field with the list
+  /// still up.
+  ///
+  /// Under directional navigation a closed list does not open on an arrow,
+  /// which is how a remote moves from one control to the next: Enter or Select
+  /// opens it there. The arrow moves the focus that way itself, since the text
+  /// field under the focus would otherwise keep it to move its caret, and the
+  /// focus system passes a text field over when it moves the focus.
+  bool _move(int by) {
     if (!_open) {
+      if (plassArrowsMoveFocus(context)) {
+        return _focusNode.focusInDirection(
+          by > 0 ? TraversalDirection.down : TraversalDirection.up,
+        );
+      }
+
       _openList(by: by);
 
-      return;
+      return _open;
     }
 
     final int count = _rows.length;
 
     if (count == 0) {
-      return;
+      return true;
     }
 
     // With no row lit, down goes to the first row and up to the last. A row
@@ -854,6 +879,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       setState(() => _highlighted = next);
       _reveal.reveal(_scroll, next, _rows.length);
     }
+
+    return true;
   }
 
   void _onQueryChanged(String query) {
@@ -1127,6 +1154,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         _quieten();
 
         if (!_open) {
+          // Under directional navigation Enter is what opens a closed list,
+          // since the arrows move the focus there.
+          if (plassArrowsMoveFocus(context)) {
+            _openList();
+          }
+
           return;
         }
 
@@ -1452,17 +1485,27 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         SingleActivator(LogicalKeyboardKey.arrowDown): _MoveIntent(1),
         SingleActivator(LogicalKeyboardKey.arrowUp): _MoveIntent(-1),
         SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+        SingleActivator(LogicalKeyboardKey.select): _OpenIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
-          _MoveIntent: CallbackAction<_MoveIntent>(
-            onInvoke: (_MoveIntent intent) {
-              _move(intent.by);
-
-              return null;
-            },
+          // An arrow that moves nothing goes on under directional navigation.
+          _MoveIntent: PlassArrowAction<_MoveIntent>(
+            context,
+            onArrow: (_MoveIntent intent) => _move(intent.by),
           ),
           DismissIntent: _escapeAction,
+          // Only while there is a closed list to open under directional
+          // navigation: otherwise Select goes on as it did, to whatever the
+          // field sits in.
+          if (!_open && _openable && plassArrowsMoveFocus(context))
+            _OpenIntent: CallbackAction<_OpenIntent>(
+              onInvoke: (_OpenIntent intent) {
+                _openList();
+
+                return null;
+              },
+            ),
         },
         child: shell,
       ),

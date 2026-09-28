@@ -296,8 +296,17 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
   /// open, disabled or read-only, it did not. An open list keeps the arrows
   /// whatever they do: the focus is on the trigger, and an arrow handed on
   /// would take it off with the list still up.
+  ///
+  /// Under directional navigation a closed select does not open on an arrow:
+  /// the arrows are how a remote moves from one control to the next, so they
+  /// go on to the focus system, and the trigger opens with Enter or Select, as
+  /// any button there does.
   bool _move(int by) {
     if (!_open) {
+      if (plassArrowsMoveFocus(context)) {
+        return false;
+      }
+
       _openList();
 
       return _open;

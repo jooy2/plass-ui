@@ -441,6 +441,75 @@ void main() {
         });
       }
 
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('opens on an arrow only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          final FocusNode before = FocusNode(debugLabel: 'before');
+          final FocusNode after = FocusNode(debugLabel: 'after');
+          addTearDown(before.dispose);
+          addTearDown(after.dispose);
+
+          // Stops above and below the select, and the keys a `WidgetsApp`
+          // gives: the arrows that move the focus, and Select, a remote's
+          // centre button, which presses what holds the focus.
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                mode,
+                afterFocusStop(
+                  before,
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      const _Harness(),
+                      Focus(focusNode: after, child: const SizedBox.square(dimension: 1)),
+                    ],
+                  ),
+                ),
+              ),
+              width: 320,
+              overlay: true,
+            ),
+          );
+          await tester.pumpAndSettle();
+          Focus.of(tester.element(_trigger())).requestFocus();
+          await tester.pump();
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          if (mode == NavigationMode.traditional) {
+            expect(_row('Seoul'), findsOneWidget);
+
+            return;
+          }
+
+          // The arrows are how a remote moves from one control to the next, so
+          // the list stays shut and the focus goes on to the stop below.
+          expect(_row('Seoul'), findsNothing);
+          expect(after.hasPrimaryFocus, isTrue);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+          await tester.pumpAndSettle();
+
+          expect(holdsFocus(tester, find.byType(PlSelect<String>)), isTrue);
+
+          // Enter and Select open it there.
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+          expect(_row('Seoul'), findsOneWidget);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+          expect(_row('Seoul'), findsNothing);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.select);
+          await tester.pumpAndSettle();
+          expect(_row('Seoul'), findsOneWidget);
+        });
+      }
+
       testWidgets('hands the arrows on from a disabled select under directional navigation', (
         WidgetTester tester,
       ) async {

@@ -2174,6 +2174,113 @@ void main() {
       });
     });
 
+    group('a closed list', () {
+      /// A combobox between a stop above it and a stop below it, under [mode],
+      /// with the arrow keys a `WidgetsApp` gives, and the field focused
+      /// without its list opening, as a reader arrives on a remote.
+      Future<(FocusNode, FocusNode)> reach(WidgetTester tester, NavigationMode mode) async {
+        final FocusNode before = FocusNode(debugLabel: 'before');
+        final FocusNode after = FocusNode(debugLabel: 'after');
+        addTearDown(before.dispose);
+        addTearDown(after.dispose);
+
+        await tester.pumpWidget(
+          _host(
+            inNavigationMode(
+              mode,
+              afterFocusStop(
+                before,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    PlCombobox<String>(options: _cities, value: null, onChanged: (String? next) {}),
+                    Focus(focusNode: after, child: const SizedBox.square(dimension: 1)),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        tester.widget<EditableText>(find.byType(EditableText)).focusNode.requestFocus();
+        await tester.pumpAndSettle();
+
+        expect(holdsFocus(tester, find.byType(EditableText)), isTrue);
+        expect(_inList('Seoul'), findsNothing);
+
+        return (before, after);
+      }
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('opens on an arrow only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          final (FocusNode before, FocusNode after) = await reach(tester, mode);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          if (mode == NavigationMode.traditional) {
+            expect(_inList('Seoul'), findsOneWidget);
+            expect(holdsFocus(tester, find.byType(EditableText)), isTrue);
+          } else {
+            // The arrows are how a remote moves from one control to the next,
+            // so the list stays shut and the focus goes on that way.
+            expect(_inList('Seoul'), findsNothing);
+            expect(after.hasPrimaryFocus, isTrue);
+
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+            await tester.pumpAndSettle();
+            await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+            await tester.pumpAndSettle();
+
+            expect(_inList('Seoul'), findsNothing);
+            expect(before.hasPrimaryFocus, isTrue);
+          }
+        });
+
+        testWidgets('opens on Enter and on Select only in directional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await reach(tester, mode);
+
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+          await tester.pumpAndSettle();
+
+          expect(
+            _inList('Seoul'),
+            mode == NavigationMode.directional ? findsOneWidget : findsNothing,
+          );
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+          await tester.pumpAndSettle();
+          expect(_inList('Seoul'), findsNothing);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.select);
+          await tester.pumpAndSettle();
+
+          expect(
+            _inList('Seoul'),
+            mode == NavigationMode.directional ? findsOneWidget : findsNothing,
+          );
+        });
+      }
+
+      testWidgets('keeps the arrows while it is open, under directional navigation', (
+        WidgetTester tester,
+      ) async {
+        final (FocusNode _, FocusNode after) = await reach(tester, NavigationMode.directional);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.select);
+        await tester.pumpAndSettle();
+        expect(_inList('Seoul'), findsOneWidget);
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown), isTrue);
+        await tester.pump();
+
+        expect(_lit(tester), 'Seoul');
+        expect(after.hasFocus, isFalse);
+      });
+    });
+
     group('Enter', () {
       /// Gives the field the focus the way a reader does, by pressing it.
       Future<void> focus(WidgetTester tester) async {
