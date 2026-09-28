@@ -337,6 +337,7 @@ The controller **is** the value, and `onChanged` is told about every change. `ma
 | a `<textarea>` under `multiline` | the same widget, taller | There is one editor either way, so switching to multiline genuinely changes nothing but the height. |
 | `aria-describedby` wiring | one merged semantics node | The same result by a different route. |
 | selection handles on touch | — | They belong to Material and Cupertino, which this package does not import. |
+| the start adornment read before the input | adornments read after the field | The field is one node, holding its name, its text and the shell the adornments sit in, so a screen reader reaches the field in one step. An adornment inside it is a child of that node, and Flutter reads a node before its children. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

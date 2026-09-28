@@ -242,6 +242,7 @@ The shell is a `PlTextField`'s, to the pixel. A form where the quantity box is a
 | a value of `number \| null` | `double?` | Dart's floating-point type. An `int` field is `step: 1` with a `format` that writes no decimals. |
 | the hidden input, `name`, `required` | — | There is no native form submission to be part of. |
 | `id` | — | Nothing points at anything by id here; the label and the messages are part of the component. |
+| the start adornment read before the input | adornments read after the field | The field is one node, holding its name, its text and the shell the adornments sit in, so a screen reader reaches the field in one step. An adornment inside it is a child of that node, and Flutter reads a node before its children. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

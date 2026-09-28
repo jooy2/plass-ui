@@ -230,4 +230,5 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 | `allowCustom` (기본이 켜진 `boolean`) | `onCreate` (`T Function(String)`) | field는 질의로부터 `T`를 만들 수 없습니다. 허가와 만드는 법이 같은 파라미터입니다. |
 | `ReactNode` label, Base UI collator 기반 필터 | `Widget`, 대소문자 접은 `contains` 필터 | label이 여전히 `String`인 것은 같은 이유입니다. 필터가 그것을 읽고, field에 써 넣습니다. |
 | hidden input, `name`, `required` | — | 참여할 네이티브 form 제출이 없습니다. |
+| 앞쪽 장식이 입력보다 먼저 읽힘 | 장식이 field 다음에 읽힘 | field는 이름과 글자, 그리고 장식이 놓인 껍데기까지 담은 노드 하나라서 스크린 리더가 한 번에 field에 닿습니다. 그 안의 장식은 이 노드의 자식이고, Flutter는 노드를 자식보다 먼저 읽습니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |

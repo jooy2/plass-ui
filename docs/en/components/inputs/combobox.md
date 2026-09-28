@@ -230,4 +230,5 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 | `allowCustom` (a `boolean`, on by default) | `onCreate` (a `T Function(String)`) | A `T` cannot be built out of a query by the field. The permission and the recipe are the same parameter. |
 | `label` of `ReactNode`, filtering by Base UI's collator | a `Widget`, filtering by a case-folded `contains` | The label is still a `String`, for the same reason: the filter reads it and it is written into a field. |
 | the hidden input, `name`, `required` | — | There is no native form submission to be part of. |
+| the start adornment read before the input | adornments read after the field | The field is one node, holding its name, its text and the shell the adornments sit in, so a screen reader reaches the field in one step. An adornment inside it is a child of that node, and Flutter reads a node before its children. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
