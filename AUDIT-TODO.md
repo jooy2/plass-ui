@@ -2,9 +2,9 @@
 
 The open findings of a full audit of both packages, the documentation site and the repository, taken at `148a20e4` on 2026-09-13, and of the batches that have worked through it since. The work goes in batches of twenty. When no item is left, delete this file in a commit of its own.
 
-A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 33 closed 604 items between `148a20e4` and `a63f7c3d`; those items and the notes of batches 1 to 29 are in the history of this file.
+A closed item is deleted from this file, not ticked, and its number is not used again. Batches 1 to 34 closed 611 items between `148a20e4` and `a2871815`; those items and the notes of batches 1 to 29 are in the history of this file.
 
-**7 items are open, and the last number used is 613.**
+**2 items are open, and the last number used is 615.**
 
 ## Working through a batch
 
@@ -46,7 +46,7 @@ cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm ru
 
 ## Waiting for an answer
 
-None. Every question batch 33 asked was answered with an item, with a fix the batch made itself, or with a line under Noted differences.
+- **Noted differences, once the last item is closed** (asked in batch 34): move the list under [Noted differences](#noted-differences) to a new `DIFFERENCES.md` at the repository root, with a short introduction saying what it is, and delete this file in the same commit.
 
 ## Passed over and not yet asked
 
@@ -96,43 +96,19 @@ Small differences between the builds found in passing from batch 27 on. They are
 - `PlChip`: a disabled chip with no `onClick` shows `cursor-not-allowed` and carries `aria-disabled` on its shell in React, where the Flutter chip defers the cursor and its node says nothing about being disabled.
 - `PlChip`: the React label, icons and count are mounted again as `onClick` comes or goes (`{pressable ? (<button …>{label}</button>) : (label)}`), so a `PlAvatar` in `startIcon` loads again; the Flutter chip keeps them.
 - React pickers: inside a native `<fieldset disabled>` the trigger is disabled by the browser but does not look disabled, since `PickerShell` reads only `useDisabled` (the `PlFieldset` context); `PlColorPicker`'s panel reads both since item 600.
+- `PlWindowPane`: a corner grown past the box the window is laid out in reports through `onResize` a size the Flutter window is not drawn at, since the box's constraints win (`_resizeTo` in `pl_window_pane.dart`); the React window overflows its container at the size it reports.
 - Arrow keys: an arrow at an end still reports the unchanged value through `PlSlider`'s callbacks (`_report(index, value, ended: true);`), the `PlPanes` and `PlSidebar` `onResize`/`onResizeEnd`, the `PlWindowPane` corner's `onResize` and the `PlColorPicker` square and rails, in both navigation modes; not compared with React.
 
 ## Items
 
 Each item was raised in a batch report and approved. Its line numbers are from the commit that raised it and drift as the code changes; when one no longer matches, search for the symbol.
 
-- [ ] **603.** Every Flutter menu trigger sits in an unnamed focus stop that holds the focus while the menu is open (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/menu/pl_menu.dart` (`final Widget trigger = Focus(focusNode: _focusNode, onKeyEvent: _onKey,` ~693; `_focusNode` ~385; `_focusNode.requestFocus();` in `_openMenu` ~466)
-  - Problem: The `Focus` round the trigger leaves `includeSemantics` at `true`, so every `PlMenu` trigger, a `PlButton` for one, sits in a focusable node with no name whose focus action moves the focus to the menu's own node rather than to the trigger. While the menu is open the primary focus is on that node, so the named trigger is never announced as focused. The comment at ~689 ("Focus stays on the trigger while the popup is up") says otherwise. React's trigger is one Base UI `Menu.Trigger` button.
-  - Proposal (approved): take the wrapper's semantics away (`includeSemantics: false`) and have the named trigger's node say it holds the focus while the menu is open, checking what a screen reader reads while it is; correct the comment, and test the tree with the menu shut and open. The `PlMenubar` case in `test/package/focus_semantics_test.dart` passes `alone: false` because of this node.
+- [ ] **614.** A Flutter `PlMenu` trigger does not say it is expanded while the menu is open (Accessibility · Flutter · Low)
+  - Location: `packages/flutter/lib/src/components/menu/pl_menu.dart` (the trigger built through `widget.trigger(context, _openMenu, _open)`, round which `PlassFocusHolder` sits since batch 34); `PlButton`'s `Semantics` in `components/button/pl_button.dart`; `plassFocusSemanticsOf` in `internal/interaction.dart`
+  - Problem: A `PlButton`, `PlIconButton` or `PlChip` used as a menu trigger has no expanded state on its node, open or shut, so a screen reader is not told the menu opened. The React trigger carries `aria-expanded` from Base UI's `MenuRoot` (`mergedProps['aria-expanded'] = open`), and a `PlMenubar` word already says `expanded: open` in Flutter.
+  - Proposal (approved): have the menu tell a Plass trigger whether it is open, as it tells it about the focus through the scope round the trigger, so the trigger's own node says expanded or collapsed, with no change to the public API; test it shut and open with `PlButton` and a trigger named inside its surface.
 
-- [ ] **607.** A Flutter table wider than its sheet is cut off, and its pinned header overflows (Bug · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/table.dart` (the grid's vertical `SingleChildScrollView` ~537, `PlassKeyboardScroll(vertical: _scroll,` ~631, `_PinnedHeader.build`'s `IntrinsicHeight(child: Row(` ~980); the sheet's `ClipRRect` in `internal/surface.dart` ~305; `docs/en/components/display/table.md` ~343 and the `ko` twin
-  - Problem: The grid scrolls only up and down. Once the columns cannot shrink further, the sheet clips them, and with `stickyHeader` the band's `Row` overflows (a `RenderFlex` overflow in debug, reproduced with a 640-wide `PlTable` headed 'Build, with where it ran and why'). The docs tell a Flutter reader to wrap the table in a horizontal `SingleChildScrollView`, which gives the stretched `Column` of `PlTable` and of the grid an unbounded width (read from the code, not run). React scrolls the sheet sideways (`overflow-x-auto`, `PlTable.tsx` ~275).
-  - Proposal (approved): scroll the grid sideways, as React does, when its columns need more room than the sheet has, with the pinned band moving with it and the keyboard scroll given the horizontal controller; take the workaround out of the docs (en and ko, table and data table pages) and say the table scrolls sideways; test a wide table in `PlTable` and `PlDataTable`, with and without `stickyHeader`.
-
-- [ ] **609.** Under directional navigation, an arrow across a control's axis still changes its value (Accessibility · Flutter · Low)
-  - Location: `components/slider/pl_slider.dart` (~368-376, no orientation check), `segmented_button/pl_segmented_button.dart` (~364-365), `radio_group/pl_radio_group.dart` (~266-267), `rating/pl_rating.dart` (~326, ~328), `color_picker/pl_color_picker.dart` (the rails' `_nudges`, ~921-926 and ~1001-1004), `panes/pl_panes.dart` (~496-501)
-  - Problem: A horizontal `PlSegmentedButton`, `PlSlider` or colour-picker rail takes up and down, a vertical `PlRadioGroup` left and right, a `PlRating` up and down, and a `PlPanes` handle all four, so a D-pad reader leaves only after driving the value to an end. Material's `Slider` binds only the arrows along its axis under `NavigationMode.directional` (`material/slider.dart` ~655-660, ~962-966); `PlSidebar`'s handle already binds only its own axis.
-  - Proposal (approved): under `NavigationMode.directional` only, take the arrows along the control's axis and hand the others on to the focus system (through `internal/arrows.dart`), leaving the traditional mode as it is; test each in both modes. `PlPanes` also flips up and down on a horizontal split in RTL (`final int steps = widget.horizontal && rtl ? -intent.steps : intent.steps;` ~508); check that on the way.
-
-- [ ] **610.** Under directional navigation, some arrows never run out, so a D-pad reader cannot leave (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/calendar.dart` (the day grid's `_onDayKey` ~921-938 and the month and year grids' `_onCursorKey` ~1064-1081), the `PlColorPicker` hue rail (~651-661, it wraps), `PlWindowPane`'s corner (`_nudge` ~593-599, no ceiling on right and down)
-  - Problem: The calendar grids move across months and years without an end (`minDate` and `maxDate` only draw a day as disabled), the hue rail goes round, and the window corner grows to the right and down without a limit, so every arrow there moves something and none is handed on.
-  - Proposal (approved): under `NavigationMode.directional` only, treat what is shown as the end: the calendar stops at the edge of the month or page shown (the month changes with the header's buttons and Page keys; check what Material's `CalendarDatePicker` does and follow it where it fits), the hue rail stops at either end instead of wrapping, and the window corner stops at the edge of its area; an arrow past that goes on to the next control. Leave the traditional mode as it is, and test each in both modes.
-
-- [ ] **611.** Under directional navigation, a closed select or combobox takes up and down (Accessibility · Flutter · Low)
-  - Location: `components/select/pl_select.dart` (`if (!_open) {` / `_openList();` ~300-303), `combobox/pl_combobox.dart` (`_move` ~857-859, `_MoveIntent: CallbackAction<_MoveIntent>(` ~1485, `if (!_openable || _open) {` ~725)
-  - Problem: A closed `PlSelect` or `PlCombobox` opens its list on up or down in directional mode too, so a D-pad reader cannot move up or down past it; the combobox's `CallbackAction` reports the arrows handled even when it cannot open.
-  - Proposal (approved): under `NavigationMode.directional` only, open with Enter or Select rather than with up and down, and hand those arrows on while the list is shut; move the combobox onto `PlassArrowAction`; keep an open list's arrows and the traditional mode as they are; test both.
-
-- [ ] **612.** Under directional navigation, a scroll box scrolls to its end before the focus leaves a control inside it (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/internal/keyboard_scroll.dart` (`onKeyEvent: _onKey,` ~242; `_onKey` ~156-223 never reads `hasPrimaryFocus`)
-  - Problem: `PlassKeyboardScroll` (`PlScrollArea`, `PlScrollZone`, `PlTable`, `PlDataTable`) answers arrows that bubble up from a focused descendant, a sortable `PlDataTable` heading or a control that hands an arrow on at its end (item 587), so in directional mode the box scrolls 40px a press to its end before the focus moves.
-  - Proposal (approved): under `NavigationMode.directional` only, scroll with the arrows only while the box itself holds the focus, and let a descendant's arrow go to focus traversal, which brings the newly focused control into view; keep the traditional mode as it is, as a browser does; test both.
-
-- [ ] **613.** A disabled Flutter tree row is a focus stop under directional navigation (Accessibility · Flutter · Low)
-  - Location: `packages/flutter/lib/src/components/tree/pl_tree.dart` (`focusNode: node.disabled ? null : _nodeFor(node.id),` ~431); `_decide` in `internal/interaction.dart` (`NavigationMode.directional => true,`)
-  - Problem: A disabled row gets no node from the tree, so its `PlassInteractive` makes one of its own, which is not `skipTraversal` and, under `NavigationMode.directional`, can take the focus, as every unavailable control can there. An arrow the tree hands on past its last reachable row (item 587) can land on a disabled row below it, although the tree's own walk skips disabled rows and `docs/en/components/display/tree.md` ~134 says a disabled row "is not a stop for the arrow keys".
-  - Proposal (approved): keep a disabled tree row out of the focus order in every navigation mode, as the exception to the directional rule for an item inside one composite control, with a screen reader still reading it; test it in both modes.
+- [ ] **615.** Under directional navigation, a Flutter text field keeps all four arrows, so a remote cannot leave it (Accessibility · Flutter · Low)
+  - Location: the fields built on `internal/editor.dart`: `PlTextField`, `PlNumberField`, `PlCombobox` (left and right; up and down move the focus while its list is shut since batch 34), the `PlColorPicker` value field, the `PlCommandPalette` search field
+  - Problem: A `WidgetsApp`'s `DefaultTextEditingShortcuts` turn every arrow into a caret move the editor always reports handled, and the app's `DirectionalFocusAction` passes a text field over, so under `NavigationMode.directional` a D-pad reader who reaches a field cannot leave it with the arrows (checked with a `PlTextField` between two stops).
+  - Proposal (approved): under `NavigationMode.directional` only, let up and down move the focus from a single-line field, `PlNumberField` stepping its value with them until an end as it does, and let left and right move the focus at the start or the end of the text, as an Android TV `EditText` does; keep the traditional mode as it is; test each field in both modes.
