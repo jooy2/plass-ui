@@ -216,6 +216,7 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 - chip의 ×는 자기 chip의 이름을 답니다. ×로 chip을 지우면, ×를 눌렀든 키보드로 닿았든 포커스가 field로 옮겨 갑니다.
 - 지우기 ×는 글자 크기로 그려지지만, 둘레의 24px 정사각형 안 어디를 눌러도 ×가 눌립니다. WCAG 2.5.8이 요구하는 최소 target 크기입니다. chevron은 그려진 크기 그대로이고, field를 눌러도 목록이 열립니다.
 - 목록이 닫히거나 포커스가 떠날 때 아무것도 확정되지 않습니다. 질의는 값으로 되돌아가서 목록이 다시 모든 행으로 열리고, 목록에 없는 값은 오직 그 행을 취해야만 값이 됩니다.
+- `NavigationMode.directional`에서는 캐럿이 글자의 처음이나 끝에 있을 때 <kbd>←</kbd>와 <kbd>→</kbd>가 field를 떠납니다.
 
 :::
 

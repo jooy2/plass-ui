@@ -413,30 +413,33 @@ class _PlOtpFieldState extends State<PlOtpField> {
     final Widget editor = IgnorePointer(
       child: Opacity(
         opacity: 0,
-        child: EditableText(
-          key: _editor,
-          controller: _controller,
-          focusNode: _focusNode,
-          readOnly: widget.readOnly || _disabled,
-          autofocus: widget.autofocus,
-          keyboardType: widget.charset == PlOtpCharset.numeric
-              ? TextInputType.number
-              : TextInputType.text,
-          // What lets a phone offer the code straight from the message.
-          autofillHints: const <String>[AutofillHints.oneTimeCode],
-          autocorrect: false,
-          enableSuggestions: false,
-          inputFormatters: <TextInputFormatter>[
-            _CharsetFormatter(charset: widget.charset, onRejected: widget.onRejected),
-            LengthLimitingTextInputFormatter(_slots),
-          ],
-          maxLines: 1,
-          style: TextStyle(color: tokens.fg, fontSize: type),
-          cursorColor: family.accent,
-          backgroundCursorColor: tokens.mutedFg,
-          selectionColor: family.softPress,
-          showSelectionHandles: false,
-          enableInteractiveSelection: false,
+        child: PlassEditorArrows(
+          editor: _editor,
+          child: EditableText(
+            key: _editor,
+            controller: _controller,
+            focusNode: _focusNode,
+            readOnly: widget.readOnly || _disabled,
+            autofocus: widget.autofocus,
+            keyboardType: widget.charset == PlOtpCharset.numeric
+                ? TextInputType.number
+                : TextInputType.text,
+            // What lets a phone offer the code straight from the message.
+            autofillHints: const <String>[AutofillHints.oneTimeCode],
+            autocorrect: false,
+            enableSuggestions: false,
+            inputFormatters: <TextInputFormatter>[
+              _CharsetFormatter(charset: widget.charset, onRejected: widget.onRejected),
+              LengthLimitingTextInputFormatter(_slots),
+            ],
+            maxLines: 1,
+            style: TextStyle(color: tokens.fg, fontSize: type),
+            cursorColor: family.accent,
+            backgroundCursorColor: tokens.mutedFg,
+            selectionColor: family.softPress,
+            showSelectionHandles: false,
+            enableInteractiveSelection: false,
+          ),
         ),
       ),
     );

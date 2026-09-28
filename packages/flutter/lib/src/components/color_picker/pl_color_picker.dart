@@ -765,30 +765,33 @@ class _ColorPanel extends StatelessWidget {
                           onPress: disabled ? null : () => plassTapEditor(editorKey),
                           child: ExcludeFocus(
                             excluding: disabled,
-                            child: EditableText(
-                              key: editorKey,
-                              controller: controller,
-                              focusNode: focusNode,
-                              // The caller's alone, so a disabled field is
-                              // still announced as a text field, as the React
-                              // input is. It takes no text because it cannot
-                              // take the focus, and the two ways in that need
-                              // none are shut below.
-                              readOnly: readOnly,
-                              onChanged: onTyped,
-                              style: TextStyle(
-                                color: tokens.fg,
-                                fontSize: metaText[size]!,
-                                fontFamily: 'monospace',
+                            child: PlassEditorArrows(
+                              editor: editorKey,
+                              child: EditableText(
+                                key: editorKey,
+                                controller: controller,
+                                focusNode: focusNode,
+                                // The caller's alone, so a disabled field is
+                                // still announced as a text field, as the React
+                                // input is. It takes no text because it cannot
+                                // take the focus, and the two ways in that need
+                                // none are shut below.
+                                readOnly: readOnly,
+                                onChanged: onTyped,
+                                style: TextStyle(
+                                  color: tokens.fg,
+                                  fontSize: metaText[size]!,
+                                  fontFamily: 'monospace',
+                                ),
+                                cursorColor: family.accent,
+                                backgroundCursorColor: tokens.mutedFg,
+                                selectionColor: family.softPress,
+                                enableInteractiveSelection: !disabled,
+                                // A pen on an iPad and autofill both write into a
+                                // field without its focus.
+                                stylusHandwritingEnabled: !disabled,
+                                autofillHints: disabled ? null : const <String>[],
                               ),
-                              cursorColor: family.accent,
-                              backgroundCursorColor: tokens.mutedFg,
-                              selectionColor: family.softPress,
-                              enableInteractiveSelection: !disabled,
-                              // A pen on an iPad and autofill both write into a
-                              // field without its focus.
-                              stylusHandwritingEnabled: !disabled,
-                              autofillHints: disabled ? null : const <String>[],
                             ),
                           ),
                         ),

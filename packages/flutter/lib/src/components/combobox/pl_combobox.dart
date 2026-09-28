@@ -1233,7 +1233,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // instead, without taking part in deciding what the press was, and once the
     // editor has put the caret down it opens the list and asks for the
     // keyboard, as a press anywhere else on the field does.
-    editor = PlassEditorPress(onPress: _disabled ? null : _pressField, child: editor);
+    editor = PlassEditorPress(
+      onPress: _disabled ? null : _pressField,
+      // Left and right leave the field at either end of the text under
+      // directional navigation. Up and down are the list's.
+      child: PlassEditorArrows(editor: _editor, vertical: false, child: editor),
+    );
 
     editor = plassHotKeyScope(hotKeys: widget.hotKeys, child: editor);
 

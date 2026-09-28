@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
+import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/editor.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
@@ -941,7 +942,9 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // which the editor does only when the press moves the caret.
     editor = PlassEditorPress(
       onPress: _disabled ? null : () => plassTapEditor(_editor),
-      child: editor,
+      // Left and right leave the field at either end of the number under
+      // directional navigation. Up and down step it, and are answered below.
+      child: PlassEditorArrows(editor: _editor, vertical: false, child: editor),
     );
 
     // Bound *inside* the field rather than around it: a `Shortcuts` closer to
@@ -979,6 +982,20 @@ class _PlNumberFieldState extends State<PlNumberField> {
           // stepper or the wheel stepping the same value leaves it lit.
           _StepIntent: CallbackAction<_StepIntent>(
             onInvoke: (_StepIntent intent) {
+              // Under directional navigation an arrow that has nothing left to
+              // step, at an end of the range or in a field that cannot be
+              // changed, moves the focus that way instead, since the text field
+              // would otherwise keep it for its caret.
+              if (intent.amount == _StepAmount.normal &&
+                  plassArrowsMoveFocus(context) &&
+                  (!_editable || _atEdge(intent.direction))) {
+                _focusNode.focusInDirection(
+                  intent.direction > 0 ? TraversalDirection.up : TraversalDirection.down,
+                );
+
+                return null;
+              }
+
               _quieten();
               _step(intent.direction, amount: intent.amount, when: _CommitWhen.changed);
 

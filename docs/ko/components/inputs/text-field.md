@@ -321,6 +321,7 @@ controller가 **곧** 값이고, `onChanged`는 모든 변화를 알려줍니다
 - focus ring은 편집기가 아니라 shell에 그려져서, 안쪽에 떠 있는 사각형이 아니라 유리의 가장자리를 따라갑니다. CSS가 `:focus-visible`이라고 부르는 것에서만 나타납니다.
 - shell의 여백을 누르면 네이티브 input 안을 눌렀을 때처럼 캐럿이 필드로 들어갑니다.
 - 선택은 드래그로 하고, 그 뒤에 조절할 **손잡이는 없습니다**. 터치 플랫폼이 선택 아래에 붙이는 드래그 손잡이는 Material과 Cupertino의 것이고, 이 패키지는 둘 다 가져오지 않습니다.
+- 리모컨 D-pad인 `NavigationMode.directional`에서는 화살표 키로 field를 떠날 수도 있습니다. 한 줄 field에서는 <kbd>↑</kbd>와 <kbd>↓</kbd>로, <kbd>←</kbd>와 <kbd>→</kbd>는 캐럿이 글자의 처음이나 끝에 있을 때 떠납니다. Android TV의 텍스트 상자와 같습니다. 여러 줄 field는 <kbd>↑</kbd>와 <kbd>↓</kbd>를 줄 이동에 씁니다.
 
 :::
 

@@ -321,6 +321,7 @@ The controller **is** the value, and `onChanged` is told about every change. `ma
 - The focus ring is drawn on the shell rather than on the editor, so it traces the glass edge instead of a rectangle floating inside it. It appears only on what CSS calls `:focus-visible`.
 - Pressing the shell's padding puts the caret in the field, the way pressing inside a native input does.
 - A selection is made by dragging and has **no handles** to adjust afterwards: the drag handles a touch platform puts under one belong to Material and Cupertino, and this package imports neither.
+- Under `NavigationMode.directional`, a remote's D-pad, the arrow keys also leave the field: <kbd>↑</kbd> and <kbd>↓</kbd> from a field of one line, and <kbd>←</kbd> and <kbd>→</kbd> once the caret is at the start or the end of the text, as a text box on Android TV does. A field of several lines keeps <kbd>↑</kbd> and <kbd>↓</kbd> for its lines.
 
 :::
 

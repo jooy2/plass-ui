@@ -182,6 +182,7 @@ A `readOnly` picker shows its colour and takes nothing: the rails keep their val
 - An `inline` picker is one semantics node over its `label`, `description` and `error`, with the square and the rails inside it, so two of them on one screen are not two sets of sliders called "Hue". An `error` also marks the square and the rails invalid.
 - Under `NavigationMode.directional`, a remote's D-pad, a rail answers only <kbd>←</kbd> and <kbd>→</kbd>; <kbd>↑</kbd> and <kbd>↓</kbd> move the focus to the control above or below. The square has two axes and keeps all four.
 - The hue rail stops at either end there rather than wrapping, so an arrow past red moves the focus on instead of going round the wheel for ever.
+- Under `NavigationMode.directional`, the value field lets the arrow keys leave it: <kbd>↑</kbd> and <kbd>↓</kbd> at once, and <kbd>←</kbd> and <kbd>→</kbd> once the caret is at the start or the end of the text.
 
 :::
 

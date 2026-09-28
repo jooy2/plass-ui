@@ -216,6 +216,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - Each chip's × is named after its chip. Removing a chip with its × moves the focus to the field, whether the × was pressed or reached with the keyboard.
 - The clear × is drawn at the size of the text, and a press anywhere in a 24px square around it reaches it, which is the minimum target size in WCAG 2.5.8. The chevron keeps the size it is drawn at, and a press on the field opens the list as well.
 - Nothing is committed when the list closes or focus leaves: the query goes back to being the value, so the list opens on every row again, and a value the list does not have is only ever taken by taking its row.
+- Under `NavigationMode.directional`, <kbd>←</kbd> and <kbd>→</kbd> leave the field once the caret is at the start or the end of the text.
 
 :::
 
