@@ -723,6 +723,31 @@ void main() {
       });
     }
 
+    testWidgets('puts the caret in the value field on a press on its inset', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          PlColorPicker(inline: true, value: '#ff0000', onValueChanged: (String _) {}),
+          width: 400,
+          height: 560,
+          overlay: true,
+        ),
+      );
+
+      final EditableText field = tester.widget<EditableText>(find.byType(EditableText));
+      final Rect text = tester.getRect(find.byType(EditableText));
+
+      expect(field.focusNode.hasFocus, isFalse);
+
+      // Between the border and the text, where the React `<input>`'s own
+      // padding is, and a click focuses it.
+      await tester.tapAt(Offset(text.left - 3, text.center.dy));
+      await tester.pumpAndSettle();
+
+      expect(field.focusNode.hasFocus, isTrue);
+    });
+
     testWidgets('changes the colour when a swatch is pressed', (WidgetTester tester) async {
       final List<String> seen = <String>[];
 
