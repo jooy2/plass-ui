@@ -1900,6 +1900,48 @@ void main() {
         expect(removed, 2);
       });
 
+      testWidgets('puts out the light on the row of a chip taken off with its ×', (
+        WidgetTester tester,
+      ) async {
+        final ValueNotifier<List<String>> held = ValueNotifier<List<String>>(<String>[
+          'seoul',
+          'lisbon',
+        ]);
+        addTearDown(held.dispose);
+
+        await tester.pumpWidget(
+          _host(
+            ValueListenableBuilder<List<String>>(
+              valueListenable: held,
+              builder: (BuildContext context, List<String> chosen, Widget? child) =>
+                  PlCombobox<String>.multiple(
+                    options: _more,
+                    values: chosen,
+                    onChanged: (List<String> next) => held.value = next,
+                  ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+
+        // The list opens on the first chosen row down the list.
+        expect(_lit(tester), 'Seoul');
+
+        await tester.tap(_adornment('Remove Seoul'));
+        await tester.pumpAndSettle();
+
+        expect(held.value, <String>['lisbon']);
+        expect(_lit(tester), isNull);
+
+        // Left lit, Enter put the chip straight back.
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(held.value, <String>['lisbon']);
+      });
+
       group('the focus, as a chip’s × takes its chip off', () {
         /// Puts a field holding [values] after a focus stop of its own, which
         /// holds the focus, with its chips coming off as they would for a

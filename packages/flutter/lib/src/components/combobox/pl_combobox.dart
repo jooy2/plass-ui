@@ -994,6 +994,17 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// keyboard. The × goes with its chip, and a focus left on it would fall back
   /// to whatever came before the field.
   void _remove(T value) {
+    // The row of the value taken off is lit no longer, as Base UI's
+    // `clearActiveIndexForRemovedItem` puts it out: left lit, Enter would put
+    // the chip straight back.
+    final List<_Row<T>> rows = _rows;
+
+    if (_highlighted >= 0 &&
+        _highlighted < rows.length &&
+        rows[_highlighted].option?.value == value) {
+      setState(() => _highlighted = -1);
+    }
+
     widget.onValuesChanged?.call(<T>[
       for (final held in widget.values)
         if (held != value) held,
