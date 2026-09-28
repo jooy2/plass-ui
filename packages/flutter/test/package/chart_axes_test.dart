@@ -1,6 +1,7 @@
 // The rules a cartesian chart draws that are not data: the grid, the rule at
 // zero and the category axis' own line, as the React chart's `ChartAxes` draws
 // them.
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -154,5 +155,46 @@ void main() {
     };
 
     expect(dotted, hasLength(3));
+  });
+
+  testWidgets('fades a series\' value labels with the series as the legend points at another', (
+    WidgetTester tester,
+  ) async {
+    await _pump(
+      tester,
+      const PlLineChart(
+        categories: <PlassChartCategory>[
+          PlassChartCategory.text('Mon'),
+          PlassChartCategory.text('Tue'),
+        ],
+        valueLabels: PlassChartValueLabels.last,
+        series: <PlassChartSeries>[
+          PlassChartSeries(
+            name: 'Visits',
+            data: <PlassChartDatum>[PlassChartDatum(3), PlassChartDatum(5)],
+          ),
+          PlassChartSeries(
+            name: 'Sales',
+            data: <PlassChartDatum>[PlassChartDatum(2), PlassChartDatum(4)],
+          ),
+        ],
+      ),
+    );
+
+    final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(mouse.removePointer);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(find.bySemanticsLabel('Sales')));
+    await tester.pumpAndSettle();
+
+    // Visits fades, and its label with it, as the React label sits inside the
+    // series' group. Every other run of text, Sales' label and the axes', is
+    // whole.
+    final List<double> faded = _paint(
+      tester,
+      find.byType(PlLineChart),
+    ).texts.where((double opacity) => opacity < 1).toList();
+
+    expect(faded, <Matcher>[closeTo(0.28, 1e-6)]);
   });
 }

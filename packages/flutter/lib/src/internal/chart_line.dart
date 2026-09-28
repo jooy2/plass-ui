@@ -299,6 +299,9 @@ void _paintValueLabels(
 
     final List<ChartValue> one = layout.values[s];
     final bool Function(int) labelled = labelledPoints(one, which);
+    // Faded with the series they belong to, as the React labels are, which sit
+    // inside the series' group.
+    final double alpha = _openFade(canvas, layout, s);
 
     for (int i = 0; i < layout.count && i < one.length; i += 1) {
       final double? value = one[i].value;
@@ -338,6 +341,10 @@ void _paintValueLabels(
           : at.dx - painter.width / 2;
 
       painter.paint(canvas, Offset(dx, at.dy - radius - 5 - painter.height));
+    }
+
+    if (alpha < 1) {
+      canvas.restore();
     }
   }
 }

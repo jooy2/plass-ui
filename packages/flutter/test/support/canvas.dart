@@ -7,7 +7,7 @@
 /// reading the alphas back answers it without naming a palette colour.
 ///
 /// [drawPath] is recorded with the layers it was drawn into, and [drawLine]
-/// and [drawCircle] on their own, for the rules of a chart's grid and axes and
+/// [drawCircle] and [drawParagraph] on their own, for the rules of a chart's grid and axes and
 /// the dots of its markers. Everything else a
 /// painter asks for — the clips, the text — is accepted and dropped, which is
 /// what [noSuchMethod] is doing here.
@@ -72,6 +72,13 @@ class RecordingCanvas implements Canvas {
 
   @override
   void drawLine(Offset p1, Offset p2, Paint paint) => lines.add((p1, p2, paint));
+
+  /// The opacity each run of text lands at, in the order drawn: that of every
+  /// layer it was drawn into.
+  final List<double> texts = <double>[];
+
+  @override
+  void drawParagraph(Paragraph paragraph, Offset offset) => texts.add(_open.last);
 
   /// Every circle drawn, its centre, its radius and its paint, in order.
   final List<(Offset, double, Paint)> circles = <(Offset, double, Paint)>[];
