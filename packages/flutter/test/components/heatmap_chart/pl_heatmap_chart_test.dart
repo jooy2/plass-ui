@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 
+import 'package:plass_ui/src/internal/chart.dart' show markGap;
 import 'package:plass_ui/src/internal/chart_frame.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 
@@ -277,6 +278,38 @@ void main() {
         expect(card.left >= middle.dx, !before, reason: 'cell $at');
 
         // Taken down again for the next one.
+        await tester.tapAt(middle);
+        await tester.pumpAndSettle();
+      }
+    });
+
+    testWidgets('sets the card\'s top on the cell\'s and 10px off its middle', (
+      WidgetTester tester,
+    ) async {
+      await _pump(tester, PlHeatmapChart(series: week, categories: hours, height: 240));
+
+      final Rect plot = tester.getRect(_plot);
+      final List<Rect> boxes = _cells(tester).boxes;
+
+      // The second row's second and third cells, clear of the top edge that
+      // would hold a card lifted over the first row down.
+      for (final (int at, bool before) in <(int, bool)>[(5, false), (6, true)]) {
+        final Offset middle = plot.topLeft + boxes[at].center;
+        // The cell is the box drawn and the gap around it.
+        final double top = plot.top + boxes[at].top - markGap / 2;
+
+        await tester.tapAt(middle);
+        await tester.pumpAndSettle();
+
+        final Rect card = tester.getRect(find.byType(PlassChartTooltipCard));
+
+        expect(card.top, closeTo(top, 0.01), reason: 'cell $at');
+        expect(
+          before ? middle.dx - card.right : card.left - middle.dx,
+          closeTo(10, 0.01),
+          reason: 'cell $at',
+        );
+
         await tester.tapAt(middle);
         await tester.pumpAndSettle();
       }

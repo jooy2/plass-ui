@@ -82,6 +82,7 @@
 
 ### Fixed
 
+- **A `PlHeatmapChart` card stands with its top on the cell's and 10px off the cell's middle, as in the React build.** It stood 8px above the cell and 12px off its middle.
 - **A chart keeps the alpha of a colour given to a series or a point, as the React charts do.** A line, area, bar, scatter, pie or heatmap chart and a sparkline replaced it: a series given a colour at half its alpha drew its line, markers and points whole, and its bars, slices, cells and washes at the chart's own shade. That shade and a legend fade now go on top of the alpha the colour carries.
 - **The bands of a stacked `PlAreaChart` are parted by a 2px line of the surface, as in the React build.** Two bands of neighbouring colours ran into each other with nothing between them. The line is on each band's lower edge, so the top of the stack keeps its outline, and not under the first band, whose lower edge is the axis.
 - **A line or area series' value labels fade with it while the legend points at another series, as the React labels do.** The series faded and its numbers stayed whole, so the labels of the series in the background read as loudly as those of the one being pointed at.

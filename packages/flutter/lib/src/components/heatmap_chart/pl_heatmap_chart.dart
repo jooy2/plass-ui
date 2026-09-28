@@ -485,8 +485,11 @@ class _PlHeatmapChartState extends State<PlHeatmapChart> with SingleTickerProvid
                   ),
                   if (shown != null && !widget.tooltip.hidden)
                     PlassChartTooltipPlacement(
-                      at: Offset(shown.rect.center.dx, shown.rect.top + 12),
-                      gap: 12,
+                      // Its top on the cell's, 10px off its middle, where
+                      // the React panel is set. The placement lifts a card
+                      // 20px over the point it is given.
+                      at: Offset(shown.rect.center.dx, shown.rect.top + 20),
+                      gap: 10,
                       // Before a cell whose middle is past 60% of the way
                       // across, as every card is. Of the whole drawing, row
                       // names and all, which is the width the React heatmap
