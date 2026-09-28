@@ -976,6 +976,68 @@ void main() {
       });
     }
 
+    for (final NavigationMode mode in NavigationMode.values) {
+      testWidgets('grows the corner past the edge of the screen only in traditional navigation, '
+          '${mode.name}', (WidgetTester tester) async {
+        Size? sized;
+
+        // At the top left of a 900 × 900 screen, 20 short of its right edge.
+        await _pumpFree(
+          tester,
+          inNavigationMode(
+            mode,
+            SizedBox.square(
+              dimension: 900,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: PlWindowPane(
+                  title: const Text('Notes'),
+                  width: 880,
+                  height: 200,
+                  resizable: true,
+                  onResize: (Size value) => sized = value,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        Focus.of(
+          tester.element(
+            find
+                .descendant(
+                  of: find.byType(FocusableActionDetector),
+                  matching: find.byType(MouseRegion),
+                )
+                .last,
+          ),
+        ).requestFocus();
+        await tester.pump();
+
+        expect(holdsFocus(tester, find.byType(PlWindowPane)), isTrue);
+
+        final bool traditional = mode == NavigationMode.traditional;
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+        await tester.pumpAndSettle();
+
+        expect(sized!.width, closeTo(896, 0.5));
+
+        // Under directional navigation the arrows are also how a remote moves
+        // on, so the corner stops at the edge of the screen, and the arrow past
+        // it goes on to the focus system.
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+        await tester.pumpAndSettle();
+
+        expect(sized!.width, traditional ? greaterThan(900) : closeTo(900, 0.5));
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), traditional);
+        await tester.pumpAndSettle();
+
+        expect(sized!.width, traditional ? greaterThan(900) : closeTo(900, 0.5));
+      });
+    }
+
     testWidgets('puts its handles away while it is maximized', (WidgetTester tester) async {
       await _pumpFree(
         tester,

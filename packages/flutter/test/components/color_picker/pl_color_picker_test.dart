@@ -616,11 +616,50 @@ void main() {
         expect(await press('Opacity', LogicalKeyboardKey.arrowRight), traditional);
         expect(await press('Opacity', LogicalKeyboardKey.arrowUp), traditional);
 
-        // An arrow that moves the value is kept in both, and the hue, a circle
-        // with no end, moves with every one.
+        // An arrow that moves the value is kept in both.
         expect(await press('Saturation and brightness', LogicalKeyboardKey.arrowLeft), isTrue);
         expect(await press('Opacity', LogicalKeyboardKey.arrowLeft), isTrue);
-        expect(await press('Hue', LogicalKeyboardKey.arrowLeft), isTrue);
+        expect(await press('Hue', LogicalKeyboardKey.arrowRight), isTrue);
+
+        handle.dispose();
+      });
+
+      testWidgets('goes round the hue rail only in traditional navigation, ${mode.name}', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final List<String> seen = <String>[];
+
+        await tester.pumpWidget(
+          host(
+            inNavigationMode(
+              mode,
+              PlColorPicker(inline: true, value: '#ff0000', onValueChanged: seen.add),
+            ),
+            width: 400,
+            height: 560,
+            overlay: true,
+          ),
+        );
+
+        Focus.of(
+          tester.element(
+            find.descendant(of: find.bySemanticsLabel('Hue'), matching: find.byType(Stack)).first,
+          ),
+        ).requestFocus();
+        await tester.pump();
+
+        // Red is at 0°, the start of the rail. The wheel is a circle, so a step
+        // back goes round to 358° there. Under directional navigation the
+        // arrows are also how a remote moves on, so the rail stops at its end
+        // and the arrow goes on to the focus system.
+        final bool traditional = mode == NavigationMode.traditional;
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), traditional);
+        await tester.pump();
+
+        expect(seen, isNotEmpty);
+        expect(seen.last == '#ff0000', !traditional);
 
         handle.dispose();
       });

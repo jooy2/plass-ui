@@ -136,3 +136,9 @@ Every move, by the pointer or by a key, goes through `offset`. Pass it with <Fw 
 - A `draggable` window can be moved without a pointer: its title bar is a stop in the tab order, ahead of the buttons, and the arrow keys move the window from there. A way to move it with a single pointer and no drag is yours to add, through a controlled `offset`.
 - A minimized window's content is put **out of reach rather than taken away**. It is still in the tree, marked inert, so nothing under a rolled-up bar can be tabbed into.
 - On React, closing a window that holds the focus hands the focus back to where it came in from, such as the button that opened the window. When that element is gone or out of reach, the focus goes to the next focusable element after the window, or the last one before it.
+
+::: fw flutter
+
+- Under `NavigationMode.directional`, a remote's D-pad, the corner stops growing at the edge of the screen, the area the title bar's arrows keep the window in, so an arrow past it moves the focus to the next control.
+
+:::

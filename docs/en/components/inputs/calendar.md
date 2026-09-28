@@ -188,5 +188,6 @@ There is no `readOnly` beside it, and that is not an omission: a read-only field
 - Each cell is a button, because Flutter's semantics has no grid role. A blocked day keeps its focus node and is announced as unavailable, so a keyboard reader can find out that it is blocked.
 - Each cell's accessible name is the full date spelled by the calendar's `names`, so a screen reader reads "Monday, July 27, 2026" rather than "27".
 - `autofocus` is **off** by default, the opposite of the picker's: a popup has just been opened by somebody who wants to be in it, and a calendar in a page has not.
+- Under `NavigationMode.directional`, a remote's D-pad, the arrows are also how a reader moves on to the next control, so they stop at the edge of what is shown rather than stepping the calendar: the month in the day grid, the year in the month grid and the page of years in the year grid. An arrow past that edge moves the focus to the next control that way. The header's buttons and <kbd>PageUp</kbd>/<kbd>PageDown</kbd> still step it.
 
 :::

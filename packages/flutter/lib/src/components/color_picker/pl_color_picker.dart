@@ -649,16 +649,19 @@ class _ColorPanel extends StatelessWidget {
             onFraction: (double x, double _) =>
                 onChanged(PlassColorValue(model.hsv.copyWith(h: x * 360), model.alpha)),
             // The wheel is a circle, so a step past either end wraps rather
-            // than stopping, and every step moves it.
+            // than stopping, and every step moves it. Under directional
+            // navigation the rail stops at either end instead: the arrows are
+            // how a remote moves on to the next control, and a rail that went
+            // round would never let one go.
             onNudge: (int dx, int dy) {
-              onChanged(
-                PlassColorValue(
-                  model.hsv.copyWith(h: (model.hsv.h + (dx + dy) * 2 + 360) % 360),
-                  model.alpha,
-                ),
-              );
+              final double step = model.hsv.h + (dx + dy) * 2;
+              final double hue = plassArrowsMoveFocus(context)
+                  ? step.clamp(0, 360).toDouble()
+                  : (step + 360) % 360;
 
-              return true;
+              onChanged(PlassColorValue(model.hsv.copyWith(h: hue), model.alpha));
+
+              return hue != model.hsv.h;
             },
             onJump: (bool end) =>
                 onChanged(PlassColorValue(model.hsv.copyWith(h: end ? 360 : 0), model.alpha)),

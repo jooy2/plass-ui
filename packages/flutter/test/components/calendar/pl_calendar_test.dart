@@ -335,6 +335,110 @@ void main() {
         expect(find.text('August'), findsOneWidget);
       });
 
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('steps the month with an arrow off its edge only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              PlCalendar(
+                value: DateTime(2026, 7, 31),
+                autofocus: true,
+                onChanged: (DateTime? _) {},
+              ),
+            ),
+          );
+
+          // Friday, July 31, 2026, the last day of the month and of its row.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), traditional);
+          await tester.pumpAndSettle();
+
+          if (traditional) {
+            expect(focused(tester, DateTime(2026, 8, 1)), isTrue);
+            expect(find.text('August'), findsOneWidget);
+
+            return;
+          }
+
+          // Under directional navigation the arrows are also how a remote moves
+          // on, so the month shown is where they end, down as well as across.
+          expect(focused(tester, DateTime(2026, 7, 31)), isTrue);
+          expect(find.text('July'), findsOneWidget);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown), isFalse);
+          await tester.pumpAndSettle();
+          expect(find.text('July'), findsOneWidget);
+
+          // An arrow that stays in the month moves as it always does, and the
+          // page keys still turn the month.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp), isTrue);
+          await tester.pumpAndSettle();
+          expect(focused(tester, DateTime(2026, 7, 24)), isTrue);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
+          await tester.pumpAndSettle();
+          expect(find.text('August'), findsOneWidget);
+        });
+
+        testWidgets('steps the year with an arrow off the month grid only in traditional '
+            'navigation, ${mode.name}', (WidgetTester tester) async {
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              PlCalendar(
+                value: DateTime(2026, 12),
+                precision: PlCalendarPrecision.month,
+                autofocus: true,
+                onChanged: (DateTime? _) {},
+              ),
+            ),
+          );
+
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(Focus.of(tester.element(find.bySemanticsLabel('December 2026'))).hasFocus, isTrue);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), traditional);
+          await tester.pumpAndSettle();
+
+          // December is the last month of the year shown.
+          expect(find.bySemanticsLabel(traditional ? 'January 2027' : 'December 2026'), findsOne);
+          expect(
+            Focus.of(
+              tester.element(find.bySemanticsLabel(traditional ? 'January 2027' : 'December 2026')),
+            ).hasFocus,
+            isTrue,
+          );
+        });
+
+        testWidgets('turns the page of years with an arrow off the year grid only in '
+            'traditional navigation, ${mode.name}', (WidgetTester tester) async {
+          // 2039 is the last year of the page that starts in 2028.
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              PlCalendar(
+                value: DateTime(2039),
+                precision: PlCalendarPrecision.year,
+                autofocus: true,
+                onChanged: (DateTime? _) {},
+              ),
+            ),
+          );
+
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), traditional);
+          await tester.pumpAndSettle();
+
+          expect(find.text('2028'), traditional ? findsNothing : findsOneWidget);
+          expect(find.text('2040'), traditional ? findsOneWidget : findsNothing);
+        });
+      }
+
       testWidgets('moves by a year with Shift and the page keys', (WidgetTester tester) async {
         await _pump(
           tester,

@@ -583,16 +583,39 @@ class _PlWindowPaneState extends State<PlWindowPane> {
   ///
   /// It reads the window rather than a grip, because a key press is a whole
   /// gesture on its own: there is no press to have measured anything at.
+  ///
+  /// Under directional navigation the corner stops at the edge of the screen,
+  /// the area the title bar's arrows keep the window in: the arrows are how a
+  /// remote moves on to the next control, and a corner that grew without a
+  /// limit would never let one go. A window already past that edge is not
+  /// made smaller by it.
   bool _nudge(Offset step, double shortest) {
     final RenderObject? box = _paneKey.currentContext?.findRenderObject();
     if (box is! RenderBox || !box.hasSize) {
       return false;
     }
 
-    final Size size = Size(
-      math.max(math.max(0, widget.minWidth), box.size.width + step.dx),
-      math.max(math.max(shortest, widget.minHeight ?? shortest), box.size.height + step.dy),
+    double width = math.max(math.max(0, widget.minWidth), box.size.width + step.dx);
+    double height = math.max(
+      math.max(shortest, widget.minHeight ?? shortest),
+      box.size.height + step.dy,
     );
+
+    if (plassArrowsMoveFocus(context)) {
+      final FlutterView view = View.of(context);
+      final Size screen = view.physicalSize / view.devicePixelRatio;
+      final Offset corner = box.localToGlobal(Offset.zero);
+
+      if (step.dx > 0) {
+        width = math.min(width, math.max(box.size.width, screen.width - corner.dx));
+      }
+
+      if (step.dy > 0) {
+        height = math.min(height, math.max(box.size.height, screen.height - corner.dy));
+      }
+    }
+
+    final Size size = Size(width, height);
 
     _resizeTo(size);
 

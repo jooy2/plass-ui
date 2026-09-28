@@ -933,6 +933,17 @@ class _PlassCalendarState extends State<PlassCalendar> {
       return KeyEventResult.ignored;
     }
 
+    // Under directional navigation the month shown is where the arrows end:
+    // they are how a remote moves on to the next control, and a grid that
+    // turned the month at every edge would never let one go. The month turns
+    // with the header's buttons and the page keys there, as it does
+    // everywhere.
+    if (plassIsArrow(event.logicalKey) &&
+        plassArrowsMoveFocus(context) &&
+        !isSameMonth(next, widget.month)) {
+      return KeyEventResult.ignored;
+    }
+
     _moveFocus(next);
 
     return KeyEventResult.handled;
@@ -1073,9 +1084,21 @@ class _PlassCalendarState extends State<PlassCalendar> {
     }
 
     final base = startOfMonth(widget.month);
+    final next = months ? addMonths(base, step) : addYears(base, step);
+
+    // Under directional navigation the page shown, a year of months or a page
+    // of years, is where the arrows end, as the month shown is in the day
+    // grid.
+    final shown = months
+        ? next.year == base.year
+        : yearPageStart(next.year) == yearPageStart(base.year);
+
+    if (!shown && plassArrowsMoveFocus(context)) {
+      return KeyEventResult.ignored;
+    }
 
     setState(() => _pendingFocus = true);
-    widget.onMonthChanged(months ? addMonths(base, step) : addYears(base, step));
+    widget.onMonthChanged(next);
     WidgetsBinding.instance.addPostFrameCallback((_) => _applyFocus());
 
     return KeyEventResult.handled;
