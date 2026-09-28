@@ -7,7 +7,8 @@
 /// reading the alphas back answers it without naming a palette colour.
 ///
 /// [drawPath] is recorded with the layers it was drawn into, and [drawLine]
-/// on its own, for the rules of a chart's grid and axes. Everything else a
+/// and [drawCircle] on their own, for the rules of a chart's grid and axes and
+/// the dots of its markers. Everything else a
 /// painter asks for — the clips, the text — is accepted and dropped, which is
 /// what [noSuchMethod] is doing here.
 library;
@@ -71,6 +72,12 @@ class RecordingCanvas implements Canvas {
 
   @override
   void drawLine(Offset p1, Offset p2, Paint paint) => lines.add((p1, p2, paint));
+
+  /// Every circle drawn, its centre, its radius and its paint, in order.
+  final List<(Offset, double, Paint)> circles = <(Offset, double, Paint)>[];
+
+  @override
+  void drawCircle(Offset c, double radius, Paint paint) => circles.add((c, radius, paint));
 
   @override
   void noSuchMethod(Invocation invocation) {}

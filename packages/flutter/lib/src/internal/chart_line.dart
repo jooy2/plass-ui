@@ -55,9 +55,6 @@ void paintLineSeries(
 }) {
   final double stroke = lineWidths[layout.size]!;
   final double radius = markerRadii[layout.size]!;
-  final bool dots =
-      markers == PlChartMarkers.all ||
-      (markers == PlChartMarkers.auto && layout.count <= _autoMarkerLimit);
 
   // The running total each band sits on. Only the visible series contribute:
   // hiding one from the legend has to close the gap it left, or a stacked chart
@@ -91,6 +88,11 @@ void paintLineSeries(
     }
 
     final List<ChartValue> one = layout.values[s];
+    // Counted by the series' own points, as the React markers are, so a short
+    // series on a long chart keeps its dots.
+    final bool dots =
+        markers == PlChartMarkers.all ||
+        (markers == PlChartMarkers.auto && one.length <= _autoMarkerLimit);
     // Whole whatever alpha the colour carries: a fade is the layer's.
     final Color color = layout.colors[s].withValues(alpha: 1);
     // Faded while the legend points at another series, and eased there.

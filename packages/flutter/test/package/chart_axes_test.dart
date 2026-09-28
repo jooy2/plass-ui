@@ -8,8 +8,8 @@ import 'package:plass_ui/plass_ui.dart';
 import '../support/canvas.dart';
 import '../support/host.dart';
 
-/// Every straight line the chart's own painters draw, as they stand now.
-List<(Offset, Offset, Paint)> _lines(WidgetTester tester, Finder chart) {
+/// What the chart's own painters draw, as they stand now.
+RecordingCanvas _paint(WidgetTester tester, Finder chart) {
   final RecordingCanvas canvas = RecordingCanvas();
 
   for (final Element element
@@ -20,8 +20,12 @@ List<(Offset, Offset, Paint)> _lines(WidgetTester tester, Finder chart) {
     paint.painter?.paint(canvas, box.size);
   }
 
-  return canvas.lines;
+  return canvas;
 }
+
+/// Every straight line the chart's own painters draw, as they stand now.
+List<(Offset, Offset, Paint)> _lines(WidgetTester tester, Finder chart) =>
+    _paint(tester, chart).lines;
 
 /// Whether [line] is drawn in [ink], compared as the 32 bits a paint holds.
 bool _ink((Offset, Offset, Paint) line, Color ink) => line.$3.color.toARGB32() == ink.toARGB32();
@@ -118,5 +122,37 @@ void main() {
 
     // A band of categories does not, unless asked.
     expect(_lines(tester, find.byType(PlLineChart)).where(vertical), isEmpty);
+  });
+
+  testWidgets('counts each series\' own points when it decides on markers', (
+    WidgetTester tester,
+  ) async {
+    await _pump(
+      tester,
+      PlLineChart(
+        categories: <PlassChartCategory>[
+          for (int i = 0; i < 20; i += 1) PlassChartCategory.text('$i'),
+        ],
+        series: <PlassChartSeries>[
+          PlassChartSeries(
+            name: 'Long',
+            data: <PlassChartDatum>[for (int i = 0; i < 20; i += 1) PlassChartDatum(i.toDouble())],
+          ),
+          const PlassChartSeries(
+            name: 'Short',
+            data: <PlassChartDatum>[PlassChartDatum(3), PlassChartDatum(5), PlassChartDatum(4)],
+          ),
+        ],
+      ),
+    );
+
+    // Twenty points is past the limit and three is not, so the short series
+    // keeps its dots on a long chart, as the React markers count them.
+    final Set<double> dotted = <double>{
+      for (final (Offset, double, Paint) circle in _paint(tester, find.byType(PlLineChart)).circles)
+        circle.$1.dx,
+    };
+
+    expect(dotted, hasLength(3));
   });
 }
