@@ -637,6 +637,58 @@ void main() {
         expect(_focused(), equals('readme'));
       });
 
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('takes no focus, ${mode.name}', (WidgetTester tester) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+          final FocusNode before = FocusNode(debugLabel: 'before');
+          final FocusNode after = FocusNode(debugLabel: 'after');
+          addTearDown(before.dispose);
+          addTearDown(after.dispose);
+
+          // Stops above and below the tree, and the arrow keys a `WidgetsApp`
+          // gives, which take a key the tree lets go of to the nearest stop
+          // that way. The disabled row is the last one drawn.
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              afterFocusStop(
+                before,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const PlTree(items: items),
+                    Focus(focusNode: after, child: const SizedBox.square(dimension: 1)),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          // Under directional navigation an unavailable control stays a stop
+          // for a remote. A disabled row is not one: it is an item of the
+          // tree, whose own walk passes over it.
+          expect(
+            tester.getSemantics(find.text('package-lock.json')),
+            isSemantics(label: 'package-lock.json', isFocusable: false, hasFocusAction: false),
+          );
+
+          await _focusRow(tester, 'README.md');
+          await _press(tester, LogicalKeyboardKey.arrowDown);
+
+          // The tree keeps the arrow past its last row, except under
+          // directional navigation, where it goes on past the disabled row to
+          // the next control.
+          if (mode == NavigationMode.traditional) {
+            expect(_focused(), equals('readme'));
+          } else {
+            expect(after.hasPrimaryFocus, isTrue);
+          }
+
+          handle.dispose();
+        });
+      }
+
       testWidgets('keeps what it holds as it is disabled and enabled again', (
         WidgetTester tester,
       ) async {

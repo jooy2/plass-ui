@@ -720,43 +720,52 @@ class _TreeRow extends StatelessWidget {
       expanded: isBranch ? expanded : null,
       selected: selectable ? selected : null,
       onTap: onPressed,
-      child: PlassInteractive(
-        onTap: onPressed,
-        enabled: !node.disabled,
-        interactive: !node.disabled,
-        focusNode: focusNode,
-        // Folded into the row's node above, so the row says it can take the
-        // focus. Only the row that holds the tree's one Tab stop is reached by
-        // Tab, but every row takes the focus from the arrow keys.
-        focusSemantics: true,
-        onFocusChange: (bool has) {
-          if (has) onFocused();
-        },
-        builder: (BuildContext context, PlassInteraction state) {
-          final Color? fill = node.disabled
-              ? null
-              : selected
-              ? family.soft
-              : state.hovered || state.pressed
-              ? family.soft
-              : null;
+      // A disabled row takes no focus in any navigation mode, the exception
+      // to the rule that keeps an unavailable control a stop for a remote:
+      // it is one item of the tree, whose own walk passes over it, so an
+      // arrow the tree hands on past its last row must not land on it. A
+      // screen reader still reads it. In the tree either way, so the row is
+      // not built again as it is disabled.
+      child: ExcludeFocus(
+        excluding: node.disabled,
+        child: PlassInteractive(
+          onTap: onPressed,
+          enabled: !node.disabled,
+          interactive: !node.disabled,
+          focusNode: focusNode,
+          // Folded into the row's node above, so the row says it can take the
+          // focus. Only the row that holds the tree's one Tab stop is reached by
+          // Tab, but every row takes the focus from the arrow keys.
+          focusSemantics: true,
+          onFocusChange: (bool has) {
+            if (has) onFocused();
+          },
+          builder: (BuildContext context, PlassInteraction state) {
+            final Color? fill = node.disabled
+                ? null
+                : selected
+                ? family.soft
+                : state.hovered || state.pressed
+                ? family.soft
+                : null;
 
-          Widget surface = AnimatedContainer(
-            duration: reduceMotion ? Duration.zero : tokens.motionDuration,
-            curve: tokens.motionEase,
-            decoration: BoxDecoration(color: fill, borderRadius: radius),
-            child: PlassContentsGroup(paints: fill != null, child: content),
-          );
+            Widget surface = AnimatedContainer(
+              duration: reduceMotion ? Duration.zero : tokens.motionDuration,
+              curve: tokens.motionEase,
+              decoration: BoxDecoration(color: fill, borderRadius: radius),
+              child: PlassContentsGroup(paints: fill != null, child: content),
+            );
 
-          surface = CustomPaint(
-            foregroundPainter: state.focusVisible
-                ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
-                : null,
-            child: surface,
-          );
+            surface = CustomPaint(
+              foregroundPainter: state.focusVisible
+                  ? PlassFocusRingPainter(color: family.ring, borderRadius: radius)
+                  : null,
+              child: surface,
+            );
 
-          return surface;
-        },
+            return surface;
+          },
+        ),
       ),
     );
 

@@ -140,4 +140,6 @@ Every row is a `Semantics` node with `expanded` on a branch and `selected` on a 
 
 **One tab stop, the same way.** Every row's `FocusNode` but the current one carries `skipTraversal`, which takes it out of the Tab order while leaving it in the focus tree, so the arrow keys can still reach it. The current stop follows the focus rather than leading it.
 
+A disabled row takes no focus in any navigation mode. Under `NavigationMode.directional` an unavailable control otherwise stays a stop, so a remote can find it, but a disabled row is one item of the tree, whose own walk passes over it, and an arrow the tree hands on past its last row goes on to the next control. A screen reader still reads the row.
+
 :::
