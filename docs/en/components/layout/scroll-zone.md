@@ -269,6 +269,7 @@ A strip that runs out claims the scroll anyway rather than passing it to whateve
 ::: fw flutter
 
 - While the strip has somewhere to scroll it is a tab stop of its own, so a strip with `buttons: none` or with nothing focusable in it can still be moved from the keyboard. The arrow keys along the strip move it by a line, following the writing direction, <kbd>Page Up</kbd> and <kbd>Page Down</kbd> by a screen, and <kbd>Home</kbd> and <kbd>End</kbd> to its ends. The focus ring is drawn around the strip, in `color`.
+- Under `NavigationMode.directional`, a remote's D-pad, the arrow keys move the strip only while the strip itself holds the focus. An arrow from a control inside it moves the focus to the next control, and the strip scrolls that control into view.
 - In `hold` mode a key press moves one item and the platform's own key repeat carries it, rather than the frame loop a held pointer gets. Either way the buttons are reachable from a keyboard, which is the thing that matters.
 
 :::

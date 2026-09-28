@@ -221,6 +221,62 @@ void main() {
       }
     });
 
+    group('the keyboard, from a control inside it', () {
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('scrolls with the arrows only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          final top = FocusNode(debugLabel: 'top');
+          final bottom = FocusNode(debugLabel: 'bottom');
+          final before = FocusNode(debugLabel: 'before');
+          addTearDown(top.dispose);
+          addTearDown(bottom.dispose);
+          addTearDown(before.dispose);
+
+          // Two controls, one at each end of content far taller than the box.
+          await _pump(
+            tester,
+            inNavigationMode(
+              mode,
+              afterFocusStop(
+                before,
+                PlScrollArea(
+                  height: 200,
+                  child: Column(
+                    children: <Widget>[
+                      Focus(focusNode: top, child: const SizedBox(height: 40, width: 200)),
+                      const SizedBox(height: 800),
+                      Focus(focusNode: bottom, child: const SizedBox(height: 40, width: 200)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+
+          final controller = _views(tester).single.controller!;
+
+          top.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+          await tester.pumpAndSettle();
+
+          if (mode == NavigationMode.traditional) {
+            // As a browser does: the arrow scrolls the box a line, and the
+            // focus stays where it was.
+            expect(top.hasPrimaryFocus, isTrue);
+            expect(controller.offset, 40);
+          } else {
+            // The arrow is how the focus moves on a remote. It goes to the
+            // control below, which is scrolled into view, rather than the box
+            // scrolling a line a press to its end first.
+            expect(bottom.hasPrimaryFocus, isTrue);
+            expect(controller.offset, controller.position.maxScrollExtent);
+          }
+        });
+      }
+    });
+
     group('semantics', () {
       testWidgets('is named when it was given a name', (WidgetTester tester) async {
         final SemanticsHandle handle = tester.ensureSemantics();

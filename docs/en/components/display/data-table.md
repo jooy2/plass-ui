@@ -321,7 +321,7 @@ They are inside the sheet rather than floating above and below it because they b
 - The tick in a row carries whether the row is chosen; the tint is what a sighted reader sees.
 - The pinned header band is silent, because the row it copies is not.
 - A `caption` that is a `Text` names the table when there is no `semanticLabel`, and its words are read once, as that name. A caption built of other widgets is read as the line above the grid.
-- A grid taller than `maxHeight`, or than the box it is in, scrolls inside the sheet. While it does, the grid is a tab stop, so the arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> reach the rows past the edge of a table with no sortable heading and no tick column. The stop is announced by the table's name: `semanticLabel`, or the words of a `Text` caption.
+- A grid taller than `maxHeight`, or than the box it is in, scrolls inside the sheet. While it does, the grid is a tab stop, so the arrow keys, <kbd>Page Up</kbd>, <kbd>Page Down</kbd>, <kbd>Home</kbd> and <kbd>End</kbd> reach the rows past the edge of a table with no sortable heading and no tick column. The stop is announced by the table's name: `semanticLabel`, or the words of a `Text` caption. Under `NavigationMode.directional`, a remote's D-pad, the arrow keys scroll the grid only while the grid itself holds the focus; an arrow from a control inside it moves the focus to the next control, which the grid scrolls into view.
 - The row's focus stop is in its first cell and the ring is painted by the row, inset, for the sheet's rounded corner.
 
 :::

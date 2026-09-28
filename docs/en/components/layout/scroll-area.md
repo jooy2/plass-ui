@@ -145,3 +145,9 @@ The ordinary case. Bound the middle and leave the two ends where they are.
 - **A scrollable box is a tab stop when nothing inside it is focusable**, because somebody using a keyboard has to be able to scroll it. That is handled for you, and it is the reason `label` matters: a landing point with no name is announced as nothing at all.
 - With a `label` the box becomes a named region. Without one it claims **no landmark**, deliberately: an unnamed region is something a screen reader lists as "region" and nothing else, which is worse than no landmark at all.
 - The scrollbar is not the only way to move: the arrow keys, <kbd>Page Down</kbd> and the wheel all work on the box itself.
+
+::: fw flutter
+
+- Under `NavigationMode.directional`, a remote's D-pad, the arrow keys scroll the box only while the box itself holds the focus. An arrow from a control inside it moves the focus to the next control, and the box scrolls that control into view.
+
+:::

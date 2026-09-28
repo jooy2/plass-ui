@@ -159,6 +159,18 @@ class _PlassKeyboardScrollState extends State<PlassKeyboardScroll> {
     }
 
     final key = event.logicalKey;
+
+    // Under directional navigation an arrow moves the focus from one control
+    // to the next, and the focus system brings the control it reaches into
+    // view. So the box scrolls with the arrows only while it holds the focus
+    // itself, and one that comes up from a control inside it goes on, rather
+    // than scrolling the box to its end before the focus can leave that
+    // control. A browser scrolls the box with them, as the traditional mode
+    // still does.
+    if (plassIsArrow(key) && !node.hasPrimaryFocus && plassArrowsMoveFocus(context)) {
+      return KeyEventResult.ignored;
+    }
+
     // Page Up, Page Down, Home and End move the view that scrolls down, or the
     // only one there is.
     final primary = widget.vertical ?? widget.horizontal;
