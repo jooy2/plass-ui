@@ -140,7 +140,9 @@ jobs:
       # pubspec, the licence, a changelog that names this version, and the
       # size. Pub has no command that writes that archive to a file, so the
       # release carries no asset, and this is the check that stands in for
-      # packing. A warning fails it; a hint does not.
+      # packing. A warning fails it; a hint does not. The one limit it does not
+      # know is the server's 256 KiB on a changelog or README, which
+      # `test/package/pub_limits_test.dart` checks on `main` instead.
       - name: Validate the package for pub.dev
         run: dart pub publish --dry-run
 

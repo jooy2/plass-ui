@@ -22,11 +22,17 @@ import { fileURLToPath } from 'node:url';
 
 /**
  * Every package released from this repository, by the prefix of its tags.
- * `dir` holds the package's manifest and its `CHANGELOG.md`.
+ * `dir` holds the package's manifest and its `CHANGELOG.md`, and `archive`,
+ * when there is one, the releases before the latest, which pub.dev's 256 KiB
+ * limit on a changelog keeps out of `CHANGELOG.md`.
  */
 const PACKAGES = {
   'react-v': { dir: 'packages/react', manifest: 'package.json' },
-  'flutter-v': { dir: 'packages/flutter', manifest: 'pubspec.yaml' }
+  'flutter-v': {
+    dir: 'packages/flutter',
+    manifest: 'pubspec.yaml',
+    archive: 'CHANGELOG.archive.md'
+  }
 };
 /** Where the docs site shows the changelog, under `homepage`; `null` for none. */
 const DOCS_CHANGELOG_PATH = '/changelog';
@@ -46,7 +52,7 @@ if (prefix === undefined) {
 }
 
 const version = tag.slice(prefix.length);
-const { dir, manifest } = PACKAGES[prefix];
+const { dir, manifest, archive } = PACKAGES[prefix];
 const changelogPath = posix.join(dir, 'CHANGELOG.md');
 
 /**
@@ -96,14 +102,23 @@ if (section === '') {
 
 const { homepage, repository } = linksOf(manifest);
 const repositoryUrl = repository?.replace(/^git\+/, '').replace(/\.git$/, '');
-const where = [
+const blobOf = (path) => `${repositoryUrl}/blob/${tag}/${path}`;
+const docsLink =
   homepage && DOCS_CHANGELOG_PATH
     ? `[the changelog on the docs site](${homepage.replace(/\/$/, '')}${DOCS_CHANGELOG_PATH})`
-    : null,
-  repositoryUrl
-    ? `[\`${changelogPath}\` at this tag](${repositoryUrl}/blob/${tag}/${changelogPath})`
-    : null
-].filter(Boolean);
+    : null;
+// The version being released is the latest, so its section is always in
+// `CHANGELOG.md`; only the releases before it can be in the archive.
+const archivePath = archive ? posix.join(dir, archive) : null;
+const sectionLink = repositoryUrl
+  ? `[\`${changelogPath}\` at this tag](${blobOf(changelogPath)})`
+  : null;
+const historyLink =
+  repositoryUrl && archivePath
+    ? `[\`${changelogPath}\`](${blobOf(changelogPath)}) and [\`${archivePath}\`](${blobOf(archivePath)}) at this tag`
+    : sectionLink;
+const where = [docsLink, historyLink].filter(Boolean);
+const sectionWhere = [docsLink, sectionLink].filter(Boolean);
 const pointer =
   where.length > 0 ? `Every release of this package is in ${where.join(' and in ')}.` : '';
 const whole = pointer ? `${section}\n\n---\n\n${pointer}\n` : `${section}\n`;
@@ -115,7 +130,9 @@ if (whole.length <= LIMIT) {
   // that opens straight on `### Added` has none, and its first list is not one.
   const summary = section.startsWith('### ') ? '' : section.split(/\n(?=### )/)[0].trim();
   const cut = `The list of changes is too long for a release page; ${
-    where.length > 0 ? `read it in ${where.join(' or in ')}` : `read it in \`${changelogPath}\``
+    sectionWhere.length > 0
+      ? `read it in ${sectionWhere.join(' or in ')}`
+      : `read it in \`${changelogPath}\``
   }.`;
 
   process.stdout.write(summary ? `${summary}\n\n---\n\n${cut}\n` : `${cut}\n`);

@@ -2,6 +2,10 @@ test/
 tool/
 pubspec.lock
 
+# pub.dev refuses a changelog over 256 KiB, so the releases before the latest
+# stay in the repository and on the docs site.
+CHANGELOG.archive.md
+
 # The gallery under `example/` is published — pub.dev looks for an example and
 # this is the real one. What it compiles into is not.
 .dart_tool/

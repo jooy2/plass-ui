@@ -58,27 +58,34 @@ const pages = {
 };
 
 /**
- * A package's history, ready to drop into a block.
+ * A package's history, ready to drop into a block, from the files that hold
+ * it, newest first.
  *
- * The `# Changelog` heading goes, because the page has one of its own and two
- * would be two pages in one. So does the line under it that points at the other
- * package, which is what a reader on GitHub needs and what the switch on this
- * page already answers.
+ * Each file's `#` heading goes, because the page has one of its own and two
+ * would be two pages in one. So does the note under it that points at the
+ * other package and at the other file, which is what a reader on GitHub needs
+ * and what this page, holding all of it, already answers.
  */
-function historyOf(path) {
-  const lines = readFileSync(resolve(repoRoot, path), 'utf8').split('\n');
-  let at = 0;
+function historyOf(...paths) {
+  return paths
+    .map((path) => {
+      const lines = readFileSync(resolve(repoRoot, path), 'utf8').split('\n');
+      let at = 0;
 
-  while (at < lines.length && !lines[at].startsWith('## ')) {
-    at += 1;
-  }
+      while (at < lines.length && !lines[at].startsWith('## ')) {
+        at += 1;
+      }
 
-  return lines.slice(at).join('\n').trim();
+      return lines.slice(at).join('\n').trim();
+    })
+    .join('\n\n');
 }
 
 const histories = [
   ['react', historyOf('packages/react/CHANGELOG.md')],
-  ['flutter', historyOf('packages/flutter/CHANGELOG.md')]
+  // pub.dev refuses a changelog over 256 KiB, so the Flutter package's
+  // `CHANGELOG.md` holds only the latest release and the rest are archived.
+  ['flutter', historyOf('packages/flutter/CHANGELOG.md', 'packages/flutter/CHANGELOG.archive.md')]
 ];
 
 for (const [locale, { title, heading, description, lede }] of Object.entries(pages)) {

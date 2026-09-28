@@ -133,7 +133,7 @@ The list also names `PlToggleGroup`, which is not counted on its own because it 
 
 ## Changelog
 
-[CHANGELOG.md](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md) is this package's history, and [plass.cdget.com/changelog](https://plass.cdget.com/changelog) is the same list beside the React package's. The two version independently, so a release on one side is not a release on the other.
+[CHANGELOG.md](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.md) holds this package's latest release, [CHANGELOG.archive.md](https://github.com/jooy2/plass-ui/blob/main/packages/flutter/CHANGELOG.archive.md) the ones before it, and [plass.cdget.com/changelog](https://plass.cdget.com/changelog) shows all of them beside the React package's history. The two version independently, so a release on one side is not a release on the other.
 
 ## Development
 
