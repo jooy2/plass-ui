@@ -201,6 +201,7 @@ A chip sits one step down the control ladder from everything else: a `md` chip i
 - The label and the delete button are two separate tab stops, and neither is nested inside the other.
 - The delete button is named by the label pack's `removeItem` with the chip's text, such as "Remove design", so a row of tags does not read as the same word for each one, and a translated page reads the name in its own word order. When a component of its own draws the words, they cannot be read from `children`, and they follow the pack's `remove` instead. `deleteLabel` replaces the whole name.
 - `disabled` disables the label's `<button>` and the delete button rather than taking them away, so a chip with `onClick` is announced as a button that cannot be used, as a disabled `PlButton` is, and leaves the tab order. A chip without `onClick` has no button of its own, and its shell is marked `aria-disabled` instead.
+- The label moves into its `<button>` as `onClick` arrives and out of it as `onClick` goes, so what the chip holds is mounted again then, and a `PlAvatar` in `startIcon` loads again. The button stays a real `<button>` for that; to switch a chip off, keep `onClick` and set `disabled`, which leaves everything where it is. The Flutter chip keeps what it holds either way.
 
 :::
 
@@ -210,7 +211,7 @@ A chip sits one step down the control ladder from everything else: a `md` chip i
 - The label and the delete affordance are two separate focus stops, and neither is inside the other.
 - The delete affordance is named by the label pack's `removeItem` with the chip's text, such as "Remove design", when `child` is a `Text`, and a translated screen reads the name in its own word order. A chip holding any other widget is named by the pack's `remove` alone, so give it a `deleteLabel` that says which chip it removes. `deleteLabel` replaces the whole name.
 - <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> activate a pressable chip. They are bound on the chip itself, so it behaves the same with or without an app widget above it.
-- `disabled` takes the chip out of the focus order and stops it firing, and the delete affordance with it. A chip with `onPressed` is still a button, and is announced as one that cannot be used, as a disabled `PlButton` is.
+- `disabled` takes the chip out of the focus order and stops it firing, and the delete affordance with it. A chip with `onPressed` is still a button, and is announced as one that cannot be used, as a disabled `PlButton` is. A chip without one says it is disabled and shows the not-allowed cursor, as the React chip's shell does.
 
 :::
 

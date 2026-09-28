@@ -201,6 +201,7 @@ chip은 나머지 모든 것보다 컨트롤 사다리에서 한 칸 아래에 �
 - 라벨과 삭제 버튼은 서로 다른 두 개의 tab stop이고, 어느 쪽도 다른 쪽 안에 들어 있지 않습니다.
 - 삭제 버튼의 이름은 라벨 묶음의 `removeItem`에 chip의 글자를 넘긴 "Remove design" 같은 형태입니다. 그래서 태그가 늘어선 줄에서 버튼마다 같은 단어만 반복되지 않고, 번역된 페이지에서는 그 언어의 어순으로 읽힙니다. 글자를 별도 컴포넌트가 그리면 `children`에서 읽을 수 없으므로, 라벨 묶음의 `remove` 뒤에 그 글자가 붙습니다. `deleteLabel`은 이름 전체를 바꿉니다.
 - `disabled`는 라벨의 `<button>`과 삭제 버튼을 없애지 않고 비활성화합니다. 그래서 `onClick`이 있는 chip은 비활성화된 `PlButton`처럼 사용할 수 없는 버튼으로 읽히고, tab 순서에서 빠집니다. `onClick`이 없는 chip에는 자기 버튼이 없으므로 껍데기에 `aria-disabled`가 대신 붙습니다.
+- `onClick`이 생기면 라벨이 `<button>` 안으로 들어가고 없어지면 밖으로 나오므로, 그때 chip이 담은 것이 다시 마운트되고 `startIcon`의 `PlAvatar`도 다시 불러옵니다. 버튼을 진짜 `<button>`으로 두기 위한 대가입니다. chip을 끌 때는 `onClick`을 그대로 두고 `disabled`를 주면 아무것도 다시 마운트되지 않습니다. Flutter chip은 어느 쪽이든 담은 것을 지킵니다.
 
 :::
 
@@ -210,7 +211,7 @@ chip은 나머지 모든 것보다 컨트롤 사다리에서 한 칸 아래에 �
 - 라벨과 삭제 표시는 서로 다른 두 개의 focus stop이고, 어느 쪽도 다른 쪽 안에 들어 있지 않습니다.
 - `child`가 `Text`이면 삭제 표시의 이름은 라벨 묶음의 `removeItem`에 chip의 글자를 넘긴 "Remove design" 같은 형태이고, 번역된 화면에서는 그 언어의 어순으로 읽힙니다. 다른 위젯을 담은 chip은 라벨 묶음의 `remove`만 읽히므로, 어느 chip을 지우는지 말하는 `deleteLabel`을 넘기세요. `deleteLabel`은 이름 전체를 바꿉니다.
 - <kbd>Enter</kbd>, <kbd>Space</kbd>, 넘패드 <kbd>Enter</kbd>가 누를 수 있는 chip을 실행합니다. chip 자신에 묶여 있으므로 위에 app 위젯이 있든 없든 똑같이 동작합니다.
-- `disabled`는 chip을 focus 순서에서 빼고 실행되지 않게 하며, 삭제 표시도 함께 잠급니다. `onPressed`가 있는 chip은 그래도 버튼이라, 비활성화된 `PlButton`처럼 사용할 수 없는 버튼으로 읽힙니다.
+- `disabled`는 chip을 focus 순서에서 빼고 실행되지 않게 하며, 삭제 표시도 함께 잠급니다. `onPressed`가 있는 chip은 그래도 버튼이라, 비활성화된 `PlButton`처럼 사용할 수 없는 버튼으로 읽힙니다. `onPressed`가 없는 chip은 React chip의 껍데기처럼 비활성 상태를 말하고 사용할 수 없음 커서를 보입니다.
 
 :::
 
