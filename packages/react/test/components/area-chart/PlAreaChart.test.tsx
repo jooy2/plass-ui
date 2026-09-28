@@ -217,6 +217,15 @@ describe('PlAreaChart', () => {
 
       (document.activeElement as HTMLElement).blur();
 
+      // Let go, Hot's band eases back to whole and stays cut on the way, or its
+      // line would show through its markers until the opacity arrives.
+      await expect.poll(() => bands[0].getAttribute('opacity')).toBe('1');
+      expect(bands[0].getAttribute('mask')).toBe(`url(#${cut})`);
+
+      bands[0].dispatchEvent(
+        new TransitionEvent('transitionend', { propertyName: 'opacity', bubbles: true })
+      );
+
       await expect.poll(() => plot.element().querySelector('mask')).toBeNull();
     });
 

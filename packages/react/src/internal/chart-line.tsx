@@ -26,6 +26,7 @@ import {
   markGap
 } from './chart.js';
 import { markTransitionClasses } from './chart-frame.js';
+import { usePrefersReducedMotion } from './media.js';
 import type { CartesianContext } from './chart-frame.js';
 import type {
   PlassChartCurve,
@@ -130,6 +131,33 @@ export function LineSeries({
     });
   });
 
+  const reducedMotion = usePrefersReducedMotion();
+  const dimmed = values.map((_, index) => dimmedByHover(hovered, index, visible));
+
+  /* The series the legend has let go of whose band is still easing back to
+     whole. Each stays cut out under its markers, as a faded one is, until its
+     band's opacity arrives, or its line would show through them on the way.
+     Under reduced motion the opacity arrives at once and nothing is kept. */
+  const [returning, setReturning] = React.useState<ReadonlySet<number>>(() => new Set());
+  const [wasDimmed, setWasDimmed] = React.useState(dimmed);
+
+  if (dimmed.length !== wasDimmed.length || dimmed.some((one, index) => one !== wasDimmed[index])) {
+    setWasDimmed(dimmed);
+    setReturning(
+      (before) =>
+        new Set(
+          dimmed.flatMap((one, index) =>
+            !one &&
+            !reducedMotion &&
+            visible[index] &&
+            (wasDimmed[index] === true || before.has(index))
+              ? [index]
+              : []
+          )
+        )
+    );
+  }
+
   /* What each visible series draws, worked out once for the three passes
      below: the bands and lines, then the markers, then the labels. */
   const shapes = values.map((one, index) => {
@@ -158,15 +186,13 @@ export function LineSeries({
         : []
     );
 
-    const dimmed = dimmedByHover(hovered, index, visible);
-
     return {
       color: colors[index],
-      dimmed,
+      dimmed: dimmed[index],
       tops,
       marks,
       /** Whether its markers are cut out of its band and line, below. */
-      cut: dimmed && marks.length > 0
+      cut: (dimmed[index] || returning.has(index)) && marks.length > 0
     };
   });
 
@@ -278,6 +304,15 @@ export function LineSeries({
             opacity={shape.dimmed ? 0.28 : 1}
             mask={shape.cut ? `url(#${idPrefix}-cut-${index})` : undefined}
             className={markTransitionClasses}
+            onTransitionEnd={
+              returning.has(index)
+                ? (event) => {
+                    if (event.target === event.currentTarget && event.propertyName === 'opacity') {
+                      setReturning((before) => new Set([...before].filter((one) => one !== index)));
+                    }
+                  }
+                : undefined
+            }
           >
             {filled ? (
               <path
