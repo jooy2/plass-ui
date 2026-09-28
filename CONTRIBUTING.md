@@ -95,6 +95,16 @@ When creating a pull request, keep the following in mind:
 
 Typically, a project maintainer will review and test your code before merging it into the project. This process can take some time, and they may ask you for further edits or clarifications in the comments.
 
+## Releasing
+
+A maintainer releases each package on its own, from a tag of its own. The steps are the same for both.
+
+1. **Cut the version** in one commit on `main`. For the React package, that is `version` in `packages/react/package.json` and the same number twice at the top of `packages/react/package-lock.json`: the file's own `version` and `packages[""].version`. For the Flutter package, it is `version` in `packages/flutter/pubspec.yaml` and the `plass_ui` entry in `packages/flutter/example/pubspec.lock`, which follows the path dependency. In the package's `CHANGELOG.md`, rename `## vNext (YYYY--)` to `## X.Y.Z (YYYY-MM-DD)` with the day's date, and put a new, empty `## vNext (YYYY--)` above it. Push, and let CI pass on that commit.
+1. **Tag that commit** with the package's prefix, `react-vX.Y.Z` or `flutter-vX.Y.Z`, and push the tag, as in `git tag react-v1.7.0` and `git push origin react-v1.7.0`.
+1. **`.github/workflows/release.yml` creates the GitHub release.** It checks that the tag names the version in the package's manifest and writes the notes from the changelog. The React job then builds with `npm pack`, runs the bundle size budget on that build and attaches the tarball, which is exactly what `npm publish` uploads. The Flutter job runs `dart pub publish --dry-run` and attaches nothing, because pub has no command that writes its archive to a file. Running the workflow again brings an existing release up to date.
+1. **The release notes are the version's whole changelog section**, followed by links to the full history. GitHub cuts a release body off at 125,000 characters, so a longer section is replaced by the prose it opens with, before its first `###`, and the links. Preview the notes with `node .github/scripts/release-notes.mjs react-v1.7.0`.
+1. **Publish to the registries by hand**, with `npm publish` in `packages/react` and `dart pub publish` in `packages/flutter`. The workflow holds no token for either.
+
 ## Reporting a security issue
 
 A security vulnerability does not go in an issue. [SECURITY.md](SECURITY.md) describes how to report one privately.
