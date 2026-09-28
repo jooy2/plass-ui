@@ -302,7 +302,9 @@ function SettingsScreen() {
               step={5}
               showValue={(formatted) => `${formatted[0]} days`}
             />
-            <div className="flex items-center gap-3">
+            {/* Wraps, so the fourth button stays inside the card when the
+                column is narrower than the four of them. */}
+            <div className="flex flex-wrap items-center gap-3">
               <PlModal
                 size="sm"
                 trigger={<PlButton color="danger">Delete organisation</PlButton>}
