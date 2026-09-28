@@ -1942,7 +1942,7 @@ void main() {
         expect(held.value, <String>['lisbon']);
       });
 
-      group('the focus, as a chip’s × takes its chip off', () {
+      group('the chips from the keyboard', () {
         /// Puts a field holding [values] after a focus stop of its own, which
         /// holds the focus, with its chips coming off as they would for a
         /// caller.
@@ -1977,9 +1977,17 @@ void main() {
           return held;
         }
 
-        /// Whether the × of the chip for [city] holds the focus.
-        bool onRemove(WidgetTester tester, String city) {
-          return Focus.of(tester.element(_adornment('Remove $city'))).hasPrimaryFocus;
+        /// Whether the chip for [city] holds the focus.
+        bool onChip(WidgetTester tester, String city) {
+          return tester
+              .widgetList<Focus>(
+                find.ancestor(of: find.text(city).first, matching: find.byType(Focus)),
+              )
+              .any(
+                (Focus focus) =>
+                    (focus.focusNode?.debugLabel ?? '') == 'PlCombobox chip' &&
+                    focus.focusNode!.hasPrimaryFocus,
+              );
         }
 
         /// Whether the text holds the focus.
@@ -1987,50 +1995,138 @@ void main() {
           return tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus;
         }
 
-        testWidgets('goes to the text from the keyboard, so a second Enter takes nothing', (
+        Future<void> press(WidgetTester tester, LogicalKeyboardKey key) async {
+          await tester.sendKeyEvent(key);
+          await tester.pumpAndSettle();
+        }
+
+        testWidgets('leaves the chips and their ×s out of the Tab order', (
+          WidgetTester tester,
+        ) async {
+          await pumpAfterStop(tester, <String>['seoul', 'lisbon']);
+
+          // Straight to the text, as Base UI's chips and ×s are `tabIndex: -1`.
+          await press(tester, LogicalKeyboardKey.tab);
+
+          expect(onText(tester), isTrue);
+        });
+
+        testWidgets('walks the chips with the arrows from the start of the text', (
+          WidgetTester tester,
+        ) async {
+          await pumpAfterStop(tester, <String>['seoul', 'lisbon']);
+          await press(tester, LogicalKeyboardKey.tab);
+
+          await press(tester, LogicalKeyboardKey.arrowLeft);
+          expect(onChip(tester, 'Lisbon'), isTrue);
+
+          await press(tester, LogicalKeyboardKey.arrowLeft);
+          expect(onChip(tester, 'Seoul'), isTrue);
+
+          // Past the first chip, and past the last, the focus goes back to the
+          // text, as Base UI's chip sends it.
+          await press(tester, LogicalKeyboardKey.arrowLeft);
+          expect(onText(tester), isTrue);
+
+          await press(tester, LogicalKeyboardKey.arrowLeft);
+          await press(tester, LogicalKeyboardKey.arrowRight);
+          expect(onText(tester), isTrue);
+        });
+
+        testWidgets(
+          'takes a chip off with Backspace or Delete, and moves to the one in its place',
+          (WidgetTester tester) async {
+            final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>[
+              'seoul',
+              'lisbon',
+              'osaka',
+            ]);
+            await press(tester, LogicalKeyboardKey.tab);
+            await press(tester, LogicalKeyboardKey.arrowLeft);
+            await press(tester, LogicalKeyboardKey.arrowLeft);
+            expect(onChip(tester, 'Lisbon'), isTrue);
+
+            await press(tester, LogicalKeyboardKey.backspace);
+
+            expect(held.value, <String>['seoul', 'osaka']);
+            expect(onChip(tester, 'Osaka'), isTrue);
+
+            // The last one taken off hands the focus to the one before it.
+            await press(tester, LogicalKeyboardKey.delete);
+
+            expect(held.value, <String>['seoul']);
+            expect(onChip(tester, 'Seoul'), isTrue);
+          },
+        );
+
+        testWidgets('takes the last chip off with Backspace in an empty field', (
           WidgetTester tester,
         ) async {
           final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>[
             'seoul',
             'lisbon',
           ]);
+          await press(tester, LogicalKeyboardKey.tab);
 
-          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-          await tester.pump();
-          expect(onRemove(tester, 'Seoul'), isTrue);
+          await press(tester, LogicalKeyboardKey.backspace);
 
-          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-          await tester.pumpAndSettle();
-
-          expect(held.value, <String>['lisbon']);
-          expect(onText(tester), isTrue);
-          expect(onRemove(tester, 'Lisbon'), isFalse);
-
-          // The next chip's × has not moved up into the place the focus was
-          // left in, so Enter does not take off a value nobody chose.
-          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-          await tester.pumpAndSettle();
-
-          expect(held.value, <String>['lisbon']);
+          expect(held.value, <String>['seoul']);
           expect(onText(tester), isTrue);
         });
 
-        testWidgets('goes to the text from the keyboard as the last chip goes', (
+        testWidgets('stays on a chip as a chip before it goes some other way', (
           WidgetTester tester,
         ) async {
-          final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>['seoul']);
+          final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>[
+            'seoul',
+            'lisbon',
+            'osaka',
+          ]);
+          await press(tester, LogicalKeyboardKey.tab);
+          await press(tester, LogicalKeyboardKey.arrowLeft);
+          await press(tester, LogicalKeyboardKey.arrowLeft);
+          expect(onChip(tester, 'Lisbon'), isTrue);
 
-          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-          await tester.pump();
-          expect(onRemove(tester, 'Seoul'), isTrue);
-
-          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          // Each chip is kept by its value, and not by its place in the row, so
+          // the focus stays with Lisbon rather than with the chip that has
+          // come into the place it held.
+          held.value = <String>['lisbon', 'osaka'];
           await tester.pumpAndSettle();
 
-          // Not back to the stop before the field, where a focus left on a ×
-          // that has gone falls.
-          expect(held.value, isEmpty);
-          expect(onText(tester), isTrue);
+          expect(onChip(tester, 'Lisbon'), isTrue);
+          expect(onChip(tester, 'Osaka'), isFalse);
+        });
+
+        testWidgets('says on each chip that the field is disabled or read-only', (
+          WidgetTester tester,
+        ) async {
+          final SemanticsHandle handle = tester.ensureSemantics();
+
+          for (final bool disabled in <bool>[true, false]) {
+            await tester.pumpWidget(
+              _host(
+                PlCombobox<String>.multiple(
+                  key: ValueKey<bool>(disabled),
+                  options: _more,
+                  values: const <String>['seoul'],
+                  disabled: disabled,
+                  readOnly: !disabled,
+                  onChanged: (List<String> _) {},
+                ),
+              ),
+            );
+
+            // As Base UI's chips carry `aria-disabled` or `aria-readonly`.
+            expect(
+              semanticsNodeLabelled(tester, 'Seoul'),
+              disabled
+                  ? isSemantics(hasEnabledState: true, isEnabled: false)
+                  : isSemantics(isReadOnly: true),
+              reason: disabled ? 'disabled' : 'read-only',
+            );
+          }
+
+          handle.dispose();
         });
 
         testWidgets('goes to the text from a press, and leaves the list shut', (
@@ -2047,30 +2143,6 @@ void main() {
           expect(held.value, <String>['lisbon']);
           expect(onText(tester), isTrue);
           expect(find.text('Quito'), findsNothing);
-        });
-
-        testWidgets('stays on a chip’s × as a chip before it goes some other way', (
-          WidgetTester tester,
-        ) async {
-          final ValueNotifier<List<String>> held = await pumpAfterStop(tester, <String>[
-            'seoul',
-            'lisbon',
-            'osaka',
-          ]);
-
-          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-          await tester.pump();
-          expect(onRemove(tester, 'Lisbon'), isTrue);
-
-          // Each chip is kept by its value, and not by its place in the row, so
-          // the focus stays with Lisbon rather than with the chip that has
-          // come into the place it held.
-          held.value = <String>['lisbon', 'osaka'];
-          await tester.pumpAndSettle();
-
-          expect(onRemove(tester, 'Lisbon'), isTrue);
-          expect(onRemove(tester, 'Osaka'), isFalse);
         });
 
         testWidgets('draws a set that holds one value twice, or holds the word `query`', (

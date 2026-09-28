@@ -581,6 +581,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   @override
   void dispose() {
     _focusNode.removeListener(_onFocusChanged);
+
+    for (final FocusNode node in _chipNodes.values) {
+      node.dispose();
+    }
+
     _scroll.dispose();
     _text.dispose();
     _owned?.dispose();
@@ -591,6 +596,143 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
   /// The editor, which a screen reader's focus is handed to.
   final GlobalKey<EditableTextState> _editor = GlobalKey<EditableTextState>();
+
+  /// One node per chip: out of the Tab order, and reached from the text with
+  /// the arrow keys, as Base UI's chips are `tabIndex: -1` and reached from its
+  /// input with the arrows. Held by the value the chip stands for, as the chip
+  /// is, so a chip that holds the focus keeps it as a chip before it goes, or
+  /// by place in a set that holds a value twice.
+  final Map<Object?, FocusNode> _chipNodes = <Object?, FocusNode>{};
+
+  Object? _chipId(int index) {
+    final bool repeats = widget.values.toSet().length < widget.values.length;
+
+    return repeats ? index : widget.values[index];
+  }
+
+  FocusNode _chipNode(int index) {
+    return _chipNodes.putIfAbsent(
+      _chipId(index),
+      () => FocusNode(debugLabel: 'PlCombobox chip', skipTraversal: true),
+    );
+  }
+
+  /// Lets go of the nodes of chips that have gone, once the frame that took
+  /// their widgets away is over.
+  void _pruneChipNodes() {
+    final Set<Object?> held = <Object?>{
+      for (int index = 0; index < widget.values.length; index += 1) _chipId(index),
+    };
+    final List<Object?> gone = <Object?>[
+      for (final Object? id in _chipNodes.keys)
+        if (!held.contains(id)) id,
+    ];
+
+    if (gone.isEmpty) {
+      return;
+    }
+
+    final List<FocusNode> nodes = <FocusNode>[
+      for (final Object? id in gone) _chipNodes.remove(id)!,
+    ];
+
+    WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+      for (final FocusNode node in nodes) {
+        node.dispose();
+      }
+    });
+  }
+
+  /// Moves the focus to the chip at [index], or to the text with `null`.
+  void _focusChip(int? index) {
+    if (index == null || index >= widget.values.length) {
+      _focusNode.requestFocus();
+    } else {
+      _chipNode(index).requestFocus();
+    }
+  }
+
+  /// The keys of the text that reach the chips: the arrow that points back
+  /// through the text, with the caret at its start, goes to the last chip, and
+  /// Backspace in an empty field takes the last chip off, as Base UI's input
+  /// answers them.
+  KeyEventResult _onTextKey(FocusNode node, KeyEvent event) {
+    if (!widget.multiple ||
+        widget.values.isEmpty ||
+        (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
+      return KeyEventResult.ignored;
+    }
+
+    final bool rtl = Directionality.of(context) == TextDirection.rtl;
+    final LogicalKeyboardKey back = rtl
+        ? LogicalKeyboardKey.arrowRight
+        : LogicalKeyboardKey.arrowLeft;
+    final TextSelection selection = _text.selection;
+
+    if (event.logicalKey == back &&
+        (!selection.isValid || (selection.isCollapsed && selection.baseOffset == 0))) {
+      _focusChip(widget.values.length - 1);
+
+      return KeyEventResult.handled;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.backspace && _text.text.isEmpty && _usable) {
+      _remove(widget.values.last, focusText: false);
+
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
+  }
+
+  /// The keys of the chip at [index], as Base UI's chip answers them: the
+  /// arrows along the row move between the chips and back to the text,
+  /// Backspace and Delete take the chip off and move to the one that takes its
+  /// place, and anything else goes back to the text. Nothing in a field that
+  /// cannot be changed.
+  KeyEventResult _onChipKey(int index, KeyEvent event) {
+    if (!_usable || (event is! KeyDownEvent && event is! KeyRepeatEvent)) {
+      return KeyEventResult.ignored;
+    }
+
+    final bool rtl = Directionality.of(context) == TextDirection.rtl;
+    final LogicalKeyboardKey previous = rtl
+        ? LogicalKeyboardKey.arrowRight
+        : LogicalKeyboardKey.arrowLeft;
+    final LogicalKeyboardKey next = rtl
+        ? LogicalKeyboardKey.arrowLeft
+        : LogicalKeyboardKey.arrowRight;
+    final LogicalKeyboardKey key = event.logicalKey;
+    final int count = widget.values.length;
+
+    if (key == previous) {
+      _focusChip(index > 0 ? index - 1 : null);
+    } else if (key == next) {
+      _focusChip(index < count - 1 ? index + 1 : null);
+    } else if (key == LogicalKeyboardKey.backspace || key == LogicalKeyboardKey.delete) {
+      // Where Base UI's `getIndexAfterChipRemoval` puts it: the chip that
+      // takes the place of the one taken off, or the one before the last.
+      final int after = index >= count - 1 ? count - 2 : index;
+
+      _remove(widget.values[index], focusText: false);
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+        if (mounted) {
+          _focusChip(after >= 0 ? after : null);
+        }
+      });
+    } else if (key == LogicalKeyboardKey.arrowDown || key == LogicalKeyboardKey.arrowUp) {
+      _focusChip(null);
+      _openList();
+    } else if (key == LogicalKeyboardKey.enter ||
+        key == LogicalKeyboardKey.space ||
+        (event.character != null && event.character!.trim().length == 1)) {
+      _focusChip(null);
+    } else {
+      return KeyEventResult.ignored;
+    }
+
+    return KeyEventResult.handled;
+  }
 
   /// [PlCombobox.disabled], or a disabled [PlFieldset] around it.
   bool get _disabled => widget.disabled || PlassFieldsetScope.disabledOf(context);
@@ -993,7 +1135,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// Base UI's chip remove does whether the × was pressed or reached from the
   /// keyboard. The × goes with its chip, and a focus left on it would fall back
   /// to whatever came before the field.
-  void _remove(T value) {
+  void _remove(T value, {bool focusText = true}) {
     // The row of the value taken off is lit no longer, as Base UI's
     // `clearActiveIndexForRemovedItem` puts it out: left lit, Enter would put
     // the chip straight back.
@@ -1009,7 +1151,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       for (final held in widget.values)
         if (held != value) held,
     ]);
-    _focusNode.requestFocus();
+
+    if (focusText) {
+      _focusNode.requestFocus();
+    }
   }
 
   void _clear() {
@@ -1251,7 +1396,18 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       child: PlassEditorArrows(
         editor: _editor,
         vertical: false,
-        child: PlassEditorKeys(onKey: _quieten, child: editor),
+        child: PlassEditorKeys(
+          onKey: _quieten,
+          // Nearest the editor, so the arrow into the chips and Backspace on
+          // an empty field are answered before the caret keys take them.
+          child: Focus(
+            canRequestFocus: false,
+            skipTraversal: true,
+            includeSemantics: false,
+            onKeyEvent: _onTextKey,
+            child: editor,
+          ),
+        ),
       ),
     );
 
@@ -1264,34 +1420,36 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // place.
     final bool repeats = widget.values.toSet().length < widget.values.length;
 
+    _pruneChipNodes();
+
     final chips = widget.multiple && widget.values.isNotEmpty
         ? <Widget>[
-            for (final value in widget.values)
+            for (int index = 0; index < widget.values.length; index += 1)
               // The shell already fades what it holds while the field is
               // disabled, so the chip, disabled with it, keeps the disabled
               // look without a fade of its own.
               PlassFadedScope(
-                key: repeats ? null : _ChipKey<T>(value),
+                key: repeats ? null : _ChipKey<T>(widget.values[index]),
                 faded: _disabled,
-                // A node of its own, named by its label, with its × a button
-                // inside it, as each React chip is an element of its own in the
-                // chip row. A chip that cannot be pressed forms no node, which
-                // suits a chip in running text, but here its words went into
-                // the text's node, which was then named by the chosen values.
-                child: Semantics(
-                  container: true,
+                child: _Chip(
+                  node: _chipNode(index),
+                  onKey: (KeyEvent event) => _onChipKey(index, event),
+                  disabled: _disabled,
+                  readOnly: widget.readOnly,
+                  ring: family.ring,
+                  radius: BorderRadius.circular(tokens.radii[size]!),
                   child: PlChip(
                     size: size,
                     color: family == tokens.family(PlassColor.danger) ? PlassColor.danger : _color,
                     density: PlassDensity.compact,
                     disabled: _disabled,
                     deleteLabel: (widget.removeLabel ?? PlassTheme.labelsOf(context).removeItem)(
-                      _labelOf(value),
+                      _labelOf(widget.values[index]),
                     ),
                     onDeleted: widget.readOnly || _disabled || !_usable
                         ? null
-                        : () => _remove(value),
-                    child: Text(_labelOf(value)),
+                        : () => _remove(widget.values[index]),
+                    child: Text(_labelOf(widget.values[index])),
                   ),
                 ),
               ),
@@ -1809,6 +1967,72 @@ class _AdornmentState extends State<_Adornment> {
       child: PlassInk(
         color: _hovered && accent != null ? accent : widget.muted,
         child: widget.child,
+      ),
+    );
+  }
+}
+
+/// One chip in the row: a node of its own, named by its label, with its ×
+/// a button inside it, as each React chip is an element of its own in the
+/// chip row.
+///
+/// Out of the Tab order, and reached with the arrow keys from the text or
+/// the chips beside it, as Base UI's chip is `tabIndex: -1`. Its × is out of
+/// the focus order too, as Base UI's is; a pointer and a screen reader still
+/// press it, and Backspace or Delete on the chip takes it off. The chip says
+/// whether the field is disabled or read-only, as Base UI's carries
+/// `aria-disabled` or `aria-readonly`.
+class _Chip extends StatefulWidget {
+  const _Chip({
+    required this.node,
+    required this.onKey,
+    required this.disabled,
+    required this.readOnly,
+    required this.ring,
+    required this.radius,
+    required this.child,
+  });
+
+  final FocusNode node;
+  final KeyEventResult Function(KeyEvent event) onKey;
+  final bool disabled;
+  final bool readOnly;
+  final Color ring;
+  final BorderRadius radius;
+  final Widget child;
+
+  @override
+  State<_Chip> createState() => _ChipState();
+}
+
+class _ChipState extends State<_Chip> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // A ring only for a focus the keyboard brought, as `:focus-visible` has it.
+    final bool ringed =
+        _focused && FocusManager.instance.highlightMode == FocusHighlightMode.traditional;
+
+    return Focus(
+      focusNode: widget.node,
+      // Out of reach while the field is: a disabled field takes no focus.
+      canRequestFocus: !widget.disabled,
+      includeSemantics: false,
+      onFocusChange: (bool focused) => setState(() => _focused = focused),
+      onKeyEvent: (FocusNode node, KeyEvent event) => widget.onKey(event),
+      child: Semantics(
+        container: true,
+        enabled: widget.disabled ? false : null,
+        readOnly: widget.readOnly ? true : null,
+        focused: widget.disabled ? null : _focused,
+        onFocus: widget.disabled ? null : widget.node.requestFocus,
+        child: CustomPaint(
+          foregroundPainter: ringed
+              ? PlassFocusRingPainter(color: widget.ring, borderRadius: widget.radius)
+              : null,
+          child: ExcludeFocus(child: widget.child),
+        ),
       ),
     );
   }
