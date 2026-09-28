@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { ownsPress } from '../../internal/focusable.js';
 import { useLabels } from '../../internal/labels.js';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
 import { Field } from '@base-ui/react/field';
@@ -401,6 +402,19 @@ export function PlNumberField({
           <BaseUINumberField.Group
             style={notched ? notchShellStyle : undefined}
             {...light}
+            onPointerDown={(event) => {
+              // A click on the shell's padding or an adornment puts the caret in
+              // the field and keeps the focus there, as the text field and the
+              // Flutter field keep it. The steppers keep it on their own.
+              const input = event.currentTarget.querySelector<HTMLInputElement>(
+                'input:not([type="hidden"])'
+              );
+
+              if (!disabled && !ownsPress(event.target, event.currentTarget, input)) {
+                event.preventDefault();
+                input?.focus();
+              }
+            }}
             className={[
               shellBaseClasses,
               notched ? '' : shellRingClasses,

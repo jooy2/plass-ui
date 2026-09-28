@@ -350,6 +350,26 @@ describe('PlTextField', () => {
     });
   });
 
+  describe('a press on the shell', () => {
+    it('keeps the focus in a focused control on a click on an adornment', async () => {
+      const screen = await render(<PlTextField label="Handle" startIcon={<span>@</span>} />);
+      const input = screen.getByRole('textbox', { name: 'Handle' });
+
+      await input.click();
+      expect(document.activeElement).toBe(input.element());
+
+      const blurred = vi.fn();
+      input.element().addEventListener('blur', blurred);
+
+      // As the Flutter field keeps it. The click went to a span, which took the
+      // focus out of the control.
+      await screen.getByText('@').click();
+
+      expect(blurred).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(input.element());
+    });
+  });
+
   describe('states', () => {
     it('disables the control and lets the page through the sheet', async () => {
       const screen = await render(<PlTextField label="Email" disabled />);

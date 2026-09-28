@@ -490,6 +490,42 @@ void main() {
       });
     });
 
+    testWidgets('keeps the focus in the field on a mouse press on its padding or an adornment', (
+      WidgetTester tester,
+    ) async {
+      // Inside a `WidgetsApp`, which gives a focused editor the tap regions a
+      // real app has: there a press outside the editor's region takes the
+      // focus out of it.
+      await tester.pumpWidget(
+        WidgetsApp(
+          color: const Color(0xFF000000),
+          builder: (BuildContext context, Widget? child) =>
+              host(const PlTextField(startIcon: Text('@')), width: 320),
+        ),
+      );
+
+      await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+
+      final FocusNode editor = tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+      int lost = 0;
+      void count() => lost += editor.hasFocus ? 0 : 1;
+      editor.addListener(count);
+      addTearDown(() => editor.removeListener(count));
+
+      final Rect shell = tester.getRect(find.byType(PlTextField));
+
+      await tester.tap(find.text('@'), kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      await tester.tapAt(Offset(shell.left + 2, shell.center.dy), kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+
+      // As the React field keeps it, rather than losing it to a press that
+      // counted as one outside and getting it back from the shell.
+      expect(lost, 0);
+      expect(editor.hasFocus, isTrue);
+    });
+
     group('the interaction light', () {
       /// Whether the shell's bloom is lit: the first of the two layers of the
       /// light.

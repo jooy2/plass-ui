@@ -608,6 +608,12 @@ class _PlTextFieldState extends State<PlTextField> {
       ),
     );
 
+    // The shell is part of the field for a press, as the editor is: a mouse
+    // press on its padding or on an adornment keeps the focus in the editor,
+    // as the React field keeps it, rather than counting as a press outside
+    // that takes the focus away for the shell's own press to bring it back.
+    shell = TextFieldTapRegion(child: shell);
+
     final stack = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,

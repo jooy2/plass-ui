@@ -867,6 +867,34 @@ void main() {
         expect(settled, <double?>[6, 7]);
       });
 
+      testWidgets('a mouse press on the padding or an adornment keeps the focus in the field', (
+        WidgetTester tester,
+      ) async {
+        await _pumpInApp(tester, const _Harness(startIcon: Text('#')));
+
+        await tester.tap(find.byType(EditableText), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+
+        final FocusNode editor = tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+        int lost = 0;
+        void count() => lost += editor.hasFocus ? 0 : 1;
+        editor.addListener(count);
+        addTearDown(() => editor.removeListener(count));
+
+        final Rect shell = tester.getRect(find.byType(PlNumberField));
+
+        // The adornment, and the shell's own padding beside it.
+        await tester.tap(find.text('#'), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+        await tester.tapAt(Offset(shell.left + 2, shell.center.dy), kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+
+        // As the React field keeps it. The press counted as one outside the
+        // editor, which took the focus away for the shell to bring it back.
+        expect(lost, 0);
+        expect(_editorFocused(tester), isTrue);
+      });
+
       testWidgets('a mouse press on a stepper leaves the focus in a field at its limit', (
         WidgetTester tester,
       ) async {

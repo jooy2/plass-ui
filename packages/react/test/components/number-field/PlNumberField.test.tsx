@@ -130,6 +130,40 @@ describe('PlNumberField', () => {
     });
   });
 
+  describe('a press on the shell', () => {
+    it('keeps the focus in a focused field on a click on its padding or an adornment', async () => {
+      const screen = await render(
+        <PlNumberField label="Seats" size="xl" defaultValue={2} startIcon={<span>#</span>} />
+      );
+      const input = screen.getByRole('textbox', { name: 'Seats' });
+
+      await input.click();
+      expect(document.activeElement).toBe(input.element());
+
+      const blurred = vi.fn();
+      input.element().addEventListener('blur', blurred);
+
+      // As the text field and the Flutter field keep it. A click on the shell
+      // went to an element that takes no focus, which took it out of the field.
+      await screen.getByText('#').click();
+
+      const shell = input.element().closest('[role="group"]') ?? input.element().parentElement!;
+      const box = shell.getBoundingClientRect();
+
+      shell.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          clientX: box.left + 2,
+          clientY: box.top + box.height / 2
+        })
+      );
+
+      expect(blurred).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(input.element());
+    });
+  });
+
   describe('formatting', () => {
     it('writes the number the way `format` says', async () => {
       const screen = await render(

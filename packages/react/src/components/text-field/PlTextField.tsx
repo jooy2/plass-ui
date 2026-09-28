@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
+import { ownsPress } from '../../internal/focusable.js';
 import { Field } from '@base-ui/react/field';
 import { Input } from '@base-ui/react/input';
 import { Spinner } from '../../internal/icons.js';
@@ -346,11 +347,13 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
           style={notched ? notchShellStyle : undefined}
           {...light}
           onPointerDown={(event) => {
-            // Clicking the shell's own padding should put the caret in the field,
-            // the way clicking anywhere inside a native input does. Only when the
-            // shell itself was hit — a click on the control or on an adornment is
-            // left alone so text selection still works.
-            if (event.target === event.currentTarget && !disabled) {
+            // Clicking the shell's own padding or an adornment should put the
+            // caret in the field, the way clicking anywhere inside a native input
+            // does, and keep the focus there, as the Flutter field keeps it. A
+            // click on the control itself is left alone so text selection still
+            // works, and so is one on anything in an adornment that takes a
+            // click of its own.
+            if (!disabled && !ownsPress(event.target, event.currentTarget, controlRef.current)) {
               event.preventDefault();
               controlRef.current?.focus();
             }
