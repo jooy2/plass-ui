@@ -127,7 +127,7 @@ The arrow keys and the steppers both move by `step`, with <kbd>Shift</kbd> takin
 
 ::: fw flutter
 
-<kbd>Page Up</kbd> and <kbd>Page Down</kbd> take `largeStep` too, and <kbd>Home</kbd> and <kbd>End</kbd> go to `min` and `max` when there are any. A stepper held down repeats after a short pause; a stepper pressed and let go is worth exactly one step, the way every other button in the library is.
+<kbd>Page Up</kbd> and <kbd>Page Down</kbd> take `largeStep` too, and <kbd>Home</kbd> and <kbd>End</kbd> go to `min` and `max` when there are any, and move the caret when there are not. The wheel, where `allowWheelScrub` turns it on, takes `largeStep` with <kbd>Shift</kbd> and `smallStep` with <kbd>Alt</kbd>, as the keys do. A step on an empty box puts zero in it, held inside the range, rather than a step on from anything. A stepper held down repeats after a short pause; a stepper pressed and let go is worth exactly one step, the way every other button in the library is.
 
 :::
 

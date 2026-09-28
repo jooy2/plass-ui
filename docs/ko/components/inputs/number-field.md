@@ -127,7 +127,7 @@ PlNumberField(
 
 ::: fw flutter
 
-<kbd>Page Up</kbd>과 <kbd>Page Down</kbd>도 `largeStep`을 쓰고, <kbd>Home</kbd>과 <kbd>End</kbd>는 `min`과 `max`가 있으면 그리로 갑니다. 스테퍼를 누르고 있으면 짧은 정지 뒤에 반복되고, 눌렀다 뗀 스테퍼는 정확히 한 걸음입니다. 라이브러리의 다른 모든 버튼과 같습니다.
+<kbd>Page Up</kbd>과 <kbd>Page Down</kbd>도 `largeStep`을 쓰고, <kbd>Home</kbd>과 <kbd>End</kbd>는 `min`과 `max`가 있으면 그리로 가고, 없으면 캐럿을 옮깁니다. `allowWheelScrub`으로 켠 휠은 키처럼 <kbd>Shift</kbd>와 함께면 `largeStep`, <kbd>Alt</kbd>와 함께면 `smallStep`을 씁니다. 빈 상자에서 한 걸음 움직이면 어디서부터의 한 걸음이 아니라 범위 안에 든 0이 들어갑니다. 스테퍼를 누르고 있으면 짧은 정지 뒤에 반복되고, 눌렀다 뗀 스테퍼는 정확히 한 걸음입니다. 라이브러리의 다른 모든 버튼과 같습니다.
 
 :::
 

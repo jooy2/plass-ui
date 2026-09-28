@@ -17,6 +17,7 @@ import '../../support/text_input.dart';
 /// A field wired to a variable, which is how every caller uses it.
 class _Harness extends StatefulWidget {
   const _Harness({
+    super.key,
     this.value = 5,
     this.min,
     this.max,
@@ -334,6 +335,65 @@ void main() {
         expect(state.value, 5);
         expect(find.text('5'), findsOneWidget);
         expect(settled, isEmpty);
+      });
+
+      testWidgets('leaves Home and End to the caret when the range has no such end', (
+        WidgetTester tester,
+      ) async {
+        final _HarnessState state = await _pump(tester, const _Harness(value: 5, max: 9));
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        // No `min`, so Home is the editor's, as Base UI leaves it to the browser.
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.home), isFalse);
+        await tester.pump();
+        expect(state.value, 5);
+
+        expect(await tester.sendKeyEvent(LogicalKeyboardKey.end), isTrue);
+        await tester.pump();
+        expect(state.value, 9);
+      });
+
+      testWidgets('turns the wheel by the step its modifier asks for', (WidgetTester tester) async {
+        final _HarnessState state = await _pump(
+          tester,
+          const _Harness(value: 5, allowWheelScrub: true),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pump();
+
+        final TestPointer mouse = TestPointer(1, PointerDeviceKind.mouse);
+        await tester.sendEventToBinding(mouse.hover(tester.getCenter(find.byType(EditableText))));
+
+        // Shift for the large step, Alt for the small one, as Base UI takes
+        // them, and Shift turning the wheel sideways as some platforms do.
+        for (final (LogicalKeyboardKey? key, Offset turn, double after)
+            in <(LogicalKeyboardKey?, Offset, double)>[
+              (null, const Offset(0, -40), 6),
+              (LogicalKeyboardKey.shiftLeft, const Offset(-40, 0), 16),
+              (LogicalKeyboardKey.altLeft, const Offset(0, 40), 15.9),
+            ]) {
+          if (key != null) {
+            await tester.sendKeyDownEvent(key);
+          }
+
+          await tester.sendEventToBinding(mouse.scroll(turn));
+          await tester.pump();
+
+          if (key != null) {
+            await tester.sendKeyUpEvent(key);
+          }
+
+          expect(state.value, closeTo(after, 1e-9), reason: '$key');
+        }
+
+        // A sideways turn with no Shift is the page's.
+        await tester.sendEventToBinding(mouse.scroll(const Offset(40, 0)));
+        await tester.pump();
+
+        expect(state.value, closeTo(15.9, 1e-9));
       });
 
       testWidgets('a key or a turn of the wheel that changes nothing settles nothing', (
@@ -688,12 +748,25 @@ void main() {
         expect(settled, <double?>[7, 13]);
       });
 
-      testWidgets('an empty field steps from the bottom of the range', (WidgetTester tester) async {
-        final state = await _pump(tester, const _Harness(value: null, min: 3));
+      testWidgets('an empty field is given zero held inside the range', (
+        WidgetTester tester,
+      ) async {
+        // As Base UI seeds it: zero, or the end of the range nearest it, and
+        // not a step on from either.
+        for (final (double? min, double? max, double seeded) in <(double?, double?, double)>[
+          (null, null, 0),
+          (3, null, 3),
+          (null, -2, -2),
+        ]) {
+          final state = await _pump(
+            tester,
+            _Harness(key: UniqueKey(), value: null, min: min, max: max),
+          );
 
-        await tester.tap(_plus());
-        await tester.pump();
-        expect(state.value, 4);
+          await tester.tap(_plus());
+          await tester.pump();
+          expect(state.value, seeded, reason: 'min $min, max $max');
+        }
       });
 
       testWidgets('a held stepper keeps going', (WidgetTester tester) async {
@@ -1152,7 +1225,9 @@ void main() {
         expect(find.text('5'), findsOneWidget);
       });
 
-      testWidgets('settles a box that reads as another number, once', (WidgetTester tester) async {
+      testWidgets('keeps a value handed in outside the range when nothing was typed', (
+        WidgetTester tester,
+      ) async {
         final List<double?> settled = <double?>[];
         final _HarnessState state = await _pump(
           tester,
@@ -1164,8 +1239,60 @@ void main() {
         tester.binding.focusManager.primaryFocus!.unfocus();
         await tester.pumpAndSettle();
 
+        // As Base UI keeps it: a Tab through the field is not an edit.
+        expect(state.value, 40);
+        expect(find.text('40'), findsOneWidget);
+        expect(settled, isEmpty);
+      });
+
+      testWidgets('settles a number typed outside the range, once', (WidgetTester tester) async {
+        final List<double?> settled = <double?>[];
+        final _HarnessState state = await _pump(
+          tester,
+          _Harness(value: 4, max: 12, onCommitted: settled.add),
+        );
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('40');
+        await tester.pump();
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
         expect(state.value, 12);
         expect(settled, <double?>[12]);
+      });
+
+      testWidgets('keeps a number as it was typed', (WidgetTester tester) async {
+        final _HarnessState state = await _pump(tester, const _Harness(value: 4));
+
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('1.123456789012345');
+        await tester.pump();
+        tester.binding.focusManager.primaryFocus!.unfocus();
+        await tester.pumpAndSettle();
+
+        // Not rounded to ten places, as a step is: Base UI keeps typed input.
+        expect(state.value, 1.123456789012345);
+      });
+
+      testWidgets('commits nothing on Enter with nothing typed', (WidgetTester tester) async {
+        final List<double?> settled = <double?>[];
+
+        await _pump(tester, _Harness(value: 4, onCommitted: settled.add));
+
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pump();
+
+        expect(settled, isEmpty);
+
+        // Typed, it settles on Enter.
+        await tester.showKeyboard(find.byType(EditableText));
+        tester.testTextInput.enterText('7');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pump();
+
+        expect(settled, <double?>[7]);
       });
 
       testWidgets('settles nothing in a read-only field', (WidgetTester tester) async {

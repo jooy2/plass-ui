@@ -84,6 +84,27 @@ class _EdgeIntent extends Intent {
   final bool toEnd;
 }
 
+/// Home or End, taken only while the range has that end, as Base UI takes
+/// them. Otherwise the key goes on to the editor and moves the caret.
+class _EdgeAction extends Action<_EdgeIntent> {
+  _EdgeAction(this._state);
+
+  final _PlNumberFieldState _state;
+
+  @override
+  bool isEnabled(_EdgeIntent intent) {
+    return (intent.toEnd ? _state.widget.max : _state.widget.min) != null;
+  }
+
+  @override
+  Object? invoke(_EdgeIntent intent) {
+    _state._quieten();
+    _state._edge(intent.toEnd);
+
+    return null;
+  }
+}
+
 /// Which of the three steps a key press asked for.
 enum _StepAmount { small, normal, large }
 
@@ -490,6 +511,15 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // can be typed into it, and a value handed to it outside the range is the
     // caller's to keep.
     if (!_focused && _editable) {
+      // Nothing typed and nothing left to settle: the box shows the value the
+      // field holds, kept as it is even outside the range, as Base UI keeps
+      // the value it was handed when nothing was typed.
+      if (!_typed && !_unsettled) {
+        _show(_held);
+
+        return;
+      }
+
       final double? raw = _read(_controller.text);
       final double? next = raw == null ? null : _settle(raw);
 
@@ -555,10 +585,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
       next = widget.max!;
     }
 
-    // A step of 0.1 from 0.3 is 0.4 and not 0.30000000000000004. Rounded to the
-    // tenth of a step, which is finer than any step anybody reads and coarse
-    // enough to swallow the binary.
-    return double.parse(next.toStringAsFixed(10));
+    return next;
   }
 
   /// Settles [raw] into the box, reports it through `onChanged` if the value
@@ -630,10 +657,17 @@ class _PlNumberFieldState extends State<PlNumberField> {
       _StepAmount.large => widget.largeStep,
     };
 
-    // An empty field steps from the bottom of the range if it has one, and from
-    // zero if it does not: the first press of `+` on a blank quantity box should
-    // put something in it.
-    final from = _read(_controller.text) ?? widget.min ?? 0;
+    final double? from = _read(_controller.text);
+
+    // An empty field is given zero, held inside the range, rather than a step:
+    // the first press of `+` on a blank quantity box puts something in it, and
+    // with a `min` of 3 that is 3, as Base UI seeds it.
+    if (from == null) {
+      _commit(0, when: when);
+
+      return;
+    }
+
     var next = from + by * direction;
 
     // Snapped before the range is applied, as Base UI snaps, so a `max` that is
@@ -642,7 +676,11 @@ class _PlNumberFieldState extends State<PlNumberField> {
       next = _snap(next, by * direction, nearest: amount == _StepAmount.small);
     }
 
-    _commit(next, when: when);
+    // A step of 0.1 from 0.3 is 0.4 and not 0.30000000000000004. Rounded to the
+    // tenth of a step, which is finer than any step anybody reads and coarse
+    // enough to swallow the binary. Only a step is: a number typed in is kept
+    // as it was typed, as Base UI keeps it.
+    _commit(double.parse(next.toStringAsFixed(10)), when: when);
   }
 
   /// Where a step of [by], signed with its direction, that took the value to
@@ -875,6 +913,13 @@ class _PlNumberFieldState extends State<PlNumberField> {
       // it settles changes the box.
       onSubmitted: (String text) {
         _quieten();
+
+        // With nothing typed and nothing left to settle there is nothing to
+        // commit, as Base UI commits nothing on Enter.
+        if (!_typed && !_unsettled) {
+          return;
+        }
+
         _commit(_read(text));
       },
       textAlign: split && showSteppers ? TextAlign.center : TextAlign.start,
@@ -1002,14 +1047,7 @@ class _PlNumberFieldState extends State<PlNumberField> {
               return null;
             },
           ),
-          _EdgeIntent: CallbackAction<_EdgeIntent>(
-            onInvoke: (_EdgeIntent intent) {
-              _quieten();
-              _edge(intent.toEnd);
-
-              return null;
-            },
-          ),
+          _EdgeIntent: _EdgeAction(this),
         },
         // Nearer the editor than the steppers' own `Shortcuts` above it, so a
         // caller who binds an arrow takes it from the number rather than
@@ -1247,18 +1285,37 @@ class _PlNumberFieldState extends State<PlNumberField> {
             return;
           }
 
-          // Only a wheel turned up or down means more or less. A sideways one
-          // is left to whatever scrolls sideways.
-          final double dy = event.scrollDelta.dy;
+          final HardwareKeyboard keys = HardwareKeyboard.instance;
 
-          if (dy == 0) {
+          // Control with the wheel is a pinch, which zooms the page.
+          if (keys.isControlPressed) {
             return;
           }
+
+          // Only a wheel turned up or down means more or less. A sideways one
+          // is left to whatever scrolls sideways, except with Shift, which
+          // some platforms turn sideways, as Base UI reads it.
+          final Offset delta = event.scrollDelta;
+          final bool sideways = delta.dx.abs() > delta.dy.abs();
+          final bool shift = keys.isShiftPressed;
+          final double turn = shift && sideways ? delta.dx : delta.dy;
+
+          if (turn == 0 || (!shift && sideways)) {
+            return;
+          }
+
+          // The step a key would take with the same modifier: Shift for the
+          // large one and Alt for the small one, as Base UI takes them.
+          final _StepAmount amount = keys.isAltPressed
+              ? _StepAmount.small
+              : shift
+              ? _StepAmount.large
+              : _StepAmount.normal;
 
           // Claimed through the resolver, so the page under the field does not
           // scroll on the same turn and carry the field away from the pointer.
           GestureBinding.instance.pointerSignalResolver.register(event, (PointerSignalEvent _) {
-            _step(dy > 0 ? -1 : 1, when: _CommitWhen.changed);
+            _step(turn > 0 ? -1 : 1, amount: amount, when: _CommitWhen.changed);
           });
         },
         child: shell,
