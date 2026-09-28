@@ -1380,12 +1380,13 @@ void main() {
         final editor = tester.getRect(find.byType(EditableText));
         final label = tester.getRect(find.text('Email'));
 
-        // In the middle of the line, starting where the text starts, set in the
-        // text's own size, with the edge whole over it and the placeholder out
-        // of the way.
+        // In the middle of the line, starting where the text starts, set as the
+        // placeholder is — the text's own size at the regular weight — with the
+        // edge whole over it and the placeholder out of the way.
         expect(label.center.dy, closeTo(editor.center.dy, 0.5));
         expect(label.left, closeTo(editor.left, 0.5));
         expect(styleOf(tester, 'Email').fontSize, controlTextLeading[PlassSize.md]!.size);
+        expect(styleOf(tester, 'Email').fontWeight, FontWeight.w400);
         expect(edgeWhole(tester), isTrue);
         expect(placeholderAlpha(tester), 0);
       });
@@ -1410,6 +1411,7 @@ void main() {
           ),
         );
         expect(styleOf(tester, 'Email').fontSize, metaText[PlassSize.md]);
+        expect(styleOf(tester, 'Email').fontWeight, FontWeight.w600);
         expect(edgeWhole(tester), isFalse);
         expect(placeholderAlpha(tester), 1);
       });

@@ -2799,9 +2799,11 @@
  *
  * `labelPlacement="float"`: a notched field whose label rests inside the
  * control, where the value would be written, while the control is empty,
- * nothing in the field has the focus and no popup of its is open. The moment
- * any of the three stops being true, the label rises into the notch and the
- * placeholder it was standing in for comes back.
+ * nothing in the field has the focus and no popup of its is open. At rest it is
+ * set the way that placeholder is — the value's size, the regular weight and
+ * the muted ink — and the moment any of the three stops being true, the label
+ * rises into the notch at the notch's own weight and the placeholder comes
+ * back.
  *
  * `internal/notch.tsx` draws the same fieldset and legend a `notch` does and
  * hands this block its numbers as custom properties on the frame. It is CSS
@@ -2811,11 +2813,14 @@
  * before any script has run, so a server-rendered field is right on its first
  * frame.
  *
- * **The label moves on `top`, `inset-inline-start` and `font-size`,** never on
- * a transform: it is set again at every size on the way rather than scaled, so
- * no frame of it is a resampled picture of the word. Its line box is held at
- * the notch's height throughout, which is what keeps the legend, and the edge
- * drawn across its middle, where they are while the word grows and shrinks.
+ * **The label moves on `top`, `inset-inline-start`, `font-size` and
+ * `font-weight`,** never on a transform: it is set again at every size on the
+ * way rather than scaled, so no frame of it is a resampled picture of the word.
+ * How smoothly the weight goes is the font's to say: a variable font passes
+ * through every weight between, and a font with a few fixed faces steps
+ * between them. Its line box is held at the notch's height throughout, which
+ * is what keeps the legend, and the edge drawn across its middle, where they
+ * are while the word grows and shrinks.
  *
  * **The gap folds rather than fades.** A legend cannot fill its own gap, so the
  * legend is folded to nothing under a resting label and the fieldset draws its
@@ -2837,7 +2842,7 @@
   inset-inline-start: 0;
   margin-inline: var(--p-notch-pad);
   line-height: var(--p-notch-leading);
-  transition-property: top, inset-inline-start, font-size, color;
+  transition-property: top, inset-inline-start, font-size, font-weight, color;
   transition-duration: var(--plass-duration);
   transition-timing-function: var(--plass-ease);
 }
@@ -2879,6 +2884,7 @@
   top: var(--p-float-y);
   inset-inline-start: var(--p-float-x, 0px);
   font-size: var(--p-float-text);
+  font-weight: 400;
   color: var(--plass-muted-fg);
 }
 

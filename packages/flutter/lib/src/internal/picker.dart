@@ -283,10 +283,10 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
         : ExcludeSemantics(
             excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
             child: DefaultTextStyle.merge(
-              // In a notch the size and the ink are the notch's, since a
-              // floating label changes both as it moves.
+              // In a notch the size, the weight and the ink are the notch's,
+              // since a floating label changes all three as it moves.
               style: notched
-                  ? const TextStyle(fontWeight: FontWeight.w600)
+                  ? null
                   : TextStyle(
                       color: _disabled ? tokens.mutedFg : tokens.fg,
                       fontSize: meta,

@@ -107,11 +107,12 @@ describe('a floating label', () => {
     const input = screen.getByRole('textbox', { name: 'Email' }).element() as HTMLElement;
     const { legend, label } = notchOf();
 
-    // In the middle of the control, starting where the text starts, and set in
-    // the text's own size.
+    // In the middle of the control, starting where the text starts, and set as
+    // the placeholder is: the text's own size at the regular weight.
     expect(restsIn(label, input.parentElement as HTMLElement)).toBe(true);
     expect(glyphsOf(label).left).toBeCloseTo(input.getBoundingClientRect().left, 0);
     expect(getComputedStyle(label).fontSize).toBe(getComputedStyle(input).fontSize);
+    expect(getComputedStyle(label).fontWeight).toBe('400');
     // The legend has folded, so the edge is whole over it, and the placeholder
     // it stands in for is out of the way.
     expect(legend.getBoundingClientRect().width).toBeLessThan(1);
@@ -139,7 +140,11 @@ describe('a floating label', () => {
       return { x: box.left - origin.left, y: box.top - origin.top, width: box.width };
     };
 
-    // The same words in the same place, and the same gap cut for them.
+    // The same words at the same weight in the same place, and the same gap
+    // cut for them.
+    expect(getComputedStyle(floating.label).fontWeight).toBe(
+      getComputedStyle(notched.label).fontWeight
+    );
     expect(offset(glyphsOf(floating.label), floating.frame)).toEqual(
       offset(glyphsOf(notched.label), notched.frame)
     );

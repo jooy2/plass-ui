@@ -168,13 +168,13 @@ export type PlassCorner = 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end
  * - `float` — inside the control, where its value would be written, while the
  *   control is empty and nothing in it has the focus; it rises into the notch
  *   the moment either stops being true, and comes back down when both are true
- *   again. At rest it is set in the control's own text and muted, so it reads
- *   as the placeholder it stands in for, and the placeholder waits until the
- *   label has risen.
+ *   again. At rest it is set as the placeholder it stands in for is — the
+ *   control's text size, the regular weight and the muted ink — and the
+ *   placeholder waits until the label has risen.
  *
- * A `float` label moves on its position and its font size and never on a
- * `transform`: it is set again at every size on the way, so no frame of it is
- * a scaled picture of the word. A control that draws something at its start —
+ * A `float` label moves on its position, its font size and its weight and
+ * never on a `transform`: it is set again at every size on the way, so no
+ * frame of it is a scaled picture of the word. A control that draws something at its start —
  * a `startIcon`, a picker's glyph, a number field's split steppers — keeps a
  * `float` label in the notch, because the place it would rest is taken, and so
  * does a `PlFilePicker`, whose box has words of its own there.

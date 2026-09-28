@@ -320,9 +320,8 @@ class PlassFieldNotch extends StatefulWidget {
   final double edgeWidth;
 
   /// The name of what the control holds, the same widget the stacked
-  /// placement renders, so the two cannot drift. Its size and its ink are the
-  /// notch's to set, since they change as a floating label moves; anything
-  /// else about it, such as its weight, is the control's.
+  /// placement renders, so the two cannot drift. Its size, its weight and its
+  /// ink are the notch's to set, since they change as a floating label moves.
   final Widget label;
 
   /// Unavailable, which mutes the label the way the stacked one is muted.
@@ -443,10 +442,11 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> with SingleTickerProv
             child: widget.label,
             builder: (BuildContext context, Widget? label) {
               final double t = rest.value;
-              // Resting, the label is set in the control's own text, starts
-              // where the value does and sits on the middle of the first line,
-              // which is half the control's height down from the edge. It is
-              // set again at every size on the way rather than scaled.
+              // Resting, the label is set as the placeholder is — the control's
+              // text size at the regular weight — starts where the value does
+              // and sits on the middle of the first line, which is half the
+              // control's height down from the edge. It is set again at every
+              // size and weight on the way rather than scaled.
               final double fontSize = lerpDouble(
                 metaText[size]!,
                 controlTextLeading[size]!.size,
@@ -470,6 +470,7 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> with SingleTickerProv
                       style: TextStyle(
                         height: 1,
                         fontSize: fontSize,
+                        fontWeight: FontWeight.lerp(FontWeight.w600, FontWeight.w400, t),
                         color: Color.lerp(ink, tokens.mutedFg, t),
                       ),
                       child: label!,
