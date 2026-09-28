@@ -195,6 +195,7 @@ The split draws no sheet, so `color` reaches three things and stops: the handle'
 
 - A handle is a **slider** rather than a separator, which is what it actually is to a screen reader here: Flutter's semantics tree has no separator role and no `valuenow`, but it has a control with a value that can be turned up and down, and `label` names it.
 - The arrow keys move it, and they follow the writing direction, so they run the other way under RTL, exactly as a drag does.
+- Under `NavigationMode.directional`, a remote's D-pad, only the arrows along the line's travel move it, <kbd>←</kbd> <kbd>→</kbd> on a split side by side and <kbd>↑</kbd> <kbd>↓</kbd> on a stacked one; the others move the focus to the control beside it.
 - None of the three drag hazards the other build has exists here. There is no document selection to take away, no browser focusing anything on a press, and a gesture recogniser is disposed with the widget that owns it.
 
 ## Differences from the React build

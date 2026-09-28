@@ -335,6 +335,15 @@ class _PlRatingState extends State<PlRating> {
         _NudgeIntent: PlassArrowAction<_NudgeIntent>(
           context,
           onArrow: (_NudgeIntent intent) {
+            // Under directional navigation up and down go on to the focus
+            // system, having moved nothing: the stars are a row, and only the
+            // arrows along it change the score there.
+            final Axis arrow = intent.across ? Axis.horizontal : Axis.vertical;
+
+            if (plassArrowAcross(context, axis: Axis.horizontal, arrow: arrow)) {
+              return false;
+            }
+
             // The left and right arrows follow the writing direction, because
             // the row does. Up is more and down is less in every direction.
             final bool rtl = Directionality.of(context) == TextDirection.rtl;

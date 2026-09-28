@@ -152,6 +152,57 @@ void main() {
     });
 
     group('the arrow keys', () {
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('move the choice across the set only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          for (final PlassOrientation orientation in PlassOrientation.values) {
+            final bool vertical = orientation == PlassOrientation.vertical;
+            String? chosen;
+
+            await tester.pumpWidget(
+              host(
+                inNavigationMode(
+                  mode,
+                  PlRadioGroup<String>(
+                    key: ValueKey<PlassOrientation>(orientation),
+                    options: plans,
+                    value: 'starter',
+                    orientation: orientation,
+                    autofocus: true,
+                    onChanged: (String next) => chosen = next,
+                  ),
+                ),
+                width: 480,
+              ),
+            );
+            await tester.pump();
+
+            expect(focusedOption('Starter'), findsOneWidget);
+
+            // Under directional navigation the arrows across the options, left
+            // and right in a column and up and down in a row, are how a remote
+            // moves on to the control beside it, so they go on to the focus
+            // system with the choice where it was.
+            final bool traditional = mode == NavigationMode.traditional;
+            final LogicalKeyboardKey across = vertical
+                ? LogicalKeyboardKey.arrowRight
+                : LogicalKeyboardKey.arrowDown;
+            final LogicalKeyboardKey along = vertical
+                ? LogicalKeyboardKey.arrowDown
+                : LogicalKeyboardKey.arrowRight;
+
+            expect(await tester.sendKeyEvent(across), traditional, reason: orientation.name);
+            expect(chosen, traditional ? 'team' : isNull, reason: orientation.name);
+
+            // The arrows along them move the choice in both.
+            chosen = null;
+
+            expect(await tester.sendKeyEvent(along), isTrue, reason: orientation.name);
+            expect(chosen, 'team', reason: orientation.name);
+          }
+        });
+      }
+
       testWidgets('move the choice within the set', (WidgetTester tester) async {
         String? chosen;
         await tester.pumpWidget(

@@ -28,6 +28,32 @@ bool plassIsArrow(LogicalKeyboardKey key) {
       key == LogicalKeyboardKey.arrowRight;
 }
 
+/// The axis [key] moves along, or `null` for a key that is not an arrow.
+Axis? plassArrowAxis(LogicalKeyboardKey key) {
+  if (key == LogicalKeyboardKey.arrowLeft || key == LogicalKeyboardKey.arrowRight) {
+    return Axis.horizontal;
+  }
+
+  if (key == LogicalKeyboardKey.arrowUp || key == LogicalKeyboardKey.arrowDown) {
+    return Axis.vertical;
+  }
+
+  return null;
+}
+
+/// Whether a control that runs along [axis], a row or a column of options or
+/// a rail, leaves an arrow along [arrow] to the focus system without changing
+/// anything.
+///
+/// Under [NavigationMode.directional] it does for the arrows across it: the
+/// arrows along it move its value, and the others are how a reader on a
+/// remote moves on to the control above or below it, or beside it, before
+/// the value has been driven to an end. Under [NavigationMode.traditional] a
+/// control answers all four, as it always has.
+bool plassArrowAcross(BuildContext context, {required Axis axis, required Axis? arrow}) {
+  return arrow != null && arrow != axis && plassArrowsMoveFocus(context);
+}
+
 /// What a control reports for an arrow key, given whether the key [moved]
 /// anything: the choice, a value, or the place being read.
 ///

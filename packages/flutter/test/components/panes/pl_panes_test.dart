@@ -362,6 +362,59 @@ void main() {
 
           expect(widthOf(tester, 'a'), closeTo(216, 0.001));
         });
+
+        testWidgets('moves with the arrows across the line\'s travel only in traditional '
+            'navigation, ${mode.name}', (WidgetTester tester) async {
+          for (final PlassOrientation orientation in PlassOrientation.values) {
+            final bool horizontal = orientation == PlassOrientation.horizontal;
+
+            await tester.pumpWidget(
+              host(
+                inNavigationMode(
+                  mode,
+                  PlPanes(
+                    key: ValueKey<PlassOrientation>(orientation),
+                    orientation: PlassResponsive<PlassOrientation>(orientation),
+                    panes: <PlPane>[pane('a'), pane('b')],
+                  ),
+                ),
+                width: 408,
+                height: 408,
+              ),
+            );
+            Focus.of(tester.element(handles().first)).requestFocus();
+            await tester.pump();
+
+            expect(holdsFocus(tester, find.byType(PlPanes)), isTrue);
+
+            double first() => horizontal ? widthOf(tester, 'a') : heightOf(tester, 'a');
+            final double start = first();
+
+            // Under directional navigation the arrows across the line's travel
+            // are how a remote moves on to the control beside it, so they go on
+            // to the focus system with the line where it was.
+            final bool traditional = mode == NavigationMode.traditional;
+            final LogicalKeyboardKey across = horizontal
+                ? LogicalKeyboardKey.arrowDown
+                : LogicalKeyboardKey.arrowRight;
+            final LogicalKeyboardKey along = horizontal
+                ? LogicalKeyboardKey.arrowRight
+                : LogicalKeyboardKey.arrowDown;
+
+            expect(await tester.sendKeyEvent(across), traditional, reason: orientation.name);
+            await tester.pump();
+
+            expect(first() > start, traditional, reason: orientation.name);
+
+            // The arrows along it move the line in both.
+            final double before = first();
+
+            expect(await tester.sendKeyEvent(along), isTrue, reason: orientation.name);
+            await tester.pump();
+
+            expect(first(), greaterThan(before), reason: orientation.name);
+          }
+        });
       }
     });
 

@@ -93,9 +93,12 @@ const double _keyboardStep = 16;
 
 /// Moves a handle by whole steps.
 class _NudgeIntent extends Intent {
-  const _NudgeIntent(this.steps);
+  const _NudgeIntent(this.steps, this.axis);
 
   final int steps;
+
+  /// The axis of the arrow key that asked for it.
+  final Axis axis;
 }
 
 /// A set of regions with draggable handles between them.
@@ -494,10 +497,10 @@ class _HandleState extends State<_Handle> {
         }
       },
       shortcuts: const <ShortcutActivator, Intent>{
-        SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1),
-        SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(1),
-        SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1),
-        SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(-1),
+        SingleActivator(LogicalKeyboardKey.arrowRight): _NudgeIntent(1, Axis.horizontal),
+        SingleActivator(LogicalKeyboardKey.arrowDown): _NudgeIntent(1, Axis.vertical),
+        SingleActivator(LogicalKeyboardKey.arrowLeft): _NudgeIntent(-1, Axis.horizontal),
+        SingleActivator(LogicalKeyboardKey.arrowUp): _NudgeIntent(-1, Axis.vertical),
       },
       actions: <Type, Action<Intent>>{
         // An arrow that moved nothing, with a pane at its limit, goes on to the
@@ -505,6 +508,16 @@ class _HandleState extends State<_Handle> {
         _NudgeIntent: PlassArrowAction<_NudgeIntent>(
           context,
           onArrow: (_NudgeIntent intent) {
+            // Under directional navigation only the arrows along the line's
+            // travel move it, left and right on a split side by side and up
+            // and down on one stacked; the others go on to the focus system,
+            // having moved nothing.
+            final Axis axis = widget.horizontal ? Axis.horizontal : Axis.vertical;
+
+            if (plassArrowAcross(context, axis: axis, arrow: intent.axis)) {
+              return false;
+            }
+
             final int steps = widget.horizontal && rtl ? -intent.steps : intent.steps;
             return widget.onNudge(steps);
           },

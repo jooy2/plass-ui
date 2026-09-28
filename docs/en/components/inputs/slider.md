@@ -221,6 +221,7 @@ The light going out, as everywhere else: the shape and the position stay, the sa
 - Announced as a slider, with the current value as its value, written in as many decimals as `step` has, or in the words `semanticValue` gives each thumb, such as "40%". Without a visible `label`, a fader in a bank of them, give it a `semanticLabel`.
 - A screen reader's adjust gesture, the swipe up and down in VoiceOver and TalkBack, moves the slider by one `step`. Each end of a range is a slider of its own.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move a thumb by one `step`, <kbd>PageUp</kbd> / <kbd>PageDown</kbd> by a tenth of the range, and <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends.
+- Under `NavigationMode.directional`, a remote's D-pad, only the arrows along the rail move a thumb, as they do on Material's slider; the others move the focus to the control beside it.
 - Each thumb is its own focus stop, which is what makes a range slider operable: <kbd>Tab</kbd> moves between the two ends.
 - The whole strip is a pointer target, not just the rail: the control box is several times the groove's thickness, so a press anywhere along it moves the nearest thumb.
 - The thumb grows a halo on hover and while dragging rather than growing itself. Nothing under the finger is ever scaled.

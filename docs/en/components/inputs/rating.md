@@ -204,6 +204,7 @@ Choosing the score that is already chosen clears it back to `0`, which is the on
 
 - Every choosable fraction is its own semantics node, marked as one of a mutually exclusive set and carrying the score it stands for. A screen reader can activate one directly.
 - The row is one focus stop and the arrow keys move the score by one `precision` step, which is what a radio group gives the React build for free. <kbd>Home</kbd> clears it and <kbd>End</kbd> takes it to the top. The arrows follow the writing direction, so they run the other way under RTL.
+- Under `NavigationMode.directional`, a remote's D-pad, only <kbd>←</kbd> and <kbd>→</kbd> move the score; <kbd>↑</kbd> and <kbd>↓</kbd> move the focus to the control above or below.
 - The shortcuts are declared on the row rather than inherited, so the widget behaves the same in a bare `WidgetsApp` or with no app widget above it at all.
 
 ## Differences from the React build

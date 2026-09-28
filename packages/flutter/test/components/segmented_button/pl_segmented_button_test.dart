@@ -561,8 +561,8 @@ void main() {
               addTearDown(before.dispose);
 
               // Under directional navigation the arrows are the only way out of
-              // the set, so the one past the end goes on to the stop above
-              // rather than round to the last segment.
+              // the set, so the one past the end does not go round to the last
+              // segment.
               await tester.pumpWidget(
                 host(
                   inNavigationMode(
@@ -590,7 +590,9 @@ void main() {
 
               expect(focusedSegment('List'), findsOneWidget);
 
-              await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+              // Along the row, since the arrows across it go on under
+              // directional navigation wherever the focus is.
+              await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
               await tester.pumpAndSettle();
 
               final String reason = 'read-only $readOnly';
@@ -599,12 +601,51 @@ void main() {
                 expect(focusedSegment('Calendar'), findsOneWidget, reason: reason);
                 expect(value, readOnly ? 'list' : 'calendar', reason: reason);
               } else {
-                expect(before.hasPrimaryFocus, isTrue, reason: reason);
+                expect(focusedSegment('Calendar'), findsNothing, reason: reason);
                 expect(value, 'list', reason: reason);
               }
             }
           },
         );
+      }
+
+      for (final NavigationMode mode in NavigationMode.values) {
+        testWidgets('move the choice with up and down only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          String? chosen;
+
+          await tester.pumpWidget(
+            host(
+              inNavigationMode(
+                mode,
+                PlSegmentedButton<String>(
+                  segments: views,
+                  value: 'list',
+                  autofocus: true,
+                  onChanged: (String next) => chosen = next,
+                ),
+              ),
+              width: 480,
+            ),
+          );
+          await tester.pump();
+
+          expect(focusedSegment('List'), findsOneWidget);
+
+          // The set is a row. Under directional navigation up and down are how
+          // a remote moves on to the control above or below, so they go on to
+          // the focus system with the choice where it was.
+          final bool traditional = mode == NavigationMode.traditional;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown), traditional);
+          expect(chosen, traditional ? 'board' : isNull);
+
+          // Left and right move it in both.
+          chosen = null;
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+          expect(chosen, 'board');
+        });
       }
 
       testWidgets('hand the key on in a disabled set under directional navigation', (

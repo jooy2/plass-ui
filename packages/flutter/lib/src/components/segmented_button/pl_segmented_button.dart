@@ -353,6 +353,12 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
       return KeyEventResult.ignored;
     }
 
+    // Under directional navigation up and down go on to the focus system: the
+    // set is a row, and only the arrows along it change the choice there.
+    if (plassArrowAcross(context, axis: Axis.horizontal, arrow: plassArrowAxis(event.logicalKey))) {
+      return KeyEventResult.ignored;
+    }
+
     // The horizontal arrows follow the writing direction, because a row of
     // options does: under RTL the next one is to the left. Up and down do not
     // turn round.

@@ -1018,7 +1018,19 @@ class _TrackState extends State<_Track> {
         // rail, goes on to the focus system under directional navigation.
         _NudgeIntent: PlassArrowAction<_NudgeIntent>(
           context,
-          onArrow: (_NudgeIntent intent) => widget.onNudge(intent.dx, intent.dy),
+          onArrow: (_NudgeIntent intent) {
+            // A rail lies across, so under directional navigation up and down
+            // go on to the focus system there, having moved nothing. The
+            // square has two axes and keeps all four.
+            final Axis arrow = intent.dx == 0 ? Axis.vertical : Axis.horizontal;
+
+            if (widget.onJump != null &&
+                plassArrowAcross(context, axis: Axis.horizontal, arrow: arrow)) {
+              return false;
+            }
+
+            return widget.onNudge(intent.dx, intent.dy);
+          },
         ),
         _JumpIntent: CallbackAction<_JumpIntent>(
           onInvoke: (_JumpIntent intent) {

@@ -253,6 +253,17 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
       return KeyEventResult.ignored;
     }
 
+    // Under directional navigation only the arrows along the options change
+    // the choice, up and down in a column and left and right in a row; the
+    // others go on to the focus system.
+    final Axis axis = widget.orientation == PlassOrientation.horizontal
+        ? Axis.horizontal
+        : Axis.vertical;
+
+    if (plassArrowAcross(context, axis: axis, arrow: plassArrowAxis(event.logicalKey))) {
+      return KeyEventResult.ignored;
+    }
+
     // The horizontal arrows follow the writing direction, because a row of
     // options does: under RTL the next one is to the left. Up and down do not
     // turn round.

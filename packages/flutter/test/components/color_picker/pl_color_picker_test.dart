@@ -624,6 +624,64 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('moves a rail with up and down only in traditional navigation, ${mode.name}', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+        final List<String> seen = <String>[];
+
+        await tester.pumpWidget(
+          host(
+            inNavigationMode(
+              mode,
+              PlColorPicker(
+                inline: true,
+                alpha: true,
+                value: '#3366cc80',
+                onValueChanged: seen.add,
+              ),
+            ),
+            width: 400,
+            height: 560,
+            overlay: true,
+          ),
+        );
+
+        Future<bool> press(String part, LogicalKeyboardKey key) async {
+          Focus.of(
+            tester.element(
+              find.descendant(of: find.bySemanticsLabel(part), matching: find.byType(Stack)).first,
+            ),
+          ).requestFocus();
+          await tester.pump();
+
+          final bool handled = await tester.sendKeyEvent(key);
+          await tester.pump();
+
+          return handled;
+        }
+
+        // Each rail lies across. Under directional navigation up and down are
+        // how a remote moves on to the control above or below, so they go on
+        // to the focus system with the value where it was. The square has two
+        // axes and keeps all four.
+        final bool traditional = mode == NavigationMode.traditional;
+
+        for (final String rail in <String>['Hue', 'Opacity']) {
+          seen.clear();
+
+          expect(await press(rail, LogicalKeyboardKey.arrowUp), traditional, reason: rail);
+          expect(await press(rail, LogicalKeyboardKey.arrowDown), traditional, reason: rail);
+          expect(seen, hasLength(traditional ? 2 : 0), reason: rail);
+
+          expect(await press(rail, LogicalKeyboardKey.arrowRight), isTrue, reason: rail);
+        }
+
+        expect(await press('Saturation and brightness', LogicalKeyboardKey.arrowUp), isTrue);
+
+        handle.dispose();
+      });
     }
 
     testWidgets('changes the colour when a swatch is pressed', (WidgetTester tester) async {

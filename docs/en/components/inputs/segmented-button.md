@@ -198,7 +198,7 @@ Both are sized against the label rather than against the row. An icon-only segme
 
 - Each segment is announced as one of a mutually exclusive set, taken or not. A segmented button **is** "exactly one of these". Built out of toggles it would announce four independent switches, three of which happen to be off.
 - **One** focus stop for the whole set: exactly one segment is in the tab order and the rest are wrapped in an `ExcludeFocus`. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move the choice, wrapping at both ends. In a `readOnly` set they move the focus and leave the choice where it is, and the set and its segments are announced as read-only rather than unavailable.
-- Under `NavigationMode.directional`, a remote's D-pad, the arrows are also the only way out of the set, so they stop at either end, and an arrow that moves nothing, past an end or in a set that cannot be changed, moves the focus to the next control that way.
+- Under `NavigationMode.directional`, a remote's D-pad, the arrows are also the only way out of the set, so they stop at either end, and an arrow that moves nothing, past an end or in a set that cannot be changed, moves the focus to the next control that way. Only <kbd>←</kbd> and <kbd>→</kbd> change the choice there; <kbd>↑</kbd> and <kbd>↓</kbd> move the focus to the control above or below at once.
 - A segment's focus ring turns **inward**, because a ring drawn outside one inside a groove would be painted over its neighbours.
 - Give the set a `semanticLabel`. It has no visible label of its own.
 

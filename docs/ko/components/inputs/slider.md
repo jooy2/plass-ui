@@ -221,6 +221,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 - 슬라이더로 알려지고, 현재 값이 `step`의 소수 자릿수에 맞춰, 또는 `semanticValue`가 thumb마다 준 말("40%" 같은)로 함께 알려집니다. 보이는 `label`이 없다면(여러 개가 늘어선 페이더처럼) `semanticLabel`을 주세요.
 - 스크린 리더의 조절 동작(VoiceOver와 TalkBack에서 위아래로 쓸기)은 슬라이더를 `step` 하나만큼 움직입니다. 범위 슬라이더는 양 끝이 각각 슬라이더입니다.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>가 `step` 하나만큼, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>이 범위의 10분의 1만큼 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>가 양 끝으로 갑니다.
+- 리모컨 D-pad인 `NavigationMode.directional`에서는 Material의 슬라이더처럼 레일 방향의 화살표만 thumb을 옮기고, 나머지 화살표는 옆 컨트롤로 포커스를 옮깁니다.
 - thumb마다 자기 focus stop이 있습니다. range 슬라이더를 조작할 수 있게 하는 것이 이것입니다. <kbd>Tab</kbd>으로 양 끝 사이를 옮깁니다.
 - 포인터가 닿는 곳은 레일이 아니라 띠 전체입니다. 컨트롤 박스가 홈 두께의 몇 배라서, 띠 어디를 눌러도 가장 가까운 thumb이 그리로 옵니다.
 - thumb은 hover와 드래그 중에 자기가 커지는 대신 후광을 두릅니다. 손가락 아래의 것은 절대 크기가 변하지 않습니다.

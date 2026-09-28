@@ -358,6 +358,15 @@ class _PlSliderState extends State<PlSlider> {
       return KeyEventResult.ignored;
     }
 
+    // Under directional navigation only the arrows along the rail move the
+    // thumb, as Material's slider binds them there; the others go on to the
+    // focus system.
+    final Axis axis = _vertical ? Axis.vertical : Axis.horizontal;
+
+    if (plassArrowAcross(context, axis: axis, arrow: plassArrowAxis(event.logicalKey))) {
+      return KeyEventResult.ignored;
+    }
+
     final range = widget.max - widget.min;
     double? next;
 

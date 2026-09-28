@@ -365,6 +365,33 @@ void main() {
           expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), isTrue);
           expect(tester.state<_HarnessState>(find.byType(_Harness)).value, 4);
         });
+
+        testWidgets('moves with up and down only in traditional navigation, ${mode.name}', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(host(inNavigationMode(mode, const _Harness(value: 3))));
+          await tester.pump();
+
+          expect(holdsFocus(tester, find.byType(PlRating)), isTrue);
+
+          // The stars are a row. Under directional navigation up and down are
+          // how a remote moves on to the control above or below, so they go on
+          // to the focus system with the score where it was.
+          final bool traditional = mode == NavigationMode.traditional;
+          final _HarnessState state = tester.state<_HarnessState>(find.byType(_Harness));
+
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp), traditional);
+          await tester.pump();
+          expect(state.value, traditional ? 4 : 3);
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown), traditional);
+          await tester.pump();
+          expect(state.value, 3);
+
+          // Left and right move it in both.
+          expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight), isTrue);
+          await tester.pump();
+          expect(state.value, 4);
+        });
       }
     });
 

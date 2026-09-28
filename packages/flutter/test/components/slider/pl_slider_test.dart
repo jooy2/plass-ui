@@ -299,6 +299,55 @@ void main() {
           expect(await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft), isTrue);
           expect(await tester.sendKeyEvent(LogicalKeyboardKey.end), isTrue);
         });
+
+        testWidgets('moves with the arrows across the rail only in traditional navigation, '
+            '${mode.name}', (WidgetTester tester) async {
+          for (final PlassOrientation orientation in PlassOrientation.values) {
+            final bool vertical = orientation == PlassOrientation.vertical;
+            double? reported;
+
+            await tester.pumpWidget(
+              host(
+                inNavigationMode(
+                  mode,
+                  PlSlider(
+                    key: ValueKey<PlassOrientation>(orientation),
+                    values: const <double>[50],
+                    orientation: orientation,
+                    autofocus: true,
+                    onChanged: (List<double> next) => reported = next.first,
+                  ),
+                ),
+                width: 300,
+                height: 300,
+              ),
+            );
+            await tester.pump();
+
+            expect(holdsFocus(tester, find.byType(PlSlider)), isTrue);
+
+            // Under directional navigation the arrows across the rail are how
+            // a remote moves on to the control beside it, so they go on to the
+            // focus system with the thumb where it was, as Material's slider
+            // leaves them.
+            final bool traditional = mode == NavigationMode.traditional;
+            final LogicalKeyboardKey across = vertical
+                ? LogicalKeyboardKey.arrowRight
+                : LogicalKeyboardKey.arrowUp;
+            final LogicalKeyboardKey along = vertical
+                ? LogicalKeyboardKey.arrowUp
+                : LogicalKeyboardKey.arrowRight;
+
+            expect(await tester.sendKeyEvent(across), traditional, reason: orientation.name);
+            expect(reported, traditional ? 51 : isNull, reason: orientation.name);
+
+            // The arrows along it move the thumb in both.
+            reported = null;
+
+            expect(await tester.sendKeyEvent(along), isTrue, reason: orientation.name);
+            expect(reported, isNotNull, reason: orientation.name);
+          }
+        });
       }
     });
 
