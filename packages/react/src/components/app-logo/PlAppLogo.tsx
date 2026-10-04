@@ -30,24 +30,12 @@ import type { PlassColor, PlassSize, PlassVariant } from '../../types.js';
  */
 export type PlAppLogoShape = 'bare' | 'plate' | 'circle';
 
-export interface PlAppLogoProps extends Omit<React.ComponentPropsWithoutRef<'span'>, 'color'> {
+interface PlAppLogoBaseProps extends Omit<React.ComponentPropsWithoutRef<'span'>, 'color'> {
   /**
    * The mark. An `<img>`, an inline `<svg>`, a `PlIcon` — whatever the product's
-   * artwork actually is.
+   * artwork actually is. It says what it says itself: `alt` does not reach it.
    */
   children?: React.ReactNode;
-  /** A picture to draw as the mark, instead of `children`. */
-  src?: string;
-  /**
-   * What the picture says, for a reader who cannot see it.
-   *
-   * Leave it empty when `name` is set: the wordmark beside the mark already
-   * says the product's name, and a picture that repeats it is a screen reader
-   * saying it twice.
-   */
-  alt?: string;
-  /** The product's name, set beside the mark. */
-  name?: React.ReactNode;
   /** A line under the name — an environment, a tenant, a plan. */
   description?: React.ReactNode;
   /** How the artwork is framed. @default 'bare' */
@@ -67,6 +55,57 @@ export interface PlAppLogoProps extends Omit<React.ComponentPropsWithoutRef<'spa
    */
   render?: useRender.RenderProp;
 }
+
+/** A name that is there: anything React draws, short of nothing at all. */
+type PlAppLogoName = Exclude<React.ReactNode, null | undefined | boolean>;
+
+/** A logo with its name beside it, which makes the picture decorative. */
+interface PlAppLogoNamedProps extends PlAppLogoBaseProps {
+  /** The product's name, set beside the mark. */
+  name: PlAppLogoName;
+  /** A picture to draw as the mark, instead of `children`. */
+  src?: string;
+  /**
+   * What the picture says, for a reader who cannot see it. Leave it out: the
+   * wordmark beside the mark already says the product's name, and a picture
+   * that repeats it is a screen reader saying it twice.
+   * @default ''
+   */
+  alt?: string;
+}
+
+/** A picture with no name beside it, which has to say what it is. */
+interface PlAppLogoPictureProps extends PlAppLogoBaseProps {
+  /** The product's name, set beside the mark. */
+  name?: React.ReactNode;
+  /** A picture to draw as the mark, instead of `children`. */
+  src: string;
+  /**
+   * What the picture says, for a reader who cannot see it. Required here: a
+   * logo that is the link home with nothing else in it is named by this alone.
+   * `alt=""` says the picture is decorative.
+   */
+  alt: string;
+}
+
+/** Artwork drawn as `children`, which speaks for itself. */
+interface PlAppLogoArtworkProps extends PlAppLogoBaseProps {
+  /** The product's name, set beside the mark. */
+  name?: React.ReactNode;
+  src?: undefined;
+  /** Only read with `src`. */
+  alt?: string;
+}
+
+/**
+ * The props of a `PlAppLogo`.
+ *
+ * A union, so that a picture with no name beside it cannot leave out `alt`. A
+ * `src` with neither is a mark nothing describes, and as the link home it is a
+ * link with no name. A call that passes a `name` is the same as before, and a
+ * decorative picture says so with `alt=""`.
+ */
+export type PlAppLogoProps = PlAppLogoNamedProps | PlAppLogoPictureProps | PlAppLogoArtworkProps;
 
 /**
  * The mark's height. `md` is 32px, which sits inside a `md` header's 64px floor
@@ -125,7 +164,8 @@ const gapClasses: Record<PlassSize, string> = {
  * **With a `name`, the mark is decorative.** The wordmark beside it already
  * says what the product is called, and a picture that says it again is a screen
  * reader reading the name twice. That is why `alt` is a prop rather than
- * something derived from `name`.
+ * something derived from `name`, and why the type asks for it only when a `src`
+ * has no `name` beside it.
  *
  * A logo is nearly always the way back to the front page. `render={<a href="/"
  * />}` makes it one without changing anything about how it is drawn.
@@ -135,6 +175,8 @@ export const PlAppLogo = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlApp
     {
       children,
       src,
+      // The type asks for `alt` where it matters. This is what a JavaScript
+      // caller who left it out still gets.
       alt = '',
       name,
       description,

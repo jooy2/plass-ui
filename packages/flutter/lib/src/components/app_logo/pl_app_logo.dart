@@ -85,9 +85,12 @@ const double _inset = 0.7;
 ///
 /// **With a [name], the mark is decorative.** The wordmark beside it already
 /// says what the product is called, and artwork that says it again is a screen
-/// reader reading the name twice.
+/// reader reading the name twice. Without one, [semanticLabel] is required.
 class PlAppLogo extends StatelessWidget {
   /// Creates a logo.
+  ///
+  /// Without a [name], [semanticLabel] is required, and an empty one says the
+  /// mark is decorative.
   const PlAppLogo({
     required this.child,
     this.semanticLabel,
@@ -99,7 +102,10 @@ class PlAppLogo extends StatelessWidget {
     this.size,
     this.color,
     super.key,
-  });
+  }) : assert(
+         name != null || semanticLabel != null,
+         'A PlAppLogo with no name needs a semanticLabel, or an empty one for a decorative mark',
+       );
 
   /// The mark. Whatever the product's artwork actually is.
   final Widget child;
@@ -108,6 +114,11 @@ class PlAppLogo extends StatelessWidget {
   ///
   /// Leave it out when [name] is set: the wordmark beside the mark already says
   /// the product's name.
+  ///
+  /// Required when there is no [name]. A logo that is the way home with nothing
+  /// else in it is named by this alone, and an image that draws the mark often
+  /// says nothing about itself. An empty string is a real answer: it says the
+  /// mark is decorative, and takes it off the semantics tree.
   ///
   /// It takes the place of anything the [child] says itself, such as a letter
   /// drawn as the mark or an image's own label, which is not read after it.
@@ -204,8 +215,9 @@ class PlAppLogo extends StatelessWidget {
     // Decorative once the name is written out beside it, so the product is
     // announced once rather than twice. A `semanticLabel` is what the picture
     // says, as an `alt` is on the web, so it takes the place of whatever the
-    // artwork would say about itself rather than being read ahead of it.
-    mark = name != null
+    // artwork would say about itself rather than being read ahead of it, and
+    // an empty one is `alt=""`: decorative.
+    mark = name != null || semanticLabel == ''
         ? ExcludeSemantics(child: mark)
         : Semantics(
             label: semanticLabel,

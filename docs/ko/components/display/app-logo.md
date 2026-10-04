@@ -135,7 +135,19 @@ PlAppLogo(semanticLabel: 'Acme', child: Image.asset('assets/logo.png'));
 ## Accessibility
 
 - **`name`이 있으면 마크는 장식**이 되어 접근성 트리에서 빠집니다. 옆의 워드마크가 이미 제품 이름을 나타내고 있고, 그림이 그것을 또 말하면 스크린 리더가 이름을 두 번 읽습니다.
-- `name`이 없으면 마크가 이름을 대신합니다. React에서는 `alt`, Flutter에서는 `semanticLabel`입니다. 빈 `alt`는 진짜 답이고 기본값입니다. 그림이 글에 없는 것을 나르지 않는다는 뜻입니다.
+- `name`이 없으면 마크가 이름을 대신합니다. React에서는 `alt`, Flutter에서는 `semanticLabel`입니다. 빈 값도 진짜 답입니다. 그림이 글에 없는 것을 나르지 않는다는 뜻이므로, 로고가 홈으로 가는 길이 아닐 때만 비워 두십시오. 장식 그림 하나만 든 링크에는 이름이 없습니다.
+
+::: fw react
+
+- `name` 없이 `src`를 주면 `alt`가 필수이고, 빠뜨린 로고는 TypeScript가 오류로 알립니다. 장식 그림이면 `alt=""`라고 쓰십시오. `children`으로 넘긴 아트워크에는 요구하지 않습니다. `alt`는 `src`에만 닿기 때문입니다. 그런 아트워크에는 `<svg>`의 `role="img"`와 `aria-label`처럼 자기 이름을 주십시오. `alt`를 빼먹은 JavaScript 호출에는 여전히 `alt=""`가 들어갑니다.
+
+:::
+
+::: fw flutter
+
+- `name`이 없는 로고는 `semanticLabel`이 필수이고, 빠뜨리면 디버그 중에 assert가 실패합니다. 빈 `semanticLabel`은 마크를 semantics 트리에서 뺍니다.
+
+:::
 
 ::: fw react
 

@@ -6,7 +6,7 @@ import { PlAppLogo } from 'plass-ui';
  */
 function Wordmark() {
   return (
-    <svg viewBox="0 0 108 32" aria-hidden="true">
+    <svg viewBox="0 0 108 32" role="img" aria-label="Acme Co">
       <rect width="108" height="32" rx="6" fill="var(--plass-info-soft)" />
       <text
         x="54"

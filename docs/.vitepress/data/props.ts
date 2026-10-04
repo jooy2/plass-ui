@@ -1820,8 +1820,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'string',
       default: "''",
       description: {
-        ko: '그림이 말하는 것. name이 있으면 비워 두십시오 — 옆의 워드마크가 이미 말합니다',
-        en: 'What the picture says. Leave it empty when name is set: the wordmark already says it'
+        ko: '그림이 말하는 것. src가 있고 name이 없으면 필수이고, alt=""는 장식 그림이라는 뜻입니다. name이 있으면 빼십시오 — 옆의 워드마크가 이미 말합니다',
+        en: 'What the picture says. Required when src is set and name is not, and alt="" says the picture is decorative. Leave it out when name is set: the wordmark already says it'
       }
     },
     {

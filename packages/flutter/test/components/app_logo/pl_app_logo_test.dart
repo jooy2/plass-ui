@@ -1,3 +1,4 @@
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -80,7 +81,7 @@ void main() {
   group('PlAppLogo', () {
     group('the framing', () {
       testWidgets('draws the artwork as it was given', (WidgetTester tester) async {
-        await _pump(tester, const PlAppLogo(child: _Mark()));
+        await _pump(tester, const PlAppLogo(semanticLabel: 'Acme', child: _Mark()));
 
         // A height and no width: cropping a wordmark to a square is the failure
         // this widget is here to avoid.
@@ -91,7 +92,10 @@ void main() {
       });
 
       testWidgets('puts it on a square tile when it was asked to', (WidgetTester tester) async {
-        await _pump(tester, const PlAppLogo(shape: PlAppLogoShape.plate, child: _Mark()));
+        await _pump(
+          tester,
+          const PlAppLogo(semanticLabel: 'Acme', shape: PlAppLogoShape.plate, child: _Mark()),
+        );
 
         expect(tester.getSize(find.byType(PlAppLogo)), const Size(32, 32));
       });
@@ -99,14 +103,20 @@ void main() {
       testWidgets('insets the artwork inside a tile rather than filling it', (
         WidgetTester tester,
       ) async {
-        await _pump(tester, const PlAppLogo(shape: PlAppLogoShape.plate, child: _Mark()));
+        await _pump(
+          tester,
+          const PlAppLogo(semanticLabel: 'Acme', shape: PlAppLogoShape.plate, child: _Mark()),
+        );
 
         // 70% of 32.
         expect(tester.getSize(find.byType(FittedBox)).width, closeTo(22.4, 0.1));
       });
 
       testWidgets('rounds the tile all the way for a disc', (WidgetTester tester) async {
-        await _pump(tester, const PlAppLogo(shape: PlAppLogoShape.circle, child: _Mark()));
+        await _pump(
+          tester,
+          const PlAppLogo(semanticLabel: 'Acme', shape: PlAppLogoShape.circle, child: _Mark()),
+        );
 
         final BoxDecoration decoration = decorationWhere(
           tester,
@@ -120,7 +130,12 @@ void main() {
       testWidgets('takes the family on the tile', (WidgetTester tester) async {
         await _pump(
           tester,
-          const PlAppLogo(shape: PlAppLogoShape.plate, color: PlassColor.success, child: _Mark()),
+          const PlAppLogo(
+            semanticLabel: 'Acme',
+            shape: PlAppLogoShape.plate,
+            color: PlassColor.success,
+            child: _Mark(),
+          ),
         );
 
         final BoxDecoration decoration = decorationWhere(
@@ -142,6 +157,7 @@ void main() {
           await _pump(
             tester,
             PlAppLogo(
+              semanticLabel: 'Acme',
               key: ValueKey<PlassVariant>(variant),
               shape: PlAppLogoShape.plate,
               variant: variant,
@@ -171,6 +187,7 @@ void main() {
           await tester.pumpWidget(
             host(
               PlAppLogo(
+                semanticLabel: 'Acme',
                 key: ValueKey<Brightness>(brightness),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -204,7 +221,7 @@ void main() {
       });
 
       testWidgets('draws none of that when it was given none', (WidgetTester tester) async {
-        await _pump(tester, const PlAppLogo(child: _Mark()));
+        await _pump(tester, const PlAppLogo(semanticLabel: 'Acme', child: _Mark()));
 
         expect(find.byType(Text), findsNothing);
       });
@@ -251,10 +268,51 @@ void main() {
         handle.dispose();
       });
 
+      test('asks for a semanticLabel when there is no name', () {
+        // A mark with neither is described by nothing, and as the way home it
+        // is a button with no name.
+        expect(() => PlAppLogo(child: const _Mark()), throwsAssertionError);
+        expect(() => PlAppLogo(onPressed: () {}, child: const _Mark()), throwsAssertionError);
+
+        // A name, a label, or an empty label each answer it.
+        expect(PlAppLogo(name: const Text('Acme'), child: const _Mark()), isA<PlAppLogo>());
+        expect(PlAppLogo(semanticLabel: 'Acme', child: const _Mark()), isA<PlAppLogo>());
+        expect(PlAppLogo(semanticLabel: '', child: const _Mark()), isA<PlAppLogo>());
+      });
+
+      testWidgets('takes a mark with an empty semanticLabel off the tree', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(tester, const PlAppLogo(semanticLabel: '', child: Text('A')));
+
+        // An empty label is `alt=""`: decorative, so neither the letter the
+        // mark is drawn with nor a picture with no name is left behind.
+        bool image = false;
+
+        bool visit(SemanticsNode node) {
+          image = image || node.getSemanticsData().flagsCollection.isImage;
+          node.visitChildren(visit);
+
+          return true;
+        }
+
+        visit(tester.binding.renderViews.first.debugSemantics!);
+
+        expect(semanticsLabels(tester), isEmpty);
+        expect(image, isFalse);
+
+        handle.dispose();
+      });
+
       testWidgets('becomes a button when it is given something to do', (WidgetTester tester) async {
         int pressed = 0;
 
-        await _pump(tester, PlAppLogo(onPressed: () => pressed += 1, child: const _Mark()));
+        await _pump(
+          tester,
+          PlAppLogo(semanticLabel: 'Acme', onPressed: () => pressed += 1, child: const _Mark()),
+        );
 
         await tester.tap(find.byType(PlAppLogo));
 
@@ -348,6 +406,7 @@ void main() {
             afterFocusStop(
               before,
               PlAppLogo(
+                semanticLabel: 'Acme',
                 shape: PlAppLogoShape.plate,
                 color: PlassColor.success,
                 onPressed: () {},

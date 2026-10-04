@@ -93,12 +93,45 @@ describe('PlAppLogo', () => {
       expect(frame().querySelector('img')!.alt).toBe('Acme');
     });
 
-    it('marks a picture decorative unless it was given words', async () => {
-      await render(<PlAppLogo className="logo-under-test" src={MARK} />);
+    it('marks a picture decorative when it is told to', async () => {
+      await render(<PlAppLogo className="logo-under-test" src={MARK} alt="" />);
 
       // An empty alt is a real answer: it says the picture carries nothing the
       // text does not.
+      expect(frame().querySelector('img')!.hasAttribute('alt')).toBe(true);
       expect(frame().querySelector('img')!.alt).toBe('');
+    });
+
+    it('still marks a picture decorative for a caller the type did not reach', async () => {
+      // A JavaScript caller gets no type error, and still no `<img>` without
+      // an `alt`, which a screen reader would read out as the file's name.
+      // @ts-expect-error `alt` is required when `src` is set and `name` is not.
+      await render(<PlAppLogo className="logo-under-test" src={MARK} />);
+
+      expect(frame().querySelector('img')!.alt).toBe('');
+    });
+
+    it('asks a picture with no name beside it to say what it is', () => {
+      // Checked by `npm run typecheck`, not by this run: each line below the
+      // first four is a logo that would draw a mark nothing describes.
+      const accepted = [
+        <PlAppLogo key="named" src={MARK} name="Acme" />,
+        <PlAppLogo key="described" src={MARK} alt="Acme" />,
+        <PlAppLogo key="decorative" src={MARK} alt="" />,
+        <PlAppLogo key="artwork">
+          <svg role="img" aria-label="Acme" />
+        </PlAppLogo>
+      ];
+      const name = undefined as string | undefined;
+      const refused = [
+        // @ts-expect-error A picture with no name is the link home with no name.
+        <PlAppLogo key="nameless" src={MARK} render={<a href="/" />} />,
+        // @ts-expect-error A name that may be missing does not stand in for one.
+        <PlAppLogo key="maybe" src={MARK} name={name} />
+      ];
+
+      expect(accepted).toHaveLength(4);
+      expect(refused).toHaveLength(2);
     });
 
     it('becomes a link when it is handed one', async () => {

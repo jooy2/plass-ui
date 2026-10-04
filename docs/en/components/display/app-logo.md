@@ -135,7 +135,19 @@ PlAppLogo(semanticLabel: 'Acme', child: Image.asset('assets/logo.png'));
 ## Accessibility
 
 - **With a `name`, the mark is decorative** and is taken off the accessibility tree. The wordmark beside it already says what the product is called, and a picture that says it again is a screen reader reading the name twice.
-- Without a `name`, the mark speaks: `alt` in React, `semanticLabel` in Flutter. An empty `alt` is a real answer and the default. It says the picture carries nothing the text does not.
+- Without a `name`, the mark speaks: `alt` in React, `semanticLabel` in Flutter. An empty one is a real answer. It says the picture carries nothing the text does not, so leave it empty only when the logo is not the way home: a link with nothing but a decorative picture in it has no name.
+
+::: fw react
+
+- A `src` with no `name` requires `alt`, and TypeScript reports a logo that leaves it out. Write `alt=""` for a decorative picture. Artwork passed as `children` is not asked for one, because `alt` only reaches `src`, so give that artwork its own name, such as `role="img"` and `aria-label` on an `<svg>`. A JavaScript caller who leaves `alt` out still gets `alt=""`.
+
+:::
+
+::: fw flutter
+
+- A logo with no `name` requires `semanticLabel`, and an assert fails while debugging when it is missing. An empty `semanticLabel` takes the mark off the semantics tree.
+
+:::
 
 ::: fw react
 

@@ -52,7 +52,7 @@ List<Widget> everything() => <Widget>[
   const PlAnimateSplit(text: 'x'),
   const PlAnimateTyping('x'),
   const PlAnimateZoom(child: _c),
-  const PlAppLogo(child: _c),
+  const PlAppLogo(semanticLabel: 'x', child: _c),
   const PlAreaChart(series: _s),
   const PlAspectRatio(child: _c),
   const PlAvatar(),

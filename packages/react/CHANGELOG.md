@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **A `PlAppLogo` with `src` and no `name` needs `alt`.** Such a logo drew its picture with an empty `alt`, so rendered as the link home it was a link with no name. `PlAppLogoProps` is now a union, and TypeScript reports a `src` with neither: write what the picture says, or `alt=""` for a decorative picture. A call with a `name` is unchanged, artwork passed as `children` is not asked for `alt`, and a JavaScript caller still gets `alt=""`. A type that extended `PlAppLogoProps` with `interface … extends` becomes `type … = PlAppLogoProps & {…}`.
+
 ### Added
 
 - **Every chart takes `initialWidth`, the width it is drawn at until its box has been measured.** A chart is laid out from the width its box is measured at, so the HTML a server sent held an empty box of the right height, and the plot, the axes and a `PlGaugeChart`'s reading arrived only once the script ran. Given `initialWidth`, the server and the render that hydrates its HTML draw the whole chart at that width, a drawing wider than its box is cut at the box's edge, and the measured width takes over as soon as the page has hydrated. A chart without it renders as before.

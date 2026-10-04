@@ -804,9 +804,11 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAppLogo', 'alt', {
       name: 'semanticLabel',
       type: 'String?',
+      // Not React's `''`: there is no default to fall back on here.
+      default: undefined,
       description: {
-        ko: '마크가 말하는 것. name이 있으면 빼십시오 — 옆의 워드마크가 이미 말합니다',
-        en: 'What the mark says. Leave it out when name is set: the wordmark already says it'
+        ko: "마크가 말하는 것. name이 없으면 필수이고(assert), ''는 장식 마크라는 뜻입니다. name이 있으면 빼십시오 — 옆의 워드마크가 이미 말합니다",
+        en: "What the mark says. Required when name is null (an assert), and '' says the mark is decorative. Leave it out when name is set: the wordmark already says it"
       }
     }),
     from('PlAppLogo', 'name · description', { type: 'Widget?' }),
