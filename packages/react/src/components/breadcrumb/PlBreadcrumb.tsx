@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRender } from '@base-ui/react/use-render';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { ArrowRightIcon, ChevronIcon, EllipsisIcon } from '../../internal/icons.js';
@@ -140,6 +141,16 @@ export interface PlBreadcrumbItemProps extends Omit<
   current?: boolean;
   /** Unavailable. Stops answering, keeps its place in the trail. */
   disabled?: boolean;
+  /**
+   * Renders the step's link as something other than an `<a>`: the `Link` a
+   * router brings. Base UI's own escape hatch, as on `PlTextLink`.
+   *
+   * Giving one makes the step a link, as an `href` does, and an `href` on the
+   * element wins over the step's own, both on the anchor and in
+   * `structuredData`. The current step and a disabled one are not links, so
+   * neither uses it.
+   */
+  render?: useRender.RenderProp;
   /** The step's label. */
   children?: React.ReactNode;
 }
@@ -221,6 +232,18 @@ function absoluteHref(href: string, baseUrl?: string): string {
 }
 
 /**
+ * Where a step goes: the `href` on the element its `render` brings, which is
+ * where a router's `Link` carries it and what the anchor ends up with, or else
+ * the step's own. Only a string counts; a router that takes an object for its
+ * address has resolved it by the time it reaches the anchor, and this has not.
+ */
+function stepHref({ href, render }: PlBreadcrumbItemProps): string | undefined {
+  const own = React.isValidElement(render) ? (render.props as { href?: unknown }).href : undefined;
+
+  return typeof own === 'string' && own ? own : href;
+}
+
+/**
  * The trail as `schema.org`'s `BreadcrumbList`.
  *
  * `item` is omitted where a step has no `href`, which is the last step's usual
@@ -232,7 +255,8 @@ function breadcrumbListData(
   baseUrl?: string
 ): string {
   const itemListElement = steps.map((step, index) => {
-    const { href, children } = step.props;
+    const href = stepHref(step.props);
+    const { children } = step.props;
 
     return {
       '@type': 'ListItem',
@@ -465,20 +489,32 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
  * One step of the trail.
  *
  * It renders three different things and the caller picks by what they pass: an
- * `<a>` with an `href`, a `<button>` with an `onClick`, and a plain `<span>` with
- * neither — which is what the last step is, because the page you are already on
- * is not somewhere to go.
+ * `<a>` with an `href` or a `render`, a `<button>` with an `onClick`, and a
+ * plain `<span>` with neither — which is what the last step is, because the
+ * page you are already on is not somewhere to go.
  */
 export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
   HTMLLIElement,
   PlBreadcrumbItemProps
 >(function PlBreadcrumbItem(
-  { href, onClick, startIcon, endIcon, current, disabled = false, className, children, ...props },
+  {
+    href,
+    onClick,
+    startIcon,
+    endIcon,
+    current,
+    disabled = false,
+    render,
+    className,
+    children,
+    ...props
+  },
   ref
 ) {
   const { size, last } = React.useContext(BreadcrumbContext);
   const isCurrent = current ?? last;
-  const interactive = Boolean(href || onClick) && !isCurrent && !disabled;
+  const linked = Boolean(href || render);
+  const interactive = (linked || Boolean(onClick)) && !isCurrent && !disabled;
 
   const stepClassNames = cx(
     'inline-flex min-w-0 items-center px-1',
@@ -512,12 +548,18 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
     </>
   );
 
+  // Called on every render and switched off where the step is not a link, so a
+  // step that becomes the current one keeps the same hooks.
+  const link = useRender({
+    render: render ?? <a />,
+    enabled: interactive && linked,
+    props: { href, className: stepClassNames, onClick, children: body }
+  });
+
   return (
     <li ref={ref} className={cx('flex min-w-0 items-center', className)} {...props}>
-      {interactive && href ? (
-        <a href={href} className={stepClassNames} onClick={onClick}>
-          {body}
-        </a>
+      {link ? (
+        link
       ) : interactive ? (
         <button type="button" className={stepClassNames} onClick={onClick}>
           {body}

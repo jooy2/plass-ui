@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { NavigationMenu as BaseUINavigationMenu } from '@base-ui/react/navigation-menu';
+import type { useRender } from '@base-ui/react/use-render';
 import { ChevronIcon } from '../../internal/icons.js';
 import { safeRel } from '../../internal/link.js';
 import {
@@ -124,6 +125,14 @@ export interface PlNavigationMenuLinkProps extends Omit<
   description?: React.ReactNode;
   /** A glyph before the title. */
   startIcon?: React.ReactNode;
+  /**
+   * Renders the link as something other than an `<a>`: the `Link` a router
+   * brings. Base UI's own escape hatch, handed to its link part.
+   *
+   * An `href` on the element wins over the one above, as on `PlTextLink`, and
+   * the arrow keys that move between the links stay Base UI's.
+   */
+  render?: useRender.RenderProp<BaseUINavigationMenu.Link.State>;
 }
 
 /**
@@ -241,7 +250,7 @@ export const PlNavigationMenuLink = /* @__PURE__ */ React.forwardRef<
   HTMLAnchorElement,
   PlNavigationMenuLinkProps
 >(function PlNavigationMenuLink(
-  { href, title, description, startIcon, className, children, target, rel, ...props },
+  { href, title, description, startIcon, className, children, target, rel, render, ...props },
   ref
 ) {
   const { size, density } = React.useContext(NavigationMenuContext);
@@ -249,6 +258,7 @@ export const PlNavigationMenuLink = /* @__PURE__ */ React.forwardRef<
   return (
     <BaseUINavigationMenu.Link
       ref={ref}
+      render={render}
       href={href}
       target={target}
       rel={safeRel(target, rel)}

@@ -203,6 +203,23 @@ A row has a padding track of its own rather than the sheet one. A `PlList` row s
 
 ::: fw react
 
+### render
+
+Takes the router's own `Link` in place of a link row's `<a>`. The element is handed to Base UI's link row, so the `menuitem` role, the highlight and the arrow keys are unchanged. A `render` on its own makes the row a link, as an `href` does, and an `href` on the element wins over the row's own. A disabled row is not a link, so it leaves `render` out.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlMenu trigger={<PlButton>Help</PlButton>}>
+  <PlMenuItem render={<NextLink href="/docs" />}>Documentation</PlMenuItem>
+  <PlMenuItem render={<NextLink href="/changelog" />}>Changelog</PlMenuItem>
+</PlMenu>;
+```
+
+:::
+
+::: fw react
+
 ### PlContextMenu
 
 The same menu, opened by a right-click or a long press instead of by a button.
@@ -222,7 +239,7 @@ It takes the rows as `content` and the area as `children`, which is `PlTooltip`'
 ::: fw react
 
 - Built on Base UI's Menu, which owns everything that makes a menu a menu rather than a floating list of `<div>`s: the `menu` and `menuitem` roles, roving focus with the arrow keys, <kbd>Home</kbd> and <kbd>End</kbd>, typeahead, <kbd>Esc</kbd>, closing on an outside click, and restoring focus to the trigger.
-- A row with an `href` is a real `<a>`. A menu of links that are not links cannot be opened in a new tab, cannot be copied, and tells a screen reader the wrong thing about every one of them.
+- A row with an `href`, or a router's `Link` in `render`, is a real `<a>`. A menu of links that are not links cannot be opened in a new tab, cannot be copied, and tells a screen reader the wrong thing about every one of them.
 - Rows carry no focus ring. Base UI moves focus onto the highlighted row itself, so a ring would draw a rectangle inside the popup on every arrow press; the tint is the focus indicator, which is what makes it the same one the mouse gets.
 - `data-highlighted` rather than `:hover` is what lights a row, so the keyboard and the pointer light the same one.
 - A disabled row stays listed and stays findable by typeahead. A row that vanishes when it is unavailable is a menu that changes length.
@@ -248,7 +265,7 @@ It takes the rows as `content` and the area as `children`, which is `PlTooltip`'
 | `children` on a row | `label`, a `String` | It is drawn, announced _and_ matched by typeahead. Only a string can be all three. |
 | `PlMenuRadioGroup` | `PlMenuRadioItem.selected` | Every input in this package is controlled; a group holding a value would be the one that is not. |
 | `trigger`, an element | `trigger`, a builder | It is handed the callback that opens the menu and whether it is open, which is what a trigger that stays lit needs. |
-| `href` on a row | — | There is no link element and nothing crawls a Flutter app. `onPressed` is where a router is called. |
+| `href` and `render` on a row | — | There is no link element and nothing crawls a Flutter app. `onPressed` is where a router is called. |
 | `modal` | — | The popup is anchored rather than laid over the screen; the press that lands outside it closes it. |
 | `PlContextMenu` | — | There is no right-click gesture to build on that means the same thing on every platform this package runs on. A long press that opens a menu is `onLongPress` and a `PlMenu` the app opens itself. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

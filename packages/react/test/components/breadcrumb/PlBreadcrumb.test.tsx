@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlBreadcrumb, PlBreadcrumbItem } from 'plass-ui';
+import { RouterLink } from '../../support/router';
 
 describe('PlBreadcrumb', () => {
   describe('the trail', () => {
@@ -130,6 +131,83 @@ describe('PlBreadcrumb', () => {
     });
   });
 
+  describe('render', () => {
+    it("draws a step's link on the element it is given", async () => {
+      const screen = await render(
+        <PlBreadcrumb>
+          <PlBreadcrumbItem render={<RouterLink href="/docs" />}>Docs</PlBreadcrumbItem>
+          <PlBreadcrumbItem>Here</PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      const link = screen.getByRole('link', { name: 'Docs' }).element();
+
+      expect(link).toHaveAttribute('data-router');
+      expect(link).toHaveAttribute('href', '/docs');
+      expect(link).toHaveClass('cursor-pointer', 'hover:bg-(--p-soft)');
+    });
+
+    it("lets the element keep its own address over the step's", async () => {
+      const screen = await render(
+        <PlBreadcrumb>
+          <PlBreadcrumbItem href="/docs" render={<RouterLink href="/en/docs" />}>
+            Docs
+          </PlBreadcrumbItem>
+          <PlBreadcrumbItem>Here</PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      expect(screen.getByRole('link', { name: 'Docs' }).element()).toHaveAttribute(
+        'href',
+        '/en/docs'
+      );
+    });
+
+    it("follows it from the keyboard, through the step's handler and the router's", async () => {
+      const onClick = vi.fn();
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlBreadcrumb>
+          <PlBreadcrumbItem
+            onClick={onClick}
+            render={<RouterLink href="/docs" onNavigate={onNavigate} />}
+          >
+            Docs
+          </PlBreadcrumbItem>
+          <PlBreadcrumbItem>Here</PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      const link = screen.getByRole('link', { name: 'Docs' });
+
+      (link.element() as HTMLElement).focus();
+      await expect.element(link).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(onClick).toHaveBeenCalledOnce();
+      expect(onNavigate).toHaveBeenCalledWith('/docs');
+    });
+
+    it('is not used by the current step or a disabled one, which are not links', async () => {
+      const screen = await render(
+        <PlBreadcrumb>
+          <PlBreadcrumbItem disabled render={<RouterLink href="/docs" />}>
+            Docs
+          </PlBreadcrumbItem>
+          <PlBreadcrumbItem render={<RouterLink href="/billing" />}>Billing</PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      expect(document.querySelector('[data-router]')).toBeNull();
+      expect(screen.getByRole('link').query()).toBeNull();
+      expect(screen.getByText('Docs').element().closest('[aria-disabled]')).not.toBeNull();
+      expect(screen.getByText('Billing').element().closest('[aria-current]')).toHaveAttribute(
+        'aria-current',
+        'page'
+      );
+    });
+  });
+
   describe('folding', () => {
     // An array rather than a fragment: `React.Children.toArray` does not walk
     // into a fragment, so a trail wrapped in one arrives as a single step.
@@ -228,6 +306,24 @@ describe('PlBreadcrumb', () => {
       expect(data.itemListElement[0].item).toBe('https://example.com/');
       expect(data.itemListElement[3].item).toBeUndefined();
       expect(data.itemListElement[3].name).toBe('Here');
+    });
+
+    it('takes the address off the element a step renders its link on', async () => {
+      await render(
+        <PlBreadcrumb className="trail-under-test" structuredData baseUrl="https://example.com">
+          <PlBreadcrumbItem render={<RouterLink href="/docs" />}>Docs</PlBreadcrumbItem>
+          <PlBreadcrumbItem href="/a" render={<RouterLink href="/en/a" />}>
+            A
+          </PlBreadcrumbItem>
+          <PlBreadcrumbItem>Here</PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      const script = document.querySelector('.trail-under-test script');
+      const data = JSON.parse(script?.textContent ?? '{}');
+
+      expect(data.itemListElement[0].item).toBe('https://example.com/docs');
+      expect(data.itemListElement[1].item).toBe('https://example.com/en/a');
     });
   });
 });

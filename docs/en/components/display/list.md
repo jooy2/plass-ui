@@ -73,7 +73,7 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 ::: fw react
 
-The shell is always an `<li>`. What changes is what is inside it: a plain run of content, or (when `onClick` or `href` is given) a real `<button>` or `<a>` wrapping that content.
+The shell is always an `<li>`. What changes is what is inside it: a plain run of content, or (when `onClick`, `href` or `render` is given) a real `<button>` or `<a>` wrapping that content.
 
 `action` sits outside that pressable area on purpose. A row that both navigates and holds a toggle has two things to press, and a `<button>` inside a `<button>` is markup the browser rewrites on parse.
 
@@ -163,6 +163,25 @@ The sheet is never dyed, exactly as on a `PlCard`. A list holds other people's c
 
 </Demo>
 
+::: fw react
+
+### render
+
+Takes the router's own `Link` in place of the row's `<a>`. The row's padding, its hover and `selected` tint, its focus ring and `aria-current="page"` all go onto that element. A `render` on its own makes the row a link, as an `href` does, and an `href` on the element wins over the row's own. A disabled row is not a link, so it leaves `render` out.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlList>
+  <PlListItem selected render={<NextLink href="/inbox" />}>
+    Inbox
+  </PlListItem>
+  <PlListItem render={<NextLink href="/drafts" />}>Drafts</PlListItem>
+</PlList>;
+```
+
+:::
+
 ## Accessibility
 
 ::: fw react
@@ -170,7 +189,7 @@ The sheet is never dyed, exactly as on a `PlCard`. A list holds other people's c
 - There is no Base UI primitive under this on purpose. A list is not a composite widget. It has no roving focus, no selection model, no keyboard contract of its own. Reaching for a menu or a listbox primitive would hand a plain list of links the semantics of a menu.
 - `role="list"` is written out because Tailwind's reset takes the bullets off every `<ul>`, and Safari takes the list semantics off with them.
 - A chosen link carries `aria-current="page"` and a chosen button `aria-current="true"`. The first says "this is the page you are on", the second "this is the chosen one of these". `aria-pressed` would be a third thing, a toggle, and a selected row is not a toggle.
-- A row with neither `onClick` nor `href` adds no role and takes no tab stop. An inert `<div>` with a click handler on it is invisible to a keyboard.
+- A row with none of `onClick`, `href` and `render` adds no role and takes no tab stop. An inert `<div>` with a click handler on it is invisible to a keyboard.
 - Give the control in `action` its own accessible name. It is a separate tab stop from the row, which is the point of it being there.
 
 :::

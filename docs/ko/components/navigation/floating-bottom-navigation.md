@@ -202,6 +202,31 @@ html {
 
 :::
 
+::: fw react
+
+### render
+
+원반의 `<a>` 자리에 라우터의 `Link`를 씁니다. 원반의 표면과 `aria-current="page"`, 키가 치수를 재는 속성이 모두 그 요소에 붙으므로 키는 여전히 그리로 옮겨 갑니다. `href`처럼 `render`만 줘도 원반은 링크가 되고, 요소에 자기 `href`가 있으면 원반의 `href`보다 그쪽이 우선합니다. disabled 원반은 `render`를 쓰지 않고 주소 없는 평범한 `<a>`로 그려집니다.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlFloatingBottomNavigation value={where} onValueChange={setWhere} label="Main">
+  <PlFloatingBottomNavigationItem value="home" icon={<HomeIcon />} render={<NextLink href="/" />}>
+    Home
+  </PlFloatingBottomNavigationItem>
+  <PlFloatingBottomNavigationItem
+    value="search"
+    icon={<SearchIcon />}
+    render={<NextLink href="/search" />}
+  >
+    Search
+  </PlFloatingBottomNavigationItem>
+</PlFloatingBottomNavigation>;
+```
+
+:::
+
 ## Accessibility
 
 - 바는 <Fw react="&lt;nav&gt; 랜드마크" flutter="시맨틱 컨테이너" />이고, `label`을 주기 전에는 이름이 없습니다. "Main"처럼 이름을 붙이세요.
@@ -211,7 +236,7 @@ html {
 
 ::: fw react
 
-- 원반은 `href`가 있으면 진짜 링크이고, 없으면 버튼입니다.
+- 원반은 `href`나 `render`가 있으면 진짜 링크이고, 둘 다 없으면 버튼입니다.
 - 현재 목적지는 `aria-current="page"`를 답니다. `aria-pressed`는 절대 아닙니다.
 - 이름은 1px로 잘린 상자 안에 있습니다. 눈으로 보는 독자에게는 보이지 않고, 다른 모든 방식에는 존재합니다. `children`이 없는 원반에는 이름이 아예 없습니다.
 - 캡슐이 가운데 놓이는 띠는 창을 가로지르지만 **포인터 이벤트를 받지 않습니다**. 되받는 것은 캡슐뿐입니다. 페이지 아래를 가로지르는 투명한 띠가 누름을 삼킨다면, 아무도 그 위로 스크롤할 수 없습니다.
@@ -232,7 +257,7 @@ html {
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter 자체 컨트롤이 controlled입니다. |
 | `position` | — | Flutter 화면에는 빠져나올 페이지 스크롤이 없고, 바를 놓는 것은 앱입니다. |
 | 포인터 이벤트를 받지 않는 전체 너비 띠 | — | 만들 띠가 없습니다. `fixed` 요소는 무언가를 가로질러야 하지만, Flutter 위젯은 놓인 자리에 정확히 있습니다. 그래서 바는 자기 캡슐만큼만 넓습니다. |
-| `href` | — | 링크 요소도 없고 Flutter 앱을 크롤링하는 것도 없습니다. |
+| `href`, `render` | — | 링크 요소도 없고 Flutter 앱을 크롤링하는 것도 없습니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 
 :::

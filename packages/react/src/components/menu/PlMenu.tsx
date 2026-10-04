@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Menu as BaseUIMenu } from '@base-ui/react/menu';
+import type { useRender } from '@base-ui/react/use-render';
 import { ContextMenu as BaseUIContextMenu } from '@base-ui/react/context-menu';
 import { safeRel } from '../../internal/link.js';
 import { MenuContext } from '../../internal/menu.js';
@@ -105,6 +106,16 @@ export interface PlMenuItemProps {
   target?: string;
   /** The link's `rel`. Ignored without `href`. */
   rel?: string;
+  /**
+   * Renders the row's link as something other than an `<a>`: the `Link` a
+   * router brings. Base UI's own escape hatch, handed to its link row.
+   *
+   * Giving one makes the row a link, as an `href` does, and an `href` on the
+   * element wins over the row's own. The row's role, its highlight and the
+   * arrow keys stay Base UI's. A disabled row is not a link, so it does not use
+   * it.
+   */
+  render?: useRender.RenderProp<BaseUIMenu.LinkItem.State>;
   /** Content before the label — an icon, a swatch, a check. */
   startIcon?: React.ReactNode;
   /** Content after the label, before any `shortcut`. */
@@ -161,7 +172,7 @@ export interface PlMenuGroupProps {
 
 export interface PlMenuCheckboxItemProps extends Omit<
   PlMenuItemProps,
-  'href' | 'target' | 'rel' | 'startIcon' | 'onClick'
+  'href' | 'target' | 'rel' | 'render' | 'startIcon' | 'onClick'
 > {
   checked?: boolean;
   defaultChecked?: boolean;
@@ -187,7 +198,7 @@ export interface PlMenuRadioGroupProps {
 
 export interface PlMenuRadioItemProps extends Omit<
   PlMenuItemProps,
-  'href' | 'target' | 'rel' | 'startIcon' | 'onClick'
+  'href' | 'target' | 'rel' | 'render' | 'startIcon' | 'onClick'
 > {
   /** What this row sets the group to. */
   value: string | number;
@@ -345,16 +356,17 @@ function RowBody({
 /**
  * One row of a menu.
  *
- * Renders a real `<a>` when it is given an `href` and Base UI's own item
- * otherwise — the same split `PlListItem` makes, for the same reason. A menu of
- * links that are not links cannot be opened in a new tab, cannot be copied, and
- * tells a screen reader the wrong thing about every one of them.
+ * Renders a real `<a>` when it is given an `href` or a `render` and Base UI's
+ * own item otherwise — the same split `PlListItem` makes, for the same reason.
+ * A menu of links that are not links cannot be opened in a new tab, cannot be
+ * copied, and tells a screen reader the wrong thing about every one of them.
  */
 export function PlMenuItem({
   onClick,
   href,
   target,
   rel,
+  render,
   startIcon,
   endIcon,
   shortcut,
@@ -392,10 +404,12 @@ export function PlMenuItem({
 
   // An unavailable link has nowhere to go, and Base UI's link row takes no
   // `disabled`: a disabled row with an `href` is drawn and announced as the
-  // plain row it has become, rather than as a link that still navigates.
-  if (href !== undefined && !disabled) {
+  // plain row it has become, rather than as a link that still navigates. A
+  // router's element is left out with it, since its own `href` would win.
+  if ((href !== undefined || render !== undefined) && !disabled) {
     return (
       <BaseUIMenu.LinkItem
+        render={render}
         href={href}
         target={target}
         rel={safeRel(target, rel)}

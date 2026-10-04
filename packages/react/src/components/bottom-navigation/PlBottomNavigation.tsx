@@ -135,6 +135,16 @@ export interface PlBottomNavigationItemProps extends Omit<
   icon?: React.ReactNode;
   /** Renders the item as a link rather than as a button. */
   href?: string;
+  /**
+   * Renders the item's link as something other than an `<a>`: the `Link` a
+   * router brings. Base UI's own escape hatch, as on `PlTextLink`.
+   *
+   * Giving one makes the item a link, as an `href` does, and an `href` on the
+   * element wins over the item's own. A disabled item is drawn on a plain `<a>`
+   * with no address instead, since the element's own `href` would keep it
+   * going somewhere.
+   */
+  render?: useRender.RenderProp;
   /** Unavailable, but still part of the set. */
   disabled?: boolean;
   /** The destination's name. Read out even when `labels` keeps it undrawn. */
@@ -306,17 +316,27 @@ export const PlBottomNavigation = /* @__PURE__ */ React.forwardRef<
  * the bar, which is the only place they can be set once and mean the same thing
  * for every item.
  *
- * With an `href` it is a real `<a>`, which is what makes a long press offer
- * "open in a new tab" and what puts the destination in the status bar — neither
- * of which a `<button>` that calls `router.push` can do. Without one it is a
- * `<button>`, because a `<div>` carrying a click handler is invisible to a
- * keyboard.
+ * With an `href` or a `render` it is a real `<a>`, which is what makes a long
+ * press offer "open in a new tab" and what puts the destination in the status
+ * bar — neither of which a `<button>` that calls `router.push` can do. Without
+ * either it is a `<button>`, because a `<div>` carrying a click handler is
+ * invisible to a keyboard.
  */
 export const PlBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
   HTMLElement,
   PlBottomNavigationItemProps
 >(function PlBottomNavigationItem(
-  { value, icon, href, disabled: disabledProp = false, className, children, onClick, ...props },
+  {
+    value,
+    icon,
+    href,
+    render,
+    disabled: disabledProp = false,
+    className,
+    children,
+    onClick,
+    ...props
+  },
   ref
 ) {
   const bar = React.useContext(BottomNavigationContext);
@@ -381,20 +401,27 @@ export const PlBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
     onClick?.(event as React.MouseEvent<HTMLButtonElement>);
   };
 
-  if (href) {
-    return (
-      <a
-        ref={ref as React.Ref<HTMLAnchorElement>}
-        href={disabled ? undefined : href}
-        aria-current={selected ? 'page' : undefined}
-        aria-disabled={disabled || undefined}
-        className={classNames}
-        onClick={press}
-        {...(props as React.ComponentPropsWithoutRef<'a'>)}
-      >
-        {body}
-      </a>
-    );
+  // Called on every render and switched off for a button, so an item that
+  // gains or loses its link keeps the same hooks.
+  const link = useRender({
+    // An unavailable destination has nowhere to go. A router's element would
+    // bring its own `href`, which wins the merge, so it is left out here.
+    render: disabled ? <a /> : (render ?? <a />),
+    enabled: Boolean(href || render),
+    ref: ref as React.Ref<HTMLAnchorElement>,
+    props: {
+      href: disabled ? undefined : href,
+      'aria-current': selected ? 'page' : undefined,
+      'aria-disabled': disabled || undefined,
+      className: classNames,
+      onClick: press,
+      ...props,
+      children: body
+    }
+  });
+
+  if (link) {
+    return link;
   }
 
   return (

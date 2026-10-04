@@ -1,6 +1,9 @@
+import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlBottomNavigation, PlBottomNavigationItem } from 'plass-ui';
+import { RouterLink } from '../../support/router';
 
 const glyph = <svg viewBox="0 0 24 24" data-testid="glyph" />;
 
@@ -211,6 +214,69 @@ describe('PlBottomNavigation', () => {
       );
 
       expect(screen.getByRole('button', { name: 'Home' }).element()).toBeDisabled();
+    });
+
+    it("draws its link on the element `render` gives it, with the item's own marks", async () => {
+      const ref = React.createRef<HTMLElement>();
+      const screen = await render(
+        <PlBottomNavigation value="home">
+          <PlBottomNavigationItem ref={ref} value="home" render={<RouterLink href="/home" />}>
+            Home
+          </PlBottomNavigationItem>
+        </PlBottomNavigation>
+      );
+
+      const link = screen.getByRole('link', { name: 'Home' }).element();
+
+      expect(link).toHaveAttribute('data-router');
+      expect(link).toHaveAttribute('href', '/home');
+      expect(link).toHaveAttribute('aria-current', 'page');
+      expect(link).toHaveClass('text-(--p-accent)');
+      expect(ref.current).toBe(link);
+    });
+
+    it("reports a router's link as the destination when it is followed from the keyboard", async () => {
+      const change = vi.fn();
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlBottomNavigation defaultValue="home" onValueChange={change}>
+          <PlBottomNavigationItem value="home" render={<RouterLink href="/home" />}>
+            Home
+          </PlBottomNavigationItem>
+          <PlBottomNavigationItem
+            value="search"
+            render={<RouterLink href="/search" onNavigate={onNavigate} />}
+          >
+            Search
+          </PlBottomNavigationItem>
+        </PlBottomNavigation>
+      );
+
+      const search = screen.getByRole('link', { name: 'Search' });
+
+      (search.element() as HTMLElement).focus();
+      await expect.element(search).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(change).toHaveBeenCalledWith('search');
+      expect(onNavigate).toHaveBeenCalledWith('/search');
+      await expect.element(search).toHaveAttribute('aria-current', 'page');
+    });
+
+    it("leaves a disabled item's `render` out rather than leaving a live link", async () => {
+      const screen = await render(
+        <PlBottomNavigation>
+          <PlBottomNavigationItem value="home" disabled render={<RouterLink href="/home" />}>
+            Home
+          </PlBottomNavigationItem>
+        </PlBottomNavigation>
+      );
+
+      const element = screen.getByText('Home').element().closest('a');
+
+      expect(element).not.toHaveAttribute('data-router');
+      expect(element).not.toHaveAttribute('href');
+      expect(element).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('drops the href on a disabled link rather than leaving a live one', async () => {

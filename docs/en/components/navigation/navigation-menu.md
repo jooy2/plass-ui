@@ -153,6 +153,26 @@ The family arrives with the pointer and with the open panel, and the sheet itsel
 
 Merged rather than replaced: the common reason to write a `rel` by hand is `nofollow` or `sponsored`, and spelling that as an override would silently take the protection off a link that still opens elsewhere.
 
+::: fw react
+
+### render
+
+A link in a panel takes the router's own `Link` in place of its `<a>`. The element is handed to Base UI's link part, so the row's surface, its focus ring and the arrow keys that move between links are unchanged. An `href` on the element wins over the link's own, as on [`PlTextLink`](../display/text-link#render).
+
+```tsx
+import NextLink from 'next/link';
+
+<PlNavigationMenuItem label="Product">
+  <PlNavigationMenuLink
+    href="/analytics"
+    title="Analytics"
+    render={<NextLink href="/analytics" />}
+  />
+</PlNavigationMenuItem>;
+```
+
+:::
+
 ::: fw flutter
 
 ## Differences from the React build
@@ -160,6 +180,7 @@ Merged rather than replaced: the common reason to write a `rel` by hand is `nofo
 | React | Flutter | Why |
 | --- | --- | --- |
 | `href` on an item and on a link | `onPressed` | There is no navigator in this package and no address to resolve. Where a destination _is_ belongs to the app's own router. |
+| `render` on a link | — | Flutter has no polymorphic element. |
 | composed `PlNavigationMenuItem` children | `items: List<PlNavigationMenuItem>` as data | The row has to know which item is which to keep one panel open at a time, and a list is what it can count. |
 | `value` / `defaultValue` | `initialValue` | `String?` has no way to tell "the caller did not say" from "the caller says closed", so a controlled mode would be one that could never be closed from outside. Which panel is open is the pointer's state, not the app's. |
 | one panel that resizes between items | one panel per item, fading | The React sheet measures the panel coming in and eases to its size and to its place under the new item. Here each item anchors its own popup, so crossing the row swaps panels rather than growing one. |

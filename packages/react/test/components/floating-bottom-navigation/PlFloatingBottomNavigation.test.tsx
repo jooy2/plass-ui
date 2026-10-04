@@ -1,6 +1,9 @@
+import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plass-ui';
+import { RouterLink } from '../../support/router';
 
 const glyph = <svg viewBox="0 0 24 24" data-testid="glyph" />;
 
@@ -187,6 +190,55 @@ describe('PlFloatingBottomNavigation', () => {
 
       expect(screen.getByRole('link', { name: 'Home' }).element()).toHaveAttribute('href', '/home');
     });
+
+    it("draws its link on the element `render` gives it, with the disc's own marks", async () => {
+      const ref = React.createRef<HTMLElement>();
+      const screen = await render(
+        <PlFloatingBottomNavigation value="home">
+          <PlFloatingBottomNavigationItem
+            ref={ref}
+            value="home"
+            icon={glyph}
+            render={<RouterLink href="/home" />}
+          >
+            Home
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      const link = screen.getByRole('link', { name: 'Home' }).element();
+
+      expect(link).toHaveAttribute('data-router');
+      expect(link).toHaveAttribute('href', '/home');
+      expect(link).toHaveAttribute('aria-current', 'page');
+      // The hooks the key is measured from.
+      expect(link).toHaveAttribute('data-disc');
+      expect(link).toHaveAttribute('data-current');
+      expect(link).toHaveClass('rounded-full', 'text-(--p-on-solid)');
+      expect(ref.current).toBe(link);
+    });
+
+    it("leaves a disabled disc's `render` out rather than leaving a live link", async () => {
+      const screen = await render(
+        <PlFloatingBottomNavigation>
+          <PlFloatingBottomNavigationItem
+            value="home"
+            icon={glyph}
+            disabled
+            render={<RouterLink href="/home" />}
+          >
+            Home
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      const element = screen.getByText('Home').element().closest('a');
+
+      expect(element).not.toHaveAttribute('data-router');
+      expect(element).not.toHaveAttribute('href');
+      expect(element).toHaveAttribute('aria-disabled', 'true');
+      expect(element).toHaveAttribute('data-disabled');
+    });
   });
 
   describe('choosing', () => {
@@ -362,6 +414,45 @@ describe('PlFloatingBottomNavigation', () => {
       // The same node, moved. Two nodes cross-fading would be two objects.
       expect(after).toBe(before);
       expect(after?.style.getPropertyValue('--p-disc-x')).toBe(`${disc.offsetLeft}px`);
+    });
+
+    it("travels to a router's link followed from the keyboard", async () => {
+      const change = vi.fn();
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlFloatingBottomNavigation
+          className="bar-under-test"
+          defaultValue="home"
+          onValueChange={change}
+        >
+          <PlFloatingBottomNavigationItem
+            value="home"
+            icon={glyph}
+            render={<RouterLink href="/home" />}
+          >
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem
+            value="search"
+            icon={glyph}
+            render={<RouterLink href="/search" onNavigate={onNavigate} />}
+          >
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      const search = screen.getByRole('link', { name: 'Search' });
+
+      (search.element() as HTMLElement).focus();
+      await expect.element(search).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(change).toHaveBeenCalledWith('search');
+      expect(onNavigate).toHaveBeenCalledWith('/search');
+      await expect
+        .poll(() => keyOf()?.style.getPropertyValue('--p-disc-x'))
+        .toBe(`${(search.element() as HTMLElement).offsetLeft}px`);
     });
 
     it('is placed instantly on the first paint and eased from then on', async () => {

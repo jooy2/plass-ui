@@ -105,6 +105,15 @@ export interface PlListItemProps extends Omit<
   selected?: boolean;
   /** Unavailable. The light goes out, the same way it does everywhere else. */
   disabled?: boolean;
+  /**
+   * Renders the row's link as something other than an `<a>`: the `Link` a
+   * router brings. Base UI's own escape hatch, as on `PlTextLink`.
+   *
+   * Giving one makes the row a link, as an `href` does, and an `href` on the
+   * element wins over the row's own. A disabled row is not a link, so it does
+   * not use it.
+   */
+  render?: useRender.RenderProp;
   /** The label. */
   children?: React.ReactNode;
 }
@@ -253,11 +262,11 @@ export const PlList = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlListP
  * One row.
  *
  * The shell is always an `<li>`. What changes is what is inside it: a plain run
- * of content, or — when `onClick` or `href` is given — a real `<button>` or
- * `<a>` wrapping that content, with `action` sitting outside it as a separate
- * control. This is the same shape a `PlChip` uses, for the same two reasons: a
- * `<span>` carrying a click handler is invisible to a keyboard, and a
- * `<button>` inside a `<button>` is markup the browser silently un-nests.
+ * of content, or — when `onClick`, `href` or `render` is given — a real
+ * `<button>` or `<a>` wrapping that content, with `action` sitting outside it
+ * as a separate control. This is the same shape a `PlChip` uses, for the same
+ * two reasons: a `<span>` carrying a click handler is invisible to a keyboard,
+ * and a `<button>` inside a `<button>` is markup the browser silently un-nests.
  */
 export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlListItemProps>(
   function PlListItem(
@@ -269,6 +278,7 @@ export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlList
       href,
       selected = false,
       disabled = false,
+      render,
       className,
       children,
       onClick,
@@ -277,7 +287,8 @@ export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlList
     ref
   ) {
     const { size, density, dividers } = React.useContext(ListContext);
-    const interactive = Boolean(onClick || href) && !disabled;
+    const linked = Boolean(href || render);
+    const interactive = (linked || Boolean(onClick)) && !disabled;
 
     const padX = rowPaddingXClasses[density][size];
     const padY = rowPaddingYClasses[density][size];
@@ -334,25 +345,32 @@ export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlList
       </>
     );
 
+    // Called on every render and switched off where the row is not a link, so
+    // a row that is disabled keeps the same hooks.
+    const link = useRender({
+      render: render ?? <a />,
+      enabled: interactive && linked,
+      props: {
+        href,
+        className: bodyClassNames,
+        // `aria-current="page"` on a link and `"true"` on a button: the first is
+        // "this is the page you are on", the second is "this is the chosen one
+        // of these". `aria-pressed` would be a third thing — a toggle — and a
+        // selected row is not a toggle.
+        'aria-current': selected ? 'page' : undefined,
+        onClick,
+        children: body
+      }
+    });
+
     return (
       <li
         ref={ref}
         className={['flex w-full items-center', className ?? ''].filter(Boolean).join(' ')}
         {...props}
       >
-        {interactive && href ? (
-          // `aria-current="page"` on a link and `"true"` on a button: the first is
-          // "this is the page you are on", the second is "this is the chosen one
-          // of these". `aria-pressed` would be a third thing — a toggle — and a
-          // selected row is not a toggle.
-          <a
-            href={href}
-            className={bodyClassNames}
-            aria-current={selected ? 'page' : undefined}
-            onClick={onClick}
-          >
-            {body}
-          </a>
+        {link ? (
+          link
         ) : interactive ? (
           <button
             type="button"

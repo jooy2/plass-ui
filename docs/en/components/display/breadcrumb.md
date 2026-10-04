@@ -181,6 +181,24 @@ Every step goes in, including the ones a `maxItems` fold is hiding: what is coll
 
 </Demo>
 
+::: fw react
+
+### render
+
+Takes the router's own `Link` in place of the step's `<a>`. The step's look, its focus ring and its `onClick` go onto that element. A `render` on its own makes the step a link, as an `href` does, and an `href` on the element wins over the step's own, on the anchor and in `structuredData` alike. The current step and a disabled one are not links, so they leave `render` out.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlBreadcrumb>
+  <PlBreadcrumbItem render={<NextLink href="/" />}>Home</PlBreadcrumbItem>
+  <PlBreadcrumbItem render={<NextLink href="/settings" />}>Settings</PlBreadcrumbItem>
+  <PlBreadcrumbItem>Billing</PlBreadcrumbItem>
+</PlBreadcrumb>;
+```
+
+:::
+
 ## Accessibility
 
 ::: fw react
@@ -213,6 +231,7 @@ Every step goes in, including the ones a `maxItems` fold is hiding: what is coll
 | `href` | `onPressed` | Flutter has no link element. A step that navigates calls your router. |
 | `aria-current="page"` | announced as a heading | Flutter's semantics tree has no `current`. A heading is the nearest true thing: this is the place, not a way to it. |
 | `structuredData`, `baseUrl` | — | There is no crawler reading a Flutter app, and no `<script type="application/ld+json">` to put a `BreadcrumbList` in. |
+| `render` | — | Flutter has no polymorphic element. A step that navigates calls your router from `onPressed`. |
 | `separator` as name-or-node | `separator` and `separatorWidget` | Dart has no union type, so the named marks and a mark of your own are two parameters. |
 | `children` on a step | `label` | It is the one slot, and naming it is what lets a step be a description. |
 

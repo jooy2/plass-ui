@@ -8,6 +8,7 @@ import {
   PlNavigationMenuItem,
   PlNavigationMenuLink
 } from 'plass-ui';
+import { RouterLink } from '../../support/router';
 
 describe('PlNavigationMenu', () => {
   describe('the row', () => {
@@ -164,6 +165,62 @@ describe('PlNavigationMenu', () => {
 
       await expect.element(link).toHaveAttribute('href', '/a');
       await expect.element(screen.getByText('Numbers over time')).toBeVisible();
+    });
+
+    it("draws a panel link on the element `render` gives it, with the link's own marks", async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink
+              href="/a"
+              title="Analytics"
+              render={<RouterLink href="/en/a" />}
+            />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      await screen.getByRole('button', { name: /Product/ }).click();
+
+      const link = screen.getByRole('link', { name: /Analytics/ });
+
+      await expect.element(link).toBeVisible();
+      expect(link.element()).toHaveAttribute('data-router');
+      // An `href` on the element wins over the link's own.
+      expect(link.element()).toHaveAttribute('href', '/en/a');
+      expect(link.element()).toHaveClass('no-underline', 'hover:bg-(--p-soft)');
+    });
+
+    it("moves between a router's panel links with the arrow keys and follows one", async () => {
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink href="/a" title="Analytics" render={<RouterLink href="/a" />} />
+            <PlNavigationMenuLink
+              href="/b"
+              title="Billing"
+              render={<RouterLink href="/b" onNavigate={onNavigate} />}
+            />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      await screen.getByRole('button', { name: /Product/ }).click();
+
+      const first = screen.getByRole('link', { name: /Analytics/ });
+      const second = screen.getByRole('link', { name: /Billing/ });
+
+      await expect.element(first).toBeVisible();
+      (first.element() as HTMLElement).focus();
+      await expect.element(first).toHaveFocus();
+
+      await userEvent.keyboard('{ArrowDown}');
+      await expect.element(second).toHaveFocus();
+
+      await userEvent.keyboard('{Enter}');
+
+      expect(onNavigate).toHaveBeenCalledWith('/b');
     });
 
     it('lays the panel out in columns when it is asked to', async () => {

@@ -2441,6 +2441,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '항목의 링크를 a가 아닌 다른 요소로 렌더링합니다 — 라우터의 Link. 이것만 줘도 항목은 링크가 되고, 요소의 href가 항목의 href보다 우선합니다. disabled 항목은 쓰지 않고 주소 없는 a로 그려집니다',
+        en: "Renders the item's link as something other than an a — the Link a router brings. Giving one makes the item a link, and an href on the element wins over the item's own. A disabled item leaves it out and is drawn on an a with no address"
+      }
+    },
+    {
       name: 'disabled',
       type: 'boolean',
       default: 'false',
@@ -2649,6 +2657,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '사용할 수 없음. 응답을 멈추고 자리는 지킵니다',
         en: 'Unavailable. Stops answering, keeps its place in the trail'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '단계의 링크를 a가 아닌 다른 요소로 렌더링합니다 — 라우터의 Link. 이것만 줘도 단계는 링크가 되고, 요소의 href가 단계의 href보다 우선합니다. structuredData도 그 href를 씁니다. 현재 단계와 disabled 단계는 쓰지 않습니다',
+        en: "Renders the step's link as something other than an a — the Link a router brings. Giving one makes the step a link, and an href on the element wins over the step's own, in structuredData too. The current step and a disabled one leave it out"
       }
     },
     {
@@ -5552,6 +5568,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '원반의 링크를 a가 아닌 다른 요소로 렌더링합니다 — 라우터의 Link. 이것만 줘도 원반은 링크가 되고, 요소의 href가 원반의 href보다 우선합니다. disabled 원반은 쓰지 않고 주소 없는 a로 그려집니다',
+        en: "Renders the disc's link as something other than an a — the Link a router brings. Giving one makes the disc a link, and an href on the element wins over the disc's own. A disabled disc leaves it out and is drawn on an a with no address"
+      }
+    },
+    {
       name: 'disabled',
       type: 'boolean',
       default: 'false',
@@ -6958,6 +6982,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '행의 링크를 a가 아닌 다른 요소로 렌더링합니다 — 라우터의 Link. 이것만 줘도 행은 링크가 되고, 요소의 href가 행의 href보다 우선합니다. disabled 행은 쓰지 않습니다',
+        en: "Renders the row's link as something other than an a — the Link a router brings. Giving one makes the row a link, and an href on the element wins over the row's own. A disabled row leaves it out"
+      }
+    },
+    {
       name: 'children',
       type: 'ReactNode',
       description: { ko: '라벨', en: 'The label' }
@@ -7087,6 +7119,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '행을 진짜 <a>로 렌더링합니다. 링크들의 메뉴는 링크여야 합니다. 이 탭이 아닌 곳으로 열리면 rel에 noopener noreferrer가 합쳐집니다',
         en: 'Renders the row as a real <a>. A menu of links has to be links. Anything other than this tab also gets noopener noreferrer merged into its rel'
+      }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '링크 행을 a가 아닌 다른 요소로 렌더링합니다 — 라우터의 Link. Base UI의 링크 행에 넘어가므로 role과 불이 들어오는 행, 화살표 키는 그대로입니다. 이것만 줘도 행은 링크가 되고, 요소의 href가 우선합니다. disabled 행은 쓰지 않습니다',
+        en: "Renders a link row as something other than an a — the Link a router brings. Handed to Base UI's link row, so the role, the highlight and the arrow keys stay. Giving one makes the row a link, and an href on the element wins. A disabled row leaves it out"
       }
     },
     {
@@ -7984,6 +8024,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'startIcon',
       type: 'ReactNode',
       description: { ko: '제목 앞의 글리프', en: 'A glyph before the title' }
+    },
+    {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '링크를 a가 아닌 다른 요소로 렌더링합니다 — 라우터의 Link. Base UI의 링크 부품에 넘어가므로 화살표 키는 그대로이고, 요소의 href가 위의 href보다 우선합니다',
+        en: "Renders the link as something other than an a — the Link a router brings. Handed to Base UI's link part, so the arrow keys stay, and an href on the element wins over the one above"
+      }
     }
   ],
 

@@ -116,6 +116,16 @@ export interface PlFloatingBottomNavigationItemProps extends Omit<
   icon?: React.ReactNode;
   /** Renders the item as a link rather than as a button. */
   href?: string;
+  /**
+   * Renders the disc's link as something other than an `<a>`: the `Link` a
+   * router brings. Base UI's own escape hatch, as on `PlTextLink`.
+   *
+   * Giving one makes the disc a link, as an `href` does, and an `href` on the
+   * element wins over the disc's own. A disabled disc is drawn on a plain `<a>`
+   * with no address instead, since the element's own `href` would keep it
+   * going somewhere.
+   */
+  render?: useRender.RenderProp;
   /** Unavailable, but still part of the set. */
   disabled?: boolean;
   /**
@@ -499,7 +509,17 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
   HTMLElement,
   PlFloatingBottomNavigationItemProps
 >(function PlFloatingBottomNavigationItem(
-  { value, icon, href, disabled: disabledProp = false, className, children, onClick, ...props },
+  {
+    value,
+    icon,
+    href,
+    render,
+    disabled: disabledProp = false,
+    className,
+    children,
+    onClick,
+    ...props
+  },
   ref
 ) {
   const bar = React.useContext(FloatingBarContext);
@@ -575,21 +595,28 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
     onClick?.(event as React.MouseEvent<HTMLButtonElement>);
   };
 
-  if (href) {
-    return (
-      <a
-        ref={ref as React.Ref<HTMLAnchorElement>}
-        href={disabled ? undefined : href}
-        aria-current={selected ? 'page' : undefined}
-        aria-disabled={disabled || undefined}
-        {...discAttributes}
-        className={classNames}
-        onClick={press}
-        {...(props as React.ComponentPropsWithoutRef<'a'>)}
-      >
-        {body}
-      </a>
-    );
+  // Called on every render and switched off for a button, so a disc that
+  // gains or loses its link keeps the same hooks.
+  const link = useRender({
+    // An unavailable destination has nowhere to go. A router's element would
+    // bring its own `href`, which wins the merge, so it is left out here.
+    render: disabled ? <a /> : (render ?? <a />),
+    enabled: Boolean(href || render),
+    ref: ref as React.Ref<HTMLAnchorElement>,
+    props: {
+      href: disabled ? undefined : href,
+      'aria-current': selected ? 'page' : undefined,
+      'aria-disabled': disabled || undefined,
+      ...discAttributes,
+      className: classNames,
+      onClick: press,
+      ...props,
+      children: body
+    }
+  });
+
+  if (link) {
+    return link;
   }
 
   return (

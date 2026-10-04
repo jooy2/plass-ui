@@ -203,6 +203,23 @@ select의 옵션은 호출자가 이미 가진 목록에서 나온 값이라 데
 
 ::: fw react
 
+### render
+
+링크 행의 `<a>` 자리에 라우터의 `Link`를 씁니다. 이 요소는 Base UI의 링크 행에 그대로 넘어가므로 `menuitem` role과 불이 들어오는 행, 화살표 키는 달라지지 않습니다. `href`처럼 `render`만 줘도 행은 링크가 되고, 요소에 자기 `href`가 있으면 행의 `href`보다 그쪽이 우선합니다. disabled 행은 링크가 아니므로 `render`를 쓰지 않습니다.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlMenu trigger={<PlButton>Help</PlButton>}>
+  <PlMenuItem render={<NextLink href="/docs" />}>Documentation</PlMenuItem>
+  <PlMenuItem render={<NextLink href="/changelog" />}>Changelog</PlMenuItem>
+</PlMenu>;
+```
+
+:::
+
+::: fw react
+
 ### PlContextMenu
 
 버튼이 아니라 오른쪽 클릭이나 길게 누르기로 열리는 같은 메뉴입니다.
@@ -222,7 +239,7 @@ select의 옵션은 호출자가 이미 가진 목록에서 나온 값이라 데
 ::: fw react
 
 - Base UI의 Menu 위에 있습니다. 메뉴를 떠다니는 `<div>` 목록이 아니라 메뉴로 만드는 것 전부를 그쪽이 맡습니다: `menu`와 `menuitem` role, 화살표 키의 roving 포커스, <kbd>Home</kbd>과 <kbd>End</kbd>, 타이프어헤드, <kbd>Esc</kbd>, 바깥 클릭으로 닫기, 그리고 트리거로 포커스 되돌리기.
-- `href`가 있는 행은 진짜 `<a>`입니다. 링크가 아닌 링크들의 메뉴는 새 탭으로 열 수도, 복사할 수도 없고, 스크린 리더에게는 그 하나하나에 대해 틀린 말을 합니다.
+- `href`가 있거나 `render`에 라우터의 `Link`를 받은 행은 진짜 `<a>`입니다. 링크가 아닌 링크들의 메뉴는 새 탭으로 열 수도, 복사할 수도 없고, 스크린 리더에게는 그 하나하나에 대해 틀린 말을 합니다.
 - 행에는 포커스 링이 없습니다. Base UI가 강조된 행 자체로 포커스를 옮기므로, 링이 있으면 화살표를 누를 때마다 팝업 안에 사각형이 그려집니다. 색조가 포커스 표시이고, 그래서 마우스가 받는 것과 같은 표시가 됩니다.
 - 행에 불이 들어오는 기준은 `:hover`가 아니라 `data-highlighted`입니다. 그래서 키보드와 포인터가 같은 행에 불을 켭니다.
 - 비활성 행도 목록에 남고 타이프어헤드에도 잡힙니다. 쓸 수 없을 때 사라지는 행은 길이가 바뀌는 메뉴입니다.
@@ -248,7 +265,7 @@ select의 옵션은 호출자가 이미 가진 목록에서 나온 값이라 데
 | 행의 `children` | `String`인 `label` | 그려지고, 안내되고, 타이프어헤드가 맞춰 보는 대상입니다. 셋 다 될 수 있는 것은 문자열뿐입니다. |
 | `PlMenuRadioGroup` | `PlMenuRadioItem.selected` | 이 패키지의 모든 입력이 controlled입니다. 값을 쥔 그룹은 그렇지 않은 유일한 것이 되었을 것입니다. |
 | 요소인 `trigger` | 빌더인 `trigger` | 메뉴를 여는 콜백과 열려 있는지를 함께 받습니다. 열린 동안 켜져 있는 트리거에 필요한 것이 그것입니다. |
-| 행의 `href` | — | 링크 요소도 없고 Flutter 앱을 크롤링하는 것도 없습니다. 라우터를 부르는 자리는 `onPressed`입니다. |
+| 행의 `href`와 `render` | — | 링크 요소도 없고 Flutter 앱을 크롤링하는 것도 없습니다. 라우터를 부르는 자리는 `onPressed`입니다. |
 | `modal` | — | 팝업은 화면 위에 덮이는 것이 아니라 앵커에 매달립니다. 바깥에 떨어진 누름이 그것을 닫습니다. |
 | `PlContextMenu` | — | 이 패키지가 도는 모든 플랫폼에서 같은 뜻을 갖는 오른쪽 클릭 제스처가 없습니다. 길게 눌러 여는 메뉴는 `onLongPress`와 앱이 직접 여는 `PlMenu`입니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |

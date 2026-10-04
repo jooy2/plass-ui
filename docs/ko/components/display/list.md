@@ -73,7 +73,7 @@ PlList(
 
 ::: fw react
 
-껍데기는 언제나 `<li>`입니다. 바뀌는 것은 그 안에 든 것입니다. 그냥 내용이 놓이거나, `onClick`이나 `href`가 주어지면 그 내용을 감싸는 진짜 `<button>` 또는 `<a>`가 놓입니다.
+껍데기는 언제나 `<li>`입니다. 바뀌는 것은 그 안에 든 것입니다. 그냥 내용이 놓이거나, `onClick`이나 `href`, `render`가 주어지면 그 내용을 감싸는 진짜 `<button>` 또는 `<a>`가 놓입니다.
 
 `action`은 일부러 그 누를 수 있는 영역 바깥에 놓입니다. 이동도 하고 토글도 담는 행에는 누를 것이 둘이고, `<button>` 안의 `<button>`은 브라우저가 파싱하며 다시 쓰는 마크업입니다.
 
@@ -163,6 +163,25 @@ card 안이라면 `ghost`입니다. card가 이미 시트인데, 그 안의 두 
 
 </Demo>
 
+::: fw react
+
+### render
+
+행의 `<a>` 자리에 라우터의 `Link`를 씁니다. 행의 padding, hover와 `selected`의 틴트, focus ring, `aria-current="page"`가 모두 그 요소에 붙습니다. `href`처럼 `render`만 줘도 행은 링크가 되고, 요소에 자기 `href`가 있으면 행의 `href`보다 그쪽이 우선합니다. disabled 행은 링크가 아니므로 `render`를 쓰지 않습니다.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlList>
+  <PlListItem selected render={<NextLink href="/inbox" />}>
+    Inbox
+  </PlListItem>
+  <PlListItem render={<NextLink href="/drafts" />}>Drafts</PlListItem>
+</PlList>;
+```
+
+:::
+
 ## Accessibility
 
 ::: fw react
@@ -170,7 +189,7 @@ card 안이라면 `ghost`입니다. card가 이미 시트인데, 그 안의 두 
 - 아래에 Base UI 프리미티브가 없는 것은 의도입니다. 목록은 복합 위젯이 아닙니다. roving focus도, 선택 모델도, 자기만의 키보드 규약도 없습니다. menu나 listbox 프리미티브를 끌어오면 그냥 링크 목록에 메뉴의 의미를 붙이게 됩니다.
 - `role="list"`를 명시적으로 씁니다. Tailwind의 리셋이 모든 `<ul>`에서 불릿을 없애고, Safari는 그와 함께 목록 의미까지 없애기 때문입니다.
 - 선택된 링크는 `aria-current="page"`를, 선택된 button은 `aria-current="true"`를 답니다. 앞의 것은 "지금 보고 있는 페이지", 뒤의 것은 "이것들 중 고른 하나"입니다. `aria-pressed`는 세 번째 것, 즉 토글이고, 선택된 행은 토글이 아닙니다.
-- `onClick`도 `href`도 없는 행은 role도 tab stop도 더하지 않습니다. click 핸들러만 달린 죽은 `<div>`는 키보드에 보이지 않습니다.
+- `onClick`도 `href`도 `render`도 없는 행은 role도 tab stop도 더하지 않습니다. click 핸들러만 달린 죽은 `<div>`는 키보드에 보이지 않습니다.
 - `action`에 든 컨트롤에는 자기 이름을 주세요. 행과는 별개의 tab stop이고, 거기 있는 이유가 그것입니다.
 
 :::

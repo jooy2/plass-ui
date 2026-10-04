@@ -204,6 +204,23 @@ html {
 
 </Demo>
 
+### render
+
+항목의 `<a>` 자리에 라우터의 `Link`를 씁니다. 항목의 표면과 `aria-current="page"`, `onValueChange`에 알리는 누름이 모두 그 요소로 옮겨 갑니다. `href`처럼 `render`만 줘도 항목은 링크가 되고, 요소에 자기 `href`가 있으면 항목의 `href`보다 그쪽이 우선합니다. disabled 항목은 `render`를 쓰지 않고 주소 없는 평범한 `<a>`로 그려집니다. 요소에 달린 `href`가 링크를 살려 두기 때문입니다.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlBottomNavigation value={where} onValueChange={setWhere} label="Main">
+  <PlBottomNavigationItem value="home" icon={<HomeIcon />} render={<NextLink href="/" />}>
+    Home
+  </PlBottomNavigationItem>
+  <PlBottomNavigationItem value="search" icon={<SearchIcon />} render={<NextLink href="/search" />}>
+    Search
+  </PlBottomNavigationItem>
+</PlBottomNavigation>;
+```
+
 :::
 
 ## Accessibility
@@ -231,7 +248,7 @@ html {
 | 항목의 `children` | `String`인 `label` | 그려지는 이름이자 **동시에** 안내되는 이름입니다. 위젯은 앞의 하나만 될 수 있고, 문자열만 둘 다 될 수 있습니다. |
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter 자체 컨트롤이 controlled이고, 콜백 이름도 그쪽 이름입니다. |
 | `position` | — | Flutter 화면에는 빠져나올 페이지 스크롤이 없습니다. 바가 어디 놓일지는 앱의 스캐폴드가 정합니다. |
-| `href` | — | 링크 요소도 없고 Flutter 앱을 크롤링하는 것도 없습니다. 라우터를 부르는 자리는 `onChanged`입니다. |
+| `href`, `render` | — | 링크 요소도 없고 Flutter 앱을 크롤링하는 것도 없습니다. 라우터를 부르는 자리는 `onChanged`입니다. |
 | `aria-current="page"` | selected 플래그 | Flutter의 시맨틱 트리에는 `current`가 없습니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 

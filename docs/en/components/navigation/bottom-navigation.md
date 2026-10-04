@@ -204,6 +204,23 @@ A disabled link loses its `href` rather than keeping a live one behind an `aria-
 
 </Demo>
 
+### render
+
+Takes the router's own `Link` in place of the item's `<a>`. The item's surface, `aria-current="page"` and the press that reports to `onValueChange` all go onto that element. A `render` on its own makes the item a link, as an `href` does, and an `href` on the element wins over the item's own. A disabled item leaves `render` out and is drawn on a plain `<a>` with no address, since the element's own `href` would keep it live.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlBottomNavigation value={where} onValueChange={setWhere} label="Main">
+  <PlBottomNavigationItem value="home" icon={<HomeIcon />} render={<NextLink href="/" />}>
+    Home
+  </PlBottomNavigationItem>
+  <PlBottomNavigationItem value="search" icon={<SearchIcon />} render={<NextLink href="/search" />}>
+    Search
+  </PlBottomNavigationItem>
+</PlBottomNavigation>;
+```
+
 :::
 
 ## Accessibility
@@ -231,7 +248,7 @@ A disabled link loses its `href` rather than keeping a live one behind an `aria-
 | `children` on an item | `label`, a `String` | It is the name that is drawn **and** the name that is announced. A widget could be the first; only a string can be both. |
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | `position` | — | A Flutter screen has no page scroll to opt out of. The app's scaffold decides where the bar goes. |
-| `href` | — | There is no link element and nothing crawls a Flutter app. `onChanged` is where a router is called. |
+| `href`, `render` | — | There is no link element and nothing crawls a Flutter app. `onChanged` is where a router is called. |
 | `aria-current="page"` | the selected flag | Flutter's semantics tree has no `current`. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 

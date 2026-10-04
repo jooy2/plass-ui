@@ -181,6 +181,24 @@ PlBreadcrumb(
 
 </Demo>
 
+::: fw react
+
+### render
+
+단계의 `<a>` 자리에 라우터의 `Link`를 씁니다. 단계의 모양과 focus ring, `onClick`은 그 요소로 옮겨 갑니다. `href`처럼 `render`만 줘도 단계는 링크가 되고, 요소에 자기 `href`가 있으면 앵커에서도 `structuredData`에서도 단계의 `href`보다 그쪽이 우선합니다. 현재 단계와 disabled 단계는 링크가 아니므로 `render`를 쓰지 않습니다.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlBreadcrumb>
+  <PlBreadcrumbItem render={<NextLink href="/" />}>Home</PlBreadcrumbItem>
+  <PlBreadcrumbItem render={<NextLink href="/settings" />}>Settings</PlBreadcrumbItem>
+  <PlBreadcrumbItem>Billing</PlBreadcrumbItem>
+</PlBreadcrumb>;
+```
+
+:::
+
 ## Accessibility
 
 ::: fw react
@@ -213,6 +231,7 @@ PlBreadcrumb(
 | `href` | `onPressed` | Flutter에는 링크 요소가 없습니다. 이동하는 단계는 라우터를 부릅니다. |
 | `aria-current="page"` | heading으로 알림 | Flutter의 semantics 트리에는 `current`가 없습니다. heading이 가장 가까운 참말입니다. 여기가 그 자리이지, 그리로 가는 길이 아니라는 뜻입니다. |
 | `structuredData`, `baseUrl` | — | Flutter 앱을 읽는 크롤러가 없고, `BreadcrumbList`를 담을 `<script type="application/ld+json">`도 없습니다. |
+| `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. 이동하는 단계는 `onPressed`에서 라우터를 부릅니다. |
 | 이름이거나 노드인 `separator` | `separator`와 `separatorWidget` | Dart에는 union 타입이 없으니, 이름 붙은 표시와 직접 만든 표시가 두 개의 파라미터가 됩니다. |
 | 단계의 `children` | `label` | 자리가 하나뿐이고, 이름을 붙이는 것이 단계를 설명으로 만들 수 있게 해 줍니다. |
 

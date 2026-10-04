@@ -202,6 +202,31 @@ The capsule floats over the content in a `Stack`, so the scroll view under it ne
 
 :::
 
+::: fw react
+
+### render
+
+Takes the router's own `Link` in place of a disc's `<a>`. The disc's surface, `aria-current="page"` and the attributes the key is measured from all go onto that element, so the key still travels to it. A `render` on its own makes the disc a link, as an `href` does, and an `href` on the element wins over the disc's own. A disabled disc leaves `render` out and is drawn on a plain `<a>` with no address.
+
+```tsx
+import NextLink from 'next/link';
+
+<PlFloatingBottomNavigation value={where} onValueChange={setWhere} label="Main">
+  <PlFloatingBottomNavigationItem value="home" icon={<HomeIcon />} render={<NextLink href="/" />}>
+    Home
+  </PlFloatingBottomNavigationItem>
+  <PlFloatingBottomNavigationItem
+    value="search"
+    icon={<SearchIcon />}
+    render={<NextLink href="/search" />}
+  >
+    Search
+  </PlFloatingBottomNavigationItem>
+</PlFloatingBottomNavigation>;
+```
+
+:::
+
 ## Accessibility
 
 - The bar is <Fw react="a &lt;nav&gt; landmark" flutter="a semantics container" />, and it has no name until `label` gives it one. Pass one, such as "Main".
@@ -211,7 +236,7 @@ The capsule floats over the content in a `Stack`, so the scroll view under it ne
 
 ::: fw react
 
-- A disc is a real link when it has an `href`, and a button when it does not.
+- A disc is a real link when it has an `href` or a `render`, and a button when it has neither.
 - The current destination carries `aria-current="page"`. Never `aria-pressed`.
 - The name lives in a 1px clipped box: invisible to a sighted reader, present to every other kind. A disc with no `children` has no name at all.
 - The strip the capsule is centred in spans the window and takes **no pointer events**; only the capsule takes them back. A transparent band across the bottom of a page that swallowed presses would be a band nobody could scroll through.
@@ -232,7 +257,7 @@ The capsule floats over the content in a `Stack`, so the scroll view under it ne
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled. |
 | `position` | — | A Flutter screen has no page scroll to opt out of; the app places the bar. |
 | a full-width strip with no pointer events | — | There is no strip to build. A `fixed` element has to span something; a Flutter widget goes exactly where it is put, so the bar is only as wide as its capsule. |
-| `href` | — | There is no link element and nothing crawls a Flutter app. |
+| `href`, `render` | — | There is no link element and nothing crawls a Flutter app. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

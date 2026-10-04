@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
   PlButton,
@@ -13,6 +14,7 @@ import {
   PlMenuSubmenu,
   PlassProvider
 } from 'plass-ui';
+import { RouterLink } from '../../support/router';
 
 const trigger = <PlButton>Open</PlButton>;
 
@@ -122,6 +124,67 @@ describe('PlMenu', () => {
       expect(screen.getByRole('menuitem', { name: 'Pricing' }).element()).not.toHaveAttribute(
         'rel'
       );
+    });
+
+    it("draws a link row on the element `render` gives it, as one of the menu's rows", async () => {
+      const screen = await render(
+        <PlMenu open>
+          <PlMenuItem render={<RouterLink href="/docs" />}>Documentation</PlMenuItem>
+        </PlMenu>
+      );
+
+      const element = screen.getByRole('menuitem', { name: 'Documentation' }).element();
+
+      expect(element.tagName).toBe('A');
+      expect(element).toHaveAttribute('data-router');
+      expect(element).toHaveAttribute('href', '/docs');
+      expect(element).toHaveClass('data-[highlighted]:bg-(--p-soft-hover)');
+    });
+
+    it("moves through a router's link rows with the arrow keys and follows one with Enter", async () => {
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlMenu trigger={trigger}>
+          <PlMenuItem render={<RouterLink href="/docs" />}>Documentation</PlMenuItem>
+          <PlMenuItem render={<RouterLink href="/blog" onNavigate={onNavigate} />}>Blog</PlMenuItem>
+        </PlMenu>
+      );
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+      await expect.element(screen.getByRole('menu')).toBeInTheDocument();
+
+      await userEvent.keyboard('{ArrowDown}');
+      await expect
+        .element(screen.getByRole('menuitem', { name: 'Documentation' }))
+        .toHaveAttribute('data-highlighted');
+
+      await userEvent.keyboard('{ArrowDown}');
+
+      const blog = screen.getByRole('menuitem', { name: 'Blog' });
+
+      await expect.element(blog).toHaveAttribute('data-highlighted');
+      await expect.element(blog).toHaveFocus();
+
+      await userEvent.keyboard('{Enter}');
+
+      await vi.waitFor(() => expect(onNavigate).toHaveBeenCalledWith('/blog'));
+      await expect.poll(() => screen.getByRole('menu').query()).toBeNull();
+    });
+
+    it("leaves an unavailable row's `render` out, so it goes nowhere", async () => {
+      const screen = await render(
+        <PlMenu open>
+          <PlMenuItem disabled render={<RouterLink href="/admin" />}>
+            Admin
+          </PlMenuItem>
+        </PlMenu>
+      );
+
+      const row = screen.getByRole('menuitem', { name: 'Admin' }).element();
+
+      expect(row).not.toHaveAttribute('data-router');
+      expect(row).not.toHaveAttribute('href');
+      expect(row).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('does not fire while it is unavailable', async () => {
