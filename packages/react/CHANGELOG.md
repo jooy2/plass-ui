@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A long `PlDataTable` whose `columns` are written inline no longer draws every row again whenever the component holding it draws.** A row was skipped only while `columns` kept its identity, and an array written inline is new on every render. A row now compares its columns by `key`, `align` and `render`, so a new array that draws alike passes over every row. A `render` written inline is still a new function each time and still draws every row, so a long table keeps its `render` functions, or the whole `columns`, outside the component or in `useMemo`.
+
 - **A `PlAnimateMarquee` strip and an indeterminate `PlProgressLinear` segment travel the way the nearest `dir` says, however deeply one region is nested in another.** The stylesheet answered one region inside another, so a right-to-left region inside a left-to-right one inside a right-to-left page ran the English way. A browser with `:dir()` now reads the direction the strip or the segment is in; Chrome 111 to 119, which lack it, still read the `dir` attribute one region deep.
 
 - **A disabled `PlNavigationMenuItem` that is a link no longer goes anywhere.** `disabled` reached only an item that opens a panel, so a link item marked disabled kept its `href`, or the router's `Link` it was given through `render`, and a press or Enter still followed it. A disabled link item is now drawn dimmed, as a disabled trigger is, on an `<a>` with no address, announced as an unavailable link. The arrow keys pass over it and Tab still reaches it, which is what Base UI does with a disabled trigger.

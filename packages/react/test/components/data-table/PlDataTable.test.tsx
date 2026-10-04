@@ -769,6 +769,82 @@ describe('PlDataTable', () => {
       expect(drawn).toBe(1);
     });
 
+    it('draws no row again when its parent draws the same columns written inline', async () => {
+      let drawn = 0;
+      const customer = (row: Invoice) => {
+        drawn += 1;
+
+        return row.customer;
+      };
+      // A new array of new objects on every call, as `columns` written inline
+      // in a parent's render is.
+      const table = () => (
+        <PlDataTable
+          columns={[
+            { key: 'id', header: <b>Invoice</b>, value: (row) => row.id },
+            { key: 'customer', header: 'Customer', align: 'end', render: customer }
+          ]}
+          rows={many}
+          getRowKey={key}
+        />
+      );
+      const screen = await render(table());
+
+      expect(drawn).toBe(many.length);
+
+      drawn = 0;
+      await screen.rerender(table());
+
+      expect(drawn).toBe(0);
+    });
+
+    it('draws every row again when a column’s `render` is a new function', async () => {
+      let drawn = 0;
+      const table = (prefix: string) => (
+        <PlDataTable
+          columns={[
+            {
+              key: 'customer',
+              header: 'Customer',
+              render: (row) => {
+                drawn += 1;
+
+                return `${prefix}${row.customer}`;
+              }
+            }
+          ]}
+          rows={many}
+          getRowKey={key}
+        />
+      );
+      const screen = await render(table('A '));
+
+      drawn = 0;
+      await screen.rerender(table('B '));
+
+      expect(drawn).toBe(many.length);
+      expect(invoices()[999]).toBe('B Customer 999');
+    });
+
+    it('draws every row again when a column’s `align` changes', async () => {
+      const customer = (row: Invoice) => row.customer;
+      const table = (align: 'start' | 'end') => (
+        <PlDataTable
+          columns={[{ key: 'customer', header: 'Customer', align, render: customer }]}
+          rows={many}
+          getRowKey={key}
+        />
+      );
+      const screen = await render(table('start'));
+
+      await screen.rerender(table('end'));
+
+      const cells = document.querySelectorAll<HTMLElement>('tbody td');
+
+      expect(cells[0].style.textAlign).toBe('end');
+      expect(cells[999].style.textAlign).toBe('end');
+    });
+
     it('folds each row for the search once, however many keys are typed', async () => {
       let folded = 0;
       const screen = await render(

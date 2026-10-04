@@ -358,13 +358,65 @@ interface DataTableRowProps<Row> {
 }
 
 /**
+ * Whether two sets of columns draw a row's cells the same way.
+ *
+ * A row reads three things off a column, `key`, `align` and `render`, so two
+ * sets that agree on those draw every cell alike whatever else in them differs.
+ * A `columns` array written inline is a new array of new objects on every
+ * render of the component holding it, and compared by identity alone it drew
+ * every row again each time. `render` is still compared by identity: a function
+ * written inline is new on every render and may close over state that has
+ * changed since, so a new one has to draw the row again.
+ */
+function sameCells<Row>(
+  previous: readonly PlDataTableColumn<Row>[],
+  next: readonly PlDataTableColumn<Row>[]
+): boolean {
+  if (previous === next) {
+    return true;
+  }
+
+  if (previous.length !== next.length) {
+    return false;
+  }
+
+  return next.every((column, place) => {
+    const before = previous[place];
+
+    return (
+      column === before ||
+      (column.key === before.key &&
+        column.align === before.align &&
+        column.render === before.render)
+    );
+  });
+}
+
+/** `React.memo`'s own shallow comparison, with `columns` compared by `sameCells`. */
+function sameRow<Row>(previous: DataTableRowProps<Row>, next: DataTableRowProps<Row>): boolean {
+  const names = Object.keys(next) as (keyof DataTableRowProps<Row>)[];
+
+  if (names.length !== Object.keys(previous).length) {
+    return false;
+  }
+
+  return names.every((name) =>
+    name === 'columns'
+      ? sameCells(previous.columns, next.columns)
+      : Object.is(previous[name], next[name])
+  );
+}
+
+/**
  * One row of the body, drawn again only when something about it changed.
  *
  * A tick changes one row, and with every row on screen — which is what
  * `scroll` paging means — drawing them all again put a `PlCheckbox` and every
  * cell of a thousand rows behind each press. A row is handed its own state as
  * plain values and the table's handlers through a ref, so `React.memo` passes
- * over every row the press did not touch.
+ * over every row the press did not touch, and its columns are compared by what
+ * the row draws with rather than by identity, so it passes over them too when
+ * the table's parent draws again with the same columns written inline.
  *
  * `React.memo` loses the type parameter, so the cast puts it back.
  */
@@ -457,7 +509,7 @@ const DataTableRow = /* @__PURE__ */ React.memo(function DataTableRow<Row>({
       ))}
     </tr>
   );
-}) as <Row>(props: DataTableRowProps<Row>) => React.ReactElement;
+}, sameRow) as <Row>(props: DataTableRowProps<Row>) => React.ReactElement;
 
 /**
  * A table that owns its rows: it sorts them, narrows them to what was typed,
