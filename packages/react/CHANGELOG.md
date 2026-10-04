@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **`Esc` closes a `PlCommandPalette`, and every close puts the focus back where it was.** The palette's search list took `Esc` for a popup of its own that it never had and stopped it there, so the key did nothing although the page said it closed the sheet. The field also took the focus before the dialog noted where it had been, so closing the palette by running a command or from the parent left the focus on the page's body. `Esc` now closes the sheet on the first press, whatever is typed in the field, and the focus goes back to whatever held it before the palette opened.
+
 - **A parent's render no longer makes a `PlTabs` bar measure its indicator again.** Base UI's indicator measures the list and the chosen tab while it renders, and the bar made a new indicator on every render, so every render of whatever held the bar read the list's box, its scroll width and the tab's computed style for a tab that had not moved. The indicator is now made again only when its look or the bar's direction changes, and it still moves on the same frame as before when the value changes, when a tab is renamed or resized, when the bar is resized, and when the bar or the document turns round.
 
 - **A `PlCodeBlock` asks for the highlighter again after the first request for it failed.** If the highlight.js core did not arrive once, for example because the connection dropped while it was in flight, the failure was kept, and every code block on the page stayed plain for as long as the page was open. A failed request is now forgotten: the next block that needs the highlighter asks for it again, and blocks still show their code plain until the colours arrive.

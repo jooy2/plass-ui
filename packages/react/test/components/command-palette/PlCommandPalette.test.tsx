@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
@@ -10,6 +11,39 @@ const items: PlCommandItem[] = [
   { value: 'cafe', label: 'Café settings', group: 'Edit' },
   { value: 'gone', label: 'Unavailable', group: 'Edit', disabled: true }
 ];
+
+/** A palette opened from a button, the way a page with no shortcut opens one. */
+function Opener() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}>
+        Open palette
+      </button>
+      <PlCommandPalette items={items} shortcut={false} open={open} onOpenChange={setOpen} />
+    </>
+  );
+}
+
+/**
+ * Opens an `Opener` the way a press on its button would, and waits for the
+ * field to hold the focus. The button is returned, because it is where the
+ * focus has to come back to.
+ */
+async function openFromButton() {
+  const screen = await render(<Opener />);
+  const opener = screen.getByRole('button', { name: 'Open palette' }).element() as HTMLElement;
+
+  // `click()` leaves the focus where `focus()` put it, as a press would.
+  opener.focus();
+  opener.click();
+
+  // Nobody focuses the field here: the palette has to put the focus in it.
+  await expect.element(screen.getByRole('combobox')).toHaveFocus();
+
+  return { screen, opener };
+}
 
 describe('PlCommandPalette', () => {
   describe('the sheet', () => {
@@ -66,6 +100,40 @@ describe('PlCommandPalette', () => {
       // The palette asked; the caller has not said yes.
       expect(onOpenChange).toHaveBeenCalledWith(true);
       expect(screen.getByRole('dialog').query()).toBeNull();
+    });
+  });
+
+  describe('Escape', () => {
+    it('closes the sheet from the field and gives the focus back to where it was', async () => {
+      const { screen, opener } = await openFromButton();
+
+      await userEvent.keyboard('{Escape}');
+
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => document.activeElement).toBe(opener);
+    });
+
+    it('closes on the first press, with a query typed and a row lit', async () => {
+      const onOpenChange = vi.fn();
+
+      const screen = await render(
+        <PlCommandPalette items={items} shortcut={false} defaultOpen onOpenChange={onOpenChange} />
+      );
+
+      await expect.element(screen.getByRole('combobox')).toHaveFocus();
+
+      await userEvent.keyboard('cop');
+      await expect.poll(() => screen.getByRole('option').elements().length).toBe(1);
+      await userEvent.keyboard('{ArrowDown}');
+      await expect
+        .poll(() => document.querySelector('[role="option"][data-highlighted]'))
+        .not.toBeNull();
+
+      await userEvent.keyboard('{Escape}');
+
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(onOpenChange).toHaveBeenCalledWith(false);
     });
   });
 
@@ -270,6 +338,19 @@ describe('PlCommandPalette', () => {
       expect(onSelect).toHaveBeenCalledTimes(1);
       expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ label: lit }));
       await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+    });
+
+    it('gives the focus back to where it was once a command has run', async () => {
+      const { screen, opener } = await openFromButton();
+
+      await userEvent.keyboard('{ArrowDown}');
+      await expect
+        .poll(() => document.querySelector('[role="option"][data-highlighted]'))
+        .not.toBeNull();
+      await userEvent.keyboard('{Enter}');
+
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => document.activeElement).toBe(opener);
     });
 
     it('opens again with an empty field, whatever closed it', async () => {

@@ -256,6 +256,7 @@ export function PlCommandPalette({
 
   const [uncontrolled, setUncontrolled] = React.useState(defaultOpen);
   const [query, setQuery] = React.useState('');
+  const field = React.useRef<HTMLInputElement>(null);
 
   const showing = open ?? uncontrolled;
 
@@ -328,6 +329,12 @@ export function PlCommandPalette({
 
         <BaseUIDialog.Viewport className="plass-portal fixed inset-0 z-(--plass-z-portal) flex justify-center p-4 pt-[12vh]">
           <BaseUIDialog.Popup
+            // The dialog moves the focus into the field rather than the field
+            // taking it with `autoFocus`. The dialog notes where the focus was
+            // as it opens, and an `autoFocus` has already moved it by then, so
+            // a close would hand the focus back to the field, which is gone by
+            // then, and the reader would land on the page's body.
+            initialFocus={field}
             aria-label={label}
             className={cx(
               popupClasses,
@@ -344,6 +351,11 @@ export function PlCommandPalette({
             }}
           >
             <Autocomplete.Root
+              // `inline`, because the list has no popup of its own: the sheet is
+              // the dialog's. Without it the Autocomplete dismisses a popup that
+              // `open` keeps on screen, so it takes Escape and stops it there,
+              // and the dialog never hears the key that should close it.
+              inline
               open
               mode="list"
               // Already filtered here, so that a group heading can be drawn from
@@ -361,7 +373,7 @@ export function PlCommandPalette({
                 )}
               >
                 <Autocomplete.Input
-                  autoFocus
+                  ref={field}
                   placeholder={placeholder}
                   className={cx(
                     'min-w-0 flex-1 bg-transparent [font:inherit] text-inherit [outline:none]',
