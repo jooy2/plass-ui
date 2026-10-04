@@ -1076,6 +1076,13 @@
   --p-anim-along: -1;
 }
 
+/* A left-to-right region inside a right-to-left page runs the English way
+   again; see `.plass-marquee-track` for why the selector is written this way. */
+[dir='rtl'] [dir='ltr'] .plass-progress-sweep,
+.plass-progress-sweep:dir(ltr) {
+  --p-anim-along: 1;
+}
+
 /* The one place the library turns something, and the exception is the same one
    the spinner already has: an indeterminate indicator that holds still says the
    opposite of what it is for. `rotate` rather than `transform`, so nothing else
@@ -2298,6 +2305,22 @@
 [dir='rtl'] .plass-marquee-track,
 .plass-marquee-track:dir(rtl) {
   --p-anim-along: -1;
+}
+
+/*
+ * And back again for a left-to-right region inside a right-to-left page, which
+ * `[dir='rtl']` above matches as well, since it asks whether any ancestor is
+ * right to left rather than the nearest. This rule comes later and is the more
+ * specific, so the nearer `dir` wins. It is `[dir='rtl'] [dir='ltr']` and not
+ * a bare `[dir='ltr']`: a page that writes `dir="ltr"` on its root would
+ * otherwise turn every right-to-left region inside it the English way. One
+ * region inside another is answered right in either order; a right-to-left
+ * region three levels down, inside a left-to-right one inside a right-to-left
+ * page, still runs the English way.
+ */
+[dir='rtl'] [dir='ltr'] .plass-marquee-track,
+.plass-marquee-track:dir(ltr) {
+  --p-anim-along: 1;
 }
 
 .plass-marquee[data-pause-on-hover]:hover .plass-marquee-track {

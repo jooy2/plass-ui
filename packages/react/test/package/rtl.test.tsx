@@ -207,18 +207,44 @@ describe('the stylesheet turns the marquee round', () => {
       </PlAnimateMarquee>
     );
 
+    return trackSign();
+  }
+
+  /** The same, for a strip in a region of one direction inside a page of the other. */
+  async function alongInside(page: 'ltr' | 'rtl', region: 'ltr' | 'rtl'): Promise<string> {
+    await render(
+      <div dir={page}>
+        <div dir={region}>
+          <PlAnimateMarquee>
+            <span>Now boarding</span>
+          </PlAnimateMarquee>
+        </div>
+      </div>
+    );
+
+    return trackSign();
+  }
+
+  function trackSign(): string {
     const track = document.querySelector('.plass-marquee-track')!;
 
     return getComputedStyle(track).getPropertyValue('--p-anim-along').trim();
   }
 
   it('leaves a left-to-right strip travelling left', async () => {
-    // Unset, and that is the default the keyframe multiplies by.
-    expect(await along('ltr')).toBe('');
+    expect(await along('ltr')).toBe('1');
   });
 
   it('sends a right-to-left strip the other way', async () => {
     expect(await along('rtl')).toBe('-1');
+  });
+
+  it('sends a strip in a left-to-right region of a right-to-left page left', async () => {
+    expect(await alongInside('rtl', 'ltr')).toBe('1');
+  });
+
+  it('and one in a right-to-left region of a page that says ltr the other way', async () => {
+    expect(await alongInside('ltr', 'rtl')).toBe('-1');
   });
 });
 

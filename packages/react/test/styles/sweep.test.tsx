@@ -147,9 +147,7 @@ describe('the indeterminate sweeps', () => {
       };
     }
 
-    it('crosses the groove from the left edge to the right one in left-to-right', async () => {
-      await render(<Loading dir="ltr" />);
-
+    function expectSegmentLeftToRight(): void {
       const start = segmentAt(0);
 
       expect(start.segment.right).toBeCloseTo(start.groove.left, 0);
@@ -157,11 +155,9 @@ describe('the indeterminate sweeps', () => {
       const end = segmentAt(1);
 
       expect(end.segment.left).toBeGreaterThan(end.groove.right - 1);
-    });
+    }
 
-    it('crosses it from the right edge to the left one in right-to-left', async () => {
-      await render(<Loading dir="rtl" />);
-
+    function expectSegmentRightToLeft(): void {
       const start = segmentAt(0);
 
       expect(start.segment.left).toBeCloseTo(start.groove.right, 0);
@@ -169,6 +165,38 @@ describe('the indeterminate sweeps', () => {
       const end = segmentAt(1);
 
       expect(end.segment.right).toBeLessThan(end.groove.left + 1);
+    }
+
+    it('crosses the groove from the left edge to the right one in left-to-right', async () => {
+      await render(<Loading dir="ltr" />);
+
+      expectSegmentLeftToRight();
+    });
+
+    it('crosses it from the right edge to the left one in right-to-left', async () => {
+      await render(<Loading dir="rtl" />);
+
+      expectSegmentRightToLeft();
+    });
+
+    it('crosses it left to right in a left-to-right region of a right-to-left page', async () => {
+      await render(
+        <div dir="rtl">
+          <Loading dir="ltr" />
+        </div>
+      );
+
+      expectSegmentLeftToRight();
+    });
+
+    it('and right to left in a right-to-left region of a page that says ltr', async () => {
+      await render(
+        <div dir="ltr">
+          <Loading dir="rtl" />
+        </div>
+      );
+
+      expectSegmentRightToLeft();
     });
 
     /** The highlight held at a point in the pass. */
