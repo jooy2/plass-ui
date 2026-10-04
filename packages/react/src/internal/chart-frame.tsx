@@ -63,6 +63,7 @@ import {
 import { useDefaults, useLocale } from './defaults.js';
 import { usePlElementSize } from '../hooks/usePlElementSize.js';
 import { useLabels } from './labels.js';
+import { layoutBox } from './layout-box.js';
 import { textOf } from './text.js';
 import {
   cx,
@@ -1330,6 +1331,9 @@ export function CartesianChart({
 
   const hostRef = React.useRef<HTMLDivElement>(null);
   const { width, height: measuredHeight, guessed } = useMeasuredSize(hostRef, initialWidth);
+  /* How many of the chart's own pixels one pixel on the screen is, across and
+     down, and the two sizes they were measured from. See `pointerAt`. */
+  const scaleRef = React.useRef({ key: '', across: 1, down: 1 });
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
@@ -1733,15 +1737,49 @@ export function CartesianChart({
      that placed its dots twice would eventually place them in two places. */
   const markList = markBuilder ? markBuilder(layout) : noMarks;
 
-  const indexAt = (clientX: number, clientY: number) => {
+  /**
+   * Where the pointer is in the chart's own pixels, from the top-left corner of
+   * the picture: the pixels the plot, the bands and the marks are laid out in.
+   *
+   * The pointer arrives on the screen, and the two differ inside a scaled
+   * ancestor, a chart in a scaled `PlMockup` for one, where the panel read
+   * another column or mark than the one under the pointer. The ratio between
+   * them costs a style read, so it is measured again only when the box on the
+   * screen, which is read on every move anyway, or the size the chart is laid
+   * out at changes: a pointer moving over the chart adds no layout read.
+   */
+  const pointerAt = (clientX: number, clientY: number) => {
     const host = hostRef.current;
 
-    if (!host || count === 0) {
+    if (!host) {
       return null;
     }
 
     const rect = host.getBoundingClientRect();
-    const along = horizontal ? clientY - rect.top - plot.top : clientX - rect.left - plot.left;
+    const key = `${rect.width} ${rect.height} ${width} ${measuredHeight}`;
+    let known = scaleRef.current;
+
+    if (known.key !== key) {
+      known = {
+        key,
+        across: layoutBox(host, true).perPixel,
+        down: layoutBox(host, false).perPixel
+      };
+      scaleRef.current = known;
+    }
+
+    return {
+      x: (clientX - rect.left) * known.across,
+      y: (clientY - rect.top) * known.down
+    };
+  };
+
+  const indexAt = (x: number, y: number) => {
+    if (count === 0) {
+      return null;
+    }
+
+    const along = horizontal ? y - plot.top : x - plot.left;
 
     if (along < -band.step || along > categoryLength + band.step) {
       return null;
@@ -1768,16 +1806,10 @@ export function CartesianChart({
    * to hit than a dot and neither is as small as it looks: an 8px dot is not
    * something a pointer can be asked to land on.
    */
-  const nearestMark = (clientX: number, clientY: number) => {
-    const host = hostRef.current;
-
-    if (!host || markList.length === 0) {
+  const nearestMark = (x: number, y: number) => {
+    if (markList.length === 0) {
       return null;
     }
-
-    const rect = host.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
 
     let found: number | null = null;
     let best = Infinity;
@@ -1812,17 +1844,7 @@ export function CartesianChart({
   };
 
   /** Where the pointer sits along the *value* axis — `item` mode's other half. */
-  const valueAt = (clientX: number, clientY: number) => {
-    const host = hostRef.current;
-
-    if (!host) {
-      return null;
-    }
-
-    const rect = host.getBoundingClientRect();
-
-    return horizontal ? clientX - rect.left : clientY - rect.top;
-  };
+  const valueAt = (x: number, y: number) => (horizontal ? x : y);
 
   /* Which mark is being read, and the two ways of arriving at one. A chart with
      marks is walked mark by mark; a chart without them is walked column by
@@ -2057,12 +2079,14 @@ export function CartesianChart({
             return;
           }
 
+          const spot = pointerAt(event.clientX, event.clientY);
+
           if (markBuilder) {
-            const at = nearestMark(event.clientX, event.clientY);
+            const at = spot ? nearestMark(spot.x, spot.y) : null;
 
             setHeldMark(at === null ? null : markKey(markList[at], visibility.keys));
           } else {
-            setColumnIndex(indexAt(event.clientX, event.clientY));
+            setColumnIndex(spot ? indexAt(spot.x, spot.y) : null);
           }
 
           // Only `item` mode over columns reads this, and only it may pay for
@@ -2073,7 +2097,7 @@ export function CartesianChart({
           // moves. A chart of marks never consults it: its column is already the
           // one mark's series, so it re-renders only when the nearest mark changes.
           if (tooltipMode === 'item' && !markBuilder) {
-            setPointer(valueAt(event.clientX, event.clientY));
+            setPointer(spot ? valueAt(spot.x, spot.y) : null);
           }
         }}
         onPointerLeave={clearActive}
