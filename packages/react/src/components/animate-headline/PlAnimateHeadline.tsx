@@ -103,7 +103,12 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
     once,
     threshold,
     paused,
-    infinite: isInfinite(repeat)
+    infinite: isInfinite(repeat),
+    // A reel that loops on its own timer turns for ever, whatever `repeat` says,
+    // so it rests off screen and its timer with it: the timer below only runs
+    // while the state is `running`. Back on screen, the line it stopped on is
+    // held for a whole `interval` again before the next comes up.
+    endless: loop && index === undefined
   });
   const reduced = usePrefersReducedMotion();
 

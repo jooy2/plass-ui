@@ -57,6 +57,12 @@ PlAnimateMarquee(
 
 나머지 공유 설정 — `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — 은 다른 곳에서와 같은 뜻입니다. `duration`만이 예외입니다. 두지 않으면 띠를 **재어서** 정하고, 그것이 `speed`가 있는 이유입니다.
 
+::: fw react
+
+끝없이 흐르는 띠는 화면 밖에 있는 동안 쉬고, 다시 화면에 들어오면 멈춘 자리에서 이어 갑니다. 그러지 않으면 브라우저는 아무도 보지 않는 애니메이션을 계속 돌립니다.
+
+:::
+
 ## Examples
 
 ### speed

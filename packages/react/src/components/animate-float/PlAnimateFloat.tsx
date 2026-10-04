@@ -103,6 +103,7 @@ export const PlAnimateFloat = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       threshold,
       paused,
       infinite: true,
+      moves: true,
       children
     });
 

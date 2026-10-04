@@ -55,6 +55,12 @@ The text is the **first positional argument** and a plain `String`, the way `PlT
 
 `duration` is honoured as the time for the **whole string**, and it overrides `speed`. `speed` is the natural unit here — a long paragraph and a short one should be typed at the same pace, not in the same time — so it is the default.
 
+::: fw react
+
+While it is off screen a typewriter with `repeat="infinite"` stops typing, and it goes on from the same character when it is back. Its caret rests off screen too, even after a typing that has finished, because a browser otherwise keeps running an animation nobody can see.
+
+:::
+
 ## Examples
 
 ### speed

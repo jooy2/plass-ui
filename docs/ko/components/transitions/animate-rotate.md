@@ -69,6 +69,12 @@ const PlAnimateRotate(
 
 `from`만 있으면 도착입니다. 무언가 제자리로 들어와 멈춥니다. `from`과 `to`를 `repeat="infinite"`, `easing="linear"`와 함께 쓰면 끝나지 않는 회전이 됩니다. 배지나 로딩 표시, 장식용 글리프가 원하는 것이죠. 후자에서는 `fade`를 끄세요. 반복되는 fade는 깜빡임으로 읽힙니다.
 
+::: fw react
+
+끝없는 회전은 화면 밖에 있는 동안 쉬고, 다시 화면에 들어오면 멈춘 자리에서 이어 갑니다. 그러지 않으면 브라우저는 아무도 보지 않는 애니메이션을 계속 돌립니다.
+
+:::
+
 <Demo src="animate-rotate/spin" :min-height="160">
 
 ::: fw react

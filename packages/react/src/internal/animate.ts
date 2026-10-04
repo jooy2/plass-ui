@@ -81,6 +81,18 @@ export const animationClasses: Record<PlassAnimation, string> = {
 /** The class that reads the slots. Always paired with one of the above. */
 export const animBaseClass = 'plass-anim';
 
+/**
+ * The keyframes that move, turn or scale the element they run on, rather than
+ * only changing how much of it is drawn. Where such an element is drawn is not
+ * where it lives, which is what `AnimationRunOptions.moves` is about.
+ */
+const movingEffects: ReadonlySet<PlassAnimation> = /* @__PURE__ */ new Set<PlassAnimation>([
+  'grow',
+  'slide',
+  'zoom',
+  'rotate'
+]);
+
 /** A number is pixels; a string is already a CSS length. */
 export function lengthValue(value: number | string): string {
   return typeof value === 'number' ? `${value}px` : value;
@@ -260,6 +272,26 @@ export interface AnimationRunOptions {
   /** An infinite effect stops when the pointer leaves; a finite one finishes. */
   infinite: boolean;
   /**
+   * Whether the effect runs for ever once it has started: an `'infinite'`
+   * repeat, a marquee, a reel that loops.
+   *
+   * An endless effect **rests while it is off screen** and goes on from the
+   * frame it stopped on when it is back. A browser keeps running an animation
+   * nobody can see, and a few of these redraw on the main thread on every frame
+   * they run, so an endless one left running further up the page costs a reader
+   * something on every frame of the rest of their visit. A finite one is left
+   * alone: it finishes, and an entrance that played off screen has still
+   * delivered its content.
+   */
+  endless?: boolean;
+  /**
+   * Whether the effect moves the element it runs on, so that where the element
+   * is drawn is not where it lives. Whether an endless one is on screen is then
+   * read off its parent, which stays put: read off the element, a slide that
+   * starts outside its mask would rest there, out of sight, for good.
+   */
+  moves?: boolean;
+  /**
    * A value that plays the effect again whenever it changes, and never on the
    * first render.
    *
@@ -363,6 +395,106 @@ function holds(element: HTMLElement | null, related: EventTarget | null): boolea
   return element !== null && related instanceof Node && element.contains(related);
 }
 
+/* ---------------------------------------------------------------------------
+ * Resting off screen
+ * ------------------------------------------------------------------------- */
+
+/** Told whether the element it was registered for is off screen now. */
+type AwayListener = (away: boolean) => void;
+
+/**
+ * Every element an endless effect is watching, with whoever is listening.
+ *
+ * One observer for the whole page rather than one per effect. A strip of logos,
+ * a glowing card and a typed headline on one page are three elements on one
+ * observer, which reports whichever of them has just crossed the edge of the
+ * screen and is otherwise silent.
+ */
+const awayListeners = new Map<Element, Set<AwayListener>>();
+let awayObserver: IntersectionObserver | null = null;
+
+function reportAway(entries: IntersectionObserverEntry[]): void {
+  for (const entry of entries) {
+    const box = entry.boundingClientRect;
+    // A box with no area of its own says nothing about where what it holds is
+    // drawn: a `display: contents` parent, or an element with nothing in it.
+    // Read as off screen, it would hold an effect still on a visible page.
+    const away = !entry.isIntersecting && box.width * box.height > 0;
+
+    for (const listener of awayListeners.get(entry.target) ?? []) {
+      listener(away);
+    }
+  }
+}
+
+/**
+ * Tells `listener` whether `element` is off screen, now and whenever that
+ * changes, and hands back the function that stops it.
+ */
+function watchAway(element: Element, listener: AwayListener): () => void {
+  awayObserver ??= new IntersectionObserver(reportAway);
+
+  let listeners = awayListeners.get(element);
+
+  if (listeners) {
+    // An element that is already watched has already been reported, and an
+    // observer does not report a target twice for being observed twice. Taking
+    // it off and putting it back is what has the newcomer told where it is.
+    awayObserver.unobserve(element);
+  } else {
+    listeners = new Set();
+    awayListeners.set(element, listeners);
+  }
+
+  listeners.add(listener);
+  awayObserver.observe(element);
+
+  return () => {
+    listeners.delete(listener);
+
+    if (listeners.size === 0) {
+      awayListeners.delete(element);
+      awayObserver?.unobserve(element);
+    }
+  };
+}
+
+/**
+ * Whether the element in `node`, or its parent with `parent`, is off screen.
+ *
+ * `false` until the observer has said otherwise, which is what the server
+ * renders and what the first frame shows: an effect runs as it always has, and
+ * rests only once something has seen it leave. With no observer to ask, it
+ * never rests.
+ *
+ * Exported for `PlAnimateTyping`'s caret, which blinks for ever after a typing
+ * that finishes, and so rests on its own while the typing does not.
+ */
+export function useOffScreen(
+  node: React.RefObject<Element | null>,
+  enabled: boolean,
+  parent = false
+): boolean {
+  const [away, setAway] = React.useState(false);
+
+  React.useEffect(() => {
+    const element = parent ? node.current?.parentElement : node.current;
+
+    if (!enabled || !element || typeof IntersectionObserver === 'undefined') {
+      return undefined;
+    }
+
+    const stop = watchAway(element, setAway);
+
+    return () => {
+      stop();
+      setAway(false);
+    };
+  }, [node, enabled, parent]);
+
+  return enabled && away;
+}
+
 export interface AnimationRun {
   /** Goes on the animated element. */
   ref: React.RefCallback<HTMLElement>;
@@ -370,6 +502,12 @@ export interface AnimationRun {
   state: 'running' | 'paused';
   /** Whether the animation has been let go at all. */
   started: boolean;
+  /**
+   * Whether an endless effect is resting because it is off screen, which
+   * `state` already says as `paused`. Typing runs on timers rather than a
+   * keyframe, and stops scheduling them while it is true.
+   */
+  resting: boolean;
   /**
    * How many times it has been started, counting every hover, every `play` and
    * every change of `nonce`.
@@ -431,6 +569,8 @@ export function useAnimationRun({
   threshold,
   paused,
   infinite,
+  endless = false,
+  moves = false,
   nonce
 }: AnimationRunOptions): AnimationRun {
   const node = React.useRef<HTMLElement | null>(null);
@@ -631,12 +771,24 @@ export function useAnimationRun({
         }
       : {};
 
+  // Watched only while it is running. One that is waiting or held is already
+  // still and has nothing to rest from. Nor under a `visible` trigger that is
+  // not `once`, which already stops the effect when it leaves the view.
+  const resting = useOffScreen(
+    node,
+    endless && started && !paused && !(trigger === 'visible' && !once),
+    moves
+  );
+
   return {
     ref: React.useCallback((element: HTMLElement | null) => {
       node.current = element;
     }, []),
-    state: started && !paused ? 'running' : 'paused',
+    // Paused rather than taken off, so the keyframe holds the frame it was on
+    // and goes on from it: nothing is rewound, because `run` has not moved.
+    state: started && !paused && !resting ? 'running' : 'paused',
     started,
+    resting,
     runs: run,
     handlers
   };
@@ -724,8 +876,13 @@ export function animateChildren(
  * The six, assembled
  * ------------------------------------------------------------------------- */
 
+/**
+ * `endless` is left out because it is worked out here, from `repeat`. `moves`
+ * is only needed for a keyframe of the component's own: the named ones are
+ * already known.
+ */
 export interface AnimateElementParams
-  extends AnimationSlotOptions, AnimationRunOptions, PlassAnimateStaggerProps {
+  extends AnimationSlotOptions, Omit<AnimationRunOptions, 'endless'>, PlassAnimateStaggerProps {
   /** Which keyframe. `null` for the components that write their own. */
   effect: PlassAnimation | null;
   /** `transform-origin`, for the two effects that turn about a point. */
@@ -776,15 +933,21 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
     durationStep = 0,
     reverse = false,
     origin,
+    moves,
     children,
     ...slots
   } = params;
+
+  const spread = stagger !== 0 && effect !== null;
 
   // A scroll timeline has no use for a trigger: the scroll position *is* the
   // trigger, and an effect left `paused` waiting to be scrolled into view would
   // sit on its own first frame while the reader scrolled straight past it. So
   // the run is told it mounted, which starts it, and `paused` — a caller saying
   // "hold it" rather than "wait for something" — goes on working.
+  //
+  // Nor does it rest off screen: it only advances while it is being scrolled
+  // through, and a paused one would stop following the scroll.
   const run = useAnimationRun({
     trigger: slots.timeline === 'view' ? 'mount' : trigger,
     play,
@@ -792,11 +955,13 @@ export function useAnimateElement(params: AnimateElementParams): AnimateElement 
     threshold,
     paused,
     infinite,
+    endless: isInfinite(slots.repeat) && slots.timeline !== 'view',
+    // Staggered, the effect is on the children and the root stays where it is.
+    moves: !spread && (moves ?? (effect !== null && movingEffects.has(effect))),
     nonce
   });
 
   const effectClass = effect ? `${animBaseClass} ${animationClasses[effect]}` : '';
-  const spread = stagger !== 0 && effect !== null;
   const originStyle = origin === undefined ? null : { transformOrigin: origin };
 
   return {

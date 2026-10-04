@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
-import { isInfinite, useAnimationRun } from '../../internal/animate.js';
+import { isInfinite, useAnimationRun, useOffScreen } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { srOnlyCopyClasses } from '../../internal/styles.js';
 import { graphemesOf, textOf } from '../../internal/text.js';
@@ -99,9 +99,17 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     once,
     threshold,
     paused,
-    infinite: isInfinite(repeat)
+    infinite: isInfinite(repeat),
+    endless: isInfinite(repeat)
   });
   const reduced = usePrefersReducedMotion();
+
+  const node = React.useRef<HTMLDivElement | null>(null);
+
+  // The caret blinks for ever, after a typing that finishes as much as during
+  // one that loops, so it rests off screen on its own account: a typing that
+  // finishes is not endless, and goes on typing wherever it is.
+  const caretResting = useOffScreen(node, caret && !reduced);
 
   const source = text ?? textOf(children);
   const graphemes = React.useMemo(() => graphemesOf(source), [source]);
@@ -120,6 +128,13 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   const progress = React.useRef(0);
 
   /**
+   * Whether it was deleting when it stopped, kept beside `progress` for the
+   * same reason: a loop held halfway through deleting its line goes on
+   * deleting it, rather than typing it back out first.
+   */
+  const erasing = React.useRef(false);
+
+  /**
    * `duration` is honoured as the time for the whole string, because a caller
    * who has set a duration on every other PlAnimate component will reach for it
    * here too. `speed` is the natural unit for a typewriter — a long paragraph
@@ -136,6 +151,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   // counting characters alone left it standing there already typed.
   React.useEffect(() => {
     progress.current = 0;
+    erasing.current = false;
   }, [source, run.runs]);
 
   React.useEffect(() => {
@@ -152,12 +168,15 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       // string until it scrolled into view and then blanked would be worse than
       // no effect at all.
       progress.current = 0;
+      erasing.current = false;
       setShown(0);
 
       return;
     }
 
-    if (paused) {
+    // Held by the caller, or resting off screen. Either way the chain is torn
+    // down here and built again from `progress` and `erasing` when it goes on.
+    if (paused || run.resting) {
       return;
     }
 
@@ -165,7 +184,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     let timer: ReturnType<typeof setTimeout>;
     let count = progress.current;
     let pass = 1;
-    let deleting = false;
+    let deleting = erasing.current;
 
     const passes = repeat === 'infinite' ? Infinity : Math.max(1, repeat);
 
@@ -185,6 +204,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
         if (count <= 0) {
           deleting = false;
+          erasing.current = false;
           pass += 1;
         }
 
@@ -209,6 +229,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
       if (erase) {
         deleting = true;
+        erasing.current = true;
         timer = setTimeout(step, hold);
 
         return;
@@ -228,8 +249,9 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     };
 
     setShown(count);
-    // Resuming picks up at the next character; starting waits out the delay.
-    timer = setTimeout(step, count === 0 ? delay : typeDelay);
+    // Resuming picks up at the next character, in the direction it was going;
+    // starting waits out the delay.
+    timer = setTimeout(step, count === 0 ? delay : deleting ? deleteDelay : typeDelay);
 
     return () => {
       cancelled = true;
@@ -244,6 +266,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     run.runs,
     source,
     paused,
+    run.resting,
     reduced,
     total,
     typeDelay,
@@ -256,13 +279,14 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
   return (
     <div
-      ref={(node) => {
-        run.ref(node);
+      ref={(element) => {
+        node.current = element;
+        run.ref(element);
 
         if (typeof ref === 'function') {
-          ref(node);
+          ref(element);
         } else if (ref) {
-          (ref as React.RefObject<HTMLDivElement | null>).current = node;
+          (ref as React.RefObject<HTMLDivElement | null>).current = element;
         }
       }}
       className={className}
@@ -279,7 +303,14 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
         {/* Where the typing is, and taking no room there. An inline caret would
             carry its width along the line and add a place to break inside a
             word, so the box would change as it moved. */}
-        {caret ? <span className="plass-caret absolute">{caretChar}</span> : null}
+        {caret ? (
+          <span
+            className="plass-caret absolute"
+            style={caretResting ? { animationPlayState: 'paused' } : undefined}
+          >
+            {caretChar}
+          </span>
+        ) : null}
         {/* The characters still to come, and then the caret's room, laid out
             and not drawn, so every frame is laid out as the finished line and
             the server's HTML holds the box as well. The characters are

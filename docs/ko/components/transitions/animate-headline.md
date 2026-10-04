@@ -62,6 +62,12 @@ const PlAnimateHeadline(
 
 `repeat`만은 다릅니다. 줄도 바퀴도 세지 않으며, 마지막 줄 다음에 다시 시작할지는 `loop`가 정합니다. `repeat`는 headline이 멈추는 방식만 바꿉니다. hover `trigger`에서 `repeat`가 기본값 <Fw react="'infinite'" flutter="null" code />일 때는 포인터와 focus가 떠나면 릴이 그 자리에 멈추고, 횟수를 주면 떠난 뒤에도 계속 돕니다. 다른 `trigger`에서는 아무것도 바꾸지 않습니다.
 
+::: fw react
+
+스스로 타이머를 돌리며 반복하는 릴은 화면 밖에 있는 동안 멈추고, 다시 화면에 들어오면 멈췄던 줄을 `interval` 동안 온전히 보여 준 뒤 다음 줄로 넘어갑니다. 그러지 않으면 아무도 보지 않는 릴이 계속 돕니다.
+
+:::
+
 ## Examples
 
 ### Controlled

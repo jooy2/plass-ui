@@ -139,7 +139,9 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
     once,
     threshold,
     paused: paused || stopped,
-    infinite: isInfinite(repeat)
+    infinite: isInfinite(repeat),
+    // The track moves inside the box, and the box stays where it is.
+    endless: isInfinite(repeat)
   });
 
   const boxRef = React.useRef<HTMLDivElement | null>(null);

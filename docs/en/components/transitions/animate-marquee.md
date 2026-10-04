@@ -57,6 +57,12 @@ There is no `mode`, no `from` and no `fade`. A marquee is a loop, not an arrival
 
 The rest of the shared settings — `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — mean what they mean everywhere else. `duration` is the exception: leave it out and the strip is **measured**, which is what `speed` is for.
 
+::: fw react
+
+While it is off screen an endless strip rests, and it goes on from where it stopped when it is back, because a browser otherwise keeps running an animation nobody can see.
+
+:::
+
 ## Examples
 
 ### speed

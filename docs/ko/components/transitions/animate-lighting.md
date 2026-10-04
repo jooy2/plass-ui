@@ -58,6 +58,12 @@ const PlAnimateLighting(
 
 공유되는 열 가지 설정 — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — 은 모든 `PlAnimate*` 컴포넌트에서 같습니다. 다만 `repeat`의 기본값이 여기서는 `'infinite'`입니다.
 
+::: fw react
+
+끝없이 도는 빛은 화면 밖에 있는 동안 쉬고, 다시 화면에 들어오면 멈춘 자리에서 이어 갑니다. 그러지 않으면 브라우저는 아무도 보지 않는 애니메이션을 계속 돌립니다.
+
+:::
+
 ## Examples
 
 ### color

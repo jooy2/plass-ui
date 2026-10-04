@@ -58,6 +58,12 @@ The light sits **behind** the content rather than on it, in a stacking context o
 
 The ten shared settings — `duration`, `delay`, `easing`, `repeat`, `alternate`, `paused`, `trigger`, `play`, `once`, `threshold` — are the same on every `PlAnimate*` component, except that `repeat` defaults to `'infinite'` here.
 
+::: fw react
+
+While it is off screen an endless light rests, and it goes on from where it stopped when it is back, because a browser otherwise keeps running an animation nobody can see.
+
+:::
+
 ## Examples
 
 ### color

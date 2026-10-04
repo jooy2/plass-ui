@@ -62,6 +62,12 @@ The rest of the shared settings — `duration`, `delay`, `easing`, `paused`, `tr
 
 `repeat` is the exception: it counts neither lines nor cycles, and `loop` is what decides whether the lines start again after the last one. `repeat` only changes how the headline stops. With a hover `trigger`, <Fw react="'infinite'" flutter="null" code />, the default, stops the reel where it is when the pointer and the focus leave, and a count leaves it turning after they have gone. Under any other `trigger` it changes nothing.
 
+::: fw react
+
+While it is off screen a reel that loops on its own timer stops turning, and when it is back the line it stopped on is held for a whole `interval` before the next one comes up. Otherwise the page would go on turning a reel nobody can see.
+
+:::
+
 ## Examples
 
 ### Controlled

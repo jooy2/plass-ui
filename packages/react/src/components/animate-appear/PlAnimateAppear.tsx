@@ -113,7 +113,10 @@ export const PlAnimateAppear = /* @__PURE__ */ React.forwardRef<
     once,
     threshold,
     paused,
-    infinite: isInfinite(repeat)
+    infinite: isInfinite(repeat),
+    // The children move and the root stays where it is, so the root is what
+    // says whether the set is on screen.
+    endless: isInfinite(repeat)
   });
 
   const { x, y } = slideOffsets(from, distance);

@@ -102,6 +102,7 @@ export const PlAnimateShake = /* @__PURE__ */ React.forwardRef<HTMLDivElement, P
       threshold,
       paused,
       infinite: false,
+      moves: true,
       nonce: replay,
       children
     });

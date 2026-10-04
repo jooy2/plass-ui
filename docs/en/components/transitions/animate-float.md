@@ -43,6 +43,12 @@ The rest of this group answers "how does this content arrive". This one answers 
 
 **It never finishes.** `repeat` is infinite by default, because a single drift out and back is a nudge and nobody asks for a nudge.
 
+::: fw react
+
+While it is off screen an endless drift rests, and it goes on from where it stopped when it is back, because a browser otherwise keeps running an animation nobody can see.
+
+:::
+
 **It is not in the effect union.** `PlassAnimation` (the set `mode`, `stagger` and the shared effect map are built on) is the set of ways content can _arrive_. A drift is not an arrival, and every component that imports that map pays for each row in it whether or not it uses the effect, so a row nothing else could want does not go in. It runs its own keyframe instead.
 
 **It has no `mode`.** There is no reverse of a drift: the cycle is symmetric already, and running it backwards is the same cycle.

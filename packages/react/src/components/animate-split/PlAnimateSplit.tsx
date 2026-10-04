@@ -208,7 +208,10 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
     once,
     threshold,
     paused,
-    infinite: isInfinite(repeat)
+    infinite: isInfinite(repeat),
+    // The parts move and the root stays where it is. A scroll-linked line does
+    // not rest, for the reason `useAnimateElement` gives.
+    endless: isInfinite(repeat) && timeline !== 'view'
   });
 
   const slots: AnimationSlotOptions = {

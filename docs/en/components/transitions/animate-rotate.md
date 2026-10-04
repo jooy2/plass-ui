@@ -69,6 +69,12 @@ Three more move the effect off the box and onto the things inside it: `stagger` 
 
 `from` alone is an arrival: something swings into place and stops. `from` and `to` together with `repeat="infinite"` and `easing="linear"` is a spin that never lands, which is what a badge, a loading mark or a decorative glyph wants. Turn `fade` off for the second one — a fade that repeats reads as flickering.
 
+::: fw react
+
+While it is off screen an endless spin rests, and it goes on from where it stopped when it is back, because a browser otherwise keeps running an animation nobody can see.
+
+:::
+
 <Demo src="animate-rotate/spin" :min-height="160">
 
 ::: fw react
