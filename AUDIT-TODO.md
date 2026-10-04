@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**31 items are open, and the last number used is 31.**
+**14 items are open, and the last number used is 41.** Batch 1 (2026-10-04) closed items 1 to 23, 32, 33, 34 and 38, and was paused before it was verified as a whole and pushed; see [Paused batch](#paused-batch).
 
 ## Working through a batch
 
@@ -38,45 +38,32 @@ cd packages/flutter && dart format --line-length 100 lib test example/lib && flu
 cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm run build
 ```
 
+## Paused batch
+
+Batch 1 was paused on 2026-10-04 at the Prompter's request. Local `main` holds its picked commits on top of `10f3994ad` and has **not been pushed**. To finish it:
+
+1. Pick the three commits for items 35, 36 and 37 from the branch `worktree-agent-a3b440281d678e550` (`8e4d6d63c`, `73bfbecc9`, `2486373e1`, made from `6a3f50799`). The worker was stopped before it reported, so check each one first (its test fails on the parent and passes with it, lint, typecheck) and write its changelog entry under `Fixed`.
+1. Item 40 was half written in `.claude/worktrees/agent-a3b28dd03947561b8` and never committed: a new `src/internal/lazy.tsx` with its test, and changes to `PlConfirmProvider`, `PlSidebar`, `PlImage`, `PlGallery`, `vitest.config.ts` and `test/env.d.ts`. Finish it there or start again from `main`. Items 39 and 41 have not been started.
+1. Verify the whole batch with every command under [Verifying a batch](#verifying-a-batch). React passed on `main` at `6a3f50799` (all three shards, after one rerun of the known `PlScatterChart` "renders again only when the nearest mark changes" flake); the commits picked after it each passed their own worker's full run. The size budget has moved past 2% ("Everything" about +1.5 kB, `One PlButton` +0.3 kB under esbuild, mostly from the new lazy chunks): run `npm run size -- --update` and commit the budget on its own.
+1. Push (approved on 2026-10-04), check CI, remove the worker worktrees and branches once every commit is on `main`, and report.
+
 ## Waiting for an answer
 
-None.
+Approved on 2026-10-04 and not yet done:
+
+- **35.** Round every frame `PlAnimateCounter` draws to the answer's own number of fraction digits, as Flutter does, so the reserved width holds from the first frame.
+- **36.** Make `PlAnimateTyping` hold its line once in the page's text at every moment (it holds the clipped copy and the typed text after typing).
+- **37.** Keep the pass a paused `PlAnimateTyping` is on when it resumes (it resets `pass` to 1, so a finite `repeat` plays extra passes).
+- **39.** Confirm, then fix: with a full-span `sticky` `PlHeader` the first paint has no `--p-layout-header`, so the sidebar is `100dvh` tall until hydration shortens it (`PlSidebar.tsx` ~437); reserve the header's height in CSS as item 4 did for a fixed header.
+- **40.** A lazy dialog whose chunk fails to load (`PlConfirmProvider`'s `PlModal`, `PlSidebar`'s `PlDrawer`, `PlImagePreview`, `PlGalleryViewer`) throws to the nearest error boundary. Retry the import once, then step back quietly: `ask()` settles as cancelled, a drawer or a preview does not open, and a later attempt may try again; one shared helper, one sentence on each page.
+- **41.** `PlCommandPalette` does not close on `Esc` (`docs/en/components/navigation/command-palette.md` ~135 says it does; `<Autocomplete.Root open>` in `PlCommandPalette.tsx` ~347 looks like the cause). Fix it, keep what `Esc` does in the field, and check the Flutter build.
 
 ## Items
 
-Line numbers are from `62e1b599` and drift as the code changes; when one no longer matches, search for the symbol.
-
-### High
-
-- **1.** **Hydration fails when the server and the browser default to different locales.** With no `locale` given, `numberFormatter` and `dateFormatter` in `packages/react/src/internal/format.ts` (~44, ~62) pass `undefined` to `Intl`, which is each runtime's own default. Rendered on an en-US server and hydrated in a de-DE browser, `PlAnimateCounter`, `PlLineChart` and the dashboard example report "Hydration failed … this tree will be regenerated on the client". Approved fix (2026-10-04): render the server pass and the hydration pass in a fixed locale (the provider's `locale`, else `en-US`) and switch to the browser's locale right after hydration through `useSyncExternalStore`, so a client-only app renders exactly what it does today; say in the docs that a server-rendered site should give `PlassProvider` a `locale`.
-- **2.** **`PlImage` stays transparent until hydration.** The server HTML carries `opacity-0` on the `<img>` (`PlImage.tsx` ~698, ~788), with `priority` too, so LCP waits for hydration and the picture never shows without JavaScript; `PlGallery` tiles share it. Approved fix (2026-10-04): an image rendered on the server and hydrated is opaque from the start; only an image mounted on the client fades in as today.
-- **3.** **`PlSkeleton` and the indeterminate `PlProgressLinear` animate a layout property forever.** `plass-skeleton-sweep` and `plass-progress-sweep` in `styles.css` (~1135, ~1050) move `inset-inline-start`, which lays the box out again on every frame and records a layout shift each time (CLS 0.02 to 0.037 in 1.5 s on the demos, 0.39 in 5 s for a 600×340 skeleton). Approved fix (2026-10-04): move it with `translate` and flip the sign under RTL the way the marquee does (`[dir='rtl']` and `:dir(rtl)`).
-- **4.** **A `fixed` header in `PlPageLayout` pushes the content down after hydration.** The header's height is measured in a `useEffect` (`PlPageLayout.tsx` ~319) and written to `--p-layout-header-inset`, which the padding reads (~398), so the first paint has no room for the header (CLS 0.06 to 0.23). The measurement also alternates `getComputedStyle`/`offsetHeight` reads with `style.setProperty` writes on the root (~278-300), which recalculates the whole page's style once per slot. Fix: measure in a layout effect, all reads before all writes, and reserve the header's height in CSS for the server-rendered first paint.
-
-### Medium
-
-- **5.** **`hiddenUntilFound` on `PlAccordion` and `PlCollapsible` makes Base UI warn.** Plass passes `keepMounted={false}` explicitly (`PlAccordion.tsx` ~283, `PlCollapsible.tsx` ~280), and Base UI warns when `hiddenUntilFound` meets an explicit `false` (`AccordionRoot.mjs` ~44, `CollapsiblePanel.mjs` ~33). Pass `undefined` when the caller gave nothing, and test `hiddenUntilFound`. The tabs page should also say that an inactive panel is not in the server HTML unless the panel is `keepMounted`, as the accordion page does.
-- **6.** **Below `md`, `PlSidebar`'s links leave the DOM after hydration.** A collapsed sidebar becomes an overlay `PlDrawer` (`PlSidebar.tsx` ~391), whose closed portal renders nothing, so mobile-first indexing sees no navigation links. Approved fix (2026-10-04): an opt-in `keepMounted` on `PlDrawer` and `PlSidebar`, off by default.
-- **7.** **Animated text is doubled or garbled in the server HTML.** The screen-reader copy and the `aria-hidden` drawn copy are both text nodes: `PlAnimateCounter value={12345}` reads "12,3450" (`PlAnimateCounter.tsx` ~257), `PlAnimateScramble` and `PlAnimateSplit` repeat the sentence, `PlAnimateHeadline` runs its lines together. Approved fix (2026-10-04): draw the visible copy from `data-text` with `::before { content: attr(data-text) }`, as `PlAnimateTyping` already does.
-- **8.** **`PlAnimateCounter` and `PlAnimateScramble` change width while they run.** The text around them moves (CLS 0.017 in a centred paragraph). Approved fix (2026-10-04): overlay the final string invisibly in the same cell, as `PlAnimateTyping` does, so the width is the final one from the start.
-- **9.** **Infinite effects keep running off screen.** `PlAnimateLighting` repaints on the main thread every frame (a registered custom property under `filter: blur`), and the marquee, float, blink, the caret and the headline and typing timers never pause. Approved fix (2026-10-04): pause an infinite effect while it is off screen and resume where it stopped, through the pause `useAnimationRun` already has.
-- **10.** **`PlConfirmProvider` and `PlSidebar` load the dialog stack up front.** `PlConfirmProvider.tsx` ~5 imports `PlModal` and `PlSidebar.tsx` ~7 imports `PlDrawer`; an app shell of provider, toast, confirm, page layout, sidebar and header weighs 37.6 kB gzip, 18.6 kB without the two. Approved fix (2026-10-04): `React.lazy` with an idle-time preload; the modal mounts on the first `ask()`, the drawer only while the sidebar is collapsed.
-- **11.** **`PlDataTable` selection and search grow with the row count.** Every render calls `selected.includes` per row (~548, ~816) and every keystroke folds every cell again (~433); with `paging='scroll'` every row renders. Use a `Set`, cache the folded strings, memoise the row.
-- **12.** **`PlSegmentedButton` and `PlFloatingBottomNavigation` force layouts.** Each reads, writes, then forces a layout with `void offsetWidth` (`PlSegmentedButton.tsx` ~392-401, `PlFloatingBottomNavigation.tsx` ~351-366), and both layout effects depend on `children` (~414, ~375), so they measure again on every parent render; several mounted together recalculate between each other's writes.
-- **13.** **A horizontal `PlTabs` or `PlScrollZone` adds a non-passive wheel listener even when nothing overflows** (`internal/wheel.ts` ~132), so scrolling the page over it waits for the main thread. Attach it only while the strip overflows.
-- **14.** **`preview` on `PlImage` and `PlGallery` downloads the overlay before it is opened.** The lazy `PlImagePreview` is rendered inside `Suspense` while closed (`PlImage.tsx` ~917, `PlGallery.tsx` ~651), so its chunk is fetched on every page that has a preview, and `renderToString` logs "Switched to client rendering" for the boundary. Mount it on the first open and prefetch on pointer-enter or focus.
-- **15.** **Some layouts are worked out again after hydration.** `PlPanes` splits evenly until an effect sizes the panes (`PlPanes.tsx` ~251, ~534; CLS 0.066), a masonry `PlGallery` is two lanes on the server and four on a desktop after hydration (`PlGallery.tsx` ~332), and `PlMockup` at `width='100%'` is `visibility: hidden` until it is measured (`PlMockup.tsx` ~344), which delays the first paint of anything inside it.
-- **16.** **The per-component stylesheets scan the whole of `internal/`.** `dist/css/base.css` has `@source '../internal'`, so one `PlButton` costs 14.1 kB where the modules it reaches would cost 11.0 kB. `build-styles.mjs` already computes the graph; list each component's own `internal` files instead. The README says this saves "about 5 kB" and the measured figure is about 8 kB.
-- **17.** **Opening a popup is slow.** At a 4x CPU slowdown, opening a date range picker took 250 to 300 ms and a date or date-time picker, `PlMenu`, `PlDrawer` or `PlCommandPalette` 200 to 240 ms; the handler itself takes 1 to 10 ms and the rest is the popup's render and paint. Profile and fix what can be fixed without a visible change. The measurement used a software GPU, which inflates blur paint.
-- **18.** **`PlCodeBlock` highlights every block in one task, and fetches the grammar after the core.** `highlight.ts` ~267 highlights all blocks in one microtask chain, and ~227/232 waits for the core before asking for the grammar. Yield between blocks and fetch both at once.
-- **19.** **`PlTabs` and `PlSidebar` read layout more often than they need to.** `PlTabs.tsx` ~434 is a layout effect with no dependencies that reads `scrollWidth` after every commit, and ~412 calls `getComputedStyle(...).direction` on every scroll event; `PlSidebar.tsx` ~202 calls `getComputedStyle(document.documentElement).fontSize` during render.
-- **20.** **`PlTreeSelect` and `PlTransfer` normalise every item's text on every keystroke** (`PlTreeSelect.tsx` ~131, `PlTransfer.tsx` ~322). Cache the folded strings.
-- **21.** **Docs: a reader who picked Flutter gets a Vue hydration mismatch on every page with a `<Demo>`.** `Demo.vue` renders the Flutter frame on its first client render while the server rendered the React half; `FrameworkSelect.vue` already avoids the same problem with a `hydrated` flag.
+Line numbers are from `62e1b599` and drift as the code changes; when one no longer matches, search for the symbol. Items 35 to 41 are under [Waiting for an answer](#waiting-for-an-answer).
 
 ### Low
 
-- **22.** **`PlEmpty` draws its title inside a `<p>`** (`PlEmpty.tsx` ~120), so a heading passed as the title is invalid HTML (`<p><h2>`).
-- **23.** **`PlAvatar` has no `<img>` in the server HTML.** Base UI mounts the image only once it has loaded, so the request starts after hydration. Check whether Base UI's own options can render it from the start without changing what is shown.
 - **24.** **`PlHotKeys` swaps `Ctrl` for `⌘` right after hydration on Apple platforms**, which moves the text after it (CLS 0.015 on the demo). The server cannot know the platform; reserve the width or accept it. `Decision needed`.
 - **25.** **A chart draws nothing but its frame until hydration.** The plot, the ticks and a `PlGaugeChart`'s value are drawn once the width is measured, so a chart that is the largest element on screen delays LCP until JavaScript runs. An opt-in initial width would let the server draw it. `API addition`.
 - **26.** **`PlAppLogo` defaults `alt` to `''`**, so a logo rendered as a home link with only `src` is a link with no name. `Decision needed` (a required `alt` is a type change).
@@ -85,3 +72,30 @@ Line numbers are from `62e1b599` and drift as the code changes; when one no long
 - **29.** **`PlSelect` renders one hidden sizing element per option** (`sizer.tsx` ~41), about 2,500 elements for ten country selects. Picking only the widest candidates changes the measured width. `Decision needed`.
 - **30.** **Closed content of `PlStepper` and `PlTree` and the folded steps of `PlBreadcrumb` are not in the server HTML.** `Decision needed` (the same kind of choice as `keepMounted`).
 - **31.** **The glass blur costs GPU time on low-end phones**, nested in forms inside cards and once per chip. The blur is the material, so any mitigation (honouring `prefers-reduced-transparency`, recommending `content-visibility` for long lists) is a design decision. `Decision needed`.
+
+## Decided and recorded
+
+- **Time zones (item 32).** Only the clock is pinned to UTC for a server render and its hydration. A date a caller passes stays in each runtime's own zone, because the library treats a `Date` as a wall-clock day and pinning it would move dates east of UTC by a day; the locales guide tells a server-rendered page to build its dates from year, month and day. A date built from an instant (an ISO timestamp) can still differ between server and browser; a `timeZone` prop would be the way to close that, and is not planned.
+- **Popup openings (item 17).** Profiled at 4x: most of a first opening is Base UI and React work, first-run compilation, the blur's raster and Base UI's positioner restyling the popup twice; Plass's own share was at most 15 ms. Only the pickers' needless second render was fixed.
+
+## Noted differences
+
+Small differences found in passing in batch 1. They are not items and are not worked.
+
+- `PlSlider` ignores `PlassProvider`'s `locale` while `PlNumberField` and `PlMeter` read it (`PlSlider.tsx` ~233).
+- `docs/{en,ko}/guide/defaults.md` ~102 leaves `PlSparkline` out of the components the provider's `locale` reaches.
+- `PlCombobox.tsx` ~455 lower-cases with the runtime locale (it only decides whether the custom row appears).
+- `getting-started.md`'s Next.js section does not point to the locale advice for server-rendered pages.
+- A browser whose zone changes while a page is open can show the calendar's month and weekday names a day off: `format.ts` caches formatters, and `WEEKDAY_ORIGIN` (`date.ts` ~487) is built at load.
+- `internal/wheel.ts` ~136 calls `getComputedStyle(element).direction` on every wheel event that moves a strip.
+- `PlDataTable` skips unchanged rows only while `columns` keeps its identity; an inline `columns` array redraws every row.
+- A `dir` changed at run time on a wrapper, with no `PlassProvider direction`, leaves a `PlTabs` fade and indicator where they were until something else changes (`rtl.md` already says to use the provider).
+- The direction reset for the marquee and the progress segment is exact two levels deep; a right-to-left region inside a left-to-right one inside a right-to-left page runs the English way.
+- `PlPanes` (~330, ~362) and `PlMockup` (`usePlElementSize`) measure the border or content box where CSS resolves against another box, so a padded split or mockup moves a few pixels at hydration.
+- An inline `style` change that moves segments without resizing the set is no longer re-measured on that commit (`PlSegmentedButton`, `PlFloatingBottomNavigation`).
+- `drawerSide()` (`internal/page-layout.ts` ~204) reads the document's computed style on every render of a collapsed sidebar; a `PlHeader` that changes only its `position` is not measured again.
+- `localeWeekStart` (`internal/date.ts` ~568) builds an `Intl.DateTimeFormat` and an `Intl.Locale` on every picker render when no locale is given.
+- `animate-counter.md` ~77 says a new `value` counts from where the last one landed; the code counts from `from` (`PlAnimateCounter.tsx` ~179).
+- Docs: a Flutter reader still sees a 4px jump at hydration in a `<Demo>` (`docs.css` ~158 against `Demo.vue` `frameStyle`).
+- `CLAUDE.md` says `src/internal/` has 47 modules; there are 59.
+- Whether a browser fetches a module again after an `import()` of the same URL failed is up to its module cache; item 38 only guarantees the library asks again.
