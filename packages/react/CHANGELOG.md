@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **The time columns of `PlTimePicker` and `PlDateTimePicker` show the chosen row on a scaled page.** When a `transform` reached the popup, on a page scaled as a whole for example, a column measured how far down its chosen row was at the size it was drawn at and scrolled that far in its own pixels, so it opened with the chosen hour or minute out of view, and an arrow, Home or End key chose a row it left out of view. The row is now scrolled into view.
+
 - **A `PlScrollZone` inside a scaled ancestor goes to the next item and follows a drag.** Inside a `transform`, a zone in a scaled `PlMockup` for example, the strip measured the distance to the next or the previous item at the size it was drawn at and scrolled that far in its own pixels, so a button stopped part of the way there, and a mouse drag slid the strip at a different speed from the pointer, across, down and under RTL. A button now lands on the item and a drag keeps the strip under the pointer.
 
 - **A `PlWindowPane` inside a scaled ancestor moves and resizes in its own pixels.** Inside a `transform`, a window in a scaled `PlMockup` for example, a corner, an edge or the resize key started from the size the window was drawn at, so the window jumped to another size as soon as it was taken hold of; a drag moved the window at a different speed from the pointer; an arrow key on the title bar stopped short of the edge of the view; and a window with no `height` rolled up from, and came back down to, the height it was drawn at. All of them now start from the window's own size, a key moves it 16 of its own pixels, and a drag keeps the title bar or the corner under the pointer.

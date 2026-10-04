@@ -4,6 +4,7 @@ import { PlButton } from '../components/button/PlButton.js';
 import { ChevronIcon } from './icons.js';
 import { useRuntimeTimeZone } from './defaults.js';
 import { dateFormatter } from './format.js';
+import { layoutBox } from './layout-box.js';
 import {
   addDays,
   addMonths,
@@ -1210,11 +1211,16 @@ function revealInColumn(row: HTMLElement) {
   }
 
   // Measured rather than read off `offsetTop`, which is relative to whichever
-  // ancestor happens to be positioned and not necessarily to the column.
+  // ancestor happens to be positioned and not necessarily to the column. It is
+  // measured on the screen and `scrollTop` counts the column's own pixels, so
+  // it is turned into those: the two differ when a transform reaches the popup,
+  // one on a page scaled as a whole for one, where the chosen row was left out
+  // of view.
   const rowBox = row.getBoundingClientRect();
   const columnBox = column.getBoundingClientRect();
-  const top = rowBox.top - columnBox.top - column.clientTop + column.scrollTop;
-  const bottom = top + rowBox.height;
+  const { perPixel } = layoutBox(column, false);
+  const top = (rowBox.top - columnBox.top) * perPixel - column.clientTop + column.scrollTop;
+  const bottom = top + rowBox.height * perPixel;
 
   if (top < column.scrollTop) {
     column.scrollTop = top;
