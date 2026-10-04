@@ -32,9 +32,12 @@ describe('PlSelect', () => {
 
     it('renders the width samples only when it is sized by its labels', async () => {
       const narrow = await render(<PlSelect items={items} placeholder="Pick a city" />);
+      const samples = narrow.container.querySelectorAll('[data-sample]');
 
-      // Three options and the placeholder hold an inline trigger open.
-      expect(narrow.container.querySelectorAll('[data-sample]')).toHaveLength(4);
+      // Three options and the placeholder hold an inline trigger open, a line
+      // each in one element.
+      expect(samples).toHaveLength(1);
+      expect(samples[0].getAttribute('data-sample')).toBe('Seoul\nLisbon\nQuito\nPick a city');
 
       const wide = await render(<PlSelect items={items} placeholder="Pick a city" fullWidth />);
 
@@ -67,12 +70,14 @@ describe('PlSelect', () => {
 
       // Nothing is chosen, so the trigger shows the placeholder and no flag at
       // all: a picture in a width sample would be a request for every option.
+      // The space the flag left in front of each name is not laid out, as it
+      // would not be at the start of a line.
       expect(screen.container.querySelectorAll('img')).toHaveLength(0);
       expect(
         [...screen.container.querySelectorAll('[data-sample]')].map((sample) =>
           sample.getAttribute('data-sample')
         )
-      ).toEqual([' South Korea', ' Portugal', 'Pick a country']);
+      ).toEqual(['South Korea\nPortugal\nPick a country']);
     });
 
     it('renders the label, the description and the error', async () => {
