@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A `PlAnimateTyping` paused during a hold holds for the rest of it when it is let go.** Paused during the hold before `erase` deletes its line, it started deleting one character after it was let go; paused during the hold between two passes without `erase`, it held for the whole hold again. Both now hold for the time that was left of the hold.
+
 - **`PlAnimateCounter` given significant digits in `format` writes the figures on its way with no more decimals than the answer.** With `maximumSignificantDigits` alone, a frame was rounded to the significant digits and nothing else, so a count to 4,812 with three of them showed "12.3" on the way to "4,810". A frame now keeps to both the significant digits and the answer's number of fraction digits, whichever is coarser.
 
 - **Moving to another step of a `PlStepper` from inside its panel puts the focus in the new step's panel.** A Next button in a panel went with the panel, or was hidden with it under `keepMounted`, so the focus fell to the page's body and the next Tab started from the top of the page. The panel that arrives now takes the focus, is announced by its step's name, and the next Tab goes on to what is in it, in both orientations. The panel is not a Tab stop, and a focus anywhere else, on a step for example, stays where it is.

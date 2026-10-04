@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `PlAnimateTyping` let go during a hold, or partway through deleting, goes on as it was.** Paused during the hold before `erase` deletes, it started deleting after the typing delay, and paused during the hold between two passes without `erase`, it held for the whole hold again; both now hold for the time that was left of the hold. Let go partway through deleting, it waited the typing delay before the next character rather than the delete delay.
+
 - **Moving to another step of a `PlStepper` from inside its panel puts the focus in the new step's panel.** The focus went back to whatever had held it before, often a step behind the reader. The panel that arrives now takes it, and the next Tab goes on to what is in it, in both orientations. The panel is never a Tab stop, and a focus elsewhere stays where it is.
 
 - **A `PlAnimateTyping` with a finite `repeat` plays every pass it was asked for when it is paused during the hold between two passes.** The next pass was counted as soon as the line was typed out, before the hold, so a typewriter paused during the hold came back to a pass that was already counted and stopped, and `repeat: 2` without `erase` typed its line once. A pass is now counted when it starts: a typewriter let go during the hold holds again and goes on to the next pass, and one let go during its last pass finishes that pass and plays no other, as the React build does.

@@ -143,6 +143,16 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   const pass = React.useRef(1);
 
   /**
+   * Whether the typed-out line is being held before the next pass, and what is
+   * left of that hold in milliseconds, kept beside `erasing` as well. Marked as
+   * deleting from the start of the hold, a chain built again during it deleted
+   * the next character at once; now it holds the line for what was left of the
+   * hold first, rather than the whole of it again.
+   */
+  const holding = React.useRef(false);
+  const holdLeft = React.useRef(0);
+
+  /**
    * `duration` is honoured as the time for the whole string, because a caller
    * who has set a duration on every other PlAnimate component will reach for it
    * here too. `speed` is the natural unit for a typewriter — a long paragraph
@@ -161,6 +171,8 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     progress.current = 0;
     erasing.current = false;
     pass.current = 1;
+    holding.current = false;
+    holdLeft.current = 0;
   }, [source, run.runs]);
 
   React.useEffect(() => {
@@ -179,6 +191,8 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       progress.current = 0;
       erasing.current = false;
       pass.current = 1;
+      holding.current = false;
+      holdLeft.current = 0;
       setShown(0);
 
       return;
@@ -195,6 +209,8 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     let timer: ReturnType<typeof setTimeout>;
     let count = progress.current;
     let deleting = erasing.current;
+    // When the hold, or what was left of it, started.
+    let holdFrom = 0;
 
     const passes = repeat === 'infinite' ? Infinity : Math.max(1, repeat);
 
@@ -211,16 +227,28 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
         return;
       }
 
-      if (erase) {
-        deleting = true;
-        erasing.current = true;
-        timer = setTimeout(step, hold);
+      holding.current = true;
+      holdLeft.current = hold;
+      rest();
+    };
 
-        return;
-      }
-
+    // Holds the typed-out line for what is left of the hold, then deletes it
+    // or clears it for the next pass.
+    const rest = () => {
+      holdFrom = performance.now();
       timer = setTimeout(() => {
         if (cancelled) {
+          return;
+        }
+
+        holding.current = false;
+        holdLeft.current = 0;
+
+        if (erase) {
+          deleting = true;
+          erasing.current = true;
+          step();
+
           return;
         }
 
@@ -229,7 +257,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
         progress.current = 0;
         setShown(0);
         timer = setTimeout(step, typeDelay);
-      }, hold);
+      }, holdLeft.current);
     };
 
     const step = () => {
@@ -268,8 +296,12 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
     setShown(count);
 
-    if (count >= total && !deleting) {
-      // Resumed with the line typed out, which is the hold between two passes.
+    if (holding.current) {
+      // Resumed during the hold between two passes: what was left of it.
+      rest();
+    } else if (count >= total && !deleting) {
+      // Resumed with the line typed out and no hold begun, which is a pass that
+      // `repeat` has since been raised past.
       finish();
     } else {
       // Resuming picks up at the next character, in the direction it was going;
@@ -280,6 +312,10 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     return () => {
       cancelled = true;
       clearTimeout(timer);
+
+      if (holding.current) {
+        holdLeft.current = Math.max(0, holdLeft.current - (performance.now() - holdFrom));
+      }
     };
     // `run.runs` and `source` are listed although nothing above reads them. A
     // second hover starts a new run without changing `started`, and a new run

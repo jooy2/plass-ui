@@ -276,6 +276,129 @@ void main() {
       });
     });
 
+    testWidgets(
+      'paused and let go during the hold between two passes, holds for what was left of it',
+      (WidgetTester tester) async {
+        Widget typing({required bool paused}) {
+          return host(
+            PlAnimateTyping(
+              'Hi',
+              speed: 10,
+              hold: const Duration(milliseconds: 1000),
+              repeat: 2,
+              paused: paused,
+              caret: false,
+            ),
+            width: 400,
+          );
+        }
+
+        await tester.pumpWidget(typing(paused: false));
+        await tester.pump(const Duration(milliseconds: 10));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(visibleOf(tester), 'Hi');
+
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpWidget(typing(paused: true));
+        await tester.pump(const Duration(milliseconds: 2000));
+        await tester.pumpWidget(typing(paused: false));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(visibleOf(tester), 'Hi');
+
+        await tester.pump(const Duration(milliseconds: 150));
+
+        // About 600ms of the hold was left, and the line is cleared for the next
+        // pass. Held for the whole of it again, it would still be holding here.
+        expect(visibleOf(tester), '');
+      },
+    );
+
+    group('paused and let go while it erases', () {
+      Widget erasing({
+        required String text,
+        required bool paused,
+        required double eraseSpeed,
+        required Duration hold,
+      }) {
+        return host(
+          PlAnimateTyping(
+            text,
+            speed: 10,
+            eraseSpeed: eraseSpeed,
+            hold: hold,
+            erase: true,
+            repeat: 2,
+            paused: paused,
+            caret: false,
+          ),
+          width: 400,
+        );
+      }
+
+      testWidgets('during the hold before it deletes, holds for what was left of it', (
+        WidgetTester tester,
+      ) async {
+        Widget typing({required bool paused}) {
+          return erasing(
+            text: 'Hi',
+            paused: paused,
+            eraseSpeed: 10,
+            hold: const Duration(milliseconds: 1000),
+          );
+        }
+
+        await tester.pumpWidget(typing(paused: false));
+        // The two characters arrive 100ms apart, and the hold starts with the
+        // second.
+        await tester.pump(const Duration(milliseconds: 10));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(visibleOf(tester), 'Hi');
+
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpWidget(typing(paused: true));
+        await tester.pump(const Duration(milliseconds: 2000));
+        await tester.pumpWidget(typing(paused: false));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // About 600ms of the hold was left. Let go, it used to delete at once.
+        expect(visibleOf(tester), 'Hi');
+
+        await tester.pump(const Duration(milliseconds: 150));
+
+        // Held for the whole of it again, it would still be holding here.
+        expect(visibleOf(tester), 'H');
+      });
+
+      testWidgets('partway through deleting, waits the delete delay', (WidgetTester tester) async {
+        Widget typing({required bool paused}) {
+          // Typed at 100ms a character and deleted at 500ms a character.
+          return erasing(text: 'Hello', paused: paused, eraseSpeed: 2, hold: Duration.zero);
+        }
+
+        await tester.pumpWidget(typing(paused: false));
+        await tester.pump(const Duration(milliseconds: 10));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // Typed out at 400ms, and the first character deleted at once.
+        expect(visibleOf(tester), 'Hell');
+
+        await tester.pumpWidget(typing(paused: true));
+        await tester.pump(const Duration(milliseconds: 1000));
+        await tester.pumpWidget(typing(paused: false));
+        await tester.pump(const Duration(milliseconds: 200));
+
+        // Waiting the typing delay instead, it deleted the next one by now.
+        expect(visibleOf(tester), 'Hell');
+
+        await tester.pump(const Duration(milliseconds: 350));
+
+        expect(visibleOf(tester), 'Hel');
+      });
+    });
+
     testWidgets('is simply there where the platform has asked for less movement', (
       WidgetTester tester,
     ) async {

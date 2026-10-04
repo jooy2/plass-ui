@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
@@ -188,6 +189,22 @@ class _TypewriterState extends State<_Typewriter> {
   /// pass that was already over, and stopped on it.
   int _pass = 1;
   bool _deleting = false;
+
+  /// Whether the typed-out line is being held before the next pass, and what is
+  /// left of that hold.
+  ///
+  /// Kept beside [_deleting] so a chain torn down during the hold goes on with
+  /// the hold when it is let go, for the time that was left of it, rather than
+  /// starting to delete at once or holding the whole time again.
+  bool _holding = false;
+  Duration _holdLeft = Duration.zero;
+
+  /// The frame the hold, or what was left of it, started on, which is what the
+  /// part already gone by is measured against. The frame clock, for the reason
+  /// `PlassAnimateRun` measures its wait on it: a widget test moves time
+  /// forward on a clock of its own, and a stopwatch would measure nothing.
+  Duration? _holdFrom;
+
   Timer? _next;
   int _drivenRun = -1;
 
@@ -240,6 +257,14 @@ class _TypewriterState extends State<_Typewriter> {
     }
 
     if (!widget.running) {
+      if (_holding && _next != null) {
+        final Duration gone = _holdFrom == null
+            ? Duration.zero
+            : SchedulerBinding.instance.currentSystemFrameTimeStamp - _holdFrom!;
+
+        _holdLeft = _holdLeft > gone ? _holdLeft - gone : Duration.zero;
+      }
+
       _next?.cancel();
       _next = null;
 
@@ -258,13 +283,17 @@ class _TypewriterState extends State<_Typewriter> {
         return;
       }
 
-      if (_shown >= _graphemes.length && !_deleting) {
-        // Resumed with the line typed out, which is the hold between two
-        // passes or the end of the last one.
+      if (_holding) {
+        // Resumed during the hold between two passes: what was left of it.
+        _rest();
+      } else if (_shown >= _graphemes.length && !_deleting) {
+        // Resumed with the line typed out and no hold begun, which is the end
+        // of the last pass, or one that `repeat` has since been raised past.
         _finish();
       } else {
-        // Resuming picks up where the chain was torn down.
-        _step(_typeDelay);
+        // Resuming picks up where the chain was torn down, in the direction it
+        // was going.
+        _step(_deleting ? _deleteDelay : _typeDelay);
       }
 
       return;
@@ -273,6 +302,8 @@ class _TypewriterState extends State<_Typewriter> {
     _drivenRun = widget.runs;
     _pass = 1;
     _deleting = false;
+    _holding = false;
+    _holdLeft = Duration.zero;
 
     if (_shown != 0) {
       setState(() => _shown = 0);
@@ -333,22 +364,45 @@ class _TypewriterState extends State<_Typewriter> {
       return;
     }
 
+    _holding = true;
+    _holdLeft = widget.hold;
+    _rest();
+  }
+
+  /// Holds the typed-out line for what is left of the hold.
+  void _rest() {
+    _next?.cancel();
+    _next = Timer(_holdLeft, _endHold);
+
+    // Measured from the frame that draws the line it holds. A chain that is
+    // typing reaches this from a timer, between two frames, when the last
+    // frame's time is already behind it.
+    _holdFrom = null;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _holdFrom ??= SchedulerBinding.instance.currentSystemFrameTimeStamp;
+    });
+    SchedulerBinding.instance.scheduleFrame();
+  }
+
+  /// The hold is over: deletes the line, or clears it for the next pass.
+  void _endHold() {
+    if (!mounted) {
+      return;
+    }
+
+    _holding = false;
+    _holdLeft = Duration.zero;
+
     if (widget.erase) {
       _deleting = true;
-      _step(widget.hold);
+      _tick();
 
       return;
     }
 
-    _next = Timer(widget.hold, () {
-      if (!mounted) {
-        return;
-      }
-
-      _pass += 1;
-      setState(() => _shown = 0);
-      _step(_typeDelay);
-    });
+    _pass += 1;
+    setState(() => _shown = 0);
+    _step(_typeDelay);
   }
 
   @override
