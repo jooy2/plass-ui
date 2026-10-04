@@ -136,9 +136,10 @@ export interface PlMockupProps extends Omit<React.ComponentPropsWithoutRef<'div'
    * worth rather than a page's worth shrunk.
    *
    * A number, with `height` left out or a number too, is a size known on the
-   * server, so a server-rendered page has the device in its first HTML. Any
-   * other length is measured in the browser first, and the device is hidden
-   * until it has been.
+   * server, and the device is drawn at that scale in the first HTML. With any
+   * other length the stylesheet works the scale out from the box until the
+   * browser has measured it, so a server-rendered page has the device in its
+   * first HTML either way.
    * @default '100%'
    */
   width?: number | string;
@@ -224,20 +225,19 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
     const boxRef = React.useRef<HTMLDivElement | null>(null);
 
     /*
-     * One measurement, and the reason the device cannot simply be sized in CSS:
-     * the scale is a ratio between a length the stylesheet knows and a length
-     * only this file knows, and there is no CSS operator that divides one by the
-     * other.
+     * One measurement. The scale is a ratio between a length the stylesheet
+     * knows and a length only this file knows, and CSS can divide one by the
+     * other only through trigonometry, which `drawn` below does for the paint
+     * before this lands. Once it has, the scale is a plain number.
      *
      * Both axes, because `height` on its own is a legitimate way to size a mockup
      * and because a caller who pins both would otherwise get a device overflowing
      * whichever one it was not scaled against.
      */
     const box = usePlElementSize(boxRef);
+    const empty = box !== null && (box.width <= 0 || box.height <= 0);
     const measured =
-      box === null || box.width <= 0 || box.height <= 0
-        ? null
-        : Math.min(box.width / frame.width, box.height / frame.height);
+      box === null || empty ? null : Math.min(box.width / frame.width, box.height / frame.height);
 
     /*
      * The scale the props already give, before anything is measured. A width or
@@ -246,9 +246,9 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
      * is drawn at its real scale in the first HTML rather than hidden until the
      * page has hydrated, which is what keeps a mockup in a hero visible while
      * the script is still on its way. A length in any other unit is only known
-     * to the browser, and that one waits for the measurement. The measurement
-     * still wins once it lands, for a box a stylesheet has held narrower than
-     * the number.
+     * to the browser, and that one is drawn at the scale `drawn` works out in
+     * CSS until the measurement lands. The measurement still wins once it
+     * does, for a box a stylesheet has held narrower than the number.
      */
     const stated =
       typeof width === 'number' && width > 0
@@ -261,6 +261,19 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
           ? height / frame.height
           : null;
     const scale = measured ?? stated;
+
+    /*
+     * The same ratio in CSS, for the paint before either of those has an
+     * answer: the server's HTML, and a box whose size is a CSS length until the
+     * page has hydrated and measured it. The box the device is centred in is a
+     * container, so `100cqw` and `100cqh` are its width and height, and
+     * `tan(atan2(a, b))` is the one way the supported browsers have of dividing
+     * one length by another to get a number. The smaller of the two, as the
+     * measurement takes. The measurement still replaces it once it lands, with
+     * the number it comes to.
+     */
+    const drawn =
+      scale ?? `min(tan(atan2(100cqw, ${frame.width}px)), tan(atan2(100cqh, ${frame.height}px)))`;
 
     const setRef = React.useCallback(
       (node: HTMLDivElement | null) => {
@@ -338,10 +351,13 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
           <div
             className="absolute inset-0 flex items-center justify-center"
             style={{
-              // Until the box has been measured, or its size stated in pixels,
-              // there is no honest size to draw at. One frame, and only ever on
-              // the very first paint.
-              visibility: scale === null ? 'hidden' : undefined
+              // A container for the scale in CSS above. Its size comes from the
+              // box it is inset in and never from what it holds, so containing
+              // its size changes nothing about it.
+              containerType: 'size',
+              // A box measured with no room at all has no honest size to draw
+              // at, unless one was stated in pixels.
+              visibility: empty && stated === null ? 'hidden' : undefined
             }}
           >
             <div
@@ -349,7 +365,7 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
               style={{
                 width: frame.width,
                 height: frame.height,
-                transform: `scale(${scale ?? 1})`
+                transform: `scale(${drawn})`
               }}
             >
               <div

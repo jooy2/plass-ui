@@ -158,6 +158,18 @@ describe('PlMockup', () => {
       await expect.poll(() => screen.container.querySelector('figure')).not.toBeNull();
     });
 
+    it('hides the device in a box measured with no room for it', async () => {
+      const screen = await render(
+        <div style={{ width: 0 }}>
+          <PlMockup device="mobile" className="mockup-under-test" />
+        </div>
+      );
+      const inner = () =>
+        screen.container.querySelector('.mockup-under-test > div') as HTMLElement | null;
+
+      await expect.poll(() => inner()?.style.visibility).toBe('hidden');
+    });
+
     it('keeps the device proportion so a row of them lines up', async () => {
       const screen = await render(<PlMockup device="mobile" width={200} />);
 
@@ -192,14 +204,18 @@ describe('PlMockup', () => {
       expect(html).toContain('transform:scale(0.5)');
     });
 
-    it('still waits for a measurement when the size is a CSS length', () => {
-      expect(renderToString(<PlMockup device="mobile" />)).toContain('visibility:hidden');
-      expect(renderToString(<PlMockup device="mobile" width="50%" />)).toContain(
-        'visibility:hidden'
-      );
-      expect(renderToString(<PlMockup device="mobile" width={208} height="50vh" />)).toContain(
-        'visibility:hidden'
-      );
+    it('leaves the scale of a CSS length to the stylesheet, rather than hiding it', () => {
+      for (const html of [
+        renderToString(<PlMockup device="mobile" />),
+        renderToString(<PlMockup device="mobile" width="50%" />),
+        renderToString(<PlMockup device="mobile" width={208} height="50vh" />)
+      ]) {
+        expect(html).not.toContain('visibility:hidden');
+        expect(html).toContain('container-type:size');
+        expect(html).toContain(
+          'transform:scale(min(tan(atan2(100cqw, 416px)), tan(atan2(100cqh, 870px))))'
+        );
+      }
     });
 
     it('hydrates the scale it drew without a mismatch', async () => {

@@ -45,7 +45,7 @@ That scale is the one `transform` in the library. The rule it is an exception to
 
 ::: fw react
 
-A `width` or a `height` given as a number, with the other one left out or a number too, is a size known on the server, so a server-rendered page has the device in its first HTML. With any other length, `'100%'` included, the device stays hidden until the browser has measured the box, one frame after the script runs.
+A `width` or a `height` given as a number, with the other one left out or a number too, is a size known on the server, and the device is drawn at that scale in the first HTML. With any other length, `'100%'` included, the stylesheet works the scale out from the size of the box until the script has measured it, so a server-rendered page has the device in its first HTML either way.
 
 :::
 

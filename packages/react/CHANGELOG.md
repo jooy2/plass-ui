@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A server-rendered `PlMockup` sized by a CSS length is drawn before it hydrates.** At `width='100%'` (the default) or any CSS length, the device was `visibility: hidden` until the browser measured its box, so nothing on its screen was painted until the script ran. The stylesheet now works the scale out from the box with container query units until the measurement replaces it, and only a box measured with no room is hidden.
+
 - **A server-rendered `PlPanes` is drawn at its `defaultSize`s before it hydrates.** Every pane took an even share until an effect measured the split, so a split whose first pane asked for a quarter was drawn half and half, then moved. Where the sizes settle the split on their own (percentages, pixel lengths naming every pane, pixel lengths beside a pane that takes the rest), the panes are now sized during render. `rem` and `em` lengths still wait for the measurement.
 
 - **A `PlSegmentedButton` or `PlFloatingBottomNavigation` measures its tile only when something it is placed by has changed.** The effect that places the tile listed `children`, a new reference on every render a parent does, so each one read the chosen segment's box back. The first placement also forced a second layout with `void offsetWidth`, and several on one screen recalculated the layout between each other's writes. The tile is now measured on a commit that changed the choice, a prop the segments are sized by, the segments themselves or the direction, and its transition comes back on in the next frame. What is drawn and how it moves are unchanged.
