@@ -199,6 +199,30 @@ describe('the indeterminate sweeps', () => {
       expectSegmentRightToLeft();
     });
 
+    it('crosses it right to left in a right-to-left region three levels down', async () => {
+      await render(
+        <div dir="rtl">
+          <div dir="ltr">
+            <Loading dir="rtl" />
+          </div>
+        </div>
+      );
+
+      expectSegmentRightToLeft();
+    });
+
+    it('and left to right in a left-to-right region three levels down', async () => {
+      await render(
+        <div dir="ltr">
+          <div dir="rtl">
+            <Loading dir="ltr" />
+          </div>
+        </div>
+      );
+
+      expectSegmentLeftToRight();
+    });
+
     /** The highlight held at a point in the pass. */
     function highlightAt(fraction: number): ReturnType<typeof highlight> {
       const run = sweep('plass-skeleton-sweep');

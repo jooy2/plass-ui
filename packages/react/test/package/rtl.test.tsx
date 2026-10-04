@@ -210,17 +210,18 @@ describe('the stylesheet turns the marquee round', () => {
     return trackSign();
   }
 
-  /** The same, for a strip in a region of one direction inside a page of the other. */
-  async function alongInside(page: 'ltr' | 'rtl', region: 'ltr' | 'rtl'): Promise<string> {
-    await render(
-      <div dir={page}>
-        <div dir={region}>
-          <PlAnimateMarquee>
-            <span>Now boarding</span>
-          </PlAnimateMarquee>
-        </div>
-      </div>
+  /**
+   * The same, for a strip in regions nested one inside the next, the page's
+   * first and the strip's own last.
+   */
+  async function alongInside(...regions: ('ltr' | 'rtl')[]): Promise<string> {
+    const strip = (
+      <PlAnimateMarquee>
+        <span>Now boarding</span>
+      </PlAnimateMarquee>
     );
+
+    await render(regions.reduceRight((inner, dir) => <div dir={dir}>{inner}</div>, strip));
 
     return trackSign();
   }
@@ -245,6 +246,15 @@ describe('the stylesheet turns the marquee round', () => {
 
   it('and one in a right-to-left region of a page that says ltr the other way', async () => {
     expect(await alongInside('ltr', 'rtl')).toBe('-1');
+  });
+
+  // The nearest `dir` decides at any depth, not only one region down.
+  it('sends a strip in a right-to-left region three levels down the other way', async () => {
+    expect(await alongInside('rtl', 'ltr', 'rtl')).toBe('-1');
+  });
+
+  it('and one in a left-to-right region three levels down left', async () => {
+    expect(await alongInside('ltr', 'rtl', 'ltr')).toBe('1');
   });
 });
 

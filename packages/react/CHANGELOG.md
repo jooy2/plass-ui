@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A `PlAnimateMarquee` strip and an indeterminate `PlProgressLinear` segment travel the way the nearest `dir` says, however deeply one region is nested in another.** The stylesheet answered one region inside another, so a right-to-left region inside a left-to-right one inside a right-to-left page ran the English way. A browser with `:dir()` now reads the direction the strip or the segment is in; Chrome 111 to 119, which lack it, still read the `dir` attribute one region deep.
+
 - **A disabled `PlNavigationMenuItem` that is a link no longer goes anywhere.** `disabled` reached only an item that opens a panel, so a link item marked disabled kept its `href`, or the router's `Link` it was given through `render`, and a press or Enter still followed it. A disabled link item is now drawn dimmed, as a disabled trigger is, on an `<a>` with no address, announced as an unavailable link. The arrow keys pass over it and Tab still reaches it, which is what Base UI does with a disabled trigger.
 
 - **A chart given `height` as a CSS length is drawn at that height.** The prop took any CSS length, but a `PlLineChart`, `PlAreaChart`, `PlBarChart`, `PlScatterChart` or `PlTimelineChart` laid a string out at no height and drew nothing, and a `PlPieChart`, `PlGaugeChart` or `PlHeatmapChart` ignored it and drew at the height its `size` gives. The box now takes the length and the chart is drawn at the height the box is measured at, a scatter's largest bubble included. A server sends the box at that height with nothing drawn in it, with `initialWidth` too, and the chart is drawn once the page has hydrated. A height in pixels and the default are drawn as before.

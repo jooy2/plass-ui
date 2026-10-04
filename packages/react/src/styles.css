@@ -1365,16 +1365,24 @@
   animation: plass-progress-sweep 1.15s var(--plass-ease) infinite;
 }
 
-[dir='rtl'] .plass-progress-sweep,
 .plass-progress-sweep:dir(rtl) {
   --p-anim-along: -1;
 }
 
-/* A left-to-right region inside a right-to-left page runs the English way
-   again; see `.plass-marquee-track` for why the selector is written this way. */
-[dir='rtl'] [dir='ltr'] .plass-progress-sweep,
 .plass-progress-sweep:dir(ltr) {
   --p-anim-along: 1;
+}
+
+/* The attribute, for a browser without `:dir()`; see `.plass-marquee-track` for
+   why the selectors are written this way and how deep they reach. */
+@supports not selector(:dir(rtl)) {
+  [dir='rtl'] .plass-progress-sweep {
+    --p-anim-along: -1;
+  }
+
+  [dir='rtl'] [dir='ltr'] .plass-progress-sweep {
+    --p-anim-along: 1;
+  }
 }
 
 /* The one place the library turns something, and the exception is the same one
@@ -2592,29 +2600,41 @@
  *
  * There is no logical `translate`, so the sign is flipped by hand. The flex
  * track has already reversed on its own, which is what puts the overflow on the
- * other side for the translate to bring in. Written against the attribute as
- * well as `:dir()` because `:dir()` is newer than the rest of this sheet's
- * floor; the two agree on every page that set `dir`.
+ * other side for the translate to bring in. `:dir()` asks for the direction the
+ * track itself is in, which is the nearest `dir` above it however deeply one
+ * region is nested in another.
  */
-[dir='rtl'] .plass-marquee-track,
 .plass-marquee-track:dir(rtl) {
   --p-anim-along: -1;
 }
 
-/*
- * And back again for a left-to-right region inside a right-to-left page, which
- * `[dir='rtl']` above matches as well, since it asks whether any ancestor is
- * right to left rather than the nearest. This rule comes later and is the more
- * specific, so the nearer `dir` wins. It is `[dir='rtl'] [dir='ltr']` and not
- * a bare `[dir='ltr']`: a page that writes `dir="ltr"` on its root would
- * otherwise turn every right-to-left region inside it the English way. One
- * region inside another is answered right in either order; a right-to-left
- * region three levels down, inside a left-to-right one inside a right-to-left
- * page, still runs the English way.
- */
-[dir='rtl'] [dir='ltr'] .plass-marquee-track,
 .plass-marquee-track:dir(ltr) {
   --p-anim-along: 1;
+}
+
+/*
+ * `:dir()` is newer than the rest of this sheet's floor (Chrome 120), so a
+ * browser without it reads the attribute instead, and only that browser:
+ * written beside `:dir()` for every browser, the attribute rules would outrank
+ * it where the two disagree.
+ *
+ * `[dir='rtl']` asks whether any ancestor is right to left rather than the
+ * nearest, so the second rule turns a left-to-right region inside a
+ * right-to-left page back again; it is the more specific, so the nearer `dir`
+ * wins. It is `[dir='rtl'] [dir='ltr']` and not a bare `[dir='ltr']`: a page
+ * that writes `dir="ltr"` on its root would otherwise turn every right-to-left
+ * region inside it the English way. That answers one region inside another in
+ * either order and goes no deeper: in such a browser, a right-to-left region
+ * inside a left-to-right one inside a right-to-left page runs the English way.
+ */
+@supports not selector(:dir(rtl)) {
+  [dir='rtl'] .plass-marquee-track {
+    --p-anim-along: -1;
+  }
+
+  [dir='rtl'] [dir='ltr'] .plass-marquee-track {
+    --p-anim-along: 1;
+  }
 }
 
 .plass-marquee[data-pause-on-hover]:hover .plass-marquee-track {
