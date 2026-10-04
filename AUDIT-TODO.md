@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**14 items are open, and the last number used is 41.** Batch 1 (2026-10-04) closed items 1 to 23, 32, 33, 34 and 38, and was paused before it was verified as a whole and pushed; see [Paused batch](#paused-batch).
+**9 items are open, and the last number used is 45.** Batch 1 (2026-10-04) closed items 1 to 23 and 32 to 44; every open item needs a decision or a new API.
 
 ## Working through a batch
 
@@ -38,29 +38,13 @@ cd packages/flutter && dart format --line-length 100 lib test example/lib && flu
 cd docs && npm run typecheck && npm run lint && npx prettier --check . && npm run build
 ```
 
-## Paused batch
-
-Batch 1 was paused on 2026-10-04 at the Prompter's request. Local `main` holds its picked commits on top of `10f3994ad` and has **not been pushed**. To finish it:
-
-1. Pick the three commits for items 35, 36 and 37 from the branch `worktree-agent-a3b440281d678e550` (`8e4d6d63c`, `73bfbecc9`, `2486373e1`, made from `6a3f50799`). The worker was stopped before it reported, so check each one first (its test fails on the parent and passes with it, lint, typecheck) and write its changelog entry under `Fixed`.
-1. Item 40 was half written in `.claude/worktrees/agent-a3b28dd03947561b8` and never committed: a new `src/internal/lazy.tsx` with its test, and changes to `PlConfirmProvider`, `PlSidebar`, `PlImage`, `PlGallery`, `vitest.config.ts` and `test/env.d.ts`. Finish it there or start again from `main`. Items 39 and 41 have not been started.
-1. Verify the whole batch with every command under [Verifying a batch](#verifying-a-batch). React passed on `main` at `6a3f50799` (all three shards, after one rerun of the known `PlScatterChart` "renders again only when the nearest mark changes" flake); the commits picked after it each passed their own worker's full run. The size budget has moved past 2% ("Everything" about +1.5 kB, `One PlButton` +0.3 kB under esbuild, mostly from the new lazy chunks): run `npm run size -- --update` and commit the budget on its own.
-1. Push (approved on 2026-10-04), check CI, remove the worker worktrees and branches once every commit is on `main`, and report.
-
 ## Waiting for an answer
 
-Approved on 2026-10-04 and not yet done:
-
-- **35.** Round every frame `PlAnimateCounter` draws to the answer's own number of fraction digits, as Flutter does, so the reserved width holds from the first frame.
-- **36.** Make `PlAnimateTyping` hold its line once in the page's text at every moment (it holds the clipped copy and the typed text after typing).
-- **37.** Keep the pass a paused `PlAnimateTyping` is on when it resumes (it resets `pass` to 1, so a finite `repeat` plays extra passes).
-- **39.** Confirm, then fix: with a full-span `sticky` `PlHeader` the first paint has no `--p-layout-header`, so the sidebar is `100dvh` tall until hydration shortens it (`PlSidebar.tsx` ~437); reserve the header's height in CSS as item 4 did for a fixed header.
-- **40.** A lazy dialog whose chunk fails to load (`PlConfirmProvider`'s `PlModal`, `PlSidebar`'s `PlDrawer`, `PlImagePreview`, `PlGalleryViewer`) throws to the nearest error boundary. Retry the import once, then step back quietly: `ask()` settles as cancelled, a drawer or a preview does not open, and a later attempt may try again; one shared helper, one sentence on each page.
-- **41.** `PlCommandPalette` does not close on `Esc` (`docs/en/components/navigation/command-palette.md` ~135 says it does; `<Autocomplete.Root open>` in `PlCommandPalette.tsx` ~347 looks like the cause). Fix it, keep what `Esc` does in the field, and check the Flutter build.
+None.
 
 ## Items
 
-Line numbers are from `62e1b599` and drift as the code changes; when one no longer matches, search for the symbol. Items 35 to 41 are under [Waiting for an answer](#waiting-for-an-answer).
+Line numbers are from `62e1b599` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ### Low
 
@@ -72,6 +56,7 @@ Line numbers are from `62e1b599` and drift as the code changes; when one no long
 - **29.** **`PlSelect` renders one hidden sizing element per option** (`sizer.tsx` ~41), about 2,500 elements for ten country selects. Picking only the widest candidates changes the measured width. `Decision needed`.
 - **30.** **Closed content of `PlStepper` and `PlTree` and the folded steps of `PlBreadcrumb` are not in the server HTML.** `Decision needed` (the same kind of choice as `keepMounted`).
 - **31.** **The glass blur costs GPU time on low-end phones**, nested in forms inside cards and once per chip. The blur is the material, so any mitigation (honouring `prefers-reduced-transparency`, recommending `content-visibility` for long lists) is a design decision. `Decision needed`.
+- **45.** **A `fixed` or full-width `sticky` `PlFooter` still moves the sidebars and the end of the content at hydration by the height of what is inside it.** Item 43 reserves the footer's padding and edges for the first paint, but the height of its content is known only once the layout measures it. A footer with a minimum height the stylesheet can read (a `size`-like floor or a `minHeight` prop) would close it. `API addition`.
 
 ## Decided and recorded
 
@@ -99,3 +84,7 @@ Small differences found in passing in batch 1. They are not items and are not wo
 - Docs: a Flutter reader still sees a 4px jump at hydration in a `<Demo>` (`docs.css` ~158 against `Demo.vue` `frameStyle`).
 - `CLAUDE.md` says `src/internal/` has 47 modules; there are 59.
 - Whether a browser fetches a module again after an `import()` of the same URL failed is up to its module cache; item 38 only guarantees the library asks again.
+- `PlAnimateCounter` with `maximumSignificantDigits` in `format` does not cap a frame's fraction digits (`resolvedOptions()` has no `maximumFractionDigits`, `PlAnimateCounter.tsx` ~100).
+- `PlAnimateTyping`: let go during the hold before `erase`, it starts deleting after one delete step without finishing the hold; Flutter waits `_typeDelay` rather than `_deleteDelay` when it resumes partway through a deletion.
+- Chromium keeps a failed module import until the page reloads, so item 40's second try only recovers in Firefox and WebKit; in Chromium the gain is the quiet step back.
+- `docs/package-lock.json` cannot be installed with the npm that ships with Node 20 (`npm ci` reports `react@18.3.1` missing); Node 26's npm installs it. CI runs Node 26.
