@@ -153,6 +153,8 @@
  *
  * `--embedded` comes after this and wins, because a Flutter preview draws its
  * own padding inside the frame — with these same numbers, in `PlassCanvas`.
+ * `Demo.vue` adds the two to the height a frame holds until the gallery reports
+ * its own (`CANVAS_PADDING_Y`), so change all three together.
  */
 .plass-demo-canvas--marked {
   padding: 40px 24px 20px;

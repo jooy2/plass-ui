@@ -45,6 +45,17 @@ const MOUNT_MARGIN = 300;
 const KEEP_MARGIN = 1200;
 
 /**
+ * The canvas's padding above and below a preview, together, in px.
+ *
+ * `.plass-demo-canvas--marked` draws it around the empty mount point in the
+ * pre-rendered HTML, and `PlassCanvas.padding` in the gallery draws it inside
+ * the frame, so a frame waiting for its own height holds the reserve plus this.
+ * Any other figure moves the page at hydration, by the difference, under every
+ * reader who picked Flutter.
+ */
+const CANVAS_PADDING_Y = 40 + 20;
+
+/**
  * Whether the Flutter gallery has been built into `public/flutter`.
  *
  * One request for the whole session: without the build the frames would show
@@ -148,8 +159,9 @@ const props = defineProps({
    * dead canvas under every preview on the page. A preview mounts 300px before
    * it is scrolled to, so the release almost always happens off screen.
    *
-   * The Flutter frame keeps it as a real height until the gallery reports its
-   * own: an `<iframe>` has no content of ours to measure.
+   * The Flutter frame keeps it as a real height, with the canvas's padding
+   * added, until the gallery reports its own: an `<iframe>` has no content of
+   * ours to measure.
    */
   minHeight: { type: [Number, String], default: 40 }
 });
@@ -331,12 +343,15 @@ const frameSrc = computed(
     `&theme=${frameTheme.value ?? theme.value}&align=${props.align}`
 );
 
+/** `minHeight` as a CSS length. */
+const reserve = computed(() =>
+  typeof props.minHeight === 'number' ? `${props.minHeight}px` : props.minHeight
+);
+
 const frameStyle = computed(() => ({
   height: frameHeight.value
     ? `${frameHeight.value}px`
-    : typeof props.minHeight === 'number'
-      ? `${props.minHeight + 64}px`
-      : props.minHeight
+    : `calc(${reserve.value} + ${CANVAS_PADDING_Y}px)`
 }));
 
 function onMessage(event) {
@@ -513,9 +528,7 @@ onBeforeUnmount(() => {
         v-show="!embedded"
         ref="host"
         class="plass-scope plass-demo-mount"
-        :style="{
-          '--plass-demo-reserve': typeof minHeight === 'number' ? `${minHeight}px` : minHeight
-        }"
+        :style="{ '--plass-demo-reserve': reserve }"
       />
       <template v-if="embedded">
         <p v-if="built === false" class="plass-fw-missing plass-demo-unbuilt">
