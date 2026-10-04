@@ -690,6 +690,83 @@ void main() {
     });
   });
 
+  group('a run built again', () {
+    /// A fade at an even pace, a pass every 200ms, built anew on every call so
+    /// that pumping it builds the run again.
+    Widget fade({
+      required int repeat,
+      required bool alternate,
+      Duration delay = Duration.zero,
+      bool paused = false,
+    }) {
+      return PlAnimateFade(
+        repeat: repeat,
+        alternate: alternate,
+        delay: delay,
+        paused: paused,
+        curve: Curves.linear,
+        duration: const Duration(milliseconds: 200),
+        child: const SizedBox.square(dimension: 100),
+      );
+    }
+
+    for (final (int repeat, bool alternate, double end) in <(int, bool, double)>[
+      (2, true, 0),
+      (2, false, 1),
+      (3, true, 1),
+      (3, false, 1),
+    ]) {
+      final String name = 'repeat: $repeat${alternate ? ' and alternate' : ''}';
+
+      testWidgets('stays where it ended once it has finished, with $name', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(fade(repeat: repeat, alternate: alternate)));
+        await tester.pumpAndSettle();
+
+        expect(opacityOf(tester), end);
+
+        await tester.pumpWidget(host(fade(repeat: repeat, alternate: alternate)));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // An alternating run with an even number of passes ends at 0, where a
+        // run that has not started stands, and it used to be run again from
+        // there and stop at the other end.
+        expect(opacityOf(tester), end);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+      });
+
+      testWidgets('still starts when a pause during its delay is let go, with $name', (
+        WidgetTester tester,
+      ) async {
+        const Duration delay = Duration(milliseconds: 200);
+
+        await tester.pumpWidget(host(fade(repeat: repeat, alternate: alternate, delay: delay)));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        await tester.pumpWidget(
+          host(fade(repeat: repeat, alternate: alternate, delay: delay, paused: true)),
+        );
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(opacityOf(tester), 0);
+
+        await tester.pumpWidget(host(fade(repeat: repeat, alternate: alternate, delay: delay)));
+
+        // The rest of the wait, and then halfway through the first pass.
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(opacityOf(tester), closeTo(0.5, 0.01));
+
+        await tester.pumpAndSettle();
+
+        expect(opacityOf(tester), end);
+      });
+    }
+  });
+
   group('under reduced motion', () {
     /// The turn the rotation under test is carrying, in degrees.
     double degreesOf(WidgetTester tester) {

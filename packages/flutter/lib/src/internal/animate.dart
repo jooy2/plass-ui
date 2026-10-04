@@ -826,7 +826,11 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         return;
       }
 
-      if (!_controller.isAnimating && !_controller.isCompleted) {
+      // A run that has finished stays where it ended, wherever that is: at
+      // `0` after an alternating run with an even number of passes, which is
+      // also where one that has not begun stands, so where the controller
+      // stopped does not tell the two apart on its own.
+      if (!_controller.isAnimating && !_controller.isCompleted && !_finished) {
         // A pause during the wait held the wait too, so what is let go is
         // whatever was left of it. Nothing was left of it once the pass had
         // begun, and this then starts the pass again from where it stopped.
@@ -898,6 +902,20 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     final int passes = widget.settings.repeat ?? 1;
 
     return widget.settings.alternate && passes > 1 && passes.isEven ? 0 : 1;
+  }
+
+  /// Whether the run has played every pass it was given: it is on the last one,
+  /// and stopped where that one ends.
+  ///
+  /// A run that has not begun is on its first pass, so it is never finished,
+  /// even at `0`. An endless run never is.
+  bool get _finished {
+    final int? repeat = widget.settings.repeat;
+
+    return repeat != null &&
+        _pass >= repeat &&
+        !_controller.isAnimating &&
+        _controller.value == _end;
   }
 
   /// Holds a wait that is still running, keeping what is left of it.

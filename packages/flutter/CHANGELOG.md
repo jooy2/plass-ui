@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **An `alternate` `PlAnimate*` effect with an even `repeat` stays faded out, turned back or wherever it ended when it is built again, as the React build does.** A run with `alternate: true` and an even `repeat` ends on a pass that ran backwards, at its first frame, which is also where a run that has not begun stands. So a rebuild of the widget, such as its parent setting state, played it again and left it at the other end. A run that has finished now stays where it ended. One that has not begun yet, waiting out its `delay` or held by `paused`, still starts as before.
+
 - **An `alternate` `PlAnimate*` effect whose `duration` changes on its way back goes on back, as the React build does.** A run with `alternate: true` given a new `duration` during a pass that ran backwards turned round and ran forwards again, which a `PlAnimateMarquee` with `alternate: true` can meet when its strip is measured again. It now goes on the way it was going, over what is left of the new duration, and turns at the end of that pass as before.
 
 - **A paused `PlAnimateTyping` keeps the whole line it drew under less movement when the platform gives movement back, as the React build does.** It showed the line it had got to at once, while `paused` was still on. It now keeps the whole line until `paused` is let go, and then goes on from that character, or types a line it never began from its first character after the `delay`. One resting off screen, or one its trigger takes back, draws what it did before.
