@@ -335,6 +335,48 @@ void main() {
       expect(opacityOf(tester), 1);
     });
 
+    testWidgets('starts in a list once the last step of a scroll has been laid out', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(
+        host(
+          ListView(
+            controller: page,
+            children: <Widget>[
+              const SizedBox(height: 1000),
+              PlAnimateFade(
+                trigger: PlassAnimateTrigger.visible,
+                threshold: 0,
+                duration: const Duration(milliseconds: 200),
+                child: const SizedBox.square(dimension: 100),
+              ),
+              const SizedBox(height: 1000),
+            ],
+          ),
+          width: 300,
+          height: 400,
+        ),
+      );
+
+      // Built by the list ahead of the screen, 50 pixels below the bottom of it.
+      page.jumpTo(550);
+      await pumpScrolled(tester);
+
+      expect(gateOf(tester).started, isFalse);
+
+      page.jumpTo(700);
+      await pumpScrolled(tester);
+
+      // A list places its items when it lays out, after it has told its
+      // listeners it moved. Measured as it moved, this step was read where the
+      // step before had left it, and the fade waited for the next scroll.
+      expect(gateOf(tester).started, isTrue);
+    });
+
     testWidgets('follows the scrollables above it when it is moved under others', (
       WidgetTester tester,
     ) async {

@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `visible` `PlAnimate*` effect in a `ListView` starts on the scroll that brings it into view.** It was measured as the scroll moved, before the list laid its items out where the scroll had moved them, so an effect the last step of a scroll brought on screen was found where the step before had left it, and waited for the next scroll. It is now measured once the frame is laid out, at most once a frame, as the endless rest already is. In a `SingleChildScrollView`, which was not affected, it now starts and stops one frame later, after the frame the scroll is laid out in.
+
 - **An `alternate` `PlAnimate*` effect paused on its way back goes on back when it is let go, as the React build does.** A run with `alternate: true` held during a pass that ran backwards turned round and ran forwards again when `paused` was let go, and an endless one did the same when it was scrolled back into view. It now goes on the way it was going, and turns at the end of that pass as before.
 
 - **An endless animation rests while it is scrolled out of view, as it does in the React build.** `PlAnimateLighting`, `PlAnimateMarquee`, `PlAnimateFloat` and `PlAnimateBlink`, every other `PlAnimate*` with `repeat: null`, a `PlAnimateAppear` with `repeat: null`, a `PlAnimateHeadline` that loops on its own timer, a `PlAnimateTyping` with `repeat: null` and the typing caret went on drawing a frame or firing a timer for the whole visit wherever they were. Each now pauses once no part of it is left inside the `Scrollable`s above it and the screen, and goes on from the frame, line or character it stopped on when it is back. Finite effects play as before, and so does an endless one hidden some other way, or with no scrollable above it.

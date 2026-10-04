@@ -229,15 +229,14 @@ void main() {
       expect(visibleOf(tester), 'Hello');
 
       page.jumpTo(1000);
-      await tester.pump();
-      await tester.pump();
+      await pumpScrolled(tester);
 
       // Waiting to be seen again is an empty line, as it is before the first
       // run. Held where it was, it showed the line it had typed.
       expect(visibleOf(tester), '');
 
       page.jumpTo(0);
-      await tester.pump();
+      await pumpScrolled(tester);
       await tester.pump(const Duration(milliseconds: 25));
 
       // A new run, from its first character.

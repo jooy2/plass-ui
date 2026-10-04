@@ -218,9 +218,9 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
   /// on every change.
   bool _watched = false;
 
-  /// Whether a measurement of whether it is off screen is waiting for the end
-  /// of the frame.
-  bool _restCheck = false;
+  /// Whether a measurement of where it is on screen is waiting for the end of
+  /// the frame.
+  bool _checkPending = false;
 
   /// Whether it was an effect that rests off screen when the watch was last
   /// brought up to date, so one that has just become one is measured at once.
@@ -382,7 +382,7 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     } else if (began) {
       // Already watched, for a `visible` trigger that has just let it go: it
       // is measured once now, and then on every scroll.
-      _scheduleRestCheck();
+      _scheduleCheck();
     }
   }
 
@@ -445,13 +445,40 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
   }
 
   void _onScroll() {
-    if (_waitsToBeSeen) {
-      _checkVisible();
+    if (_waitsToBeSeen || _restsOffScreen) {
+      _scheduleCheck();
+    }
+  }
+
+  /// Measures where it is on screen once the frame has been laid out: whether
+  /// a `visible` trigger sees it, and whether an endless effect is off screen.
+  ///
+  /// Not at once: a scroll position tells its listeners it has moved before
+  /// the frame lays the content out where it has moved to, and a list places
+  /// its items only then. Measured at once, an effect the last step of a
+  /// scroll brought on screen was found where the step before had left it,
+  /// and waited for its trigger, or rested on the screen, until the next
+  /// scroll. However many scrolls the frame takes, it is measured once.
+  void _scheduleCheck() {
+    if (_checkPending) {
+      return;
     }
 
-    if (_restsOffScreen) {
-      _scheduleRestCheck();
-    }
+    _checkPending = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPending = false;
+
+      if (!mounted) {
+        return;
+      }
+
+      if (_waitsToBeSeen) {
+        _checkVisible();
+      }
+
+      // After the check above, which may have just let it go.
+      _checkRest();
+    });
   }
 
   void _checkVisible() {
@@ -486,25 +513,6 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     } else if (!widget.settings.once && _started) {
       _set(false);
     }
-  }
-
-  /// Measures whether it is off screen once the frame has been laid out.
-  ///
-  /// Not at once, as the `visible` trigger measures: a scroll position tells
-  /// its listeners it has moved before the frame lays the content out where it
-  /// has moved to, and a list places its items only then. Measured at once, an
-  /// effect the last step of a scroll brought back would be found where the
-  /// step before had left it, and rest on the screen until the next scroll.
-  void _scheduleRestCheck() {
-    if (_restCheck) {
-      return;
-    }
-
-    _restCheck = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _restCheck = false;
-      _checkRest();
-    });
   }
 
   void _checkRest() {

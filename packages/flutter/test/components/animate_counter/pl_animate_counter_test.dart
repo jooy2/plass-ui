@@ -243,8 +243,7 @@ void main() {
         expect(_drawn(tester), '0');
 
         page.jumpTo(800);
-        await tester.pump();
-        await tester.pump();
+        await pumpScrolled(tester);
         await tester.pump(const Duration(milliseconds: 100));
 
         expect(_drawn(tester), '100');
@@ -319,8 +318,7 @@ void main() {
       expect(_drawn(tester), '500');
 
       page.jumpTo(1000);
-      await tester.pump();
-      await tester.pump();
+      await pumpScrolled(tester);
 
       // Waiting to be seen again is the first frame, as it is before the first
       // count. Held where it was, it showed the answer.
@@ -333,6 +331,7 @@ void main() {
       // here and dropped back to 7 on the next.
       expect(_drawn(tester), '7');
 
+      await tester.pump();
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 

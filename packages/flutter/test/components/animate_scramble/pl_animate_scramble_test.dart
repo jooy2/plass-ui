@@ -146,8 +146,7 @@ void main() {
       expect(_drawn(tester), _line);
 
       page.jumpTo(1000);
-      await tester.pump();
-      await tester.pump();
+      await pumpScrolled(tester);
 
       // Waiting to be seen again is the first frame, as it is before the first
       // run. Held where it was, it showed the settled line.
