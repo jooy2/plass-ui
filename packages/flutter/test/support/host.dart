@@ -45,6 +45,39 @@ Widget host(
   );
 }
 
+/// A page 400 tall that scrolls down, with [child] at its top and 1000 pixels
+/// of page under it, so a jump of 600 takes [child] out of view and lands
+/// inside the page, where nothing springs back.
+Widget scrollingPage(ScrollController page, Widget child) {
+  return host(
+    SingleChildScrollView(
+      controller: page,
+      child: Column(children: <Widget>[child, const SizedBox(height: 1000)]),
+    ),
+    width: 300,
+    height: 400,
+  );
+}
+
+/// Draws the frames a widget takes to act on a scroll that has just moved it,
+/// with no time passing: the frame that lays it out where the scroll left it
+/// and measures it there, the one that builds it again with what that found,
+/// and the one a ticker it stopped or started had already asked for.
+Future<void> pumpScrolled(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump();
+  await tester.pump();
+}
+
+/// Moves the clock on a minute without drawing a frame, and says whether
+/// anything asked for one in that time: a ticker that is running, or a timer
+/// that fired and changed something.
+Future<bool> redrawsIn(WidgetTester tester) async {
+  await tester.binding.delayed(const Duration(minutes: 1));
+
+  return tester.binding.hasScheduledFrame;
+}
+
 /// Every [BoxDecoration] under [finder], outermost first.
 ///
 /// A Plass surface is two boxes — the one carrying the drop shadows and the one

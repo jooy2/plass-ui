@@ -135,8 +135,14 @@ class PlAnimateHeadline extends StatelessWidget {
         play: play,
         once: once,
         threshold: threshold,
+        // A reel that loops on its own timer turns for ever, whatever `repeat`
+        // says, so it rests off screen and its timer with it: the timer only
+        // runs while the gate says it is running. Back on screen, the line it
+        // stopped on is held for a whole `interval` again before the next one
+        // comes up.
+        endless: loop && index == null,
       ),
-      builder: (BuildContext context, bool running, int runs, Widget? _) {
+      builder: (BuildContext context, bool running, int runs, bool resting, Widget? _) {
         return _Reel(
           running: running,
           interval: interval,

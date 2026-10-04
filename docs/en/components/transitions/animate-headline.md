@@ -68,6 +68,12 @@ While it is off screen a reel that loops on its own timer stops turning, and whe
 
 :::
 
+::: fw flutter
+
+While it is scrolled out of view a reel that loops on its own timer stops turning, and when it is back the line it stopped on is held for a whole `interval` before the next one comes up. Otherwise the app would go on turning a reel nobody can see. Out of view means no part of it is left inside the `Scrollable`s above it and the screen; a reel hidden any other way goes on turning.
+
+:::
+
 ## Examples
 
 ### Controlled

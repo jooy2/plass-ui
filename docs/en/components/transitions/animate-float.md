@@ -49,6 +49,12 @@ While it is off screen an endless drift rests, and it goes on from where it stop
 
 :::
 
+::: fw flutter
+
+While it is scrolled out of view an endless drift rests, and it goes on from where it stopped when it is back, because the app otherwise goes on drawing frames for an animation nobody can see. Out of view means no part of it is left inside the `Scrollable`s above it and the screen; a drift hidden any other way goes on moving.
+
+:::
+
 **It is not in the effect union.** `PlassAnimation` (the set `mode`, `stagger` and the shared effect map are built on) is the set of ways content can _arrive_. A drift is not an arrival, and every component that imports that map pays for each row in it whether or not it uses the effect, so a row nothing else could want does not go in. It runs its own keyframe instead.
 
 **It has no `mode`.** There is no reverse of a drift: the cycle is symmetric already, and running it backwards is the same cycle.

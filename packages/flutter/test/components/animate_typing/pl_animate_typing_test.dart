@@ -29,14 +29,6 @@ int clearsIn(List<String> seen) {
   return clears;
 }
 
-/// Moves the clock on a minute without drawing a frame, and says whether
-/// anything asked for one in that time.
-Future<bool> redrawsIn(WidgetTester tester) async {
-  await tester.binding.delayed(const Duration(minutes: 1));
-
-  return tester.binding.hasScheduledFrame;
-}
-
 void main() {
   group('PlAnimateTyping', () {
     testWidgets('gives a screen reader the whole string once', (WidgetTester tester) async {
@@ -997,6 +989,99 @@ void main() {
         await tester.pump(const Duration(milliseconds: 1));
 
         expect(visibleOf(tester), 'H');
+      });
+    });
+
+    group('scrolled out of view', () {
+      /// The opacity the caret is drawn at: on or off.
+      double caretOf(WidgetTester tester) {
+        return tester
+            .widget<Opacity>(
+              find.descendant(of: find.byType(PlAnimateTyping), matching: find.byType(Opacity)),
+            )
+            .opacity;
+      }
+
+      testWidgets('rests a typing that never stops, and goes on from the same character', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        await tester.pumpWidget(
+          scrollingPage(
+            page,
+            const PlAnimateTyping('Hello', speed: 100, repeat: null, caret: false),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 15));
+
+        expect(visibleOf(tester), 'He');
+
+        page.jumpTo(600);
+        await pumpScrolled(tester);
+
+        // Nothing is typed where nobody can see it. A chain of timers used to
+        // type, clear and type the line again, drawing a frame each time.
+        expect(await redrawsIn(tester), isFalse);
+        expect(visibleOf(tester), 'He');
+
+        page.jumpTo(0);
+        await pumpScrolled(tester);
+
+        expect(visibleOf(tester), 'He');
+
+        await tester.pump(const Duration(milliseconds: 10));
+
+        expect(visibleOf(tester), 'Hel');
+      });
+
+      testWidgets('goes on typing a line that finishes', (WidgetTester tester) async {
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        await tester.pumpWidget(
+          scrollingPage(page, const PlAnimateTyping('Hello', speed: 100, caret: false)),
+        );
+
+        page.jumpTo(600);
+        await pumpScrolled(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(visibleOf(tester), 'Hello');
+      });
+
+      testWidgets('rests its caret after the line is typed, on the frame it was on', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        await tester.pumpWidget(scrollingPage(page, const PlAnimateTyping('Hi', speed: 100)));
+        await tester.pump(const Duration(milliseconds: 600));
+
+        expect(visibleOf(tester), 'Hi');
+        expect(caretOf(tester), 0);
+
+        page.jumpTo(600);
+        await pumpScrolled(tester);
+
+        // The caret blinks for ever, so a line typed out further up the page
+        // used to go on asking for a frame for every one the screen drew.
+        expect(await redrawsIn(tester), isFalse);
+        expect(caretOf(tester), 0);
+
+        page.jumpTo(0);
+        await pumpScrolled(tester);
+
+        expect(caretOf(tester), 0);
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(caretOf(tester), 1);
       });
     });
   });

@@ -64,6 +64,12 @@ While it is off screen an endless light rests, and it goes on from where it stop
 
 :::
 
+::: fw flutter
+
+While it is scrolled out of view an endless light rests, and it goes on from where it stopped when it is back, because the app otherwise goes on drawing frames for an animation nobody can see. Out of view means no part of it is left inside the `Scrollable`s above it and the screen; a light hidden any other way goes on turning.
+
+:::
+
 ## Examples
 
 ### color

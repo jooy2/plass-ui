@@ -39,6 +39,12 @@
 /// runs, exactly as the React build does when the browser has no observer:
 /// showing the content beats hiding it forever.
 ///
+/// **An endless effect rests off screen through the same watch.** It is off
+/// screen once none of it is inside those viewports and the screen, and that
+/// is all it knows: an effect hidden some other way, by a widget laid over it
+/// or moved off the screen without a scroll, goes on running, and one with no
+/// scrollable above it never rests.
+///
 /// None of this is exported from `plass_ui.dart`.
 library;
 
@@ -76,7 +82,8 @@ class PlassAnimateSettings {
     this.threshold = defaultVisibleThreshold,
     this.nonce,
     this.target,
-  });
+    bool? endless,
+  }) : _endless = endless;
 
   /// How long one run takes.
   final Duration duration;
@@ -128,8 +135,26 @@ class PlassAnimateSettings {
   /// and then is what the trigger was there to stop.
   final Object? target;
 
+  final bool? _endless;
+
   /// Whether this run never stops on its own.
   bool get infinite => repeat == null;
+
+  /// Whether the effect runs for ever once it has started, and so **rests
+  /// while it is off screen**, going on from the frame it stopped on when it is
+  /// back. Whether [repeat] never stops, unless it was said otherwise.
+  ///
+  /// Flutter goes on drawing an animation nobody can see, a frame at a time,
+  /// and a timer goes on firing, so an endless one left running further up a
+  /// page costs the reader something on every frame of the rest of the visit.
+  /// A finite one is left alone: it finishes, and an entrance that played off
+  /// screen has still delivered its content.
+  ///
+  /// Said otherwise where [repeat] does not answer: a reel that turns on its
+  /// own timer whatever its [repeat], the parts of a set whose own gate already
+  /// watches the set, and a run whose widget holds the pause itself, which is
+  /// already still while it is paused.
+  bool get endless => _endless ?? infinite;
 }
 
 /// Whether the platform has asked for less movement.
@@ -140,19 +165,19 @@ bool prefersReducedMotion(BuildContext context) {
   return MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 }
 
-/// What [PlassAnimateGate] hands its child: whether the effect is running, and
-/// how many times it has been let go.
+/// What [PlassAnimateGate] hands its child: whether the effect is running, how
+/// many times it has been let go, and whether it is resting off screen.
 typedef PlassAnimateGateBuilder =
-    Widget Function(BuildContext context, bool running, int runs, Widget? child);
+    Widget Function(BuildContext context, bool running, int runs, bool resting, Widget? child);
 
 /// Answers one question — *is this running?* — and nothing else.
 ///
-/// The four `trigger` values, `play`, `paused` and the hover handling live here
-/// and only here. [PlassAnimateRun] builds on it for the effects that are one
-/// curve from a start state to the natural one; the three that write their own
-/// motion in Dart — a typewriter, a headline reel, a measured marquee — use it
-/// directly, because what they need from the trigger is a boolean and not a
-/// number.
+/// The four `trigger` values, `play`, `paused`, the hover handling and the rest
+/// an endless effect takes off screen live here and only here.
+/// [PlassAnimateRun] builds on it for the effects that are one curve from a
+/// start state to the natural one; the three that write their own motion in
+/// Dart — a typewriter, a headline reel, a measured marquee — use it directly,
+/// because what they need from the trigger is a boolean and not a number.
 class PlassAnimateGate extends StatefulWidget {
   /// Creates a gate.
   const PlassAnimateGate({required this.settings, required this.builder, this.child, super.key});
@@ -160,9 +185,15 @@ class PlassAnimateGate extends StatefulWidget {
   /// When to run, and whether it is held.
   final PlassAnimateSettings settings;
 
-  /// Called with whether the animation is running right now, and with how many
+  /// Called with whether the animation is running right now, with how many
   /// times it has been let go — which is what a restart looks like from the
-  /// outside, since "running" is already true when one arrives.
+  /// outside, since "running" is already true when one arrives — and with
+  /// whether it is resting off screen.
+  ///
+  /// An effect that rests is not running, and its trigger has still let it go.
+  /// A widget that keeps its own frames holds them then as a pause does,
+  /// rather than waiting for its next run as it does when its trigger takes it
+  /// back.
   final PlassAnimateGateBuilder builder;
 
   /// Passed through to [builder] untouched.
@@ -177,8 +208,23 @@ class PlassAnimateGate extends StatefulWidget {
 class PlassAnimateGateState extends State<PlassAnimateGate> {
   bool _started = false;
 
-  /// The position of every scrollable above it, while `visible` is waiting.
+  /// The position of every scrollable above it, while something has to know
+  /// whether it is on screen: `visible` waiting, or an endless effect running.
   final List<ScrollPosition> _watching = <ScrollPosition>[];
+
+  /// Whether the scrollables above it have been looked for, or will be once
+  /// the frame is over, for the watch that is on. Set when none were found as
+  /// well, so a widget with nothing above it to scroll is not looked up again
+  /// on every change.
+  bool _watched = false;
+
+  /// Whether a measurement of whether it is off screen is waiting for the end
+  /// of the frame.
+  bool _restCheck = false;
+
+  /// Whether it was an effect that rests off screen when the watch was last
+  /// brought up to date, so one that has just become one is measured at once.
+  bool _restWatch = false;
 
   /// How many times it has been let go. Anything rebuilding on a restart —
   /// a typewriter, a reel — reads this rather than trying to diff `started`.
@@ -188,16 +234,32 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
   /// Whether it has been let go at all.
   bool get started => _started;
 
+  /// Whether an endless effect is resting because it is off screen.
+  bool get resting => _resting;
+  bool _resting = false;
+
+  /// Whether a `visible` trigger still has to look for it on screen: until it
+  /// first finds it with `once`, and for as long as it is there without.
+  bool get _waitsToBeSeen =>
+      widget.settings.trigger == PlassAnimateTrigger.visible && !(widget.settings.once && _started);
+
+  /// Whether it rests while it is off screen: an endless effect, and only
+  /// while it is running. One that is waiting or held is already still and has
+  /// nothing to rest from, and a `visible` trigger that is not `once` already
+  /// takes the effect back when it leaves the view.
+  bool get _restsOffScreen =>
+      widget.settings.endless &&
+      _started &&
+      !widget.settings.paused &&
+      !(widget.settings.trigger == PlassAnimateTrigger.visible && !widget.settings.once);
+
   @override
   void initState() {
     super.initState();
     _started =
         widget.settings.trigger == PlassAnimateTrigger.mount ||
         (widget.settings.trigger == PlassAnimateTrigger.manual && widget.settings.play);
-
-    if (widget.settings.trigger == PlassAnimateTrigger.visible) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _watchScroll());
-    }
+    _updateWatch();
   }
 
   @override
@@ -208,12 +270,8 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     final PlassAnimateSettings before = oldWidget.settings;
 
     if (now.trigger != before.trigger) {
+      // `_set` watches again whatever the new trigger needs watched.
       _unwatchScroll();
-
-      if (now.trigger == PlassAnimateTrigger.visible) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _watchScroll());
-      }
-
       _set(now.trigger == PlassAnimateTrigger.mount);
 
       return;
@@ -238,15 +296,18 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     if (now.target != before.target && _started) {
       restart();
     }
+
+    // A pause, `once` or `endless` can change what has to be watched.
+    _updateWatch();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // The scrollables above can change while it waits: the widget is moved
-    // under others, or the nearest one takes a new position. Every listener is
-    // taken off, and the ones above it now are put on.
+    // The scrollables above can change while it is watched: the widget is
+    // moved under others, or the nearest one takes a new position. Every
+    // listener is taken off, and the ones above it now are put on.
     if (_watching.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _watchScroll());
     }
@@ -270,6 +331,7 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 
       _started = value;
     });
+    _updateWatch();
   }
 
   /// Runs it again from the beginning, whatever it was doing.
@@ -282,27 +344,72 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
       _started = true;
       _runs += 1;
     });
+    _updateWatch();
+  }
+
+  void _setResting(bool value) {
+    if (_resting != value && mounted) {
+      setState(() => _resting = value);
+    }
   }
 
   /* -------------------------------------------------------------------------
-   * `visible`
+   * On screen: `visible`, and an endless effect resting
    * ---------------------------------------------------------------------- */
 
+  /// Watches the scrollables above it while anything has to know whether it is
+  /// on screen, and stops once nothing does.
+  void _updateWatch() {
+    final bool rests = _restsOffScreen;
+    final bool began = rests && !_restWatch;
+
+    _restWatch = rests;
+
+    if (!rests) {
+      _setResting(false);
+    }
+
+    if (!rests && !_waitsToBeSeen) {
+      _unwatchScroll();
+
+      return;
+    }
+
+    if (!_watched) {
+      // After the frame, because what is measured is the box it is laid out in.
+      _watched = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _watchScroll());
+    } else if (began) {
+      // Already watched, for a `visible` trigger that has just let it go: it
+      // is measured once now, and then on every scroll.
+      _scheduleRestCheck();
+    }
+  }
+
   void _watchScroll() {
-    // Called after a frame, by which time the trigger may have changed.
-    if (!mounted || widget.settings.trigger != PlassAnimateTrigger.visible) {
+    // Called after a frame, by which time nothing may need it any more.
+    if (!mounted) {
       return;
     }
 
     _unwatchScroll();
+
+    if (!_waitsToBeSeen && !_restsOffScreen) {
+      return;
+    }
+
+    _watched = true;
 
     ScrollableState? scrollable = Scrollable.maybeOf(context);
 
     if (scrollable == null) {
       // Nothing to watch means no way to know: show it rather than hide it
       // forever, which is what the React build does when the browser has no
-      // `IntersectionObserver`.
-      _set(true);
+      // `IntersectionObserver`. For the same reason an endless effect never
+      // rests here.
+      if (_waitsToBeSeen) {
+        _set(true);
+      }
 
       return;
     }
@@ -315,19 +422,36 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     // make each of them depend on the one above it, and a scrollable builds a
     // new position whenever a dependency changes.
     while (scrollable != null) {
-      _watching.add(scrollable.position..addListener(_checkVisible));
+      _watching.add(scrollable.position..addListener(_onScroll));
       scrollable = scrollable.context.findAncestorStateOfType<ScrollableState>();
     }
 
-    _checkVisible();
+    if (_waitsToBeSeen) {
+      _checkVisible();
+    }
+
+    // After the check above, which may have just let it go. This runs after a
+    // frame, so the layout it reads is already this frame's.
+    _checkRest();
   }
 
   void _unwatchScroll() {
     for (final ScrollPosition position in _watching) {
-      position.removeListener(_checkVisible);
+      position.removeListener(_onScroll);
     }
 
     _watching.clear();
+    _watched = false;
+  }
+
+  void _onScroll() {
+    if (_waitsToBeSeen) {
+      _checkVisible();
+    }
+
+    if (_restsOffScreen) {
+      _scheduleRestCheck();
+    }
   }
 
   void _checkVisible() {
@@ -341,7 +465,7 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
       return;
     }
 
-    RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(object);
+    final RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(object);
 
     if (viewport == null) {
       _set(true);
@@ -349,6 +473,70 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
       return;
     }
 
+    final double shown = _shareOnScreen(object, viewport).shown;
+
+    // `> 0` as well, as the React build asks of its own measurement: zero is
+    // the least that counts as seen, rather than a reason to start something
+    // that is nowhere near the screen. Once it has been seen with `once`, the
+    // restart stops the watch, unless an endless effect rests through it.
+    if (shown > 0 && shown >= widget.settings.threshold) {
+      if (!_started) {
+        restart();
+      }
+    } else if (!widget.settings.once && _started) {
+      _set(false);
+    }
+  }
+
+  /// Measures whether it is off screen once the frame has been laid out.
+  ///
+  /// Not at once, as the `visible` trigger measures: a scroll position tells
+  /// its listeners it has moved before the frame lays the content out where it
+  /// has moved to, and a list places its items only then. Measured at once, an
+  /// effect the last step of a scroll brought back would be found where the
+  /// step before had left it, and rest on the screen until the next scroll.
+  void _scheduleRestCheck() {
+    if (_restCheck) {
+      return;
+    }
+
+    _restCheck = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _restCheck = false;
+      _checkRest();
+    });
+  }
+
+  void _checkRest() {
+    if (!mounted || !_restsOffScreen) {
+      return;
+    }
+
+    final RenderObject? object = context.findRenderObject();
+
+    if (object is! RenderBox || !object.hasSize) {
+      return;
+    }
+
+    final RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(object);
+
+    if (viewport == null) {
+      _setResting(false);
+
+      return;
+    }
+
+    final ({double area, double shown}) share = _shareOnScreen(object, viewport);
+
+    // Off screen is none of it showing, as the React build's observer says it.
+    // A box of no size says nothing about where what it holds is drawn, so it
+    // never rests on that.
+    _setResting(share.area > 0 && share.shown <= 0);
+  }
+
+  /// The area of [object], and the share of it the screen and every viewport
+  /// above it, from [viewport] up, leave showing, from `0` to `1`.
+  ({double area, double shown}) _shareOnScreen(RenderBox object, RenderAbstractViewport viewport) {
     // Measured in the coordinates of the root, so the widget can be cut down by
     // the screen and then by each viewport it sits in, one after another.
     final Rect own = MatrixUtils.transformRect(
@@ -357,12 +545,13 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     );
     final RenderObject? root = object.owner?.rootNode;
     Rect overlap = root is RenderView ? own.intersect(Offset.zero & root.size) : own;
+    RenderAbstractViewport? next = viewport;
 
-    while (viewport != null) {
+    while (next != null) {
       overlap = overlap.intersect(
-        MatrixUtils.transformRect(viewport.getTransformTo(null), viewport.paintBounds),
+        MatrixUtils.transformRect(next.getTransformTo(null), next.paintBounds),
       );
-      viewport = RenderAbstractViewport.maybeOf(viewport.parent);
+      next = RenderAbstractViewport.maybeOf(next.parent);
     }
 
     final double area = own.width * own.height;
@@ -371,28 +560,16 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
         : (overlap.width.clamp(0, double.infinity) * overlap.height.clamp(0, double.infinity)) /
               area;
 
-    // `> 0` as well, as the React build asks of its own measurement: zero is
-    // the least that counts as seen, rather than a reason to start something
-    // that is nowhere near the screen.
-    if (shown > 0 && shown >= widget.settings.threshold) {
-      if (!_started) {
-        restart();
-      }
-
-      if (widget.settings.once) {
-        _unwatchScroll();
-      }
-    } else if (!widget.settings.once && _started) {
-      _set(false);
-    }
+    return (area: area, shown: shown);
   }
 
   @override
   Widget build(BuildContext context) {
     final Widget built = widget.builder(
       context,
-      _started && !widget.settings.paused,
+      _started && !widget.settings.paused && !_resting,
       _runs,
+      _resting,
       widget.child,
     );
 
@@ -607,9 +784,11 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   }
 
   /// Starts, holds or rewinds, from whatever the gate is currently saying:
-  /// whether the trigger has let the run go, and how many times it has.
-  void _drive(bool started, int runs) {
-    if (!started || widget.settings.paused) {
+  /// whether the trigger has let the run go, how many times it has, and
+  /// whether an endless run is resting off screen, which holds it as a pause
+  /// does.
+  void _drive(bool started, int runs, {required bool resting}) {
+    if (!started || widget.settings.paused || resting) {
       _holdDelay();
 
       if (_controller.isAnimating) {
@@ -617,7 +796,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       }
 
       // A run that was never triggered sits on its own first frame; one that
-      // was merely paused stays exactly where it is.
+      // was merely paused, or is resting, stays exactly where it is.
       if (_startedRuns != runs) {
         _controller.value = 0;
         _delayLeft = Duration.zero;
@@ -751,12 +930,16 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       // not.
       settings: _withoutPause(widget.settings),
       child: widget.child,
-      builder: (BuildContext context, bool started, int runs, Widget? child) {
+      builder: (BuildContext context, bool running, int runs, bool resting, Widget? child) {
+        // Resting off screen, it is not running and its trigger has still let
+        // it go.
+        final bool started = running || resting;
+
         // After the frame rather than during it, because starting a controller
         // inside a build is a build that schedules a build.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            _drive(started, runs);
+            _drive(started, runs, resting: resting);
           }
         });
 
@@ -798,6 +981,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 }
 
 /// [settings] with `paused` off, and the same object when it already is.
+///
+/// Not `endless` either while it is paused: the run is already still, and has
+/// nothing to rest from off screen.
 PlassAnimateSettings _withoutPause(PlassAnimateSettings settings) {
   if (!settings.paused) {
     return settings;
@@ -815,6 +1001,7 @@ PlassAnimateSettings _withoutPause(PlassAnimateSettings settings) {
     threshold: settings.threshold,
     nonce: settings.nonce,
     target: settings.target,
+    endless: false,
   );
 }
 

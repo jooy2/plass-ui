@@ -133,8 +133,12 @@ class PlAnimateAppear extends StatelessWidget {
         once: once,
         threshold: threshold,
         repeat: repeat,
+        // The set rests off screen as one, measured on the box that holds it,
+        // which stays where it is while the children move. Not while it is
+        // paused, which already holds every child still.
+        endless: repeat == null && !paused,
       ),
-      builder: (BuildContext context, bool running, int runs, Widget? _) {
+      builder: (BuildContext context, bool running, int runs, bool resting, Widget? _) {
         return Flex(
           direction: orientation == PlassOrientation.vertical ? Axis.vertical : Axis.horizontal,
           mainAxisSize: MainAxisSize.min,
@@ -149,10 +153,16 @@ class PlAnimateAppear extends StatelessWidget {
                   curve: curve,
                   repeat: repeat,
                   alternate: alternate,
-                  paused: paused,
+                  // Resting holds each child where it is, as a pause does. Told
+                  // to stop playing instead, a child would start its run again
+                  // from the beginning when the set came back.
+                  paused: paused || resting,
                   // The set has already decided; each child only has to be told.
                   trigger: PlassAnimateTrigger.manual,
-                  play: running,
+                  play: running || resting,
+                  // The set's gate watches the screen for all of them, so they
+                  // rest together and stay in step.
+                  endless: false,
                 ),
                 child: children[index],
                 builder: (BuildContext context, double t, Widget? inner) {

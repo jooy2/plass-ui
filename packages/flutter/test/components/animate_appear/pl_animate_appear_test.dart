@@ -203,5 +203,41 @@ void main() {
 
       expect(offsetsOf(tester), everyElement(Offset.zero));
     });
+
+    testWidgets('rests an endless set while it is scrolled out of view, and goes on in step', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(scrollingPage(page, PlAnimateAppear(repeat: null, children: _three)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 150));
+
+      final List<Offset> before = offsetsOf(tester);
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+
+      // Nothing drifts where nobody can see it. Every child used to go on
+      // being drawn for every frame the screen showed.
+      expect(await redrawsIn(tester), isFalse);
+      expect(offsetsOf(tester), before);
+
+      page.jumpTo(0);
+      await pumpScrolled(tester);
+
+      expect(offsetsOf(tester), before);
+
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // The first child goes on towards home from where it stopped, rather
+      // than starting its run again from the bottom.
+      final List<Offset> after = offsetsOf(tester);
+
+      expect(after.first.dy, lessThan(before.first.dy));
+      expect(after.first.dy, greaterThan(0));
+    });
   });
 }

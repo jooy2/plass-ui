@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **An endless animation rests while it is scrolled out of view, as it does in the React build.** `PlAnimateLighting`, `PlAnimateMarquee`, `PlAnimateFloat` and `PlAnimateBlink`, every other `PlAnimate*` with `repeat: null`, a `PlAnimateAppear` with `repeat: null`, a `PlAnimateHeadline` that loops on its own timer, a `PlAnimateTyping` with `repeat: null` and the typing caret went on drawing a frame or firing a timer for the whole visit wherever they were. Each now pauses once no part of it is left inside the `Scrollable`s above it and the screen, and goes on from the frame, line or character it stopped on when it is back. Finite effects play as before, and so does an endless one hidden some other way, or with no scrollable above it.
+
 - **A `PlAnimateTyping` runs no timers while the platform has asked for less movement, as the React build does.** It drew the whole line then, but went on typing, holding and erasing it underneath, drawing a frame for every character, and one with `repeat: null` never stopped. It now types nothing while the setting is on. Asked for partway through, it shows the whole line and holds where it was; given back, it goes on from that character, or types a line it never began from its first character after the `delay`.
 
 - **A disabled `PlListItem` that is `selected` sets its label at the weight of a row that is not chosen.** It was drawn without the tint and in the unchosen colour, but its label kept the chosen row's medium weight, where the React row drops `font-medium` with the tint while it is disabled. It is now drawn as a row that is not chosen, whether it has an `onPressed` or not.

@@ -343,6 +343,216 @@ void main() {
     });
   });
 
+  group('an endless effect off screen', () {
+    /// The turn the rotation under test is carrying, in degrees.
+    double turnOf(WidgetTester tester) {
+      final Matrix4 m = tester
+          .widget<Transform>(
+            find.descendant(
+              of: find.byType(PlAnimateRotate, skipOffstage: false),
+              matching: find.byType(Transform, skipOffstage: false),
+            ),
+          )
+          .transform;
+
+      return math.atan2(m.storage[1], m.storage[0]) * 180 / math.pi;
+    }
+
+    /// The gate under the rotation.
+    PlassAnimateGateState gateOf(WidgetTester tester) {
+      return tester.state<PlassAnimateGateState>(
+        find.byType(PlassAnimateGate, skipOffstage: false),
+      );
+    }
+
+    /// A quarter turn a second, at an even pace, for ever unless [repeat] says
+    /// otherwise.
+    Widget spin({
+      int? repeat,
+      bool paused = false,
+      PlassAnimateTrigger trigger = PlassAnimateTrigger.mount,
+      bool once = true,
+    }) {
+      return PlAnimateRotate(
+        from: 0,
+        to: 90,
+        fade: false,
+        curve: Curves.linear,
+        duration: const Duration(seconds: 1),
+        repeat: repeat,
+        paused: paused,
+        trigger: trigger,
+        once: once,
+        child: const SizedBox.square(dimension: 100),
+      );
+    }
+
+    testWidgets('rests while it is scrolled out of view, and goes on from the frame it was on', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(scrollingPage(page, spin()));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+
+      final double before = turnOf(tester);
+
+      expect(before, closeTo(22.5, 0.01));
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+
+      // Nothing is drawn for a turn nobody can see. It used to ask for every
+      // frame the screen showed, for as long as the page was open.
+      expect(gateOf(tester).resting, isTrue);
+      expect(await redrawsIn(tester), isFalse);
+      expect(turnOf(tester), before);
+
+      page.jumpTo(0);
+      await pumpScrolled(tester);
+
+      expect(gateOf(tester).resting, isFalse);
+      expect(turnOf(tester), before);
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // From the frame it stopped on, at the pace it was going.
+      expect(turnOf(tester), closeTo(before + 9, 0.01));
+    });
+
+    testWidgets('keeps a finite effect running off screen, so it finishes', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(scrollingPage(page, spin(repeat: 1)));
+      await tester.pump();
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(gateOf(tester).resting, isFalse);
+      expect(tester.binding.hasScheduledFrame, isTrue);
+
+      await tester.pumpAndSettle();
+
+      expect(turnOf(tester), closeTo(90, 0.01));
+    });
+
+    testWidgets('rests once it is scrolled away after the visible trigger has seen it', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(scrollingPage(page, spin(trigger: PlassAnimateTrigger.visible)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(gateOf(tester).started, isTrue);
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+
+      expect(gateOf(tester).resting, isTrue);
+      expect(await redrawsIn(tester), isFalse);
+    });
+
+    testWidgets('leaves one with a visible trigger that is not once to that trigger', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(
+        scrollingPage(page, spin(trigger: PlassAnimateTrigger.visible, once: false)),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+
+      // Taken back by its trigger rather than resting, as before.
+      expect(gateOf(tester).started, isFalse);
+      expect(gateOf(tester).resting, isFalse);
+      expect(await redrawsIn(tester), isFalse);
+    });
+
+    testWidgets('watches nothing while it is paused, and rests once it is let go off screen', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(scrollingPage(page, spin(paused: true)));
+      await tester.pump();
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+
+      // Already still, so there is nothing to rest from.
+      expect(gateOf(tester).resting, isFalse);
+
+      await tester.pumpWidget(scrollingPage(page, spin()));
+      await pumpScrolled(tester);
+
+      expect(gateOf(tester).resting, isTrue);
+      expect(await redrawsIn(tester), isFalse);
+    });
+
+    testWidgets('measures a list once the last step of a scroll has been laid out', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(
+        host(
+          ListView(
+            controller: page,
+            children: <Widget>[const SizedBox(height: 600), spin(), const SizedBox(height: 1000)],
+          ),
+          width: 300,
+          height: 400,
+        ),
+      );
+      await pumpScrolled(tester);
+
+      // Below the bottom of the list from the start.
+      expect(gateOf(tester).resting, isTrue);
+
+      page.jumpTo(150);
+      await pumpScrolled(tester);
+
+      expect(gateOf(tester).resting, isTrue);
+
+      page.jumpTo(300);
+      await pumpScrolled(tester);
+
+      // A list places its items when it lays out, after it has told its
+      // listeners it moved. Measured as it moved, this step was read where the
+      // step before had left it, and the turn rested on the screen.
+      expect(gateOf(tester).resting, isFalse);
+      expect(tester.binding.hasScheduledFrame, isTrue);
+
+      page.jumpTo(0);
+      await pumpScrolled(tester);
+
+      expect(gateOf(tester).resting, isTrue);
+    });
+  });
+
   group('under reduced motion', () {
     /// The turn the rotation under test is carrying, in degrees.
     double degreesOf(WidgetTester tester) {

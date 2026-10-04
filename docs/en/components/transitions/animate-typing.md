@@ -61,6 +61,12 @@ While it is off screen a typewriter with `repeat="infinite"` stops typing, and i
 
 :::
 
+::: fw flutter
+
+While it is scrolled out of view a typewriter with `repeat: null` stops typing, and it goes on from the same character when it is back. Its caret rests out of view too, even after a typing that has finished, because the app otherwise goes on drawing frames for an animation nobody can see. Out of view means no part of it is left inside the `Scrollable`s above it and the screen; a typewriter hidden any other way goes on typing.
+
+:::
+
 ## Examples
 
 ### speed

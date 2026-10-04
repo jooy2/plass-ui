@@ -75,6 +75,12 @@ While it is off screen an endless spin rests, and it goes on from where it stopp
 
 :::
 
+::: fw flutter
+
+While it is scrolled out of view an endless spin rests, and it goes on from where it stopped when it is back, because the app otherwise goes on drawing frames for an animation nobody can see. Out of view means no part of it is left inside the `Scrollable`s above it and the screen; a spin hidden any other way goes on turning.
+
+:::
+
 <Demo src="animate-rotate/spin" :min-height="160">
 
 ::: fw react

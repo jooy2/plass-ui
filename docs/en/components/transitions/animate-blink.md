@@ -60,6 +60,12 @@ While it is off screen an endless blink rests, and it goes on from where it stop
 
 :::
 
+::: fw flutter
+
+While it is scrolled out of view an endless blink rests, and it goes on from where it stopped when it is back, because the app otherwise goes on drawing frames for an animation nobody can see. Out of view means no part of it is left inside the `Scrollable`s above it and the screen; a blink hidden any other way goes on blinking.
+
+:::
+
 ::: fw react
 
 Three more move the effect off the box and onto the things inside it: `stagger` holds each child back by its position, `durationStep` gives each one a longer or shorter run than the last, and `reverse` starts from the end of the set. They are on all six single-keyframe effects and are shown on the [PlAnimateFade](./animate-fade) page. `timeline="view"` and `range` are there too, and hand the effect to the reader's scroll position instead of the clock.

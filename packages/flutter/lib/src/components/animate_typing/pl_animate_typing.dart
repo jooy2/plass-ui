@@ -118,6 +118,10 @@ class PlAnimateTyping extends StatelessWidget {
       // has let the typing go. The typewriter reads the pause itself, because a
       // pause holds the line where it is, and a trigger taking the typing back
       // empties it.
+      //
+      // A typing that never stops rests off screen, unless it is paused, which
+      // already holds it still. One that finishes is not endless, and goes on
+      // typing wherever it is.
       settings: PlassAnimateSettings(
         duration: duration ?? _caretPeriod,
         repeat: repeat,
@@ -125,11 +129,15 @@ class PlAnimateTyping extends StatelessWidget {
         play: play,
         once: once,
         threshold: threshold,
+        endless: repeat == null && !paused,
       ),
-      builder: (BuildContext context, bool started, int runs, Widget? _) {
+      builder: (BuildContext context, bool running, int runs, bool resting, Widget? _) {
         return _Typewriter(
-          started: started,
-          paused: paused,
+          // Resting off screen, it is not running and its trigger has still
+          // let it go: it holds the line where it is, as a pause does, and
+          // goes on from the same character when it is back.
+          started: running || resting,
+          paused: paused || resting,
           runs: runs,
           text: text,
           speed: speed,
@@ -169,7 +177,7 @@ class _Typewriter extends StatefulWidget {
   /// Whether the trigger has let the typing go.
   final bool started;
 
-  /// Whether the caller is holding it where it is.
+  /// Whether it is held where it is: by the caller, or resting off screen.
   final bool paused;
   final int runs;
   final String text;
@@ -498,38 +506,48 @@ class _TypewriterState extends State<_Typewriter> {
     // outcome that still delivers what the widget was carrying.
     final String shown = _still ? widget.text : _graphemes.take(_shown).join();
 
-    return Semantics(
-      label: widget.text,
-      container: true,
-      child: ExcludeSemantics(
-        child: Stack(
-          alignment: AlignmentDirectional.topStart,
-          children: <Widget>[
-            // The whole string holds the box from the first frame, so the text
-            // around it is never laid out again as the characters arrive.
-            Visibility(
-              visible: false,
-              maintainSize: true,
-              maintainAnimation: true,
-              maintainState: true,
-              child: Text('${widget.text}${widget.caret ? widget.caretChar : ''}'),
+    return PlassAnimateGate(
+      // The caret blinks for ever, after a typing that finishes as much as
+      // during one that loops, so it rests off screen on its own account,
+      // measured on the whole line as the typing is. It needs no trigger: it
+      // blinks while the line waits to be typed as well.
+      settings: PlassAnimateSettings(duration: _caretPeriod, endless: widget.caret && !_still),
+      builder: (BuildContext context, bool running, int runs, bool resting, Widget? _) {
+        return Semantics(
+          label: widget.text,
+          container: true,
+          child: ExcludeSemantics(
+            child: Stack(
+              alignment: AlignmentDirectional.topStart,
+              children: <Widget>[
+                // The whole string holds the box from the first frame, so the
+                // text around it is never laid out again as the characters
+                // arrive.
+                Visibility(
+                  visible: false,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: Text('${widget.text}${widget.caret ? widget.caretChar : ''}'),
+                ),
+                Text.rich(
+                  TextSpan(
+                    children: <InlineSpan>[
+                      TextSpan(text: shown),
+                      if (widget.caret)
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: _Caret(char: widget.caretChar, still: _still, resting: resting),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            Text.rich(
-              TextSpan(
-                children: <InlineSpan>[
-                  TextSpan(text: shown),
-                  if (widget.caret)
-                    WidgetSpan(
-                      alignment: PlaceholderAlignment.baseline,
-                      baseline: TextBaseline.alphabetic,
-                      child: _Caret(char: widget.caretChar, still: _still),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -539,10 +557,14 @@ class _TypewriterState extends State<_Typewriter> {
 /// A hard on/off rather than a fade, because a caret that eases is a caret that
 /// looks like it is being rendered slowly.
 class _Caret extends StatefulWidget {
-  const _Caret({required this.char, required this.still});
+  const _Caret({required this.char, required this.still, required this.resting});
 
   final String char;
   final bool still;
+
+  /// Whether the line is off screen, which holds the blink on the frame it is
+  /// on until the line is back.
+  final bool resting;
 
   @override
   State<_Caret> createState() => _CaretState();
@@ -558,7 +580,7 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
   void didUpdateWidget(_Caret oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.still != widget.still) {
+    if (oldWidget.still != widget.still || oldWidget.resting != widget.resting) {
       _syncBlink();
     }
   }
@@ -576,9 +598,11 @@ class _CaretState extends State<_Caret> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  /// Blinks only while the caret is drawn blinking. A still caret ticks nothing.
+  /// Blinks only while the caret is drawn blinking and on screen. A still
+  /// caret ticks nothing, and a resting one holds its frame: `repeat` goes on
+  /// from where the blink stopped.
   void _syncBlink() {
-    if (widget.still) {
+    if (widget.still || widget.resting) {
       _blink.stop();
     } else if (!_blink.isAnimating) {
       _blink.repeat();

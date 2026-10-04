@@ -162,7 +162,7 @@ class PlAnimateSplit extends StatelessWidget {
             once: once,
             threshold: threshold,
           ),
-          builder: (BuildContext context, bool running, int runs, Widget? _) {
+          builder: (BuildContext context, bool running, int runs, bool resting, Widget? _) {
             final List<Widget> children = <Widget>[];
 
             // The step counts across the whole line rather than within a word,

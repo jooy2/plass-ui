@@ -328,5 +328,48 @@ void main() {
 
       expect(shiftOf(tester), Offset.zero);
     });
+
+    testWidgets('rests while it is scrolled out of view, and goes on from where the strip was', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(
+        scrollingPage(
+          page,
+          SizedBox(
+            width: 200,
+            height: 40,
+            child: PlAnimateMarquee(curve: Curves.linear, children: _three),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      final Offset before = shiftOf(tester);
+
+      expect(before.dx, lessThan(0));
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+
+      // Nothing moves where nobody can see it. The strip used to be drawn again
+      // for every frame the screen showed.
+      expect(await redrawsIn(tester), isFalse);
+      expect(shiftOf(tester), before);
+
+      page.jumpTo(0);
+      await pumpScrolled(tester);
+
+      expect(shiftOf(tester), before);
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Six pixels on, at sixty a second, from where it stopped.
+      expect(shiftOf(tester).dx, closeTo(before.dx - 6, 0.01));
+    });
   });
 }

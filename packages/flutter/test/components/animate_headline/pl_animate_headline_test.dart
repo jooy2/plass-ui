@@ -232,6 +232,47 @@ void main() {
 
         await tester.pumpWidget(host(const SizedBox.shrink(), width: 200));
       });
+
+      testWidgets('stops turning while it is scrolled out of view, and holds the line it '
+          'stopped on for a whole interval when it is back', (WidgetTester tester) async {
+        final List<int> seen = <int>[];
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        await tester.pumpWidget(
+          scrollingPage(
+            page,
+            SizedBox(
+              width: 200,
+              child: PlAnimateHeadline(
+                interval: const Duration(milliseconds: 1000),
+                duration: const Duration(milliseconds: 50),
+                onIndexChange: seen.add,
+                children: _lines,
+              ),
+            ),
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 500));
+
+        page.jumpTo(600);
+        await pumpScrolled(tester);
+
+        // It used to go on turning, a line a second, for nobody.
+        expect(await redrawsIn(tester), isFalse);
+        expect(seen, isEmpty);
+
+        page.jumpTo(0);
+        await pumpScrolled(tester);
+        await tester.pump(const Duration(milliseconds: 999));
+
+        expect(seen, isEmpty);
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(seen, <int>[1]);
+      });
     });
 
     testWidgets('travels one line height unless a rise says otherwise', (
