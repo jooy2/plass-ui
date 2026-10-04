@@ -226,19 +226,6 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
     } as React.CSSProperties;
 
     /*
-     * Whether the caller's own element already knows where it goes.
-     *
-     * A router's `Link` resolves an address rather than forwarding one, and
-     * what it resolves reaches the anchor through its own render — so merging
-     * this component's `href` on top of it throws that work away and puts the
-     * raw string back. Only an element is checked: a render *function* builds
-     * its element from the props it is handed, which is the other half of the
-     * same contract.
-     */
-    const rendersItsOwnHref =
-      React.isValidElement(render) && (render.props as { href?: string }).href !== undefined;
-
-    /*
      * `rel` is merged rather than replaced — see `internal/link.ts` for why
      * that is a security decision rather than a convenience.
      */
@@ -253,7 +240,9 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
       render: render ?? <a />,
       ref,
       props: {
-        ...(rendersItsOwnHref ? null : { href }),
+        // An `href` on the caller's element wins, as `render` promises: Base UI
+        // merges the element's own props over these.
+        href,
         target,
         className: classNames,
         style: { ...slots, ...style },

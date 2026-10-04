@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTextLink } from 'plass-ui';
+import { RouterLink } from '../../support/router';
 
 describe('PlTextLink', () => {
   describe('rendering', () => {
@@ -37,6 +38,26 @@ describe('PlTextLink', () => {
 
       expect(link).toHaveAttribute('data-router');
       expect(link).toHaveAttribute('href', '/ko/pricing');
+    });
+
+    it("hands a router the element's own `href` over the link's", async () => {
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlTextLink
+          href="/pricing"
+          render={<RouterLink href="/ko/pricing" onNavigate={onNavigate} />}
+        >
+          Pricing
+        </PlTextLink>
+      );
+      const link = screen.getByRole('link');
+
+      expect(link.element()).toHaveAttribute('data-router');
+      expect(link.element()).toHaveAttribute('href', '/ko/pricing');
+
+      await link.click();
+
+      expect(onNavigate).toHaveBeenCalledExactlyOnceWith('/ko/pricing');
     });
 
     it('gives its own address to an element that has none', async () => {
