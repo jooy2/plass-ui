@@ -99,7 +99,7 @@ provider는 **중첩되고 병합됩니다**. compact가 아닌 애플리케이�
 
 ::: fw react
 
-`locale`은 날짜와 시간 컴포넌트인 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker`, 숫자를 쓰는 `PlNumberField` · `PlMeter` · `PlProgressLinear` · `PlProgressCircular` · `PlProgressBox` · `PlAnimateCounter`, 그리고 차트인 `PlLineChart` · `PlAreaChart` · `PlBarChart` · `PlScatterChart` · `PlPieChart` · `PlHeatmapChart` · `PlTimelineChart` · `PlGaugeChart`에 닿습니다.
+`locale`은 날짜와 시간 컴포넌트인 `PlCalendar` · `PlDatePicker` · `PlDateRangePicker` · `PlTimePicker` · `PlDateTimePicker`, 숫자를 쓰는 `PlNumberField` · `PlSlider` · `PlMeter` · `PlProgressLinear` · `PlProgressCircular` · `PlProgressBox` · `PlAnimateCounter`, 그리고 차트인 `PlLineChart` · `PlAreaChart` · `PlBarChart` · `PlScatterChart` · `PlPieChart` · `PlHeatmapChart` · `PlTimelineChart` · `PlGaugeChart`에 닿습니다.
 
 :::
 

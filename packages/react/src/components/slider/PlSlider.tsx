@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useDisabled } from '../../internal/form.js';
-import { useDefaults, useRuntimeLocale } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { Slider as BaseUISlider } from '@base-ui/react/slider';
 import {
   controlSlots,
@@ -232,9 +232,7 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
   ) {
     const descriptionId = React.useId();
     const defaults = useDefaults();
-    // Not the provider's: the slider has never read it, and a server render is
-    // no reason to start. Only the runtime's own is pinned while it hydrates.
-    const locale = useRuntimeLocale(localeProp);
+    const locale = useLocale(localeProp);
     const disabled = useDisabled(disabledProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';

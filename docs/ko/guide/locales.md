@@ -55,7 +55,7 @@ order: 3
 </PlassProvider>
 ```
 
-서버는 보통 URL이나 `Accept-Language` 헤더로 locale을 압니다. `PlSlider`는 프로바이더를 읽지 않으니 따로 `locale`을 주세요. 텍스트로 정렬하는 `PlDataTable`과 이니셜을 쓰는 `PlAvatar`는 locale을 아예 받지 않습니다. 브라우저의 규칙을 따르고, hydration이 끝나기 전까지는 `en-US` 규칙을 따릅니다.
+서버는 보통 URL이나 `Accept-Language` 헤더로 locale을 압니다. 텍스트로 정렬하는 `PlDataTable`과 이니셜을 쓰는 `PlAvatar`는 locale을 아예 받지 않습니다. 브라우저의 규칙을 따르고, hydration이 끝나기 전까지는 `en-US` 규칙을 따릅니다.
 
 오늘 날짜도 같습니다. 서버는 시계를 UTC로 읽으므로, 서버가 렌더링한 `PlCalendar`는 UTC 기준의 달로 열리고 UTC 기준의 날을 오늘로 표시하다가 hydration이 끝나면 독자의 날로 옮겨 갑니다. 서울이 오전 8시일 때 UTC는 아직 어제이고, 매달 1일에는 아직 지난달입니다. 서버 렌더링이 읽는 시간대를 바꾸는 설정은 없습니다.
 

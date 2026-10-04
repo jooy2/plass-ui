@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A `PlSlider` inside a `PlassProvider` writes its value in the provider's `locale`.** It read only its own `locale`, so on a page that named its locale once on the provider a slider wrote `1,234.5` while the number fields and meters beside it wrote `1.234,5`. It now reads the provider's, as `PlNumberField` and `PlMeter` do, and its own `locale` still wins.
+
 - **A long `PlDataTable` whose `columns` are written inline no longer draws every row again whenever the component holding it draws.** A row was skipped only while `columns` kept its identity, and an array written inline is new on every render. A row now compares its columns by `key`, `align` and `render`, so a new array that draws alike passes over every row. A `render` written inline is still a new function each time and still draws every row, so a long table keeps its `render` functions, or the whole `columns`, outside the component or in `useMemo`.
 
 - **A `PlAnimateMarquee` strip and an indeterminate `PlProgressLinear` segment travel the way the nearest `dir` says, however deeply one region is nested in another.** The stylesheet answered one region inside another, so a right-to-left region inside a left-to-right one inside a right-to-left page ran the English way. A browser with `:dir()` now reads the direction the strip or the segment is in; Chrome 111 to 119, which lack it, still read the `dir` attribute one region deep.

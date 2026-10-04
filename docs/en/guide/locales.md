@@ -55,7 +55,7 @@ Give the provider a `locale` and the server and the first paint already agree wi
 </PlassProvider>
 ```
 
-A server usually knows the locale from the URL or the `Accept-Language` header. `PlSlider` does not read the provider, so give it its own `locale`. A `PlDataTable` sorting text and a `PlAvatar` writing initials do not take a locale at all: they follow the browser's, and the `en-US` rules until hydration is done.
+A server usually knows the locale from the URL or the `Accept-Language` header. A `PlDataTable` sorting text and a `PlAvatar` writing initials do not take a locale at all: they follow the browser's, and the `en-US` rules until hydration is done.
 
 Today works the same way. A server reads its clock in UTC, so a `PlCalendar` it renders opens on the month and marks the day it is in UTC, and moves to the reader's once hydration is done. At 08:00 in Seoul it is still yesterday in UTC, and on the 1st of a month it is still the month before. No setting changes the zone a server render reads.
 

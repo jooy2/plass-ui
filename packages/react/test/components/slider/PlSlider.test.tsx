@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlSlider } from 'plass-ui';
+import { PlassProvider, PlSlider } from 'plass-ui';
 
 describe('PlSlider', () => {
   describe('rendering', () => {
@@ -61,6 +61,33 @@ describe('PlSlider', () => {
       );
 
       await expect.element(screen.getByText('40 percent')).toBeInTheDocument();
+    });
+
+    it("writes the value in the provider's locale", async () => {
+      const screen = await render(
+        <PlassProvider locale="de-DE">
+          <PlSlider label="Weight" defaultValue={1234.5} max={2000} step={0.5} showValue />
+        </PlassProvider>
+      );
+
+      await expect.element(screen.getByText('1.234,5')).toBeInTheDocument();
+    });
+
+    it("writes the value in its own locale over the provider's", async () => {
+      const screen = await render(
+        <PlassProvider locale="de-DE">
+          <PlSlider
+            label="Weight"
+            locale="en-US"
+            defaultValue={1234.5}
+            max={2000}
+            step={0.5}
+            showValue
+          />
+        </PlassProvider>
+      );
+
+      await expect.element(screen.getByText('1,234.5')).toBeInTheDocument();
     });
 
     it('carries the min, the max and the step through to the control', async () => {

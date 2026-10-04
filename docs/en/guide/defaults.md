@@ -99,7 +99,7 @@ Providers **nest and merge**. A section that is compact inside an application th
 
 ::: fw react
 
-`locale` reaches the date and time components, `PlCalendar`, `PlDatePicker`, `PlDateRangePicker`, `PlTimePicker` and `PlDateTimePicker`; the components that write a number, `PlNumberField`, `PlMeter`, `PlProgressLinear`, `PlProgressCircular`, `PlProgressBox` and `PlAnimateCounter`; and the charts `PlLineChart`, `PlAreaChart`, `PlBarChart`, `PlScatterChart`, `PlPieChart`, `PlHeatmapChart`, `PlTimelineChart` and `PlGaugeChart`.
+`locale` reaches the date and time components, `PlCalendar`, `PlDatePicker`, `PlDateRangePicker`, `PlTimePicker` and `PlDateTimePicker`; the components that write a number, `PlNumberField`, `PlSlider`, `PlMeter`, `PlProgressLinear`, `PlProgressCircular`, `PlProgressBox` and `PlAnimateCounter`; and the charts `PlLineChart`, `PlAreaChart`, `PlBarChart`, `PlScatterChart`, `PlPieChart`, `PlHeatmapChart`, `PlTimelineChart` and `PlGaugeChart`.
 
 :::
 
