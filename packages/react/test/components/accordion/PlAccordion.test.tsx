@@ -1,3 +1,6 @@
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlAccordion, PlAccordionItem } from 'plass-ui';
@@ -224,6 +227,67 @@ describe('PlAccordion', () => {
 
       expect(screen.getByRole('button', { name: 'Billing' }).element()).toBeDisabled();
       expect(screen.getByRole('button', { name: 'Team' }).element()).toBeEnabled();
+    });
+  });
+
+  describe('closed panels', () => {
+    it('builds no closed panel by default', async () => {
+      await render(<TwoSections />);
+
+      expect(document.body.textContent).not.toContain('Invoices and payment methods.');
+    });
+
+    it('keeps closed panels in the DOM, hidden, with keepMounted', async () => {
+      const screen = await render(<TwoSections keepMounted />);
+
+      expect(
+        screen.getByText('Invoices and payment methods.').element().closest('[hidden]')
+      ).not.toBeNull();
+    });
+
+    it('keeps every closed panel as `hidden="until-found"` with hiddenUntilFound, and Base UI says nothing', async () => {
+      // Base UI warns once per message, so this has to be the first render
+      // with `hiddenUntilFound` in the file for the check to mean anything.
+      const warn = vi.spyOn(console, 'warn');
+      const error = vi.spyOn(console, 'error');
+
+      try {
+        const screen = await render(<TwoSections hiddenUntilFound />);
+
+        for (const text of ['Invoices and payment methods.', 'Members and their roles.']) {
+          expect(screen.getByText(text).element().closest('[hidden]')?.getAttribute('hidden')).toBe(
+            'until-found'
+          );
+        }
+        expect([...warn.mock.calls, ...error.mock.calls].flat().join('\n')).not.toContain(
+          'keepMounted'
+        );
+      } finally {
+        warn.mockRestore();
+        error.mockRestore();
+      }
+    });
+
+    it('puts the closed panels into the server HTML with hiddenUntilFound, and hydrates it as it is', async () => {
+      const tree = <TwoSections hiddenUntilFound />;
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      host.innerHTML = renderToString(tree);
+      document.body.append(host);
+
+      // What a search engine reads: the answer is there before any script runs.
+      expect(host.textContent).toContain('Members and their roles.');
+
+      const root = await act(async () => hydrateRoot(host, tree, { onRecoverableError }));
+
+      try {
+        expect(onRecoverableError).not.toHaveBeenCalled();
+        expect(host.querySelectorAll('[hidden="until-found"]')).toHaveLength(2);
+      } finally {
+        await act(async () => root.unmount());
+        host.remove();
+      }
     });
   });
 

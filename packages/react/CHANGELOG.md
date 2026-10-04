@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **`hiddenUntilFound` on `PlAccordion` and `PlCollapsible` no longer makes Base UI warn.** Both passed `keepMounted={false}` to Base UI whenever the caller left `keepMounted` out, and Base UI warns in development when an explicit `false` meets `hiddenUntilFound`, which ignores it. `keepMounted` is now passed only when it was given, and closed panels behave as before.
+
 - **A server-rendered `PlAvatar` starts loading its picture with the page.** The `<img>` was mounted only once Base UI had preloaded the picture after hydration, so the request waited for the JavaScript. It is now in the server's markup from the start, kept out of sight, out of the layout and away from screen readers until it has loaded, so what is drawn, the fallback's `delay` and what is announced are unchanged. A `loading`, `fetchPriority` or `decoding` passed in `imageProps` now applies to the request that loads the picture, so `loading: 'lazy'` defers an avatar below the fold where before it was fetched at once.
 
 - **A heading passed to `PlEmpty` as its `title` stays where it was put.** The title was drawn in a `<p>`, which cannot hold a heading, so a server-rendered page put the heading beside an empty title, and React reported a hydration mismatch and rendered the tree again. The title is now a `<div>`, and it looks and reads as before.

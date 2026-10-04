@@ -82,6 +82,8 @@ The bar is generic in its tab's type (`PlTabs<String>`, `PlTabs<Section>`), so `
 
 A panel can sit in a Fragment next to its tab, so a list mapped to `<><PlTab /><PlTabPanel /></>` sorts the same as the two written out. Inside a component of your own it cannot be told apart from a tab and ends up in the tab bar, so keep each `PlTabPanel` a direct child or inside a Fragment.
 
+Only the chosen tab's panel is rendered, so the other panels are not in the server HTML a search engine reads. Give a `PlTabPanel` `keepMounted` when what it holds should be indexed: it is then in the HTML, hidden until its tab is chosen.
+
 `variant`, `size`, `density` and `orientation` are read from the `PlTabs` around them. A tab that could disagree with its neighbours about any of those is a tab bar with a hole in it.
 
 :::

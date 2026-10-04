@@ -1,3 +1,6 @@
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlButton, PlCollapsible, PlSwitch } from 'plass-ui';
@@ -193,6 +196,65 @@ describe('PlCollapsible', () => {
       // holds form state which should survive being folded away.
       expect(document.body.textContent).toContain('Everything else.');
       expect(screen.getByText('Everything else.').element().closest('[hidden]')).not.toBeNull();
+    });
+
+    it('builds no closed panel by default', async () => {
+      await render(<PlCollapsible title="Advanced">Everything else.</PlCollapsible>);
+
+      expect(document.body.textContent).not.toContain('Everything else.');
+    });
+
+    it('keeps a closed panel as `hidden="until-found"` with hiddenUntilFound, and Base UI says nothing', async () => {
+      // Base UI warns once per message, so this has to be the first render
+      // with `hiddenUntilFound` in the file for the check to mean anything.
+      const warn = vi.spyOn(console, 'warn');
+      const error = vi.spyOn(console, 'error');
+
+      try {
+        const screen = await render(
+          <PlCollapsible hiddenUntilFound title="Advanced">
+            Everything else.
+          </PlCollapsible>
+        );
+
+        expect(
+          screen.getByText('Everything else.').element().closest('[hidden]')?.getAttribute('hidden')
+        ).toBe('until-found');
+        expect([...warn.mock.calls, ...error.mock.calls].flat().join('\n')).not.toContain(
+          'keepMounted'
+        );
+      } finally {
+        warn.mockRestore();
+        error.mockRestore();
+      }
+    });
+
+    it('puts a closed panel into the server HTML with hiddenUntilFound, and hydrates it as it is', async () => {
+      const tree = (
+        <PlCollapsible hiddenUntilFound title="Advanced">
+          Everything else.
+        </PlCollapsible>
+      );
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      host.innerHTML = renderToString(tree);
+      document.body.append(host);
+
+      // What a search engine reads: the body is there before any script runs.
+      expect(host.textContent).toContain('Everything else.');
+
+      const root = await act(async () => hydrateRoot(host, tree, { onRecoverableError }));
+
+      try {
+        expect(onRecoverableError).not.toHaveBeenCalled();
+        expect(host.querySelector('[hidden="until-found"]')?.textContent).toContain(
+          'Everything else.'
+        );
+      } finally {
+        await act(async () => root.unmount());
+        host.remove();
+      }
     });
   });
 

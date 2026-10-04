@@ -2,6 +2,7 @@ import { page } from 'vitest/browser';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { Fragment } from 'react';
+import { renderToString } from 'react-dom/server';
 import { PlTab, PlTabPanel, PlTabs } from 'plass-ui';
 
 function Settings(props: React.ComponentProps<typeof PlTabs>) {
@@ -198,6 +199,27 @@ describe('PlTabs', () => {
       const hidden = document.querySelector('.tabs-under-test [role="tabpanel"][hidden]');
 
       expect(hidden?.textContent).toBe('Two');
+    });
+
+    it('puts only the chosen panel and a `keepMounted` one into the server HTML', () => {
+      // What a search engine reads, and what the docs tell a page that wants a
+      // tab's content indexed to set.
+      const html = renderToString(
+        <PlTabs defaultValue="a">
+          <PlTab value="a">First</PlTab>
+          <PlTab value="b">Second</PlTab>
+          <PlTab value="c">Third</PlTab>
+          <PlTabPanel value="a">Chosen panel</PlTabPanel>
+          <PlTabPanel value="b">Dropped panel</PlTabPanel>
+          <PlTabPanel value="c" keepMounted>
+            Kept panel
+          </PlTabPanel>
+        </PlTabs>
+      );
+
+      expect(html).toContain('Chosen panel');
+      expect(html).not.toContain('Dropped panel');
+      expect(html).toContain('Kept panel');
     });
 
     it('points each tab at the panel it controls', async () => {

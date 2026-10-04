@@ -165,7 +165,9 @@ export const PlCollapsible = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       disabled = false,
       padded = true,
       hiddenUntilFound = false,
-      keepMounted = false,
+      // No default here. Base UI's own is the same `false`, and an explicit
+      // `false` beside `hiddenUntilFound` makes it warn that it is ignored.
+      keepMounted,
       className,
       style,
       children,
