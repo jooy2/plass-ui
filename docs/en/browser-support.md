@@ -28,11 +28,13 @@ CSS decides the line, not JavaScript. A bundler can rewrite newer syntax and a p
 
 | Requirement | Chrome | Firefox | Safari | Used for |
 | --- | --- | --- | --- | --- |
-| `color-mix()` | 111 | 113 | 16.2 | Every colour family's focus ring, soft fill, edge and tinted shadow |
+| `color-mix()` | 111 | 113 | 16.2 | Every colour family's soft fill, edge and tinted shadow |
 | Base UI | 111 | 113 | 16.4 | The behaviour and accessibility of the interactive components |
 | Tailwind CSS v4 | 111 | 128 | 16.4 | The compiled utilities and the theme values they read |
 
-**`color-mix()` is the hard line.** In a browser without it, every property that reads one of those tokens falls back to its default. The focus ring disappears together with the hover fills, the coloured edges and the tinted shadows, and someone using a keyboard can no longer see where the focus is.
+**`color-mix()` is the hard line.** Both stylesheets are compiled by Tailwind CSS, and from version 4.1 Tailwind puts a fallback in front of every colour token written with `color-mix()`: the first colour of the mix, at full strength. A browser without `color-mix()` uses that fallback, so the soft fills, the coloured edges and the tinted shadows are drawn in the family's full colour. A hovered or selected item becomes a solid block of the accent, and where its text is in the accent too, as on a selected `PlListItem` or the current `PlBottomNavigationItem`, the text can no longer be read.
+
+A project that compiles `plass-ui/tailwind.css` with Tailwind CSS 4.0 gets no fallback, and every property that reads one of those tokens falls back to its default instead: the fills and the shadows disappear, and the edges take the text colour. Colours that a component writes into its own inline styles or SVG attributes, such as the light on a field and the fill under a chart's line, are not compiled by Tailwind and have no fallback in either case, so those properties fall back to their defaults as well. The focus ring is drawn in the accent itself rather than in a mix, so it stays visible in every case.
 
 [Base UI](https://base-ui.com/react/overview/about) supports the browsers that were Baseline Widely Available when its current major version was released. Safari 16.2 and 16.3 have every CSS feature the hard line needs, but they are outside that range, so Safari has no versions that work with gaps.
 
