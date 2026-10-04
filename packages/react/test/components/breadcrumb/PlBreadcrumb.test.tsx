@@ -389,5 +389,27 @@ describe('PlBreadcrumb', () => {
       expect(data.itemListElement[0].item).toBe('https://example.com/docs');
       expect(data.itemListElement[1].item).toBe('https://example.com/en/a');
     });
+
+    it("keeps a disabled step's address, which every step but the last needs", async () => {
+      await render(
+        <PlBreadcrumb className="trail-under-test" structuredData baseUrl="https://example.com">
+          <PlBreadcrumbItem disabled href="/docs">
+            Docs
+          </PlBreadcrumbItem>
+          <PlBreadcrumbItem disabled render={<RouterLink href="/docs/a" />}>
+            A
+          </PlBreadcrumbItem>
+          <PlBreadcrumbItem>Here</PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      const script = document.querySelector('.trail-under-test script');
+      const data = JSON.parse(script?.textContent ?? '{}');
+
+      // The links on the page have no address, and the path still does.
+      expect(document.querySelector('.trail-under-test a[href]')).toBeNull();
+      expect(data.itemListElement[0].item).toBe('https://example.com/docs');
+      expect(data.itemListElement[1].item).toBe('https://example.com/docs/a');
+    });
   });
 });

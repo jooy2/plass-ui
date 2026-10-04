@@ -161,6 +161,8 @@ It is off by default, because a page can only have one of these and a great many
 
 Every step goes in, including the ones a `maxItems` fold is hiding: what is collapsed is a matter of how much room the row has, and the path is the path either way. `baseUrl` is what makes the URLs absolute, which is what a crawler wants.
 
+A disabled step keeps its address here, though its link on the page has none. Google asks for an `item` on every step but the last, and a step that cannot be followed right now is still part of the path.
+
 :::
 
 ### size
