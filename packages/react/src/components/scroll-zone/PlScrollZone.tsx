@@ -7,6 +7,7 @@ import { takeSelection } from '../../internal/drag.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { spacingValue } from '../../internal/grid.js';
 import { ChevronIcon } from '../../internal/icons.js';
+import { layoutBox } from '../../internal/layout-box.js';
 import { cx } from '../../internal/styles.js';
 import { useResponsiveValue } from '../../internal/responsive.js';
 import { overscrollClasses, useWheelScroll } from '../../internal/wheel.js';
@@ -395,6 +396,11 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
      * Distinct offsets rather than one per child, which is what makes `lines`
      * work: four children stacked two by two are two columns, and pressing next
      * once should move one column rather than half of one.
+     *
+     * They are measured on the screen and handed to `scrollBy`, which counts
+     * the strip's own pixels, so they are turned into those. The two differ
+     * inside a scaled ancestor, a zone in a scaled `PlMockup` for one, where a
+     * button stopped part of the way to the next child.
      */
     const itemStarts = React.useCallback(() => {
       const element = scrollerRef.current;
@@ -408,11 +414,12 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       const edge = horizontal ? (rtl ? 'right' : 'left') : 'top';
       const sign = rtl ? -1 : 1;
       const origin = element.getBoundingClientRect()[edge];
+      const { perPixel } = layoutBox(element, horizontal);
 
       const starts: number[] = [];
 
       for (const child of Array.from(track.children) as HTMLElement[]) {
-        const start = Math.round((child.getBoundingClientRect()[edge] - origin) * sign);
+        const start = Math.round((child.getBoundingClientRect()[edge] - origin) * sign * perPixel);
 
         if (!starts.includes(start)) {
           starts.push(start);
@@ -540,6 +547,12 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
       const fromLeft = element.scrollLeft;
       const fromTop = element.scrollTop;
       let dragging = false;
+      // How many of the strip's own pixels, which the scroll offset counts, one
+      // pixel the pointer moves on the screen is. They differ inside a scaled
+      // ancestor, where the strip slid at a different speed from the pointer.
+      // Measured once the press has become a drag, so a click on a card costs
+      // no layout read.
+      let perPixel = 1;
 
       // The document's selection, taken at the threshold rather than at the
       // press: until the strip has actually moved, this is still a click on a
@@ -561,20 +574,22 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
         const dy = moveEvent.clientY - fromY;
 
         if (!dragging) {
+          // The threshold is how far the hand moved, so it stays on the screen.
           if (Math.abs(horizontal ? dx : dy) < DRAG_THRESHOLD) {
             return;
           }
 
           dragging = true;
+          perPixel = layoutBox(element, horizontal).perPixel;
           element.setPointerCapture(moveEvent.pointerId);
           element.dataset.dragging = 'true';
           restoreSelection = takeSelection();
         }
 
         if (horizontal) {
-          element.scrollLeft = fromLeft - dx;
+          element.scrollLeft = fromLeft - dx * perPixel;
         } else {
-          element.scrollTop = fromTop - dy;
+          element.scrollTop = fromTop - dy * perPixel;
         }
       };
 
