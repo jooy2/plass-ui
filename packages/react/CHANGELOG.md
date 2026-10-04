@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **A server-rendered `PlAvatar` starts loading its picture with the page.** The `<img>` was mounted only once Base UI had preloaded the picture after hydration, so the request waited for the JavaScript. It is now in the server's markup from the start, kept out of sight, out of the layout and away from screen readers until it has loaded, so what is drawn, the fallback's `delay` and what is announced are unchanged. A `loading`, `fetchPriority` or `decoding` passed in `imageProps` now applies to the request that loads the picture, so `loading: 'lazy'` defers an avatar below the fold where before it was fetched at once.
+
 - **A heading passed to `PlEmpty` as its `title` stays where it was put.** The title was drawn in a `<p>`, which cannot hold a heading, so a server-rendered page put the heading beside an empty title, and React reported a hydration mismatch and rendered the tree again. The title is now a `<div>`, and it looks and reads as before.
 
 - **A `PlSkeleton` and an indeterminate `PlProgressLinear` no longer add to a page's layout shift while they run.** The highlight and the segment travelled on `inset-inline-start`, which laid them out again on every frame, and the browser recorded every one of those frames as a layout shift: a 600×340 skeleton added 0.39 to the page's CLS in five seconds. Both now rest at the start of their box and move on `translate`, over the same path, at the same pace and in the same direction, so nothing on the page is laid out while they run.

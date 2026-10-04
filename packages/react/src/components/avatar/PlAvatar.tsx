@@ -7,6 +7,7 @@ import {
   controlHeightClasses,
   controlSlots,
   controlSquareClasses,
+  cx,
   hasContent,
   markRestClasses,
   pictureSlotClasses,
@@ -130,6 +131,17 @@ const baseClasses = /* @__PURE__ */ [
   transitionClasses
 ].join(' ');
 
+/** The picture once it has loaded: the whole box, cropped rather than squashed. */
+const imageClasses = 'size-full object-cover';
+
+/**
+ * The picture before it has loaded, or after it failed: laid over the box
+ * rather than beside the fallback, and not painted. `visibility` rather than
+ * `display: none`, so a `loading="lazy"` image still has a box to come into
+ * view and is still fetched.
+ */
+const pendingImageClasses = 'invisible absolute inset-0';
+
 /**
  * The default fallback: a shoulders-and-head silhouette, drawn here rather than
  * in `internal/icons` because this is the only component that needs it.
@@ -239,6 +251,11 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
     const stand = hasContent(children) ? children : (initials ?? derived) || <PersonIcon />;
     const speaks = hasContent(children) || Boolean(initials ?? derived);
 
+    // A class handed to the `<img>` replaces the crop, as it always has; the
+    // classes that keep a picture still loading out of the way go on either.
+    const { className: imageClassName, ...imageRest } = imageProps ?? {};
+    const loadedClasses = imageClassName ?? imageClasses;
+
     const classNames = [
       baseClasses,
       controlHeightClasses[size],
@@ -266,9 +283,20 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
             // decoration, and `alt` left off is what makes a screen reader read
             // the file name out instead.
             alt={label ?? ''}
-            className="size-full object-cover"
+            // In the markup from the first render, the server's included, so
+            // the browser starts the request while it parses the page rather
+            // than after hydration. Until it has loaded it is out of sight and
+            // out of the flow, and Base UI hides it from a screen reader, which
+            // leaves the fallback exactly where it was when the image was only
+            // mounted once loaded.
+            keepMounted
+            className={(state) =>
+              state.imageLoadingStatus === 'loaded'
+                ? loadedClasses
+                : cx(loadedClasses, pendingImageClasses)
+            }
             onLoadingStatusChange={onLoadingStatusChange}
-            {...imageProps}
+            {...imageRest}
           />
         ) : null}
 
