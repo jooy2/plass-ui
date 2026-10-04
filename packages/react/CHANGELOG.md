@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A calendar keeps its month and weekday names on the right day when the browser's time zone changes while the page is open.** The pickers kept the formatters they write names with, and a formatter keeps the zone it was made in, so after the zone changed a calendar could head September as August or start its week on Saturday until the page was reloaded. The formatters are now made again when the zone changes.
+
 - **A `PlSlider` inside a `PlassProvider` writes its value in the provider's `locale`.** It read only its own `locale`, so on a page that named its locale once on the provider a slider wrote `1,234.5` while the number fields and meters beside it wrote `1.234,5`. It now reads the provider's, as `PlNumberField` and `PlMeter` do, and its own `locale` still wins.
 
 - **A long `PlDataTable` whose `columns` are written inline no longer draws every row again whenever the component holding it draws.** A row was skipped only while `columns` kept its identity, and an array written inline is new on every render. A row now compares its columns by `key`, `align` and `render`, so a new array that draws alike passes over every row. A `render` written inline is still a new function each time and still draws every row, so a long table keeps its `render` functions, or the whole `columns`, outside the component or in `useMemo`.

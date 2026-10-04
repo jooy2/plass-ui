@@ -32,11 +32,59 @@ function cacheKey(locale: string | undefined, options: object | undefined): stri
 
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
-/** A memoised `Intl.DateTimeFormat`. */
+/*
+ * A date formatter reads the runtime's time zone once, when it is built, and a
+ * browser's zone can change while a page is open: the machine travels, or its
+ * owner changes the setting. A formatter cached before that goes on writing the
+ * old zone's wall clock, while every date the pickers build is a local midnight
+ * in the new one, so the 1st of a month written in a zone to the west comes out
+ * as the last day of the month before.
+ *
+ * Asking for the zone by name costs a formatter of its own, several hundred
+ * lookups' worth, so it is not asked on every call. The offset from UTC at two
+ * instants half a year apart costs a fraction of a lookup, and it moves when
+ * the zone does, in winter or in summer: when it moves, the date formatters are
+ * dropped and built again in the new zone. Two zones that share both offsets
+ * write the same day for nearly every date; what this misses is a date on which
+ * one of them has moved its clocks and the other has not, or one from a year
+ * their rules differed.
+ */
+
+/** 1 January and 1 July 2021, at midnight UTC. */
+const winter = /* @__PURE__ */ new Date(1_609_459_200_000);
+const summer = /* @__PURE__ */ new Date(1_625_097_600_000);
+
+/** The offsets the cached date formatters were built under. Unknown until the first call. */
+let winterOffset = Number.NaN;
+let summerOffset = Number.NaN;
+
+/** Has the runtime's zone changed since the date formatters were built? */
+function zoneHasMoved(): boolean {
+  const nowWinter = winter.getTimezoneOffset();
+  const nowSummer = summer.getTimezoneOffset();
+
+  if (nowWinter === winterOffset && nowSummer === summerOffset) {
+    return false;
+  }
+
+  winterOffset = nowWinter;
+  summerOffset = nowSummer;
+
+  return true;
+}
+
+/**
+ * A memoised `Intl.DateTimeFormat`, built again when the runtime's time zone
+ * has changed since it was.
+ */
 export function dateFormatter(
   locale: string | undefined,
   options: Intl.DateTimeFormatOptions
 ): Intl.DateTimeFormat {
+  if (zoneHasMoved()) {
+    dateFormatters.clear();
+  }
+
   const key = cacheKey(locale, options);
   let formatter = dateFormatters.get(key);
 

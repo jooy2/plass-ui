@@ -483,8 +483,18 @@ export function toISODateTime(date: Date, withSeconds = false): string {
   return `${toISODate(date)}T${toISOTime(date, withSeconds)}`;
 }
 
-/** A Sunday, used as the origin for every weekday name below. 1 Aug 2021. */
-const WEEKDAY_ORIGIN = /* @__PURE__ */ makeDate(2021, 7, 1);
+/**
+ * A Sunday, used as the origin for every weekday name below: 1 Aug 2021, at
+ * local midnight.
+ *
+ * Built on every call rather than once at load, because a local midnight
+ * belongs to the zone it was built in and the runtime's zone can change while a
+ * page is open. Read in a zone to the west of the one it was built in, a Sunday
+ * built at load is still Saturday evening.
+ */
+function weekdayOrigin(): Date {
+  return makeDate(2021, 7, 1);
+}
 
 /**
  * The seven column headers, rotated so the first one is `weekStartsOn`.
@@ -499,9 +509,10 @@ export function weekdayLabels(
   weekday: 'narrow' | 'short' | 'long' = 'short'
 ): string[] {
   const formatter = dateFormatter(locale, { weekday });
+  const origin = weekdayOrigin();
 
   return Array.from({ length: 7 }, (_, index) =>
-    formatter.format(addDays(WEEKDAY_ORIGIN, (weekStartsOn + index) % 7))
+    formatter.format(addDays(origin, (weekStartsOn + index) % 7))
   );
 }
 
@@ -527,7 +538,7 @@ export function monthLabels(
  */
 export function isMonthBeforeYear(locale: string | undefined): boolean {
   const parts = dateFormatter(locale, { year: 'numeric', month: 'long' }).formatToParts(
-    WEEKDAY_ORIGIN
+    weekdayOrigin()
   );
 
   return (
@@ -550,9 +561,10 @@ export function isHour12(locale: string | undefined): boolean {
 /** What this locale calls AM and PM. */
 export function meridiemLabels(locale: string | undefined): [string, string] {
   const formatter = dateFormatter(locale, { hour: 'numeric', hour12: true });
+  const origin = weekdayOrigin();
   const read = (hours: number) => {
     const part = formatter
-      .formatToParts(withTime(WEEKDAY_ORIGIN, { hours }))
+      .formatToParts(withTime(origin, { hours }))
       .find((entry) => entry.type === 'dayPeriod');
 
     return part?.value ?? (hours < 12 ? 'AM' : 'PM');
