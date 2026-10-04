@@ -1,18 +1,20 @@
 'use client';
 
 import * as React from 'react';
-import { useDefaults, useLocale } from '../../internal/defaults.js';
+import { useDefaults, useLocale, useRuntimeTimeZone } from '../../internal/defaults.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { popupPaddingClasses, popupSlots } from '../../internal/picker.js';
 import { FieldsetDisabledContext, useDisabled, useFormReport } from '../../internal/form.js';
 import { inertProps } from '../../internal/inert.js';
 import {
+  isSameMonth,
   isValidDate,
   localeWeekStart,
   mergeDateAndTime,
   startOfDay,
   startOfMonth,
   today,
+  todayIn,
   toISODate,
   toISOMonth,
   toISOYear
@@ -190,10 +192,29 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
     // one — so the test is against `undefined` and never against falsiness.
     const value = valueProp !== undefined ? valueProp : uncontrolledValue;
 
+    const timeZone = useRuntimeTimeZone();
     const [uncontrolledMonth, setUncontrolledMonth] = React.useState(() =>
-      startOfMonth(isValidDate(value) ? value : (defaultMonth ?? today()))
+      startOfMonth(isValidDate(value) ? value : (defaultMonth ?? todayIn(timeZone)))
     );
     const month = monthProp ?? uncontrolledMonth;
+
+    // A calendar that opened on this month because it is today's opened, on a
+    // server and while hydrating, on UTC's month. Once the clock is the
+    // browser's it moves to the browser's month, before anyone could have moved
+    // it — which only ever differs on the first or the last day of a month.
+    const openedOnToday = React.useRef(!isValidDate(value) && defaultMonth === undefined);
+
+    React.useEffect(() => {
+      if (timeZone !== undefined || !openedOnToday.current) {
+        return;
+      }
+
+      openedOnToday.current = false;
+
+      const local = startOfMonth(today());
+
+      setUncontrolledMonth((current) => (isSameMonth(current, local) ? current : local));
+    }, [timeZone]);
 
     const setMonth = (next: Date) => {
       if (monthProp === undefined) {

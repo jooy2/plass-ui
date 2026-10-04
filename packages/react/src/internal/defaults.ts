@@ -172,3 +172,40 @@ export function useLocale<T extends Intl.LocalesArgument = string | undefined>(
 
   return useRuntimeLocale<T | string | undefined>(own ?? provided);
 }
+
+/* ---------------------------------------------------------------------------
+ * The clock, and the server render
+ *
+ * "Today" is the same problem as the locale with a second cause: the server and
+ * the browser read one instant on clocks in different zones. At 08:00 in Seoul
+ * a UTC server is still on yesterday, so a calendar it renders lights up a
+ * different day from the one the browser hydrating it would — and on the 1st of
+ * a month it opens on a different month. So the clock is read in UTC for the
+ * server render and its hydration, and in the browser's own zone straight
+ * after, the way the locale is. No component takes a zone of its own and
+ * neither does the provider, so UTC is the whole of the rule.
+ * ------------------------------------------------------------------------- */
+
+/** What a server render and its hydration read the clock in. */
+const hydrationTimeZone = 'UTC';
+
+function runtimeTimeZone(): undefined {
+  return undefined;
+}
+
+function pinnedTimeZone(): typeof hydrationTimeZone {
+  return hydrationTimeZone;
+}
+
+/**
+ * The zone to read the clock in: `undefined` — the runtime's own — except in a
+ * server render and its hydration, where it is `UTC`. `todayIn` in
+ * `internal/date.ts` turns it into a day.
+ */
+export function useRuntimeTimeZone(): typeof hydrationTimeZone | undefined {
+  return React.useSyncExternalStore<typeof hydrationTimeZone | undefined>(
+    subscribeToNothing,
+    runtimeTimeZone,
+    pinnedTimeZone
+  );
+}

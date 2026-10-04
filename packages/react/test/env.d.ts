@@ -33,15 +33,16 @@ interface ImportMeta {
 }
 
 /**
- * The two custom browser commands the suite registers, in `vitest.config.ts`.
+ * The custom browser commands the suite registers, in `vitest.config.ts`.
  *
- * Both are things the *browser* owns rather than the document. The media
+ * All are things the *browser* owns rather than the document. The media
  * queries are the browser's answers, so nothing inside the page can change them
  * — which would leave the hooks that read them testable only against whatever
  * the runner happened to be set to. The pointer is the browser's too, and it
  * survives the end of a file, so a file whose subject reacts to hover has to
- * park it somewhere harmless before it renders anything. Playwright can do both,
- * and a command is how a test reaches Playwright.
+ * park it somewhere harmless before it renders anything. So is the time zone
+ * the clock is read in, which only Chromium can change while a page is open.
+ * Playwright can do all of it, and a command is how a test reaches Playwright.
  */
 declare module 'vitest/internal/browser' {
   interface BrowserCommands {
@@ -51,5 +52,6 @@ declare module 'vitest/internal/browser' {
       forcedColors?: 'active' | 'none' | null;
     }) => Promise<void>;
     parkPointer: () => Promise<void>;
+    emulateTimeZone: (timeZone: string) => Promise<void>;
   }
 }

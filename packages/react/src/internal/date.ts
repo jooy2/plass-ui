@@ -93,6 +93,28 @@ export function today(): Date {
   return startOfDay(new Date());
 }
 
+const zoneDayParts = { year: 'numeric', month: 'numeric', day: 'numeric' } as const;
+
+/**
+ * Today as the clock reads in `timeZone`, at local midnight — the day it is
+ * there, as the local date everything else here works on. Left out, it is
+ * {@link today}.
+ *
+ * A server render reads the clock in UTC rather than in whatever zone the
+ * machine is set to, so the browser hydrating it can ask for the same day.
+ */
+export function todayIn(timeZone: string | undefined): Date {
+  if (timeZone === undefined) {
+    return today();
+  }
+
+  const parts = dateFormatter('en-US', { ...zoneDayParts, timeZone }).formatToParts(new Date());
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((one) => one.type === type)?.value);
+
+  return makeDate(part('year'), part('month') - 1, part('day'));
+}
+
 /* ---------------------------------------------------------------------------
  * Arithmetic
  * ------------------------------------------------------------------------- */

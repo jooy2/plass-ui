@@ -3,8 +3,15 @@ import ReactPlugin from '@vitejs/plugin-react';
 import { playwright } from '@vitest/browser-playwright';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import type { CDPSession, Page } from 'playwright';
 
 const rootDir = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * One DevTools session per page, kept: an override lasts only as long as the
+ * session that set it.
+ */
+const devToolsSessions = new WeakMap<Page, CDPSession>();
 
 const SUPPORTED_BROWSERS = ['chromium', 'firefox', 'webkit'] as const;
 
@@ -93,6 +100,21 @@ export default defineConfig({
             viewport ? viewport.width + 32 : 4096,
             viewport ? viewport.height + 32 : 4096
           );
+        },
+        // The zone the browser's clock is read in, which is the browser's too.
+        // A test of a server render and its hydration runs both in one page, so
+        // the zone has to move between the two, and only Chromium can move it
+        // while the page is open: Playwright fixes a context's zone when it
+        // creates it. An empty string puts the machine's own zone back.
+        async emulateTimeZone({ page }, timeZone: string) {
+          if (page.context().browser()?.browserType().name() !== 'chromium') {
+            throw new Error('emulateTimeZone needs Chromium.');
+          }
+
+          const session = devToolsSessions.get(page) ?? (await page.context().newCDPSession(page));
+
+          devToolsSessions.set(page, session);
+          await session.send('Emulation.setTimezoneOverride', { timezoneId: timeZone });
         }
       }
     }

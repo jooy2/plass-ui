@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlCalendar` rendered on a server hydrates in a browser whose clock is on another day.** Today was read in each runtime's own zone, so at 08:00 in Seoul a UTC server marked yesterday and, on the 1st of a month, opened on the month before, and React threw the server's tree away. A server render and its hydration now read the clock in UTC, and the calendar moves its month, its today mark and its tab stop to the reader's day as soon as hydration is done. A calendar rendered only in the browser reads the browser's clock from the first paint, as before.
+
 - **A server-rendered `PlMockup` sized by a CSS length is drawn before it hydrates.** At `width='100%'` (the default) or any CSS length, the device was `visibility: hidden` until the browser measured its box, so nothing on its screen was painted until the script ran. The stylesheet now works the scale out from the box with container query units until the measurement replaces it, and only a box measured with no room is hidden.
 
 - **A server-rendered `PlPanes` is drawn at its `defaultSize`s before it hydrates.** Every pane took an even share until an effect measured the split, so a split whose first pane asked for a quarter was drawn half and half, then moved. Where the sizes settle the split on their own (percentages, pixel lengths naming every pane, pixel lengths beside a pane that takes the rest), the panes are now sized during render. `rem` and `em` lengths still wait for the measurement.

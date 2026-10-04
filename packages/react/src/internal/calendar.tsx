@@ -2,6 +2,7 @@ import * as React from 'react';
 import { defaultLabels, useLabels, type PlassLabels } from './labels.js';
 import { PlButton } from '../components/button/PlButton.js';
 import { ChevronIcon } from './icons.js';
+import { useRuntimeTimeZone } from './defaults.js';
 import { dateFormatter } from './format.js';
 import {
   addDays,
@@ -22,6 +23,7 @@ import {
   startOfDay,
   startOfMonth,
   today,
+  todayIn,
   weekdayLabels,
   withTime,
   YEAR_PAGE_SIZE,
@@ -631,6 +633,8 @@ export function Calendar({
   // calendar is already up cannot leave a day grid on screen in a month picker.
   const view = viewDepth[openedView] > viewDepth[precision] ? precision : openedView;
   const chosen = React.useMemo(() => selected.filter(isValidDate), [selected]);
+  const timeZone = useRuntimeTimeZone();
+  const now = todayIn(timeZone);
 
   // The one cell that carries the tab stop. It starts on the chosen day, or on
   // today when today is on screen, or on the 1st — never nowhere, because a grid
@@ -642,8 +646,33 @@ export function Calendar({
       return startOfDay(preferred);
     }
 
-    return isSameMonth(today(), month) ? today() : startOfMonth(month);
+    return isSameMonth(now, month) ? now : startOfMonth(month);
   });
+
+  // A tab stop put on today by a server render, or by its hydration, is on
+  // UTC's today. Once the clock is the browser's, a tab stop still on that day
+  // moves to the browser's today, as it would have started there.
+  const pinnedToday = React.useRef(
+    timeZone === undefined || chosen.some((date) => isSameMonth(date, month)) ? null : now
+  );
+
+  React.useEffect(() => {
+    const pinned = pinnedToday.current;
+
+    if (timeZone !== undefined || pinned === null) {
+      return;
+    }
+
+    pinnedToday.current = null;
+
+    const local = today();
+
+    setFocusedDate((current) =>
+      isSameDay(current, pinned) && !isSameDay(local, pinned) && isSameMonth(local, month)
+        ? local
+        : current
+    );
+  }, [timeZone, month]);
 
   // Set only by the interactions that *move* the focus — an arrow key, a view
   // change — so the effect below never yanks focus out from under a pointer user
@@ -863,7 +892,7 @@ function DayGrid({
   const long = weekdayLabels(locale, weekStartsOn, 'long');
   const fullDate = dateFormatter(locale, { dateStyle: 'full' });
   const band = orderedRange(rangeStart, rangeEnd);
-  const now = today();
+  const now = todayIn(useRuntimeTimeZone());
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, date: Date) => {
     const offsetInWeek = (date.getDay() - weekStartsOn + 7) % 7;
@@ -1001,7 +1030,7 @@ function MonthGrid({
   const short = monthLabels(locale, 'short');
   const long = monthLabels(locale, 'long');
   const year = month.getFullYear();
-  const now = new Date();
+  const now = todayIn(useRuntimeTimeZone());
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const steps: Record<string, number> = {
@@ -1084,7 +1113,7 @@ function YearGrid({
   onPick
 }: YearGridProps) {
   const pageStart = yearPageStart(month.getFullYear());
-  const now = new Date().getFullYear();
+  const now = todayIn(useRuntimeTimeZone()).getFullYear();
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const steps: Record<string, number> = {
