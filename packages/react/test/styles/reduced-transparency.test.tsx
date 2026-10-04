@@ -34,7 +34,9 @@ afterAll(() => {
 
 afterEach(async () => {
   if (server.browser === 'chromium') {
-    await emulateReducedTransparency(null);
+    // Back to an explicit no-preference rather than to `null`: `null` hands
+    // the answer to the runner's own system, which is `reduce` on CI's macOS.
+    await emulateReducedTransparency('no-preference');
   }
 
   await emulateMedia({ colorScheme: 'light' });

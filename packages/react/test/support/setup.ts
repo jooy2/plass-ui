@@ -13,8 +13,9 @@
  * itself; what goes away is the accumulation *between* tests.
  */
 import { afterEach, beforeAll } from 'vitest';
+import { server } from 'vitest/browser';
 import { cleanup } from 'vitest-browser-react';
-import { emulateMedia } from './media';
+import { emulateMedia, emulateReducedTransparency } from './media';
 
 afterEach(cleanup);
 
@@ -25,4 +26,12 @@ afterEach(cleanup);
 // or failed by which file happened to run before it in its shard.
 beforeAll(async () => {
   await emulateMedia({ reducedMotion: 'no-preference' });
+
+  // And with transparency allowed, for the same reason: the macOS runners
+  // report `prefers-reduced-transparency: reduce`, which takes every glass
+  // surface's blur away. Only Chromium can be told otherwise; the other two
+  // engines do not report the preference at all.
+  if (server.browser === 'chromium') {
+    await emulateReducedTransparency('no-preference');
+  }
 });
