@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlScrollZone } from 'plass-ui';
+import { PlassProvider, PlScrollZone } from 'plass-ui';
 import { emulateMedia } from '../../support/media';
 import { moveMouseOntoPage } from '../../support/pointer';
 import { frameClock } from '../../support/timing';
@@ -522,6 +522,90 @@ describe('PlScrollZone', () => {
 
           expect(Math.round(box.scrollLeft)).toBe(notch * 40);
         }
+      } finally {
+        restore();
+      }
+    });
+
+    it('reads the direction once a gesture rather than once a notch', async () => {
+      const restore = clip();
+      const read = vi.spyOn(window, 'getComputedStyle');
+
+      try {
+        const screen = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+        const box = scroller(screen);
+
+        read.mockClear();
+
+        // Five notches of one turn of the wheel, well inside the latch.
+        for (let notch = 0; notch < 5; notch += 1) {
+          wheel(box, { deltaY: 40 });
+        }
+
+        expect(read.mock.calls.filter(([element]) => element === box)).toHaveLength(1);
+        await expect.poll(() => box.scrollLeft).toBe(200);
+      } finally {
+        read.mockRestore();
+        restore();
+      }
+    });
+
+    it('scrolls a right-to-left strip towards its end, from the document or a provider', async () => {
+      const restore = clip();
+      const root = document.documentElement;
+
+      try {
+        // The document's direction, and a subtree's said twice as `rtl.md`
+        // asks: on the box, and to the provider around it.
+        root.setAttribute('dir', 'rtl');
+
+        const page = await render(<PlScrollZone data-testid="zone">{cards}</PlScrollZone>);
+
+        wheel(scroller(page), { deltaY: 120 });
+
+        await expect.poll(() => scroller(page).scrollLeft).toBe(-120);
+        await page.unmount();
+        root.removeAttribute('dir');
+
+        const subtree = await render(
+          <PlassProvider direction="rtl">
+            <div dir="rtl">
+              <PlScrollZone data-testid="zone">{cards}</PlScrollZone>
+            </div>
+          </PlassProvider>
+        );
+
+        wheel(scroller(subtree), { deltaY: 120 });
+
+        await expect.poll(() => scroller(subtree).scrollLeft).toBe(-120);
+      } finally {
+        root.removeAttribute('dir');
+        restore();
+      }
+    });
+
+    it('reads the direction again for the next gesture', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(
+          <div data-testid="wrapper">
+            <PlScrollZone data-testid="zone">{cards}</PlScrollZone>
+          </div>
+        );
+        const box = scroller(screen);
+
+        wheel(box, { deltaY: 40 });
+        await expect.poll(() => box.scrollLeft).toBe(40);
+
+        // The strip turns round between two gestures, the second one starting
+        // once the first has let go of the wheel.
+        screen.getByTestId('wrapper').element().setAttribute('dir', 'rtl');
+        box.scrollLeft = 0;
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        wheel(box, { deltaY: 40 });
+        await expect.poll(() => box.scrollLeft).toBe(-40);
       } finally {
         restore();
       }

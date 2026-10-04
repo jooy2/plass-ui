@@ -988,6 +988,34 @@ describe('PlTabs', () => {
       }
     });
 
+    it('moves a right-to-left bar along, reading the direction once a gesture', async () => {
+      const restore = clip();
+      const read = vi.spyOn(window, 'getComputedStyle');
+
+      try {
+        const screen = await render(
+          <PlassProvider direction="rtl">
+            <div dir="rtl">
+              <Settings />
+            </div>
+          </PlassProvider>
+        );
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        read.mockClear();
+
+        for (let notch = 0; notch < 3; notch += 1) {
+          wheel(list, { deltaY: 40 });
+        }
+
+        expect(read.mock.calls.filter(([element]) => element === list)).toHaveLength(1);
+        await expect.poll(() => list.scrollLeft).toBe(-120);
+      } finally {
+        read.mockRestore();
+        restore();
+      }
+    });
+
     it('keeps the wheel once the bar has reached its end', async () => {
       const restore = clip();
 

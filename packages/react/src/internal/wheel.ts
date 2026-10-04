@@ -90,6 +90,20 @@ export function useWheelScroll(
      */
     let moved = Number.NEGATIVE_INFINITY;
 
+    /**
+     * Which way "forward" is on the physical axis: flipped under RTL.
+     *
+     * Read when a gesture starts and kept until it ends, the way a held scroll
+     * button keeps the direction it read when it was pressed. A turning wheel
+     * sends dozens of events a second, and a style read on each one would make
+     * the browser recalculate whatever the last step's scroll had restyled,
+     * such as a tab bar's fade, once an event rather than once a frame. Read
+     * off the strip rather than taken from a context, because `scrollLeft`
+     * counts in the direction the strip is laid out in, which is what the
+     * stylesheet says and not what a provider says.
+     */
+    let sign = 1;
+
     const onWheel = (event: WheelEvent) => {
       // A gesture that already has a horizontal half is one the browser scrolls
       // the strip with by itself, and a second handler would double it.
@@ -132,8 +146,11 @@ export function useWheelScroll(
         return;
       }
 
-      // Which way "forward" is on the physical axis: flipped under RTL.
-      const sign = getComputedStyle(element).direction === 'rtl' ? -1 : 1;
+      // A gesture starts once the latch has run out, which the first one on a
+      // strip always has.
+      if (event.timeStamp - moved >= LATCH_MS) {
+        sign = getComputedStyle(element).direction === 'rtl' ? -1 : 1;
+      }
 
       moved = event.timeStamp;
       event.preventDefault();
