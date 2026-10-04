@@ -612,6 +612,60 @@ void main() {
           expect(focusedWords(), <String>['Send the code']);
         });
 
+        testWidgets('puts the focus on the step it moved to when that step has no panel, '
+            '${orientation.name}', (WidgetTester tester) async {
+          final FocusNode before = FocusNode();
+          addTearDown(before.dispose);
+          int active = 0;
+
+          await _pump(
+            tester,
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return afterFocusStop(
+                  before,
+                  PlStepper(
+                    active: active,
+                    orientation: PlassResponsive<PlassOrientation>(orientation),
+                    onActiveChanged: (int step) => setState(() => active = step),
+                    steps: <PlStep>[
+                      PlStep(
+                        label: const Text('Account'),
+                        child: Column(
+                          children: <Widget>[
+                            const Text('Account panel'),
+                            PlButton(
+                              onPressed: () => setState(() => active = 1),
+                              child: const Text('Next'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const PlStep(label: Text('Review')),
+                      const PlStep(label: Text('Done'), child: Text('Done panel')),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(focusedWords(), <String>['Next']);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          // The step a reader would Tab to for it, rather than whatever held
+          // the focus before.
+          expect(focusedWords(), contains('Review'));
+        });
+
         testWidgets('leaves the focus on a step that was pressed, ${orientation.name}', (
           WidgetTester tester,
         ) async {

@@ -54,6 +54,8 @@ interface StepperContextValue {
   onSelect: (index: number) => void;
   /** The ref for the panel of the step at `index`, the same one every render. */
   panelRef: (index: number) => React.RefCallback<HTMLDivElement>;
+  /** The ref for the button of the step at `index`, the same one every render. */
+  stepRef: (index: number) => React.RefCallback<HTMLButtonElement>;
 }
 
 interface StepContextValue {
@@ -163,8 +165,10 @@ function StepTick() {
  * Moving on from a button inside a panel takes that panel away, or hides it
  * when it is kept, and a browser drops the focus of something gone or hidden to
  * the top of the document, so the next Tab would start the page over. The panel
- * that arrives takes it instead, and is announced by its step's name. The focus
- * anywhere else, on a step for example, stays where it is.
+ * that arrives takes it instead, and is announced by its step's name. A step
+ * with no panel takes it on its own button, which is where a reader would Tab
+ * to for that step. The focus anywhere else, on a step for example, stays where
+ * it is.
  *
  * A panel that is taken away is asked on its way out, since its ref is let go
  * before it leaves the document. A kept panel is still there, hidden and still
@@ -172,9 +176,11 @@ function StepTick() {
  */
 function followPanelFocus() {
   const panels = new Map<number, HTMLDivElement>();
+  const buttons = new Map<number, HTMLButtonElement>();
   // One callback per step, the same one every render, so a panel's ref is let
   // go only when the panel goes.
   const refs = new Map<number, React.RefCallback<HTMLDivElement>>();
+  const buttonRefs = new Map<number, React.RefCallback<HTMLButtonElement>>();
   let leftHoldingFocus = false;
   let shown: number | null = null;
 
@@ -182,6 +188,24 @@ function followPanelFocus() {
     Boolean(panel?.contains(panel.ownerDocument.activeElement));
 
   return {
+    /** The ref for a step's button, which a step out of reach does not have. */
+    step(index: number): React.RefCallback<HTMLButtonElement> {
+      let callback = buttonRefs.get(index);
+
+      if (!callback) {
+        callback = (node: HTMLButtonElement | null) => {
+          if (node) {
+            buttons.set(index, node);
+          } else {
+            buttons.delete(index);
+          }
+        };
+        buttonRefs.set(index, callback);
+      }
+
+      return callback;
+    },
+
     ref(index: number): React.RefCallback<HTMLDivElement> {
       let callback = refs.get(index);
 
@@ -210,7 +234,7 @@ function followPanelFocus() {
       leftHoldingFocus = false;
 
       if (from !== null && from !== active && heldFocus) {
-        panels.get(active)?.focus();
+        (panels.get(active) ?? buttons.get(active))?.focus();
       }
     }
   };
@@ -304,7 +328,8 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
         keepMounted,
         baseId,
         onSelect,
-        panelRef: panelFocus.ref
+        panelRef: panelFocus.ref,
+        stepRef: panelFocus.step
       }),
       [
         size,
@@ -497,6 +522,7 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
 
   const inner = reachable ? (
     <button
+      ref={stepper?.stepRef(index)}
       type="button"
       // `aria-current="step"` and never `aria-selected`: a stepper is not a tab
       // list, and claiming a role without its keyboard behaviour is worse than

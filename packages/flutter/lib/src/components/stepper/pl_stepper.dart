@@ -221,14 +221,23 @@ class _PlStepperState extends State<PlStepper> {
     );
   }
 
+  /// The node each step takes the focus on, which the step's own surface
+  /// decides whether it can hold: a step out of reach takes no focus.
+  final Map<int, FocusNode> _steps = <int, FocusNode>{};
+
+  FocusNode _step(int index) {
+    return _steps.putIfAbsent(index, () => FocusNode(debugLabel: 'PlStepper step ${index + 1}'));
+  }
+
   /// Sends the focus after the reader into the next step's panel, when it was
   /// in the panel they left.
   ///
   /// Moving on from a button inside a panel takes that panel away, and the
   /// focus would go back to whatever held it before, a step behind the reader
   /// or nothing at all. The panel that arrives takes it instead, once this
-  /// frame has built it. The focus anywhere else, on a step for example, stays
-  /// where it is.
+  /// frame has built it, and a step with no panel takes it on the step itself,
+  /// which is where a reader would Tab to for that step. The focus anywhere
+  /// else, on a step for example, stays where it is.
   @override
   void didUpdateWidget(PlStepper oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -241,18 +250,19 @@ class _PlStepperState extends State<PlStepper> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bool hasPanel =
-          arrived >= 0 && arrived < widget.steps.length && widget.steps[arrived].child != null;
-
-      if (mounted && widget.active == arrived && hasPanel) {
-        _panels[arrived]?.requestFocus();
+      if (!mounted || widget.active != arrived || arrived < 0 || arrived >= widget.steps.length) {
+        return;
       }
+
+      final bool hasPanel = widget.steps[arrived].child != null;
+
+      (hasPanel ? _panels[arrived] : _steps[arrived])?.requestFocus();
     });
   }
 
   @override
   void dispose() {
-    for (final FocusNode node in _panels.values) {
+    for (final FocusNode node in <FocusNode>[..._panels.values, ..._steps.values]) {
       node.dispose();
     }
 
@@ -280,6 +290,7 @@ class _PlStepperState extends State<PlStepper> {
           status: steps[index].status ?? stepStatusAt(index, active),
           reachable: widget._reachable(index),
           onPressed: widget._reachable(index) ? () => widget.onActiveChanged!(index) : null,
+          focusNode: _step(index),
           tokens: tokens,
           family: tokens.family(steps[index].color ?? color),
           size: size,
@@ -358,6 +369,7 @@ class _Step extends StatelessWidget {
     required this.status,
     required this.reachable,
     required this.onPressed,
+    required this.focusNode,
     required this.tokens,
     required this.family,
     required this.size,
@@ -373,6 +385,11 @@ class _Step extends StatelessWidget {
   final PlassStepStatus status;
   final bool reachable;
   final VoidCallback? onPressed;
+
+  /// The node the step takes the focus on, held by the stepper so it can send
+  /// the focus here.
+  final FocusNode focusNode;
+
   final PlassTokens tokens;
   final PlassColorFamily family;
   final PlassSize size;
@@ -479,6 +496,7 @@ class _Step extends StatelessWidget {
     // as it did with nothing wrapped round it.
     inner = PlassInteractive(
       onTap: onPressed,
+      focusNode: focusNode,
       enabled: reachable,
       interactive: reachable,
       pressable: reachable,

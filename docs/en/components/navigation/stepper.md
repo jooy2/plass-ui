@@ -171,7 +171,7 @@ The steps are a list, so there is no wrapper to get wrong. See the note above th
 - It is deliberately **not** a `role="tablist"`. A tab list owes a keyboard reader one tab stop and arrow keys, and a screen reader a panel per tab; a stepper is a sequence of separate controls, and claiming the role without the behaviour is worse than never claiming it. Each reachable step is its own tab stop, which is what a stepper's steps are.
 - A step that cannot be reached is not a button at all, rather than a disabled one. There is nothing there to press yet.
 - The panel is named by the step it belongs to, so a screen reader landing in it is told which step it is the panel for.
-- When the reader moves to another step from inside the panel, with a Next button in it for example, the focus moves into the new step's panel rather than being lost with the old one, and the next <kbd>Tab</kbd> goes on to what is in it. The panel is never a <kbd>Tab</kbd> stop of its own, and a focus anywhere else, on a step for example, stays where it is.
+- When the reader moves to another step from inside the panel, with a Next button in it for example, the focus moves into the new step's panel rather than being lost with the old one, and the next <kbd>Tab</kbd> goes on to what is in it. A step with no panel takes the focus on the step itself. The panel is never a <kbd>Tab</kbd> stop of its own, and a focus anywhere else, on a step for example, stays where it is.
 
 ::: fw flutter
 

@@ -232,6 +232,43 @@ describe('PlStepper', () => {
           await expect.element(screen.getByRole('textbox', { name: 'Code' })).toHaveFocus();
         });
 
+        it(`puts the focus on the step it moved to when that step has no panel (${name})`, async () => {
+          function ToReview() {
+            const [active, setActive] = useState(0);
+
+            return (
+              <PlStepper
+                active={active}
+                onActiveChange={setActive}
+                orientation={orientation}
+                keepMounted={keepMounted}
+              >
+                <PlStep label="Account">
+                  <input aria-label="Email" />
+                  <button type="button" onClick={() => setActive(1)}>
+                    Next
+                  </button>
+                </PlStep>
+                <PlStep label="Review" />
+                <PlStep label="Done">Done panel</PlStep>
+              </PlStepper>
+            );
+          }
+
+          const screen = await render(<ToReview />);
+          const next = screen.getByRole('button', { name: 'Next' });
+
+          (next.element() as HTMLElement).focus();
+          await expect.element(next).toHaveFocus();
+          await userEvent.keyboard('{Enter}');
+
+          // The step a reader would Tab to for it, rather than the page's body.
+          const review = screen.getByRole('button', { name: /Review/ });
+
+          await expect.element(review).toHaveFocus();
+          await expect.element(review).toHaveAttribute('aria-current', 'step');
+        });
+
         it(`leaves the focus on a step that was pressed (${name})`, async () => {
           const screen = await render(
             <Driven orientation={orientation} keepMounted={keepMounted} linear={false} />
