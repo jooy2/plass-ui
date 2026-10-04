@@ -4,9 +4,12 @@ import { renderToString } from 'react-dom/server';
 import { PlAnimateTyping } from 'plass-ui';
 import standaloneCss from '../../../src/standalone.css?inline';
 
-/** The visible half — the one that is `aria-hidden` and actually animates. */
+/**
+ * The visible half — the one that is `aria-hidden` and actually animates. What
+ * it has typed is generated content, read from its `data-text`.
+ */
 function visible(root: Element | null): string {
-  return root?.querySelector('[aria-hidden="true"]')?.textContent ?? '';
+  return root?.querySelector<HTMLElement>('[aria-hidden="true"]')?.dataset.text ?? '';
 }
 
 describe('PlAnimateTyping', () => {
@@ -88,17 +91,27 @@ describe('PlAnimateTyping', () => {
       expect(caretBox().top).toBeGreaterThan(box.top);
     });
 
-    it('copies only what has been drawn', async () => {
-      await render(narrow(false));
-
+    it('copies the line once, from the clipped copy, however far it has got', async () => {
+      const screen = await render(narrow(false));
       const selection = window.getSelection()!;
+      const copied = () => {
+        selection.selectAllChildren(root());
 
-      selection.selectAllChildren(root().querySelector('[aria-hidden="true"]')!);
+        const text = selection.toString().replace(/\s+/g, ' ').trim();
 
-      // Nothing has been typed, so the caret is all there is to copy.
-      expect(selection.toString()).toBe('|');
+        selection.removeAllRanges();
 
-      selection.removeAllRanges();
+        return text;
+      };
+
+      // Nothing typed yet, and the caret is no part of the line either.
+      expect(copied()).toBe(LINE);
+
+      await screen.rerender(narrow(true));
+      await expect.poll(() => visible(root())).toBe(LINE);
+
+      // Typed out, and still once rather than twice.
+      expect(copied()).toBe(LINE);
     });
 
     it('holds the same box in the server’s HTML', () => {
@@ -216,7 +229,27 @@ describe('PlAnimateTyping', () => {
         <PlAnimateTyping className="typing-under-test" text="Hi" speed={400} caretChar="▌" />
       );
 
-      expect(document.querySelector('.typing-under-test .plass-caret')).toHaveTextContent('▌');
+      // Drawn from an attribute, as the line is, so it is no part of the
+      // page's text.
+      const caret = document.querySelector<HTMLElement>('.typing-under-test .plass-caret')!;
+
+      expect(caret.dataset.text).toBe('▌');
+      expect(caret).toHaveTextContent('');
+    });
+
+    it('draws a caret given as an element as it is', async () => {
+      await render(
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Hi"
+          speed={400}
+          caretChar={<b className="caret-glyph">_</b>}
+        />
+      );
+
+      expect(
+        document.querySelector('.typing-under-test .plass-caret .caret-glyph')
+      ).toBeInTheDocument();
     });
 
     it('can be turned off', async () => {

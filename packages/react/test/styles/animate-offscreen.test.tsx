@@ -207,7 +207,8 @@ describe('an endless effect off screen', () => {
       )
     );
 
-    const typed = () => subject().querySelector('[aria-hidden="true"]')!.textContent ?? '';
+    const typed = () =>
+      subject().querySelector<HTMLElement>('[aria-hidden="true"]')!.dataset.text ?? '';
 
     await expect.poll(() => typed().length).toBeGreaterThan(2);
 

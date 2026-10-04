@@ -4,7 +4,7 @@ import * as React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { isInfinite, useAnimationRun, useOffScreen } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
-import { srOnlyCopyClasses } from '../../internal/styles.js';
+import { srOnlyClasses } from '../../internal/styles.js';
 import { graphemesOf, textOf } from '../../internal/text.js';
 import type { PlassAnimateProps } from '../../types.js';
 
@@ -277,6 +277,25 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     repeat
   ]);
 
+  // A caret given as a string is drawn from an attribute too, for the reason
+  // the line is: as text, the page's text ended every line in "||", the caret
+  // and the room kept for it. One given as an element is drawn as it is.
+  const caretText =
+    typeof caretChar === 'string' || typeof caretChar === 'number' ? String(caretChar) : null;
+
+  const caretGlyph = (className: string, style?: React.CSSProperties) =>
+    caretText === null ? (
+      <span className={className} style={style}>
+        {caretChar}
+      </span>
+    ) : (
+      <span
+        data-text={caretText}
+        className={`${className} before:content-[attr(data-text)]`}
+        style={style}
+      />
+    );
+
   return (
     <div
       ref={(element) => {
@@ -295,22 +314,31 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       data-state={run.state}
       {...mergeProps(props, run.handlers)}
     >
-      <span className={srOnlyCopyClasses}>{source}</span>
+      {/* The line, once, for a reader who is not watching it arrive. It is the
+          only copy that is text, so it is also the one a selection copies. */}
+      <span className={srOnlyClasses}>{source}</span>
       {/* `relative` so the caret, which is taken out of the flow, still scrolls
-          and clips with the text inside a scrolling panel. */}
-      <span aria-hidden="true" className="relative whitespace-pre-wrap">
-        {graphemes.slice(0, shown).join('')}
+          and clips with the text inside a scrolling panel.
+
+          The characters typed so far are generated content drawn from
+          `data-text` rather than text, as every other text effect draws its
+          line: written out, a finished line was in the page's text twice, once
+          in the clipped copy and once here, and that is what a crawler that
+          runs the page indexed. */}
+      <span
+        aria-hidden="true"
+        data-text={graphemes.slice(0, shown).join('')}
+        className="relative whitespace-pre-wrap before:content-[attr(data-text)]"
+      >
         {/* Where the typing is, and taking no room there. An inline caret would
             carry its width along the line and add a place to break inside a
             word, so the box would change as it moved. */}
-        {caret ? (
-          <span
-            className="plass-caret absolute"
-            style={caretResting ? { animationPlayState: 'paused' } : undefined}
-          >
-            {caretChar}
-          </span>
-        ) : null}
+        {caret
+          ? caretGlyph(
+              'plass-caret absolute',
+              caretResting ? { animationPlayState: 'paused' } : undefined
+            )
+          : null}
         {/* The characters still to come, and then the caret's room, laid out
             and not drawn, so every frame is laid out as the finished line and
             the server's HTML holds the box as well. The characters are
@@ -320,7 +348,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
           data-sample={graphemes.slice(shown).join('')}
           className="invisible before:content-[attr(data-sample)]"
         >
-          {caret ? <span className="inline-block">{caretChar}</span> : null}
+          {caret ? caretGlyph('inline-block') : null}
         </span>
       </span>
     </div>

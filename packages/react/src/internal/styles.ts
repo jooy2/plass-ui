@@ -550,22 +550,13 @@ export const pictureSlotClasses = /* @__PURE__ */ [
  * text off the accessibility tree along with the screen, and the third leaves a
  * clickable ghost the size of the words. A 1px clipped box is the one form that
  * is invisible to a sighted reader and present to every other kind.
+ *
+ * The text effects put their line in one of these and draw what a sighted
+ * reader sees as generated content beside it, so this copy is the only text
+ * there is: the one a crawler indexes and the one a selection copies.
  */
 export const srOnlyClasses =
   'absolute size-px overflow-hidden whitespace-nowrap [clip-path:inset(50%)]';
-
-/**
- * The same clipped box, for a copy of text that is also drawn as text.
- *
- * A text effect puts a copy of its line beside what it draws for a screen
- * reader, so where the drawn line is text too a selection across the pair
- * used to hand back the line twice. This one is left out of the selection: the
- * drawn copy is the one a sighted reader can see, and the one they mean when
- * they copy it. An effect that draws its line as generated content instead,
- * from a `data-text`, uses the plain clipped box, because the copy beside it is
- * then the only text there is to copy.
- */
-export const srOnlyCopyClasses = `${srOnlyClasses} select-none`;
 
 /**
  * The drawn copy of a text effect whose line changes while it runs, holding the

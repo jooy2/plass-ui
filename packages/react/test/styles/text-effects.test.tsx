@@ -41,19 +41,10 @@ function drawnBefore(element: Element): string {
 }
 
 describe('the clipped copy of a text effect', () => {
-  it('is left out of a selection on PlAnimateTyping, whose typed copy is text', async () => {
-    const screen = await render(<PlAnimateTyping>Ship it</PlAnimateTyping>);
-    const copies = screen.container.querySelectorAll('[data-plass-animation] > span');
-
-    // The clipped copy first, the drawn one after it.
-    expect(copies).toHaveLength(2);
-    expect(getComputedStyle(copies[0]!).userSelect).toBe('none');
-    expect(getComputedStyle(copies[1]!).userSelect).not.toBe('none');
-  });
-
   const drawnFromAttribute = [
     ['PlAnimateScramble', <PlAnimateScramble key="scramble">Deploying</PlAnimateScramble>],
-    ['PlAnimateCounter', <PlAnimateCounter key="counter" value={42} />]
+    ['PlAnimateCounter', <PlAnimateCounter key="counter" value={42} />],
+    ['PlAnimateTyping', <PlAnimateTyping key="typing">Ship it</PlAnimateTyping>]
   ] as const;
 
   for (const [name, element] of drawnFromAttribute) {
@@ -117,8 +108,28 @@ describe('the text a page holds', () => {
         </PlAnimateHeadline>
       ),
       'ships on Friday reads like prose weighs almost nothing'
-    ]
+    ],
+    ['PlAnimateTyping', () => <PlAnimateTyping text="Ship it on Friday" />, 'Ship it on Friday']
   ] as const;
+
+  it('holds the line once on PlAnimateTyping at every moment of its typing', async () => {
+    const screen = await render(<PlAnimateTyping text="Ship it on Friday" speed={120} />);
+    const drawn = screen.container.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+    const seen = new Set<string>([words(screen.container)]);
+    const observer = new MutationObserver(() => seen.add(words(screen.container)));
+
+    observer.observe(drawn, { attributes: true, attributeFilter: ['data-text'] });
+
+    try {
+      await expect.poll(() => drawn.dataset.text).toBe('Ship it on Friday');
+    } finally {
+      observer.disconnect();
+    }
+
+    // Typed out, the drawn line used to be text too: the line twice, and the
+    // caret and the room kept for it as "||" after it.
+    expect([...seen]).toEqual(['Ship it on Friday']);
+  });
 
   for (const [name, element, text] of effects) {
     it(`holds the line once, in order, on ${name}, from the server and once hydrated`, async () => {
