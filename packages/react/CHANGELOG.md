@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlCodeBlock` asks for the highlighter again after the first request for it failed.** If the highlight.js core did not arrive once, for example because the connection dropped while it was in flight, the failure was kept, and every code block on the page stayed plain for as long as the page was open. A failed request is now forgotten: the next block that needs the highlighter asks for it again, and blocks still show their code plain until the colours arrive.
+
 - **A `PlCalendar` rendered on a server hydrates in a browser whose clock is on another day.** Today was read in each runtime's own zone, so at 08:00 in Seoul a UTC server marked yesterday and, on the 1st of a month, opened on the month before, and React threw the server's tree away. A server render and its hydration now read the clock in UTC, and the calendar moves its month, its today mark and its tab stop to the reader's day as soon as hydration is done. A calendar rendered only in the browser reads the browser's clock from the first paint, as before.
 
 - **A server-rendered `PlMockup` sized by a CSS length is drawn before it hydrates.** At `width='100%'` (the default) or any CSS length, the device was `visibility: hidden` until the browser measured its box, so nothing on its screen was painted until the script ran. The stylesheet now works the scale out from the box with container query units until the measurement replaces it, and only a box measured with no room is hidden.

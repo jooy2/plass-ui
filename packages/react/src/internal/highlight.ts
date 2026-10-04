@@ -224,7 +224,18 @@ async function prepare(name: string): Promise<string | null> {
 
   if (!registered && !load) return null;
 
-  core ??= import('highlight.js/lib/core').then((module) => module.default);
+  if (!core) {
+    const loading = import('highlight.js/lib/core').then((module) => module.default);
+
+    // Forgotten if it fails, for the reason `highlight` forgets a language:
+    // kept, a core that did not arrive once would leave every block on the
+    // page plain for the rest of its life. The next block to ask asks for it
+    // again; the blocks already waiting on this one fail with it and stay plain.
+    loading.catch(() => {
+      if (core === loading) core = null;
+    });
+    core = loading;
+  }
 
   // Both at once. They are two chunks that know nothing of each other, and
   // asking for the grammar only once the core has landed put a whole round
