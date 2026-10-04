@@ -1,7 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { ChartSurface, useMeasuredWidth, type ChartBaseProps } from '../../internal/chart-frame.js';
+import {
+  ChartSurface,
+  givenHeight,
+  useMeasuredSize,
+  type ChartBaseProps
+} from '../../internal/chart-frame.js';
 import {
   arcPath,
   chartFontSizes,
@@ -142,7 +147,7 @@ export function PlGaugeChart({
   const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const { width, guessed } = useMeasuredWidth(hostRef, initialWidth);
+  const { width, height: measuredHeight, guessed } = useMeasuredSize(hostRef, initialWidth);
   const words = useLabels();
   const emptyId = React.useId();
   const centreId = React.useId();
@@ -167,7 +172,10 @@ export function PlGaugeChart({
 
   const family = value === null ? color : bandColor(value, color, thresholds);
 
-  const plotHeight = typeof height === 'number' ? height : plotHeights[size];
+  // A CSS length is drawn at the height the box is measured at, and at none
+  // until then, which leaves the dial undrawn.
+  const fixedHeight = givenHeight(height, plotHeights[size]);
+  const plotHeight = fixedHeight ?? measuredHeight ?? 0;
   const fontSize = chartFontSizes[size];
 
   const band = Math.min(0.9, Math.max(0.05, thickness));
@@ -354,7 +362,7 @@ export function PlGaugeChart({
       <div
         ref={hostRef}
         className={cx('relative w-full', guessed && 'overflow-hidden')}
-        style={{ height: plotHeight }}
+        style={{ height: fixedHeight ?? height }}
         // Named, the dial is one image saying one thing — which is what it is,
         // and it saves a reader hearing the two end labels as loose numbers.
         // Unnamed there is nothing to call it, so it stays a plain box and the

@@ -16,7 +16,7 @@ import {
   toValue,
   writeChartValue
 } from '../../internal/chart.js';
-import { useMeasuredWidth, type ChartBaseProps } from '../../internal/chart-frame.js';
+import { useMeasuredSize, type ChartBaseProps } from '../../internal/chart-frame.js';
 import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassChartCurve, PlassChartDatum, PlassColor, PlassSize } from '../../types.js';
@@ -121,7 +121,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
     const size = sizeProp ?? defaults.size ?? 'md';
 
     const hostRef = React.useRef<HTMLDivElement>(null);
-    const { width: measured, guessed } = useMeasuredWidth(hostRef, initialWidth);
+    const { width: measured, guessed } = useMeasuredSize(hostRef, initialWidth);
     const id = React.useId().replace(/:/g, '');
 
     const values = React.useMemo(() => data.map(toValue), [data]);

@@ -19,7 +19,6 @@ import {
   markGap,
   markPath,
   markShapes,
-  plotHeights,
   pointX,
   seriesColor,
   toValues,
@@ -141,17 +140,19 @@ export function PlScatterChart({
 
   /**
    * How much room the biggest mark needs, which is also how big it is allowed
-   * to get.
+   * to get, for a chart drawn `height` pixels tall.
    *
    * One number for both, and measured off the chart's *height* rather than off
    * the laid-out plot, because the two would otherwise chase each other: the
    * plot is only that size once the room has been taken out of it. The height
-   * is known before anything is measured, which breaks the loop and makes the
-   * reserve exactly the radius rather than a guess at it.
+   * is known before the plot is laid out, the `height` asked for or the box's
+   * own for a CSS length, which breaks the loop and makes the reserve exactly
+   * the radius rather than a guess at it.
    */
-  const reserve =
-    maxRadius ??
-    Math.max(dot + 2, (typeof props.height === 'number' ? props.height : plotHeights[size]) / 12);
+  const reserve = React.useCallback(
+    (height: number) => maxRadius ?? Math.max(dot + 2, height / 12),
+    [maxRadius, dot]
+  );
 
   /* Only the series taking a palette slot count against the ceiling: a caller
      who gave every series a colour of their own has already answered the
@@ -217,7 +218,10 @@ export function PlScatterChart({
             index: at,
             x: layout.categoryValuePx(x),
             y: layout.valuePx(value.value),
-            r: value.z === undefined ? dot : bubbleRadius(value.z, biggest, reserve, minBubble)
+            r:
+              value.z === undefined
+                ? dot
+                : bubbleRadius(value.z, biggest, reserve(layout.height), minBubble)
           });
         });
       });

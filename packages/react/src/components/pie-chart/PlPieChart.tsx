@@ -7,8 +7,9 @@ import {
   ChartStatus,
   ChartSurface,
   ChartTooltipPanel,
+  givenHeight,
   markTransitionClasses,
-  useMeasuredWidth,
+  useMeasuredSize,
   useVisibility,
   type ChartBaseProps,
   type ChartTooltipItem
@@ -151,7 +152,7 @@ export function PlPieChart({
   const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const { width, guessed } = useMeasuredWidth(hostRef, initialWidth);
+  const { width, height: measuredHeight, guessed } = useMeasuredSize(hostRef, initialWidth);
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
@@ -207,7 +208,10 @@ export function PlPieChart({
   );
 
   const semi = shape === 'semi';
-  const plotHeight = typeof height === 'number' ? height : plotHeights[size];
+  // A CSS length is drawn at the height the box is measured at, and at none
+  // until then, which leaves the pie undrawn.
+  const fixedHeight = givenHeight(height, plotHeights[size]);
+  const plotHeight = fixedHeight ?? measuredHeight ?? 0;
   const fontSize = chartFontSizes[size];
 
   const tooltipOptions: PlassChartTooltip =
@@ -417,7 +421,7 @@ export function PlPieChart({
           'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
           guessed && 'overflow-hidden'
         )}
-        style={{ height: plotHeight }}
+        style={{ height: fixedHeight ?? height }}
       >
         {nothing ? (
           <div

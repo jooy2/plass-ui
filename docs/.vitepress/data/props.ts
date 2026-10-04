@@ -6010,14 +6010,17 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'height',
       type: 'number | string',
-      description: { ko: '그림의 높이', en: 'How tall the drawing is' }
+      description: {
+        ko: '그림의 높이. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the drawing is. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
+      }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {
@@ -6356,14 +6359,17 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'height',
       type: 'number | string',
-      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+      description: {
+        ko: 'plot의 높이. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the plot is. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
+      }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {
@@ -9980,14 +9986,17 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'height',
       type: 'number | string',
-      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+      description: {
+        ko: 'plot의 높이. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the plot is. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
+      }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {
@@ -11606,14 +11615,17 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'height',
       type: 'number | string',
-      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+      description: {
+        ko: 'plot의 높이. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the plot is. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
+      }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {
@@ -13777,14 +13789,17 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'height',
       type: 'number | string',
-      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+      description: {
+        ko: 'plot의 높이. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the plot is. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
+      }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {
@@ -13896,14 +13911,17 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'height',
       type: 'number | string',
-      description: { ko: '그림의 높이', en: 'How tall the drawing is' }
+      description: {
+        ko: '그림의 높이. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the drawing is. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
+      }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {
@@ -14055,14 +14073,17 @@ export const propTables: Record<string, PropRow[]> = {
     {
       name: 'height',
       type: 'number | string',
-      description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+      description: {
+        ko: 'plot의 높이. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the plot is. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
+      }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {
@@ -14224,16 +14245,16 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'height',
       type: 'number | string',
       description: {
-        ko: 'plot의 높이. size 사다리로 떨어집니다',
-        en: 'How tall the plot is. Falls back to the size ladder'
+        ko: 'plot의 높이. size 사다리로 떨어집니다. 숫자는 px입니다. CSS 길이는 상자의 높이가 되고, 차트는 그 상자를 잰 높이로 그리므로 서버가 보내는 HTML에서는 상자가 비어 있습니다',
+        en: 'How tall the plot is. Falls back to the size ladder. A number is pixels. A CSS length sets the height of the box and the chart is drawn at the height the box is measured at, so the HTML a server sends holds the box empty'
       }
     },
     {
       name: 'initialWidth',
       type: 'number',
       description: {
-        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
-        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다. `height`가 CSS 길이면 높이도 재야 알 수 있으므로 서버는 상자만 보냅니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge. With a `height` given as a CSS length, which has to be measured too, the server sends the box alone'
       }
     },
     {

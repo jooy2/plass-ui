@@ -52,7 +52,7 @@ Everything around the line (the axes, the grid, the crosshair, the legend, the t
 
 ::: fw react
 
-On a page rendered on a server, a chart draws its plot once the browser has measured how wide it is, so until then the HTML holds an empty box of the right height. Every chart takes an `initialWidth` for this: given the width the chart usually has, the server draws the whole chart at it, and the measured width takes over once the page has hydrated.
+On a page rendered on a server, a chart draws its plot once the browser has measured how wide it is, so until then the HTML holds an empty box of the right height. Every chart takes an `initialWidth` for this: given the width the chart usually has, the server draws the whole chart at it, and the measured width takes over once the page has hydrated. A `height` given as a CSS length rather than in pixels is measured too, so the server sends the box at that height and the chart is drawn once the page has hydrated.
 
 :::
 

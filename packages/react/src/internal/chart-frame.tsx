@@ -90,7 +90,7 @@ import type {
 const noMarks: readonly ChartMark[] = [];
 
 /**
- * How wide the chart actually is, in pixels.
+ * How big the chart actually is, in pixels.
  *
  * An SVG cannot lay a chart out from a percentage: every tick position, every
  * bar width and the decision about how many category labels fit are arithmetic
@@ -103,6 +103,12 @@ const noMarks: readonly ChartMark[] = [];
  * which is why the height is a prop and not something measured too: a reserve
  * that is dropped when the content arrives is the same jump twice.
  *
+ * The height is measured as well, for the one case where the prop does not
+ * say it in pixels. A `height` given as a CSS length is laid out by the
+ * stylesheet, so the box is already that tall in the server's HTML, and the
+ * drawing is laid out at whatever the box comes to. `height` is `null` until
+ * the box has been measured.
+ *
  * `initialWidth` is the caller's width for the time before there is one. The
  * server's render and the render that hydrates its HTML both lay the chart out
  * at it, so the two agree, and the layout effect after hydration replaces it
@@ -110,18 +116,18 @@ const noMarks: readonly ChartMark[] = [];
  * cuts its drawing at the edge of its box while it is, because a guess wider
  * than the box would otherwise spill across the page until the script runs.
  */
-function useMeasuredWidth(
+function useMeasuredSize(
   ref: React.RefObject<HTMLElement | null>,
   initialWidth?: number
-): { width: number; guessed: boolean } {
+): { width: number; height: number | null; guessed: boolean } {
   // `usePlElementSize` is the library's own `ResizeObserver`, and it reads the
   // element in a layout effect as well as from the observer — which is what
   // keeps a chart from laying itself out at zero for the one frame before the
   // observer's first callback arrives.
-  const measured = usePlElementSize(ref)?.width;
+  const measured = usePlElementSize(ref);
 
-  if (measured !== undefined) {
-    return { width: measured, guessed: false };
+  if (measured !== null) {
+    return { width: measured.width, height: measured.height, guessed: false };
   }
 
   const guess =
@@ -129,7 +135,17 @@ function useMeasuredWidth(
       ? initialWidth
       : 0;
 
-  return { width: guess, guessed: guess > 0 };
+  return { width: guess, height: null, guessed: guess > 0 };
+}
+
+/**
+ * The height a chart is drawn at when it is known before the box is measured:
+ * the number it was given, or the `size` ladder's when it was given none.
+ * `null` for a CSS length, which the box is laid out at and the drawing then
+ * measures.
+ */
+function givenHeight(height: number | string | undefined, ladder: number): number | null {
+  return typeof height === 'number' ? height : height === undefined ? ladder : null;
 }
 
 /* ---------------------------------------------------------------------------
@@ -193,6 +209,11 @@ export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
    * How tall the drawing is. A number is pixels; a string is any CSS length.
    * Defaults to the `size` ladder.
    *
+   * A string sets the box's height and the drawing is laid out at the height
+   * the box is measured at, so on a server, and until the script has run, the
+   * box is that tall with nothing drawn in it. A percentage needs a parent
+   * whose height is known, as it does anywhere in CSS.
+   *
    * The axis labels are drawn *inside* this, not under it, so a card sized to
    * the chart is a card the chart fits in.
    */
@@ -206,7 +227,8 @@ export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
    * the chart usually has, the server and the render that hydrates its HTML
    * draw the whole chart at it, and the measured width takes over before the
    * hydrated page is painted. Until then a drawing wider than its box is cut
-   * at the box's edge.
+   * at the box's edge. A `height` given as a CSS length is not known until the
+   * box is measured either, so with one the server draws the box alone.
    *
    * A page rendered only in the browser measures the box before its first
    * paint, so it never shows this width.
@@ -1130,6 +1152,11 @@ export interface CartesianLayout {
   categoryValuePx: (value: number) => number;
   /** Where the baseline is along the value axis. */
   zeroPx: number;
+  /**
+   * How tall the drawing is, in pixels: the `height` asked for, or the height
+   * the box was measured at when that was a CSS length.
+   */
+  height: number;
   categories: readonly PlassChartCategory[];
   format: (value: number) => string;
   size: PlassSize;
@@ -1237,8 +1264,11 @@ interface CartesianProps extends CartesianChartProps {
    * A line's marker gets away with it because a line is inset from both ends
    * anyway; a scatter places a mark wherever the number says, including exactly
    * on the corner.
+   *
+   * A function is handed the height the chart is drawn at, for a reserve that
+   * is a share of it.
    */
-  markInset?: number;
+  markInset?: number | ((height: number) => number);
   /** Draws the marks. */
   children: (context: CartesianContext) => React.ReactNode;
 }
@@ -1263,7 +1293,7 @@ export function CartesianChart({
   bandRatio = 1,
   inset = false,
   headroom = 0,
-  markInset = 0,
+  markInset: markInsetProp = 0,
   xScale = 'band',
   marks,
   markRadius = 24,
@@ -1299,7 +1329,7 @@ export function CartesianChart({
   const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const { width, guessed } = useMeasuredWidth(hostRef, initialWidth);
+  const { width, height: measuredHeight, guessed } = useMeasuredSize(hostRef, initialWidth);
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
@@ -1374,8 +1404,7 @@ export function CartesianChart({
     [series, values, visibility.visible, formatValue]
   );
 
-  const plotHeight =
-    typeof height === 'number' ? height : height === undefined ? plotHeights[size] : null;
+  const plotHeight = givenHeight(height, plotHeights[size]);
 
   const fontSize = chartFontSizes[size];
 
@@ -1513,7 +1542,11 @@ export function CartesianChart({
     : widestTick + 10 + (valueAxis?.label ? axisLabelBand : 0);
   const slot = (width - (horizontal ? 0 : valueBand) - 16) / Math.max(1, count);
 
-  const boxHeight = plotHeight ?? 0;
+  /* A CSS length is drawn at the height its box is measured at, and at none
+     until then: the box is already that tall, and there is nothing yet to lay
+     out in it. */
+  const boxHeight = plotHeight ?? measuredHeight ?? 0;
+  const markInset = typeof markInsetProp === 'function' ? markInsetProp(boxHeight) : markInsetProp;
 
   /* A turned category axis, and how deep its band is allowed to get.
      Only along the bottom: a horizontal chart's category names already have a
@@ -1673,6 +1706,7 @@ export function CartesianChart({
     categoryScale,
     categoryValuePx,
     zeroPx,
+    height: boxHeight,
     categories: labels,
     format: formatValue,
     size
@@ -2065,7 +2099,7 @@ export function CartesianChart({
           >
             {empty ?? words.empty}
           </div>
-        ) : width > 0 ? (
+        ) : width > 0 && (plotHeight !== null || boxHeight > 0) ? (
           <svg
             width={width}
             height={boxHeight || '100%'}
@@ -2622,7 +2656,8 @@ export {
   ChartSurface,
   ChartTooltipPanel,
   entryKeys,
-  useMeasuredWidth,
+  givenHeight,
+  useMeasuredSize,
   useVisibility
 };
 export type { Visibility };

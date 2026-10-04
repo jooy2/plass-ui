@@ -6,9 +6,10 @@ import {
   ChartStatus,
   ChartSurface,
   ChartTooltipPanel,
+  givenHeight,
   markTransitionClasses,
   type ChartTooltipItem,
-  useMeasuredWidth
+  useMeasuredSize
 } from '../../internal/chart-frame.js';
 import {
   categoryAt,
@@ -137,7 +138,7 @@ export function PlHeatmapChart({
   const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const { width, guessed } = useMeasuredWidth(hostRef, initialWidth);
+  const { width, height: measuredHeight, guessed } = useMeasuredSize(hostRef, initialWidth);
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
@@ -224,7 +225,10 @@ export function PlHeatmapChart({
     [low, high, scale, midpoint]
   );
 
-  const plotHeight = typeof height === 'number' ? height : (plotHeights[size] ?? 220);
+  // A CSS length is drawn at the height the box is measured at, and at none
+  // until then.
+  const fixedHeight = givenHeight(height, plotHeights[size] ?? 220);
+  const plotHeight = fixedHeight ?? measuredHeight ?? 0;
   const fontSize = chartFontSizes[size];
 
   const legendOptions = legend === true || legend === undefined || legend === false ? {} : legend;
@@ -536,7 +540,7 @@ export function PlHeatmapChart({
           'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
           guessed && 'overflow-hidden'
         )}
-        style={{ height: plotHeight }}
+        style={{ height: fixedHeight ?? height }}
       >
         {nothing ? (
           <div
@@ -548,7 +552,7 @@ export function PlHeatmapChart({
           >
             {empty ?? words.empty}
           </div>
-        ) : width > 0 ? (
+        ) : width > 0 && (fixedHeight !== null || plotHeight > 0) ? (
           <svg
             width={width}
             height={plotHeight}
