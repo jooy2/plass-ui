@@ -40,7 +40,7 @@ import {
   tableStyle
 } from '../../internal/table.js';
 import type { PlTableAlign } from '../table/index.js';
-import type { PlassElevation, PlassStyleProps } from '../../types.js';
+import type { PlassColor, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
 
 /** Which way a column runs when it is sorted. */
 export type PlDataTableSortDirection = PlassSortDirection;
@@ -306,6 +306,160 @@ function SortMark({ direction }: { direction: PlDataTableSortDirection | null })
 }
 
 /**
+ * A body cell's inline style, for the reason `internal/table.ts` gives: a host
+ * stylesheet's `td { border: 1px solid }` outranks a Tailwind utility.
+ *
+ * `ruled` is the rule above the row, which every row but the first draws; the
+ * first has the header's. `borderTop` is always present rather than added for
+ * the rows that draw one. The rows here are re-keyed by every sort, filter and
+ * page, so the same cell goes from being the first row to being the third;
+ * React warns — rightly — when a longhand is *removed* from an element whose
+ * shorthand is still set, because which of the two wins then depends on the
+ * order they were applied in. Stating `0` is the same rule as not stating one,
+ * and nothing is removed.
+ */
+function bodyCellStyle(padding: string, ruled: boolean): React.CSSProperties {
+  return { padding, border: 0, background: 'none', borderTop: ruled ? rowRule : 0 };
+}
+
+/**
+ * What a row does when it is pressed, as the table's latest render has it.
+ *
+ * A ref rather than two callbacks, because both close over the selection and
+ * the rows on screen: handed down as functions, they would be new on every
+ * render and every row would be drawn again for every tick.
+ */
+interface RowActions<Row> {
+  toggle: (rowKey: React.Key, range: boolean) => void;
+  activate: (row: Row, index: number) => void;
+}
+
+interface DataTableRowProps<Row> {
+  row: Row;
+  /** The row's position in `rows`, which is what every callback is handed. */
+  index: number;
+  rowKey: React.Key;
+  columns: readonly PlDataTableColumn<Row>[];
+  /** Whether the row draws the rule above it, which the first row does not. */
+  ruled: boolean;
+  /** Whether the row takes the stripe, which every other row does when asked. */
+  stripe: boolean;
+  /** Whether there is a tick column at all. */
+  ticks: boolean;
+  ticked: boolean;
+  canTick: boolean;
+  lit: boolean;
+  clickable: boolean;
+  size: PlassSize;
+  color: PlassColor;
+  padding: string;
+  selectRowLabel: string;
+  actions: React.RefObject<RowActions<Row> | null>;
+}
+
+/**
+ * One row of the body, drawn again only when something about it changed.
+ *
+ * A tick changes one row, and with every row on screen — which is what
+ * `scroll` paging means — drawing them all again put a `PlCheckbox` and every
+ * cell of a thousand rows behind each press. A row is handed its own state as
+ * plain values and the table's handlers through a ref, so `React.memo` passes
+ * over every row the press did not touch.
+ *
+ * `React.memo` loses the type parameter, so the cast puts it back.
+ */
+const DataTableRow = /* @__PURE__ */ React.memo(function DataTableRow<Row>({
+  row,
+  index,
+  rowKey,
+  columns,
+  ruled,
+  stripe,
+  ticks,
+  ticked,
+  canTick,
+  lit,
+  clickable,
+  size,
+  color,
+  padding,
+  selectRowLabel,
+  actions
+}: DataTableRowProps<Row>) {
+  const cellStyle = bodyCellStyle(padding, ruled);
+
+  return (
+    <tr
+      // `aria-selected` and not a class alone: a row that is visibly tinted and
+      // silently unselected is a row a screen reader disagrees with the screen
+      // about.
+      aria-selected={ticks ? ticked : undefined}
+      className={cx(
+        rowClasses,
+        stripe && '[--p-row:var(--plass-stripe)]',
+        ticked && '[--p-row:var(--p-soft)]',
+        lit && 'hover:[--p-row:var(--p-soft)]',
+        clickable && clickableRowClasses
+      )}
+      style={{ backgroundColor: 'var(--p-row)' }}
+      tabIndex={clickable ? 0 : undefined}
+      onClick={clickable ? () => actions.current?.activate(row, index) : undefined}
+      onKeyDown={
+        clickable
+          ? (event) => {
+              // Only the row's own keys. A cell can hold a link or a tick, and
+              // those have an Enter of their own.
+              if (event.target !== event.currentTarget) {
+                return;
+              }
+
+              if (event.key !== 'Enter' && event.key !== ' ') {
+                return;
+              }
+
+              event.preventDefault();
+              actions.current?.activate(row, index);
+            }
+          : undefined
+      }
+    >
+      {ticks ? (
+        <td style={cellStyle}>
+          <PlCheckbox
+            size={size}
+            color={color}
+            checked={ticked}
+            disabled={!canTick}
+            // The native event, for the one bit of it a range needs: whether
+            // shift was down. Base UI hands the details object rather than the
+            // event itself.
+            onCheckedChange={(_, details) =>
+              actions.current?.toggle(
+                rowKey,
+                Boolean((details.event as Partial<MouseEvent>).shiftKey)
+              )
+            }
+            // A press on the tick is a press on the tick. Without this it is
+            // also a press on the row, so a selectable table with `onRowClick`
+            // fires both at once.
+            onClick={(event) => event.stopPropagation()}
+            aria-label={selectRowLabel}
+          />
+        </td>
+      ) : null}
+
+      {columns.map((column) => (
+        <td key={column.key} style={{ ...cellStyle, textAlign: column.align ?? 'start' }}>
+          {column.render
+            ? column.render(row, index)
+            : ((row as Record<string, unknown>)[column.key] as React.ReactNode)}
+        </td>
+      ))}
+    </tr>
+  );
+}) as <Row>(props: DataTableRowProps<Row>) => React.ReactElement;
+
+/**
  * A table that owns its rows: it sorts them, narrows them to what was typed,
  * hands them out a page at a time and remembers which of them are ticked.
  *
@@ -425,17 +579,27 @@ export function PlDataTable<Row>({
   // every keystroke. See `internal/search.ts`.
   const needle = searchText(search);
 
+  // The rows are folded once per set of rows and columns rather than once per
+  // keystroke, as `PlCommandPalette` folds its commands — but on the first
+  // query that reaches a row rather than up front, so a table nobody searches
+  // never pays for it.
+  const haystackOf = React.useMemo(() => {
+    const wanted = columns.filter((column) => !column.unsearchable);
+    const folded: string[] = [];
+
+    return (entry: number) =>
+      (folded[entry] ??= searchHaystack(
+        wanted.map((column) => valueOf(column, indexed[entry].row))
+      ));
+  }, [indexed, columns, valueOf]);
+
   const found = React.useMemo(() => {
     if (!doesSearch || needle === '') {
       return indexed;
     }
 
-    const wanted = columns.filter((column) => !column.unsearchable);
-
-    return indexed.filter(({ row }) =>
-      searchHaystack(wanted.map((column) => valueOf(column, row))).includes(needle)
-    );
-  }, [indexed, columns, needle, doesSearch, valueOf]);
+    return indexed.filter((_, entry) => haystackOf(entry).includes(needle));
+  }, [indexed, needle, doesSearch, haystackOf]);
 
   const ordered = React.useMemo(() => {
     if (!doesSort || sort === null) {
@@ -548,21 +712,27 @@ export function PlDataTable<Row>({
     );
   };
 
-  const tickedHere = shownKeys.filter((one) => selected.includes(one));
+  // Looked up once per row, so a set rather than the array: `includes` on every
+  // row is a thousand rows times a thousand ticks the moment "select all" has
+  // been pressed.
+  const selectedSet = React.useMemo(() => new Set(selected), [selected]);
+
+  const tickedHere = shownKeys.filter((one) => selectedSet.has(one));
   const selectableHere = shown
     .filter(({ row, index }) => selectable(row, index))
     .map(({ row, index }) => key(row, index));
   const allTicked = selectableHere.length > 0 && tickedHere.length === selectableHere.length;
 
   const toggleAll = () => {
-    const rest = selected.filter((one) => !selectableHere.includes(one));
+    const here = new Set(selectableHere);
+    const rest = selected.filter((one) => !here.has(one));
 
     goSelected(allTicked ? rest : [...rest, ...selectableHere]);
   };
 
   const toggleRow = (rowKey: React.Key, range: boolean) => {
     if (selection === 'single') {
-      goSelected(selected.includes(rowKey) ? [] : [rowKey]);
+      goSelected(selectedSet.has(rowKey) ? [] : [rowKey]);
       anchor.current = rowKey;
 
       return;
@@ -572,20 +742,31 @@ export function PlDataTable<Row>({
     // the order the rows are *currently* in — which is what a reader dragging
     // down a sorted page means by "these".
     if (range && anchor.current !== null && anchor.current !== rowKey) {
-      const between = keysBetween(shownKeys, anchor.current, rowKey).filter((one) =>
-        selectableHere.includes(one)
-      );
+      const here = new Set(selectableHere);
+      const between = keysBetween(shownKeys, anchor.current, rowKey).filter((one) => here.has(one));
+      const taken = new Set(between);
 
-      goSelected([...selected.filter((one) => !between.includes(one)), ...between]);
+      goSelected([...selected.filter((one) => !taken.has(one)), ...between]);
 
       return;
     }
 
     anchor.current = rowKey;
     goSelected(
-      selected.includes(rowKey) ? selected.filter((one) => one !== rowKey) : [...selected, rowKey]
+      selectedSet.has(rowKey) ? selected.filter((one) => one !== rowKey) : [...selected, rowKey]
     );
   };
+
+  const actions = React.useRef<RowActions<Row> | null>(null);
+
+  // After every commit, so a row's press always reaches the handlers of the
+  // render that drew it.
+  React.useLayoutEffect(() => {
+    actions.current = {
+      toggle: toggleRow,
+      activate: (row, index) => onRowClick?.(row, index)
+    };
+  });
 
   const padX = paddingXValues[density][size];
   const padY = cellPaddingYValues[density][size];
@@ -595,10 +776,12 @@ export function PlDataTable<Row>({
   const ticks = selection !== 'none';
   const span = columns.length + (ticks ? 1 : 0);
 
+  const padding = `${padY} ${padX}`;
+
   // Every one of these is inline for the reason `internal/table.ts` gives: a
   // host stylesheet's `td { border: 1px solid }` outranks a Tailwind utility.
   const cellStyle: React.CSSProperties = {
-    padding: `${padY} ${padX}`,
+    padding,
     border: 0,
     background: 'none'
   };
@@ -614,21 +797,6 @@ export function PlDataTable<Row>({
         }
       : { borderBottom: headRule })
   };
-
-  /**
-   * The rule above a row — every row but the first, which has the header's.
-   *
-   * `borderTop` is always present rather than added for the rows that draw one.
-   * The rows here are re-keyed by every sort, filter and page, so the same cell
-   * goes from being the first row to being the third; React warns — rightly —
-   * when a longhand is *removed* from an element whose shorthand is still set,
-   * because which of the two wins then depends on the order they were applied
-   * in. Stating `0` is the same rule as not stating one, and nothing is removed.
-   */
-  const bodyCellStyle = (index: number): React.CSSProperties => ({
-    ...cellStyle,
-    borderTop: index === 0 ? 0 : rowRule
-  });
 
   const barStyle: React.CSSProperties = {
     padding: `${padY} ${padX}`,
@@ -794,7 +962,7 @@ export function PlDataTable<Row>({
             Array.from({ length: paging === 'pages' ? pageSize : 5 }, (_, index) => (
               <tr key={index} className={rowClasses}>
                 {Array.from({ length: span }, (__, cell) => (
-                  <td key={cell} style={bodyCellStyle(index)}>
+                  <td key={cell} style={bodyCellStyle(padding, index !== 0)}>
                     <PlSkeleton size={size} color={color} />
                   </td>
                 ))}
@@ -815,82 +983,28 @@ export function PlDataTable<Row>({
             // above it. `index` is where it is in `rows`, for everything a
             // caller is told.
             shown.map(({ row, index }, place) => {
-              const rowKey = key(row, index);
-              const ticked = selected.includes(rowKey);
-              const canTick = selectable(row, index);
+              const rowKey = shownKeys[place];
 
               return (
-                <tr
+                <DataTableRow
                   key={rowKey}
-                  // `aria-selected` and not a class alone: a row that is
-                  // visibly tinted and silently unselected is a row a screen
-                  // reader disagrees with the screen about.
-                  aria-selected={ticks ? ticked : undefined}
-                  className={cx(
-                    rowClasses,
-                    striped && place % 2 === 1 && '[--p-row:var(--plass-stripe)]',
-                    ticked && '[--p-row:var(--p-soft)]',
-                    lit && 'hover:[--p-row:var(--p-soft)]',
-                    clickable && clickableRowClasses
-                  )}
-                  style={{ backgroundColor: 'var(--p-row)' }}
-                  tabIndex={clickable ? 0 : undefined}
-                  onClick={onRowClick ? () => onRowClick(row, index) : undefined}
-                  onKeyDown={
-                    onRowClick
-                      ? (event) => {
-                          // Only the row's own keys. A cell can hold a link or
-                          // a tick, and those have an Enter of their own.
-                          if (event.target !== event.currentTarget) {
-                            return;
-                          }
-
-                          if (event.key !== 'Enter' && event.key !== ' ') {
-                            return;
-                          }
-
-                          event.preventDefault();
-                          onRowClick(row, index);
-                        }
-                      : undefined
-                  }
-                >
-                  {ticks ? (
-                    <td style={bodyCellStyle(place)}>
-                      <PlCheckbox
-                        size={size}
-                        color={color}
-                        checked={ticked}
-                        disabled={!canTick}
-                        // The native event, for the one bit of it a range
-                        // needs: whether shift was down. Base UI hands the
-                        // details object rather than the event itself.
-                        onCheckedChange={(_, details) =>
-                          toggleRow(
-                            rowKey,
-                            Boolean((details.event as Partial<MouseEvent>).shiftKey)
-                          )
-                        }
-                        // A press on the tick is a press on the tick. Without
-                        // this it is also a press on the row, so a selectable
-                        // table with `onRowClick` fires both at once.
-                        onClick={(event) => event.stopPropagation()}
-                        aria-label={labels.selectRow}
-                      />
-                    </td>
-                  ) : null}
-
-                  {columns.map((column) => (
-                    <td
-                      key={column.key}
-                      style={{ ...bodyCellStyle(place), textAlign: column.align ?? 'start' }}
-                    >
-                      {column.render
-                        ? column.render(row, index)
-                        : ((row as Record<string, unknown>)[column.key] as React.ReactNode)}
-                    </td>
-                  ))}
-                </tr>
+                  row={row}
+                  index={index}
+                  rowKey={rowKey}
+                  columns={columns}
+                  ruled={place !== 0}
+                  stripe={striped && place % 2 === 1}
+                  ticks={ticks}
+                  ticked={selectedSet.has(rowKey)}
+                  canTick={selectable(row, index)}
+                  lit={lit}
+                  clickable={clickable}
+                  size={size}
+                  color={color}
+                  padding={padding}
+                  selectRowLabel={labels.selectRow}
+                  actions={actions}
+                />
               );
             })
           )}

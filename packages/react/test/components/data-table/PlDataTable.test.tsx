@@ -489,14 +489,15 @@ describe('PlDataTable', () => {
       drawn.length = 0;
       isRowSelectable.mockClear();
 
-      // A re-render, so the sorted rows are drawn again from the start.
+      // A re-render, so the ticked row is drawn again.
       await screen.getByRole('checkbox', { name: 'Select row' }).first().click();
       (document.querySelector('tbody tr') as HTMLElement).click();
 
       expect(onRowClick).toHaveBeenCalledWith(rows[1], 1);
       expect(isRowSelectable).toHaveBeenCalledWith(rows[1], 1);
-      // Acme, Globex, Initech: second, third and first in `rows`.
-      expect(drawn.slice(0, 3)).toEqual([1, 2, 0]);
+      // Acme: first on the screen, second in `rows`, and the only row the tick
+      // changed, so the only one drawn again.
+      expect(drawn).toEqual([1]);
     });
 
     it('does not activate the row when the tick is what was pressed', async () => {
@@ -723,6 +724,79 @@ describe('PlDataTable', () => {
 
       await expect.poll(() => scrollerOf().getAttribute('tabindex')).toBeNull();
       expect(scrollerOf()).not.toHaveAttribute('role');
+    });
+  });
+
+  describe('a thousand rows', () => {
+    const many: Invoice[] = Array.from({ length: 1000 }, (_, index) => ({
+      id: `INV-${index}`,
+      customer: `Customer ${index}`,
+      total: index
+    }));
+
+    it('draws again only the row a tick changed', async () => {
+      let drawn = 0;
+      const screen = await render(
+        <PlDataTable
+          columns={[
+            {
+              key: 'customer',
+              header: 'Customer',
+              render: (row) => {
+                drawn += 1;
+
+                return row.customer;
+              }
+            }
+          ]}
+          rows={many}
+          getRowKey={key}
+          selection="multiple"
+        />
+      );
+      const ticks = screen.getByRole('checkbox', { name: 'Select row' });
+
+      drawn = 0;
+      await ticks.nth(500).click();
+
+      await expect.element(ticks.nth(500)).toBeChecked();
+      expect(drawn).toBe(1);
+
+      drawn = 0;
+      await ticks.nth(500).click();
+
+      await expect.element(ticks.nth(500)).not.toBeChecked();
+      expect(drawn).toBe(1);
+    });
+
+    it('folds each row for the search once, however many keys are typed', async () => {
+      let folded = 0;
+      const screen = await render(
+        <PlDataTable
+          columns={[
+            {
+              key: 'customer',
+              header: 'Customer',
+              value: (row) => {
+                folded += 1;
+
+                return row.customer;
+              }
+            }
+          ]}
+          rows={many}
+          getRowKey={key}
+          searchable
+        />
+      );
+      const field = screen.getByRole('textbox');
+
+      await field.fill('9');
+      await field.fill('99');
+      await field.fill('999');
+
+      expect(invoices()).toEqual(['Customer 999']);
+      expect(folded).toBe(many.length);
     });
   });
 

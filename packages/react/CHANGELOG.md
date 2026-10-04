@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **Ticking a row of a long `PlDataTable` draws that row again, not every row.** With `paging: 'scroll'` every tick redrew every row and its `PlCheckbox`, each row searched the whole list of ticked keys, and every search keystroke folded every cell again. A row now redraws only when something about it changed, the selection is looked up in a set, and each row's search text is folded once until `rows` or `columns` change.
+
 - **A masonry `PlGallery` rendered on a server has the right number of lanes before hydration.** Its lane count was worked out in JavaScript from the window, so the server's markup always held two lanes and a desktop page laid the gallery out again once React ran. It is now dealt for every column count `columns` names and the stylesheet draws the one for the window's width, so nothing moves at hydration and a resize no longer re-renders it. A `columns` that is not a whole number, which threw, now rounds as the grid's column count does.
 
 - **`preview` on `PlImage` and `PlGallery` no longer downloads the overlay before anyone reaches for it.** The closed preview sat in a `Suspense` boundary on every page that offered one, so its chunk was fetched on load and a server render left a boundary that hydration had to switch to client rendering. The overlay is now rendered from the first open, and its chunk is requested when the pointer, the focus or a touch arrives on the picture or tile.
