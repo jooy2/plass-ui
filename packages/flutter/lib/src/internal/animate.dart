@@ -371,7 +371,10 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
         : (overlap.width.clamp(0, double.infinity) * overlap.height.clamp(0, double.infinity)) /
               area;
 
-    if (shown >= widget.settings.threshold) {
+    // `> 0` as well, as the React build asks of its own measurement: zero is
+    // the least that counts as seen, rather than a reason to start something
+    // that is nowhere near the screen.
+    if (shown > 0 && shown >= widget.settings.threshold) {
       if (!_started) {
         restart();
       }

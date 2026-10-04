@@ -34,10 +34,12 @@ Widget pageWithRow({
   ScrollController? row,
   double along = 0,
   bool once = true,
+  double threshold = defaultVisibleThreshold,
 }) {
   final Widget fade = PlAnimateFade(
     trigger: PlassAnimateTrigger.visible,
     once: once,
+    threshold: threshold,
     duration: const Duration(milliseconds: 200),
     child: const SizedBox.square(dimension: 100),
   );
@@ -224,6 +226,26 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(opacityOf(tester), 1);
+    });
+
+    testWidgets('waits with a threshold of 0 until a pixel of it is in view', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(pageWithRow(page: page, threshold: 0));
+      await tester.pump();
+
+      // None of it is on the screen, which is a share of 0, and 0 is not a
+      // reason to start something 600 pixels below the bottom of the page.
+      expect(startedOf(tester), isFalse);
+
+      page.jumpTo(601);
+      await tester.pump();
+
+      expect(startedOf(tester), isTrue);
     });
 
     testWidgets('lets go again when the page takes it out of view, with once off', (

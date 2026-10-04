@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `visible` `PlAnimate*` effect with a `threshold` of `0` waits until some of it is on screen, as the React build does.** A share of `0` reached a `threshold` of `0`, so such an effect started at once wherever it was, however far below the screen. It now starts when the first of it comes into view.
+
 - **A disabled `PlListItem` that has an `onPressed` is announced as an unavailable button.** It dropped its button semantics while it was disabled, so a screen reader read it as an unavailable row rather than a button it could not press. It is now a button with `enabled: false`, and it still takes no tap and no focus. A row with no `onPressed` is unchanged.
 
 - **A disabled `PlBreadcrumbItem` that has an `onPressed` is announced as an unavailable link.** It dropped its link semantics while it was disabled, so a screen reader read it as unavailable text rather than as a link it could not follow, where the React step that would have been a link is announced as an unavailable link. It is now a link with `enabled: false`, and it still takes no tap and no focus. A step with no `onPressed` and the current step are unchanged.
