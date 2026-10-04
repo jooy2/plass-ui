@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { PlAnimateCounter } from 'plass-ui';
 import { frameClock } from '../../support/timing';
 import { emulateMedia } from '../../support/media';
+import { scrollAndReport } from '../../support/visible';
 
 /**
  * Runs the next animation frame the page asks for as soon as the work that
@@ -617,6 +618,68 @@ describe('PlAnimateCounter', () => {
         // It used to count to 200 where nobody could see it.
         expect(root().dataset.state).toBe('paused');
         expect(drawn()).toBe('0');
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('goes on counting while its share on screen changes, and counts from `from` again once it has been away', async () => {
+      const linear = (t: number) => t;
+      const panel = () => (
+        <div className="panel-under-test" style={{ height: '200px', overflow: 'auto' }}>
+          <PlAnimateCounter
+            className="counter-under-test"
+            once={false}
+            value={1000}
+            duration={1000}
+            easing={linear}
+            style={{ display: 'block', height: '100px' }}
+          />
+          <div style={{ height: '1200px' }} />
+        </div>
+      );
+      const scrollPanel = (to: number) =>
+        scrollAndReport(document.querySelector<HTMLElement>('.panel-under-test')!, to, root());
+      const frames = frameClock();
+
+      try {
+        const screen = await render(panel());
+        // A render of the same tree, so whatever the observer started has been
+        // rendered and its effects have run by the time this resolves.
+        const settle = () => screen.rerender(panel());
+
+        await expect.poll(() => root().dataset.state).toBe('running');
+        await settle();
+        await frames.draw(1000);
+        await frames.draw(1300);
+
+        expect(figure()).toBe(300);
+
+        // Three tenths of it, and more, on screen the whole way.
+        for (const to of [20, 40, 60, 70]) {
+          await scrollPanel(to);
+        }
+
+        await settle();
+        await frames.draw(1400);
+
+        // Every step the observer reports at used to start the count again,
+        // and this would read 0.
+        expect(figure()).toBe(400);
+
+        await scrollPanel(400);
+        await expect.poll(() => root().dataset.state).toBe('paused');
+        await settle();
+
+        expect(drawn()).toBe('0');
+
+        await scrollPanel(0);
+        await expect.poll(() => root().dataset.state).toBe('running');
+        await settle();
+        await frames.draw(2000);
+        await frames.draw(2300);
+
+        expect(figure()).toBe(300);
       } finally {
         frames.restore();
       }

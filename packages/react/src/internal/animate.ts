@@ -681,6 +681,11 @@ export function useAnimationRun({
     // does as soon as it is watched. Without a parent there is no clip but the
     // window, and that rectangle does not move.
     let clip: DOMRectReadOnly | null = parent ? null : viewportRect();
+    // Whether the last measurement found it on screen. Not `once`, it starts
+    // when it arrives and not on every report after that: the observers report
+    // at every step its share crosses, and starting it again at each one
+    // rewound an effect that had never left.
+    let seen = false;
 
     const check = () => {
       if (!clip) {
@@ -693,14 +698,18 @@ export function useAnimationRun({
       // any pixel of it: zero is the least that counts as seen, rather than a
       // reason to start something that is nowhere near the screen.
       if (shown > 0 && shown >= threshold) {
-        start();
-
         if (once) {
+          start();
+
           for (const observer of observers) {
             observer.disconnect();
           }
+        } else if (!seen) {
+          seen = true;
+          start();
         }
       } else if (!once) {
+        seen = false;
         setStarted(false);
       }
     };

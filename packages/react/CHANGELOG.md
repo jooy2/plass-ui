@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A `visible` effect that is not `once` no longer starts again while it stays on screen.** Its observers report every time its share on screen crosses one of their steps, and each report started the effect again, so a half-visible `PlAnimateCounter` counted from `from` again as the page scrolled, and a fade or a slide went back to its first frame. It now starts when it comes on screen, and plays again only after it has left and come back.
+
 - **A `PlCarousel` inside a scaled ancestor shows the slide it is sent to.** Inside a `transform`, a carousel in a scaled `PlMockup` for example, the strip measured the distance to a slide at the size it was drawn at and scrolled that far in its own pixels, so it opened on, and went to, a slide short of the one its dots marked, in either direction and under RTL. It now lands on the slide.
 
 - **A `PlSidebar` inside a scaled ancestor resizes from the width it is laid out at.** Inside a `transform`, a sidebar in a scaled `PlMockup` for example, a drag or an arrow key started from the width the sidebar was drawn at, so the width jumped as soon as it began and a drag moved the edge at a different speed from the pointer. Both now start from the sidebar's own width, a key moves it 16 of its own pixels, and a drag keeps the edge under the pointer.

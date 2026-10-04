@@ -12,9 +12,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import type { ReactNode } from 'react';
-import { PlAnimateSlide } from 'plass-ui';
+import { PlAnimateFade, PlAnimateSlide } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import { emulateMedia } from '../support/media';
+import { scrollAndReport } from '../support/visible';
 
 let sheet: HTMLStyleElement;
 
@@ -78,5 +79,67 @@ describe('a visible trigger inside a box that clips', () => {
     });
 
     expect(root()).toHaveAttribute('data-state', 'paused');
+  });
+});
+
+/** A scrolling panel with the effect at its top and a long way to scroll past it. */
+function panel(children: ReactNode) {
+  return (
+    <div className="panel-under-test" style={{ height: '200px', overflow: 'auto' }}>
+      {children}
+      <div style={{ height: '1200px' }} />
+    </div>
+  );
+}
+
+function fade(): HTMLElement {
+  return document.querySelector('.fade-under-test') as HTMLElement;
+}
+
+function scrollPanel(to: number) {
+  return scrollAndReport(document.querySelector<HTMLElement>('.panel-under-test')!, to, fade());
+}
+
+describe('a visible trigger that is not `once`', () => {
+  it('goes on while its share on screen changes, and plays again once it has left and come back', async () => {
+    await render(
+      panel(
+        <PlAnimateFade
+          className="fade-under-test"
+          trigger="visible"
+          once={false}
+          duration={60000}
+          style={{ height: '100px' }}
+        >
+          Arriving
+        </PlAnimateFade>
+      )
+    );
+
+    await expect.poll(() => fade().getAttribute('data-state')).toBe('running');
+
+    const first = fade().getAnimations()[0];
+
+    expect(first).toBeDefined();
+
+    // Three tenths of it, and more, stay on screen the whole way, across a
+    // dozen of the observer's steps. Each of those used to start it again,
+    // rewinding a fade that had never left.
+    for (const to of [20, 40, 60, 70]) {
+      await scrollPanel(to);
+    }
+
+    // Gone, which lets it go. Every report before this one has been answered by
+    // the time it is.
+    await scrollPanel(400);
+    await expect.poll(() => fade().getAttribute('data-state')).toBe('paused');
+
+    expect(fade().getAnimations()[0]).toBe(first);
+
+    // Back, which is a new run, from its first frame.
+    await scrollPanel(0);
+    await expect.poll(() => fade().getAttribute('data-state')).toBe('running');
+
+    expect(fade().getAnimations()[0]).not.toBe(first);
   });
 });
