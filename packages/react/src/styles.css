@@ -1041,26 +1041,39 @@
  * Two rules hold across all three. **Nothing changes the paint.** A Plass fill is a gradient and
  * a gradient cannot be interpolated, so what moves is a length or an opacity and
  * the fill itself is either there or not. And **the segment travels on
- * `inset-inline-start`**, not on a `transform` — the same trade the skeleton's
- * highlight makes, and for the same two reasons: it runs the other way under RTL
- * without being told, and the layout pass it costs is confined to a box with
- * nothing in it.
+ * `translate`**, never on an inset: an inset lays the box out again on every
+ * frame, and the browser records each of those frames as a layout shift, which
+ * a page loading behind an indicator pays for in its CLS for as long as it
+ * loads. The skeleton's highlight travels the same way.
+ *
+ * The segment rests at the inline start and a percentage `translate` resolves
+ * against its own width, so the keyframes are the old path divided by 45%: one
+ * whole width out before the start, to the end of the groove, which is 1 / 0.45
+ * of its width away. There is no logical `translate`, so the sign is turned
+ * round under RTL by hand, the way the marquee's is (see `.plass-marquee-track`
+ * for why it is written twice).
  * ------------------------------------------------------------------------- */
 
 @keyframes plass-progress-sweep {
   from {
-    inset-inline-start: -45%;
+    translate: calc(-100% * var(--p-anim-along, 1)) 0;
   }
   to {
-    inset-inline-start: 100%;
+    translate: calc(100% / 0.45 * var(--p-anim-along, 1)) 0;
   }
 }
 
 .plass-progress-sweep {
   position: absolute;
   inset-block: 0;
+  inset-inline-start: 0;
   inline-size: 45%;
   animation: plass-progress-sweep 1.15s var(--plass-ease) infinite;
+}
+
+[dir='rtl'] .plass-progress-sweep,
+.plass-progress-sweep:dir(rtl) {
+  --p-anim-along: -1;
 }
 
 /* The one place the library turns something, and the exception is the same one
@@ -1119,10 +1132,13 @@
 /* ---------------------------------------------------------------------------
  * The travelling highlight on a placeholder
  *
- * `inset-inline-start` rather than a `transform`, which is the same trade the
- * rest of the library makes and for the same two reasons: it runs the other way
- * under RTL without being told, and the layout pass it costs is confined to a
- * box with nothing in it.
+ * It travels on `translate`, as the progress segment does and for the same
+ * reason: an inset would lay the highlight out again on every frame and record
+ * a layout shift each time, for as long as the page is waiting. The highlight
+ * rests at the inline start and is 60% of the box, so its path of -60% to 100%
+ * of the box is -100% to 100% / 0.6 of its own width, with the sign turned round
+ * under RTL the way the marquee's is. The rule sits on the placeholder and the
+ * highlight inherits it.
  *
  * A pseudo-element rather than a child, so a `PlSkeleton` is one element per
  * shape and a stack of ten lines is ten nodes rather than twenty. The gradient
@@ -1134,10 +1150,10 @@
 
 @keyframes plass-skeleton-sweep {
   from {
-    inset-inline-start: -60%;
+    translate: calc(-100% * var(--p-anim-along, 1)) 0;
   }
   to {
-    inset-inline-start: 100%;
+    translate: calc(100% / 0.6 * var(--p-anim-along, 1)) 0;
   }
 }
 
@@ -1145,9 +1161,15 @@
   content: '';
   position: absolute;
   inset-block: 0;
+  inset-inline-start: 0;
   inline-size: 60%;
   background-image: linear-gradient(90deg, transparent, var(--p-soft-press), transparent);
   animation: plass-skeleton-sweep 1.5s var(--plass-ease) infinite;
+}
+
+[dir='rtl'] .plass-skeleton,
+.plass-skeleton:dir(rtl) {
+  --p-anim-along: -1;
 }
 
 /* The reduced-motion stand-in: the highlight stops travelling and the whole
@@ -2968,7 +2990,6 @@
      indistinguishable from an empty box that finished loading with nothing in
      it. */
   .plass-skeleton::after {
-    inset-inline-start: 0;
     inline-size: 100%;
     background-image: none;
     animation: plass-skeleton-pulse 2.4s var(--plass-ease) infinite;
@@ -2986,7 +3007,6 @@
      two that genuinely have to keep turning or cycling are slowed to where they
      stop reading as motion. */
   .plass-progress-sweep {
-    inset-inline-start: 0;
     inline-size: 100%;
     animation: plass-progress-pulse 1.8s var(--plass-ease) infinite;
   }

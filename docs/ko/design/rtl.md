@@ -89,7 +89,7 @@ Directionality(textDirection: TextDirection.rtl, child: child);
 
 Base UI 자신의 primitive들은 대신 **React context**에서 방향을 읽고, 페이지가 손을 대야 하는 것은 그 하나뿐입니다. provider가 없으면 `useDirection()`은 문서가 무엇이라고 적혀 있든 `ltr`이라고 답합니다. `PlassProvider`가 그 context를 자기 `direction`으로, 그것이 없으면 문서의 방향으로 렌더링하는 이유이고, `dir`만 적고 만 페이지가 보기에는 맞고 동작은 반대인 이유입니다.
 
-CSS가 JavaScript 대신 답하는 자리가 한 곳 있고, 그것이 규칙을 증명하는 예외입니다. 논리 `translate`는 없으므로 `.plass-marquee-track`이 `[dir='rtl']` 아래에서 부호를 뒤집습니다.
+인라인 축을 따라 움직이는 것에는 JavaScript 대신 CSS가 답하고, 그것이 규칙을 증명하는 예외입니다. 논리 `translate`는 없으므로 `.plass-marquee-track`과 indeterminate `PlProgressLinear`의 조각이 `[dir='rtl']` 아래에서 부호를 뒤집습니다.
 
 :::
 

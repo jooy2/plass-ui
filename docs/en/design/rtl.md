@@ -89,7 +89,7 @@ The moving indicator in **`PlTabs`**, **`PlSegmentedButton`** and **`PlFloatingB
 
 Base UI's own primitives read it from a **React context** instead, and that is the one thing a page has to do something about: with no provider its `useDirection()` answers `ltr` however the document is written. `PlassProvider` renders that context from its own `direction`, or from the document's direction when it is given none, which is why a page that set `dir` and nothing else would look right and behave the other way round.
 
-There is one place CSS answers it instead of JavaScript, and it is the exception that proves the rule: there is no logical `translate`, so `.plass-marquee-track` flips its sign under `[dir='rtl']`.
+CSS answers it instead of JavaScript for what travels along the inline axis, and that is the exception that proves the rule: there is no logical `translate`, so `.plass-marquee-track` and an indeterminate `PlProgressLinear`'s segment flip their sign under `[dir='rtl']`.
 
 :::
 

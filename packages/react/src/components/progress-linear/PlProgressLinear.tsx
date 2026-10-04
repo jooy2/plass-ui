@@ -118,9 +118,9 @@ export const PlProgressLinear = /* @__PURE__ */ React.forwardRef<
             'rounded-full',
             fillClasses,
             // `plass-progress-sweep` supplies the position, the width and the
-            // animation; with a value Base UI supplies the width instead and
-            // this transition is what makes it travel rather than jump. Both
-            // change an inline size, never a transform.
+            // animation, which travels on `translate` so nothing is laid out
+            // again per frame; with a value Base UI supplies the width instead
+            // and this transition is what makes it travel rather than jump.
             indeterminate ? 'plass-progress-sweep' : `absolute top-0 ${fillTransitionClasses}`
           )}
         />

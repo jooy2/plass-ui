@@ -170,5 +170,5 @@ React가 옵션 객체를 받는 자리에서 `formatValue`는 함수를 받습�
 | --- | --- | --- |
 | `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | 프레임워크에 `Intl.NumberFormat`이 없고, 그것을 위해 `package:intl`을 끌어오는 것은 소비자 대신 의존성을 정하는 일입니다. |
 | `label: ReactNode`, `min`/`max`/`value`가 `number` | `Widget?`와 `double` | 같은 것을 Dart가 부르는 이름입니다. |
-| 조각이 `inset-inline-start`로 이동 | 방향성 `Alignment`로 이동 | 둘 다 transform이 아니고, 둘 다 RTL에서 알아서 반대로 흐릅니다. |
+| 조각이 `translate`로 이동하고, RTL에서는 스타일시트가 부호를 뒤집음 | 방향성 `Alignment`로 이동 | `translate`는 프레임마다 페이지 레이아웃을 다시 잡지 않고 조각을 옮기지만, CSS에는 논리 `translate`가 없어서 방향을 직접 뒤집습니다. `Alignment`는 주변 방향에 맞춰 알아서 풀립니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |

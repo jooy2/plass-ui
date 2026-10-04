@@ -170,5 +170,5 @@ With it, the number goes straight to `Intl.NumberFormat`, so bytes, currencies a
 | --- | --- | --- |
 | `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | There is no `Intl.NumberFormat` in the framework, and pulling `package:intl` in to provide one would be a dependency decision made on the consumer's behalf. |
 | `label: ReactNode`, and `min`/`max`/`value` are `number` | `Widget?` and `double` | Dart's own names for the same things. |
-| the segment travels on `inset-inline-start` | it travels on a directional `Alignment` | Neither is a transform, and both run the other way under RTL without being told. |
+| the segment travels on `translate`, and the stylesheet turns its sign round under RTL | it travels on a directional `Alignment` | A `translate` moves the segment without laying the page out again on every frame, but CSS has no logical one, so the direction is flipped by hand. An `Alignment` resolves against the ambient direction on its own. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
