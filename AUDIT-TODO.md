@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**12 items are open, and the last number used is 106.** Batch 1 (2026-10-04) closed items 1 to 23 and 32 to 44; batch 2 (2026-10-04) closed items 24 to 31 and 45 to 50; batch 3 (2026-10-04) closed items 51 to 94, the small differences batches 1 and 2 noted in passing and the ones batch 3 noted on its way, all made items on the Prompter's word. Items 95 to 106 are what batch 3 noted last, and their work is under way.
+**5 items are open, and the last number used is 136.** Batch 1 (2026-10-04) closed items 1 to 23 and 32 to 44; batch 2 (2026-10-04) closed items 24 to 31 and 45 to 50; batch 3 (2026-10-04) closed items 51 to 130, the small differences batches 1 and 2 noted in passing and the ones batch 3 noted on its way, all made items on the Prompter's word. Batch 3 was paused on the Prompter's word with items 131 to 135 open: each is decided, and none has been started.
 
 ## Working through a batch
 
@@ -44,22 +44,15 @@ None.
 
 ## Items
 
-Line numbers are from `3a00ba0e8` and drift as the code changes; when one no longer matches, search for the symbol.
+Line numbers are from `aa6957e47` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ### Low
 
-- **95.** **A `visible` effect that is not `once` starts again every time its share on screen crosses one of the observer's steps** (`internal/animate.ts` ~695, `check` calls `start()` on every report while it is shown), so a half-visible counter or fade replays from its first frame as the page scrolls. Flutter's `_checkVisible` (`animate.dart` ~375) starts only one that has not started.
-- **96.** **A `visible` `PlAnimateTyping` that is not `once` waits for its return with the line typed in Flutter** (`pl_animate_typing.dart` ~265) and with an empty line in React (`PlAnimateTyping.tsx` ~195). Decided: Flutter waits with an empty line, as React does and as item 88 decided for the counter and the scramble.
-- **97.** **`PlWindowPane` resizes, steps with a key and holds a minimised height from the size it is drawn at** (`PlWindowPane.tsx` ~715, ~752, ~790), and does not convert a pointer's movement, so inside a scaled ancestor each of them is off by the scale (items 80, 91 and 92 fixed the same in `PlPanes`, `PlSidebar` and `PlCarousel`).
-- **98.** **`PlScrollZone` measures an item's start on the screen and passes it to `scrollByPixels`** (~410–415, ~446–458), and writes a drag's `dx` to `scrollLeft` unconverted (~540–577), so inside a scaled ancestor it scrolls by the drawn distance.
-- **99.** **The calendar's `revealInColumn` adds a rect difference to `scrollTop`** (`internal/calendar.tsx` ~1214–1222), so inside a scaled ancestor a time column scrolls the chosen value short of view.
-- **100.** **`styles.css` ~54 says everything but three values per family is derived with `color-mix()`**, the claim item 94 corrected in the docs.
-- **101.** **A disabled Flutter `PlBreadcrumb` step with `onPressed` drops its link semantics** (`pl_breadcrumb.dart` ~410, `link: null`), so it is announced as unavailable text, where React now announces such a step as an unavailable link (item 90).
-- **102.** **`PlBreadcrumb`'s `structuredData` keeps a disabled step's address** (`stepHref` does not read `disabled`). Decided: keep it, since Google's `BreadcrumbList` needs an `item` on every step but the last; say so on the breadcrumb page.
-- **103.** **A disabled `PlBreadcrumbItem` or `PlListItem` with only an `onClick` is plain text**, where a disabled `PlChip` stays a `<button disabled>`. Decided: draw it as a `<button disabled>`, announced as an unavailable button, and match it in Flutter.
-- **104.** **A React slide inside a mask with `once={false}` stops partway** (`internal/animate.ts` ~695): `restingRect` measures a running effect's drawn box, so the first report while it slides in reads below the threshold and lets it go, and the slide holds at about a tenth of its way until the page scrolls. Flutter measures the box before the move.
-- **105.** **Flutter's `_checkVisible` has no `shown > 0`** (`animate.dart` ~374), so a `threshold` of `0` starts an effect that is off screen; React needs at least one pixel.
-- **106.** **A new run of a `paused` `PlAnimateTyping`** (a `hover` one the pointer enters again) **keeps the old line in React** (`PlAnimateTyping.tsx` ~212) **and shows an empty one in Flutter** (`pl_animate_typing.dart` ~309). Decided: `paused` holds what is on screen in both builds, and the new run types from its first character once it is let go.
+- **131.** **A `paused` endless effect jumps to where its run landed when reduced motion is turned off**, its first frame as a rule, so an endless fade held by `paused` turns almost transparent; both builds do it, since a finished CSS animation's clock holds at the landing point. Decided: both builds keep the frame that was on screen until `paused` is let go.
+- **132.** **A finite effect that landed under reduced motion plays again in React when the setting is turned off before its run would have ended** (a fade that stood at 1 goes back to 0.25 and runs on); Flutter leaves it where it landed. Decided: React leaves it where it landed too.
+- **133.** **A `delay` changed while a run is under way sends a React effect back to waiting** (a fade drops to opacity 0); Flutter ignores it. Decided: React ignores it too, and a new `delay` applies from the next run.
+- **134.** **A Flutter effect `paused` during its `delay` lands at once when reduced motion arrives** (`animate.dart` ~1066, `_landed = _startedRuns >= 0 && _waiting == null`, and `_holdDelay` has already cleared `_waiting`), so an exit fade drops to 0 while paused and skips the rest of its wait once let go; React stays at 1 and lands when the wait would have ended.
+- **135.** **A finished Flutter run whose `repeat` becomes `null` stays put and asks for no frame** (`_go()` calls `forward()` on a controller already at its upper bound); React starts turning again.
 
 ## Decided and recorded
 
@@ -75,6 +68,9 @@ Line numbers are from `3a00ba0e8` and drift as the code changes; when one no lon
 - **Width reservation (items 76 and 79).** `WidthSizer` reserves a space more in Firefox beside wide East Asian characters, and in Chromium and Firefox beside U+200B. Erring wide keeps a chosen label from growing its box; erring narrow would move the layout.
 - **Glow light and `useCommitChange` (item 81).** Its observer's callback runs on each pointer move of the glow, as an empty microtask; the measurement does not run under real input, so nothing changes.
 - **A disabled navigation menu trigger under the pointer (item 83).** It is out of the Tab order but takes the focus on a press, as a `<button tabindex="-1">` does; it opens nothing and shows no ring, so it is kept.
+- **A fixed bottom bar inside a transform (item 115).** It writes `--plass-bottom-navigation-height` on the document's root like any other, so a page outside the scaled box that declares the reservation keeps room at its end too. A `fixed` bar inside a mockup is a demo's case, and the docs' demos are `static`; such a bar can be `static`.
+- **A paused typewriter's box when its `text` changes (item 117).** React keeps the old line's box until the pause is let go, which its layout cannot avoid, and Flutter takes the new text's box at once. Making Flutter match would move its layout on release, so the two stay as they are.
+- **`PlAnimateLighting` after reduced motion (item 136).** React's light waits its `delay` and starts from its first frame when the setting is turned off (read from the CSS, which takes the animation off under reduced motion, not measured); Flutter's goes on from where its time puts it since item 129. It changes where the light starts, not the content or the layout, so the two stay as they are.
 
 ## Noted differences
 
