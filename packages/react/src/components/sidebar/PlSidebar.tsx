@@ -5,6 +5,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { useDocumentDirection } from '../../internal/direction.js';
 import { useLabels } from '../../internal/labels.js';
 import { beginPointerDrag } from '../../internal/drag.js';
+import { layoutBox } from '../../internal/layout-box.js';
 import { lazyPart } from '../../internal/lazy.js';
 import {
   drawerSide,
@@ -395,7 +396,11 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       if (!node || event.button !== 0) return;
 
       const origin = event.clientX;
-      const start = node.getBoundingClientRect().width;
+      // The width it is laid out at, which is what `--p-sidebar-w` sets, and
+      // the pointer's movement turned into the sidebar's own pixels. Both
+      // differ from the box on the screen inside a scaled ancestor, where
+      // starting from the drawn width made the edge jump as the drag began.
+      const { size: start, perPixel } = layoutBox(node, true);
       // Positive is always "wider", so a drag under RTL — where the start edge
       // is on the right — moves the edge the way the pointer went rather than
       // the way the axis is numbered.
@@ -411,7 +416,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
         target: event.currentTarget,
         pointerId: event.pointerId,
         onMove: (moveEvent) => {
-          latest = applyWidth(start + (moveEvent.clientX - origin) * outwards);
+          latest = applyWidth(start + (moveEvent.clientX - origin) * outwards * perPixel);
           onResize?.(latest);
         },
         // Only the pointer being released settles the width. An unmount runs the
@@ -428,7 +433,8 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       const node = rootRef.current;
       if (!node) return;
 
-      const before = node.getBoundingClientRect().width;
+      // Laid out rather than drawn, as a drag starts from.
+      const before = layoutBox(node, true).size;
       const next = applyWidth(before + pixels);
 
       // A key that leaves the width where it was, at a limit, reports nothing.

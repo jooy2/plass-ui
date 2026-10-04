@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { beginPointerDrag } from '../../internal/drag.js';
+import { layoutBox } from '../../internal/layout-box.js';
 import { cx, transitionClasses } from '../../internal/styles.js';
 import { useResponsiveValue } from '../../internal/responsive.js';
 import type { PlassColor, PlassOrientation, PlassResponsive, PlassSize } from '../../types.js';
@@ -159,59 +160,6 @@ function toPixels(
     case 'em':
       return length.amount * parseFloat((root && getComputedStyle(root).fontSize) || '16');
   }
-}
-
-/**
- * The split along its axis, as two numbers.
- *
- * - `content` is the length a pane's `flex-basis` percentage is a percentage
- *   of: the split's content box as it is laid out, inside its padding and its
- *   border. The border box is the same number only while the split has
- *   neither. A padded split measured by it gave every fraction more room than
- *   the panes have, so a length moved as the split measured itself and a handle
- *   fell behind the pointer dragging it.
- * - `perPixel` is how many of those pixels one pixel on the screen is, which is
- *   what a pointer's movement is measured in.
- *
- * The two differ under a `transform` on an ancestor, a split inside a scaled
- * `PlMockup` for one. The box on the screen is the drawn size there, so the
- * laid-out size is read off the computed style instead, which a transform does
- * not reach, and the box on the screen is kept for the pointer. A split that is
- * not laid out, inside a closed `PlAccordion` for example, measures nothing.
- */
-function measureSplit(
-  root: HTMLElement,
-  horizontal: boolean
-): { content: number; perPixel: number } {
-  const rect = root.getBoundingClientRect();
-  const drawn = horizontal ? rect.width : rect.height;
-
-  if (!(drawn > 0)) {
-    return { content: 0, perPixel: 1 };
-  }
-
-  const style = getComputedStyle(root);
-  const edges = (
-    horizontal
-      ? [
-          style.paddingInlineStart,
-          style.paddingInlineEnd,
-          style.borderInlineStartWidth,
-          style.borderInlineEndWidth
-        ]
-      : [
-          style.paddingBlockStart,
-          style.paddingBlockEnd,
-          style.borderBlockStartWidth,
-          style.borderBlockEndWidth
-        ]
-  ).reduce((total, edge) => total + (parseFloat(edge) || 0), 0);
-  // The used size, which is the border box or the content box as
-  // `box-sizing` says.
-  const size = parseFloat(horizontal ? style.width : style.height) || 0;
-  const border = style.boxSizing === 'border-box' ? size : size + edges;
-
-  return { content: border - edges, perPixel: border > 0 ? border / drawn : 1 };
 }
 
 /** The `flex-basis` of a pane given `fraction` of what the handles leave. */
@@ -380,7 +328,12 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       if (!root) return;
 
       const measure = () => {
-        const extent = measureSplit(root, horizontal).content - gutter;
+        // The content box rather than the border box, which is the same number
+        // only while the split has no padding and no border: a padded split
+        // measured by its border box gave every fraction more room than the
+        // panes have, so a length moved as the split measured itself and a
+        // handle fell behind the pointer dragging it.
+        const extent = layoutBox(root, horizontal).content - gutter;
         if (extent <= 0) return;
 
         setFractions((previous) =>
@@ -411,7 +364,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       const current = fractionsRef.current;
       if (!resizable || !root || !current || current[index + 1] === undefined) return null;
 
-      const { content, perPixel } = measureSplit(root, horizontal);
+      const { content, perPixel } = layoutBox(root, horizontal);
       const extent = content - gutter;
       if (extent <= 0) return null;
 

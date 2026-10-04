@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A `PlSidebar` inside a scaled ancestor resizes from the width it is laid out at.** Inside a `transform`, a sidebar in a scaled `PlMockup` for example, a drag or an arrow key started from the width the sidebar was drawn at, so the width jumped as soon as it began and a drag moved the edge at a different speed from the pointer. Both now start from the sidebar's own width, a key moves it 16 of its own pixels, and a drag keeps the edge under the pointer.
+
 - **A disabled `PlBreadcrumbItem` or `PlListItem` that has an `href` or a `render` is announced as an unavailable link.** It was drawn as a `<span>` or a `<div>` carrying `aria-disabled` and no role, so a screen reader read it as plain text and never said it was unavailable. It is now an `<a>` with no address, `role="link"` and `aria-disabled="true"`, as a disabled `PlBottomNavigationItem` link is, so it still goes nowhere and Tab still passes over it. A disabled step or row with only an `onClick`, or with neither, stays plain text.
 
 - **A new `value` no longer starts a `PlAnimateCounter` its trigger has not started, nor a new line a `PlAnimateScramble`.** A `manual` counter with `play` off, or a `visible` one not yet seen, started counting as soon as its `value` changed, before it was asked to or where nobody could see it. A new `value` before then only changes what the count arrives at: the counter goes on showing `from` and counts to the new value when its trigger comes, and a scramble's new line waits the same way. A counter that has started still counts on from the figure on screen, and `PlAnimateShake` still plays on every new `replay`.
