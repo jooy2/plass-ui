@@ -99,13 +99,14 @@ Widget spin({
   bool paused = false,
   PlassAnimateTrigger trigger = PlassAnimateTrigger.mount,
   bool once = true,
+  Duration duration = const Duration(seconds: 1),
 }) {
   return PlAnimateRotate(
     from: 0,
     to: 90,
     fade: false,
     curve: Curves.linear,
-    duration: const Duration(seconds: 1),
+    duration: duration,
     repeat: repeat,
     alternate: alternate,
     paused: paused,
@@ -661,6 +662,31 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(turnOf(tester), closeTo(58.5, 0.01));
+    });
+
+    testWidgets('goes on back at the new pace when its duration changes', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(host(spin(alternate: true)));
+      await turnBack(tester);
+
+      await tester.pumpWidget(host(spin(alternate: true, duration: const Duration(seconds: 2))));
+      await tester.pump();
+
+      expect(turnOf(tester), closeTo(67.5, 0.01));
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // What is left of the way back, over what is left of the new duration. It
+      // used to turn round and go out again, to 72°.
+      expect(turnOf(tester), closeTo(63, 0.01));
+
+      await tester.pump(const Duration(milliseconds: 1401));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Back at the start, the next pass goes out again, at the new pace.
+      expect(turnOf(tester), closeTo(22.5, 0.01));
     });
   });
 

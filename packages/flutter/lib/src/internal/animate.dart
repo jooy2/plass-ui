@@ -754,10 +754,11 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     // already in flight would finish at the old rate. That matters exactly
     // once, and it is the case a marquee lives in: the strip is measured after
     // the first frame, so the run that has already begun is the run whose
-    // duration has just become correct. `forward()` from where it is scales the
-    // new duration by what is left, so nothing jumps.
+    // duration has just become correct. `_go()` from where it is starts the
+    // pass again the way it was going, so one on its way back goes on back,
+    // and scales the new duration by what is left, so nothing jumps.
     if (_controller.isAnimating) {
-      _controller.forward();
+      _go();
     }
   }
 
