@@ -295,7 +295,10 @@ export const PlTab = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlTabPr
       value={value}
       disabled={disabled}
       className={[
-        'relative z-10 inline-flex shrink-0 cursor-pointer items-center select-none',
+        // `p-0` for the reason `PlButton` gives: a browser's padding would sit
+        // the label half a pixel high in WebKit, and a caller's `p-*` still
+        // outranks it.
+        'relative z-10 inline-flex shrink-0 cursor-pointer items-center select-none p-0',
         tabAlignClasses[align],
         'font-semibold whitespace-nowrap',
         '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',

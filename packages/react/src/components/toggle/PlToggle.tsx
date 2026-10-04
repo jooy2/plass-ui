@@ -86,8 +86,10 @@ const iconOnlyClasses: Record<PlassSize, string> = {
 
 const baseClasses = /* @__PURE__ */ [
   // `relative` because `.plass-glow` hangs its two light layers off
-  // `::before`/`::after`.
-  'relative inline-flex shrink-0 select-none items-center justify-center',
+  // `::before`/`::after`. `p-0` for the reason `PlButton` gives: a browser's
+  // padding would sit the label half a pixel high in WebKit, and a caller's
+  // `p-*` still outranks it.
+  'relative inline-flex shrink-0 select-none items-center justify-center p-0',
   'whitespace-nowrap align-middle font-semibold leading-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,

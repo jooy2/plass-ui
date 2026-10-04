@@ -225,9 +225,13 @@ export const PlAlert = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAlertP
               type="button"
               aria-label={closeLabel}
               onClick={onClose}
+              // `p-0` because a browser pads a button on every side, and
+              // `plass-ui/styles.css` does not reset that padding: WebKit's is
+              // a pixel deeper below than above, which would sit the × half a
+              // pixel high.
               className={[
                 targetClasses,
-                'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
+                'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full p-0',
                 'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
                 'motion-reduce:[transition-duration:0ms]',
                 'hover:opacity-100 focus-visible:opacity-100',

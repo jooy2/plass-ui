@@ -329,8 +329,11 @@ function ToastItem({
       </div>
 
       <BaseUIToast.Action
+        // `py-0` because a browser pads a button top and bottom, and
+        // `plass-ui/styles.css` does not reset that padding: WebKit's is a pixel
+        // deeper below than above, which would sit the word half a pixel high.
         className={[
-          'flex h-[1lh] shrink-0 cursor-pointer items-center rounded-full px-2',
+          'flex h-[1lh] shrink-0 cursor-pointer items-center rounded-full px-2 py-0',
           'font-medium underline-offset-2',
           // On `solid` it takes the toast's own ink, so it eases with it.
           accent || 'text-inherit',
@@ -343,9 +346,10 @@ function ToastItem({
       <span className="flex h-[1lh] shrink-0 items-center">
         <BaseUIToast.Close
           aria-label={closeLabel}
+          // `p-0` for the same reason, and the × would sit half a pixel high.
           className={[
             targetClasses,
-            'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full',
+            'inline-flex size-[1.15em] cursor-pointer items-center justify-center rounded-full p-0',
             'opacity-70 [transition:opacity_var(--plass-duration)_var(--plass-ease)]',
             'motion-reduce:[transition-duration:0ms]',
             'hover:opacity-100 focus-visible:opacity-100',

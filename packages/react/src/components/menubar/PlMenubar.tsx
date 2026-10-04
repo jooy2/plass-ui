@@ -73,7 +73,9 @@ const triggerHeights: Record<PlassSize, string> = {
 };
 
 const triggerClasses = /* @__PURE__ */ [
-  'inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+  // `p-0` for the reason `PlButton` gives: a browser's padding would sit the
+  // word half a pixel high in WebKit, and a caller's `p-*` still outranks it.
+  'inline-flex shrink-0 cursor-pointer select-none items-center justify-center p-0',
   'whitespace-nowrap font-medium leading-none',
   'text-(--plass-fg) bg-transparent',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',

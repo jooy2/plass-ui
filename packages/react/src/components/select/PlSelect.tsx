@@ -138,7 +138,10 @@ export interface PlSelectProps
 
 /** The trigger is a PlTextField's shell, to the pixel. */
 const triggerBaseClasses = /* @__PURE__ */ [
-  'group relative flex w-full cursor-pointer items-center select-none',
+  // `p-0` for the reason `PlButton` gives: a browser's padding would sit the
+  // value half a pixel high in WebKit, and a `p-*` in `classNames.control`
+  // still outranks it.
+  'group relative flex w-full cursor-pointer items-center select-none p-0',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,
   iconClasses

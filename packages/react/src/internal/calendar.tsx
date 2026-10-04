@@ -188,7 +188,11 @@ const cellRadiusEndClasses: Record<PlassSize, string> = {
  * in a gapless grid is a ring drawn on the neighbours.
  */
 const cellBaseClasses = /* @__PURE__ */ [
-  'relative flex items-center justify-center tabular-nums select-none',
+  // `p-0` because a browser pads a button on every side, and
+  // `plass-ui/styles.css` does not reset that padding: WebKit's is a pixel
+  // deeper below than above, which would sit every day, month, year and time
+  // half a pixel high in its cell.
+  'relative flex items-center justify-center p-0 tabular-nums select-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   // The chosen cell's gradient is a layer of its own, which fades in and out
   // as the choice moves where a background would arrive and leave in one frame.

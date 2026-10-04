@@ -292,7 +292,10 @@ const keptClasses = '[&[hidden]]:hidden';
 /** The × in the corner, shared by both modes. */
 const closeButtonClasses = /* @__PURE__ */ [
   targetClasses,
-  'flex size-[1.6em] shrink-0 cursor-pointer items-center justify-center',
+  // `p-0` because a browser pads a button on every side, and
+  // `plass-ui/styles.css` does not reset that padding: WebKit's is a pixel
+  // deeper below than above, which would sit the × half a pixel high.
+  'flex size-[1.6em] shrink-0 cursor-pointer items-center justify-center p-0',
   'rounded-full text-(--plass-muted-fg)',
   '[&_svg]:size-[1.1em] [&_svg]:shrink-0',
   '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',

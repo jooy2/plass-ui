@@ -163,10 +163,13 @@ const baseClasses = /* @__PURE__ */ [
  * `self-stretch` so its hit area is the full height of the chip rather than the
  * height of the words, and `rounded-[inherit]` so the focus ring traces the
  * shell's corners rather than drawing a second, squarer rectangle inside them.
- * Disabled, it keeps the cursor the shell shows rather than its own.
+ * Disabled, it keeps the cursor the shell shows rather than its own. `py-0`
+ * because a browser pads a button top and bottom, and `plass-ui/styles.css`
+ * does not reset that padding: WebKit's is a pixel deeper below than above,
+ * which would sit the label half a pixel high.
  */
 const labelButtonClasses = /* @__PURE__ */ [
-  'flex min-w-0 flex-1 cursor-pointer items-center justify-center self-stretch rounded-[inherit]',
+  'flex min-w-0 flex-1 cursor-pointer items-center justify-center self-stretch rounded-[inherit] py-0',
   focusRingClasses,
   'disabled:cursor-not-allowed'
 ].join(' ');

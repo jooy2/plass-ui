@@ -507,10 +507,14 @@ export const safeInlineClasses: Record<'Start' | 'End', string> = {
  * or the trigger in the markup and is positioned, so where the square reaches
  * over one of them the × has the press, and the neighbour keeps everything
  * outside the square.
+ *
+ * `p-0` because a browser pads a button on every side, and
+ * `plass-ui/styles.css` does not reset that padding: WebKit's is a pixel deeper
+ * below than above, which would sit the × half a pixel high.
  */
 export const chipRemoveClasses = /* @__PURE__ */ [
   targetClasses,
-  'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full',
+  'ms-0.5 inline-flex shrink-0 items-center justify-center rounded-full p-0',
   'size-[1.15em] cursor-pointer opacity-70',
   '[transition:opacity_var(--plass-duration)_var(--plass-ease)]',
   'motion-reduce:[transition-duration:0ms]',

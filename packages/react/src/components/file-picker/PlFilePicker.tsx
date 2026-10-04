@@ -797,9 +797,14 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                     <button
                       type="button"
                       aria-label={removeLabel(file.name)}
+                      // `p-0` because a browser pads a button on every side,
+                      // and `plass-ui/styles.css` does not reset that padding:
+                      // the × would be squeezed narrower than it is tall, and
+                      // in WebKit, whose padding is a pixel deeper below than
+                      // above, sit half a pixel high.
                       className={[
                         targetClasses,
-                        'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full',
+                        'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full p-0',
                         'size-[1.3em] text-(--plass-muted-fg) opacity-70',
                         '[transition:opacity_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
                         'motion-reduce:[transition-duration:0ms]',

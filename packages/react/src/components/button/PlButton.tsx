@@ -108,7 +108,12 @@ const iconOnlyClasses: Record<PlassSize, string> = {
 
 const baseClasses = /* @__PURE__ */ [
   // `relative` because `.plass-glow` hangs its two light layers off `::before`/`::after`.
-  'relative inline-flex shrink-0 select-none items-center justify-center',
+  // `p-0` because a browser pads a button top and bottom, and
+  // `plass-ui/styles.css` does not reset that padding: WebKit's is a pixel
+  // deeper below than above, which would sit the label half a pixel high. Not
+  // `py-0`, which Tailwind writes after every `p-*`: a caller's `p-*` in
+  // `className` would lose its top and bottom to it, where `p-0` loses to it.
+  'relative inline-flex shrink-0 select-none items-center justify-center p-0',
   'whitespace-nowrap align-middle font-semibold leading-none',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
   transitionClasses,

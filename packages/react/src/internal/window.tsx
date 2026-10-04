@@ -861,7 +861,11 @@ export function PlWindowControls({
             className={cx(
               // `group/control` is what lets a traffic light answer the focus
               // that is on it alone, against the set's own answer to the pointer.
-              'group/control relative flex shrink-0 cursor-pointer items-center justify-center',
+              // `p-0` because a browser pads a button on every side, and
+              // `plass-ui/styles.css` does not reset that padding: WebKit's is
+              // a pixel deeper below than above, which would sit the glyph half
+              // a pixel high.
+              'group/control relative flex shrink-0 cursor-pointer items-center justify-center p-0',
               '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease),filter_var(--plass-duration)_var(--plass-ease)]',
               'motion-reduce:[transition-duration:0ms]',
               'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:[outline-offset:-2px]',

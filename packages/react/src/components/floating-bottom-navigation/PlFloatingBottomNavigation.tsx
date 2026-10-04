@@ -533,8 +533,12 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
 
   const classNames = cx(
     // `z-10` and a stacking context of its own: the key is painted behind the
-    // discs, and without this it would cover the glyph it is under.
-    'relative z-10 inline-flex shrink-0 items-center justify-center rounded-full',
+    // discs, and without this it would cover the glyph it is under. `p-0`
+    // because a browser pads a button on every side, and `plass-ui/styles.css`
+    // does not reset that padding: WebKit's is a pixel deeper below than
+    // above, which would sit the glyph half a pixel high. A link has none to
+    // take, and a caller's `p-*` still outranks it.
+    'relative z-10 inline-flex shrink-0 items-center justify-center rounded-full p-0',
     controlHeightClasses[bar.size],
     controlSquareClasses[bar.size],
     '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',

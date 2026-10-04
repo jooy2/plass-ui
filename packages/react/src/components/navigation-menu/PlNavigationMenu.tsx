@@ -180,7 +180,10 @@ export interface PlNavigationMenuLinkProps extends Omit<
  * family arrives with the pointer and with the open panel.
  */
 const triggerClasses = /* @__PURE__ */ [
-  'inline-flex shrink-0 cursor-pointer select-none items-center justify-center',
+  // `p-0` for the reason `PlButton` gives: an item that opens a panel is a
+  // `<button>`, whose browser padding would sit the word half a pixel high in
+  // WebKit, and a caller's `p-*` still outranks it. A link has none to take.
+  'inline-flex shrink-0 cursor-pointer select-none items-center justify-center p-0',
   'whitespace-nowrap font-medium leading-none no-underline',
   'text-(--plass-fg) bg-transparent',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',

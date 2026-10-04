@@ -210,7 +210,10 @@ const shellRingClasses = focusWithinRingClasses;
  * moves under the finger is the tint, not the button.
  */
 const stepperClasses = /* @__PURE__ */ [
-  'inline-flex size-[1.7em] shrink-0 cursor-pointer items-center justify-center',
+  // `p-0` because a browser pads a button on every side, and
+  // `plass-ui/styles.css` does not reset that padding: WebKit's is a pixel
+  // deeper below than above, which would sit the glyph half a pixel high.
+  'inline-flex size-[1.7em] shrink-0 cursor-pointer items-center justify-center p-0',
   'rounded-(--plass-radius-xs) text-(--plass-muted-fg) select-none',
   '[&_svg]:size-[0.9em] [&_svg]:shrink-0',
   '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
