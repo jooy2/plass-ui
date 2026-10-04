@@ -265,3 +265,75 @@ describe('the interaction light', () => {
     expect(getComputedStyle(shell, '::before').content).toBe('none');
   });
 });
+
+/**
+ * Where the light lands on a surface drawn at half its size by a `transform` on
+ * the box around it, as a control inside a scaled `PlMockup` is. The two layers
+ * are laid out in the surface's own pixels, so the place written for them has
+ * to be counted in those too: twice the distance the pointer is on the screen.
+ */
+describe('the interaction light inside a scaled ancestor', () => {
+  beforeEach(async () => {
+    await commands.parkPointer();
+  });
+
+  /** Moves the pointer onto `target`, `x` and `y` screen pixels into `surface`. */
+  function moveOnto(target: Element, surface: Element, x: number, y: number) {
+    const box = surface.getBoundingClientRect();
+
+    target.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        clientX: box.left + x,
+        clientY: box.top + y
+      })
+    );
+  }
+
+  /** The place written for the light, in pixels. */
+  function lightOf(surface: HTMLElement): [number, number] {
+    return [
+      parseFloat(surface.style.getPropertyValue('--p-mx')),
+      parseFloat(surface.style.getPropertyValue('--p-my'))
+    ];
+  }
+
+  it('follows a pointer over what the surface holds, a field and its input', async () => {
+    const screen = await render(
+      <div style={{ transform: 'scale(0.5)', transformOrigin: '0 0', width: 640 }}>
+        <PlTextField label="City" classNames={{ control: 'lit-under-test' }} />
+      </div>
+    );
+
+    const shell = litShell();
+
+    // Over the input, which is not the surface, so the light is placed from
+    // the surface's box on the screen, and counted from inside its border as
+    // the event's own offset is over the surface itself.
+    moveOnto(screen.getByRole('textbox').element(), shell, 60, 8);
+
+    const [x, y] = lightOf(shell);
+
+    expect(x).toBeCloseTo(120 - shell.clientLeft, 0);
+    expect(y).toBeCloseTo(16 - shell.clientTop, 0);
+  });
+
+  it('follows a pointer over the surface itself, a key', async () => {
+    const screen = await render(
+      <div style={{ transform: 'scale(0.5)', transformOrigin: '0 0', width: 640 }}>
+        <PlButton>Save</PlButton>
+      </div>
+    );
+
+    const key = screen.getByRole('button').element() as HTMLElement;
+
+    // Over the key, so the place is the event's own offset, which every browser
+    // already counts in the key's own pixels, from inside its border.
+    moveOnto(key, key, 30, 8);
+
+    const [x, y] = lightOf(key);
+
+    expect(x).toBeCloseTo(60 - key.clientLeft, 0);
+    expect(y).toBeCloseTo(16 - key.clientTop, 0);
+  });
+});

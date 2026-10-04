@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **The interaction light stays under the pointer over what a lit surface holds.** A pointer over the input of a `PlTextField`, `PlNumberField` or `PlCombobox` placed the light by its distance on the screen from the surface's outer edge, so inside a `transform`, a field in a scaled `PlMockup` for example, the light fell short of the pointer by as much as the surface was scaled, and on any page it sat a border's width off the place a pointer over the surface itself gives it. It is now placed in the surface's own pixels from inside its border, as it already was over the surface itself.
+
 - **A paused `PlAnimateTyping` holds its line when its `text` changes.** Given a new `text` while `paused` was on, it drew as many characters of the new string as it had typed of the old one, so "Hel" became "Wor", the start of a line it had never typed. The line on screen now stays as it was until `paused` is let go, and the new text is then typed from its first character, as a new run that arrives while it is paused already is. A screen reader is given the new text whole at once, as before.
 
 - **A fixed `PlBottomNavigation` or `PlFloatingBottomNavigation` inside a scaled ancestor publishes the room it takes there.** Inside a `transform`, a bar in a scaled `PlMockup` for example, a `fixed` bar is fixed to that box and covers what is laid out in it, but `--plass-bottom-navigation-height` was the height the bar was drawn at, so a page inside that box reserved half the room at half the scale. It is now the height the bar is laid out at, the same number it publishes with nothing scaling it.

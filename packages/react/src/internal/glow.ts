@@ -12,8 +12,13 @@ import * as React from 'react';
  * `offsetX` and `offsetY` cost nothing, but they are measured from whatever the
  * pointer is over. On a surface whose own element is under the pointer — a
  * button, whose icons ignore the pointer — that is the surface, and they are
- * used as they are. On one that holds other elements the pointer can land on,
- * the position is read against the surface's own box instead.
+ * used as they are: every browser counts them in the surface's own pixels from
+ * inside its border, through any `transform` above it. On one that holds other
+ * elements the pointer can land on, the position is read against the surface's
+ * box on the screen instead, and turned into those same pixels from inside the
+ * border, which is where the two layers are laid out. The screen and the
+ * surface differ inside a scaled ancestor, a field in a scaled `PlMockup` for
+ * one. `offsetWidth` is read after the box, so it costs no second layout.
  */
 export function followPointer(event: React.PointerEvent<HTMLElement>): void {
   const element = event.currentTarget;
@@ -22,9 +27,11 @@ export function followPointer(event: React.PointerEvent<HTMLElement>): void {
 
   if (event.target !== element) {
     const box = element.getBoundingClientRect();
+    const across = box.width ? element.offsetWidth / box.width : 1;
+    const down = box.height ? element.offsetHeight / box.height : 1;
 
-    x = event.clientX - box.left;
-    y = event.clientY - box.top;
+    x = (event.clientX - box.left) * across - element.clientLeft;
+    y = (event.clientY - box.top) * down - element.clientTop;
   }
 
   element.style.setProperty('--p-mx', `${x}px`);
