@@ -136,6 +136,19 @@ export interface PlDrawerProps
    * @default true
    */
   dismissible?: boolean;
+  /**
+   * Keeps the drawer's content in the document while it is closed, hidden, out
+   * of the focus order and off the accessibility tree, rather than taking it
+   * out. `overlay` only.
+   *
+   * For a drawer that holds a site's navigation. A closed drawer is otherwise
+   * not in the document, and neither are its links — which is what a search
+   * engine finds on a phone, where the navigation is a drawer nobody has
+   * opened. Off by default, because a drawer's content is usually work that
+   * only needs doing once somebody opens it.
+   * @default false
+   */
+  keepMounted?: boolean;
   /** The body. */
   children?: React.ReactNode;
 }
@@ -255,6 +268,9 @@ const backdropClasses = /* @__PURE__ */ [
   fadeClasses
 ].join(' ');
 
+/** What keeps a closed drawer's parts out of sight when `keepMounted` keeps them. */
+const keptClasses = '[&[hidden]]:hidden';
+
 /** The × in the corner, shared by both modes. */
 const closeButtonClasses = /* @__PURE__ */ [
   targetClasses,
@@ -317,6 +333,7 @@ export function PlDrawer({
   rounded = true,
   modal = true,
   dismissible = true,
+  keepMounted = false,
   className,
   classNames,
   style,
@@ -489,21 +506,31 @@ export function PlDrawer({
     >
       {trigger ? <BaseUIDialog.Trigger render={trigger} /> : null}
 
-      <BaseUIDialog.Portal>
+      <BaseUIDialog.Portal keepMounted={keepMounted}>
         {/* `plass-portal` is a hook, not a style: a portalled surface leaves the
-            subtree a host may have scoped its CSS reset to. */}
+            subtree a host may have scoped its CSS reset to.
+
+            A drawer kept while closed is `hidden` by Base UI, and the `flex`
+            on the viewport and the panel would otherwise outrank the
+            browser's own `display: none` for it and draw the panel. */}
         <BaseUIDialog.Backdrop
-          className={cx('plass-portal', backdropClasses, classNames?.backdrop)}
+          className={cx(
+            'plass-portal',
+            backdropClasses,
+            keepMounted ? keptClasses : '',
+            classNames?.backdrop
+          )}
         />
 
         <BaseUIDialog.Viewport
           className={cx(
             'plass-portal fixed inset-0 z-(--plass-z-portal) flex',
-            viewportClasses[side]
+            viewportClasses[side],
+            keepMounted ? keptClasses : ''
           )}
         >
           <BaseUIDialog.Popup
-            className={panel}
+            className={cx(panel, keepMounted ? keptClasses : '')}
             style={{ ...surfaceSlots(color, 3), ...sizeStyle, ...style }}
             {...props}
           >

@@ -457,6 +457,25 @@ describe('PlSidebar', () => {
       expect(screen.getByRole('dialog').query()).toBeNull();
     });
 
+    it('keeps its links in the document while it is closed when it is asked to', async () => {
+      const screen = await render(
+        <PlSidebar collapseBelow="md" keepMounted>
+          <nav>
+            <a href="/docs">Docs</a>
+          </nav>
+        </PlSidebar>
+      );
+
+      const link = () => document.querySelector<HTMLAnchorElement>('a[href="/docs"]');
+
+      await expect.poll(link).not.toBeNull();
+
+      // There for a crawler reading the markup, and for nobody else.
+      expect(link()!.closest('[hidden]')).not.toBeNull();
+      expect(screen.getByRole('dialog').query()).toBeNull();
+      expect(screen.getByRole('link', { name: 'Docs' }).query()).toBeNull();
+    });
+
     it('is a dialog once it is opened, named by the sidebar', async () => {
       const screen = await render(
         <PlSidebar collapseBelow="md" open>

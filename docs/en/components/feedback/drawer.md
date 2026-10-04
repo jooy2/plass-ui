@@ -45,6 +45,8 @@ PlDrawer(
 
 Every other `<div>` attribute passes through to the panel, and so does a `className`. The scrim an overlay drawer draws behind it is a second element in the same portal. `classNames.backdrop` is the way to reach it, and an inline drawer has none for it to land on.
 
+A closed `overlay` drawer is not in the document. `keepMounted` keeps its content there, hidden and out of reach of the keyboard and of a screen reader, for a drawer that holds a site's navigation, which a search engine should find on a phone as well.
+
 :::
 
 `mode` decides what the panel is, and everything else about it is the same in both:
@@ -146,6 +148,7 @@ The body is the only part that scrolls either way.
 | `PlDrawerClose` | — | It exists over there so an _uncontrolled_ drawer's Cancel button has something to call. Every drawer here is controlled, so the button already has `onOpenChanged`. |
 | `extent: number \| string` | `extent: double` | Pixels stay pixels. There is no CSS length to accept. |
 | `modal: boolean \| 'trap-focus'` | `modal: bool` | The two values that differ are "the pointer is held out" and "it is not". Flutter has no scroll lock to be the third thing. |
+| `keepMounted` | — | It keeps a closed drawer's links in the markup a crawler reads. A Flutter screen has no markup for one to read. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

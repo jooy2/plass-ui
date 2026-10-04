@@ -5180,6 +5180,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 서랍의 내용을 숨기고 포커스와 접근성 트리에서 뺀 채 문서에 남겨 둡니다. 검색 엔진이 휴대폰 너비에서도 찾아야 하는 내비게이션용입니다. overlay 전용입니다',
+        en: "Keeps a closed drawer's content in the document, hidden and out of reach of focus and the accessibility tree. For navigation a search engine should find at a phone's width. overlay only"
+      }
+    },
+    {
       name: 'size',
       type: SIZE,
       default: "'md'",
@@ -10216,6 +10225,15 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'onOpenChange',
       type: '(open: boolean) => void',
       description: { ko: 'drawer가 열리거나 닫힐 때', en: 'Called when the drawer opens or closes' }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '접혀서 닫힌 drawer가 된 뒤에도 children을 숨긴 채 문서에 남겨 둡니다. 검색 엔진이 휴대폰 너비에서도 찾아야 하는 내비게이션용입니다',
+        en: "Keeps the children in the document, hidden, once the sidebar has collapsed into a closed drawer. For navigation a search engine should find at a phone's width"
+      }
     },
     {
       name: 'sticky',

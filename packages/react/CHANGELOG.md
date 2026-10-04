@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Added
+
+- **`PlDrawer` and `PlSidebar` take `keepMounted`, which keeps a closed drawer's content in the document.** A closed `overlay` drawer took its content out of the page, so below `collapseBelow` a sidebar's links were missing at the width a search engine indexes a page at. With `keepMounted` the content stays, hidden, out of the focus order and off the accessibility tree. It is off by default.
+
 ### Changed
 
 - **`plass-ui/css/<component>.css` registers only the library modules its component reaches.** `plass-ui/css/base.css` scanned every one of the library's internal modules, so a Tailwind project that registered one component still generated the utilities of all of them: `PlButton` on its own came to 14.3 kB gzipped. Each manifest now lists the modules its component reaches, and `base.css` is the tokens alone, which brings `PlButton` to 11.4 kB, `PlButton` with `PlTextField` to 12.1 kB and `PlTypography` to 8.9 kB, against 22.5 kB for `plass-ui/tailwind.css`. Nothing changes in a project's imports, and nothing a component uses is left out.

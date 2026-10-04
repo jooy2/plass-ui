@@ -96,6 +96,18 @@ export interface PlSidebarProps extends Omit<
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   /**
+   * Keeps the children in the document once the sidebar has collapsed into a
+   * drawer that is closed, hidden and out of reach, as `PlDrawer`'s own
+   * `keepMounted` does.
+   *
+   * For a sidebar that is the site's navigation. Below `collapseBelow` a closed
+   * drawer is otherwise not in the document, and neither are its links — and
+   * that is the width a search engine reads a page at. Above it nothing
+   * changes, because the column is always there.
+   * @default false
+   */
+  keepMounted?: boolean;
+  /**
    * Whether the column holds its place while the page scrolls past it.
    *
    * On by default, and it costs nothing when it is not needed: with the page
@@ -242,6 +254,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       open: openProp,
       defaultOpen = false,
       onOpenChange,
+      keepMounted = false,
       sticky = true,
       title,
       variant = 'glass',
@@ -399,6 +412,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
           mode="overlay"
           open={open}
           onOpenChange={changeOpen}
+          keepMounted={keepMounted}
           title={title}
           size={size}
           color={color}

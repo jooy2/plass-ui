@@ -45,6 +45,8 @@ PlDrawer(
 
 나머지 `<div>` 속성은 모두 판으로 전달되고, `className`도 마찬가지입니다. overlay 모드에서 판 뒤에 깔리는 scrim은 같은 portal 안의 다른 요소이므로 `classNames.backdrop`으로 닿습니다. inline 모드에는 그 scrim이 없습니다.
 
+닫힌 `overlay` 서랍은 문서에 들어 있지 않습니다. `keepMounted`를 켜면 내용이 숨겨진 채 문서에 남고, 키보드와 스크린 리더는 거기에 닿지 않습니다. 사이트 내비게이션을 담은 서랍처럼 검색 엔진이 휴대폰에서도 찾아야 하는 내용에 씁니다.
+
 :::
 
 판이 무엇인지는 `mode`가 정하고, 그 밖의 모든 것은 두 mode에서 같습니다.
@@ -146,6 +148,7 @@ PlDrawer(
 | `PlDrawerClose` | — | 저쪽에서는 _uncontrolled_ 서랍의 Cancel 버튼이 부를 것이 필요해서 있습니다. 여기서는 모든 서랍이 controlled이므로 버튼에는 이미 `onOpenChanged`가 있습니다. |
 | `extent: number \| string` | `extent: double` | 픽셀은 픽셀 그대로입니다. 받을 CSS 길이가 없습니다. |
 | `modal: boolean \| 'trap-focus'` | `modal: bool` | 달라지는 두 값은 "포인터를 막는다"와 "막지 않는다"입니다. Flutter에는 세 번째가 될 스크롤 잠금이 없습니다. |
+| `keepMounted` | — | 닫힌 서랍의 링크를 크롤러가 읽는 마크업에 남겨 두는 prop입니다. Flutter 화면에는 크롤러가 읽을 마크업이 없습니다. |
 | `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::

@@ -58,6 +58,12 @@ They are one component because they are one thing, and because the children then
 
 Which of the two is showing is a media query, answered in CSS for the first paint and in JavaScript from then on. The markup a server sends is the column, so a narrow screen would otherwise draw a full-width sidebar and throw it away a moment later. The class that hides it below the breakpoint is what stops that, and `matchMedia` decides, once there is a window to ask, that the drawer should exist at all.
 
+::: fw react
+
+A closed drawer is not in the document, so below `collapseBelow` the sidebar's links are not either, and that is the width a search engine reads a page at. For a sidebar that is the site's navigation, `keepMounted` keeps them there, hidden and out of reach of the keyboard and of a screen reader.
+
+:::
+
 ## Examples
 
 ### side
@@ -170,6 +176,7 @@ On by default, and it costs nothing when it is not needed. With the page scrolli
 | `'none'` | `null` | Dart's way of saying "no floor was named". |
 | the trigger hidden by a media query | the trigger not built at all | The class exists on the web to keep the button in the markup a server sends. There is no first paint to hold together here. |
 | `sticky` | — | The column is as tall as the band the layout gave it. There is no document scroll for it to hold its place against. |
+| `keepMounted` | — | It keeps links in the markup a crawler reads on a phone. A Flutter screen has no markup for one to read. |
 | `title` falling back to an `aria-label` | `title` falling back to `semanticLabel`, **drawn** | A `PlDrawer` is named by what it draws, so the region's name becomes its heading rather than an invisible label. |
 | a `role="separator"` handle with `aria-valuenow` | a `Semantics(slider: true)` handle with a value in logical pixels | Flutter's semantics tree has no separator role and no `valuenow`. A handle is what it actually is: a control with a value that can be turned up and down. |
 | the width written onto the element | the width in a `ValueNotifier` | Same decision, different spelling: nothing but one box depends on the number, and rebuilding the panel on every pointer move would rebuild every row in it. |

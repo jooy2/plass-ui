@@ -97,6 +97,55 @@ describe('PlDrawer', () => {
     });
   });
 
+  describe('keepMounted', () => {
+    const link = () => document.querySelector<HTMLAnchorElement>('a[href="/docs"]');
+
+    it("keeps a closed drawer's links in the document, out of reach", async () => {
+      const screen = await render(
+        <PlDrawer keepMounted title="Menu">
+          <a href="/docs">Docs</a>
+        </PlDrawer>
+      );
+
+      await expect.poll(link).not.toBeNull();
+
+      // In the markup, but not offered to anyone: no dialog, no link a screen
+      // reader can find, and no focus to be had.
+      expect(link()!.closest('[hidden]')).not.toBeNull();
+      expect(screen.getByRole('dialog').query()).toBeNull();
+      expect(screen.getByRole('link', { name: 'Docs' }).query()).toBeNull();
+
+      link()!.focus();
+
+      expect(document.activeElement).not.toBe(link());
+    });
+
+    it('opens the panel it kept', async () => {
+      const screen = await render(
+        <PlDrawer keepMounted trigger={<PlButton>Menu</PlButton>} title="Menu">
+          <a href="/docs">Docs</a>
+        </PlDrawer>
+      );
+
+      await expect.poll(link).not.toBeNull();
+      await screen.getByRole('button', { name: 'Menu' }).click();
+
+      await expect.element(screen.getByRole('dialog', { name: 'Menu' })).toBeVisible();
+      await expect.element(screen.getByRole('link', { name: 'Docs' })).toBeVisible();
+      expect(document.querySelectorAll('a[href="/docs"]')).toHaveLength(1);
+    });
+
+    it('keeps nothing without it', async () => {
+      await render(
+        <PlDrawer title="Menu">
+          <a href="/docs">Docs</a>
+        </PlDrawer>
+      );
+
+      expect(link()).toBeNull();
+    });
+  });
+
   describe('inline mode', () => {
     it('is in the layout rather than in a dialog', async () => {
       const screen = await render(

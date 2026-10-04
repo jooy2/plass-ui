@@ -58,6 +58,12 @@ PlPageLayout(
 
 둘 중 무엇이 보이는지는 media query가 정하고, 첫 페인트는 CSS가 그 뒤로는 JavaScript가 답합니다. 서버가 보내는 마크업은 열이므로, 그냥 두면 좁은 화면이 전체 너비 sidebar를 그렸다가 곧바로 버리게 됩니다. 브레이크포인트 아래에서 그것을 숨기는 클래스가 그 낭비를 막고, 물어볼 창이 생긴 뒤에 drawer가 존재해야 한다고 정하는 것이 `matchMedia`입니다.
 
+::: fw react
+
+닫힌 drawer는 문서에 들어 있지 않아서, `collapseBelow`보다 좁은 화면에서는 sidebar의 링크도 문서에서 빠집니다. 검색 엔진이 페이지를 읽는 너비가 바로 그 너비입니다. 사이트 내비게이션을 담은 sidebar라면 `keepMounted`를 켜 둡니다. 링크가 숨겨진 채 문서에 남고, 키보드와 스크린 리더는 거기에 닿지 않습니다.
+
+:::
+
 ## Examples
 
 ### side
@@ -170,6 +176,7 @@ PlPageLayout(
 | `'none'` | `null` | "정해 둔 하한이 없다"를 Dart가 나타내는 방식입니다. |
 | media query로 숨기는 trigger | 아예 만들지 않는 trigger | 웹에서 그 클래스는 서버가 보내는 마크업에 버튼을 남겨 두기 위한 것입니다. 여기에는 붙들 첫 페인트가 없습니다. |
 | `sticky` | — | 열은 레이아웃이 준 band만큼 높습니다. 자리를 지킬 문서 스크롤이라는 것이 없습니다. |
+| `keepMounted` | — | 크롤러가 휴대폰 너비에서 읽는 마크업에 링크를 남겨 두는 prop입니다. Flutter 화면에는 크롤러가 읽을 마크업이 없습니다. |
 | `aria-label`로 물러나는 `title` | `semanticLabel`로 물러나고 **그려지는** `title` | `PlDrawer`는 자기가 그리는 것으로 불리므로, 영역의 이름이 보이지 않는 라벨이 아니라 제목이 됩니다. |
 | `aria-valuenow`가 붙은 `role="separator"` 손잡이 | 논리 픽셀 값이 붙은 `Semantics(slider: true)` 손잡이 | Flutter semantics에는 separator role도 `valuenow`도 없습니다. 손잡이는 실제로 그것인 것(값을 올리고 내릴 수 있는 컨트롤)이 됩니다. |
 | 요소에 직접 쓰는 너비 | `ValueNotifier`에 담은 너비 | 같은 결정의 다른 철자입니다. 그 숫자에 의존하는 것은 상자 하나뿐이고, 포인터가 움직일 때마다 패널을 다시 지으면 그 안의 모든 행이 다시 지어집니다. |
