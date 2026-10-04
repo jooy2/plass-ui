@@ -226,12 +226,58 @@ async function prepare(name: string): Promise<string | null> {
 
   core ??= import('highlight.js/lib/core').then((module) => module.default);
 
-  const hljs = await core;
+  // Both at once. They are two chunks that know nothing of each other, and
+  // asking for the grammar only once the core has landed put a whole round
+  // trip between the page and its colours.
+  const [hljs, definition] = await Promise.all([
+    core,
+    registered ?? load!().then((module) => module.default)
+  ]);
 
-  if (registered) hljs.registerLanguage(name, registered);
-  else if (!hljs.getLanguage(name)) hljs.registerLanguage(name, (await load!()).default);
+  if (registered || !hljs.getLanguage(name)) hljs.registerLanguage(name, definition);
 
   return name;
+}
+
+/**
+ * Gives the main thread back to the browser until it has had a turn of its own.
+ *
+ * `scheduler.yield` where there is one, because what follows it goes ahead of
+ * the work queued behind it rather than to the back of the queue. Elsewhere a
+ * message to a fresh channel, which is a task of its own without the 4ms a
+ * nested `setTimeout` is held back by.
+ */
+function yieldToBrowser(): Promise<void> {
+  const { scheduler } = globalThis as { scheduler?: { yield?: () => Promise<void> } };
+
+  if (typeof scheduler?.yield === 'function') return scheduler.yield();
+
+  return new Promise((resolve) => {
+    const channel = new MessageChannel();
+
+    channel.port1.onmessage = () => {
+      channel.port1.close();
+      resolve();
+    };
+    channel.port2.postMessage(null);
+  });
+}
+
+/**
+ * The last block's turn at the highlighter.
+ *
+ * Every block in one language waits on the same grammar, so without a queue
+ * they all wake on the same promise and are coloured back to back in a single
+ * task: a page of thirty blocks is one long task that the reader's first click
+ * waits behind. Each block instead waits for the block before it and then for
+ * the browser, and is coloured in a short task of its own.
+ */
+let turn: Promise<void> = Promise.resolve();
+
+function nextTurn(): Promise<void> {
+  turn = turn.then(yieldToBrowser);
+
+  return turn;
 }
 
 /**
@@ -241,9 +287,15 @@ async function prepare(name: string): Promise<string | null> {
  * Highlighting the block as a whole and splitting afterwards, never line by
  * line: a block comment, a template literal and a heredoc all span lines, and a
  * highlighter handed one line at a time sees the second line of a comment as
- * code.
+ * code. A block is coloured in its own turn, after the blocks that asked before
+ * it, with the browser given the main thread in between, and `signal` takes a
+ * block that has gone away by then out of the queue.
  */
-export async function highlight(code: string, language: string): Promise<PlCodeLine[] | null> {
+export async function highlight(
+  code: string,
+  language: string,
+  signal?: AbortSignal
+): Promise<PlCodeLine[] | null> {
   let pending = resolved.get(language);
 
   if (!pending) {
@@ -263,6 +315,10 @@ export async function highlight(code: string, language: string): Promise<PlCodeL
   if (!name || !core) return null;
 
   const hljs = await core;
+
+  await nextTurn();
+
+  if (signal?.aborted) return null;
 
   return tokenize(hljs.highlight(code, { language: name, ignoreIllegals: true }).value);
 }

@@ -458,12 +458,12 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
     const wanted = highlight && !raw && name !== null;
 
     /**
-     * The colouring, once the grammar has arrived.
+     * The colouring, once the grammar has arrived and the block's turn has come.
      *
-     * `cancelled` rather than an `AbortController` because there is nothing to
-     * abort: the import is already in flight and shared with every other block
-     * in the same language, and all this has to guarantee is that a block
-     * unmounted or re-pointed mid-fetch does not set state afterwards.
+     * The signal does not abort the import, which is in flight and shared with
+     * every other block in the same language. It takes a block unmounted or
+     * re-pointed while it waited out of the queue, so nothing is coloured for
+     * nobody, and keeps it from setting state afterwards.
      */
     React.useEffect(() => {
       if (!wanted || !name) {
@@ -472,24 +472,23 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
         return;
       }
 
-      let cancelled = false;
+      const controller = new AbortController();
+      const { signal } = controller;
 
-      highlightCode(source, name).then(
+      highlightCode(source, name, signal).then(
         (lines) => {
-          if (!cancelled) {
+          if (!signal.aborted) {
             setColoured(lines ? { source, name, lines } : null);
           }
         },
         () => {
-          if (!cancelled) {
+          if (!signal.aborted) {
             setColoured(null);
           }
         }
       );
 
-      return () => {
-        cancelled = true;
-      };
+      return () => controller.abort();
     }, [source, name, wanted]);
 
     const lines = React.useMemo(

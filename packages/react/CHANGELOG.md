@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A page with many `PlCodeBlock`s is coloured one short task per block, and each grammar is fetched together with the highlighter.** Blocks waiting on one grammar were coloured back to back in one long task, and the grammar was only requested once the core had arrived. Each block still shows plain text until its colours are ready.
+
 - **Ticking a row of a long `PlDataTable` draws that row again, not every row.** With `paging: 'scroll'` every tick redrew every row and its `PlCheckbox`, each row searched the whole list of ticked keys, and every search keystroke folded every cell again. A row now redraws only when something about it changed, the selection is looked up in a set, and each row's search text is folded once until `rows` or `columns` change.
 
 - **A masonry `PlGallery` rendered on a server has the right number of lanes before hydration.** Its lane count was worked out in JavaScript from the window, so the server's markup always held two lanes and a desktop page laid the gallery out again once React ran. It is now dealt for every column count `columns` names and the stylesheet draws the one for the window's width, so nothing moves at hydration and a resize no longer re-renders it. A `columns` that is not a whole number, which threw, now rounds as the grid's column count does.
