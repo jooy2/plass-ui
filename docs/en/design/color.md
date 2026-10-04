@@ -151,15 +151,17 @@ Three things to check when you do:
 
 ::: fw react
 
-A base colour set anywhere else changes the base and nothing else. `--plass-primary-fill`, `--plass-primary-tint` and `--plass-primary-ring` are mixed from it, and that mixing happened further up, on the theme root, where the old colour still is — so the button takes the new solid and keeps the old gradient and the old focus ring.
+A base colour set anywhere else changes the base and nothing else. `--plass-primary-fill` and `--plass-primary-tint` are computed from it, and that happened further up, on the theme root, where the old colour still is — so the button takes the new solid and keeps the old gradient and the old tint.
 
 Add `plass-theme` to the element and the whole derived block runs again on it, against the bases declared beside it.
 
 ```html
 <div class="plass-theme" style="--plass-primary-solid: #7c3aed; --plass-primary-solid-to: #9333c4">
-  <!-- A primary control in here is purple, gradient, tint, hairline and ring. -->
+  <!-- A primary control in here has a purple gradient and a purple tint. -->
 </div>
 ```
+
+The hairline, the soft fills and the focus ring are computed from `accent` rather than from the two ends, so they follow only a `--plass-primary-accent` declared beside them.
 
 The class carries colour and nothing else. `.dark` and `data-theme` force a theme on the subtree under them; this one leaves the page's own light or dark exactly as it is, which is what lets a scoped family work in both.
 

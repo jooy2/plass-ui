@@ -151,15 +151,17 @@ PlassTheme.tokens(
 
 ::: fw react
 
-그 밖의 요소에 기본 색을 지정하면 기본 색만 바뀝니다. `--plass-primary-fill`과 `--plass-primary-tint`, `--plass-primary-ring`은 기본 색을 섞어 만드는데, 그 섞는 일은 이미 위쪽 테마 root에서 끝났고 거기에는 옛 색이 남아 있습니다. 그래서 버튼은 새 solid를 받고 그러데이션과 포커스 링은 옛 색 그대로입니다.
+그 밖의 요소에 기본 색을 지정하면 기본 색만 바뀝니다. `--plass-primary-fill`과 `--plass-primary-tint`는 기본 색으로 계산하는데, 그 계산은 이미 위쪽 테마 root에서 끝났고 거기에는 옛 색이 남아 있습니다. 그래서 버튼은 새 solid를 받고 그러데이션과 tint는 옛 색 그대로입니다.
 
 요소에 `plass-theme`를 붙이면 파생 블록 전체가 그 요소에서 다시 계산됩니다. 재료는 옆에 적어 둔 기본 색입니다.
 
 ```html
 <div class="plass-theme" style="--plass-primary-solid: #7c3aed; --plass-primary-solid-to: #9333c4">
-  <!-- 안쪽의 primary 컨트롤은 그러데이션, tint, 실선, 링까지 보라색입니다. -->
+  <!-- 안쪽의 primary 컨트롤은 그러데이션과 tint가 보라색입니다. -->
 </div>
 ```
+
+실선과 옅은 채움, 포커스 링은 두 끝이 아니라 `accent`로 계산하므로, 옆에 `--plass-primary-accent`를 선언해야 따라 바뀝니다.
 
 이 클래스는 색만 옮깁니다. `.dark`와 `data-theme`는 아래 서브트리의 테마를 고정하지만, `plass-theme`는 페이지의 라이트/다크를 그대로 둡니다. 범위를 정한 계열이 두 테마에서 똑같이 동작하는 이유가 이것입니다.
 

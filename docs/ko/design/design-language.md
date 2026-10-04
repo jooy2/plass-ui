@@ -119,7 +119,7 @@ Flutter는 독자가 투명도를 줄여 달라고 했는지 앱에 알려 주�
 --plass-{color}-accent      표면 위에서 읽히는 색 — 테마별
 ```
 
-나머지(`-fill`, `-tint`, `-soft`, `-line`, `-ring`)는 파생 블록에서 `color-mix()`로 계산됩니다. 다만 색 계열을 더하는 일은 그 세 줄로 끝나지 않습니다. 어디어디에 써야 하는지는 [색](color)에 있습니다.
+나머지는 파생 블록에서 이 값들로 계산됩니다. `-fill`은 두 끝 사이의 `linear-gradient()`이고, `-tint`와 `-soft`, `-line`은 `solid`나 `accent`를 `transparent`와 섞은 `color-mix()`이며, `-ring`은 `accent` 그대로입니다. 다만 색 계열을 더하는 일은 그 세 줄로 끝나지 않습니다. 어디어디에 써야 하는지는 [색](color)에 있습니다.
 
 ### 테마가 바뀌어도 같은 키 색
 

@@ -119,7 +119,7 @@ The base colour is `#3f63f2`, which is `--plass-primary-solid`. Everything else 
 --plass-{color}-accent      readable on a surface — per theme
 ```
 
-Everything else (`-fill`, `-tint`, `-soft`, `-line`, `-ring`) is computed with `color-mix()` in the derived block. Adding a colour family is more than those three lines, though: see [Colour](color) for every place one has to be written.
+Everything else is computed from those in the derived block: `-fill` is a `linear-gradient()` between the two ends, `-tint`, `-soft` and `-line` are a `color-mix()` of `solid` or `accent` with `transparent`, and `-ring` is `accent` itself. Adding a colour family is more than those three lines, though: see [Colour](color) for every place one has to be written.
 
 ### The key colour across themes
 
