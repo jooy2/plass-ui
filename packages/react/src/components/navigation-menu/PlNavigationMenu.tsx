@@ -95,7 +95,11 @@ interface PlNavigationMenuItemBaseProps {
    * uncontrolled one — Base UI gives each item an identity of its own.
    */
   value?: string;
-  /** Unavailable. The word stays in the row and opens nothing. */
+  /**
+   * Unavailable. The word stays in the row, dimmed, and opens nothing or goes
+   * nowhere: a link item loses its `href` and its `render`. The arrow keys pass
+   * over it and Tab still reaches it, as Base UI does with a trigger.
+   */
   disabled?: boolean;
   /**
    * The page the reader is on. A link item is marked `aria-current="page"` and
@@ -119,7 +123,7 @@ interface PlNavigationMenuItemLinkProps extends PlNavigationMenuItemBaseProps {
    *
    * Giving one makes the item a link, as an `href` does, and an `href` on the
    * element wins over the item's own, as on `PlTextLink`. The arrow keys that
-   * move along the row stay Base UI's.
+   * move along the row stay Base UI's. A disabled item leaves it out.
    */
   render?: useRender.RenderProp<BaseUINavigationMenu.Link.State>;
   /** A link has no panel. */
@@ -368,11 +372,25 @@ export function PlNavigationMenuItem({
     <BaseUINavigationMenu.Item value={value}>
       {isLink ? (
         <BaseUINavigationMenu.Link
-          render={render}
-          href={href}
+          // An unavailable destination has nowhere to go. A router's element
+          // would bring its own `href`, which wins the merge, so it is left
+          // out with the item's own.
+          render={disabled ? undefined : render}
+          href={disabled ? undefined : href}
           target={target}
           rel={safeRel(target, rel)}
           aria-current={active ? 'page' : undefined}
+          /*
+           * What Base UI gives a disabled trigger beside it: announced as
+           * unavailable, passed over by the arrow keys, which skip an
+           * `aria-disabled` item, and still a Tab stop. An `<a>` with no `href`
+           * has neither a role nor a place in the Tab order, so both are said
+           * out loud, and `data-disabled` is what draws it dimmed.
+           */
+          role={disabled ? 'link' : undefined}
+          tabIndex={disabled ? 0 : undefined}
+          aria-disabled={disabled || undefined}
+          data-disabled={disabled ? '' : undefined}
           className={chrome}
           style={style}
         >

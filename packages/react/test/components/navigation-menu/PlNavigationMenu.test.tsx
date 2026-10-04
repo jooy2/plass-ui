@@ -534,6 +534,66 @@ describe('PlNavigationMenu', () => {
       expect(trigger).toHaveClass('data-[disabled]:opacity-50');
     });
 
+    it("takes a disabled link item's address away, and its router's element with it", async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Pricing" href="/pricing" disabled />
+          <PlNavigationMenuItem label="Blog" disabled render={<RouterLink href="/blog" />} />
+        </PlNavigationMenu>
+      );
+
+      const pricing = screen.getByRole('link', { name: 'Pricing' }).element();
+      const blog = screen.getByRole('link', { name: 'Blog' }).element();
+
+      expect(pricing).not.toHaveAttribute('href');
+      expect(pricing).toHaveAttribute('aria-disabled', 'true');
+      expect(pricing).toHaveAttribute('data-disabled');
+      expect(pricing).toHaveClass('data-[disabled]:opacity-50');
+      expect(blog).not.toHaveAttribute('href');
+      expect(blog).not.toHaveAttribute('data-router');
+    });
+
+    it('goes nowhere from a disabled link item, pressed or followed with Enter', async () => {
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem
+            label="Blog"
+            disabled
+            render={<RouterLink href="/blog" onNavigate={onNavigate} />}
+          />
+        </PlNavigationMenu>
+      );
+
+      const blog = screen.getByRole('link', { name: 'Blog' });
+
+      await blog.click({ force: true });
+      (blog.element() as HTMLElement).focus();
+      await expect.element(blog).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('passes over a disabled link item with the arrow keys and keeps it a Tab stop, as it does a trigger', async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem label="Pricing" href="/pricing" />
+          <PlNavigationMenuItem label="Docs" href="/docs" disabled />
+          <PlNavigationMenuItem label="Blog" href="/blog" />
+        </PlNavigationMenu>
+      );
+
+      const pricing = screen.getByRole('link', { name: 'Pricing' });
+
+      (pricing.element() as HTMLElement).focus();
+      await expect.element(pricing).toHaveFocus();
+      await userEvent.keyboard('{ArrowRight}');
+      await expect.element(screen.getByRole('link', { name: 'Blog' })).toHaveFocus();
+      await userEvent.tab({ shift: true });
+      await expect.element(screen.getByRole('link', { name: 'Docs' })).toHaveFocus();
+    });
+
     it('carries no surface at rest, because the words are the page s', async () => {
       const screen = await render(
         <PlNavigationMenu>

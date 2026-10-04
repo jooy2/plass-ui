@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A disabled `PlNavigationMenuItem` that is a link no longer goes anywhere.** `disabled` reached only an item that opens a panel, so a link item marked disabled kept its `href`, or the router's `Link` it was given through `render`, and a press or Enter still followed it. A disabled link item is now drawn dimmed, as a disabled trigger is, on an `<a>` with no address, announced as an unavailable link. The arrow keys pass over it and Tab still reaches it, which is what Base UI does with a disabled trigger.
+
 - **A chart given `height` as a CSS length is drawn at that height.** The prop took any CSS length, but a `PlLineChart`, `PlAreaChart`, `PlBarChart`, `PlScatterChart` or `PlTimelineChart` laid a string out at no height and drew nothing, and a `PlPieChart`, `PlGaugeChart` or `PlHeatmapChart` ignored it and drew at the height its `size` gives. The box now takes the length and the chart is drawn at the height the box is measured at, a scatter's largest bubble included. A server sends the box at that height with nothing drawn in it, with `initialWidth` too, and the chart is drawn once the page has hydrated. A height in pixels and the default are drawn as before.
 
 - **Moving to another step of a horizontal `PlStepper` gives that step a panel of its own.** The stepper drew every step's panel in one element, so what had been typed into an uncontrolled field stayed there when the next step put a field of the same kind in the same place. Each step's panel is now built anew when the reader reaches it. A vertical stepper already worked this way, and a `keepMounted` panel still keeps what it holds.

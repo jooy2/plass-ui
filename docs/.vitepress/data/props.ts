@@ -7975,8 +7975,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '쓸 수 없습니다. 단어는 행에 남고 아무것도 열지 않습니다',
-        en: 'Unavailable. The word stays in the row and opens nothing'
+        ko: '쓸 수 없습니다. 단어는 행에 흐리게 남고, 아무것도 열지 않으며 어디로도 가지 않습니다',
+        en: 'Unavailable. The word stays in the row, dimmed, and opens nothing and goes nowhere'
       }
     },
     {
