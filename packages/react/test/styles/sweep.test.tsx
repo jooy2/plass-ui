@@ -76,11 +76,19 @@ function duration(run: CSSAnimation): number {
   return Number(run.effect?.getComputedTiming().duration);
 }
 
-/** The highlight's `translate` along the inline axis, as a signed number. */
-function highlightShift(): number {
-  const skeleton = box().querySelector('.plass-skeleton')!;
+/**
+ * Where the highlight's left edge is, in pixels from the placeholder's, and how
+ * wide the two are. A pseudo-element has no box to measure, so this adds the
+ * `translate` it is held at to the `left` it rests at.
+ */
+function highlight(): { left: number; width: number; placeholder: number } {
+  const skeleton = box().querySelector<HTMLElement>('.plass-skeleton')!;
+  const style = getComputedStyle(skeleton, '::after');
+  const width = parseFloat(style.width);
+  const [shift] = style.translate.split(' ');
+  const along = shift.endsWith('%') ? (parseFloat(shift) / 100) * width : parseFloat(shift);
 
-  return parseFloat(getComputedStyle(skeleton, '::after').translate);
+  return { left: parseFloat(style.left) + along, width, placeholder: skeleton.clientWidth };
 }
 
 const layoutShiftObservable =
@@ -163,34 +171,36 @@ describe('the indeterminate sweeps', () => {
       expect(end.segment.right).toBeLessThan(end.groove.left + 1);
     });
 
-    /** Where the highlight is shifted at the start of a pass and halfway through. */
-    function highlightPath(): { from: number; halfway: number } {
+    /** The highlight held at a point in the pass. */
+    function highlightAt(fraction: number): ReturnType<typeof highlight> {
       const run = sweep('plass-skeleton-sweep');
 
-      holdAt(run, 0);
-      const from = highlightShift();
+      holdAt(run, Math.min(fraction * duration(run), duration(run) - 1));
 
-      holdAt(run, duration(run) / 2);
-
-      return { from, halfway: highlightShift() };
+      return highlight();
     }
 
-    it('sends the skeleton highlight rightwards in left-to-right', async () => {
+    /** That the highlight enters past the left edge and leaves past the right. */
+    function expectLeftToRight(): void {
+      const start = highlightAt(0);
+
+      expect(start.left).toBeCloseTo(-start.width, 0);
+
+      const end = highlightAt(1);
+
+      expect(end.left).toBeGreaterThan(end.placeholder - 1);
+    }
+
+    it('sends the skeleton highlight from the left edge to the right one', async () => {
       await render(<Loading dir="ltr" />);
 
-      const { from, halfway } = highlightPath();
-
-      expect(from).toBeLessThan(0);
-      expect(halfway).toBeGreaterThan(from);
+      expectLeftToRight();
     });
 
-    it('and leftwards in right-to-left, as the segment goes', async () => {
+    it('and the same way in right-to-left, where the segment turns round', async () => {
       await render(<Loading dir="rtl" />);
 
-      const { from, halfway } = highlightPath();
-
-      expect(from).toBeGreaterThan(0);
-      expect(halfway).toBeLessThan(from);
+      expectLeftToRight();
     });
   });
 });

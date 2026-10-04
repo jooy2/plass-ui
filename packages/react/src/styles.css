@@ -1135,10 +1135,14 @@
  * It travels on `translate`, as the progress segment does and for the same
  * reason: an inset would lay the highlight out again on every frame and record
  * a layout shift each time, for as long as the page is waiting. The highlight
- * rests at the inline start and is 60% of the box, so its path of -60% to 100%
- * of the box is -100% to 100% / 0.6 of its own width, with the sign turned round
- * under RTL the way the marquee's is. The rule sits on the placeholder and the
- * highlight inherits it.
+ * rests at the left edge and is 60% of the box, so its path of -60% to 100% of
+ * the box is -100% to 100% / 0.6 of its own width.
+ *
+ * The left edge, and not the inline start, on purpose: this is a light
+ * crossing a surface rather than something read along a line, so it runs left
+ * to right in every writing direction, as the Flutter build's does. Its
+ * keyframes leave `--p-anim-along` out for the same reason, so a placeholder
+ * inside a right-to-left marquee does not inherit the turn.
  *
  * A pseudo-element rather than a child, so a `PlSkeleton` is one element per
  * shape and a stack of ten lines is ten nodes rather than twenty. The gradient
@@ -1150,10 +1154,10 @@
 
 @keyframes plass-skeleton-sweep {
   from {
-    translate: calc(-100% * var(--p-anim-along, 1)) 0;
+    translate: -100% 0;
   }
   to {
-    translate: calc(100% / 0.6 * var(--p-anim-along, 1)) 0;
+    translate: calc(100% / 0.6) 0;
   }
 }
 
@@ -1161,15 +1165,10 @@
   content: '';
   position: absolute;
   inset-block: 0;
-  inset-inline-start: 0;
+  left: 0;
   inline-size: 60%;
   background-image: linear-gradient(90deg, transparent, var(--p-soft-press), transparent);
   animation: plass-skeleton-sweep 1.5s var(--plass-ease) infinite;
-}
-
-[dir='rtl'] .plass-skeleton,
-.plass-skeleton:dir(rtl) {
-  --p-anim-along: -1;
 }
 
 /* The reduced-motion stand-in: the highlight stops travelling and the whole

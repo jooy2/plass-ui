@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A `PlSkeleton` highlight runs left to right on a right-to-left page too, as the design language and the Flutter build have it.** The React highlight turned round under RTL because it was placed from the inline start, so the same placeholder swept one way in English and the other in Arabic. A sweep is a light crossing a surface rather than something read along a line, and it now crosses from left to right in every writing direction. The indeterminate `PlProgressLinear` segment still runs toward the reader's end.
+
 - **An endless animation rests while it is off screen.** `PlAnimateLighting` redraws on the main thread every frame, and it, the marquee, float and blink, every `repeat="infinite"` keyframe, a looping `PlAnimateHeadline`, an endless `PlAnimateTyping` and the typing caret ran for the whole visit wherever they were on the page. Each now pauses once it leaves the screen and goes on from the frame, line or character it stopped on. Finite effects play as before.
 
 - **`PlAnimateCounter` and `PlAnimateScramble` hold the width of their finished line from the first paint.** The box grew with the figure as it counted and with the noise as it settled, so the text beside it moved on every new digit. The finished line is now laid out under the drawn one and not drawn, in the server's HTML too, so a frame narrower than it leaves the text around it where it is. A scramble inside running text is one box now, and moves to the next line whole rather than breaking across two.
