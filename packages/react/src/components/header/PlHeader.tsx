@@ -291,8 +291,15 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
       [register, ref]
     );
 
+    // Out of the flow, so a `PlPageLayout` has to keep its content clear of the
+    // bar. The hook and the attributes that say how tall the bar is at least
+    // are what `styles.css` reads to do that in the HTML a server sends, before
+    // the layout can measure anything.
+    const fixed = position === 'fixed';
+
     const classNames = cx(
       'w-full min-w-0',
+      fixed ? 'plass-header-fixed' : '',
       variantClasses[variant],
       // The rule faces the content. `--plass-divider` and not the sheet's own
       // white edge line: this is a mark the sheet makes on itself, and white
@@ -308,6 +315,9 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
       ref: setRef,
       props: {
         'aria-label': label,
+        'data-size': fixed ? size : undefined,
+        'data-variant': fixed ? variant : undefined,
+        'data-divider': fixed && divider ? '' : undefined,
         className: classNames,
         style: { ...surfaceSlots(color, elevation), ...style },
         children: (

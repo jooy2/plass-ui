@@ -270,69 +270,103 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
      * Written straight to the DOM rather than held in state: nothing in the
      * tree depends on the numbers except a handful of CSS declarations, and a
      * `setState` here would re-render the whole page on every resize.
+     *
+     * Every bar is read before anything is written. A write to the root's
+     * style invalidates the style of the whole page under it, so a read after
+     * one has the browser work the page out again before it can answer, once
+     * per slot. A value that has not changed is not written at all, which is
+     * most of the time: a bar reports a new size whenever the window's width
+     * changes, and its height rarely does.
      */
     const measure = React.useCallback(() => {
       const root = rootRef.current;
       if (!root) return;
 
-      for (const slot of SLOTS) {
+      const readings = SLOTS.map((slot) => {
         const node = slotsRef.current[slot];
+
+        return node
+          ? { slot, position: getComputedStyle(node).position, extent: node.offsetHeight }
+          : { slot, position: null, extent: 0 };
+      });
+
+      const write = (name: string, value: string) => {
+        if (root.style.getPropertyValue(name) !== value) root.style.setProperty(name, value);
+      };
+
+      for (const { slot, position, extent } of readings) {
         const span = slot === 'header' ? headerSpan : footerSpan;
-
-        if (!node) {
-          root.style.setProperty(`--p-layout-${slot}`, '0px');
-          root.style.setProperty(`--p-layout-${slot}-inset`, '0px');
-          continue;
-        }
-
-        const position = getComputedStyle(node).position;
-        const extent = `${node.offsetHeight}px`;
         const fixed = position === 'fixed';
 
         // A sticky bar that only spans the content column has the sidebars
         // *beside* it, not under it, so it takes nothing off the top of theirs.
         // A fixed bar spans the window whatever its slot, so the sidebars start
         // below it and end above it either way.
-        root.style.setProperty(
+        write(
           `--p-layout-${slot}`,
-          fixed || (position === 'sticky' && span === 'full') ? extent : '0px'
+          fixed || (position === 'sticky' && span === 'full') ? `${extent}px` : '0px'
         );
-        root.style.setProperty(`--p-layout-${slot}-inset`, fixed ? extent : '0px');
+        write(`--p-layout-${slot}-inset`, fixed ? `${extent}px` : '0px');
       }
     }, [headerSpan, footerSpan]);
 
-    const observe = React.useCallback(() => {
-      const observer = observerRef.current;
+    // The observer outlives a change of span, so it calls whichever
+    // measurement is current rather than the one it was made with.
+    const measureRef = React.useRef(measure);
 
-      if (observer) {
-        observer.disconnect();
-
-        for (const slot of SLOTS) {
-          const node = slotsRef.current[slot];
-          if (node) observer.observe(node);
-        }
-      }
-
+    // Before the browser paints: in an effect that waited for the paint, the
+    // first frame of a page with a fixed header would have its content under
+    // the header, and the next one would push it down.
+    React.useLayoutEffect(() => {
+      measureRef.current = measure;
       measure();
     }, [measure]);
 
-    React.useEffect(() => {
-      observerRef.current = new ResizeObserver(() => measure());
-      observe();
+    React.useLayoutEffect(() => {
+      const observer = new ResizeObserver(() => measureRef.current());
+
+      for (const slot of SLOTS) {
+        const node = slotsRef.current[slot];
+        if (node) observer.observe(node);
+      }
+
+      observerRef.current = observer;
 
       return () => {
-        observerRef.current?.disconnect();
+        observer.disconnect();
         observerRef.current = null;
       };
-    }, [measure, observe]);
+    }, []);
 
-    const register = React.useCallback(
-      (slot: PlPageLayoutSlot, node: HTMLElement | null) => {
-        slotsRef.current[slot] = node;
-        observe();
-      },
-      [observe]
-    );
+    /**
+     * Where a bar hands itself over, from its ref callback.
+     *
+     * Nothing is measured here. On the first commit a bar's ref is attached
+     * before the root's is and before any effect has run, and the layout
+     * effects above measure every bar at once; a bar that arrives later is
+     * observed, and the observer reports it before the next paint. A bar that
+     * leaves takes nothing with it to read, so its two properties are simply
+     * set back to zero.
+     */
+    const register = React.useCallback((slot: PlPageLayoutSlot, node: HTMLElement | null) => {
+      const previous = slotsRef.current[slot];
+      if (previous === node) return;
+
+      slotsRef.current[slot] = node;
+
+      const observer = observerRef.current;
+      if (!observer) return;
+
+      if (previous) observer.unobserve(previous);
+
+      if (node) {
+        observer.observe(node);
+        return;
+      }
+
+      rootRef.current?.style.setProperty(`--p-layout-${slot}`, '0px');
+      rootRef.current?.style.setProperty(`--p-layout-${slot}-inset`, '0px');
+    }, []);
 
     const context = React.useMemo(
       () => ({ present: true, register, collapseBelow, open, setOpen, scroll }),
@@ -386,7 +420,9 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
         <div
           ref={setRootRef}
           className={cx(
-            'relative flex w-full flex-col',
+            // A hook, not a style: `styles.css` gives a fixed `PlHeader` its
+            // room through it before anything here has measured the header.
+            'plass-layout relative flex w-full flex-col',
             // The whole difference between a document and a workspace. A floor
             // lets the page grow and the window scroll it; an exact height with
             // the overflow taken away pins the layout down and hands the

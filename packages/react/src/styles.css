@@ -196,6 +196,93 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The room a fixed header takes in a page layout
+ *
+ * A `PlHeader` with `position="fixed"` is out of the flow, so a `PlPageLayout`
+ * pads its content down by the header's height and starts its sidebars there.
+ * It measures that height and writes it on its root — but only once JavaScript
+ * runs, so the HTML a server sends would be drawn with the content under the
+ * header and pushed down a moment later, when the page hydrates.
+ *
+ * These rules give that first paint the same room out of what the stylesheet
+ * already knows: the header's floor for its `size`, which is the ladder of
+ * `barMinHeightClasses` in `PlHeader.tsx` spelled in the same `--spacing`, and
+ * the hairlines along its top and bottom edges. A header whose content is
+ * taller than its floor is still measured, and the measurement is an inline
+ * style on the same root, so it replaces all of this the moment it is written.
+ *
+ * Two paths, because a fixed header is the layout's own child or, with
+ * `headerSpan="content"`, its content column's. A `PlHeader` any deeper is one
+ * the page drew rather than the layout's.
+ *
+ * Every layout starts from zero rather than from what it inherits, so a layout
+ * inside another one's page does not take the outer header's room as its own.
+ * ------------------------------------------------------------------------- */
+
+.plass-layout {
+  --p-layout-header: 0px;
+  --p-layout-header-inset: 0px;
+  --p-layout-header-floor: 0px;
+  --p-layout-header-rule: 0px;
+}
+
+.plass-layout:has(> .plass-header-fixed, > div > div > .plass-header-fixed) {
+  --p-layout-header: calc(var(--p-layout-header-floor) + var(--p-layout-header-rule));
+  --p-layout-header-inset: var(--p-layout-header);
+}
+
+.plass-layout:has(
+  > .plass-header-fixed[data-size='xs'],
+  > div > div > .plass-header-fixed[data-size='xs']
+) {
+  --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 10);
+}
+
+.plass-layout:has(
+  > .plass-header-fixed[data-size='sm'],
+  > div > div > .plass-header-fixed[data-size='sm']
+) {
+  --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 12);
+}
+
+.plass-layout:has(
+  > .plass-header-fixed[data-size='md'],
+  > div > div > .plass-header-fixed[data-size='md']
+) {
+  --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 16);
+}
+
+.plass-layout:has(
+  > .plass-header-fixed[data-size='lg'],
+  > div > div > .plass-header-fixed[data-size='lg']
+) {
+  --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 20);
+}
+
+.plass-layout:has(
+  > .plass-header-fixed[data-size='xl'],
+  > div > div > .plass-header-fixed[data-size='xl']
+) {
+  --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 24);
+}
+
+/* The divider is a line along the bottom; a glass sheet has an edge all round,
+   which the divider only colours. Later, so the glass wins where both match. */
+.plass-layout:has(
+  > .plass-header-fixed[data-divider],
+  > div > div > .plass-header-fixed[data-divider]
+) {
+  --p-layout-header-rule: 1px;
+}
+
+.plass-layout:has(
+  > .plass-header-fixed[data-variant='glass'],
+  > div > div > .plass-header-fixed[data-variant='glass']
+) {
+  --p-layout-header-rule: 2px;
+}
+
+/* ---------------------------------------------------------------------------
  * Light theme (default)
  *
  * `.light` and `[data-theme='light']` carry the same block rather than only

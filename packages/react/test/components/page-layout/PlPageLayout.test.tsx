@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import * as React from 'react';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlHeader, PlPageLayout } from 'plass-ui';
+import { PlFooter, PlHeader, PlPageLayout } from 'plass-ui';
 
 describe('PlPageLayout', () => {
   describe('the landmarks', () => {
@@ -238,6 +239,80 @@ describe('PlPageLayout', () => {
       );
 
       await expect.poll(() => element.style.getPropertyValue('--p-layout-header')).toBe('64px');
+    });
+
+    it('reads both bars before it writes either', async () => {
+      const bars = new Set<Element>();
+      const calls: string[] = [];
+      const read = window.getComputedStyle;
+      const write = CSSStyleDeclaration.prototype.setProperty;
+
+      // A write to the root in between would have the browser work the page's
+      // style out again before it could answer the second read.
+      const reading = vi.spyOn(window, 'getComputedStyle').mockImplementation((element, pseudo) => {
+        if (bars.has(element)) calls.push('read');
+        return read.call(window, element, pseudo);
+      });
+      const writing = vi
+        .spyOn(CSSStyleDeclaration.prototype, 'setProperty')
+        .mockImplementation(function (this: CSSStyleDeclaration, name, value, priority) {
+          if (name.startsWith('--p-layout-')) calls.push('write');
+          return write.call(this, name, value, priority);
+        });
+
+      try {
+        await render(
+          <PlPageLayout
+            header={
+              <PlHeader ref={(node) => void (node && bars.add(node))} style={{ height: 64 }}>
+                Site
+              </PlHeader>
+            }
+            footer={
+              <PlFooter ref={(node) => void (node && bars.add(node))} style={{ height: 48 }}>
+                Footer
+              </PlFooter>
+            }
+          >
+            Body
+          </PlPageLayout>
+        );
+
+        expect(calls.slice(0, 3)).toEqual(['read', 'read', 'write']);
+      } finally {
+        reading.mockRestore();
+        writing.mockRestore();
+      }
+    });
+
+    it('has the measurement written before the first paint', async () => {
+      let seen: string | undefined;
+
+      // A layout effect after the layout's own runs in the same commit, before
+      // the browser paints and before any passive effect.
+      function Probe() {
+        React.useLayoutEffect(() => {
+          seen = document
+            .querySelector<HTMLElement>('[data-testid="layout"]')
+            ?.style.getPropertyValue('--p-layout-header');
+        }, []);
+
+        return null;
+      }
+
+      await render(
+        <>
+          <PlPageLayout
+            data-testid="layout"
+            header={<PlHeader style={{ position: 'sticky', height: 64 }}>Site</PlHeader>}
+          >
+            Body
+          </PlPageLayout>
+          <Probe />
+        </>
+      );
+
+      expect(seen).toBe('64px');
     });
 
     it('leaves a bar that never registered itself at zero', async () => {
