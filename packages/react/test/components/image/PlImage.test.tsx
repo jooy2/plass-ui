@@ -15,6 +15,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlImage, type PlImageRotation } from 'plass-ui';
 
@@ -718,6 +719,54 @@ describe('PlImage', () => {
       await screen.getByRole('button').click();
 
       await expect.poll(() => document.querySelectorAll('img').length).toBe(2);
+    });
+
+    it('closes again, and opens a second time', async () => {
+      const screen = await render(<PlImage src={OK} alt="A portrait" preview />);
+      const opener = screen.getByRole('button', { name: 'A portrait — preview' });
+
+      await expect.element(opener).toBeEnabled();
+      await opener.click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+      await userEvent.keyboard('{Escape}');
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+
+      await opener.click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('leaves the overlay out of a server’s markup until it is opened', async () => {
+      const element = <PlImage src={OK} alt="A portrait" preview />;
+      const markup = renderToString(element);
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      // A boundary the server could not finish is written as a comment that
+      // starts `<!--$`, and hydrating it is a client render React reports.
+      expect(markup).not.toContain('<!--$');
+
+      host.innerHTML = markup;
+      document.body.append(host);
+
+      let root: ReturnType<typeof hydrateRoot> | undefined;
+
+      try {
+        await React.act(async () => {
+          root = hydrateRoot(host, element, { onRecoverableError });
+        });
+
+        expect(onRecoverableError).not.toHaveBeenCalled();
+
+        const opener = host.querySelector('button')!;
+
+        await expect.poll(() => opener.disabled).toBe(false);
+        await React.act(async () => opener.click());
+        await expect.poll(() => document.querySelector('[role="dialog"] img')).not.toBeNull();
+      } finally {
+        await React.act(async () => root?.unmount());
+        host.remove();
+      }
     });
   });
 

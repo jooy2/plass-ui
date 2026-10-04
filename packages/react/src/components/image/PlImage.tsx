@@ -473,16 +473,31 @@ function useServedSrc(src: string | undefined): string | undefined {
   return served;
 }
 
+/** Asks for the overlay's chunk. The module loader keeps it once it has arrived. */
+function loadPreview() {
+  return import('./PlImagePreview.js');
+}
+
+/**
+ * Starts the download before the press, when the pointer arrives on a picture
+ * or the focus does, so the overlay is usually there by the time it is asked
+ * for. A failure is left to the open, which asks again and reports it.
+ */
+function warmPreview() {
+  loadPreview().catch(() => {});
+}
+
 /**
  * The overlay a `preview` opens, which is a download of its own.
  *
  * `preview` is off by default and a lightbox is several times the weight of the
  * picture component that opens it, so a page drawing a wall of thumbnails should
- * not be carrying one. Behind `React.lazy` the chunk is fetched after the first
- * paint by the pages that ask for a preview, and never by the pages that do not.
+ * not be carrying one. Behind `React.lazy`, and rendered only once a picture
+ * has been opened, the chunk is fetched by a reader who reaches for a preview
+ * and never by one who does not.
  */
 const PlImagePreview = /* @__PURE__ */ React.lazy(() =>
-  import('./PlImagePreview.js').then((module) => ({ default: module.PlImagePreview }))
+  loadPreview().then((module) => ({ default: module.PlImagePreview }))
 );
 
 /**
@@ -543,6 +558,9 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     });
     const status = picture.status;
     const [open, setOpen] = React.useState(false);
+    // Whether the preview has been opened yet. It stays mounted once it has, so
+    // closing it still runs the overlay's exit.
+    const [previewed, setPreviewed] = React.useState(false);
 
     /*
      * A picture in a server's markup is drawn without the fade, so the browser
@@ -949,7 +967,13 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           // three previews on a page would otherwise be three buttons with the
           // same name.
           aria-label={alt ? `${alt} — ${previewLabel.toLowerCase()}` : previewLabel}
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            setPreviewed(true);
+            setOpen(true);
+          }}
+          onPointerEnter={warmPreview}
+          onFocus={warmPreview}
+          onTouchStart={warmPreview}
           disabled={status !== 'loaded'}
           // `w-full` because a block `<button>` still sizes itself to its
           // content, and the content is a picture sized off the box: before
@@ -961,21 +985,26 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           {body}
         </button>
 
-        <React.Suspense fallback={null}>
-          <PlImagePreview
-            open={open}
-            onOpenChange={setOpen}
-            src={src}
-            alt={alt}
-            label={previewLabel}
-            color={color}
-            protect={protect}
-            watermark={watermark}
-            quarters={quarters}
-            flip={flip}
-            file={file}
-          />
-        </React.Suspense>
+        {/* Nothing until the first open, so a server's markup has no boundary
+            to give up on and the page does not fetch an overlay nobody asked
+            for. */}
+        {previewed ? (
+          <React.Suspense fallback={null}>
+            <PlImagePreview
+              open={open}
+              onOpenChange={setOpen}
+              src={src}
+              alt={alt}
+              label={previewLabel}
+              color={color}
+              protect={protect}
+              watermark={watermark}
+              quarters={quarters}
+              flip={flip}
+              file={file}
+            />
+          </React.Suspense>
+        ) : null}
       </>
     );
   }

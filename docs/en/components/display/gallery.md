@@ -227,7 +227,7 @@ Opens the picture full size, with the rest of the set an arrow key away. It is n
 
 ::: fw react
 
-The viewer is behind a `React.lazy`, so a wall of thumbnails costs nothing for a lightbox nobody opened. The same bargain [`PlImage`](image) makes with the same prop.
+The viewer is behind a `React.lazy`, so a wall of thumbnails costs nothing for a lightbox nobody opened. It is fetched the first time a reader points at, focuses or touches a tile. The same bargain [`PlImage`](image) makes with the same prop.
 
 :::
 

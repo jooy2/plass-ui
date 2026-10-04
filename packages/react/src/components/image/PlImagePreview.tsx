@@ -90,8 +90,9 @@ function turnedBox(file: { width: number; height: number } | null): React.CSSPro
  * overlay and the chrome around it — several times the weight of the picture
  * component that opens it — and `preview` is off by default, so a page drawing
  * a wall of thumbnails would otherwise be paying for a lightbox it never shows.
- * Reached through `React.lazy`, the chunk arrives after the first paint on the
- * pages that ask for one and is never fetched by the pages that do not.
+ * Reached through `React.lazy` and rendered from the first open, the chunk is
+ * fetched once a reader points at, focuses or opens a picture, and never on a
+ * page where nobody does.
  *
  * The same bargain `PlGallery` makes with `PlGalleryViewer`, for the same
  * reason.

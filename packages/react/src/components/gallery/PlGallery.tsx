@@ -210,17 +210,31 @@ export interface PlGalleryProps extends Omit<
   classNames?: PlGalleryClassNames;
 }
 
+/** Asks for the viewer's chunk. The module loader keeps it once it has arrived. */
+function loadViewer() {
+  return import('./PlGalleryViewer.js');
+}
+
 /**
- * The viewer, fetched only if somebody turns `preview` on.
+ * Starts the download before the press, when the pointer or the focus arrives
+ * on a tile. A failure is left to the open, which asks again and reports it.
+ */
+function warmViewer() {
+  loadViewer().catch(() => {});
+}
+
+/**
+ * The viewer, fetched only once somebody reaches for it.
  *
  * It is a whole overlay and the chrome around it, which is more than the
  * gallery that opens it — `PlImage` makes the same bargain with the same prop
  * and for the same reason: a wall of thumbnails is the common case and a
- * lightbox is not, so the chunk arrives after the first paint on the pages that
- * want one.
+ * lightbox is not. It is rendered from the first open, and the chunk is asked
+ * for as a tile is pointed at or focused, so a page where nobody opens a
+ * picture never downloads it.
  */
 const PlGalleryViewer = /* @__PURE__ */ React.lazy(() =>
-  import('./PlGalleryViewer.js').then((module) => ({ default: module.PlGalleryViewer }))
+  loadViewer().then((module) => ({ default: module.PlGalleryViewer }))
 );
 
 /** The default, which is also the shape most photograph grids end up. */
@@ -324,6 +338,9 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
     const baseId = React.useId();
 
     const [openAt, setOpenAt] = React.useState<number | null>(null);
+    // Whether the viewer has been opened yet. It stays mounted once it has, so
+    // closing it still runs the overlay's exit.
+    const [viewed, setViewed] = React.useState(false);
 
     const lanes = withBaseline(columns ?? defaultColumns, 2);
     // The one number a layout has to know in JavaScript, and only `masonry`
@@ -342,6 +359,7 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
       onItemSelect?.(items[index], index);
 
       if (preview) {
+        setViewed(true);
         setOpenAt(index);
       }
     };
@@ -526,6 +544,9 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
                   : { gridRow: `1 / span ${rows}`, gridTemplateRows: 'subgrid' }
               }
               onClick={() => choose(index)}
+              onPointerEnter={preview ? warmViewer : undefined}
+              onFocus={preview ? warmViewer : undefined}
+              onTouchStart={preview ? warmViewer : undefined}
             >
               {body}
             </button>
@@ -647,7 +668,10 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
           {children}
         </ul>
 
-        {preview ? (
+        {/* Nothing until the first open, so a server's markup has no boundary
+            to give up on and the page does not fetch a viewer nobody asked
+            for. */}
+        {preview && viewed ? (
           <React.Suspense fallback={null}>
             <PlGalleryViewer
               items={items}

@@ -1,4 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlGallery, PlassProvider, type PlGalleryItem } from 'plass-ui';
@@ -475,6 +478,53 @@ describe('PlGallery', () => {
       const screen = await render(<PlGallery items={items} preview />);
 
       expect(screen.getByRole('dialog').query()).toBeNull();
+    });
+
+    it('leaves the viewer out of a server’s markup until a tile is pressed', async () => {
+      const element = <PlGallery items={items} preview />;
+      const markup = renderToString(element);
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      // A boundary the server could not finish is written as a comment that
+      // starts `<!--$`, and hydrating it is a client render React reports.
+      expect(markup).not.toContain('<!--$');
+
+      host.innerHTML = markup;
+      document.body.append(host);
+
+      let root: ReturnType<typeof hydrateRoot> | undefined;
+
+      try {
+        await act(async () => {
+          root = hydrateRoot(host, element, { onRecoverableError });
+        });
+
+        expect(onRecoverableError).not.toHaveBeenCalled();
+
+        await act(async () => host.querySelector<HTMLButtonElement>('li button')!.click());
+        await expect
+          .poll(() => document.querySelector('[role="dialog"] img')?.getAttribute('alt'))
+          .toBe('A harbour');
+      } finally {
+        await act(async () => root?.unmount());
+        host.remove();
+      }
+    });
+
+    it('closes again, and opens a second time', async () => {
+      const screen = await render(<PlGallery items={items} preview />);
+
+      await screen.getByRole('button', { name: /A bridge/ }).click();
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+      await userEvent.keyboard('{Escape}');
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+
+      await screen.getByRole('button', { name: /A market/ }).click();
+      await expect
+        .poll(() => document.querySelector('[role="dialog"] img')?.getAttribute('alt'))
+        .toBe('A market');
     });
 
     it('opens the picture that was chosen', async () => {
