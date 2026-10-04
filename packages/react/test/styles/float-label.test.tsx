@@ -50,9 +50,25 @@ afterEach(async () => {
   await emulateMedia({ reducedMotion: 'no-preference' });
 });
 
-/** Waits out whatever the last change set easing, so a value is read settled. */
+/**
+ * Waits out whatever the last change set easing, so a value is read settled.
+ *
+ * A transition the page sets off again on its way is cancelled, which rejects
+ * its `finished` with an `AbortError`, as Firefox did on a CI runner while a
+ * picker opened. The one that took its place is waited for next.
+ */
 async function settle(element: Element): Promise<void> {
-  await Promise.all(element.getAnimations({ subtree: true }).map((one) => one.finished));
+  for (let round = 0; round < 3; round += 1) {
+    const running = element
+      .getAnimations({ subtree: true })
+      .filter((one) => one.playState === 'running');
+
+    if (running.length === 0) {
+      return;
+    }
+
+    await Promise.allSettled(running.map((one) => one.finished));
+  }
 }
 
 /** The frame a notch is drawn in, the legend in its edge and the label in that. */
