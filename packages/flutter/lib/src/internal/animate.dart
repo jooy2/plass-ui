@@ -949,6 +949,16 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         // the run left the screen, so nothing jumps back to where it began.
         // Nothing is listening to it yet — the builder that does is only in the
         // tree while the platform allows movement.
+        //
+        // On its last pass as well, since a landed run has played them all,
+        // so one that landed at `0` is `_finished` rather than a run at its
+        // first frame still to go.
+        final int? repeat = widget.settings.repeat;
+
+        if (repeat != null && repeat > _pass) {
+          _pass = repeat;
+        }
+
         _controller.value = _end;
       }
 

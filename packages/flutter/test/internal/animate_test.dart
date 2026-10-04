@@ -928,5 +928,79 @@ void main() {
 
       expect(opacityOf(tester), 0);
     });
+
+    /// A fade at an even pace, a pass every 200ms.
+    Widget fade({required int repeat, required bool alternate, Duration delay = Duration.zero}) {
+      return PlAnimateFade(
+        repeat: repeat,
+        alternate: alternate,
+        delay: delay,
+        curve: Curves.linear,
+        duration: const Duration(milliseconds: 200),
+        child: const SizedBox.square(dimension: 100),
+      );
+    }
+
+    for (final (int repeat, bool alternate, double end) in <(int, bool, double)>[
+      (2, true, 0),
+      (2, false, 1),
+      (3, true, 1),
+      (3, false, 1),
+    ]) {
+      final String name = 'repeat: $repeat${alternate ? ' and alternate' : ''}';
+
+      testWidgets('stays where a run ended when the setting is taken away, with $name', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(fade(repeat: repeat, alternate: alternate), disableAnimations: true),
+        );
+        await tester.pump();
+
+        expect(opacityOf(tester), end);
+
+        await tester.pumpWidget(host(fade(repeat: repeat, alternate: alternate)));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // An alternating run with an even number of passes ends at 0, where a
+        // run that has not started stands, and it used to be run again from
+        // its first pass and land there a second time.
+        expect(opacityOf(tester), end);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+      });
+    }
+
+    testWidgets('plays a run still waiting out its delay when the setting is taken away', (
+      WidgetTester tester,
+    ) async {
+      Widget waiting({bool still = false}) {
+        return host(
+          fade(repeat: 2, alternate: true, delay: const Duration(milliseconds: 400)),
+          disableAnimations: still,
+        );
+      }
+
+      await tester.pumpWidget(waiting(still: true));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), 1);
+
+      await tester.pumpWidget(waiting());
+      await tester.pump();
+
+      // Not landed, so it has not run: it waits on its first frame, and then
+      // plays out and back as a run that never met the setting does.
+      expect(opacityOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 0);
+    });
   });
 }

@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **An `alternate` `PlAnimate*` effect with an even `repeat` stays where it landed when the platform gives movement back, as the React build does.** Under less movement such a run stands on its last frame, the first one, since its last pass runs backwards. When the setting was turned off it played the whole run again and landed there a second time. A run that has landed now stays where it is, as one with an odd `repeat` or without `alternate` already did. One still waiting out its `delay` when the setting goes plays as before.
+
 - **An `alternate` `PlAnimate*` effect with an even `repeat` stays faded out, turned back or wherever it ended when it is built again, as the React build does.** A run with `alternate: true` and an even `repeat` ends on a pass that ran backwards, at its first frame, which is also where a run that has not begun stands. So a rebuild of the widget, such as its parent setting state, played it again and left it at the other end. A run that has finished now stays where it ended. One that has not begun yet, waiting out its `delay` or held by `paused`, still starts as before.
 
 - **An `alternate` `PlAnimate*` effect whose `duration` changes on its way back goes on back, as the React build does.** A run with `alternate: true` given a new `duration` during a pass that ran backwards turned round and ran forwards again, which a `PlAnimateMarquee` with `alternate: true` can meet when its strip is measured again. It now goes on the way it was going, over what is left of the new duration, and turns at the end of that pass as before.
