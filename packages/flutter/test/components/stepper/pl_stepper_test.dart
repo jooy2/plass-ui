@@ -458,6 +458,58 @@ void main() {
           handle.dispose();
         });
       }
+
+      for (final PlassOrientation orientation in PlassOrientation.values) {
+        testWidgets('builds the next step s panel afresh, ${orientation.name}', (
+          WidgetTester tester,
+        ) async {
+          int active = 0;
+          late StateSetter moveTo;
+
+          // Two panels of the same shape, which is what a sign-up of one field a
+          // step looks like.
+          Widget panel(String title) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(title),
+                const PlTextField(label: Text('Answer')),
+              ],
+            );
+          }
+
+          await _pump(
+            tester,
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                moveTo = setState;
+
+                return PlStepper(
+                  active: active,
+                  orientation: PlassResponsive<PlassOrientation>(orientation),
+                  onActiveChanged: (int step) => setState(() => active = step),
+                  steps: <PlStep>[
+                    PlStep(label: const Text('Account'), child: panel('Account panel')),
+                    PlStep(label: const Text('Verify'), child: panel('Verify panel')),
+                  ],
+                );
+              },
+            ),
+          );
+
+          await tester.enterText(find.byType(EditableText), 'user@example.com');
+          await tester.pump();
+          expect(find.text('user@example.com'), findsOneWidget);
+
+          moveTo(() => active = 1);
+          await tester.pumpAndSettle();
+
+          // The answer belongs to the step it was given in, not to the field in
+          // the same place in the next one.
+          expect(find.text('Verify panel'), findsOneWidget);
+          expect(find.text('user@example.com'), findsNothing);
+        });
+      }
     });
 
     group('the focus', () {

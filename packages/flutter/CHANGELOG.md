@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **Moving to another step of a horizontal `PlStepper` builds the new step's panel afresh.** Two panels of the same shape shared their state, so text typed into a field on one step was still in the field at the same place on the next, and so was a scroll position. The panel under the rail is now built anew for each step, as the React panel is; a vertical stepper already was.
+
 - **A `PlAnimateTyping` let go during a hold, or partway through deleting, goes on as it was.** Paused during the hold before `erase` deletes, it started deleting after the typing delay, and paused during the hold between two passes without `erase`, it held for the whole hold again; both now hold for the time that was left of the hold. Let go partway through deleting, it waited the typing delay before the next character rather than the delete delay.
 
 - **Moving to another step of a `PlStepper` from inside its panel puts the focus in the new step's panel.** The focus went back to whatever had held it before, often a step behind the reader. The panel that arrives now takes it, and the next Tab goes on to what is in it, in both orientations. The panel is never a Tab stop, and a focus elsewhere stays where it is.

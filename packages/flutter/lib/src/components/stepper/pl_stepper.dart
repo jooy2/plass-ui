@@ -305,6 +305,12 @@ class _PlStepperState extends State<PlStepper> {
         if (!horizontal) ...rail,
         if (panel != null)
           Padding(
+            // Keyed by the step, so moving on builds the next step's panel
+            // afresh rather than handing it the last one's state, a field's
+            // text or a scroll position, wherever the two panels have the same
+            // shape. A vertical panel sits inside its own step, so it is never
+            // handed another's.
+            key: ValueKey<int>(active),
             padding: const EdgeInsets.only(top: 16),
             // Named by the step it belongs to, so a reader landing in the panel
             // is told which step it is the panel for, as the React panel is.
