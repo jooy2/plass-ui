@@ -154,6 +154,31 @@ describe('PlStepper', () => {
 
       expect(onActiveChange).toHaveBeenCalledWith(0);
     });
+
+    for (const orientation of ['horizontal', 'vertical'] as const) {
+      it(`builds the next step’s panel afresh (${orientation})`, async () => {
+        const screen = await render(
+          <PlStepper orientation={orientation} linear={false}>
+            <PlStep label="Account">
+              <input aria-label="Email" />
+            </PlStep>
+            <PlStep label="Verify">
+              <input aria-label="Code" />
+            </PlStep>
+          </PlStepper>
+        );
+
+        await screen.getByRole('textbox', { name: 'Email' }).fill('abc');
+        await screen.getByRole('button', { name: /Verify/ }).click();
+
+        // A field of its own, not the last step's under a new name with what
+        // was typed into it still there.
+        await expect.element(screen.getByRole('textbox', { name: 'Code' })).toHaveValue('');
+        await expect
+          .element(screen.getByRole('group', { name: 'Verify' }))
+          .toContainElement(screen.getByRole('textbox', { name: 'Code' }).element() as HTMLElement);
+      });
+    }
   });
 
   describe('linear', () => {

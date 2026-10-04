@@ -285,13 +285,16 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
             ))}
           </ol>
 
-          {/* Every step's panel when they are kept, each under its own key so
-              what one holds stays with it, and otherwise the one `active` is
-              on. */}
+          {/* Every step's panel when they are kept, and otherwise the one
+              `active` is on. Each under its own step's key either way: what a
+              kept panel holds stays with it, and moving on builds the next
+              step's panel afresh rather than handing it the last one's
+              element, which would carry a field's value from one step into
+              the field at the same place in the next. */}
           {horizontal
             ? keepMounted
               ? steps.map((_, index) => panelAt(index, index))
-              : panelAt(active)
+              : panelAt(active, active)
             : null}
         </div>
       </StepperContext.Provider>
