@@ -103,7 +103,7 @@ export interface PlCommandPaletteProps extends Pick<PlassStyleProps, 'size' | 'c
 
 const backdropClasses = /* @__PURE__ */ [
   'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
-  '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
+  '[backdrop-filter:var(--plass-scrim-blur)] [-webkit-backdrop-filter:var(--plass-scrim-blur)]',
   '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
   'motion-reduce:[transition-duration:0ms]',
   'data-[starting-style]:opacity-0 data-[ending-style]:opacity-0'

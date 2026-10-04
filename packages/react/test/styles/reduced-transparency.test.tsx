@@ -13,10 +13,21 @@
  * the only engine that reads it, so the tests of the mode run there. The test
  * of what everybody else sees runs everywhere.
  */
+import type { ReactElement } from 'react';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { server, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlCard, PlOverlay, PlPopover, PlWindowPane } from 'plass-ui';
+import {
+  PlButton,
+  PlCard,
+  PlCommandPalette,
+  PlDrawer,
+  PlModal,
+  PlOverlay,
+  PlPopover,
+  PlTour,
+  PlWindowPane
+} from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import { emulateMedia, emulateReducedTransparency } from '../support/media';
 
@@ -105,9 +116,75 @@ async function glassSurfaces(): Promise<HTMLElement[]> {
   ];
 }
 
+/** Every layer that dims the page behind it, open, with its scrim marked. */
+const scrims: { name: string; layer: ReactElement }[] = [
+  {
+    name: 'PlModal',
+    layer: (
+      <PlModal open title="Rates" classNames={{ backdrop: 'scrim-under-test' }}>
+        Body
+      </PlModal>
+    )
+  },
+  {
+    name: 'PlDrawer',
+    layer: (
+      <PlDrawer open title="Filters" classNames={{ backdrop: 'scrim-under-test' }}>
+        Body
+      </PlDrawer>
+    )
+  },
+  {
+    name: 'PlCommandPalette',
+    layer: (
+      <PlCommandPalette
+        open
+        shortcut={false}
+        items={[{ value: 'open', label: 'Open' }]}
+        classNames={{ backdrop: 'scrim-under-test' }}
+      />
+    )
+  },
+  {
+    name: 'PlTour',
+    layer: (
+      <PlTour
+        defaultOpen
+        scrollIntoView={false}
+        steps={[{ title: 'Welcome aboard' }]}
+        classNames={{ mask: 'scrim-under-test' }}
+      />
+    )
+  },
+  {
+    name: 'PlOverlay',
+    layer: (
+      <PlOverlay open tone="scrim" classNames={{ backdrop: 'scrim-under-test' }}>
+        Saving
+      </PlOverlay>
+    )
+  }
+];
+
+/** The scrim a layer draws, once it has been drawn. */
+async function scrimOf(layer: ReactElement): Promise<HTMLElement> {
+  await render(layer);
+  await expect.poll(() => document.querySelector('.scrim-under-test')).not.toBeNull();
+
+  return document.querySelector<HTMLElement>('.scrim-under-test')!;
+}
+
 const emulated = it.runIf(server.browser === 'chromium');
 
 describe('glass for everybody else', () => {
+  it.each(scrims)('lays the dim of a $name scrim over a blur', async ({ layer }) => {
+    const scrim = await scrimOf(layer);
+
+    expect(style(scrim).backdropFilter).not.toBe('none');
+    expect(alpha(style(scrim).backgroundColor)).toBeGreaterThan(0);
+    expect(alpha(style(scrim).backgroundColor)).toBeLessThan(1);
+  });
+
   it('is blurred and lets the page through', async () => {
     for (const surface of await glassSurfaces()) {
       expect(style(surface).backdropFilter).not.toBe('none');
@@ -235,6 +312,19 @@ describe('glass for a reader who has asked for less transparency', () => {
       await emulateReducedTransparency('reduce');
 
       sitsIn('light');
+    });
+  });
+
+  describe.each(scrims)('the scrim of a $name', ({ layer }) => {
+    emulated('loses its blur and keeps its dim', async () => {
+      const scrim = await scrimOf(layer);
+      const dim = style(scrim).backgroundColor;
+
+      await emulateReducedTransparency('reduce');
+
+      expect(style(scrim).backdropFilter).toBe('none');
+      expect(style(scrim).backgroundColor).toBe(dim);
+      expect(alpha(dim)).toBeLessThan(1);
     });
   });
 

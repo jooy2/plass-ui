@@ -77,7 +77,7 @@ Flutter does not tell an app whether its reader has asked for less transparency,
 
 ::: fw react
 
-A reader who has asked their system for less transparency gets every sheet opaque instead. The blur goes, and each step of the ladder is laid over `--plass-surface` rather than over the page, so a sheet keeps its theme, its hairline, its shadow and its focus ring, and an engaged sheet still holds more light than one at rest. This follows `prefers-reduced-transparency`, and a browser that does not report it draws the glass as usual.
+A reader who has asked their system for less transparency gets every sheet opaque instead. The blur goes, and each step of the ladder is laid over `--plass-surface` rather than over the page, so a sheet keeps its theme, its hairline, its shadow and its focus ring, and an engaged sheet still holds more light than one at rest. This follows `prefers-reduced-transparency`, and a browser that does not report it draws the glass as usual. A page that sets `--plass-blur` itself, or `--plass-scrim-blur` for the scrim behind a modal, overrides the preference, and the blur it sets is drawn for this reader too.
 
 :::
 

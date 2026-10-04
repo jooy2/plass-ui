@@ -108,7 +108,8 @@ export interface PlOverlayProps extends Omit<
  * glass ladder is, and the overlay is opaque.
  */
 const toneClasses: Record<PlOverlayTone, string> = {
-  scrim: 'bg-(--plass-scrim) [backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
+  scrim:
+    'bg-(--plass-scrim) [backdrop-filter:var(--plass-scrim-blur)] [-webkit-backdrop-filter:var(--plass-scrim-blur)]',
   glass: /* @__PURE__ */ [
     '[--p-dim:color-mix(in_oklab,var(--plass-scrim)_45%,transparent)] [background-color:var(--p-dim)]',
     '[backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]',

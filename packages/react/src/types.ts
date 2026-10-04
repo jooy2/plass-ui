@@ -446,6 +446,7 @@ export type PlassToken =
   | '--plass-glow-on-fill'
   | '--plass-muted-fg'
   | '--plass-scrim'
+  | '--plass-scrim-blur'
   | '--plass-stripe'
   | '--plass-surface'
   | '--plass-tint-strength'

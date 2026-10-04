@@ -549,8 +549,10 @@
   --plass-shadow-ambient: rgb(20 40 90 / 0.1);
   --plass-tint-strength: 35%;
 
-  /* The scrim behind a modal surface. */
+  /* The scrim behind a modal surface, and the blur it lays over the page. The
+     blur is the same in every theme, so it is written here only. */
   --plass-scrim: rgb(16 24 40 / 0.4);
+  --plass-scrim-blur: blur(2px);
 
   /* Corner radius: roughly 30% of the control height, and roughly constant in
      feel across the ladder — a Plass corner is a moulded fillet, not a pill and
@@ -843,6 +845,11 @@
  * the shadows and the focus ring are drawn exactly as before, so a sheet keeps
  * its edge and its place above the page.
  *
+ * The scrim behind a modal, a drawer, a command palette or a tour, and an
+ * overlay's `scrim` tone, loses its blur too and keeps its dim, which is what
+ * tells the reader the page behind has stopped being reachable. Its blur is the same in every theme, so the
+ * first block alone turns it off, and every element inherits that.
+ *
  * It is done here, on the tokens, rather than on the components, because the
  * sheets in the library paint with these four: a new component that draws glass
  * the house way is opaque for this reader without having to know that this
@@ -866,6 +873,7 @@
     --plass-glass-hover: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 76%);
     --plass-glass-press: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 88%);
     --plass-blur: none;
+    --plass-scrim-blur: none;
   }
 }
 

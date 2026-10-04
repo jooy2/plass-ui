@@ -460,7 +460,7 @@ export function PlTour({
             data-testid="plass-tour-mask"
             className={cx(
               'plass-portal fixed inset-0 z-(--plass-z-portal)',
-              'bg-(--plass-scrim) [backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
+              'bg-(--plass-scrim) [backdrop-filter:var(--plass-scrim-blur)] [-webkit-backdrop-filter:var(--plass-scrim-blur)]',
               '[transition:opacity_var(--plass-duration-slow)_var(--plass-ease)]',
               'motion-reduce:[transition-duration:0ms]',
               classNames?.mask

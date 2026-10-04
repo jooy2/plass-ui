@@ -282,7 +282,7 @@ const fadeClasses = /* @__PURE__ */ [
 
 const backdropClasses = /* @__PURE__ */ [
   'fixed inset-0 z-(--plass-z-portal) bg-(--plass-scrim)',
-  '[backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
+  '[backdrop-filter:var(--plass-scrim-blur)] [-webkit-backdrop-filter:var(--plass-scrim-blur)]',
   fadeClasses
 ].join(' ');
 
