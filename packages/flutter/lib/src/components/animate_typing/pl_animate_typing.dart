@@ -188,6 +188,12 @@ class _Typewriter extends StatefulWidget {
 }
 
 class _TypewriterState extends State<_Typewriter> {
+  /// The line being typed, which is the one drawn.
+  ///
+  /// Taken up from [_Typewriter.text] when a run starts rather than when the
+  /// text changes, so a pause holds what is on the screen through a new string
+  /// as well: replaced at once, a pause given "World" with "Hel" typed emptied
+  /// the line.
   late List<String> _graphemes = widget.text.characters.toList();
 
   int _shown = 0;
@@ -244,10 +250,9 @@ class _TypewriterState extends State<_Typewriter> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.text != widget.text) {
-      // A new string starts a new performance rather than continuing the last.
-      _graphemes = widget.text.characters.toList();
+      // A new string starts a new performance rather than continuing the last,
+      // which takes it up when it starts: at once, or once a pause lets it go.
       _drivenRun = -1;
-      _shown = 0;
     }
 
     _drive();
@@ -305,9 +310,9 @@ class _TypewriterState extends State<_Typewriter> {
       _next = null;
 
       // A pause holds the line where it is, and goes on holding it through a
-      // new run, a hover the pointer makes again while it is paused for one:
-      // that run starts once the pause lets it go, and types the line from its
-      // first character, as it does in the React build.
+      // new run, a hover the pointer makes again while it is paused for one,
+      // and through a new string: either starts once the pause lets it go, and
+      // types the line from its first character, as it does in the React build.
       return;
     }
 
@@ -335,6 +340,7 @@ class _TypewriterState extends State<_Typewriter> {
     }
 
     _drivenRun = widget.runs;
+    _graphemes = widget.text.characters.toList();
     _pass = 1;
     _deleting = false;
     _holding = false;

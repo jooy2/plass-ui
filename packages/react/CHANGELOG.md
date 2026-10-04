@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A paused `PlAnimateTyping` holds its line when its `text` changes.** Given a new `text` while `paused` was on, it drew as many characters of the new string as it had typed of the old one, so "Hel" became "Wor", the start of a line it had never typed. The line on screen now stays as it was until `paused` is let go, and the new text is then typed from its first character, as a new run that arrives while it is paused already is. A screen reader is given the new text whole at once, as before.
+
 - **A fixed `PlBottomNavigation` or `PlFloatingBottomNavigation` inside a scaled ancestor publishes the room it takes there.** Inside a `transform`, a bar in a scaled `PlMockup` for example, a `fixed` bar is fixed to that box and covers what is laid out in it, but `--plass-bottom-navigation-height` was the height the bar was drawn at, so a page inside that box reserved half the room at half the scale. It is now the height the bar is laid out at, the same number it publishes with nothing scaling it.
 
 - **A `PlAnchor` with a `target` inside a scaled ancestor lights the heading the reader has reached.** Inside a `transform`, a shell in a scaled `PlMockup` for example, the list measured how far each heading was below the top of `target` at the size it was drawn at, and took `offset` and the panel's top border off that in the panel's own pixels, so the reading line sat at another depth and a heading was lit before it had reached it. The distance is now measured in the panel's own pixels, which is what `offset` is counted in.

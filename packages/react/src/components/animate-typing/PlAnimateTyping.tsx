@@ -115,7 +115,13 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   const graphemes = React.useMemo(() => graphemesOf(source), [source]);
   const total = graphemes.length;
 
-  const [shown, setShown] = React.useState(0);
+  /**
+   * What the visible copy draws: how many characters of which line. The line
+   * is kept beside the count so a pause holds what is on the screen through a
+   * new string as well: counted alone, a pause given "World" with "Hel" typed
+   * drew "Wor", the start of the new string without typing it.
+   */
+  const [shown, setShown] = React.useState(() => ({ line: graphemes, count: 0 }));
 
   /**
    * How far along it is, outside React's state.
@@ -184,10 +190,17 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   }, [source, run.runs]);
 
   React.useEffect(() => {
-    if (reduced || total === 0) {
+    // Draws `count` characters of the current string.
+    const show = (count: number) => {
+      setShown((was) =>
+        was.line === graphemes && was.count === count ? was : { line: graphemes, count }
+      );
+    };
+
+    if (reduced) {
       // Not "nothing happens" — the text is simply there, which is the only
       // outcome that still delivers what the component was carrying.
-      setShown(total);
+      show(total);
 
       return;
     }
@@ -201,7 +214,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       pass.current = 1;
       holding.current = false;
       waitLeft.current = null;
-      setShown(0);
+      show(0);
 
       return;
     }
@@ -209,7 +222,26 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     // Held by the caller, or resting off screen. Either way the chain is torn
     // down here and built again from `progress`, `erasing`, `pass`, `holding`
     // and `waitLeft` when it goes on.
-    if (paused || run.resting) {
+    //
+    // A pause holds the line on the screen as it is, through a new string as
+    // through a new run: either starts once the pause lets it go, from its
+    // first character. One resting off screen draws where it is on its current
+    // string instead, so a new string it is given there holds its own box at
+    // once, and nothing moves when it comes back.
+    if (paused) {
+      return;
+    }
+
+    if (run.resting) {
+      show(progress.current);
+
+      return;
+    }
+
+    if (total === 0) {
+      // Nothing to type.
+      show(0);
+
       return;
     }
 
@@ -269,7 +301,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       pass.current += 1;
       count = 0;
       progress.current = 0;
-      setShown(0);
+      show(0);
       wait(typeDelay, step);
     };
 
@@ -277,7 +309,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       if (deleting) {
         count -= 1;
         progress.current = count;
-        setShown(count);
+        show(count);
 
         if (count <= 0) {
           deleting = false;
@@ -292,7 +324,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
       count += 1;
       progress.current = count;
-      setShown(count);
+      show(count);
 
       if (count < total) {
         wait(typeDelay, step);
@@ -303,7 +335,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       finish();
     };
 
-    setShown(count);
+    show(count);
 
     // What was left of the wait it was let go in, if it was in one. Otherwise
     // it is starting, and waits out the `delay`.
@@ -329,14 +361,15 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
         waitLeft.current = Math.max(0, waitLeft.current - (performance.now() - waitFrom));
       }
     };
-    // `run.runs` and `source` are listed although nothing above reads them. A
-    // second hover starts a new run without changing `started`, and a new run
-    // types the line again; and a new string of the same length has to be typed
-    // again rather than left standing where the last one finished.
+    // `run.runs` is listed although nothing above reads it: a second hover
+    // starts a new run without changing `started`, and a new run types the line
+    // again. `graphemes` changes with the string itself and not only with how
+    // long it is, so a new string of the same length is typed again rather than
+    // left standing where the last one finished.
   }, [
     run.started,
     run.runs,
-    source,
+    graphemes,
     paused,
     run.resting,
     reduced,
@@ -399,7 +432,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
           runs the page indexed. */}
       <span
         aria-hidden="true"
-        data-text={graphemes.slice(0, shown).join('')}
+        data-text={shown.line.slice(0, shown.count).join('')}
         className="relative whitespace-pre-wrap before:content-[attr(data-text)]"
       >
         {/* Where the typing is, and taking no room there. An inline caret would
@@ -417,7 +450,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
             generated content rather than text, for the reason `WidthSizer`
             gives: nothing selects them, copies them or finds them by text. */}
         <span
-          data-sample={graphemes.slice(shown).join('')}
+          data-sample={shown.line.slice(shown.count).join('')}
           className="invisible before:content-[attr(data-sample)]"
         >
           {caret ? caretGlyph('inline-block') : null}

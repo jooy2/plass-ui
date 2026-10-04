@@ -227,6 +227,40 @@ describe('an endless effect off screen', () => {
     expect(typed().startsWith(held)).toBe(true);
   });
 
+  it('lays an endless PlAnimateTyping out as a new string it is given while it rests', async () => {
+    const LINE = 'Jumps over the lazy dog';
+    const typing = (text: string) =>
+      panel(
+        <PlAnimateTyping
+          className="effect-under-test"
+          text={text}
+          speed={40}
+          repeat="infinite"
+          caret={false}
+        />
+      );
+    const screen = await render(typing('The quick brown fox'));
+    const copy = () => subject().querySelector<HTMLElement>('[aria-hidden="true"]')!;
+    const typed = () => copy().dataset.text ?? '';
+    const toCome = () => copy().querySelector<HTMLElement>('[data-sample]')!.dataset.sample ?? '';
+
+    await expect.poll(() => typed().length).toBeGreaterThan(2);
+
+    scrollPanel(800);
+    await expect.poll(() => subject().getAttribute('data-state')).toBe('paused');
+
+    await screen.rerender(typing(LINE));
+
+    // Only a pause holds the old line. Off screen, the box is the new string's
+    // already, so nothing moves when it is back.
+    await expect.poll(() => typed() + toCome()).toBe(LINE);
+
+    scrollPanel(0);
+
+    await expect.poll(() => typed().length).toBeGreaterThan(2);
+    expect(LINE.startsWith(typed())).toBe(true);
+  });
+
   it('stops turning a looping PlAnimateHeadline', async () => {
     await render(
       panel(

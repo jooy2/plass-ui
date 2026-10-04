@@ -77,6 +77,30 @@ void main() {
       expect(visibleOf(tester), 'ab👩‍👩‍👧');
     });
 
+    testWidgets('types a new string again from its first character', (WidgetTester tester) async {
+      Widget typing(String text) {
+        return host(PlAnimateTyping(text, speed: 100, caret: false), width: 400);
+      }
+
+      await tester.pumpWidget(typing('design'));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(visibleOf(tester), 'design');
+
+      await tester.pumpWidget(typing('deploy'));
+
+      expect(visibleOf(tester), '');
+
+      await tester.pump(const Duration(milliseconds: 25));
+
+      expect('deploy'.startsWith(visibleOf(tester)), isTrue);
+      expect(visibleOf(tester).length, inInclusiveRange(1, 5));
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(visibleOf(tester), 'deploy');
+    });
+
     testWidgets('holds the box the whole string will need from the first frame', (
       WidgetTester tester,
     ) async {
@@ -378,6 +402,60 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
 
       expect(visibleOf(tester), 'Hello');
+    });
+
+    group('paused while its text changes', () {
+      Widget typing(String text, {required bool paused}) {
+        return host(PlAnimateTyping(text, speed: 10, caret: false, paused: paused), width: 400);
+      }
+
+      testWidgets('holds the line it is on, and types the new text from its first character once '
+          'it is let go', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(typing('Hello', paused: false));
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(visibleOf(tester), 'Hel');
+
+        await tester.pumpWidget(typing('Hello', paused: true));
+        await tester.pumpWidget(typing('World', paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // A pause holds what is on the screen. It used to empty the line.
+        expect(visibleOf(tester), 'Hel');
+        // A screen reader is given the new text whole, as it is from the first
+        // frame of any line.
+        expect(tester.getSemantics(find.byType(PlAnimateTyping)).getSemanticsData().label, 'World');
+
+        await tester.pumpWidget(typing('World', paused: false));
+        await tester.pump(const Duration(milliseconds: 50));
+
+        expect(visibleOf(tester), 'W');
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(visibleOf(tester), 'World');
+
+        handle.dispose();
+      });
+
+      testWidgets('holds the line it is on when the text is emptied, and is empty once let go', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(typing('Hello', paused: false));
+        await tester.pump(const Duration(milliseconds: 250));
+        await tester.pumpWidget(typing('Hello', paused: true));
+        await tester.pumpWidget(typing('', paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(visibleOf(tester), 'Hel');
+
+        await tester.pumpWidget(typing('', paused: false));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(visibleOf(tester), '');
+      });
     });
 
     testWidgets('deletes the line again before repeating, one grapheme at a time', (

@@ -645,4 +645,92 @@ describe('PlAnimateTyping', () => {
       expect(visible(root)).toBe('Hello');
     });
   });
+
+  describe('paused while its text changes', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    /** Moves the clock on by `ms`, and waits for what that renders. */
+    function advance(ms: number): Promise<void> {
+      return committed(() => {
+        vi.advanceTimersByTime(ms);
+      });
+    }
+
+    function typing(text: string, paused: boolean) {
+      return (
+        <PlAnimateTyping
+          className="typing-under-test"
+          text={text}
+          speed={10}
+          paused={paused}
+          caret={false}
+        />
+      );
+    }
+
+    /** The characters still to come, laid out and not drawn. */
+    function sample(root: Element): string {
+      return root.querySelector<HTMLElement>('[data-sample]')?.dataset.sample ?? '';
+    }
+
+    /** The copy a screen reader is given. */
+    function spoken(root: Element): string {
+      return root.querySelector(':scope > span:not([aria-hidden])')?.textContent ?? '';
+    }
+
+    it('holds the line it is on, and types the new text from its first character once let go', async () => {
+      const screen = await render(typing('Hello', false));
+      const root = document.querySelector<HTMLElement>('.typing-under-test')!;
+
+      await advance(250);
+
+      expect(visible(root)).toBe('Hel');
+
+      await screen.rerender(typing('Hello', true));
+      await screen.rerender(typing('World', true));
+      await advance(500);
+
+      // A pause holds what is on the screen, laid out as the line it belongs
+      // to. It used to draw the start of the new text without typing it.
+      expect(visible(root)).toBe('Hel');
+      expect(sample(root)).toBe('lo');
+      // A screen reader is given the new text whole, as it is from the first
+      // frame of any line.
+      expect(spoken(root)).toBe('World');
+
+      await screen.rerender(typing('World', false));
+      await advance(50);
+
+      expect(visible(root)).toBe('W');
+      expect(sample(root)).toBe('orld');
+
+      await advance(500);
+
+      expect(visible(root)).toBe('World');
+    });
+
+    it('holds the line it is on when the text is emptied, and is empty once let go', async () => {
+      const screen = await render(typing('Hello', false));
+      const root = document.querySelector<HTMLElement>('.typing-under-test')!;
+
+      await advance(250);
+      await screen.rerender(typing('Hello', true));
+      await screen.rerender(typing('', true));
+      await advance(500);
+
+      expect(visible(root)).toBe('Hel');
+
+      await screen.rerender(typing('', false));
+      await advance(500);
+
+      expect(visible(root)).toBe('');
+      expect(sample(root)).toBe('');
+    });
+  });
 });
