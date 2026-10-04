@@ -160,7 +160,7 @@ sidebar가 열이기를 그만두고 drawer가 되는 너비입니다. `null`이
 
 `fixed` `PlHeader`와 너비 전체에 걸친 `sticky` `PlHeader`는 스크립트가 실행되기 전에도 자리를 받습니다. 스타일시트가 `size`와 테두리로 최소 높이를 알기 때문에, 서버에서 렌더링한 페이지는 첫 페인트부터 콘텐츠를 `fixed` header 아래에 그리고, sidebar는 어느 header든 그 아래에서 시작합니다. hydration이 끝나면 잰 높이가 그 값을 이어받습니다. 내용이 `size`의 최소 높이보다 큰 header만 그때 콘텐츠나 sidebar를 옮깁니다.
 
-`fixed` `PlFooter`와 너비 전체에 걸친 `sticky` `PlFooter`는 최소 높이가 없어서 스크립트가 실행되기 전에 자리를 일부만 받습니다. 스타일시트는 `size`와 `density`에 따른 padding과 테두리는 알지만 footer 안에 든 내용의 높이는 모릅니다. 그래서 hydration이 끝나면 sidebar가 그 높이만큼 짧아지고, `fixed` footer에 가려 있던 콘텐츠 끝도 그만큼 올라옵니다.
+`fixed` `PlFooter`와 너비 전체에 걸친 `sticky` `PlFooter`는 최소 높이가 없어서 스크립트가 실행되기 전에 자리를 일부만 받습니다. 스타일시트는 `size`와 `density`에 따른 padding과 테두리는 알지만 footer 안에 든 내용의 높이는 모릅니다. 그래서 hydration이 끝나면 sidebar가 그 높이만큼 짧아지고, `fixed` footer에 가려 있던 콘텐츠 끝도 그만큼 올라옵니다. footer에 `className`이나 `style`로 `min-height`를 주어도 이 차이는 줄지 않습니다. 첫 페인트가 확보하는 자리는 스타일시트가 footer의 `size`, `density`, `variant`, `divider`에서 읽는 만큼뿐입니다. 아무것도 움직이면 안 되는 페이지라면 footer를 `sticky`로 두고 `footerSpan="content"`를 주세요. footer가 흐름 안에서 sidebar 옆에 놓여 sidebar에서 아무것도 가져가지 않으므로, hydration 때 움직일 것이 없습니다.
 
 등록하지 않은 바는 0으로 남습니다. 측정은 `querySelector`가 아니라 슬롯이 스스로 참여하는 계약이라서, `render={<MyBar />}`로 그려진 바도 그렇지 않은 바만큼 확실하게 찾힙니다.
 
