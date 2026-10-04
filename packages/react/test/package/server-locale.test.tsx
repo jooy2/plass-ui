@@ -25,6 +25,7 @@ import {
   PlCalendar,
   PlDataTable,
   PlDatePicker,
+  PlLineChart,
   PlassProvider,
   PlProgressLinear
 } from 'plass-ui';
@@ -177,6 +178,25 @@ describe('a server render hydrated in another locale', () => {
     const first = host.querySelector('[role="columnheader"]');
 
     expect(first?.getAttribute('aria-label')).toBe('Montag');
+  });
+
+  it('hydrates a chart’s ticks in the server’s format and then writes them in the browser’s', async () => {
+    const { host, served, onRecoverableError } = await hydrateIn(
+      'de-DE',
+      <PlLineChart
+        label="Sales"
+        initialWidth={480}
+        categories={['Jan', 'Feb', 'Mar']}
+        series={[{ name: 'Europe', data: [1150, 1530, 1870] }]}
+      />
+    );
+
+    const ticks = () => Array.from(host.querySelectorAll('svg text'), (tick) => tick.textContent);
+
+    // A tick and not a value: the table under the chart writes those.
+    expect(served).toContain('1,400');
+    expect(onRecoverableError).not.toHaveBeenCalled();
+    expect(ticks()).toContain('1.400');
   });
 
   it('hydrates sorted rows in the server’s order and then sorts them the browser’s way', async () => {

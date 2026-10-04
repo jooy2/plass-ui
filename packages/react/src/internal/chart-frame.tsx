@@ -102,13 +102,34 @@ const noMarks: readonly ChartMark[] = [];
  * it on a server-rendered page is a box of the right height with nothing in it,
  * which is why the height is a prop and not something measured too: a reserve
  * that is dropped when the content arrives is the same jump twice.
+ *
+ * `initialWidth` is the caller's width for the time before there is one. The
+ * server's render and the render that hydrates its HTML both lay the chart out
+ * at it, so the two agree, and the layout effect after hydration replaces it
+ * with the measurement. `guessed` says the width is still the caller's: a chart
+ * cuts its drawing at the edge of its box while it is, because a guess wider
+ * than the box would otherwise spill across the page until the script runs.
  */
-function useMeasuredWidth(ref: React.RefObject<HTMLElement | null>): number {
+function useMeasuredWidth(
+  ref: React.RefObject<HTMLElement | null>,
+  initialWidth?: number
+): { width: number; guessed: boolean } {
   // `usePlElementSize` is the library's own `ResizeObserver`, and it reads the
   // element in a layout effect as well as from the observer — which is what
   // keeps a chart from laying itself out at zero for the one frame before the
   // observer's first callback arrives.
-  return usePlElementSize(ref)?.width ?? 0;
+  const measured = usePlElementSize(ref)?.width;
+
+  if (measured !== undefined) {
+    return { width: measured, guessed: false };
+  }
+
+  const guess =
+    initialWidth !== undefined && Number.isFinite(initialWidth) && initialWidth > 0
+      ? initialWidth
+      : 0;
+
+  return { width: guess, guessed: guess > 0 };
 }
 
 /* ---------------------------------------------------------------------------
@@ -176,6 +197,21 @@ export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
    * the chart is a card the chart fits in.
    */
   height?: number | string;
+  /**
+   * The width to draw at until the box has been measured, in pixels.
+   *
+   * A chart is laid out from the width its box is measured at, and a server
+   * has no box to measure: without this, the HTML it sends holds an empty box
+   * of the right height and the plot arrives with the script. Given the width
+   * the chart usually has, the server and the render that hydrates its HTML
+   * draw the whole chart at it, and the measured width takes over before the
+   * hydrated page is painted. Until then a drawing wider than its box is cut
+   * at the box's edge.
+   *
+   * A page rendered only in the browser measures the box before its first
+   * paint, so it never shows this width.
+   */
+  initialWidth?: number;
   /**
    * How the numbers are written, everywhere they appear — the axis, the
    * tooltip, the labels on the marks. `Intl.NumberFormat` options, the same
@@ -1237,6 +1273,7 @@ export function CartesianChart({
   scale: givenScale,
   markTooltip,
   height,
+  initialWidth,
   format,
   locale: localeProp,
   label,
@@ -1262,7 +1299,7 @@ export function CartesianChart({
   const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const width = useMeasuredWidth(hostRef);
+  const { width, guessed } = useMeasuredWidth(hostRef, initialWidth);
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
@@ -2013,7 +2050,8 @@ export function CartesianChart({
         className={cx(
           'relative w-full',
           'rounded-(--plass-radius-xs)',
-          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
+          guessed && 'overflow-hidden'
         )}
         style={{ height: plotHeight ?? height }}
       >

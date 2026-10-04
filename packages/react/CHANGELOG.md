@@ -6,6 +6,8 @@
 
 ### Added
 
+- **Every chart takes `initialWidth`, the width it is drawn at until its box has been measured.** A chart is laid out from the width its box is measured at, so the HTML a server sent held an empty box of the right height, and the plot, the axes and a `PlGaugeChart`'s reading arrived only once the script ran. Given `initialWidth`, the server and the render that hydrates its HTML draw the whole chart at that width, a drawing wider than its box is cut at the box's edge, and the measured width takes over as soon as the page has hydrated. A chart without it renders as before.
+
 - **`PlStepper` and `PlTree` take `keepMounted`, which keeps content that is not on screen in the document.** A stepper rendered only the panel of the step `active` was on, and a tree built no row of a shut branch, so neither was in the HTML a server sends or a search engine reads. With `keepMounted` a stepper renders every step's panel and a tree builds every branch, and what is not on screen stays hidden, out of the focus order and off the accessibility tree. A kept panel keeps what it holds when the reader steps away, and the tree's arrow keys still walk only the visible rows. It is off by default.
 
 - **`PlDrawer` and `PlSidebar` take `keepMounted`, which keeps a closed drawer's content in the document.** A closed `overlay` drawer took its content out of the page, so below `collapseBelow` a sidebar's links were missing at the width a search engine indexes a page at. With `keepMounted` the content stays, hidden, out of the focus order and off the accessibility tree. It is off by default.

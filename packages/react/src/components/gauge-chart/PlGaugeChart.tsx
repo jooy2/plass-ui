@@ -124,6 +124,7 @@ export function PlGaugeChart({
   center,
   caption,
   height,
+  initialWidth,
   format,
   locale: localeProp,
   label,
@@ -141,7 +142,7 @@ export function PlGaugeChart({
   const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const width = useMeasuredWidth(hostRef);
+  const { width, guessed } = useMeasuredWidth(hostRef, initialWidth);
   const words = useLabels();
   const emptyId = React.useId();
   const centreId = React.useId();
@@ -352,7 +353,7 @@ export function PlGaugeChart({
     >
       <div
         ref={hostRef}
-        className="relative w-full"
+        className={cx('relative w-full', guessed && 'overflow-hidden')}
         style={{ height: plotHeight }}
         // Named, the dial is one image saying one thing — which is what it is,
         // and it saves a reader hearing the two end labels as loose numbers.

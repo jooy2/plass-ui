@@ -133,6 +133,7 @@ export function PlPieChart({
   center,
   valueLabels = 'none',
   height,
+  initialWidth,
   format,
   locale: localeProp,
   label,
@@ -150,7 +151,7 @@ export function PlPieChart({
   const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
-  const width = useMeasuredWidth(hostRef);
+  const { width, guessed } = useMeasuredWidth(hostRef, initialWidth);
   const words = useLabels();
   const tableId = React.useId();
   const summaryId = React.useId();
@@ -413,7 +414,8 @@ export function PlPieChart({
         }}
         className={cx(
           'relative w-full rounded-(--plass-radius-xs)',
-          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2'
+          'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-2',
+          guessed && 'overflow-hidden'
         )}
         style={{ height: plotHeight }}
       >

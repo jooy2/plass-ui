@@ -50,6 +50,12 @@ Reach for a bar chart when the categories could be shuffled without losing anyth
 
 Everything around the line (the axes, the grid, the crosshair, the legend, the tooltip and what a screen reader gets instead of the picture) comes from a shared frame, which is what makes two different charts on one dashboard read as one drawing rather than two.
 
+::: fw react
+
+On a page rendered on a server, a chart draws its plot once the browser has measured how wide it is, so until then the HTML holds an empty box of the right height. Every chart takes an `initialWidth` for this: given the width the chart usually has, the server draws the whole chart at it, and the measured width takes over once the page has hydrated.
+
+:::
+
 ## Props
 
 <PropsTable name="PlLineChart" />

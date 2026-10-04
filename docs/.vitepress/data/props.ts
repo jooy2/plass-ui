@@ -5977,6 +5977,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '그림의 높이', en: 'How tall the drawing is' }
     },
     {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+      }
+    },
+    {
       name: 'format',
       type: 'Intl.NumberFormatOptions',
       description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
@@ -6313,6 +6321,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'height',
       type: 'number | string',
       description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+      }
     },
     {
       name: 'format',
@@ -9899,6 +9915,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: 'plot의 높이', en: 'How tall the plot is' }
     },
     {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+      }
+    },
+    {
       name: 'format',
       type: 'Intl.NumberFormatOptions',
       description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
@@ -10614,6 +10638,14 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'number | string',
       default: "'100%'",
       description: { ko: '너비', en: 'How wide' }
+    },
+    {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 띠가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. `width`가 숫자면 그 너비로 처음부터 그리므로 읽지 않습니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the strip rather than an empty box, and the measured width takes over once the page has hydrated. Not read when `width` is a number, which the strip is drawn at from the start'
+      }
     },
     {
       name: 'label',
@@ -11507,6 +11539,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'height',
       type: 'number | string',
       description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+      }
     },
     {
       name: 'label',
@@ -13672,6 +13712,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: 'plot의 높이', en: 'How tall the plot is' }
     },
     {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+      }
+    },
+    {
       name: 'format',
       type: 'Intl.NumberFormatOptions',
       description: { ko: '값을 쓰는 방식', en: 'How a value is written' }
@@ -13781,6 +13829,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'height',
       type: 'number | string',
       description: { ko: '그림의 높이', en: 'How tall the drawing is' }
+    },
+    {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+      }
     },
     {
       name: 'format',
@@ -13932,6 +13988,14 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'height',
       type: 'number | string',
       description: { ko: 'plot의 높이', en: 'How tall the plot is' }
+    },
+    {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
+      }
     },
     {
       name: 'format',
@@ -14094,6 +14158,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: 'plot의 높이. size 사다리로 떨어집니다',
         en: 'How tall the plot is. Falls back to the size ladder'
+      }
+    },
+    {
+      name: 'initialWidth',
+      type: 'number',
+      description: {
+        ko: '상자를 재기 전까지 그릴 너비(px). 주면 서버가 보내는 HTML에 빈 상자 대신 차트 전체가 담기고, 페이지가 hydrate되면 잰 너비로 바뀝니다. 그 전까지 상자보다 넓은 그림은 상자 가장자리에서 잘립니다',
+        en: 'The width to draw at, in pixels, until the box has been measured. The HTML a server sends then holds the whole chart rather than an empty box, and the measured width takes over once the page has hydrated. Until then a drawing wider than its box is cut at the edge'
       }
     },
     {

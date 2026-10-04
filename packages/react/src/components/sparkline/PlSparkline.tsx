@@ -16,15 +16,15 @@ import {
   toValue,
   writeChartValue
 } from '../../internal/chart.js';
-import { useMeasuredWidth } from '../../internal/chart-frame.js';
+import { useMeasuredWidth, type ChartBaseProps } from '../../internal/chart-frame.js';
 import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassChartCurve, PlassChartDatum, PlassColor, PlassSize } from '../../types.js';
 
-export interface PlSparklineProps extends Omit<
-  React.ComponentPropsWithoutRef<'div'>,
-  'color' | 'children'
-> {
+export interface PlSparklineProps
+  extends
+    Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'children'>,
+    Pick<ChartBaseProps, 'initialWidth'> {
   /** The values. `null` is a gap, exactly as it is on every other chart. */
   data: readonly PlassChartDatum[];
   /**
@@ -70,7 +70,12 @@ export interface PlSparklineProps extends Omit<
   min?: number;
   /** And the top of it. */
   max?: number;
-  /** How wide. Fills its container by default. */
+  /**
+   * How wide. Fills its container by default.
+   *
+   * A number is the width the strip is drawn at from the first render, the
+   * server's included, so `initialWidth` only matters for any other length.
+   */
   width?: number | string;
   /** A name for the strip, read out in place of it. */
   label?: string;
@@ -103,6 +108,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
       min,
       max,
       width: widthProp,
+      initialWidth,
       label,
       className,
       style,
@@ -115,7 +121,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
     const size = sizeProp ?? defaults.size ?? 'md';
 
     const hostRef = React.useRef<HTMLDivElement>(null);
-    const measured = useMeasuredWidth(hostRef);
+    const { width: measured, guessed } = useMeasuredWidth(hostRef, initialWidth);
     const id = React.useId().replace(/:/g, '');
 
     const values = React.useMemo(() => data.map(toValue), [data]);
@@ -128,7 +134,8 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
     const high = max ?? (extent ? Math.max(extent.max, baseline ?? extent.max) : 1);
     const span = high - low || 1;
 
-    const width = typeof widthProp === 'number' ? widthProp : measured;
+    const fixed = typeof widthProp === 'number';
+    const width = fixed ? widthProp : measured;
     const fill = resolveColor(color ?? 'var(--plass-chart-1)');
 
     // The stroke straddles the path, so the drawable band comes in by half of
@@ -185,7 +192,10 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
         style={{ width: widthProp ?? '100%', height, ...style }}
         {...props}
       >
-        <div ref={hostRef} className="absolute inset-0">
+        <div
+          ref={hostRef}
+          className={cx('absolute inset-0', guessed && !fixed && 'overflow-hidden')}
+        >
           {width > 0 && values.length > 0 ? (
             <svg
               width={width}
