@@ -107,8 +107,9 @@ class PlAnimateScramble extends StatelessWidget {
             play: play,
             once: once,
             threshold: threshold,
-            // A new line is a new run, however far the old one had settled.
-            nonce: text,
+            // A new line is a new run, however far the old one had settled,
+            // once the trigger has let the line go.
+            target: text,
           ),
           // Waiting to be seen again is noise, as it is before the first run.
           rewindsWhenWaiting: true,

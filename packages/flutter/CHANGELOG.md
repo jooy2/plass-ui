@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A new `value` no longer starts a `PlAnimateCounter` its trigger has not started, nor a new `text` a `PlAnimateScramble`.** A `manual` counter with `play` off, or a `visible` one not yet seen, started counting as soon as its `value` changed, before it was asked to or where nobody could see it. A new `value` before then only changes what the count arrives at: the counter goes on showing `from` and counts to the new value when its trigger comes, and a scramble's new `text` waits the same way. A counter that has started still counts on from the figure on screen, and `PlAnimateShake` still plays on every new `replay`.
+
 - **A `PlAnimateCounter` or `PlAnimateScramble` that its trigger lets go of waits on its first frame, as the React build does.** A `visible` one that is not `once` and has left the screen, or a `manual` one whose `play` was turned off, held the frame it was on, so a counter showed its old figure while it waited, and on its return drew that figure for a frame before dropping to `from`. A counter now shows `from` while it waits and a scramble its noise, so the next run starts from the frame already on screen. Every other effect still holds the frame it was on.
 
 - **A `PlAnimateTyping` let go during its `delay` or between two characters waits only what was left of that wait.** Paused during the `delay`, or in the wait before the next pass types its first character, it waited a character's time once it was let go, and paused between two characters it waited a whole character's time again. Every wait now goes on with the time that was left of it, as the hold already did, and the two builds wait the same.

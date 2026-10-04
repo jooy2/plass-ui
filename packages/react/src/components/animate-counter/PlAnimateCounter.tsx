@@ -211,8 +211,9 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     threshold,
     paused,
     infinite: false,
-    // A new target is a new count, wherever the old one had got to.
-    nonce: value
+    // A new target is a new count, wherever the old one had got to, once the
+    // trigger has let the count go.
+    target: value
   });
 
   /**

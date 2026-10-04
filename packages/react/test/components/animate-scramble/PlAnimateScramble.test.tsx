@@ -301,6 +301,32 @@ describe('PlAnimateScramble', () => {
       expect(root().dataset.state).toBe('paused');
     });
 
+    it('waits for its trigger when the line changes before it has been started', async () => {
+      const scramble = (line: string) => (
+        <PlAnimateScramble className="scramble-under-test" trigger="manual" duration={300}>
+          {line}
+        </PlAnimateScramble>
+      );
+      // Taken before the render, so every frame the line asks for is one this
+      // test draws.
+      const frames = frameClock();
+
+      try {
+        const screen = await render(scramble(LINE));
+
+        await screen.rerender(scramble('Ship it on Monday'));
+        await frames.draw(1000);
+        await frames.draw(2000);
+
+        // A new line is what will settle, not a press of go. It used to start
+        // the run, and the new line would have settled by now.
+        expect(root().dataset.state).toBe('paused');
+        expect(drawn()).not.toBe('Ship it on Monday');
+      } finally {
+        frames.restore();
+      }
+    });
+
     it('runs again when the line changes', async () => {
       await render(
         <PlAnimateScramble className="scramble-under-test" trigger="mount" duration={40}>

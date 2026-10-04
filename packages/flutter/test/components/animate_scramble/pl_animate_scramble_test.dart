@@ -101,6 +101,26 @@ void main() {
       });
     });
 
+    testWidgets('waits for the trigger when the line changes before it has been started', (
+      WidgetTester tester,
+    ) async {
+      Widget scramble(String text) {
+        return PlAnimateScramble(
+          text: text,
+          trigger: PlassAnimateTrigger.manual,
+          duration: const Duration(milliseconds: 100),
+        );
+      }
+
+      await _pump(tester, scramble(_line));
+      await _pump(tester, scramble('Ship it on Monday'));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // A new line is what will settle, not a press of go. It used to start the
+      // run, and the new line would have settled by now.
+      expect(_drawn(tester), isNot('Ship it on Monday'));
+    });
+
     testWidgets('is noise again while it is off screen with once off', (WidgetTester tester) async {
       final ScrollController page = ScrollController();
 

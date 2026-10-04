@@ -114,8 +114,9 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
     threshold,
     paused,
     infinite: false,
-    // A new line is a new run, however far the old one had settled.
-    nonce: children
+    // A new line is a new run, however far the old one had settled, once the
+    // trigger has let the line go.
+    target: children
   });
 
   const pool = React.useMemo(() => characters ?? poolOf(children), [characters, children]);

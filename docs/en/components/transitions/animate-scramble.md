@@ -60,7 +60,7 @@ Like the counter it also **waits to be seen** rather than starting on mount: a l
 ## Notes
 
 - The redraw is stepped at `tick`, 45ms by default, rather than taken every frame. At sixty a second a line of changing glyphs strobes, which is unpleasant to look at and is exactly the flicker a reader with a sensitivity to it must never be handed.
-- Changing the line runs it again, from noise.
+- Changing the line runs it again, from noise, once it has started. A line that changes before then waits for the trigger.
 
 ## Accessibility
 

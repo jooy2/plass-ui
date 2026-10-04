@@ -74,7 +74,7 @@ The case it exists for, and the reason `visible` is the default.
 
 ### Counting to a new number
 
-Changing `value` counts again, from the figure on screen: the one the last count landed on, or the one a count still running had got to. A dashboard whose figure updates every minute does not need to be told to replay. A replay, such as a second hover or a new `play`, counts from `from` again.
+Changing `value` counts again, from the figure on screen: the one the last count landed on, or the one a count still running had got to. A dashboard whose figure updates every minute does not need to be told to replay. A replay, such as a second hover or a new `play`, counts from `from` again. A new `value` that arrives before the count has started does not start it: the counter goes on waiting for its trigger, and counts from `from` to the new value when it comes.
 
 ```tsx
 <PlAnimateCounter value={deploys} />

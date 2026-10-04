@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A new `value` no longer starts a `PlAnimateCounter` its trigger has not started, nor a new line a `PlAnimateScramble`.** A `manual` counter with `play` off, or a `visible` one not yet seen, started counting as soon as its `value` changed, before it was asked to or where nobody could see it. A new `value` before then only changes what the count arrives at: the counter goes on showing `from` and counts to the new value when its trigger comes, and a scramble's new line waits the same way. A counter that has started still counts on from the figure on screen, and `PlAnimateShake` still plays on every new `replay`.
+
 - **`PlAnimateCounter` in compact notation writes the figures on its way with no more decimals than the answer.** Compact notation keeps two significant digits where that is the finer rounding, so a count to "5K" showed "1.6" and "1.7K" on the way, and a count to "4.8K" could show "0.048". A frame with more fraction digits than the answer is now rounded to the answer's, so a count to "5K" goes through whole numbers and then "1K", "2K", and a frame that already fits, such as "123" or "1.2K", is written as compact notation writes it. A `roundingPriority` written in `format` is left as it is.
 
 - **A `PlAnimateTyping` let go during its `delay` or between two characters waits only what was left of that wait.** Paused during the `delay`, or in the wait before the next pass types its first character, it waited the whole `delay` again once it was let go, and paused between two characters it waited a whole character's time again. Every wait now goes on with the time that was left of it, as the hold already did.

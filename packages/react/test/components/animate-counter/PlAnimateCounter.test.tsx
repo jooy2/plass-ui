@@ -555,6 +555,73 @@ describe('PlAnimateCounter', () => {
       expect(root().dataset.state).toBe('paused');
     });
 
+    it('waits for its trigger when its `value` changes before it has been started', async () => {
+      const counter = (value: number, play: boolean) => (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          play={play}
+          value={value}
+          duration={300}
+          easing={(t) => t}
+        />
+      );
+      // Taken before the render, so every frame the count asks for is one this
+      // test draws.
+      const frames = frameClock();
+
+      try {
+        const screen = await render(counter(100, false));
+
+        await screen.rerender(counter(200, false));
+        await frames.draw(1000);
+        await frames.draw(2000);
+
+        // A new value is what the count will arrive at, not a press of go. It
+        // used to start the count, and this would read 200.
+        expect(root().dataset.state).toBe('paused');
+        expect(drawn()).toBe('0');
+
+        await screen.rerender(counter(200, true));
+        await frames.draw(3000);
+        await frames.draw(3150);
+
+        // Halfway from `from` to the new value.
+        expect(figure()).toBe(100);
+
+        await frames.draw(3300);
+
+        expect(figure()).toBe(200);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('waits to be seen when its `value` changes before it has been', async () => {
+      // Below the fold, for the reason the test above gives.
+      const counter = (value: number) => (
+        <>
+          <div style={{ height: '200vh' }} />
+          <PlAnimateCounter className="counter-under-test" value={value} duration={300} />
+        </>
+      );
+      const frames = frameClock();
+
+      try {
+        const screen = await render(counter(100));
+
+        await screen.rerender(counter(200));
+        await frames.draw(1000);
+        await frames.draw(2000);
+
+        // It used to count to 200 where nobody could see it.
+        expect(root().dataset.state).toBe('paused');
+        expect(drawn()).toBe('0');
+      } finally {
+        frames.restore();
+      }
+    });
+
     it('counts when a caller presses go', async () => {
       await render(
         <PlAnimateCounter

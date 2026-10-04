@@ -302,6 +302,17 @@ export interface AnimationRunOptions {
    * count of failed attempts already is this.
    */
   nonce?: unknown;
+  /**
+   * What the effect arrives at: a counter's figure, a scramble's line. A new
+   * one runs the effect again from its start while the trigger has it going,
+   * and never on the first render.
+   *
+   * Unlike `nonce`, it never starts a run the trigger is holding back. A
+   * counter waiting to be scrolled to, or for `play`, whose figure changes is
+   * still waiting: what changed is what it will count to, and counting there
+   * and then is what the trigger was there to stop.
+   */
+  target?: unknown;
 }
 
 /**
@@ -509,8 +520,8 @@ export interface AnimationRun {
    */
   resting: boolean;
   /**
-   * How many times it has been started, counting every hover, every `play` and
-   * every change of `nonce`.
+   * How many times it has been started, counting every hover, every `play`,
+   * every change of `nonce` and every change of `target` that started it again.
    *
    * `started` stays `true` from the first start on, so a second hover changes
    * nothing an effect could depend on. A keyframe does not need to know, because
@@ -571,15 +582,28 @@ export function useAnimationRun({
   infinite,
   endless = false,
   moves = false,
-  nonce
+  nonce,
+  target
 }: AnimationRunOptions): AnimationRun {
   const node = React.useRef<HTMLElement | null>(null);
-  const [started, setStarted] = React.useState(trigger === 'mount');
-  const [run, setRun] = React.useState(0);
+
+  // Whether it has been let go, and how many times it has been started. One
+  // state rather than two, so `again` reads whether it has been let go after
+  // every change queued before it, a `play` turned off in the same commit
+  // included, rather than as the last render saw it.
+  const [{ started, run }, setGate] = React.useState({ started: trigger === 'mount', run: 0 });
+
+  const setStarted = React.useCallback((value: boolean) => {
+    setGate((gate) => (gate.started === value ? gate : { ...gate, started: value }));
+  }, []);
 
   const start = React.useCallback(() => {
-    setStarted(true);
-    setRun((previous) => previous + 1);
+    setGate((gate) => ({ started: true, run: gate.run + 1 }));
+  }, []);
+
+  // Starts it again only if it has been let go.
+  const again = React.useCallback(() => {
+    setGate((gate) => (gate.started ? { started: true, run: gate.run + 1 } : gate));
   }, []);
 
   // Nothing to rewind on the first pass — the element has only just been drawn.
@@ -710,7 +734,7 @@ export function useAnimationRun({
         observer.disconnect();
       }
     };
-  }, [trigger, once, threshold, start]);
+  }, [trigger, once, threshold, start, setStarted]);
 
   // Held rather than compared against the previous render, so the first pass is
   // never a change: a shake that played itself on mount would be answering an
@@ -739,7 +763,20 @@ export function useAnimationRun({
     } else {
       setStarted(false);
     }
-  }, [trigger, play, start]);
+  }, [trigger, play, start, setStarted]);
+
+  // After the `play` above, so a `play` turned off in the same commit as a new
+  // target has already held it back when this asks.
+  const aimed = React.useRef(target);
+
+  React.useEffect(() => {
+    if (Object.is(target, aimed.current)) {
+      return;
+    }
+
+    aimed.current = target;
+    again();
+  }, [target, again]);
 
   const handlers: React.HTMLAttributes<HTMLElement> =
     trigger === 'hover'
@@ -877,12 +914,16 @@ export function animateChildren(
  * ------------------------------------------------------------------------- */
 
 /**
- * `endless` is left out because it is worked out here, from `repeat`. `moves`
- * is only needed for a keyframe of the component's own: the named ones are
- * already known.
+ * `endless` is left out because it is worked out here, from `repeat`, and
+ * `target` because a keyframe has nothing to arrive at but its last frame.
+ * `moves` is only needed for a keyframe of the component's own: the named ones
+ * are already known.
  */
 export interface AnimateElementParams
-  extends AnimationSlotOptions, Omit<AnimationRunOptions, 'endless'>, PlassAnimateStaggerProps {
+  extends
+    AnimationSlotOptions,
+    Omit<AnimationRunOptions, 'endless' | 'target'>,
+    PlassAnimateStaggerProps {
   /** Which keyframe. `null` for the components that write their own. */
   effect: PlassAnimation | null;
   /** `transform-origin`, for the two effects that turn about a point. */

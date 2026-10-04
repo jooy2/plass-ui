@@ -179,8 +179,9 @@ class _PlAnimateCounterState extends State<PlAnimateCounter> {
             play: widget.play,
             once: widget.once,
             threshold: widget.threshold,
-            // A new target is a new count, wherever the old one had got to.
-            nonce: widget.value,
+            // A new target is a new count, wherever the old one had got to,
+            // once the trigger has let the count go.
+            target: widget.value,
           ),
           onRun: _onRun,
           rewindsWhenWaiting: true,

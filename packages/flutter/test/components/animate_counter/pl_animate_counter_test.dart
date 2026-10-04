@@ -174,6 +174,86 @@ void main() {
         expect(_drawn(tester), '300');
       });
 
+      testWidgets('waits for the trigger when it arrives before the count has been started', (
+        WidgetTester tester,
+      ) async {
+        Widget played(double value, {required bool play}) {
+          return PlAnimateCounter(
+            value: value,
+            trigger: PlassAnimateTrigger.manual,
+            play: play,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.linear,
+          );
+        }
+
+        await _pump(tester, played(100, play: false));
+        await _pump(tester, played(200, play: false));
+        await tester.pump(const Duration(milliseconds: 400));
+
+        // A new value is what the count will arrive at, not a press of go. It
+        // used to start the count, and this would read 200.
+        expect(_drawn(tester), '0');
+
+        await _pump(tester, played(200, play: true));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Halfway from `from` to the new value.
+        expect(_drawn(tester), '100');
+
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '200');
+      });
+
+      testWidgets('waits to be seen when it arrives before the counter has been', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        Widget below(double value) {
+          return host(
+            SingleChildScrollView(
+              controller: page,
+              child: Column(
+                children: <Widget>[
+                  const SizedBox(height: 1000),
+                  PlAnimateCounter(
+                    value: value,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.linear,
+                  ),
+                ],
+              ),
+            ),
+            width: 240,
+            height: 400,
+          );
+        }
+
+        await tester.pumpWidget(below(100));
+        await tester.pump();
+        await tester.pumpWidget(below(200));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+
+        // It used to count to 200 where nobody could see it.
+        expect(_drawn(tester), '0');
+
+        page.jumpTo(800);
+        await tester.pump();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(_drawn(tester), '100');
+
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '200');
+      });
+
       testWidgets('leaves a replay to count from where it was told', (WidgetTester tester) async {
         Widget played(double value, {required bool play}) {
           return PlAnimateCounter(

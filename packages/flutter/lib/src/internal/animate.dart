@@ -75,6 +75,7 @@ class PlassAnimateSettings {
     this.once = true,
     this.threshold = defaultVisibleThreshold,
     this.nonce,
+    this.target,
   });
 
   /// How long one run takes.
@@ -116,6 +117,16 @@ class PlassAnimateSettings {
   /// a value that has changed is the closest a widget tree has to one: a count
   /// of failed attempts already is this.
   final Object? nonce;
+
+  /// What the effect arrives at: a counter's figure, a scramble's line. A new
+  /// one runs the effect again from its start while the trigger has it going,
+  /// and never on the first build.
+  ///
+  /// Unlike [nonce], it never starts a run the trigger is holding back. A
+  /// counter waiting to be scrolled to, or for [play], whose figure changes is
+  /// still waiting: what changed is what it will count to, and counting there
+  /// and then is what the trigger was there to stop.
+  final Object? target;
 
   /// Whether this run never stops on its own.
   bool get infinite => repeat == null;
@@ -219,6 +230,12 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
     if (now.nonce != before.nonce) {
       // `restart` rather than `_set(true)`: the second refusal has to play even
       // though the first one already started it.
+      restart();
+    }
+
+    // After `play`, so a `play` turned off in the same build has already held
+    // it back when this asks.
+    if (now.target != before.target && _started) {
       restart();
     }
   }
@@ -453,8 +470,8 @@ class PlassAnimateRun extends StatefulWidget {
   final ValueWidgetBuilder<double> builder;
 
   /// Called as each run begins, before [builder] is handed its first frame:
-  /// the first run, and every one a restart, a new `play` or a new `nonce`
-  /// starts after it.
+  /// the first run, and every one a restart, a new `play`, a new `nonce` or a
+  /// new `target` starts after it.
   ///
   /// Until then [builder] is still handed the progress the last run left, so an
   /// effect whose start depends on why it is starting again, as a counter's
@@ -794,6 +811,7 @@ PlassAnimateSettings _withoutPause(PlassAnimateSettings settings) {
     once: settings.once,
     threshold: settings.threshold,
     nonce: settings.nonce,
+    target: settings.target,
   );
 }
 
