@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **A page rendered on a server hydrates in whatever language the reader's browser uses.** With no `locale` given, every component that writes a number or a date wrote it in the runtime's own locale: `PlAnimateCounter`, the progress components, `PlMeter`, `PlNumberField`, `PlSlider`, the pickers, `PlCalendar` and every chart, and so did a `PlDataTable` sorting text and a `PlAvatar` writing initials. A server's runtime is not the reader's, so an `en-US` server wrote `12,345` where a `de-DE` browser hydrated `12.345`, and React threw the server's tree away and rendered it again. A server render and its hydration now use the locale the component or the nearest `PlassProvider` names, or `en-US` when neither does, and switch to the browser's locale as soon as hydration is done. A page rendered only in the browser writes in the browser's locale from the first paint, as before, and a server-rendered page that gives the provider a `locale` shows the reader's format from the start.
+
 - **A quick click on the words of a resting `float` label opens the `PlTreeSelect` under it.** The press gave the trigger the focus, which ended the rest and put the label back in reach of the pointer while it was still lying over the words. A release that came before the label had moved off them landed on the label, the browser gave the click to the frame round both rather than to the trigger, and the picker stayed shut. The label now lets the pointer through until a press that went down on the control is over, and a click on the label once it has risen still reaches the control.
 
 ## 1.7.0 (2026-09-28)

@@ -60,7 +60,7 @@ import {
   type TimeScale,
   type ValueScale
 } from './chart.js';
-import { useDefaults } from './defaults.js';
+import { useDefaults, useLocale } from './defaults.js';
 import { usePlElementSize } from '../hooks/usePlElementSize.js';
 import { useLabels } from './labels.js';
 import { textOf } from './text.js';
@@ -1259,7 +1259,7 @@ export function CartesianChart({
      itself. */
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
-  const locale = localeProp ?? defaults.locale;
+  const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
   const width = useMeasuredWidth(hostRef);

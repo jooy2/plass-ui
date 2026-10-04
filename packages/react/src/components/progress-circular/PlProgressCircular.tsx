@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { Progress } from '@base-ui/react/progress';
 import {
   progressAriaText,
@@ -55,6 +55,7 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
   ref
 ) {
   const defaults = useDefaults();
+  const locale = useLocale();
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
 
@@ -83,8 +84,8 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
       min={min}
       max={max}
       format={format}
-      locale={defaults.locale}
-      getAriaValueText={progressAriaText(fraction, hasFormat, defaults.locale)}
+      locale={locale}
+      getAriaValueText={progressAriaText(fraction, hasFormat, locale)}
       className={cx('inline-flex items-center', gapClasses[size], metaTextClasses[size], className)}
       style={{ ...progressSlots(color), ...style }}
       {...props}
@@ -139,7 +140,7 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
       ) : null}
       {showValue ? (
         <Progress.Value className="shrink-0 tabular-nums text-(--plass-muted-fg)">
-          {(formatted) => progressText(fraction, formatted, hasFormat, defaults.locale)}
+          {(formatted) => progressText(fraction, formatted, hasFormat, locale)}
         </Progress.Value>
       ) : null}
     </Progress.Root>

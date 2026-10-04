@@ -41,6 +41,26 @@ order: 3
 
 :::
 
+::: fw react
+
+## A page rendered on a server
+
+With no `locale` named, a component writes in the browser's own locale. A server has no browser to ask, so a server render and the hydration after it both write in `en-US`, and the components switch to the browser's locale as soon as hydration is done. Hydration succeeds whatever language the reader's browser is set to, but a German reader sees `12,345` for a moment before it turns into `12.345`.
+
+Give the provider a `locale` and the server and the first paint already agree with the reader. The locale is then the same in every render, so nothing changes after hydration:
+
+```tsx
+<PlassProvider locale="de-DE">
+  <App />
+</PlassProvider>
+```
+
+A server usually knows the locale from the URL or the `Accept-Language` header. `PlSlider` does not read the provider, so give it its own `locale`. A `PlDataTable` sorting text and a `PlAvatar` writing initials do not take a locale at all: they follow the browser's, and the `en-US` rules until hydration is done.
+
+A page rendered only in the browser needs none of this. It writes in the browser's locale from the first paint.
+
+:::
+
 ## The packs
 
 Seven languages ship, and each one is a whole set.

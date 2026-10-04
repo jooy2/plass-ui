@@ -26,7 +26,7 @@ import {
   writeChartValue,
   type MarkShape
 } from '../../internal/chart.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
 import { textOf } from '../../internal/text.js';
 import type { PlassChartAxis, PlassChartCategory, PlassChartSeries } from '../../types.js';
@@ -129,7 +129,7 @@ export function PlScatterChart({
 }: PlScatterChartProps) {
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
-  const locale = props.locale ?? defaults.locale;
+  const locale = useLocale(props.locale);
   const format = props.format;
 
   const dot = pointRadius ?? markerRadii[size];

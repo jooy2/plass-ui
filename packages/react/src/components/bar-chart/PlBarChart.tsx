@@ -30,7 +30,7 @@ import type {
   PlassOrientation,
   PlassSize
 } from '../../types.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 
 export interface PlBarChartProps extends CartesianChartProps {
@@ -167,7 +167,7 @@ export function PlBarChart({
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
   const density = densityProp ?? defaults.density ?? 'default';
-  const resolvedLocale = locale ?? defaults.locale;
+  const resolvedLocale = useLocale(locale);
 
   const horizontal = orientation === 'horizontal';
   const full = stacked === 'full';

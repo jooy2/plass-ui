@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useDisabled } from '../../internal/form.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { ownsPress } from '../../internal/focusable.js';
 import { useLabels } from '../../internal/labels.js';
 import { NumberField as BaseUINumberField } from '@base-ui/react/number-field';
@@ -299,7 +299,7 @@ export function PlNumberField({
   const labels = useLabels();
   const incrementLabel = incrementLabelProp ?? labels.increase;
   const decrementLabel = decrementLabelProp ?? labels.decrease;
-  const locale = localeProp ?? defaults.locale;
+  const locale = useLocale(localeProp);
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';

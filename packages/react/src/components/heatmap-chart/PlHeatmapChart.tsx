@@ -39,7 +39,7 @@ import type {
   PlassChartTooltip
 } from '../../types.js';
 import type { ChartBaseProps } from '../../internal/chart-frame.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 
 /** The corner radius of a cell. Small — a tile is a block, not a chip. */
 const cellRadius = 3;
@@ -133,7 +133,7 @@ export function PlHeatmapChart({
 }: PlHeatmapChartProps) {
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
-  const locale = localeProp ?? defaults.locale;
+  const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
   const width = useMeasuredWidth(hostRef);

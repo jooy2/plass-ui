@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { PlButton } from '../button/PlButton.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { CalendarIcon } from '../../internal/icons.js';
@@ -185,7 +185,7 @@ export const PlDatePicker = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, 
     ref
   ) {
     const defaults = useDefaults();
-    const locale = localeProp ?? defaults.locale;
+    const locale = useLocale(localeProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';

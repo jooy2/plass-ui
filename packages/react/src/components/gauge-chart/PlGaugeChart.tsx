@@ -11,7 +11,7 @@ import {
   textWidth,
   truncate
 } from '../../internal/chart.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { numberFormatter } from '../../internal/format.js';
 import { useLabels } from '../../internal/labels.js';
 import { cx, hasContent, metaTextClasses } from '../../internal/styles.js';
@@ -138,7 +138,7 @@ export function PlGaugeChart({
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
-  const locale = localeProp ?? defaults.locale;
+  const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
   const width = useMeasuredWidth(hostRef);

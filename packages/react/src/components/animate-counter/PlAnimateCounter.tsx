@@ -4,7 +4,7 @@ import * as React from 'react';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useLocale } from '../../internal/defaults.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { cx, srOnlyCopyClasses } from '../../internal/styles.js';
 import type { PlassAnimateTrigger } from '../../types.js';
@@ -119,7 +119,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   },
   ref
 ) {
-  const defaults = useDefaults();
+  const locale = useLocale();
   const still = usePrefersReducedMotion();
 
   const run = useAnimationRun({
@@ -142,11 +142,11 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
    * formatters a second. The key is what the options say rather than which
    * object said it.
    */
-  const formatKey = `${defaults.locale ?? ''}\u0000${JSON.stringify(format ?? null)}`;
+  const formatKey = `${locale ?? ''}\u0000${JSON.stringify(format ?? null)}`;
   const held = React.useRef<{ key: string; formatter: Intl.NumberFormat } | null>(null);
 
   if (held.current === null || held.current.key !== formatKey) {
-    held.current = { key: formatKey, formatter: new Intl.NumberFormat(defaults.locale, format) };
+    held.current = { key: formatKey, formatter: new Intl.NumberFormat(locale, format) };
   }
 
   const formatter = held.current.formatter;

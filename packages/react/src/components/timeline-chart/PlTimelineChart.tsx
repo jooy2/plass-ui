@@ -28,7 +28,7 @@ import {
 import { srOnlyClasses } from '../../internal/styles.js';
 import { textOf } from '../../internal/text.js';
 import type { PlassChartCategory, PlassTimelinePoint, PlassTimelineSeries } from '../../types.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 
 export interface PlTimelineChartProps extends Omit<
@@ -91,7 +91,7 @@ export function PlTimelineChart({
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
   const density = densityProp ?? defaults.density ?? 'default';
-  const locale = localeProp ?? defaults.locale;
+  const locale = useLocale(localeProp);
 
   /* The rows, as instants, in lanes. Done once here rather than in the marks
      builder, because the axis has to be solved before anything can be placed on

@@ -63,7 +63,14 @@ export interface PlassDefaults {
    * to cut, so its label stays above the row whatever this says.
    */
   labelPlacement?: PlassFieldLabelPlacement;
-  /** The BCP 47 tag the date and time components format and read against. */
+  /**
+   * The BCP 47 tag the date and time components format and read against.
+   *
+   * Left out, it is the browser's own, which a server cannot ask for: a server
+   * render and its hydration write `en-US`, and the components switch once
+   * hydration is done. A server-rendered page that names it paints the reader's
+   * format from the start.
+   */
   locale?: string;
   /** Which day their weeks start on, as `Date` counts them — Sunday is `0`. */
   weekStartsOn?: PlassWeekday;
@@ -104,4 +111,64 @@ export const DefaultsContext = /* @__PURE__ */ React.createContext<PlassDefaults
  */
 export function useDefaults(): PlassDefaults {
   return React.useContext(DefaultsContext);
+}
+
+/* ---------------------------------------------------------------------------
+ * The locale, and the server render
+ *
+ * A locale nobody named means the runtime's own, which is what `Intl` does with
+ * `undefined` and what a page rendered only in the browser wants. A server has
+ * a runtime default as well, and it is the machine's rather than the reader's:
+ * an `en-US` server writes `12,345` into the HTML and a `de-DE` browser hydrates
+ * it as `12.345`, which React reports as a failed hydration and answers by
+ * throwing the server's tree away and rendering it again.
+ *
+ * So the default is pinned for exactly the two renders that have to agree, the
+ * server's and the hydration's, and let go straight after: `useSyncExternalStore`
+ * reads the server snapshot for both, then re-renders the component with the
+ * client snapshot once hydration is done. A component mounted in the browser
+ * never sees the pinned value at all, and a locale that was named — by the
+ * component's prop or by a provider — is the same in every snapshot, so it
+ * costs no second render either.
+ * ------------------------------------------------------------------------- */
+
+/** What a server render and its hydration format in when nobody named a locale. */
+const hydrationLocale = 'en-US';
+
+/** The runtime's locale does not change under a page, so there is nothing to listen to. */
+function subscribeToNothing(): () => void {
+  return unsubscribeFromNothing;
+}
+
+function unsubscribeFromNothing(): void {}
+
+/**
+ * The locale to format in, given the one a component was told.
+ *
+ * `given` comes back as it is. Left out, it is `undefined` — the runtime's own
+ * locale — except in a server render and its hydration, where it is `en-US`.
+ * For the few components that do not read the provider's locale; the rest call
+ * {@link useLocale}.
+ */
+export function useRuntimeLocale<T extends Intl.LocalesArgument>(
+  given: T
+): T | typeof hydrationLocale {
+  return React.useSyncExternalStore<T | typeof hydrationLocale>(
+    subscribeToNothing,
+    () => given,
+    () => given ?? hydrationLocale
+  );
+}
+
+/**
+ * The locale a component formats in: its own `locale` prop, then the nearest
+ * provider's, then the runtime's, which a server render and its hydration pin
+ * to `en-US`. See {@link useRuntimeLocale}.
+ */
+export function useLocale<T extends Intl.LocalesArgument = string | undefined>(
+  own?: T
+): T | string | undefined {
+  const provided = React.useContext(DefaultsContext).locale;
+
+  return useRuntimeLocale<T | string | undefined>(own ?? provided);
 }

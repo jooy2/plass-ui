@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { Calendar, usePickerLabels, type PlassPickerLabels } from '../../internal/calendar.js';
 import { popupPaddingClasses, popupSlots } from '../../internal/picker.js';
 import { FieldsetDisabledContext, useDisabled, useFormReport } from '../../internal/form.js';
@@ -176,7 +176,7 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
   ) {
     const defaults = useDefaults();
     const disabled = useDisabled(disabledProp);
-    const locale = localeProp ?? defaults.locale;
+    const locale = useLocale(localeProp);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 

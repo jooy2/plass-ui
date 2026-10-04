@@ -13,7 +13,7 @@ import {
   type PlassSort,
   type PlassSortDirection
 } from '../../internal/data-table.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useRuntimeLocale } from '../../internal/defaults.js';
 import { ChevronIcon } from '../../internal/icons.js';
 import { useLabels } from '../../internal/labels.js';
 import { searchHaystack, searchText } from '../../internal/search.js';
@@ -381,6 +381,9 @@ export function PlDataTable<Row>({
 }: PlDataTableProps<Row>) {
   const defaults = useDefaults();
   const labels = useLabels();
+  // The collation a sort on text uses: the runtime's, pinned while a server
+  // render hydrates so the rows come out in the order the HTML has them.
+  const collation = useRuntimeLocale(undefined);
   const size = sizeProp ?? defaults.size ?? 'md';
   const color = colorProp ?? defaults.color ?? 'primary';
   const density = densityProp ?? defaults.density ?? 'default';
@@ -457,9 +460,9 @@ export function PlDataTable<Row>({
       // built-in one takes the direction itself, to keep blanks last both ways.
       column.compare
         ? column.compare(a.row, b.row) * direction
-        : compareValues(valueOf(column, a.row), valueOf(column, b.row), direction)
+        : compareValues(valueOf(column, a.row), valueOf(column, b.row), direction, collation)
     );
-  }, [found, columns, sort, doesSort, valueOf]);
+  }, [found, columns, sort, doesSort, valueOf, collation]);
 
   const total = doesPage ? ordered.length : (rowCount ?? ordered.length);
   const pageCount = Math.max(1, Math.ceil(total / pageSize));

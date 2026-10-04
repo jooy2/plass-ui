@@ -17,7 +17,7 @@ import {
   writeChartValue
 } from '../../internal/chart.js';
 import { useMeasuredWidth } from '../../internal/chart-frame.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassChartCurve, PlassChartDatum, PlassColor, PlassSize } from '../../types.js';
 
@@ -111,6 +111,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
     ref
   ) {
     const defaults = useDefaults();
+    const locale = useLocale();
     const size = sizeProp ?? defaults.size ?? 'md';
 
     const hostRef = React.useRef<HTMLDivElement>(null);
@@ -287,9 +288,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
           <span className={srOnlyClasses}>
             {values
               .map((value) =>
-                value.value === null
-                  ? '—'
-                  : writeChartValue(value.value, undefined, defaults.locale)
+                value.value === null ? '—' : writeChartValue(value.value, undefined, locale)
               )
               .join(', ')}
           </span>

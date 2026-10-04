@@ -25,7 +25,7 @@ import {
   seriesColor,
   toValue
 } from '../../internal/chart.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { numberFormatter } from '../../internal/format.js';
 import { useLabels } from '../../internal/labels.js';
 import { cx, metaTextClasses, srOnlyClasses } from '../../internal/styles.js';
@@ -147,7 +147,7 @@ export function PlPieChart({
 }: PlPieChartProps) {
   const defaults = useDefaults();
   const size = sizeProp ?? defaults.size ?? 'md';
-  const locale = localeProp ?? defaults.locale;
+  const locale = useLocale(localeProp);
 
   const hostRef = React.useRef<HTMLDivElement>(null);
   const width = useMeasuredWidth(hostRef);

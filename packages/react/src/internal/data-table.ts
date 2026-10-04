@@ -37,9 +37,14 @@ export interface PlassSort {
  * **Strings compare with `localeCompare`.** `'a' < 'B'` is false by code point,
  * which puts every capitalised word above every lower-case one and sorts `Ösi`
  * after `Zoe`. A list of names a reader cannot scan is a list that was sorted
- * for the machine.
+ * for the machine. `locale` is the collation, and left out it is the runtime's.
  */
-export function compareValues(a: unknown, b: unknown, direction: 1 | -1 = 1): number {
+export function compareValues(
+  a: unknown,
+  b: unknown,
+  direction: 1 | -1 = 1,
+  locale?: Intl.LocalesArgument
+): number {
   const aMissing = a === null || a === undefined || a === '';
   const bMissing = b === null || b === undefined || b === '';
 
@@ -47,11 +52,11 @@ export function compareValues(a: unknown, b: unknown, direction: 1 | -1 = 1): nu
     return aMissing && bMissing ? 0 : aMissing ? 1 : -1;
   }
 
-  return compareKnown(a, b) * direction;
+  return compareKnown(a, b, locale) * direction;
 }
 
 /** Two values that are both there, ascending. */
-function compareKnown(a: unknown, b: unknown): number {
+function compareKnown(a: unknown, b: unknown, locale: Intl.LocalesArgument): number {
   if (typeof a === 'number' && typeof b === 'number') {
     return a - b;
   }
@@ -64,7 +69,7 @@ function compareKnown(a: unknown, b: unknown): number {
     return a.getTime() - b.getTime();
   }
 
-  return String(a).localeCompare(String(b));
+  return String(a).localeCompare(String(b), locale);
 }
 
 /**

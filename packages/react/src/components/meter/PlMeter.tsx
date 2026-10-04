@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Meter } from '@base-ui/react/meter';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useLocale } from '../../internal/defaults.js';
 import {
   barThicknessClasses,
   fillClasses,
@@ -118,6 +118,7 @@ export const PlMeter = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMeterP
     ref
   ) {
     const defaults = useDefaults();
+    const locale = useLocale();
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 
@@ -128,7 +129,7 @@ export const PlMeter = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMeterP
         min={min}
         max={max}
         format={format}
-        locale={defaults.locale}
+        locale={locale}
         className={cx('flex w-full flex-col', stackGapClasses[size], className)}
         style={{ ...progressSlots(bandColor(value, color, thresholds)), ...style }}
         {...props}

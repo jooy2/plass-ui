@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useRuntimeLocale } from '../../internal/defaults.js';
 import { Avatar as BaseUIAvatar } from '@base-ui/react/avatar';
 import {
   controlHeightClasses,
@@ -159,8 +159,11 @@ function PersonIcon() {
  * One word gives one character on purpose. Korean, Japanese and Chinese names
  * are a single token, and two of their characters at 40px is a smudge where one
  * is a name.
+ *
+ * Upper-cased in `locale`, because a Turkish `i` becomes `İ` and an English one
+ * `I`; left out, that is the runtime's.
  */
-function initialsOf(name: string): string {
+function initialsOf(name: string, locale: string | undefined): string {
   const words = name.normalize('NFC').trim().split(/\s+/).filter(Boolean);
 
   if (words.length === 0) {
@@ -170,7 +173,7 @@ function initialsOf(name: string): string {
   const first = Array.from(words[0])[0] ?? '';
   const last = words.length > 1 ? (Array.from(words[words.length - 1])[0] ?? '') : '';
 
-  return (first + last).toLocaleUpperCase();
+  return (first + last).toLocaleUpperCase(locale);
 }
 
 /**
@@ -220,13 +223,14 @@ export const PlAvatar = /* @__PURE__ */ React.forwardRef<HTMLSpanElement, PlAvat
      * an avatar. A provider around the stack is what replaces the first two.
      */
     const defaults = useDefaults();
+    const caseLocale = useRuntimeLocale(undefined);
     const shape = shapeProp ?? 'circle';
     const variant = variantProp ?? 'ghost';
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const elevation = elevationProp ?? 0;
 
-    const derived = name ? initialsOf(name) : '';
+    const derived = name ? initialsOf(name, caseLocale) : '';
     const label = alt ?? name;
 
     // `children` beats the initials beats the silhouette. Only the last of the

@@ -41,6 +41,26 @@ order: 3
 
 :::
 
+::: fw react
+
+## 서버에서 렌더링하는 페이지
+
+`locale`을 아무 데서도 정하지 않으면 컴포넌트는 브라우저의 locale로 씁니다. 서버에는 물어볼 브라우저가 없으므로 서버 렌더링과 그 뒤의 hydration은 둘 다 `en-US`로 쓰고, hydration이 끝나는 대로 컴포넌트가 브라우저의 locale로 바꿉니다. 독자의 브라우저 언어가 무엇이든 hydration은 성공하지만, 독일어 독자는 `12,345`를 잠깐 보고 나서야 `12.345`를 봅니다.
+
+프로바이더에 `locale`을 주면 서버와 첫 화면이 처음부터 독자와 같은 형식으로 씁니다. 그러면 locale이 모든 렌더링에서 같으므로 hydration 뒤에 바뀌는 것이 없습니다.
+
+```tsx
+<PlassProvider locale="de-DE">
+  <App />
+</PlassProvider>
+```
+
+서버는 보통 URL이나 `Accept-Language` 헤더로 locale을 압니다. `PlSlider`는 프로바이더를 읽지 않으니 따로 `locale`을 주세요. 텍스트로 정렬하는 `PlDataTable`과 이니셜을 쓰는 `PlAvatar`는 locale을 아예 받지 않습니다. 브라우저의 규칙을 따르고, hydration이 끝나기 전까지는 `en-US` 규칙을 따릅니다.
+
+브라우저에서만 렌더링하는 페이지에는 이 설정이 필요 없습니다. 첫 화면부터 브라우저의 locale로 씁니다.
+
+:::
+
 ## 묶음
 
 일곱 개 언어가 함께 배포되고, 각각이 완전한 한 벌입니다.

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { CartesianChart, type CartesianChartProps } from '../../internal/chart-frame.js';
 import { LineSeries, type ChartMarkers } from '../../internal/chart-line.js';
 import { stackToFull, writeChartValue, zeroNulls } from '../../internal/chart.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useLocale } from '../../internal/defaults.js';
 import type {
   PlassChartCurve,
   PlassChartLabelColor,
@@ -106,8 +106,7 @@ export function PlAreaChart({
   locale,
   ...props
 }: PlAreaChartProps) {
-  const defaults = useDefaults();
-  const resolvedLocale = locale ?? defaults.locale;
+  const resolvedLocale = useLocale(locale);
   const id = React.useId().replace(/:/g, '');
   const full = stacked === 'full';
   // The old boolean is read only when the prop that replaced it says nothing.
