@@ -48,7 +48,10 @@ function whenIdle(callback: () => void): () => void {
  * `open` changes. Opening it from a layout effect, before the browser paints,
  * gives the first question the same arrival every later one gets.
  */
-function ConfirmModal({ open, ...props }: PlModalProps) {
+function ConfirmModal({
+  open,
+  ...props
+}: PlModalProps & { initialFocus?: React.RefObject<HTMLElement | null> }) {
   const [mounted, setMounted] = React.useState(false);
 
   React.useLayoutEffect(() => {
@@ -178,6 +181,8 @@ export function PlConfirmProvider({
   const live = React.useRef<Request | null>(null);
   const queue = React.useRef<Request[]>([]);
   const asked = React.useRef(0);
+  // The button that takes the focus when the dialog opens.
+  const answer = React.useRef<HTMLButtonElement>(null);
 
   const settle = React.useCallback((value: boolean) => {
     const request = live.current;
@@ -258,6 +263,22 @@ export function PlConfirmProvider({
   const isAlert = current?.kind === 'alert';
   const focusConfirm = (options?.initialFocus ?? 'cancel') === 'confirm' || isAlert;
 
+  // Whether the dialog was open before the question now in it arrived.
+  const wasOpen = React.useRef(false);
+
+  // A question that takes the place of another in a dialog that stays open,
+  // from the queue or asked as soon as the last one was answered, gets the
+  // focus here: the dialog's `initialFocus` ran when it opened and does not run
+  // again. Before paint, so an Enter pressed twice cannot reach the button just
+  // pressed and confirm the next question from the last one's harmless yes.
+  React.useLayoutEffect(() => {
+    if (open && wasOpen.current) {
+      answer.current?.focus();
+    }
+
+    wasOpen.current = open;
+  }, [open, current]);
+
   // Nothing is mounted until something asks, and `current` is never cleared,
   // so from the first question on the modal stays mounted between questions
   // exactly as it would have from the start.
@@ -277,6 +298,13 @@ export function PlConfirmProvider({
         // buttons, which say what each answer does; a × beside them would be a
         // third answer that means the same as Cancel without saying so.
         showClose={false}
+        // The dialog moves the focus onto the button rather than the button
+        // taking it with `autoFocus`. The dialog notes where the focus was as it
+        // opens, and an `autoFocus` has already moved it by then, so an answer
+        // would hand the focus back to a button that is gone, and the reader
+        // would land on the page's body. `PlModal` hands what it does not name
+        // to Base UI's popup, which is where this is read.
+        initialFocus={answer}
         size={options?.size ?? size}
         color={options?.color ?? color}
         width={options?.width ?? width}
@@ -284,18 +312,16 @@ export function PlConfirmProvider({
         title={options?.title}
         description={options?.description}
         actions={
-          // Keyed by the question. The sheet stays open between two queued
-          // questions, so without a key the next one would reuse these buttons,
-          // `autoFocus` would not run again, and the focus would stay on the
-          // button just pressed: an Enter pressed twice would confirm a second,
-          // destructive question from the first one's harmless yes.
+          // Keyed by the question, so a question that takes the place of another
+          // in the open sheet gets buttons of its own rather than the last
+          // one's, one of which was pressed a moment ago.
           <React.Fragment key={current?.id}>
             {isAlert ? null : (
               <PlButton
+                ref={focusConfirm ? undefined : answer}
                 variant="ghost"
                 color="secondary"
                 size={options?.size ?? size}
-                autoFocus={!focusConfirm}
                 onClick={() => settle(false)}
               >
                 {options?.cancelLabel ?? cancelLabel ?? labels.cancel}
@@ -303,9 +329,9 @@ export function PlConfirmProvider({
             )}
 
             <PlButton
+              ref={focusConfirm ? answer : undefined}
               color={options?.color ?? color}
               size={options?.size ?? size}
-              autoFocus={focusConfirm}
               onClick={() => settle(true)}
             >
               {options?.confirmLabel ??

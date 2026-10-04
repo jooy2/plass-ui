@@ -12,6 +12,7 @@
  */
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlButton, PlConfirmProvider, PlassProvider, usePlConfirm } from 'plass-ui';
 
@@ -387,6 +388,129 @@ describe('PlConfirmProvider', () => {
 
       await expect.element(screen.getByText('Delete it?')).toBeInTheDocument();
       await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
+    });
+
+    it.each(['confirm', 'cancel', 'Escape'] as const)(
+      'goes back to the button that asked once it is answered by %s, every time',
+      async (way) => {
+        const answer = vi.fn();
+
+        const screen = await render(
+          <PlConfirmProvider>
+            <Asker answer={answer} confirmLabel="Delete it" cancelLabel="Keep it" />
+          </PlConfirmProvider>
+        );
+        const asker = screen.getByRole('button', { name: 'Delete' }).element() as HTMLElement;
+
+        // Twice: the first question mounts the dialog, and the second finds it
+        // already there.
+        for (const round of [1, 2]) {
+          // `click()` leaves the focus where `focus()` put it, as a press would.
+          asker.focus();
+          asker.click();
+
+          await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
+
+          if (way === 'Escape') {
+            await userEvent.keyboard('{Escape}');
+          } else {
+            await pressInDialog(way === 'confirm' ? 'Delete it' : 'Keep it');
+          }
+
+          await expect.poll(() => answer.mock.calls.length).toBe(round);
+          await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+          await expect.poll(() => document.activeElement).toBe(asker);
+        }
+      }
+    );
+
+    it('goes back to the button that asked once the last question in the queue is answered', async () => {
+      function Two() {
+        const { confirm } = usePlConfirm();
+
+        return (
+          <PlButton
+            onClick={() => {
+              void confirm({ title: 'Save first?', confirmLabel: 'Save', initialFocus: 'confirm' });
+              void confirm({ title: 'Delete it?', confirmLabel: 'Delete', cancelLabel: 'Keep it' });
+            }}
+          >
+            Ask twice
+          </PlButton>
+        );
+      }
+
+      const screen = await render(
+        <PlConfirmProvider>
+          <Two />
+        </PlConfirmProvider>
+      );
+      const asker = screen.getByRole('button', { name: 'Ask twice' }).element() as HTMLElement;
+
+      asker.focus();
+      asker.click();
+
+      await expect.poll(() => document.activeElement?.textContent).toBe('Save');
+      (document.activeElement as HTMLButtonElement).click();
+
+      await expect.element(screen.getByText('Delete it?')).toBeInTheDocument();
+      await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
+      (document.activeElement as HTMLButtonElement).click();
+
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => document.activeElement).toBe(asker);
+    });
+
+    it('lands on a question asked as soon as the last one is answered, and goes back after it', async () => {
+      function Chain() {
+        const { confirm } = usePlConfirm();
+
+        return (
+          <PlButton
+            onClick={async () => {
+              if (
+                await confirm({
+                  title: 'Save first?',
+                  confirmLabel: 'Save',
+                  initialFocus: 'confirm'
+                })
+              ) {
+                await confirm({
+                  title: 'Delete it?',
+                  confirmLabel: 'Delete',
+                  cancelLabel: 'Keep it'
+                });
+              }
+            }}
+          >
+            Save and delete
+          </PlButton>
+        );
+      }
+
+      const screen = await render(
+        <PlConfirmProvider>
+          <Chain />
+        </PlConfirmProvider>
+      );
+      const asker = screen
+        .getByRole('button', { name: 'Save and delete' })
+        .element() as HTMLElement;
+
+      asker.focus();
+      asker.click();
+
+      await expect.poll(() => document.activeElement?.textContent).toBe('Save');
+      (document.activeElement as HTMLButtonElement).click();
+
+      // Asked before the dialog had closed, so it takes the place of the first
+      // question in a dialog that stays open, as a queued one does.
+      await expect.element(screen.getByText('Delete it?')).toBeInTheDocument();
+      await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
+      (document.activeElement as HTMLButtonElement).click();
+
+      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => document.activeElement).toBe(asker);
     });
   });
 
