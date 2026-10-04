@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { FadedContext, useDisabled } from '../../internal/form.js';
-import { useDefaults } from '../../internal/defaults.js';
+import { useDefaults, useRuntimeLocale } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { Combobox as BaseUICombobox } from '@base-ui/react/combobox';
 import { Field } from '@base-ui/react/field';
@@ -393,6 +393,11 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   ...props
 }: PlComboboxProps<Multiple>) {
   const defaults = useDefaults();
+  // The one locale the text is matched in: Base UI's filter compares in it and
+  // the "add this" row folds case in it, so the two cannot disagree about what
+  // was typed. The runtime's, pinned while a server render hydrates, as a
+  // `PlDataTable` sorts text in.
+  const matchLocale = useRuntimeLocale(undefined);
   const disabled = useDisabled(disabledProp);
   const labels = useLabels();
   const openLabel = openLabelProp ?? labels.open;
@@ -452,15 +457,15 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   // reach it the same way every other row is reached — and Base UI's own filter
   // keeps it visible, because its label *is* the query.
   const trimmed = query.trim();
-  const folded = trimmed.toLocaleLowerCase();
+  const folded = trimmed.toLocaleLowerCase(matchLocale);
   const alreadyKnown =
     trimmed === '' ||
     options.some(
       (option) =>
-        option.label.toLocaleLowerCase() === folded ||
-        String(option.value).toLocaleLowerCase() === folded
+        option.label.toLocaleLowerCase(matchLocale) === folded ||
+        String(option.value).toLocaleLowerCase(matchLocale) === folded
     ) ||
-    selection.some((item) => String(item).toLocaleLowerCase() === folded);
+    selection.some((item) => String(item).toLocaleLowerCase(matchLocale) === folded);
   const customValue = allowCustom && !readOnly && !disabled && !alreadyKnown ? trimmed : null;
 
   const listItems = React.useMemo<Entry[]>(
@@ -634,6 +639,7 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         itemToStringLabel={String}
         itemToStringValue={String}
         limit={limit}
+        locale={matchLocale}
         disabled={disabled}
         readOnly={readOnly}
         required={required}
