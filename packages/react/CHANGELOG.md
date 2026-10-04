@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **A horizontal `PlTabs` measures its bar only when something about the bar changed.** It read the list's scroll width after every render, including a parent's render that changed nothing in the bar, and read the computed style on every scroll event. It now measures when the bar is resized, when a tab is added, removed or relabelled, and when the direction turns over; a scroll reads only the scroll position, and the fade still updates on the frame the tabs changed in.
+
 - **Scrolling the page over a horizontal `PlTabs` or `PlScrollZone` whose contents fit no longer waits for the main thread.** Both put a wheel listener that can cancel the wheel on the strip as soon as they mounted, so the browser ran it before scrolling the page on every notch, even over a bar that had nothing to scroll. It is now on only while the strip overflows, and an overflowing strip turns a vertical wheel into a sideways scroll as before.
 
 - **`hiddenUntilFound` on `PlAccordion` and `PlCollapsible` no longer makes Base UI warn.** Both passed `keepMounted={false}` to Base UI whenever the caller left `keepMounted` out, and Base UI warns in development when an explicit `false` meets `hiddenUntilFound`, which ignores it. `keepMounted` is now passed only when it was given, and closed panels behave as before.

@@ -381,6 +381,215 @@ describe('PlTabs', () => {
 
       expect(screen.getByRole('tablist').element()).not.toHaveAttribute('data-overflow');
     });
+
+    it('fades the ends of a right-to-left bar from the other side', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(
+          <div dir="rtl">
+            <Settings />
+          </div>
+        );
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'end');
+        expect(list.style.getPropertyValue('--p-fade-left')).toBe('var(--p-fade)');
+        expect(list.style.getPropertyValue('--p-fade-right')).toBe('');
+
+        // Negative, because a right-to-left strip counts its scroll backwards.
+        list.scrollTo({ left: -list.scrollWidth, behavior: 'auto' });
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'start');
+        expect(list.style.getPropertyValue('--p-fade-left')).toBe('');
+        expect(list.style.getPropertyValue('--p-fade-right')).toBe('var(--p-fade)');
+      } finally {
+        restore();
+      }
+    });
+  });
+
+  describe('measuring the bar', () => {
+    const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+    /** Counts the reads of the list's `scrollWidth` from here on. */
+    function countScrollWidth(list: Element) {
+      const read = Object.getOwnPropertyDescriptor(Element.prototype, 'scrollWidth')?.get;
+      let reads = 0;
+      const spy = vi.spyOn(Element.prototype, 'scrollWidth', 'get').mockImplementation(function (
+        this: Element
+      ) {
+        if (this === list) {
+          reads += 1;
+        }
+
+        return read?.call(this) ?? 0;
+      });
+
+      return {
+        reads: () => reads,
+        restore: () => spy.mockRestore()
+      };
+    }
+
+    it('reads no layout when a parent renders and nothing in the bar changed', async () => {
+      // Nothing chosen, so Base UI's indicator, which measures the list in its
+      // own render, has nothing to measure, and every read left is the bar's.
+      function Page({ note }: { note: string }) {
+        return (
+          <div>
+            <p>{note}</p>
+            <PlTabs value={null}>
+              <PlTab value="account">Account</PlTab>
+              <PlTab value="billing">Billing</PlTab>
+            </PlTabs>
+          </div>
+        );
+      }
+
+      const screen = await render(<Page note="Draft" />);
+      const list = screen.getByRole('tablist').element();
+
+      // The first layout, and the observers' first report of it.
+      await frame();
+      await frame();
+
+      const count = countScrollWidth(list);
+
+      try {
+        await screen.rerender(<Page note="Saved" />);
+        await frame();
+        await frame();
+
+        await expect.element(screen.getByText('Saved')).toBeInTheDocument();
+        expect(count.reads()).toBe(0);
+      } finally {
+        count.restore();
+      }
+    });
+
+    it('measures again, before the frame is drawn, when a tab is added', async () => {
+      const restore = clip();
+
+      function Bar({ count }: { count: number }) {
+        return (
+          <PlTabs defaultValue="t0">
+            {Array.from({ length: count }, (_, index) => (
+              <PlTab key={index} value={`t${index}`}>
+                Tab {index}
+              </PlTab>
+            ))}
+          </PlTabs>
+        );
+      }
+
+      try {
+        const screen = await render(<Bar count={1} />);
+        const list = screen.getByRole('tablist').element();
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'none');
+
+        await screen.rerender(<Bar count={3} />);
+
+        // Not polled: the commit that added the tabs is the one that says so.
+        expect(list).toHaveAttribute('data-overflow', 'end');
+      } finally {
+        restore();
+      }
+    });
+
+    it('measures again when a tab is renamed', async () => {
+      const style = document.createElement('style');
+
+      // Tabs as wide as their labels, so a longer label is a wider strip.
+      style.textContent =
+        '[role="tablist"] { position: relative; display: flex; overflow-x: auto; width: 160px; }' +
+        '[role="tab"] { flex: 0 0 auto; white-space: nowrap; }';
+      document.head.append(style);
+
+      function Bar({ label }: { label: string }) {
+        return (
+          <PlTabs defaultValue="a">
+            <PlTab value="a">{label}</PlTab>
+          </PlTabs>
+        );
+      }
+
+      try {
+        const screen = await render(<Bar label="Short" />);
+        const list = screen.getByRole('tablist').element();
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'none');
+
+        await screen.rerender(<Bar label="A label far too long for a bar this narrow" />);
+
+        expect(list).toHaveAttribute('data-overflow', 'end');
+      } finally {
+        style.remove();
+      }
+    });
+
+    it('reads no style while the bar scrolls', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+        const scrolled = () =>
+          new Promise((resolve) => list.addEventListener('scroll', resolve, { once: true }));
+
+        let done = scrolled();
+
+        list.scrollTo({ left: 60, behavior: 'auto' });
+        await done;
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'both');
+
+        const style = vi.spyOn(window, 'getComputedStyle');
+
+        try {
+          done = scrolled();
+          list.scrollTo({ left: 70, behavior: 'auto' });
+          await done;
+          await frame();
+
+          // The direction is read when the bar is laid out. A scroll moves the
+          // strip and never turns it round.
+          expect(style.mock.calls.filter(([element]) => element === list)).toHaveLength(0);
+          expect(list).toHaveAttribute('data-overflow', 'both');
+        } finally {
+          style.mockRestore();
+        }
+      } finally {
+        restore();
+      }
+    });
+
+    it('turns the fade round when the document does', async () => {
+      const restore = clip();
+      const root = document.documentElement;
+      const was = root.getAttribute('dir');
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'end');
+        expect(list.style.getPropertyValue('--p-fade-right')).toBe('var(--p-fade)');
+
+        root.setAttribute('dir', 'rtl');
+
+        await expect.poll(() => list.style.getPropertyValue('--p-fade-left')).toBe('var(--p-fade)');
+        expect(list.style.getPropertyValue('--p-fade-right')).toBe('');
+      } finally {
+        if (was === null) {
+          root.removeAttribute('dir');
+        } else {
+          root.setAttribute('dir', was);
+        }
+
+        restore();
+      }
+    });
   });
 
   describe('the wheel', () => {

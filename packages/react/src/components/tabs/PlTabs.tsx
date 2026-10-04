@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { Tabs as BaseUITabs } from '@base-ui/react/tabs';
+import { useDirection } from '@base-ui/react/direction-provider';
+import { useDocumentDirection } from '../../internal/direction.js';
 import {
   controlHeightClasses,
   controlTextClasses,
@@ -372,6 +374,16 @@ interface ListOverflow {
 }
 
 /**
+ * Whether any of these changes inside a tab list can have moved its scroll
+ * width. Every one can, except a change to the list's own `style`, which is the
+ * fade the measurement writes: counting it would have the bar measure itself
+ * again every time it answered.
+ */
+function movesTheStrip(records: MutationRecord[], list: Node): boolean {
+  return records.some((record) => !(record.target === list && record.attributeName === 'style'));
+}
+
+/**
  * Whether there are more tabs than room, and which way they went.
  *
  * The bar has always scrolled — this is what makes it possible to tell. A
@@ -385,8 +397,9 @@ interface ListOverflow {
  * depends on the room it was given, so there is no prop that could answer it
  * and no render at which the answer is known in advance. Three things change it
  * — the strip being scrolled, the bar being resized, and the tabs inside it
- * changing — and only the first is an event, which is why this measures on
- * every commit as well as observing the box.
+ * changing — and only the first is an event. The other two are observed, the
+ * box by a `ResizeObserver` and what is inside it by a `MutationObserver`, so a
+ * render that changed nothing in the bar measures nothing.
  *
  * The state is published as `data-overflow` for the same reason the animations
  * publish `data-state`: it is the fact, it can be styled against from outside,
@@ -398,42 +411,122 @@ function useListOverflow(
 ): ListOverflow {
   const [reach, setReach] = React.useState({ start: false, end: false, rtl: false });
 
+  /**
+   * How far along the strip is. A measurement that read the direction hands it
+   * in; a scroll hands in nothing and keeps the one already known, because
+   * scrolling moves the strip and never turns it round.
+   */
+  const update = React.useCallback(
+    (rtl?: boolean) => {
+      const element = node.current;
+
+      if (!element) {
+        return;
+      }
+
+      const room = element.scrollWidth - element.clientWidth;
+      // `abs`, because a right-to-left container counts its scroll backwards
+      // from zero. How far along we are is a distance either way.
+      const along = Math.abs(element.scrollLeft);
+      // A pixel of slack: a fractional layout leaves a strip that fits
+      // reporting a scrollWidth a hair wider than its box, and a bar that fades
+      // because of rounding is a bar that lies.
+      const start = along > 1;
+      const end = room - along > 1;
+
+      setReach((previous) => {
+        const next = { start, end, rtl: rtl ?? previous.rtl };
+
+        return previous.start === next.start &&
+          previous.end === next.end &&
+          previous.rtl === next.rtl
+          ? previous
+          : next;
+      });
+    },
+    [node]
+  );
+
+  /**
+   * Everything but a scroll, and the direction with it. The list's own
+   * direction rather than the document's, so a bar inside a `dir="rtl"` box on
+   * a left-to-right page fades the right ends.
+   */
   const measure = React.useCallback(() => {
     const element = node.current;
 
-    if (!element) {
-      return;
+    if (element) {
+      update(getComputedStyle(element).direction === 'rtl');
     }
+  }, [node, update]);
 
-    const room = element.scrollWidth - element.clientWidth;
-    // `abs`, because a right-to-left container counts its scroll backwards from
-    // zero. How far along we are is a distance either way.
-    const along = Math.abs(element.scrollLeft);
-    const rtl = getComputedStyle(element).direction === 'rtl';
+  const onScroll = React.useCallback(() => update(), [update]);
 
-    // A pixel of slack: a fractional layout leaves a strip that fits reporting
-    // a scrollWidth a hair wider than its box, and a bar that fades because of
-    // rounding is a bar that lies.
-    const next = { start: along > 1, end: room - along > 1, rtl };
+  // The direction turning over is the one change that is neither a resize nor a
+  // change inside the bar, so the two places it is announced are listened to:
+  // the document, and the nearest `PlassProvider`, which is how a subtree that
+  // runs the other way from its page says so.
+  const documentDirection = useDocumentDirection();
+  const providedDirection = useDirection();
 
-    setReach((previous) =>
-      previous.start === next.start && previous.end === next.end && previous.rtl === next.rtl
-        ? previous
-        : next
-    );
-  }, [node]);
-
-  // Every commit, not only the ones a dependency changed: adding a tab, or
-  // renaming one, changes the scroll width without changing the box, so there
-  // is nothing there for a `ResizeObserver` on the list to see.
+  // The first measurement, before the first paint, and again whenever the
+  // direction turns over.
   //
   // The rule this suppresses is about cascading renders, and there is no
-  // cascade: `measure` hands back the previous state object whenever the answer
-  // has not moved, so the common commit sets no state at all. What it costs is
-  // two layout reads on a component that renders when its selection changes.
+  // cascade: `update` hands back the previous state object whenever the answer
+  // has not moved, so the common case sets no state at all.
   React.useLayoutEffect(() => {
     if (active) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
+      measure();
+    }
+  }, [active, measure, documentDirection, providedDirection]);
+
+  /**
+   * What changed inside the bar. Adding a tab, or renaming one, changes the
+   * scroll width without changing the box, so there is nothing there for the
+   * `ResizeObserver` to see.
+   */
+  const mutations = React.useRef<MutationObserver | null>(null);
+
+  React.useLayoutEffect(() => {
+    const element = node.current;
+
+    if (!element || !active) {
+      return;
+    }
+
+    const observer = new MutationObserver((records) => {
+      if (movesTheStrip(records, element)) {
+        measure();
+      }
+    });
+
+    observer.observe(element, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ['class', 'style']
+    });
+    mutations.current = observer;
+
+    return () => {
+      observer.disconnect();
+      mutations.current = null;
+    };
+  }, [active, measure, node]);
+
+  // After a commit and before it is painted, but only when that commit changed
+  // something inside the bar. The observer would hear of it a moment later
+  // anyway; taking its records here keeps the fade right on the frame the tabs
+  // changed in, without two layout reads on every render of a component that
+  // renders whenever its parent does.
+  React.useLayoutEffect(() => {
+    const element = node.current;
+    const records = mutations.current?.takeRecords();
+
+    if (element && records && movesTheStrip(records, element)) {
       measure();
     }
   });
@@ -468,7 +561,7 @@ function useListOverflow(
       '--p-fade-left': left ? 'var(--p-fade)' : undefined,
       '--p-fade-right': right ? 'var(--p-fade)' : undefined
     } as React.CSSProperties,
-    onScroll: measure,
+    onScroll,
     state: reach.start ? (reach.end ? 'both' : 'start') : reach.end ? 'end' : 'none'
   };
 }
