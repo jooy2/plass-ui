@@ -72,6 +72,49 @@ Widget pageWithRow({
   );
 }
 
+/// The turn the rotation under test is carrying, in degrees.
+double turnOf(WidgetTester tester) {
+  final Matrix4 m = tester
+      .widget<Transform>(
+        find.descendant(
+          of: find.byType(PlAnimateRotate, skipOffstage: false),
+          matching: find.byType(Transform, skipOffstage: false),
+        ),
+      )
+      .transform;
+
+  return math.atan2(m.storage[1], m.storage[0]) * 180 / math.pi;
+}
+
+/// The gate under the rotation.
+PlassAnimateGateState gateOf(WidgetTester tester) {
+  return tester.state<PlassAnimateGateState>(find.byType(PlassAnimateGate, skipOffstage: false));
+}
+
+/// A quarter turn a second, at an even pace, for ever unless [repeat] says
+/// otherwise, and back again on every other pass with [alternate].
+Widget spin({
+  int? repeat,
+  bool alternate = false,
+  bool paused = false,
+  PlassAnimateTrigger trigger = PlassAnimateTrigger.mount,
+  bool once = true,
+}) {
+  return PlAnimateRotate(
+    from: 0,
+    to: 90,
+    fade: false,
+    curve: Curves.linear,
+    duration: const Duration(seconds: 1),
+    repeat: repeat,
+    alternate: alternate,
+    paused: paused,
+    trigger: trigger,
+    once: once,
+    child: const SizedBox.square(dimension: 100),
+  );
+}
+
 void main() {
   group('the hover trigger', () {
     testWidgets('adds no stop to the tab order around content that takes no focus', (
@@ -344,49 +387,6 @@ void main() {
   });
 
   group('an endless effect off screen', () {
-    /// The turn the rotation under test is carrying, in degrees.
-    double turnOf(WidgetTester tester) {
-      final Matrix4 m = tester
-          .widget<Transform>(
-            find.descendant(
-              of: find.byType(PlAnimateRotate, skipOffstage: false),
-              matching: find.byType(Transform, skipOffstage: false),
-            ),
-          )
-          .transform;
-
-      return math.atan2(m.storage[1], m.storage[0]) * 180 / math.pi;
-    }
-
-    /// The gate under the rotation.
-    PlassAnimateGateState gateOf(WidgetTester tester) {
-      return tester.state<PlassAnimateGateState>(
-        find.byType(PlassAnimateGate, skipOffstage: false),
-      );
-    }
-
-    /// A quarter turn a second, at an even pace, for ever unless [repeat] says
-    /// otherwise.
-    Widget spin({
-      int? repeat,
-      bool paused = false,
-      PlassAnimateTrigger trigger = PlassAnimateTrigger.mount,
-      bool once = true,
-    }) {
-      return PlAnimateRotate(
-        from: 0,
-        to: 90,
-        fade: false,
-        curve: Curves.linear,
-        duration: const Duration(seconds: 1),
-        repeat: repeat,
-        paused: paused,
-        trigger: trigger,
-        once: once,
-        child: const SizedBox.square(dimension: 100),
-      );
-    }
-
     testWidgets('rests while it is scrolled out of view, and goes on from the frame it was on', (
       WidgetTester tester,
     ) async {
@@ -550,6 +550,75 @@ void main() {
       await pumpScrolled(tester);
 
       expect(gateOf(tester).resting, isTrue);
+    });
+  });
+
+  group('an alternating run on its way back', () {
+    /// Turns the endless [spin] that turns back on every other pass out to 90°
+    /// and a quarter of the way back again, to 67.5°.
+    ///
+    /// A pass ends on the first frame after its last moment rather than on it,
+    /// and the next one starts on the frame after that.
+    Future<void> turnBack(WidgetTester tester) async {
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1001));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+
+      expect(turnOf(tester), closeTo(67.5, 0.01));
+    }
+
+    testWidgets('goes on back once a pause is let go, and turns at the end of the pass', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(host(spin(alternate: true)));
+      await turnBack(tester);
+
+      await tester.pumpWidget(host(spin(alternate: true, paused: true)));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(turnOf(tester), closeTo(67.5, 0.01));
+
+      await tester.pumpWidget(host(spin(alternate: true)));
+      await tester.pump();
+
+      expect(turnOf(tester), closeTo(67.5, 0.01));
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // As a paused keyframe goes on the way it was going. It used to turn
+      // round and go out again, to 76.5°.
+      expect(turnOf(tester), closeTo(58.5, 0.01));
+
+      await tester.pump(const Duration(milliseconds: 651));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+
+      // Back at the start, the next pass goes out again.
+      expect(turnOf(tester), closeTo(22.5, 0.01));
+    });
+
+    testWidgets('goes on back once it is scrolled into view again', (WidgetTester tester) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(scrollingPage(page, spin(alternate: true)));
+      await turnBack(tester);
+
+      page.jumpTo(600);
+      await pumpScrolled(tester);
+
+      expect(gateOf(tester).resting, isTrue);
+
+      page.jumpTo(0);
+      await pumpScrolled(tester);
+
+      expect(turnOf(tester), closeTo(67.5, 0.01));
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(turnOf(tester), closeTo(58.5, 0.01));
     });
   });
 

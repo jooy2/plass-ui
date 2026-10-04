@@ -860,11 +860,16 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     });
   }
 
-  /// The moment the run starts: the first pass, or under reduced motion the
-  /// last frame at once.
+  /// The moment the run starts or goes on: the first pass, the pass a pause or
+  /// a rest stopped, or under reduced motion the last frame at once.
+  ///
+  /// A pass stopped on its way back goes on back, as a paused keyframe goes on
+  /// the way it was going, and turns at the end of it as it would have.
   void _go() {
     if (_still) {
       _setLanded(true);
+    } else if (_controller.status == AnimationStatus.reverse) {
+      _controller.reverse();
     } else {
       _controller.forward();
     }
