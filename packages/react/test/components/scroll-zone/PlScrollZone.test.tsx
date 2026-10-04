@@ -646,6 +646,36 @@ describe('PlScrollZone', () => {
       }
     });
 
+    it('puts no listener that could hold the page on a strip everything fits in', async () => {
+      const restore = clip();
+      const add = vi.spyOn(EventTarget.prototype, 'addEventListener');
+
+      try {
+        const screen = await render(
+          <PlScrollZone data-testid="zone">
+            <div style={{ width: 40 }}>One</div>
+            <div style={{ width: 40 }}>Two</div>
+          </PlScrollZone>
+        );
+        const box = scroller(screen);
+
+        // A listener that may cancel the wheel is one the browser waits for
+        // before it scrolls the page, and a strip that fits has nothing to take
+        // the wheel for.
+        expect(
+          add.mock.calls.filter(
+            ([type, , options], index) =>
+              add.mock.contexts[index] === box &&
+              type === 'wheel' &&
+              !(typeof options === 'object' && options.passive === true)
+          )
+        ).toHaveLength(0);
+      } finally {
+        add.mockRestore();
+        restore();
+      }
+    });
+
     it('never holds the page back on a strip everything fits in', async () => {
       const restore = clip();
 

@@ -397,6 +397,80 @@ describe('PlTabs', () => {
       return event;
     }
 
+    /**
+     * Counts the `wheel` listeners put on an element that may cancel the wheel,
+     * the kind the browser has to wait for before it scrolls the page, and the
+     * `wheel` listeners taken off it again.
+     */
+    function watchWheelListeners() {
+      const add = vi.spyOn(EventTarget.prototype, 'addEventListener');
+      const remove = vi.spyOn(EventTarget.prototype, 'removeEventListener');
+
+      return {
+        added: (element: Element) =>
+          add.mock.calls.filter(
+            ([type, , options], index) =>
+              add.mock.contexts[index] === element &&
+              type === 'wheel' &&
+              !(typeof options === 'object' && options.passive === true)
+          ).length,
+        removed: (element: Element) =>
+          remove.mock.calls.filter(
+            ([type], index) => remove.mock.contexts[index] === element && type === 'wheel'
+          ).length,
+        restore() {
+          add.mockRestore();
+          remove.mockRestore();
+        }
+      };
+    }
+
+    it('puts no listener that could hold the page on a bar whose tabs all fit', async () => {
+      const listeners = watchWheelListeners();
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element();
+
+        // A listener that may cancel the wheel is one the browser waits for
+        // before it scrolls the page, and a bar that fits has nothing to take
+        // the wheel for.
+        expect(list).toHaveAttribute('data-overflow', 'none');
+        expect(listeners.added(list)).toBe(0);
+      } finally {
+        listeners.restore();
+      }
+    });
+
+    it('takes the wheel once the tabs outgrow the bar, and lets it go once they fit again', async () => {
+      const listeners = watchWheelListeners();
+      let restore: (() => void) | undefined;
+
+      try {
+        const screen = await render(<Settings />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+
+        expect(listeners.added(list)).toBe(0);
+
+        restore = clip();
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'end');
+        await expect.poll(() => listeners.added(list)).toBe(1);
+        expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(true);
+
+        restore();
+        restore = undefined;
+        list.scrollLeft = 0;
+
+        await expect.element(screen.getByRole('tablist')).toHaveAttribute('data-overflow', 'none');
+        await expect.poll(() => listeners.removed(list)).toBe(1);
+        expect(wheel(list, { deltaY: 120 }).defaultPrevented).toBe(false);
+      } finally {
+        restore?.();
+        listeners.restore();
+      }
+    });
+
     it('moves the bar along on a vertical wheel', async () => {
       const restore = clip();
 

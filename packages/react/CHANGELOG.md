@@ -6,6 +6,8 @@
 
 ### Fixed
 
+- **Scrolling the page over a horizontal `PlTabs` or `PlScrollZone` whose contents fit no longer waits for the main thread.** Both put a wheel listener that can cancel the wheel on the strip as soon as they mounted, so the browser ran it before scrolling the page on every notch, even over a bar that had nothing to scroll. It is now on only while the strip overflows, and an overflowing strip turns a vertical wheel into a sideways scroll as before.
+
 - **`hiddenUntilFound` on `PlAccordion` and `PlCollapsible` no longer makes Base UI warn.** Both passed `keepMounted={false}` to Base UI whenever the caller left `keepMounted` out, and Base UI warns in development when an explicit `false` meets `hiddenUntilFound`, which ignores it. `keepMounted` is now passed only when it was given, and closed panels behave as before.
 
 - **A server-rendered `PlAvatar` starts loading its picture with the page.** The `<img>` was mounted only once Base UI had preloaded the picture after hydration, so the request waited for the JavaScript. It is now in the server's markup from the start, kept out of sight, out of the layout and away from screen readers until it has loaded, so what is drawn, the fallback's `delay` and what is announced are unchanged. A `loading`, `fetchPriority` or `decoding` passed in `imageProps` now applies to the request that loads the picture, so `loading: 'lazy'` defers an avatar below the fold where before it was fetched at once.

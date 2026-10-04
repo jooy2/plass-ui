@@ -47,6 +47,11 @@ const LATCH_MS = 250;
 export interface WheelScrollOptions {
   /** Whether the wheel is read at all. A strip that runs down the page is not. */
   enabled: boolean;
+  /**
+   * Whether the strip currently has more than its box, as the component last
+   * measured it. The listener is only there while it does.
+   */
+  overflows: boolean;
   /** What happens once the strip has nowhere left to go. */
   overscroll: PlassOverscroll;
 }
@@ -57,15 +62,22 @@ export interface WheelScrollOptions {
  * A native listener rather than `onWheel`, because React attaches its own wheel
  * listener to the root passively, and `preventDefault` inside a passive
  * listener does nothing but log.
+ *
+ * **Only while the strip overflows.** A listener that can cancel the wheel is
+ * one the browser has to wait for before it scrolls the page, every notch, on
+ * the main thread. A bar of four tabs that fits has nothing to take the wheel
+ * for, so it should not cost the page that wait either. The component already
+ * measures whether its strip overflows, for the fade or the buttons, and that
+ * answer is what puts the listener on and takes it off again.
  */
 export function useWheelScroll(
   ref: React.RefObject<HTMLElement | null>,
-  { enabled, overscroll }: WheelScrollOptions
+  { enabled, overflows, overscroll }: WheelScrollOptions
 ): void {
   React.useEffect(() => {
     const element = ref.current;
 
-    if (!element || !enabled) {
+    if (!element || !enabled || !overflows) {
       return;
     }
 
@@ -90,7 +102,9 @@ export function useWheelScroll(
       // A pixel of slack, and the sentence the whole containment rests on: a
       // strip everything fits in is not a scroller, so it never takes the wheel
       // and never holds it. Without this, a bar of three tabs would be a place
-      // on the page the reader cannot scroll past.
+      // on the page the reader cannot scroll past. Asked again here although
+      // the listener is only on while the strip overflows, because that answer
+      // can be a frame behind the strip.
       if (room <= 1) {
         return;
       }
@@ -132,7 +146,7 @@ export function useWheelScroll(
     element.addEventListener('wheel', onWheel, { passive: false });
 
     return () => element.removeEventListener('wheel', onWheel);
-  }, [enabled, overscroll, ref]);
+  }, [enabled, overflows, overscroll, ref]);
 }
 
 /**

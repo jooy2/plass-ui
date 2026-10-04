@@ -533,8 +533,12 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
   // The bar is a scroll container like any other, and the wheel over it is the
   // same problem `PlScrollZone` has: see `internal/wheel.ts`. The hook does
   // nothing at all until the tabs outrun the box, so an ordinary bar of four
-  // never takes a gesture off the page.
-  useWheelScroll(listRef, { enabled: wheel && horizontal, overscroll });
+  // never takes a gesture off the page, nor makes the page wait to ask.
+  useWheelScroll(listRef, {
+    enabled: wheel && horizontal,
+    overflows: overflow.state !== undefined && overflow.state !== 'none',
+    overscroll
+  });
 
   // Everything a caller writes between the tags is either a tab or a panel, and
   // the two go in different boxes — so they are sorted here rather than made the

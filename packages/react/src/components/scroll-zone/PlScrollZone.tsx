@@ -382,7 +382,11 @@ export const PlScrollZone = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlS
      * already runs the way the strip does and the browser's own scrolling is
      * better than anything a handler reproduces.
      */
-    useWheelScroll(scrollerRef, { enabled: wheel && horizontal, overscroll });
+    useWheelScroll(scrollerRef, {
+      enabled: wheel && horizontal,
+      overflows: reach.back || reach.forward,
+      overscroll
+    });
 
     /**
      * Where each child starts, measured from the leading edge of the viewport
