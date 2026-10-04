@@ -1,7 +1,8 @@
-import { act } from 'react';
+import { act, useState } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlStep, PlStepper, type PlStepperProps } from 'plass-ui';
 
@@ -179,6 +180,81 @@ describe('PlStepper', () => {
           .toContainElement(screen.getByRole('textbox', { name: 'Code' }).element() as HTMLElement);
       });
     }
+  });
+
+  describe('the focus', () => {
+    /**
+     * A sign-up driven by a Next button inside each panel, which is where a
+     * reader moving on from the keyboard is when the step changes.
+     */
+    function Driven(props: Omit<PlStepperProps, 'active' | 'onActiveChange'>) {
+      const [active, setActive] = useState(0);
+      const next = (
+        <button type="button" onClick={() => setActive((step) => step + 1)}>
+          Next
+        </button>
+      );
+
+      return (
+        <PlStepper active={active} onActiveChange={setActive} {...props}>
+          <PlStep label="Account">
+            <input aria-label="Email" />
+            {next}
+          </PlStep>
+          <PlStep label="Verify">
+            <input aria-label="Code" />
+            {next}
+          </PlStep>
+          <PlStep label="Profile">Done</PlStep>
+        </PlStepper>
+      );
+    }
+
+    for (const orientation of ['horizontal', 'vertical'] as const) {
+      for (const keepMounted of [false, true]) {
+        const name = `${orientation}${keepMounted ? ', keepMounted' : ''}`;
+
+        it(`follows the reader into the next step's panel from the last one (${name})`, async () => {
+          const screen = await render(
+            <Driven orientation={orientation} keepMounted={keepMounted} />
+          );
+          const next = screen.getByRole('button', { name: 'Next' });
+
+          (next.element() as HTMLElement).focus();
+          await expect.element(next).toHaveFocus();
+          await userEvent.keyboard('{Enter}');
+
+          // The panel itself, named by its step, rather than the page's body.
+          await expect.element(screen.getByRole('group', { name: 'Verify' })).toHaveFocus();
+
+          await userEvent.tab();
+
+          await expect.element(screen.getByRole('textbox', { name: 'Code' })).toHaveFocus();
+        });
+
+        it(`leaves the focus on a step that was pressed (${name})`, async () => {
+          const screen = await render(
+            <Driven orientation={orientation} keepMounted={keepMounted} linear={false} />
+          );
+          const verify = screen.getByRole('button', { name: /Verify/ });
+
+          (verify.element() as HTMLElement).focus();
+          await expect.element(verify).toHaveFocus();
+          await userEvent.keyboard('{Enter}');
+
+          await expect.element(screen.getByRole('group', { name: 'Verify' })).toBeVisible();
+          await expect.element(verify).toHaveFocus();
+        });
+      }
+    }
+
+    it('keeps the panel out of the Tab order and draws no ring round it', async () => {
+      const screen = await render(<Driven />);
+      const panel = screen.getByRole('group', { name: 'Account' }).element();
+
+      expect(panel).toHaveAttribute('tabindex', '-1');
+      expect(panel).toHaveClass('outline-none');
+    });
   });
 
   describe('linear', () => {

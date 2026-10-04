@@ -52,6 +52,8 @@ interface StepperContextValue {
   keepMounted: boolean;
   baseId: string;
   onSelect: (index: number) => void;
+  /** The ref for the panel of the step at `index`, the same one every render. */
+  panelRef: (index: number) => React.RefCallback<HTMLDivElement>;
 }
 
 interface StepContextValue {
@@ -155,6 +157,66 @@ function StepTick() {
 }
 
 /**
+ * Sends the focus after the reader into the next step's panel, when it was in
+ * the panel they left.
+ *
+ * Moving on from a button inside a panel takes that panel away, or hides it
+ * when it is kept, and a browser drops the focus of something gone or hidden to
+ * the top of the document, so the next Tab would start the page over. The panel
+ * that arrives takes it instead, and is announced by its step's name. The focus
+ * anywhere else, on a step for example, stays where it is.
+ *
+ * A panel that is taken away is asked on its way out, since its ref is let go
+ * before it leaves the document. A kept panel is still there, hidden and still
+ * holding the focus, when the layout effect that calls `settle` runs.
+ */
+function followPanelFocus() {
+  const panels = new Map<number, HTMLDivElement>();
+  // One callback per step, the same one every render, so a panel's ref is let
+  // go only when the panel goes.
+  const refs = new Map<number, React.RefCallback<HTMLDivElement>>();
+  let leftHoldingFocus = false;
+  let shown: number | null = null;
+
+  const holdsFocus = (panel: HTMLDivElement | undefined) =>
+    Boolean(panel?.contains(panel.ownerDocument.activeElement));
+
+  return {
+    ref(index: number): React.RefCallback<HTMLDivElement> {
+      let callback = refs.get(index);
+
+      if (!callback) {
+        callback = (node: HTMLDivElement | null) => {
+          if (node) {
+            panels.set(index, node);
+            return;
+          }
+
+          leftHoldingFocus ||= holdsFocus(panels.get(index));
+          panels.delete(index);
+        };
+        refs.set(index, callback);
+      }
+
+      return callback;
+    },
+
+    /** Called after every commit with the step the stepper is now on. */
+    settle(active: number) {
+      const from = shown;
+      const heldFocus = leftHoldingFocus || (from !== null && holdsFocus(panels.get(from)));
+
+      shown = active;
+      leftHoldingFocus = false;
+
+      if (from !== null && from !== active && heldFocus) {
+        panels.get(active)?.focus();
+      }
+    }
+  };
+}
+
+/**
  * A process the reader is moving through, and where they are in it.
  *
  * It draws the same rail a [`PlTimeline`](../display/timeline) does — the same
@@ -215,6 +277,15 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
       [activeProp, onActiveChange]
     );
 
+    const [panelFocus] = React.useState(followPanelFocus);
+
+    // After every commit rather than only when `active` moves, so a panel that
+    // left for another reason, its content emptied, does not leave its answer
+    // standing for the next move.
+    React.useLayoutEffect(() => {
+      panelFocus.settle(active);
+    });
+
     // `Children.toArray` rather than the raw children, for the reason a timeline
     // walks its own: a conditional step that rendered nothing must not shift the
     // numbering of the ones after it.
@@ -232,9 +303,22 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
         connector,
         keepMounted,
         baseId,
-        onSelect
+        onSelect,
+        panelRef: panelFocus.ref
       }),
-      [size, density, orientation, color, active, linear, connector, keepMounted, baseId, onSelect]
+      [
+        size,
+        density,
+        orientation,
+        color,
+        active,
+        linear,
+        connector,
+        keepMounted,
+        baseId,
+        onSelect,
+        panelFocus
+      ]
     );
 
     const horizontal = orientation === 'horizontal';
@@ -247,6 +331,7 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
       return hasContent(content) ? (
         <div
           key={key}
+          ref={panelFocus.ref(index)}
           // A group named by the step it belongs to, so a screen reader that
           // lands in the panel is told which step it is the panel for. A
           // name on an element with no role is never read, and a tab panel
@@ -256,7 +341,10 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
           // A kept panel of another step: in the HTML, and out of the layout,
           // the focus order and the accessibility tree.
           hidden={index !== active}
-          className={cx('mt-4', sheetBodyClasses[size])}
+          // Reachable by script and never by Tab, for the focus that follows
+          // the reader in from the last step. No ring: it marks no control.
+          tabIndex={-1}
+          className={cx('mt-4 outline-none', sheetBodyClasses[size])}
         >
           {content}
         </div>
@@ -496,12 +584,19 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
           reaches it. */}
       {!horizontal && (index === active || keepMounted) && hasContent(children) ? (
         <div
+          ref={stepper?.panelRef(index)}
           // Named by the step it sits in, as the horizontal panel is named by
           // the step it belongs to.
           role="group"
           aria-labelledby={stepper ? `${stepper.baseId}-${index}` : undefined}
           hidden={index !== active}
-          className={cx('ms-[calc(var(--p-bullet)+0.75rem)] pt-2 pb-4', sheetBodyClasses[size])}
+          // Where the focus lands when it follows the reader in, as on the
+          // horizontal panel.
+          tabIndex={-1}
+          className={cx(
+            'ms-[calc(var(--p-bullet)+0.75rem)] pt-2 pb-4 outline-none',
+            sheetBodyClasses[size]
+          )}
         >
           {children}
         </div>

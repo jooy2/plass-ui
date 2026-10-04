@@ -144,7 +144,7 @@ class _TickPainter extends CustomPainter {
 /// [active] is an index rather than a value, exactly as a timeline's is, because
 /// a stepper has no selection: everything before it is done, the step at it is
 /// where you are, everything after it is ahead.
-class PlStepper extends StatelessWidget {
+class PlStepper extends StatefulWidget {
   /// Creates a stepper.
   const PlStepper({
     required this.steps,
@@ -205,13 +205,70 @@ class PlStepper extends StatelessWidget {
   }
 
   @override
+  State<PlStepper> createState() => _PlStepperState();
+}
+
+class _PlStepperState extends State<PlStepper> {
+  /// The node each step's panel can hold the focus on, made the first time the
+  /// panel is drawn. Never a stop for Tab or for a remote's arrows: only the
+  /// focus following the reader in lands on it.
+  final Map<int, FocusNode> _panels = <int, FocusNode>{};
+
+  FocusNode _panel(int index) {
+    return _panels.putIfAbsent(
+      index,
+      () => FocusNode(debugLabel: 'PlStepper panel ${index + 1}', skipTraversal: true),
+    );
+  }
+
+  /// Sends the focus after the reader into the next step's panel, when it was
+  /// in the panel they left.
+  ///
+  /// Moving on from a button inside a panel takes that panel away, and the
+  /// focus would go back to whatever held it before, a step behind the reader
+  /// or nothing at all. The panel that arrives takes it instead, once this
+  /// frame has built it. The focus anywhere else, on a step for example, stays
+  /// where it is.
+  @override
+  void didUpdateWidget(PlStepper oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    final int arrived = widget.active;
+    final bool heldFocus = _panels[oldWidget.active]?.hasFocus ?? false;
+
+    if (oldWidget.active == arrived || !heldFocus) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bool hasPanel =
+          arrived >= 0 && arrived < widget.steps.length && widget.steps[arrived].child != null;
+
+      if (mounted && widget.active == arrived && hasPanel) {
+        _panels[arrived]?.requestFocus();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    for (final FocusNode node in _panels.values) {
+      node.dispose();
+    }
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
-    final color = this.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
-    final density = this.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
+    final List<PlStep> steps = widget.steps;
+    final int active = widget.active;
+    final size = widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
+    final color = widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
+    final density = widget.density ?? PlassTheme.densityOf(context) ?? PlassDensity.standard;
 
     final tokens = PlassTheme.of(context);
-    final PlassOrientation orientation = resolveResponsive(context, this.orientation);
+    final PlassOrientation orientation = resolveResponsive(context, widget.orientation);
     final horizontal = orientation == PlassOrientation.horizontal;
 
     final rail = <Widget>[
@@ -221,8 +278,8 @@ class PlStepper extends StatelessWidget {
           index: index,
           last: index == steps.length - 1,
           status: steps[index].status ?? stepStatusAt(index, active),
-          reachable: _reachable(index),
-          onPressed: _reachable(index) ? () => onActiveChanged!(index) : null,
+          reachable: widget._reachable(index),
+          onPressed: widget._reachable(index) ? () => widget.onActiveChanged!(index) : null,
           tokens: tokens,
           family: tokens.family(steps[index].color ?? color),
           size: size,
@@ -232,6 +289,7 @@ class PlStepper extends StatelessWidget {
           // which is the whole reason to lay one out vertically: the answer sits
           // under the question rather than under the whole rail.
           panel: !horizontal && index == active ? steps[index].child : null,
+          panelFocus: !horizontal && index == active ? _panel(index) : null,
         ),
     ];
 
@@ -261,6 +319,7 @@ class PlStepper extends StatelessWidget {
                 ),
                 child: panel,
               ),
+              focusNode: _panel(active),
             ),
           ),
       ],
@@ -269,13 +328,20 @@ class PlStepper extends StatelessWidget {
 }
 
 /// A panel named by its step, or the panel as it is when the step's label is
-/// not text this can read.
-Widget _named(String? name, Widget panel) {
-  if (name == null) {
-    return panel;
+/// not text this can read, round the node the focus lands on when it follows
+/// the reader in.
+Widget _named(String? name, Widget panel, {required FocusNode? focusNode}) {
+  final Widget named = name == null
+      ? panel
+      : Semantics(container: true, explicitChildNodes: true, label: name, child: panel);
+
+  if (focusNode == null) {
+    return named;
   }
 
-  return Semantics(container: true, explicitChildNodes: true, label: name, child: panel);
+  // Off the semantics tree, which already names the panel: a node that said it
+  // could take the focus would be a stop a reader could reach.
+  return Focus(focusNode: focusNode, includeSemantics: false, child: named);
 }
 
 class _Step extends StatelessWidget {
@@ -292,6 +358,7 @@ class _Step extends StatelessWidget {
     required this.density,
     required this.horizontal,
     required this.panel,
+    required this.panelFocus,
   });
 
   final PlStep step;
@@ -306,6 +373,9 @@ class _Step extends StatelessWidget {
   final PlassDensity density;
   final bool horizontal;
   final Widget? panel;
+
+  /// The node the panel holds the focus on, with the panel.
+  final FocusNode? panelFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -500,6 +570,7 @@ class _Step extends StatelessWidget {
                       ),
                       child: panel!,
                     ),
+                    focusNode: panelFocus,
                   ),
                 ),
               if (drawsConnector)

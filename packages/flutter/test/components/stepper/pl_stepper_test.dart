@@ -459,5 +459,128 @@ void main() {
         });
       }
     });
+
+    group('the focus', () {
+      /// The words under the node that holds the focus.
+      List<String?> focusedWords() {
+        final BuildContext? focused = FocusManager.instance.primaryFocus?.context;
+
+        if (focused == null) {
+          return const <String?>[];
+        }
+
+        return find
+            .descendant(
+              of: find.byElementPredicate((Element element) => element == focused),
+              matching: find.byType(Text),
+            )
+            .evaluate()
+            .map((Element element) => (element.widget as Text).data)
+            .toList();
+      }
+
+      /// A sign-up driven by a Next button inside each panel, which is where a
+      /// reader moving on from the keyboard is when the step changes.
+      Future<void> pumpDriven(
+        WidgetTester tester,
+        PlassOrientation orientation,
+        FocusNode before, {
+        bool linear = true,
+      }) async {
+        int active = 0;
+
+        await _pump(
+          tester,
+          StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              final Widget next = PlButton(
+                onPressed: () => setState(() => active += 1),
+                child: const Text('Next'),
+              );
+
+              return afterFocusStop(
+                before,
+                PlStepper(
+                  active: active,
+                  linear: linear,
+                  orientation: PlassResponsive<PlassOrientation>(orientation),
+                  onActiveChanged: (int step) => setState(() => active = step),
+                  steps: <PlStep>[
+                    PlStep(
+                      label: const Text('Account'),
+                      child: Column(children: <Widget>[const Text('Account panel'), next]),
+                    ),
+                    PlStep(
+                      label: const Text('Verify'),
+                      child: Column(
+                        children: <Widget>[
+                          const Text('Verify panel'),
+                          PlButton(onPressed: () {}, child: const Text('Send the code')),
+                          next,
+                        ],
+                      ),
+                    ),
+                    const PlStep(label: Text('Profile'), child: Text('Profile panel')),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      }
+
+      for (final PlassOrientation orientation in PlassOrientation.values) {
+        testWidgets('follows the reader into the next step s panel from the last one, '
+            '${orientation.name}', (WidgetTester tester) async {
+          final FocusNode before = FocusNode();
+          addTearDown(before.dispose);
+          await pumpDriven(tester, orientation, before);
+
+          before.requestFocus();
+          await tester.pump();
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(focusedWords(), contains('Account'));
+
+          // From the step straight to the button in its panel: the panel is
+          // never a stop of its own.
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(focusedWords(), <String>['Next']);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          // The panel itself, rather than the step behind the reader or
+          // nothing at all.
+          expect(focusedWords(), <String>['Verify panel', 'Send the code', 'Next']);
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          expect(focusedWords(), <String>['Send the code']);
+        });
+
+        testWidgets('leaves the focus on a step that was pressed, ${orientation.name}', (
+          WidgetTester tester,
+        ) async {
+          final FocusNode before = FocusNode();
+          addTearDown(before.dispose);
+          await pumpDriven(tester, orientation, before, linear: false);
+
+          // Straight onto the step: which Tab reaches it depends on the
+          // orientation, since a vertical step has its panel under it.
+          Focus.of(tester.element(find.text('Verify'))).requestFocus();
+          await tester.pump();
+          expect(focusedWords(), contains('Verify'));
+
+          await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+          await tester.pumpAndSettle();
+
+          expect(find.text('Verify panel'), findsOneWidget);
+          expect(focusedWords(), contains('Verify'));
+          expect(focusedWords(), isNot(contains('Verify panel')));
+        });
+      }
+    });
   });
 }

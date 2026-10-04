@@ -36,6 +36,8 @@
 
 ### Fixed
 
+- **Moving to another step of a `PlStepper` from inside its panel puts the focus in the new step's panel.** A Next button in a panel went with the panel, or was hidden with it under `keepMounted`, so the focus fell to the page's body and the next Tab started from the top of the page. The panel that arrives now takes the focus, is announced by its step's name, and the next Tab goes on to what is in it, in both orientations. The panel is not a Tab stop, and a focus anywhere else, on a step for example, stays where it is.
+
 - **A `PlHeader` or `PlFooter` that changes only its `position` inside a `PlPageLayout` has its room reserved again.** The layout measured a bar when it arrived or changed size, so a bar switched from `static` to `fixed` left the page reserving nothing for it and covering the top of the content, or its end for a footer, until something resized it. The layout now measures it on that commit. A collapsed `PlSidebar` also reads the page's direction once rather than on every render, and its drawer turns round with a page that turns over while it is open.
 
 - **A `PlSegmentedButton`'s tile and a `PlFloatingBottomNavigation`'s key follow an inline `style` that moves the chosen segment or the current destination.** They measured again only on a commit that changed the value, a prop, the children, a class or a `dir`, so a `style` that moved a segment without resizing the set left the tile where it was until the next change. They now measure on that commit too, and a parent render that hands over the same styles still measures nothing.
