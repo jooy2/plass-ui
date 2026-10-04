@@ -201,6 +201,14 @@ const visible = async (role: Parameters<typeof page.getByRole>[0], name?: string
     .toBeVisible();
 };
 
+/**
+ * Waits for a key that slides to have its duration on, which it is given in
+ * the frame after its first placement rather than with it.
+ */
+const placed = (selector: string) => async () => {
+  await expect.poll(() => document.querySelector(selector)?.hasAttribute('data-ready')).toBe(true);
+};
+
 /** Raises one toast that stays up, once. */
 function RaiseToast() {
   const toast = usePlToast();
@@ -345,7 +353,8 @@ const scenes: Record<string, Scene> = {
           Saved
         </PlFloatingBottomNavigationItem>
       </PlFloatingBottomNavigation>
-    )
+    ),
+    reach: placed('nav > div > span[aria-hidden="true"]')
   },
   PlGallery: {
     modules: ['src/components/gallery/PlGallery.tsx', 'src/components/image/PlImage.tsx'],
@@ -482,7 +491,8 @@ const scenes: Record<string, Scene> = {
         <PlSegment value="day">Day</PlSegment>
         <PlSegment value="week">Week</PlSegment>
       </PlSegmentedButton>
-    )
+    ),
+    reach: placed('[role="radiogroup"] > span[aria-hidden="true"]')
   },
   PlSelect: {
     modules: ['src/components/select/PlSelect.tsx'],

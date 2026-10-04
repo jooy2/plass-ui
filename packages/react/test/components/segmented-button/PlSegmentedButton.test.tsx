@@ -2,6 +2,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlSegment, PlSegmentedButton } from 'plass-ui';
 
+/** Waits out `count` frames. */
+async function frames(count: number): Promise<void> {
+  for (let step = 0; step < count; step += 1) {
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+}
+
 function Periods(props: React.ComponentProps<typeof PlSegmentedButton>) {
   return (
     <PlSegmentedButton aria-label="Period" {...props}>
@@ -91,6 +98,58 @@ describe('PlSegmentedButton', () => {
       for (const slot of ['--p-seg-x', '--p-seg-y', '--p-seg-w', '--p-seg-h']) {
         expect(tile.style.getPropertyValue(slot)).not.toBe('');
       }
+    });
+
+    it('does not measure again when a parent renders it again with nothing changed', async () => {
+      const screen = await render(<Periods className="set-under-test" defaultValue="week" />);
+
+      // The observer's first report measures once more, a frame after the set
+      // is mounted.
+      await frames(3);
+
+      const reads = vi.spyOn(HTMLElement.prototype, 'offsetLeft', 'get');
+
+      try {
+        // The same segments, as new elements: that is what a parent rendering
+        // again hands the set, and each one used to read the layout back.
+        await screen.rerender(<Periods className="set-under-test" defaultValue="week" />);
+        await frames(2);
+
+        expect(
+          reads.mock.contexts.filter((element) =>
+            (element as HTMLElement).hasAttribute('data-segment')
+          )
+        ).toEqual([]);
+      } finally {
+        reads.mockRestore();
+      }
+    });
+
+    it('measures again when the chosen segment moves among the others', async () => {
+      const set = (order: string[]) => (
+        <PlSegmentedButton aria-label="Period" className="set-under-test" defaultValue="week">
+          {order.map((name) => (
+            <PlSegment key={name} value={name.toLowerCase()}>
+              {name}
+            </PlSegment>
+          ))}
+        </PlSegmentedButton>
+      );
+      const screen = await render(set(['Day', 'Week', 'Month']));
+      const tile = document.querySelector(
+        '.set-under-test > span[aria-hidden="true"]'
+      ) as HTMLElement;
+
+      const second = tile.style.getPropertyValue('--p-seg-x');
+
+      // Week goes first: nothing is resized, and the chosen segment stands
+      // somewhere else.
+      await screen.rerender(set(['Week', 'Day', 'Month']));
+
+      const week = screen.getByRole('radio', { name: 'Week' }).element() as HTMLElement;
+
+      expect(`${week.offsetLeft}px`).not.toBe(second);
+      expect(tile.style.getPropertyValue('--p-seg-x')).toBe(`${week.offsetLeft}px`);
     });
   });
 

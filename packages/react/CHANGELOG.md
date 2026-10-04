@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A `PlSegmentedButton` or `PlFloatingBottomNavigation` measures its tile only when something it is placed by has changed.** The effect that places the tile listed `children`, a new reference on every render a parent does, so each one read the chosen segment's box back. The first placement also forced a second layout with `void offsetWidth`, and several on one screen recalculated the layout between each other's writes. The tile is now measured on a commit that changed the choice, a prop the segments are sized by, the segments themselves or the direction, and its transition comes back on in the next frame. What is drawn and how it moves are unchanged.
+
 - **A `PlSidebar` that cannot be resized no longer reads the document's computed style while it renders.** It turned its default `16rem` width into pixels on every render for a handle it does not draw.
 
 - **A server-rendered `PlPageLayout` draws its content below a `fixed` `PlHeader` in the first paint, and hydrating no longer moves it.** The header's height was measured in an effect after hydration, so the HTML a server sent drew the content and the sidebars under the header and pushed them down when the page hydrated, a layout shift of 0.06 to 0.23 on the docs demos. The stylesheet now reserves the header's floor for its `size` and its edges until the layout has measured it, and the layout measures before the browser paints, reading both bars before writing either, so a resize no longer recalculates the page's style once per bar. A header whose content is taller than its `size` allows still moves the content once, when it is measured.

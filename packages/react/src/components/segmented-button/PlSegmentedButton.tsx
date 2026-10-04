@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useCommitChange } from '../../internal/commit-change.js';
 import { useDisabled } from '../../internal/form.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
@@ -340,6 +341,9 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
     committedRef.current = true;
   }, []);
 
+  /** The frame that turns the tile's transition back on, while one is pending. */
+  const readyFrameRef = React.useRef(0);
+
   const attachTile = React.useCallback((node: HTMLSpanElement | null) => {
     tileRef.current = node;
 
@@ -375,6 +379,18 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
       return;
     }
 
+    // Every read before the first write, so the measurement costs the one
+    // layout the commit or the resize already owes and not one per number.
+    //
+    // `offsetLeft`/`offsetTop` are measured from the offsetParent's padding
+    // edge, and `left`/`top` on an absolutely positioned child resolve against
+    // the same box — so the groove's own padding is already accounted for and
+    // must not be subtracted again.
+    const x = active.offsetLeft;
+    const y = active.offsetTop;
+    const width = active.offsetWidth;
+    const height = active.offsetHeight;
+
     // A tile that has only just mounted has nowhere to travel *from*, so its
     // first placement is instant however it was asked for — that is what makes
     // the first choice of an empty set appear under the segment rather than
@@ -382,36 +398,46 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
     const instant = !animate || !tile.hasAttribute('data-ready');
 
     if (instant) {
+      cancelAnimationFrame(readyFrameRef.current);
       tile.removeAttribute('data-ready');
     }
 
-    // `offsetLeft`/`offsetTop` are measured from the offsetParent's padding
-    // edge, and `left`/`top` on an absolutely positioned child resolve against
-    // the same box — so the groove's own padding is already accounted for and
-    // must not be subtracted again.
-    tile.style.setProperty('--p-seg-x', `${active.offsetLeft}px`);
-    tile.style.setProperty('--p-seg-y', `${active.offsetTop}px`);
-    tile.style.setProperty('--p-seg-w', `${active.offsetWidth}px`);
-    tile.style.setProperty('--p-seg-h', `${active.offsetHeight}px`);
+    tile.style.setProperty('--p-seg-x', `${x}px`);
+    tile.style.setProperty('--p-seg-y', `${y}px`);
+    tile.style.setProperty('--p-seg-w', `${width}px`);
+    tile.style.setProperty('--p-seg-h', `${height}px`);
+
+    // Lights the fill of a `solid` tile a first choice mounted. The reads above
+    // resolved the tile's style without it, so the fill fades in from there. A
+    // tile the set was drawn with, and a later call, find it lit and change
+    // nothing.
+    tile.setAttribute('data-placed', '');
 
     if (instant) {
-      // Reading a layout property commits the four writes above while the
-      // duration is still 0ms, so turning the transition back on cannot
-      // animate a move that has already happened.
-      void tile.offsetWidth;
+      // The duration goes back on in the next frame rather than now, so the
+      // browser draws this move at 0ms first and the transition has nothing
+      // left to animate. Reading a layout property here would commit the move
+      // at once, at the cost of a second layout in the middle of a commit.
+      //
+      // One frame is enough from either caller. A resize is reported after
+      // this frame's callbacks have run, so the next frame's come after this
+      // one is drawn. A commit finds the tile not ready when it has only just
+      // been mounted, and no browser eases a box out of the `auto` it was a
+      // moment before, or when a resize has just placed it, and then it was
+      // drawn in place a frame ago.
+      readyFrameRef.current = requestAnimationFrame(() => {
+        tile.setAttribute('data-ready', '');
+      });
     }
-
-    tile.setAttribute('data-ready', '');
-    // Lights the fill of a `solid` tile a first choice mounted, which fades in
-    // from the first placement committed above without it. A tile the set was
-    // drawn with, and a later call, find it lit and change nothing.
-    tile.setAttribute('data-placed', '');
   }, []);
 
+  React.useEffect(() => () => cancelAnimationFrame(readyFrameRef.current), []);
+
   // Before the browser paints, or the tile is visibly at nothing for a frame.
-  React.useLayoutEffect(() => {
-    measure(true);
-  }, [measure, value, variant, size, density, fullWidth, children]);
+  // Not on every render a parent does, which hands the set new `children` each
+  // time: only on a commit that changed the choice, a prop the segments are
+  // sized by, or the segments themselves. See `internal/commit-change.ts`.
+  useCommitChange(rootRef, [value, variant, size, density, fullWidth], () => measure(true));
 
   React.useEffect(() => {
     const root = rootRef.current;

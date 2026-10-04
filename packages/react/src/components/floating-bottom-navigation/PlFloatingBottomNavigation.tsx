@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
 import { useBottomBarHeight } from '../../internal/bottom-bar.js';
+import { useCommitChange } from '../../internal/commit-change.js';
 import {
   controlHeightClasses,
   controlSlots,
@@ -298,6 +299,9 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
   const capsuleRef = React.useRef<HTMLDivElement>(null);
   const keyRef = React.useRef<HTMLSpanElement>(null);
 
+  /** The frame that turns the key's transition back on, while one is pending. */
+  const readyFrameRef = React.useRef(0);
+
   /**
    * Writes the current disc's box onto the key as four custom properties.
    *
@@ -326,13 +330,24 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
     // is current. It is hidden, and it appears in place when one is current
     // again rather than flying in from where it was.
     if (!current) {
+      cancelAnimationFrame(readyFrameRef.current);
       disc.hidden = true;
       disc.removeAttribute('data-ready');
 
       return;
     }
 
-    disc.hidden = false;
+    // Every read before the first write, so the measurement costs the one
+    // layout the commit or the resize already owes and not one per number.
+    //
+    // `offsetLeft`/`offsetTop` are measured from the offsetParent's padding
+    // edge, and `left`/`top` on an absolutely positioned child resolve against
+    // the same box — so the capsule's own padding is already accounted for and
+    // must not be subtracted again.
+    const x = current.offsetLeft;
+    const y = current.offsetTop;
+    const width = current.offsetWidth;
+    const height = current.offsetHeight;
 
     // A key that has only just mounted has nowhere to travel *from*, so its
     // first placement is instant however it was asked for — that is what makes
@@ -341,17 +356,15 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
     const instant = !animate || !disc.hasAttribute('data-ready');
 
     if (instant) {
+      cancelAnimationFrame(readyFrameRef.current);
       disc.removeAttribute('data-ready');
     }
 
-    // `offsetLeft`/`offsetTop` are measured from the offsetParent's padding
-    // edge, and `left`/`top` on an absolutely positioned child resolve against
-    // the same box — so the capsule's own padding is already accounted for and
-    // must not be subtracted again.
-    disc.style.setProperty('--p-disc-x', `${current.offsetLeft}px`);
-    disc.style.setProperty('--p-disc-y', `${current.offsetTop}px`);
-    disc.style.setProperty('--p-disc-w', `${current.offsetWidth}px`);
-    disc.style.setProperty('--p-disc-h', `${current.offsetHeight}px`);
+    disc.hidden = false;
+    disc.style.setProperty('--p-disc-x', `${x}px`);
+    disc.style.setProperty('--p-disc-y', `${y}px`);
+    disc.style.setProperty('--p-disc-w', `${width}px`);
+    disc.style.setProperty('--p-disc-h', `${height}px`);
 
     // Read off the disc rather than off a prop, because the bar does not know
     // which of its children is unavailable — the items are `children` and the
@@ -360,19 +373,31 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
     disc.toggleAttribute('data-quiet', current.hasAttribute('data-disabled'));
 
     if (instant) {
-      // Reading a layout property commits the four writes above while the
-      // duration is still 0ms, so turning the transition back on cannot
-      // animate a move that has already happened.
-      void disc.offsetWidth;
+      // The duration goes back on in the next frame rather than now, so the
+      // browser draws this move at 0ms first and the transition has nothing
+      // left to animate. Reading a layout property here would commit the move
+      // at once, at the cost of a second layout in the middle of a commit.
+      //
+      // One frame is enough from either caller. A resize is reported after
+      // this frame's callbacks have run, so the next frame's come after this
+      // one is drawn. A commit finds the key not ready when it has only just
+      // been mounted or shown again, and no browser eases a box out of the
+      // `auto` or the `display: none` it was a moment before, or when a resize
+      // has just placed it, and then it was drawn in place a frame ago.
+      readyFrameRef.current = requestAnimationFrame(() => {
+        disc.setAttribute('data-ready', '');
+      });
     }
-
-    disc.setAttribute('data-ready', '');
   }, []);
 
+  React.useEffect(() => () => cancelAnimationFrame(readyFrameRef.current), []);
+
   // Before the browser paints, or the key is visibly at nothing for a frame.
-  React.useLayoutEffect(() => {
-    measure(true);
-  }, [measure, value, variant, size, density, disabled, children]);
+  // Not on every render a parent does, which hands the bar new `children` each
+  // time: only on a commit that changed the destination, a prop the discs are
+  // sized by, or the discs themselves, a disc made unavailable among them. See
+  // `internal/commit-change.ts`.
+  useCommitChange(capsuleRef, [value, variant, size, density, disabled], () => measure(true));
 
   React.useEffect(() => {
     const capsule = capsuleRef.current;

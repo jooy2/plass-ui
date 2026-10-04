@@ -4,6 +4,13 @@ import { PlFloatingBottomNavigation, PlFloatingBottomNavigationItem } from 'plas
 
 const glyph = <svg viewBox="0 0 24 24" data-testid="glyph" />;
 
+/** Waits out `count` frames. */
+async function frames(count: number): Promise<void> {
+  for (let step = 0; step < count; step += 1) {
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+  }
+}
+
 describe('PlFloatingBottomNavigation', () => {
   describe('the bar', () => {
     it('is a nav rather than a tab list', async () => {
@@ -369,10 +376,10 @@ describe('PlFloatingBottomNavigation', () => {
         </PlFloatingBottomNavigation>
       );
 
-      // `data-ready` is set once the first placement has been committed, and it
-      // is what turns the duration on — the first destination appears under its
+      // `data-ready` is set in the frame after the first placement, and it is
+      // what turns the duration on — the first destination appears under its
       // disc rather than flying in from the left edge of the capsule.
-      expect(keyOf()).toHaveAttribute('data-ready');
+      await expect.poll(() => keyOf()?.hasAttribute('data-ready')).toBe(true);
 
       await screen.getByRole('button', { name: 'Search' }).click();
 
@@ -389,6 +396,88 @@ describe('PlFloatingBottomNavigation', () => {
       );
 
       expect(keyOf()).toHaveAttribute('data-quiet');
+    });
+
+    it('goes out when the destination it is under is made unavailable', async () => {
+      const bar = (unavailable: boolean) => (
+        <PlFloatingBottomNavigation className="bar-under-test" value="home">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph} disabled={unavailable}>
+            Home
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+      const screen = await render(bar(false));
+
+      expect(keyOf()).not.toHaveAttribute('data-quiet');
+
+      await screen.rerender(bar(true));
+
+      expect(keyOf()).toHaveAttribute('data-quiet');
+    });
+
+    it('does not measure again when a parent renders it again with nothing changed', async () => {
+      const bar = () => (
+        <PlFloatingBottomNavigation className="bar-under-test" value="home">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+      const screen = await render(bar());
+
+      // The observer's first report measures once more, a frame after the bar
+      // is mounted.
+      await frames(3);
+
+      const reads = vi.spyOn(HTMLElement.prototype, 'offsetLeft', 'get');
+
+      try {
+        // The same items, as new elements: that is what a parent rendering
+        // again hands the bar, and each one used to read the layout back.
+        await screen.rerender(bar());
+        await frames(2);
+
+        expect(
+          reads.mock.contexts.filter((element) =>
+            (element as HTMLElement).hasAttribute('data-disc')
+          )
+        ).toEqual([]);
+      } finally {
+        reads.mockRestore();
+      }
+    });
+
+    it('measures again when the current destination moves among the others', async () => {
+      const screen = await render(
+        <PlFloatingBottomNavigation className="bar-under-test" value="search">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      // Search goes first: nothing is resized, and the current disc stands
+      // somewhere else.
+      await screen.rerender(
+        <PlFloatingBottomNavigation className="bar-under-test" value="search">
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="home" icon={glyph}>
+            Home
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+
+      const disc = screen.getByRole('button', { name: 'Search' }).element() as HTMLElement;
+
+      expect(keyOf()?.style.getPropertyValue('--p-disc-x')).toBe(`${disc.offsetLeft}px`);
     });
   });
 });

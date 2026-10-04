@@ -10,6 +10,10 @@
  * segment is drawn through: the one a disabled set is drawn at, and never two.
  * A read-only set keeps its segments enabled, and the light and the label's
  * hover are read off what Base UI marks them with instead.
+ *
+ * Where the tile is drawn and when it travels are read the same way, from the
+ * transitions that actually start: none for the first placement or for a set
+ * that changes size under the tile, one for a new choice.
  */
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
@@ -253,6 +257,189 @@ describe('the segmented button stylesheet', () => {
       const { rest, hovered } = await labelColours('Week');
 
       expect(hovered).toBe(rest);
+    });
+  });
+
+  describe('the tile', () => {
+    let recording: AbortController;
+
+    beforeEach(async () => {
+      await emulateMedia({ reducedMotion: 'no-preference' });
+      recording = new AbortController();
+    });
+
+    afterEach(() => {
+      recording.abort();
+    });
+
+    /** The tile riding in `group`. */
+    function tileIn(group: Element): HTMLElement {
+      return group.querySelector<HTMLElement>(':scope > span[aria-hidden="true"]') as HTMLElement;
+    }
+
+    /**
+     * Every box property a transition starts on a tile from here on, as it
+     * starts. Recorded from the page, since a tile can be mounted after this.
+     */
+    function recordTravel(): string[] {
+      const travel: string[] = [];
+
+      document.addEventListener(
+        'transitionrun',
+        (raw) => {
+          const event = raw as TransitionEvent;
+          const target = event.target as Element;
+
+          if (
+            target.matches('[role="radiogroup"] > span[aria-hidden="true"]') &&
+            ['left', 'top', 'width', 'height'].includes(event.propertyName)
+          ) {
+            travel.push(event.propertyName);
+          }
+        },
+        { signal: recording.signal }
+      );
+
+      return travel;
+    }
+
+    /** Waits until the tile in `group` has its duration back on. */
+    async function ready(group: Element): Promise<void> {
+      await expect.poll(() => tileIn(group)?.hasAttribute('data-ready')).toBe(true);
+    }
+
+    /** Two frames, which is where a transition the last change started would run. */
+    async function frames(): Promise<void> {
+      for (let step = 0; step < 2; step += 1) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+      }
+    }
+
+    /** Waits out whatever the last change set moving. */
+    async function settle(element: Element): Promise<void> {
+      await Promise.all(element.getAnimations().map((one) => one.finished));
+    }
+
+    /** That the tile in `group` covers the segment named `name`, to within a pixel. */
+    function expectUnder(group: Element, name: string): void {
+      const tile = tileIn(group).getBoundingClientRect();
+      const box = segment(name).getBoundingClientRect();
+
+      for (const side of ['left', 'top', 'width', 'height'] as const) {
+        expect(Math.abs(tile[side] - box[side]), side).toBeLessThanOrEqual(1);
+      }
+    }
+
+    function Periods(props: React.ComponentProps<typeof PlSegmentedButton>) {
+      return (
+        <PlSegmentedButton aria-label="Period" {...props}>
+          <PlSegment value="day">Day</PlSegment>
+          <PlSegment value="week">Week</PlSegment>
+          <PlSegment value="month">Month</PlSegment>
+        </PlSegmentedButton>
+      );
+    }
+
+    it('starts under the chosen segment without travelling there', async () => {
+      const travel = recordTravel();
+      const screen = await render(<Periods defaultValue="week" />);
+      const group = screen.getByRole('radiogroup').element();
+
+      await ready(group);
+      await frames();
+
+      expect(travel).toEqual([]);
+      expectUnder(group, 'Week');
+    });
+
+    it('appears under the first choice of an empty set rather than flying in', async () => {
+      const travel = recordTravel();
+      const screen = await render(<Periods />);
+      const group = screen.getByRole('radiogroup').element();
+
+      await screen.getByRole('radio', { name: 'Month' }).click();
+      await expect.element(screen.getByRole('radio', { name: 'Month' })).toBeChecked();
+      await ready(group);
+      await frames();
+
+      expect(travel).toEqual([]);
+      expectUnder(group, 'Month');
+    });
+
+    it('slides to the segment chosen next', async () => {
+      const travel = recordTravel();
+      const screen = await render(<Periods defaultValue="day" />);
+      const group = screen.getByRole('radiogroup').element();
+
+      await ready(group);
+      await screen.getByRole('radio', { name: 'Month' }).click();
+      await expect.poll(() => travel).toContain('left');
+      await settle(tileIn(group));
+
+      expectUnder(group, 'Month');
+    });
+
+    it('keeps up with a resize of the set rather than trailing it', async () => {
+      const travel = recordTravel();
+      const screen = await render(
+        <div className="width-under-test" style={{ width: 300 }}>
+          <Periods defaultValue="month" fullWidth />
+        </div>
+      );
+      const group = screen.getByRole('radiogroup').element();
+
+      await ready(group);
+
+      const before = tileIn(group).getBoundingClientRect().left;
+
+      document.querySelector<HTMLElement>('.width-under-test')!.style.width = '450px';
+
+      await expect.poll(() => tileIn(group).getBoundingClientRect().left).toBeGreaterThan(before);
+      await ready(group);
+      await frames();
+
+      expect(travel).toEqual([]);
+      expectUnder(group, 'Month');
+    });
+
+    it('slides after a label it is sized by when the label changes', async () => {
+      const travel = recordTravel();
+      const set = (label: string) => (
+        <PlSegmentedButton aria-label="Folder" defaultValue="inbox">
+          <PlSegment value="inbox">{label}</PlSegment>
+          <PlSegment value="sent">Sent</PlSegment>
+        </PlSegmentedButton>
+      );
+      const screen = await render(set('Inbox'));
+      const group = screen.getByRole('radiogroup').element();
+
+      await ready(group);
+      await screen.rerender(set('Inbox and everything else'));
+      await expect.poll(() => travel).toContain('width');
+      await settle(tileIn(group));
+
+      expectUnder(group, 'Inbox and everything else');
+    });
+
+    it('follows the chosen segment when the segments are put in another order', async () => {
+      const set = (order: string[]) => (
+        <PlSegmentedButton aria-label="Period" defaultValue="week">
+          {order.map((name) => (
+            <PlSegment key={name} value={name.toLowerCase()}>
+              {name}
+            </PlSegment>
+          ))}
+        </PlSegmentedButton>
+      );
+      const screen = await render(set(['Day', 'Week', 'Month']));
+      const group = screen.getByRole('radiogroup').element();
+
+      await ready(group);
+      await screen.rerender(set(['Month', 'Day', 'Week']));
+      await frames();
+      await settle(tileIn(group));
+
+      expectUnder(group, 'Week');
     });
   });
 });
