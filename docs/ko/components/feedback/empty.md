@@ -109,7 +109,7 @@ PlEmpty(
 
 - 글리프는 `aria-hidden`입니다. title이 그것이 말하는 바를 말하고, 사용자가 두 번 들어서는 안 됩니다.
 - **자체 role이 없습니다.** 그 비어 있음이 사용자가 방금 한 일의 *결과*일 때(필터를 지웠거나 검색을 돌렸을 때) `role="status"`를 붙여 변화가 알려지게 하세요. 페이지가 로드될 때부터 비어 있던 목록에는 붙이지 마세요. 이미 읽혔습니다.
-- title은 heading이 아니라 `<p>`입니다. 문서 개요에서 그것이 어디에 속하는지는 페이지의 결정이지 이 컴포넌트의 것이 아닙니다. heading이어야 한다면 위에 `PlTypography`를 두세요.
+- title은 그 자체로 heading이 아닙니다. 문서 개요에서 그것이 어디에 속하는지는 페이지의 결정이지 이 컴포넌트의 것이 아닙니다. heading이어야 한다면 heading `level`을 준 `PlTypography`처럼 heading을 `title`로 넘기세요.
 
 ::: fw flutter
 

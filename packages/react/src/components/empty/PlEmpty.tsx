@@ -22,7 +22,10 @@ export interface PlEmptyProps extends Omit<
    * `1em` fills it without being told a number.
    */
   icon?: React.ReactNode;
-  /** The one line that says what is not here. */
+  /**
+   * The one line that says what is not here. It is not a heading of its own;
+   * pass one when the page's outline needs it.
+   */
   title?: React.ReactNode;
   /** What to do about it. One or two sentences, never a paragraph. */
   description?: React.ReactNode;
@@ -116,10 +119,13 @@ export const PlEmpty = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlEmptyP
           </span>
         ) : null}
 
+        {/* A `div` and not a `p`, so a heading passed as the title is valid
+            markup. Inside a `p` the parser closes the paragraph at the
+            heading, and the server's markup no longer matches the tree. */}
         {hasContent(title) ? (
-          <p className={cx('m-0 font-semibold text-(--plass-fg)', sheetTitleClasses[size])}>
+          <div className={cx('m-0 font-semibold text-(--plass-fg)', sheetTitleClasses[size])}>
             {title}
-          </p>
+          </div>
         ) : null}
 
         {hasContent(description) ? (

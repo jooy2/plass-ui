@@ -1,4 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlButton, PlEmpty } from 'plass-ui';
 
@@ -42,6 +45,34 @@ describe('PlEmpty', () => {
       await render(<PlEmpty title="No projects yet" className="empty-under-test" />);
 
       expect(box('empty-under-test').children).toHaveLength(1);
+    });
+
+    it('holds a heading passed as the title, in server markup too', async () => {
+      const empty = <PlEmpty title={<h2>No projects yet</h2>} className="empty-under-test" />;
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      // A server's markup, read by the parser a browser reads a page with. A
+      // paragraph cannot hold a heading, so a `p` around the title would be
+      // closed at the `h2`, leaving the heading beside an empty title and the
+      // tree no longer matching what React hydrates.
+      host.innerHTML = renderToString(empty);
+
+      const parsed = host.querySelector('.empty-under-test')!.children;
+
+      expect(parsed).toHaveLength(1);
+      expect(parsed[0].querySelector('h2')).toHaveTextContent('No projects yet');
+
+      document.body.append(host);
+
+      const root = await act(async () => hydrateRoot(host, empty, { onRecoverableError }));
+
+      try {
+        expect(onRecoverableError).not.toHaveBeenCalled();
+      } finally {
+        await act(async () => root.unmount());
+        host.remove();
+      }
     });
   });
 

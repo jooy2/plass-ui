@@ -109,7 +109,7 @@ If there is genuinely nothing to do (a search with no results, where the action 
 
 - The glyph is `aria-hidden`. The title says what it says, and a reader should not be told twice.
 - It has **no role of its own**. Put `role="status"` on it when the emptiness is the _result_ of something the reader just did (clearing a filter, running a search), so the change is announced. Leave it off for a list that was empty when the page loaded, which has already been read.
-- The title is a `<p>` rather than a heading. Where it belongs in a document's outline is the page's decision and not this component's; pass `render` on a `PlTypography` above it if it needs to be one.
+- The title is not a heading of its own. Where it belongs in a document's outline is the page's decision and not this component's; if it needs to be one, pass a heading as `title`, such as a `PlTypography` with a heading `level`.
 
 ::: fw flutter
 
