@@ -71,15 +71,29 @@ const panelItems: PlAnchorItem[] = [
  * An app shell's `<main>`: a box that scrolls on its own, halfway down the
  * screen, with the headings inside it. The window never moves. The last section
  * is short, so the box's bottom comes before its heading reaches the line.
+ *
+ * `scaled` draws the whole of it at half its size, as a shell inside a scaled
+ * `PlMockup` is, and gives the box a 20px border over its top, so the line has
+ * a border to be measured from inside of.
  */
-function Panel({ offset = 0 }: { offset?: number }) {
+function Panel({ offset = 0, scaled = false }: { offset?: number; scaled?: boolean }) {
   const panel = React.useRef<HTMLDivElement>(null);
 
   return (
-    <div>
+    <div style={scaled ? { transform: 'scale(0.5)', transformOrigin: '0 0' } : undefined}>
       <PlAnchor className="anchor-under-test" items={panelItems} target={panel} offset={offset} />
       <div style={{ height: '200px' }} />
-      <div ref={panel} className="panel-under-test" style={{ height: '300px', overflowY: 'auto' }}>
+      <div
+        ref={panel}
+        className="panel-under-test"
+        style={{
+          height: '300px',
+          overflowY: 'auto',
+          // So a heading's `offsetTop` is counted from the inside of the box.
+          position: 'relative',
+          borderTop: scaled ? '20px solid' : undefined
+        }}
+      >
         <div style={{ height: '400px' }} />
         <h2 id="panel-one" style={{ margin: 0 }}>
           One
@@ -101,6 +115,14 @@ function Panel({ offset = 0 }: { offset?: number }) {
 /** Scrolls the panel under test to `top`. */
 function scrollPanel(top: number) {
   document.querySelector<HTMLElement>('.panel-under-test')!.scrollTop = top;
+}
+
+/**
+ * Scrolls the panel under test until the heading with `id` sits `below` of the
+ * panel's own pixels under the inside of its border.
+ */
+function bringUnder(id: string, below: number) {
+  scrollPanel(document.getElementById(id)!.offsetTop - below);
 }
 
 /** The list under test. */
@@ -243,6 +265,27 @@ describe('PlAnchor', () => {
       scrollPanel(100_000);
 
       await expect.poll(() => lit()).toBe('Three');
+    });
+  });
+
+  describe('a panel inside a scaled ancestor', () => {
+    // The offset is the panel's own 150px, which is 75px on the screen. So is
+    // the distance to each heading, and the line is measured from inside the
+    // panel's border.
+    it('has not reached a heading that is still under the line', async () => {
+      await render(<Panel scaled offset={150} />);
+
+      bringUnder('panel-two', 200);
+
+      await expect.poll(() => lit()).toBe('One');
+    });
+
+    it('has reached one that has passed the line', async () => {
+      await render(<Panel scaled offset={150} />);
+
+      bringUnder('panel-two', 100);
+
+      await expect.poll(() => lit()).toBe('Two');
     });
   });
 

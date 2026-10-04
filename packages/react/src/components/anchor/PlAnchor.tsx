@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { layoutBox } from '../../internal/layout-box.js';
 import { resolveScrollTarget } from '../../internal/scroll-target.js';
 import { useLabels } from '../../internal/labels.js';
 import {
@@ -116,7 +117,15 @@ function readingAt(
   // The line is measured from the top of what is scrolled: the viewport for the
   // window, and the inside of its border for an element. A heading in a panel
   // that sits halfway down the screen passes the panel's top, not the window's.
-  const top = inWindow ? 0 : scroller.getBoundingClientRect().top + scroller.clientTop;
+  //
+  // `offset` and the border are counted in the scroller's own pixels, and a
+  // heading's distance is measured on the screen, so the distance is turned
+  // into those pixels first. The two differ for a panel inside a scaled
+  // ancestor, a shell in a scaled `PlMockup` for one, where the line sat at
+  // another depth. The window is never scaled, and its pixels are the screen's.
+  const top = inWindow ? 0 : scroller.getBoundingClientRect().top;
+  const inside = inWindow ? 0 : scroller.clientTop;
+  const perPixel = inWindow ? 1 : layoutBox(scroller, false).perPixel;
   let current: string | undefined;
 
   for (const item of items) {
@@ -126,7 +135,7 @@ function readingAt(
       continue;
     }
 
-    if (heading.getBoundingClientRect().top - top - offset <= 1) {
+    if ((heading.getBoundingClientRect().top - top) * perPixel - inside - offset <= 1) {
       current = item.href;
     }
   }
