@@ -60,7 +60,7 @@ If your project already runs Tailwind v4, import the token sheet instead:
 @import 'plass-ui/css/text-field.css';
 ```
 
-Still one Tailwind pass, so the utilities keep Tailwind's own order, and about 5 kB gzipped smaller for a small set of components. There is one manifest per component, named after its folder in `dist/components`.
+Still one Tailwind pass, so the utilities keep Tailwind's own order, and about 10 kB gzipped smaller for a small set of components. There is one manifest per component, named after its folder in `dist/components`.
 
 ### The page under the components
 
