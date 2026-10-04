@@ -22,6 +22,7 @@ const SIZE = 'PlassSize';
 const COLOR = 'PlassColor';
 const VARIANT = 'PlassVariant';
 const DENSITY = 'PlassDensity';
+const HEADING_LEVEL = 'int';
 
 /**
  * One React row, with the parts Dart spells differently replaced.
@@ -288,7 +289,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlAccordion', 'dividers', { type: 'bool', default: 'true' }),
     from('PlAccordion', 'disabled', { type: 'bool', default: 'false' }),
     from('PlAccordion', 'headingLevel', {
-      type: 'int',
+      type: HEADING_LEVEL,
       default: '3',
       description: {
         ko: '모든 섹션 헤더가 되는 heading의 수준, 1부터 6까지. 화면 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
@@ -1105,7 +1106,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlCard', 'title', { type: 'Widget?' }),
     {
       name: 'headingLevel',
-      type: 'int?',
+      type: `${HEADING_LEVEL}?`,
+      shared: true,
       description: {
         ko: '제목이 화면 개요에서 가지는 깊이, 1부터 6까지. 없으면 제목은 heading이 아닙니다. 누를 수 있는 카드에는 적용하지 않습니다',
         en: "The title's depth in the screen's outline, 1 to 6. Left out, the title is not a heading. Not applied to a pressable card"
@@ -5063,7 +5065,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDrawer', 'mode', { type: 'PlDrawerMode', default: 'PlDrawerMode.overlay' }),
     from('PlDrawer', 'title', { type: 'Widget?' }),
     from('PlDrawer', 'headingLevel', {
-      type: 'int',
+      type: HEADING_LEVEL,
       default: '2',
       description: {
         ko: 'title이 되는 heading의 수준, 1부터 6까지. 두 mode 모두에 적용되며, 화면 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
