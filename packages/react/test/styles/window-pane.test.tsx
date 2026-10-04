@@ -1,24 +1,29 @@
 /**
  * What a macOS traffic light shows, where the move handle lies, how tall a
  * window is once it is rolled up, in its box or from its first render, or
- * resized as short as it goes, and what a close button turns under a finger,
- * which the stylesheet decides.
+ * resized as short as it goes, what a close button turns under a finger, and
+ * whether a window inside a scaled ancestor moves and resizes in its own
+ * pixels, which the stylesheet decides.
  *
  * The mark is held back with `opacity` and brought out by a hover on the set and
  * by the focus on one light, so nothing about it can be read off the markup —
  * the component writes the same two class names either way. The handle is laid
  * over the bar by utilities alone, and without them it is an empty inline box
- * that no press could ever land on. `src/standalone.css` is loaded the way
- * `marquee.test.tsx` loads it, and the assertions are a mark that is there or
- * is not and a box that matches another, never a shade or a size.
+ * that no press could ever land on. A scaled window needs the reset's
+ * `box-sizing` for the size it is laid out at to be the `width` it was given.
+ * `src/standalone.css` is loaded the way `marquee.test.tsx` loads it, and the
+ * assertions are a mark that is there or is not and a box that matches another
+ * or the size the test itself gave, never a shade or a size of the design's.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import * as React from 'react';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { commands } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlWindowPane } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import { press } from '../support/keys';
 import { emulateMedia } from '../support/media';
+import { moveMouseOntoPage } from '../support/pointer';
 
 let sheet: HTMLStyleElement;
 
@@ -288,6 +293,285 @@ describe('a window resized as short as it goes', () => {
       );
     });
   }
+});
+
+describe('a window inside a scaled ancestor', () => {
+  // Where the window comes to rest is what is asserted, so it moves and resizes
+  // at once rather than travelling for 260ms under the assertions.
+  beforeAll(async () => {
+    await emulateMedia({ reducedMotion: 'reduce' });
+  });
+
+  afterAll(async () => {
+    await emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  /**
+   * A box drawn at half its size from the top-left corner of the view, as a
+   * scaled `PlMockup` draws its screen, so a window in it is laid out at twice
+   * the size it is drawn at.
+   */
+  function Scaled({ children }: { children: React.ReactNode }) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          transform: 'scale(0.5)',
+          transformOrigin: '0 0'
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  const windowIn = (screen: { container: HTMLElement }) =>
+    screen.container.querySelector<HTMLElement>('.plass-window')!;
+
+  /** The size the window is laid out at, which is what its `width` and `height` set. */
+  const laidOut = (element: HTMLElement) => {
+    const style = getComputedStyle(element);
+
+    return { width: parseFloat(style.width), height: parseFloat(style.height) };
+  };
+
+  /** Dispatches a mouse press, move or release at `element`, with the mouse's own id. */
+  async function mouse() {
+    const pointerId = await moveMouseOntoPage();
+
+    return (element: HTMLElement, type: string, x: number, y: number) =>
+      element.dispatchEvent(
+        new PointerEvent(type, {
+          bubbles: true,
+          pointerType: 'mouse',
+          pointerId,
+          button: 0,
+          buttons: type === 'pointerup' ? 0 : 1,
+          clientX: x,
+          clientY: y
+        })
+      );
+  }
+
+  /** One task, so the render a key asked for has landed before the next key. */
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  it('keeps its title bar under the pointer dragging it', async () => {
+    const onOffsetChange = vi.fn();
+    const screen = await render(
+      <Scaled>
+        <PlWindowPane
+          os="windows11"
+          title="Notes"
+          draggable
+          position="absolute"
+          width={240}
+          height={160}
+          defaultOffset={{ x: 40, y: 40 }}
+          onOffsetChange={onOffsetChange}
+        >
+          Body
+        </PlWindowPane>
+      </Scaled>
+    );
+
+    const pane = windowIn(screen);
+    const bar = pane.firstElementChild as HTMLElement;
+    const send = await mouse();
+    const before = pane.getBoundingClientRect();
+    const held = bar.getBoundingClientRect();
+    const x = held.left + 30;
+    const y = held.top + held.height / 2;
+
+    send(bar, 'pointerdown', x, y);
+    send(bar, 'pointermove', x + 40, y + 20);
+
+    // As far on the screen as the pointer went, which is twice as far in the
+    // window's own pixels.
+    await expect.poll(() => pane.getBoundingClientRect().left - before.left).toBeCloseTo(40, 0);
+    expect(pane.getBoundingClientRect().top - before.top).toBeCloseTo(20, 0);
+    expect(onOffsetChange).toHaveBeenLastCalledWith({ x: 120, y: 80 });
+
+    send(bar, 'pointerup', x + 40, y + 20);
+  });
+
+  it.each([
+    ['se', '.cursor-nwse-resize.bottom-0', 1],
+    ['nw', '.cursor-nwse-resize.top-0', -1]
+  ])(
+    'resizes from the size it is laid out at and keeps the %s corner under the pointer',
+    async (_, selector, outwards) => {
+      const onResize = vi.fn();
+      const onOffsetChange = vi.fn();
+      const screen = await render(
+        <Scaled>
+          <PlWindowPane
+            os="windows11"
+            title="Notes"
+            resizable
+            position="absolute"
+            width={240}
+            height={160}
+            defaultOffset={{ x: 40, y: 40 }}
+            onResize={onResize}
+            onOffsetChange={onOffsetChange}
+          >
+            Body
+          </PlWindowPane>
+        </Scaled>
+      );
+
+      const pane = windowIn(screen);
+      const corner = pane.querySelector<HTMLElement>(selector)!;
+      const send = await mouse();
+      const before = pane.getBoundingClientRect();
+      const held = corner.getBoundingClientRect();
+      const x = held.left + held.width / 2;
+      const y = held.top + held.height / 2;
+      const edge = () => {
+        const box = pane.getBoundingClientRect();
+
+        return outwards > 0 ? { x: box.right, y: box.bottom } : { x: box.left, y: box.top };
+      };
+      const from = edge();
+
+      send(corner, 'pointerdown', x, y);
+      send(corner, 'pointermove', x + 30 * outwards, y + 20 * outwards);
+
+      // The corner went as far on the screen as the pointer did, and the window
+      // grew twice that in its own pixels.
+      await expect.poll(() => edge().x - from.x).toBeCloseTo(30 * outwards, 0);
+      expect(edge().y - from.y).toBeCloseTo(20 * outwards, 0);
+      expect(onResize).toHaveBeenLastCalledWith({ width: 300, height: 200 });
+      expect(laidOut(pane)).toEqual({ width: 300, height: 200 });
+
+      // The opposite corner stayed where it was, which takes a leading corner
+      // moving the window as far as it grew.
+      const after = pane.getBoundingClientRect();
+
+      if (outwards > 0) {
+        expect(after.left).toBeCloseTo(before.left, 0);
+        expect(after.top).toBeCloseTo(before.top, 0);
+        expect(onOffsetChange).not.toHaveBeenCalled();
+      } else {
+        expect(after.right).toBeCloseTo(before.right, 0);
+        expect(after.bottom).toBeCloseTo(before.bottom, 0);
+        expect(onOffsetChange).toHaveBeenLastCalledWith({ x: -20, y: 0 });
+      }
+
+      send(corner, 'pointerup', x + 30 * outwards, y + 20 * outwards);
+    }
+  );
+
+  it('steps its size from the size it is laid out at', async () => {
+    const onResize = vi.fn();
+    const screen = await render(
+      <Scaled>
+        <PlWindowPane
+          os="windows11"
+          title="Notes"
+          resizable
+          position="absolute"
+          width={240}
+          height={160}
+          onResize={onResize}
+        >
+          Body
+        </PlWindowPane>
+      </Scaled>
+    );
+
+    const corner = screen.getByRole('button', { name: 'Resize window' }).element();
+
+    // One press is 16 of the window's own pixels, which is 8 on the screen.
+    press(corner, 'ArrowRight');
+
+    expect(onResize).toHaveBeenLastCalledWith({ width: 256, height: 160 });
+    await expect.poll(() => laidOut(windowIn(screen)).width).toBe(256);
+
+    press(corner, 'ArrowDown');
+
+    expect(onResize).toHaveBeenLastCalledWith({ width: 256, height: 176 });
+  });
+
+  it('stops a key step where its title bar meets the edge of the view', async () => {
+    const onOffsetChange = vi.fn();
+    const view = document.documentElement.clientWidth;
+    // Laid out 200 wide and drawn 100 wide, with its right edge drawn 12 pixels
+    // short of the view's.
+    const x = (view - 12) * 2 - 200;
+    const screen = await render(
+      <Scaled>
+        <PlWindowPane
+          title="Notes"
+          draggable
+          position="absolute"
+          width={200}
+          defaultOffset={{ x, y: 0 }}
+          onOffsetChange={onOffsetChange}
+        >
+          Body
+        </PlWindowPane>
+      </Scaled>
+    );
+
+    const handle = screen.getByRole('button', { name: 'Move window' }).element();
+
+    handle.focus();
+
+    // A whole step, 16 of the window's own pixels and 8 on the screen.
+    press(handle, 'ArrowRight');
+    await settle();
+
+    expect(onOffsetChange).toHaveBeenLastCalledWith({ x: x + 16, y: 0 });
+
+    // What is left of the way to the edge, and no more.
+    press(handle, 'ArrowRight');
+    await settle();
+
+    expect(onOffsetChange).toHaveBeenLastCalledWith({ x: x + 24, y: 0 });
+    await expect.poll(() => windowIn(screen).getBoundingClientRect().right).toBeCloseTo(view, 0);
+  });
+
+  it('holds the height it is laid out at while it rolls up and comes back down', async () => {
+    const screen = await render(
+      <Scaled>
+        <PlWindowPane os="windows11" title="Notes" position="absolute" width={240}>
+          <div style={{ height: 200 }}>Body</div>
+        </PlWindowPane>
+      </Scaled>
+    );
+
+    const pane = windowIn(screen);
+    const before = laidOut(pane).height;
+    const pinned: number[] = [];
+    const watch = new MutationObserver(() => {
+      const height = parseFloat(pane.style.height);
+
+      if (!Number.isNaN(height)) {
+        pinned.push(height);
+      }
+    });
+
+    watch.observe(pane, { attributes: true, attributeFilter: ['style'] });
+
+    try {
+      await screen.getByRole('button', { name: 'Minimize' }).click();
+      await expect.poll(() => laidOut(pane).height).toBeLessThan(before / 2);
+
+      // The same button lets it back down.
+      await screen.getByRole('button', { name: 'Minimize' }).click();
+
+      // The height it travels from and back to is the one it had, in its own
+      // pixels, rather than the one it was drawn at.
+      expect(pinned[0]).toBeCloseTo(before, 0);
+      await expect.poll(() => laidOut(pane).height).toBeCloseTo(before, 0);
+    } finally {
+      watch.disconnect();
+    }
+  });
 });
 
 describe('the macOS traffic lights', () => {

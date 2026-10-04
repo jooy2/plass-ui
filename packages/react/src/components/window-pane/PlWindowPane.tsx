@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { beginPointerDrag } from '../../internal/drag.js';
+import { layoutBox } from '../../internal/layout-box.js';
 import { useLabels } from '../../internal/labels.js';
 import { cx, glassClasses, hasContent, iconClasses } from '../../internal/styles.js';
 import {
@@ -588,12 +589,18 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
      * The plumbing both gestures share: capture the pointer, take the selection
      * off the page, hand every move a delta from where the press started, and put
      * all of it back afterwards.
+     *
+     * The delta is in the window's own pixels, which `offset`, `width` and
+     * `height` are all counted in. The pointer moves on the screen, and the two
+     * differ inside a scaled ancestor, a window in a scaled `PlMockup` for one,
+     * where a window moved at a different speed from the pointer holding it.
      */
     function beginGesture(
       event: React.PointerEvent<HTMLElement>,
       onMove: (dx: number, dy: number) => void
     ) {
-      if (event.button !== 0) return;
+      const root = rootRef.current;
+      if (event.button !== 0 || !root) return;
 
       // The gesture before this one, if its pointerup was never delivered.
       teardownRef.current?.();
@@ -601,6 +608,8 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       const target = event.currentTarget;
       const fromX = event.clientX;
       const fromY = event.clientY;
+      const across = layoutBox(root, true).perPixel;
+      const down = layoutBox(root, false).perPixel;
 
       // The window eases into a new size when a button put it there and follows
       // the pointer exactly when a hand is doing it. A transition on `width` while
@@ -618,7 +627,8 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       const stop = beginPointerDrag({
         target,
         pointerId: event.pointerId,
-        onMove: (moveEvent) => onMove(moveEvent.clientX - fromX, moveEvent.clientY - fromY),
+        onMove: (moveEvent) =>
+          onMove((moveEvent.clientX - fromX) * across, (moveEvent.clientY - fromY) * down),
         onEnd: finish
       });
 
@@ -660,6 +670,12 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       const barBottom = bar.getBoundingClientRect().bottom;
       const view = document.documentElement;
       const drawn = getComputedStyle(root);
+      // Those are measured on the screen and a step is counted in the window's
+      // own pixels, so every distance from the edge of the view is turned into
+      // those. The two differ inside a scaled ancestor, where a step stopped
+      // short of the edge, or ran past it, by the scale.
+      const across = layoutBox(root, true).perPixel;
+      const down = layoutBox(root, false).perPixel;
 
       // Where the window will be once it has arrived at `offset`, rather than
       // where it is partway through the ease the last press started: measured
@@ -674,15 +690,15 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
 
       const dx = stepWithin({
         step: unit[0] * length,
-        start: box.left + lagX,
-        end: box.right + lagX,
-        limit: view.clientWidth
+        start: box.left * across + lagX,
+        end: box.right * across + lagX,
+        limit: view.clientWidth * across
       });
       const dy = stepWithin({
         step: unit[1] * length,
-        start: box.top + lagY,
-        end: barBottom + lagY,
-        limit: view.clientHeight
+        start: box.top * down + lagY,
+        end: barBottom * down + lagY,
+        limit: view.clientHeight * down
       });
 
       if (dx !== 0 || dy !== 0) {
@@ -712,8 +728,15 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       const root = rootRef.current;
       if (!root || maximized) return;
 
-      const rect = root.getBoundingClientRect();
-      const from = { width: rect.width, height: rect.height, x: offset.x, y: offset.y };
+      // The size it is laid out at, which is what `width` and `height` set,
+      // rather than the size it is drawn at, which inside a scaled ancestor made
+      // the window jump to another size as the corner was taken hold of.
+      const from = {
+        width: layoutBox(root, true).size,
+        height: layoutBox(root, false).size,
+        x: offset.x,
+        y: offset.y
+      };
 
       const east = edge.includes('e');
       const west = edge.includes('w');
@@ -749,12 +772,13 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       const root = rootRef.current;
       if (!root) return;
 
-      const rect = root.getBoundingClientRect();
-      const width = Math.max(floor.width, rect.width + dx);
-      const height = Math.max(floor.height, rect.height + dy);
+      // Laid out rather than drawn, as a resize starts from.
+      const before = { width: layoutBox(root, true).size, height: layoutBox(root, false).size };
+      const width = Math.max(floor.width, before.width + dx);
+      const height = Math.max(floor.height, before.height + dy);
 
       // A key that leaves the size where it was, at the floor, reports nothing.
-      if (width === rect.width && height === rect.height) return;
+      if (width === before.width && height === before.height) return;
 
       resizeTo({ width, height });
     }
@@ -787,7 +811,9 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
       const auto = (sized?.height ?? height) === undefined && !maximized;
 
       if (next && auto && root) {
-        setPinned(root.getBoundingClientRect().height);
+        // Laid out rather than drawn, or a window inside a scaled ancestor would
+        // travel from, and come back down to, another height than its own.
+        setPinned(layoutBox(root, false).size);
         requestAnimationFrame(() => setMinimized(true));
         return;
       }
