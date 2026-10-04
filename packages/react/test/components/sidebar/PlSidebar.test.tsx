@@ -340,6 +340,43 @@ describe('PlSidebar', () => {
       }
     });
 
+    it('turns lengths in rem into the pixels it reports', async () => {
+      const screen = await render(
+        <PlSidebar collapseBelow="none" resizable width="20rem" minWidth="10rem" maxWidth="30rem">
+          Links
+        </PlSidebar>
+      );
+
+      const handle = screen.getByRole('separator').element();
+
+      // The page's root font size is the browser's 16px.
+      expect(handle).toHaveAttribute('aria-valuenow', '320');
+      expect(handle).toHaveAttribute('aria-valuemin', '160');
+      expect(handle).toHaveAttribute('aria-valuemax', '480');
+    });
+
+    it('reads nothing off the document while it renders without one', async () => {
+      const read = vi.spyOn(window, 'getComputedStyle');
+
+      try {
+        // The default width is in rem, and so is this one. Neither needs a
+        // pixel value without a handle to report it.
+        const screen = await render(<PlSidebar collapseBelow="none">Links</PlSidebar>);
+
+        await screen.rerender(
+          <PlSidebar collapseBelow="none" width="20rem" minWidth="10rem">
+            Links
+          </PlSidebar>
+        );
+
+        expect(read.mock.calls.filter(([element]) => element === document.documentElement)).toEqual(
+          []
+        );
+      } finally {
+        read.mockRestore();
+      }
+    });
+
     it('does not start on a button other than the first', async () => {
       const onResize = vi.fn();
 

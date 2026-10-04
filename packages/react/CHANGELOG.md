@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A `PlSidebar` that cannot be resized no longer reads the document's computed style while it renders.** It turned its default `16rem` width into pixels on every render for a handle it does not draw.
+
 - **A server-rendered `PlPageLayout` draws its content below a `fixed` `PlHeader` in the first paint, and hydrating no longer moves it.** The header's height was measured in an effect after hydration, so the HTML a server sent drew the content and the sidebars under the header and pushed them down when the page hydrated, a layout shift of 0.06 to 0.23 on the docs demos. The stylesheet now reserves the header's floor for its `size` and its edges until the layout has measured it, and the layout measures before the browser paints, reading both bars before writing either, so a resize no longer recalculates the page's style once per bar. A header whose content is taller than its `size` allows still moves the content once, when it is measured.
 
 - **A list or a paragraph passed to `PlEmpty` as its `description` stays where it was put.** The description was drawn in a `<p>`, which cannot hold a block, so a server-rendered page split it around the list, and React reported a hydration mismatch and rendered the tree again. It is now a `<div>` like the title, and it looks and reads as before.

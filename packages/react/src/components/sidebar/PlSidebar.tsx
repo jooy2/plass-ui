@@ -315,14 +315,18 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
 
     const handleRef = React.useRef<HTMLDivElement | null>(null);
 
-    const minPixels = toPixels(minWidth, 160);
-    const maxPixels = toPixels(maxWidth, 480);
+    // Only a sidebar that can be resized has bounds to clamp to and a value to
+    // report, and a length in `rem` costs a read of the document's computed
+    // style during render — the default width is one. A sidebar that cannot be
+    // resized asks for nothing, and nothing below reads these without the
+    // handle, which only a resizable sidebar draws.
+    const minPixels = resizable ? toPixels(minWidth, 160) : 0;
+    const maxPixels = resizable ? toPixels(maxWidth, 480) : 0;
     // What the separator reports before anything has moved it, held inside the
     // bounds it reports with it.
-    const initialPixels = Math.min(
-      maxPixels,
-      Math.max(minPixels, Math.round(toPixels(width, minPixels)))
-    );
+    const initialPixels = resizable
+      ? Math.min(maxPixels, Math.max(minPixels, Math.round(toPixels(width, minPixels))))
+      : 0;
 
     const applyWidth = (pixels: number) => {
       const node = rootRef.current;
