@@ -319,6 +319,106 @@ describe('PlAnimateCounter', () => {
     });
   });
 
+  describe('the figures on the way', () => {
+    /**
+     * Every figure a count draws on its way to `value`, recorded as each one
+     * reaches the DOM. Held first, so the record starts before the first frame.
+     */
+    async function framesOf(
+      value: number,
+      format?: Intl.NumberFormatOptions,
+      from = 0
+    ): Promise<string[]> {
+      const counter = (play: boolean) => (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          play={play}
+          from={from}
+          value={value}
+          duration={150}
+          format={format}
+        />
+      );
+      const screen = await render(counter(false));
+      const frames: string[] = [];
+      const observer = new MutationObserver(() => frames.push(drawn()));
+
+      observer.observe(root().querySelector('[aria-hidden="true"]')!, {
+        attributes: true,
+        attributeFilter: ['data-text']
+      });
+
+      try {
+        await screen.rerender(counter(true));
+        await expect
+          .poll(() => drawn())
+          .toBe(new Intl.NumberFormat(undefined, format).format(value));
+      } finally {
+        observer.disconnect();
+      }
+
+      // More than the first and the last, or nothing was seen on the way.
+      expect(frames.length).toBeGreaterThan(2);
+
+      return frames;
+    }
+
+    it('are whole numbers on the way to a whole number', async () => {
+      // The default format writes up to three decimals, which a count to 4,812
+      // used to show on every frame but the last: "1,105.535".
+      for (const frame of await framesOf(4812)) {
+        expect(frame).toMatch(/^[\d,]+$/);
+      }
+    });
+
+    it('have as many decimals as the answer at most', async () => {
+      for (const frame of await framesOf(12.5)) {
+        expect(frame).toMatch(/^\d+(\.\d)?$/);
+      }
+    });
+
+    it('keep the decimals a currency always writes', async () => {
+      for (const frame of await framesOf(48120, { style: 'currency', currency: 'GBP' })) {
+        expect(frame).toMatch(/^£[\d,]+\.\d\d$/);
+      }
+    });
+
+    it('take a caller’s `maximumFractionDigits` as a ceiling, not as a number to fill', async () => {
+      for (const frame of await framesOf(4812, { maximumFractionDigits: 2 })) {
+        expect(frame).toMatch(/^[\d,]+$/);
+      }
+    });
+
+    it('write a figure that rounds to zero from below as 0, and a negative one as it is', async () => {
+      // Held on the figure it counts from. `Intl.NumberFormat` keeps the sign of
+      // a negative number it rounds to zero, so -0.4 was drawn as "-0".
+      const counter = (from: number) => (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          play={false}
+          from={from}
+          value={3}
+        />
+      );
+      const screen = await render(counter(-0.4));
+
+      expect(drawn()).toBe('0');
+
+      await screen.rerender(counter(-2.4));
+      await expect.poll(() => drawn()).toBe('-2');
+    });
+
+    it('never draw -0 on the way up to zero', async () => {
+      // Every frame from -0.5 on rounds to zero, and the eased count spends
+      // about the last two fifths of its time there.
+      for (const frame of await framesOf(0, undefined, -6)) {
+        expect(frame).toMatch(/^(-[1-6]|0)$/);
+      }
+    });
+  });
+
   describe('the trigger', () => {
     it('waits to be seen rather than starting on mount', async () => {
       // Pushed below the fold on purpose. Rendered where the reader can already

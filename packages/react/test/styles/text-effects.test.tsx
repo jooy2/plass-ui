@@ -177,7 +177,10 @@ describe('the room a changing line takes', () => {
     return widths;
   }
 
-  it('is the width of the answer from the first frame of PlAnimateCounter', async () => {
+  it('is the width of the answer from the first frame of PlAnimateCounter to the last', async () => {
+    // In the default format, which writes up to three decimals. Drawn on the
+    // way, they made every frame but the first and the last wider than the
+    // answer, and the box widened and narrowed again around them.
     const counter = (play: boolean) => (
       <p style={{ textAlign: 'center' }}>
         Shipped{' '}
@@ -187,7 +190,6 @@ describe('the room a changing line takes', () => {
           play={play}
           value={12345}
           duration={120}
-          format={{ maximumFractionDigits: 0 }}
         />{' '}
         times
       </p>

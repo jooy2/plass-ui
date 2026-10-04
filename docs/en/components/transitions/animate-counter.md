@@ -95,6 +95,6 @@ Changing `value` counts again, from wherever the last one landed. A dashboard wh
 
 ::: fw react
 
-- The final figure is laid out under the count and not drawn, so the box is as wide as the answer from the first frame, in the server's HTML too, and the text around it stays where it is while the count is still short of it.
+- The final figure is laid out under the count and not drawn, so the box is as wide as the answer from the first frame, in the server's HTML too, and the text around it stays where it is while the count is still short of it. A figure on the way never has more decimals than the answer, so a count to a whole number shows only whole numbers.
 
 :::

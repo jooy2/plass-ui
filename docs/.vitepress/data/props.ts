@@ -1072,8 +1072,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'format',
       type: 'Intl.NumberFormatOptions',
       description: {
-        ko: '숫자를 어떻게 쓸지. 카운트가 keyframe이 아니라 JavaScript인 이유입니다 — CSS는 숫자를 셀 수는 있어도 천 단위 구분을 넣지는 못합니다',
-        en: 'How the number is written. This is why the count is JavaScript rather than a keyframe: CSS can tick a number and cannot put a thousands separator in one'
+        ko: '숫자를 어떻게 쓸지. 세는 도중의 수치도 이 옵션으로 쓰되, 답보다 많은 소수 자릿수는 쓰지 않습니다. 카운트가 keyframe이 아니라 JavaScript인 이유입니다 — CSS는 숫자를 셀 수는 있어도 천 단위 구분을 넣지는 못합니다',
+        en: 'How the number is written, on the way as well as at the end, though a figure on the way never has more decimals than the answer. This is why the count is JavaScript rather than a keyframe: CSS can tick a number and cannot put a thousands separator in one'
       }
     },
     {

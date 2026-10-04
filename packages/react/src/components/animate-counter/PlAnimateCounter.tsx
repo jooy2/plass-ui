@@ -29,7 +29,8 @@ export interface PlAnimateCounterProps extends Omit<
   delay?: number;
   /**
    * How the number is written — `Intl.NumberFormat` options, so a currency, a
-   * percentage or a compact `1.2M` all work.
+   * percentage or a compact `1.2M` all work. The figures on the way are written
+   * with them too, and never with more decimals than the answer has.
    *
    * This is the reason the count is JavaScript rather than a `@property` and a
    * CSS counter, which is otherwise the neater way to animate a number: CSS can
@@ -72,6 +73,47 @@ export interface PlAnimateCounterProps extends Omit<
 /** Quick to read as counting, slow enough at the end to land on the figure. */
 function easeOut(t: number): number {
   return 1 - (1 - t) ** 3;
+}
+
+/** How many fraction digits `formatter` writes `value` with. */
+function fractionDigitsOf(formatter: Intl.NumberFormat, value: number): number {
+  return formatter
+    .formatToParts(value)
+    .reduce(
+      (count, part) => (part.type === 'fraction' ? count + [...part.value].length : count),
+      0
+    );
+}
+
+/**
+ * `formatter`, or a copy of it that writes no more fraction digits than it
+ * writes `value` with. What `PlAnimateCounter` draws its frames with.
+ */
+function frameFormatter(
+  formatter: Intl.NumberFormat,
+  value: number,
+  locale: string | undefined,
+  format: Intl.NumberFormatOptions | undefined
+): Intl.NumberFormat {
+  const digits = fractionDigitsOf(formatter, value);
+  const resolved = formatter.resolvedOptions();
+  const most = resolved.maximumFractionDigits ?? digits;
+
+  if (most <= digits) {
+    return formatter;
+  }
+
+  try {
+    return new Intl.NumberFormat(locale, {
+      ...format,
+      minimumFractionDigits: Math.min(resolved.minimumFractionDigits ?? 0, digits),
+      maximumFractionDigits: digits
+    });
+  } catch {
+    // Options that cannot take a different number of digits, such as a
+    // `roundingIncrement`, keep the caller's formatter rather than throw.
+    return formatter;
+  }
 }
 
 /**
@@ -150,6 +192,52 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   }
 
   const formatter = held.current.formatter;
+  const answer = formatter.format(value);
+
+  /**
+   * The formatter a frame on the way is written with: the caller's, holding no
+   * more fraction digits than the answer shows.
+   *
+   * The count runs through every number in between, and the default
+   * `Intl.NumberFormat` writes up to three decimals of each, so a count to
+   * 4,812 showed "1,105.535" on the way: wider than the answer, which widened
+   * the box it had reserved, and flickering digits a whole number never has.
+   * Rounded to the answer's own digits, a count to a whole number shows whole
+   * numbers and a count to 12.5 shows one decimal. Everything else the caller
+   * asked for still decides how a frame is written, an explicit
+   * `maximumFractionDigits` included, which stays the most a frame can show;
+   * `minimumFractionDigits` is kept up to the answer's digits, so the two
+   * decimals of a currency are in every frame. A formatter that already writes
+   * no more than the answer, such as a compact or a percentage one, is used as
+   * it is.
+   *
+   * Beside it, how that formatter writes `-0` and `0`. `Intl.NumberFormat`
+   * keeps the sign of a negative number it rounds to zero, so a count from -3
+   * to a whole number drew "-0" for every frame between -0.5 and 0, a figure
+   * no count passes through. A frame written exactly as `-0` is written is one
+   * of those, whatever the style, and is drawn as zero instead, as the Flutter
+   * build draws it; a frame that is really negative is drawn as it is.
+   */
+  const frameKey = `${formatKey}\u0000${value}`;
+  const framed = React.useRef<{
+    key: string;
+    formatter: Intl.NumberFormat;
+    negativeZero: string;
+    zero: string;
+  } | null>(null);
+
+  if (framed.current === null || framed.current.key !== frameKey) {
+    const frameFormat = frameFormatter(formatter, value, locale, format);
+
+    framed.current = {
+      key: frameKey,
+      formatter: frameFormat,
+      negativeZero: frameFormat.format(-0),
+      zero: frameFormat.format(0)
+    };
+  }
+
+  const frame = framed.current;
 
   const [shown, setShown] = React.useState(() => (still ? value : from));
 
@@ -241,7 +329,9 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     // a new run without changing `started`, and a new run is a new count.
   }, [run.started, run.runs, still, paused, value, from, duration, delay]);
 
-  const answer = formatter.format(value);
+  // The answer is the caller's own figure and is drawn as it is written.
+  const written = shown === value ? answer : frame.formatter.format(shown);
+  const drawn = shown !== value && written === frame.negativeZero ? frame.zero : written;
 
   return useRender({
     render: render ?? <span />,
@@ -268,7 +358,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
               every new digit. */}
           <span
             aria-hidden="true"
-            data-text={formatter.format(shown)}
+            data-text={drawn}
             data-sample={answer}
             className={drawnCopyClasses}
           />
