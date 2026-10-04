@@ -92,3 +92,9 @@ Changing `value` counts again, from wherever the last one landed. A dashboard wh
 - Where a reader has asked for less motion there is no count at all: the number is simply there, which is the only thing it was ever carrying.
 - Until it starts, the figure shown is the one it will count **from**, the same rule every keyframe here follows about its own first frame, so nothing claims a value it has not reached.
 - The digits are `tabular-nums`, so the figure does not jitter as it counts.
+
+::: fw react
+
+- The final figure is laid out under the count and not drawn, so the box is as wide as the answer from the first frame, in the server's HTML too, and the text around it stays where it is while the count is still short of it.
+
+:::

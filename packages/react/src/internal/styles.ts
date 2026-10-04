@@ -567,6 +567,27 @@ export const srOnlyClasses =
  */
 export const srOnlyCopyClasses = `${srOnlyClasses} select-none`;
 
+/**
+ * The drawn copy of a text effect whose line changes while it runs, holding the
+ * room of the line it arrives at.
+ *
+ * Two pieces of generated content in one grid cell: `data-text`, the frame
+ * being drawn, and `data-sample`, the finished line, laid out and not drawn.
+ * The cell is as wide as the wider of the two, so the box has the finished
+ * line's width from the first paint, and a frame that is narrower — a count
+ * still short of its figure — no longer moves the text around it as it grows.
+ * The frame is the first of the two, so it is the one the grid takes its
+ * baseline from, and it sits on the line of the text around it.
+ */
+export const drawnCopyClasses = /* @__PURE__ */ [
+  'inline-grid',
+  'before:[grid-area:1/1]',
+  'before:content-[attr(data-text)]',
+  'after:invisible',
+  'after:[grid-area:1/1]',
+  'after:content-[attr(data-sample)]'
+].join(' ');
+
 /* ---------------------------------------------------------------------------
  * Colour slots
  *

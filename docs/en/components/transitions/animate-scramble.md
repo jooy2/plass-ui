@@ -67,3 +67,9 @@ Like the counter it also **waits to be seen** rather than starting on mount: a l
 - **A screen reader is told the line, once**, and never the noise. The settling text is hidden from the accessibility tree and the real line sits beside it in a clipped span.
 - Where a reader has asked for less motion there is no scramble at all: the line is simply there.
 - Until it starts, what is drawn is noise rather than the line (the same rule every effect here follows about its own first frame), so nothing is quietly readable before it was meant to be.
+
+::: fw react
+
+- The finished line is laid out under the noise and not drawn, so the box is as wide as the line from the first frame, in the server's HTML too, and a frame of noise narrower than the line leaves the text around it where it is. The line is one box for the same reason: inside running text it moves to the next line whole rather than breaking across two.
+
+:::

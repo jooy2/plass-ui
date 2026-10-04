@@ -6,7 +6,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { poolOf, scrambleAt } from '../../internal/scramble.js';
-import { cx, srOnlyClasses } from '../../internal/styles.js';
+import { cx, drawnCopyClasses, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassAnimateTrigger } from '../../types.js';
 
 export interface PlAnimateScrambleProps extends Omit<
@@ -210,8 +210,15 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
           <span className={srOnlyClasses}>{children}</span>
           {/* The settling line is generated content drawn from an attribute
               rather than text, for `PlAnimateCounter`'s reason: written out as
-              text, the page's text held the line twice. */}
-          <span aria-hidden="true" data-text={shown} className="before:content-[attr(data-text)]" />
+              text, the page's text held the line twice. The finished line is
+              laid out under it and not drawn, so the box has its width from
+              the first paint, as the counter's does. */}
+          <span
+            aria-hidden="true"
+            data-text={shown}
+            data-sample={children}
+            className={drawnCopyClasses}
+          />
         </>
       ),
       ...mergeProps(props, run.handlers)

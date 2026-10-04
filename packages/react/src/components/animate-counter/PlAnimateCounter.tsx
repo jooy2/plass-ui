@@ -6,7 +6,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { useLocale } from '../../internal/defaults.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
-import { cx, srOnlyClasses } from '../../internal/styles.js';
+import { cx, drawnCopyClasses, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassAnimateTrigger } from '../../types.js';
 
 export interface PlAnimateCounterProps extends Omit<
@@ -260,11 +260,17 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
               rather than text, so the page's text holds the number once: in
               the server's HTML, in what a crawler indexes and in what a
               selection copies. Written out as text, the count it starts from
-              was glued onto the answer, and 12,345 read as "12,3450". */}
+              was glued onto the answer, and 12,345 read as "12,3450".
+
+              The answer is laid out under it and not drawn, so the box is as
+              wide as the answer from the first paint: a count from 0 to 12,345
+              used to widen it five times over, moving the text around it on
+              every new digit. */}
           <span
             aria-hidden="true"
             data-text={formatter.format(shown)}
-            className="before:content-[attr(data-text)]"
+            data-sample={answer}
+            className={drawnCopyClasses}
           />
         </>
       ),

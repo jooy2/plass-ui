@@ -145,3 +145,99 @@ describe('the text a page holds', () => {
     });
   }
 });
+
+describe('the room a changing line takes', () => {
+  /**
+   * Plays a held effect and hands back the width of `selector` on every frame
+   * it drew on the way, starting with the frame it was held on.
+   */
+  async function widthsWhilePlaying(
+    selector: string,
+    play: () => Promise<unknown>,
+    finished: () => boolean
+  ): Promise<number[]> {
+    const element = document.querySelector<HTMLElement>(selector)!;
+    const drawn = element.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+    const widths = [element.getBoundingClientRect().width];
+    const observer = new MutationObserver(() => {
+      widths.push(element.getBoundingClientRect().width);
+    });
+
+    observer.observe(drawn, { attributes: true, attributeFilter: ['data-text'] });
+
+    try {
+      await play();
+      await expect.poll(finished).toBe(true);
+    } finally {
+      observer.disconnect();
+    }
+
+    widths.push(element.getBoundingClientRect().width);
+
+    return widths;
+  }
+
+  it('is the width of the answer from the first frame of PlAnimateCounter', async () => {
+    const counter = (play: boolean) => (
+      <p style={{ textAlign: 'center' }}>
+        Shipped{' '}
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          play={play}
+          value={12345}
+          duration={120}
+          format={{ maximumFractionDigits: 0 }}
+        />{' '}
+        times
+      </p>
+    );
+    const screen = await render(counter(false));
+    const drawn = document.querySelector<HTMLElement>('.counter-under-test [aria-hidden="true"]')!;
+
+    // Held on the figure it counts from, which is far narrower than the answer.
+    expect(drawn.dataset.text).toBe('0');
+
+    const widths = await widthsWhilePlaying(
+      '.counter-under-test',
+      () => screen.rerender(counter(true)),
+      () => drawn.dataset.text === new Intl.NumberFormat().format(12345)
+    );
+
+    expect(widths.length).toBeGreaterThan(2);
+    expect(new Set(widths)).toEqual(new Set([widths.at(-1)]));
+    expect(getComputedStyle(drawn, '::after').visibility).toBe('hidden');
+  });
+
+  it('is the width of the line from the first frame of PlAnimateScramble', async () => {
+    // Noise drawn from a full stop alone, which is narrower than every letter
+    // of the line, so every frame on the way is narrower than the line too.
+    const scramble = (play: boolean) => (
+      <p style={{ textAlign: 'center' }}>
+        <PlAnimateScramble
+          className="scramble-under-test"
+          trigger="manual"
+          play={play}
+          characters="."
+          duration={120}
+        >
+          Ship it on Friday
+        </PlAnimateScramble>{' '}
+        is the plan
+      </p>
+    );
+    const screen = await render(scramble(false));
+    const drawn = document.querySelector<HTMLElement>('.scramble-under-test [aria-hidden="true"]')!;
+
+    expect(drawn.dataset.text).toBe('.... .. .. ......');
+
+    const widths = await widthsWhilePlaying(
+      '.scramble-under-test',
+      () => screen.rerender(scramble(true)),
+      () => drawn.dataset.text === 'Ship it on Friday'
+    );
+
+    expect(widths.length).toBeGreaterThan(2);
+    expect(new Set(widths)).toEqual(new Set([widths.at(-1)]));
+  });
+});

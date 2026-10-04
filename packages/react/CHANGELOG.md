@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **`PlAnimateCounter` and `PlAnimateScramble` hold the width of their finished line from the first paint.** The box grew with the figure as it counted and with the noise as it settled, so the text beside it moved on every new digit. The finished line is now laid out under the drawn one and not drawn, in the server's HTML too, so a frame narrower than it leaves the text around it where it is. A scramble inside running text is one box now, and moves to the next line whole rather than breaking across two.
+
 - **A text effect's line is in the page's text once.** `PlAnimateCounter`, `PlAnimateScramble` and `PlAnimateSplit` put the line they draw beside a clipped copy for a screen reader, and both were text, so the server's HTML and what a search engine indexed held it twice: a counter on 12,345 read "12,3450", and a split or scrambled line said its sentence twice. `PlAnimateHeadline` ran its lines together. The drawn copy is now generated content, the clipped copy is the only text and is what a copy gives, and a headline's lines are separated by a space that is not laid out. Selecting the line no longer highlights the drawn copy, but copying still gives the line once.
 
 - **Typing in the search field of a long `PlTreeSelect` or `PlTransfer` no longer folds every label again for each character.** `PlTransfer` also did it again on every tick while a search was active. The matches are unchanged.
