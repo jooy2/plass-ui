@@ -14,6 +14,20 @@ String visibleOf(WidgetTester tester) {
   return ((drawn.textSpan! as TextSpan).children!.first as TextSpan).text ?? '';
 }
 
+/// How many times the line was cleared in [seen], which is how many passes
+/// began after the first one when it is not erased.
+int clearsIn(List<String> seen) {
+  int clears = 0;
+
+  for (int index = 1; index < seen.length; index += 1) {
+    if (seen[index].isEmpty && seen[index - 1].isNotEmpty) {
+      clears += 1;
+    }
+  }
+
+  return clears;
+}
+
 void main() {
   group('PlAnimateTyping', () {
     testWidgets('gives a screen reader the whole string once', (WidgetTester tester) async {
@@ -190,6 +204,76 @@ void main() {
       expect(after, contains('Hell'));
       expect(after, contains('H'));
       expect(after, contains(''));
+    });
+
+    group('paused and let go', () {
+      /// Two passes of "Hello", typed in 40ms and held for 100ms in between.
+      Widget typing({required bool paused}) {
+        return host(
+          PlAnimateTyping(
+            'Hello',
+            speed: 100,
+            hold: const Duration(milliseconds: 100),
+            repeat: 2,
+            paused: paused,
+            caret: false,
+          ),
+          width: 400,
+        );
+      }
+
+      /// Pumps [frames] frames of 10ms and records what each one drew.
+      Future<void> watch(WidgetTester tester, List<String> seen, int frames) async {
+        for (int frame = 0; frame < frames; frame += 1) {
+          await tester.pump(const Duration(milliseconds: 10));
+          seen.add(visibleOf(tester));
+        }
+      }
+
+      testWidgets('during the hold between two passes, holds and goes on to the next', (
+        WidgetTester tester,
+      ) async {
+        final List<String> seen = <String>[];
+
+        await tester.pumpWidget(typing(paused: false));
+        await watch(tester, seen, 8);
+
+        // Typed out, and holding before the second pass.
+        expect(visibleOf(tester), 'Hello');
+
+        await tester.pumpWidget(typing(paused: true));
+        await watch(tester, seen, 20);
+        await tester.pumpWidget(typing(paused: false));
+        // Longer than the hold and a whole pass.
+        await watch(tester, seen, 40);
+
+        // The second pass was counted before the hold, so the typewriter came
+        // back to a pass that was already over and never played it.
+        expect(clearsIn(seen), 1);
+        expect(visibleOf(tester), 'Hello');
+      });
+
+      testWidgets('during the last pass, finishes it and plays no other', (
+        WidgetTester tester,
+      ) async {
+        final List<String> seen = <String>[];
+
+        await tester.pumpWidget(typing(paused: false));
+        await watch(tester, seen, 16);
+
+        // Partway through the second pass, which is the last one.
+        expect(clearsIn(seen), 1);
+        expect(visibleOf(tester).length, inInclusiveRange(1, 4));
+
+        await tester.pumpWidget(typing(paused: true));
+        await watch(tester, seen, 20);
+        await tester.pumpWidget(typing(paused: false));
+        // Longer than the hold and a whole pass, so a third would have started.
+        await watch(tester, seen, 40);
+
+        expect(clearsIn(seen), 1);
+        expect(visibleOf(tester), 'Hello');
+      });
     });
 
     testWidgets('is simply there where the platform has asked for less movement', (

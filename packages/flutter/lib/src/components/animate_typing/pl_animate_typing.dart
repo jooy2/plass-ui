@@ -181,6 +181,11 @@ class _TypewriterState extends State<_Typewriter> {
   late List<String> _graphemes = widget.text.characters.toList();
 
   int _shown = 0;
+
+  /// Which pass of [_Typewriter.repeat] it is on, counted when the next one
+  /// starts rather than when this one is typed out. Counted before the hold,
+  /// a typewriter paused during the hold between two passes came back to a
+  /// pass that was already over, and stopped on it.
   int _pass = 1;
   bool _deleting = false;
   Timer? _next;
@@ -249,8 +254,16 @@ class _TypewriterState extends State<_Typewriter> {
     }
 
     if (_drivenRun == widget.runs) {
-      // Resuming picks up where the chain was torn down.
-      if (_next == null && !(_shown >= _graphemes.length && (widget.repeat ?? 2) <= 1)) {
+      if (_next != null) {
+        return;
+      }
+
+      if (_shown >= _graphemes.length && !_deleting) {
+        // Resumed with the line typed out, which is the hold between two
+        // passes or the end of the last one.
+        _finish();
+      } else {
+        // Resuming picks up where the chain was torn down.
         _step(_typeDelay);
       }
 
@@ -279,7 +292,6 @@ class _TypewriterState extends State<_Typewriter> {
     }
 
     final int total = _graphemes.length;
-    final int passes = widget.repeat ?? -1;
 
     if (_deleting) {
       setState(() => _shown -= 1);
@@ -305,6 +317,16 @@ class _TypewriterState extends State<_Typewriter> {
       return;
     }
 
+    _finish();
+  }
+
+  /// The line is typed out: holds it, then deletes it or clears it for the next
+  /// pass, unless this was the last one. The pass is counted once the next one
+  /// starts, so a chain built again during the hold holds and goes on rather
+  /// than skipping a pass or playing one twice.
+  void _finish() {
+    final int passes = widget.repeat ?? -1;
+
     if (passes >= 0 && _pass >= passes) {
       _next = null;
 
@@ -318,12 +340,12 @@ class _TypewriterState extends State<_Typewriter> {
       return;
     }
 
-    _pass += 1;
     _next = Timer(widget.hold, () {
       if (!mounted) {
         return;
       }
 
+      _pass += 1;
       setState(() => _shown = 0);
       _step(_typeDelay);
     });
