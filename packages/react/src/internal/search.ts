@@ -49,3 +49,35 @@ export function searchText(value: unknown): string {
 export function searchHaystack(values: readonly unknown[]): string {
   return values.map(searchText).join(SEAM);
 }
+
+/**
+ * `searchText` of what `read` finds on an item, remembered per item.
+ *
+ * Only the needle changes from one keystroke to the next, so a filter that
+ * folds its items as it goes folds every one of them again for every character
+ * typed. This folds an item the first time a query reaches it and hands the
+ * same text back after that, for as long as `read` finds the same value on it —
+ * an item whose text changed is folded again, so nothing it answers is stale.
+ * Kept by the item itself, weakly, so an item nobody holds any more takes its
+ * text with it.
+ */
+export function cachedSearchText<Item extends object>(
+  read: (item: Item) => unknown
+): (item: Item) => string {
+  const folded = new WeakMap<Item, { value: unknown; text: string }>();
+
+  return (item) => {
+    const value = read(item);
+    const known = folded.get(item);
+
+    if (known && Object.is(known.value, value)) {
+      return known.text;
+    }
+
+    const text = searchText(value);
+
+    folded.set(item, { value, text });
+
+    return text;
+  };
+}

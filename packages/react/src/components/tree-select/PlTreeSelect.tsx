@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PickerShell, type PlassPickerShellProps } from '../../internal/picker.js';
-import { searchHaystack, searchText } from '../../internal/search.js';
+import { cachedSearchText, searchText } from '../../internal/search.js';
 import { cx, metaTextClasses } from '../../internal/styles.js';
 import { PlTextField } from '../text-field/PlTextField.js';
 import { PlTree, type PlTreeNode } from '../tree/PlTree.js';
@@ -108,12 +108,14 @@ function flatten(
   return into;
 }
 
-/** What a node is matched against, folded once. */
-function haystackOf(node: PlTreeSelectNode): string {
-  return searchHaystack([
+/**
+ * What a node is matched against, folded once per node rather than once per
+ * keystroke.
+ */
+const haystackOf = /* @__PURE__ */ cachedSearchText(
+  (node: PlTreeSelectNode) =>
     node.searchLabel ?? (typeof node.label === 'string' ? node.label : node.id)
-  ]);
-}
+);
 
 /**
  * The nodes that match, and every ancestor of one.

@@ -8,7 +8,7 @@ import { PlCheckbox } from '../checkbox/PlCheckbox.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { PlTextField } from '../text-field/PlTextField.js';
 import { ArrowRightIcon } from '../../internal/icons.js';
-import { searchText } from '../../internal/search.js';
+import { cachedSearchText, searchText } from '../../internal/search.js';
 import { textOf } from '../../internal/text.js';
 import {
   cx,
@@ -305,6 +305,9 @@ function nameOf(heading: React.ReactNode, fallback: string): string {
   return text === '' ? fallback : text;
 }
 
+/** A row's label, folded once per row rather than once per keystroke. */
+const labelText = /* @__PURE__ */ cachedSearchText((item: PlTransferItem) => item.label);
+
 /**
  * One side's rows, narrowed by what was typed at that side's box.
  *
@@ -318,9 +321,7 @@ function narrow(rows: readonly PlTransferItem[], query: string): readonly PlTran
 
   if (needle === '') return rows;
 
-  return rows.filter(
-    (item) => typeof item.label !== 'string' || searchText(item.label).includes(needle)
-  );
+  return rows.filter((item) => typeof item.label !== 'string' || labelText(item).includes(needle));
 }
 
 /**

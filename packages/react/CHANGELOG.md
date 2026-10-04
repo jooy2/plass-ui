@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **Typing in the search field of a long `PlTreeSelect` or `PlTransfer` no longer folds every label again for each character.** `PlTransfer` also did it again on every tick while a search was active. The matches are unchanged.
+
 - **A page with many `PlCodeBlock`s is coloured one short task per block, and each grammar is fetched together with the highlighter.** Blocks waiting on one grammar were coloured back to back in one long task, and the grammar was only requested once the core had arrived. Each block still shows plain text until its colours are ready.
 
 - **Ticking a row of a long `PlDataTable` draws that row again, not every row.** With `paging: 'scroll'` every tick redrew every row and its `PlCheckbox`, each row searched the whole list of ticked keys, and every search keystroke folded every cell again. A row now redraws only when something about it changed, the selection is looked up in a set, and each row's search text is folded once until `rows` or `columns` change.

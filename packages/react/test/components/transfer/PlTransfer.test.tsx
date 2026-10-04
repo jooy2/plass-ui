@@ -422,6 +422,47 @@ describe('PlTransfer', () => {
       // Every row of both lists used to render again for one tick.
       expect([...renders.keys()]).toEqual(['Row 7']);
     });
+
+    it('folds each label once, however many keys are typed and rows ticked', async () => {
+      const many: PlTransferItem[] = Array.from({ length: 200 }, (_, index) => ({
+        value: `row-${index}`,
+        label: `Row ${index}`
+      }));
+      const labels = new Set(many.map((item) => item.label as string));
+      // `normalize` is the expensive half of the fold, and the one every fold
+      // goes through, so it is counted per label rather than per call site.
+      const folds = new Map<string, number>();
+      const normalize = String.prototype.normalize;
+      const spy = vi.spyOn(String.prototype, 'normalize').mockImplementation(function (
+        this: string,
+        form?: string
+      ) {
+        const text = String(this);
+
+        if (labels.has(text)) folds.set(text, (folds.get(text) ?? 0) + 1);
+
+        return normalize.call(text, form);
+      });
+
+      try {
+        const screen = await render(<PlTransfer items={many} searchable />);
+        const field = screen.getByRole('textbox', { name: 'Search' }).first();
+
+        await field.fill('1');
+        await field.fill('19');
+        await field.fill('199');
+        await expect.poll(() => screen.getByRole('checkbox', { name: 'Row 7' }).query()).toBeNull();
+
+        press(screen.getByRole('checkbox', { name: 'Row 199' }).element());
+        await expect.element(screen.getByText('1/1')).toBeVisible();
+
+        expect(folds.size).toBe(200);
+        // Every label once, and none of them twice.
+        expect(new Set(folds.values())).toEqual(new Set([1]));
+      } finally {
+        spy.mockRestore();
+      }
+    });
   });
 
   describe('the shell', () => {

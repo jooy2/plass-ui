@@ -449,5 +449,47 @@ describe('PlTreeSelect', () => {
       await field.fill('');
       await expect.poll(() => rows()).toEqual(['Europe', 'Asia', 'Antarctica']);
     });
+
+    it('folds each node once, however many keys are typed', async () => {
+      // Nodes of its own, so nothing another test typed has folded them yet.
+      const tree: PlTreeSelectNode[] = items.map((node) => ({
+        ...node,
+        children: node.children?.map((child) => ({ ...child }))
+      }));
+      const labels = new Set(
+        tree.flatMap((node) => [node, ...(node.children ?? [])]).map((node) => node.label as string)
+      );
+      // `normalize` is the expensive half of the fold, and the one every fold
+      // goes through, so it is counted per label rather than per call site.
+      const folds = new Map<string, number>();
+      const normalize = String.prototype.normalize;
+      const spy = vi.spyOn(String.prototype, 'normalize').mockImplementation(function (
+        this: string,
+        form?: string
+      ) {
+        const text = String(this);
+
+        if (labels.has(text)) folds.set(text, (folds.get(text) ?? 0) + 1);
+
+        return normalize.call(text, form);
+      });
+
+      try {
+        const screen = await render(<PlTreeSelect items={tree} searchable defaultOpen />);
+        const field = screen.getByRole('textbox');
+
+        await expect.element(field).toBeInTheDocument();
+        await field.fill('a');
+        await field.fill('an');
+        await field.fill('ant');
+
+        await expect.poll(() => rows()).toEqual(['Antarctica']);
+        expect(Object.fromEntries(folds)).toEqual(
+          Object.fromEntries([...labels].map((label) => [label, 1]))
+        );
+      } finally {
+        spy.mockRestore();
+      }
+    });
   });
 });
