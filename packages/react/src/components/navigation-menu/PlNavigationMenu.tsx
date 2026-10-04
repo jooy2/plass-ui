@@ -70,7 +70,7 @@ export interface PlNavigationMenuProps
   children?: React.ReactNode;
 }
 
-export interface PlNavigationMenuItemProps {
+interface PlNavigationMenuItemBaseProps {
   /** The word in the row. */
   label: React.ReactNode;
   /**
@@ -105,13 +105,45 @@ export interface PlNavigationMenuItemProps {
   active?: boolean;
   /** How many columns the panel lays its links out in. @default 1 */
   columns?: number;
-  /** The panel's contents — usually `PlNavigationMenuLink`s. */
-  children?: React.ReactNode;
   /** Classes on the word in the row, alongside the component's own. */
   className?: string;
   /** Inline styles on that word. */
   style?: React.CSSProperties;
 }
+
+/** An item that goes somewhere: an `href`, a `render`, or both, and no panel. */
+interface PlNavigationMenuItemLinkProps extends PlNavigationMenuItemBaseProps {
+  /**
+   * Renders the item's link as something other than an `<a>`: the `Link` a
+   * router brings. Base UI's own escape hatch, handed to its link part.
+   *
+   * Giving one makes the item a link, as an `href` does, and an `href` on the
+   * element wins over the item's own, as on `PlTextLink`. The arrow keys that
+   * move along the row stay Base UI's.
+   */
+  render?: useRender.RenderProp<BaseUINavigationMenu.Link.State>;
+  /** A link has no panel. */
+  children?: undefined;
+}
+
+/** An item that opens a panel. */
+interface PlNavigationMenuItemPanelProps extends PlNavigationMenuItemBaseProps {
+  /** The panel's contents — usually `PlNavigationMenuLink`s. */
+  children?: React.ReactNode;
+  /** Not on an item that opens a panel, which is a trigger rather than a link. */
+  render?: undefined;
+}
+
+/**
+ * The props of a `PlNavigationMenuItem`.
+ *
+ * A union, so that `render` cannot be given to an item that opens a panel. That
+ * item is a trigger, and a router's `Link` in its place would be a link that
+ * expands, which is neither of the two things a row's word can be. A call
+ * without `render` is the same as before.
+ */
+export type PlNavigationMenuItemProps =
+  PlNavigationMenuItemLinkProps | PlNavigationMenuItemPanelProps;
 
 export interface PlNavigationMenuLinkProps extends Omit<
   React.ComponentPropsWithoutRef<'a'>,
@@ -296,15 +328,17 @@ export const PlNavigationMenuLink = /* @__PURE__ */ React.forwardRef<
 /**
  * One word in the row, and what opens under it.
  *
- * With children it is a trigger and a panel; with an `href` and nothing else it
- * is a link, and the difference is not cosmetic — the second is announced as a
- * destination and the first as something that expands.
+ * With children it is a trigger and a panel; with an `href` or a `render` and
+ * nothing else it is a link, and the difference is not cosmetic — the second is
+ * announced as a destination and the first as something that expands. A
+ * `render` reaching a trigger from a caller the type did not check is ignored.
  */
 export function PlNavigationMenuItem({
   label,
   href,
   target,
   rel,
+  render,
   startIcon,
   value,
   disabled = false,
@@ -315,7 +349,7 @@ export function PlNavigationMenuItem({
   style
 }: PlNavigationMenuItemProps): React.ReactElement {
   const { size, density, orientation } = React.useContext(NavigationMenuContext);
-  const isLink = href !== undefined && !hasContent(children);
+  const isLink = (href !== undefined || render !== undefined) && !hasContent(children);
 
   const chrome = cx(
     triggerClasses,
@@ -334,6 +368,7 @@ export function PlNavigationMenuItem({
     <BaseUINavigationMenu.Item value={value}>
       {isLink ? (
         <BaseUINavigationMenu.Link
+          render={render}
           href={href}
           target={target}
           rel={safeRel(target, rel)}

@@ -7989,6 +7989,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'render',
+      type: 'useRender.RenderProp',
+      description: {
+        ko: '항목의 링크를 a가 아닌 다른 요소로 렌더링합니다 — 라우터의 Link. 이것만 줘도 항목은 링크가 되고, 요소의 href가 항목의 href보다 우선합니다. 패널을 여는 항목은 링크가 아니라 trigger이므로 받지 않습니다. 타입이 막고, 런타임에는 무시됩니다',
+        en: "Renders the item's link as something other than an a — the Link a router brings. Giving one makes the item a link, and an href on the element wins over the item's own. Not on an item that opens a panel, which is a trigger rather than a link: the type refuses it there, and it is ignored at run time"
+      }
+    },
+    {
       name: 'children',
       type: 'ReactNode',
       description: {

@@ -51,6 +51,77 @@ describe('PlNavigationMenu', () => {
       );
     });
 
+    it("draws a link item on the element `render` gives it, with the item's own marks", async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem
+            label="Pricing"
+            active
+            className="my-own-class"
+            render={<RouterLink href="/pricing" />}
+          />
+        </PlNavigationMenu>
+      );
+
+      const link = screen.getByRole('link', { name: 'Pricing' }).element();
+
+      expect(link).toHaveAttribute('data-router');
+      expect(link).toHaveAttribute('href', '/pricing');
+      expect(link).toHaveAttribute('aria-current', 'page');
+      expect(link).toHaveClass(
+        'bg-transparent',
+        'aria-[current=page]:text-(--p-accent)',
+        'my-own-class'
+      );
+    });
+
+    it("moves along the row from a router's link item and follows one with Enter", async () => {
+      const onNavigate = vi.fn();
+      const screen = await render(
+        <PlNavigationMenu>
+          <PlNavigationMenuItem
+            label="Pricing"
+            href="/pricing"
+            render={<RouterLink href="/en/pricing" />}
+          />
+          <PlNavigationMenuItem
+            label="Blog"
+            render={<RouterLink href="/blog" onNavigate={onNavigate} />}
+          />
+        </PlNavigationMenu>
+      );
+
+      const pricing = screen.getByRole('link', { name: 'Pricing' });
+      const blog = screen.getByRole('link', { name: 'Blog' });
+
+      // An `href` on the element wins over the item's own.
+      expect(pricing.element()).toHaveAttribute('href', '/en/pricing');
+
+      (pricing.element() as HTMLElement).focus();
+      await expect.element(pricing).toHaveFocus();
+      await userEvent.keyboard('{ArrowRight}');
+      await expect.element(blog).toHaveFocus();
+      await userEvent.keyboard('{Enter}');
+
+      expect(onNavigate).toHaveBeenCalledWith('/blog');
+    });
+
+    it('keeps an item that opens a panel a trigger, `render` or not', async () => {
+      const screen = await render(
+        <PlNavigationMenu>
+          {/* @ts-expect-error An item that opens a panel is a trigger rather than a link. */}
+          <PlNavigationMenuItem label="Product" render={<RouterLink href="/product" />}>
+            <PlNavigationMenuLink href="/a" title="Analytics" />
+          </PlNavigationMenuItem>
+        </PlNavigationMenu>
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: /Product/ }))
+        .toHaveAttribute('aria-expanded', 'false');
+      expect(document.querySelector('[data-router]')).toBeNull();
+    });
+
     it('renders an item with children as something that expands', async () => {
       const screen = await render(
         <PlNavigationMenu>

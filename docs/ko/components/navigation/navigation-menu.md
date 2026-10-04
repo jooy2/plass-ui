@@ -157,18 +157,23 @@ PlNavigationMenu(
 
 ### render
 
-패널 안의 링크는 `<a>` 자리에 라우터의 `Link`를 받습니다. 이 요소는 Base UI의 링크 부품에 그대로 넘어가므로 행의 표면과 focus ring, 링크 사이를 옮겨 다니는 화살표 키는 달라지지 않습니다. 요소에 자기 `href`가 있으면 [`PlTextLink`](../display/text-link#render)에서처럼 링크의 `href`보다 그쪽이 우선합니다.
+링크인 항목과 패널 안의 링크는 둘 다 `<a>` 자리에 라우터의 `Link`를 받습니다. 이 요소는 Base UI의 링크 부품에 그대로 넘어가므로 항목의 표면과 `active`가 다는 `aria-current`, focus ring, 화살표 키는 달라지지 않습니다. 항목에서는 `href`처럼 `render`만 줘도 링크가 됩니다. 요소에 자기 `href`가 있으면 [`PlTextLink`](../display/text-link#render)에서처럼 컴포넌트의 `href`보다 그쪽이 우선합니다.
+
+패널을 여는 항목은 링크가 아니라 trigger이므로 `render`가 적용되지 않습니다. children과 함께 쓴 `render`는 타입이 막고, 그래도 trigger에 들어온 `render`는 무시됩니다.
 
 ```tsx
 import NextLink from 'next/link';
 
-<PlNavigationMenuItem label="Product">
-  <PlNavigationMenuLink
-    href="/analytics"
-    title="Analytics"
-    render={<NextLink href="/analytics" />}
-  />
-</PlNavigationMenuItem>;
+<PlNavigationMenu>
+  <PlNavigationMenuItem label="Product">
+    <PlNavigationMenuLink
+      href="/analytics"
+      title="Analytics"
+      render={<NextLink href="/analytics" />}
+    />
+  </PlNavigationMenuItem>
+  <PlNavigationMenuItem label="Pricing" render={<NextLink href="/pricing" />} />
+</PlNavigationMenu>;
 ```
 
 :::
@@ -180,7 +185,7 @@ import NextLink from 'next/link';
 | React | Flutter | 이유 |
 | --- | --- | --- |
 | 항목과 링크의 `href` | `onPressed` | 이 패키지에는 navigator도, 해석할 주소도 없습니다. 목적지가 *어디인지*는 앱 자신의 라우터의 몫입니다. |
-| 링크의 `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. |
+| 항목과 링크의 `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. |
 | 조합된 `PlNavigationMenuItem` 자식 | 데이터인 `items: List<PlNavigationMenuItem>` | 한 번에 하나의 패널만 열어 두려면 행이 어느 항목이 어느 것인지 알아야 하고, 셀 수 있는 것이 리스트입니다. |
 | `value` / `defaultValue` | `initialValue` | `String?`으로는 "호출자가 말하지 않았다"와 "닫혔다고 말했다"를 구분할 수 없어서, controlled 모드는 바깥에서 닫을 수 없는 모드가 됩니다. 어느 패널이 열려 있는지는 앱이 아니라 포인터의 상태입니다. |
 | 항목 사이에서 크기가 바뀌는 하나의 패널 | 항목마다 하나씩, 페이드 | React의 시트는 들어오는 패널을 재고, 그 크기와 새 항목 아래 자리로 옮겨 갑니다. 여기서는 각 항목이 자기 팝업을 앵커하므로, 행을 가로지르면 패널이 자라는 대신 바뀝니다. |
