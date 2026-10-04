@@ -63,6 +63,12 @@ What the shared axes (`variant` `size` `color` `density` `elevation`) mean acros
 
 `os` defaults to `auto`, which asks the platform. Name one explicitly only when the page has to, a support article about the Windows build, a table comparing the two.
 
+::: fw react
+
+A page rendered on a server is the other place to name one. The server has no platform to ask, so `auto` draws the Windows caps there, and on a Mac, an iPhone or an iPad they turn into the Mac caps right after hydration: `Ctrl+K` becomes `⌘K`, and the text after it moves. A server that knows the reader's platform, from the `User-Agent` header or the `Sec-CH-UA-Platform` client hint that Chromium browsers send, should pass it as `os` (`mac` for macOS and iOS). The first paint then already shows the right modifier, and nothing moves at hydration.
+
+:::
+
 ::: fw flutter
 
 `auto` reads `defaultTargetPlatform`, so a `debugDefaultTargetPlatformOverride` in a test or a preview moves it. Android and Fuchsia resolve to the Linux spelling, which is what a physical keyboard attached to either of them is printed with.

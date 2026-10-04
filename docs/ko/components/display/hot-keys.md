@@ -63,6 +63,12 @@ const PlHotKeys(cluster: PlHotKeysCluster(up: 'W', left: 'A', down: 'S', right: 
 
 `os`의 기본값은 `auto`이고, 플랫폼에 묻습니다. 플랫폼을 명시하는 것은 페이지가 그래야 할 때뿐입니다: Windows 빌드를 설명하는 지원 문서, 둘을 비교하는 표.
 
+::: fw react
+
+서버에서 렌더링하는 페이지도 플랫폼을 명시할 곳입니다. 서버에는 물어볼 플랫폼이 없어서 `auto`는 Windows 캡을 그리고, Mac이나 iPhone, iPad에서는 hydration 직후 Mac 캡으로 바뀝니다. `Ctrl+K`가 `⌘K`가 되면서 그 뒤의 글자가 움직입니다. 서버가 `User-Agent` 헤더나 Chromium 브라우저가 보내는 `Sec-CH-UA-Platform` client hint로 독자의 플랫폼을 안다면 그 값을 `os`로 넘겨 주세요(macOS와 iOS는 `mac`). 그러면 첫 페인트부터 맞는 modifier가 보이고, hydration 때 아무것도 움직이지 않습니다.
+
+:::
+
 ::: fw flutter
 
 `auto`는 `defaultTargetPlatform`을 읽으므로, 테스트나 미리보기의 `debugDefaultTargetPlatformOverride`가 그것을 옮깁니다. Android와 Fuchsia는 Linux 표기로 해석되는데, 둘 중 어느 쪽에 붙는 물리 키보드든 그렇게 인쇄되어 있기 때문입니다.
