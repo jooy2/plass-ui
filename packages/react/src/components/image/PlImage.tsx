@@ -567,9 +567,14 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
      * paints it over the placeholder as the file decodes rather than holding
      * it at `opacity: 0` until the page's JavaScript has run. A picture mounted
      * in the browser, or a later `src`, still fades in.
+     *
+     * Except a picture with a `watermark` or `protect`, which waits for React
+     * as it always has: its mark is drawn and its context-menu guard attached
+     * by the hydrated component, so drawn earlier it would be the unmarked,
+     * unguarded original.
      */
     const servedSrc = useServedSrc(src);
-    const atOnce = Boolean(src) && servedSrc === src;
+    const atOnce = Boolean(src) && servedSrc === src && watermark === undefined && !protect;
     const shown = atOnce || status === 'loaded' ? 'opacity-100' : 'opacity-0';
 
     // Lazy unless the picture is the one the page is judged by, and whatever

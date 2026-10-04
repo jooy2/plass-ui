@@ -59,7 +59,7 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 
 ::: fw react
 
-A picture rendered on a server is drawn without the fade as well. Its markup is painted before the page's JavaScript has run, so the browser draws the picture over the placeholder as the file arrives instead of waiting for hydration. A `src` changed after that fades in as usual.
+A picture rendered on a server is drawn without the fade as well. Its markup is painted before the page's JavaScript has run, so the browser draws the picture over the placeholder as the file arrives instead of waiting for hydration. A `src` changed after that fades in as usual. A picture with a `watermark` or `protect` is the exception: it stays hidden until the page's JavaScript has seen it arrive, so the original is never shown without its mark or before right-click is refused.
 
 :::
 

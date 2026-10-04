@@ -1387,6 +1387,35 @@ describe('PlImage', () => {
       expect(pictureIn(host)).toHaveClass('opacity-0');
     });
 
+    /*
+     * A watermark is drawn and the context-menu guard attached by the hydrated
+     * component, so a picture with either waits for React as it always has:
+     * shown earlier, it would be the unmarked, unguarded original.
+     */
+    it.each([
+      ['a watermark', { watermark: '© Ada & Co' }],
+      ['protection', { protect: true }]
+    ])('keeps a picture with %s hidden until React has seen it arrive', async (_, extra) => {
+      const src = freshPicture();
+      const element = <PlImage src={src} alt="A portrait" ratio="1" {...extra} />;
+      const host = serve(element);
+      const served = pictureIn(host);
+
+      expect(served).toHaveClass('opacity-0');
+
+      // Decoded off the markup, with no script to say so: still hidden.
+      await new Promise((done) => served.addEventListener('load', done, { once: true }));
+      expect(served).toHaveClass('opacity-0');
+
+      await hydrate(host, element);
+
+      await expect.poll(() => pictureIn(host).className).toContain('opacity-100');
+
+      if ('watermark' in extra) {
+        expect(host.textContent).toContain('© Ada & Co');
+      }
+    });
+
     it('still fades in a picture mounted in the browser', async () => {
       const classes: string[] = [];
 
