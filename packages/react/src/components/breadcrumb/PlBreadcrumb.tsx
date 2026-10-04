@@ -147,8 +147,8 @@ export interface PlBreadcrumbItemProps extends Omit<
    *
    * Giving one makes the step a link, as an `href` does, and an `href` on the
    * element wins over the step's own, both on the anchor and in
-   * `structuredData`. The current step and a disabled one are not links, so
-   * neither uses it.
+   * `structuredData`. The current step is not a link and a disabled one goes
+   * nowhere, so neither uses it.
    */
   render?: useRender.RenderProp;
   /** The step's label. */
@@ -491,7 +491,8 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
  * It renders three different things and the caller picks by what they pass: an
  * `<a>` with an `href` or a `render`, a `<button>` with an `onClick`, and a
  * plain `<span>` with neither — which is what the last step is, because the
- * page you are already on is not somewhere to go.
+ * page you are already on is not somewhere to go. A disabled link is still an
+ * `<a>`, with no address; a disabled button is the `<span>`.
  */
 export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
   HTMLLIElement,
@@ -551,9 +552,22 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
   // Called on every render and switched off where the step is not a link, so a
   // step that becomes the current one keeps the same hooks.
   const link = useRender({
-    render: render ?? <a />,
-    enabled: interactive && linked,
-    props: { href, className: stepClassNames, onClick, children: body }
+    // An unavailable step has nowhere to go. A router's element would bring
+    // its own `href`, which wins the merge, so it is left out here.
+    render: disabled ? <a /> : (render ?? <a />),
+    enabled: linked && !isCurrent,
+    props: {
+      href: disabled ? undefined : href,
+      // An `<a>` with no `href` has no role, so the link it still is would be
+      // read out as plain text and its `aria-disabled` not at all. Said out
+      // loud, it is announced as a link that is unavailable, as a disabled
+      // `PlBottomNavigationItem` link is, and it stays out of the Tab order.
+      role: disabled ? 'link' : undefined,
+      'aria-disabled': disabled || undefined,
+      className: stepClassNames,
+      onClick: disabled ? undefined : onClick,
+      children: body
+    }
   });
 
   return (
@@ -568,6 +582,11 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
         // `aria-current="page"` rather than `"true"`: a trail is navigation,
         // and the step the reader is on is a *page*, not the chosen one of a
         // set of options.
+        //
+        // A disabled step with nowhere to go is plain text. It keeps
+        // `aria-disabled`, which a screen reader does not say on an element
+        // with no role, as the mark a stylesheet or a test reads, as a
+        // `PlChip` that cannot be pressed does.
         <span
           className={stepClassNames}
           aria-current={isCurrent ? 'page' : undefined}

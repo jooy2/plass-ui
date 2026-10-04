@@ -110,7 +110,7 @@ export interface PlListItemProps extends Omit<
    * router brings. Base UI's own escape hatch, as on `PlTextLink`.
    *
    * Giving one makes the row a link, as an `href` does, and an `href` on the
-   * element wins over the row's own. A disabled row is not a link, so it does
+   * element wins over the row's own. A disabled row goes nowhere, so it does
    * not use it.
    */
   render?: useRender.RenderProp;
@@ -346,19 +346,28 @@ export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlList
     );
 
     // Called on every render and switched off where the row is not a link, so
-    // a row that is disabled keeps the same hooks.
+    // a row that gains or loses its link keeps the same hooks.
     const link = useRender({
-      render: render ?? <a />,
-      enabled: interactive && linked,
+      // An unavailable row has nowhere to go. A router's element would bring
+      // its own `href`, which wins the merge, so it is left out here.
+      render: disabled ? <a /> : (render ?? <a />),
+      enabled: linked,
       props: {
-        href,
+        href: disabled ? undefined : href,
+        // An `<a>` with no `href` has no role, so the link it still is would be
+        // read out as plain text and its `aria-disabled` not at all. Said out
+        // loud, it is announced as a link that is unavailable, as a disabled
+        // `PlBottomNavigationItem` link is, and it stays out of the Tab order.
+        role: disabled ? 'link' : undefined,
+        'aria-disabled': disabled || undefined,
         className: bodyClassNames,
         // `aria-current="page"` on a link and `"true"` on a button: the first is
         // "this is the page you are on", the second is "this is the chosen one
         // of these". `aria-pressed` would be a third thing — a toggle — and a
-        // selected row is not a toggle.
-        'aria-current': selected ? 'page' : undefined,
-        onClick,
+        // selected row is not a toggle. A disabled row is drawn unselected, so
+        // it says nothing.
+        'aria-current': selected && !disabled ? 'page' : undefined,
+        onClick: disabled ? undefined : onClick,
         children: body
       }
     });
@@ -381,6 +390,10 @@ export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlList
             {body}
           </button>
         ) : (
+          // A disabled row with nowhere to go is plain text. It keeps
+          // `aria-disabled`, which a screen reader does not say on an element
+          // with no role, as the mark a stylesheet or a test reads, as a
+          // `PlChip` that cannot be pressed does.
           <div className={bodyClassNames} aria-disabled={disabled || undefined}>
             {body}
           </div>

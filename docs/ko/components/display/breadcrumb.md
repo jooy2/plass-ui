@@ -185,7 +185,7 @@ PlBreadcrumb(
 
 ### render
 
-단계의 `<a>` 자리에 라우터의 `Link`를 씁니다. 단계의 모양과 focus ring, `onClick`은 그 요소로 옮겨 갑니다. `href`처럼 `render`만 줘도 단계는 링크가 되고, 요소에 자기 `href`가 있으면 앵커에서도 `structuredData`에서도 단계의 `href`보다 그쪽이 우선합니다. 현재 단계와 disabled 단계는 링크가 아니므로 `render`를 쓰지 않습니다.
+단계의 `<a>` 자리에 라우터의 `Link`를 씁니다. 단계의 모양과 focus ring, `onClick`은 그 요소로 옮겨 갑니다. `href`처럼 `render`만 줘도 단계는 링크가 되고, 요소에 자기 `href`가 있으면 앵커에서도 `structuredData`에서도 단계의 `href`보다 그쪽이 우선합니다. 현재 단계는 링크가 아니므로 `render`를 쓰지 않습니다. disabled 단계도 `render`를 쓰지 않고 주소 없는 평범한 `<a>`로 그려집니다. 요소에 달린 `href`가 링크를 살려 두기 때문입니다.
 
 ```tsx
 import NextLink from 'next/link';
@@ -208,6 +208,7 @@ import NextLink from 'next/link';
 - 현재 단계는 `"true"`가 아니라 `aria-current="page"`를 답니다. 자취는 내비게이션이고, 독자가 있는 단계는 선택지 중 고른 하나가 아니라 **페이지**입니다.
 - 구분자는 `aria-hidden`입니다. 단계마다 "보다 큼"을 읽는 스크린리더는 문장부호를 읽고 있는 것입니다.
 - `onClick`만 있는 단계는 진짜 `<button>`이고, `href`가 있는 단계는 진짜 `<a>`입니다. 어느 쪽도 핸들러가 달린 `<span>`이 아닙니다.
+- `href`나 `render`가 있는 disabled 단계는 여전히 `<a>`이지만, 주소가 없어 따라갈 수 없습니다. 사용할 수 없는 링크로 읽히고, <kbd>Tab</kbd>은 이 단계를 건너뜁니다. `onClick`만 있는 disabled 단계는 평범한 텍스트입니다.
 
 :::
 

@@ -116,18 +116,77 @@ describe('PlBreadcrumb', () => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 
-    it('is neither when it is disabled', async () => {
+    it('is a link that cannot be followed when it is disabled, and Tab passes over it', async () => {
+      const onClick = vi.fn();
+      // Buttons either side with a `tabIndex` of their own: WebKit follows the
+      // platform and leaves a plain button or link out of the Tab order, so
+      // without one Tab would reach nothing there.
+      const screen = await render(
+        <>
+          <button type="button" tabIndex={0}>
+            Before
+          </button>
+          <PlBreadcrumb>
+            <PlBreadcrumbItem disabled href="/docs" onClick={onClick}>
+              Docs
+            </PlBreadcrumbItem>
+            <PlBreadcrumbItem>Here</PlBreadcrumbItem>
+          </PlBreadcrumb>
+          <button type="button" tabIndex={0}>
+            After
+          </button>
+        </>
+      );
+
+      const docs = screen.getByRole('link', { name: 'Docs' });
+
+      expect(docs.element()).toHaveAttribute('aria-disabled', 'true');
+      expect(docs.element()).not.toHaveAttribute('href');
+
+      // Dispatched rather than driven: Playwright waits for an
+      // `aria-disabled` element to be enabled before it will press it.
+      (docs.element() as HTMLElement).click();
+
+      expect(onClick).not.toHaveBeenCalled();
+
+      const before = screen.getByRole('button', { name: 'Before' });
+
+      (before.element() as HTMLElement).focus();
+      await expect.element(before).toHaveFocus();
+      await userEvent.tab();
+      await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
+    it('is plain text when it is disabled with nowhere to go', async () => {
       const screen = await render(
         <PlBreadcrumb>
-          <PlBreadcrumbItem disabled href="/docs">
+          <PlBreadcrumbItem disabled onClick={() => {}}>
             Docs
           </PlBreadcrumbItem>
           <PlBreadcrumbItem>Here</PlBreadcrumbItem>
         </PlBreadcrumb>
       );
 
-      expect(screen.getByRole('link', { name: 'Docs' }).query()).toBeNull();
+      expect(screen.getByRole('link').query()).toBeNull();
+      expect(screen.getByRole('button').query()).toBeNull();
       expect(screen.getByText('Docs').element().closest('[aria-disabled]')).not.toBeNull();
+    });
+
+    it('stays the current page, and not a link, when it is the current step and disabled', async () => {
+      const screen = await render(
+        <PlBreadcrumb>
+          <PlBreadcrumbItem href="/">Home</PlBreadcrumbItem>
+          <PlBreadcrumbItem disabled href="/billing">
+            Billing
+          </PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      expect(screen.getByRole('link', { name: 'Billing' }).query()).toBeNull();
+      expect(screen.getByText('Billing').element().closest('[aria-current]')).toHaveAttribute(
+        'aria-current',
+        'page'
+      );
     });
   });
 
@@ -188,7 +247,7 @@ describe('PlBreadcrumb', () => {
       expect(onNavigate).toHaveBeenCalledWith('/docs');
     });
 
-    it('is not used by the current step or a disabled one, which are not links', async () => {
+    it('is not used by the current step or a disabled one, which go nowhere', async () => {
       const screen = await render(
         <PlBreadcrumb>
           <PlBreadcrumbItem disabled render={<RouterLink href="/docs" />}>
@@ -199,8 +258,13 @@ describe('PlBreadcrumb', () => {
       );
 
       expect(document.querySelector('[data-router]')).toBeNull();
-      expect(screen.getByRole('link').query()).toBeNull();
-      expect(screen.getByText('Docs').element().closest('[aria-disabled]')).not.toBeNull();
+
+      // The disabled step is still announced as a link, one with no address.
+      const docs = screen.getByRole('link', { name: 'Docs' }).element();
+
+      expect(docs).toHaveAttribute('aria-disabled', 'true');
+      expect(docs).not.toHaveAttribute('href');
+      expect(screen.getByRole('link', { name: 'Billing' }).query()).toBeNull();
       expect(screen.getByText('Billing').element().closest('[aria-current]')).toHaveAttribute(
         'aria-current',
         'page'

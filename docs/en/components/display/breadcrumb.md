@@ -185,7 +185,7 @@ Every step goes in, including the ones a `maxItems` fold is hiding: what is coll
 
 ### render
 
-Takes the router's own `Link` in place of the step's `<a>`. The step's look, its focus ring and its `onClick` go onto that element. A `render` on its own makes the step a link, as an `href` does, and an `href` on the element wins over the step's own, on the anchor and in `structuredData` alike. The current step and a disabled one are not links, so they leave `render` out.
+Takes the router's own `Link` in place of the step's `<a>`. The step's look, its focus ring and its `onClick` go onto that element. A `render` on its own makes the step a link, as an `href` does, and an `href` on the element wins over the step's own, on the anchor and in `structuredData` alike. The current step is not a link, so it leaves `render` out. A disabled step leaves it out too and is drawn on a plain `<a>` with no address, since the element's own `href` would keep it live.
 
 ```tsx
 import NextLink from 'next/link';
@@ -208,6 +208,7 @@ import NextLink from 'next/link';
 - The current step carries `aria-current="page"` rather than `"true"`. A trail is navigation, and the step the reader is on is a _page_, not the chosen one of a set of options.
 - The separators are `aria-hidden`: a screen reader reading "greater-than" between every step is reading the punctuation.
 - A step with only an `onClick` is a real `<button>`, and one with an `href` a real `<a>`. Neither is a `<span>` with a handler on it.
+- A disabled step with an `href` or a `render` is still an `<a>`, with no address, so it cannot be followed. It is announced as a link that is unavailable, and <kbd>Tab</kbd> passes over it. A disabled step with only an `onClick` is plain text.
 
 :::
 

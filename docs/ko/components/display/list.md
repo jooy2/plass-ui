@@ -167,7 +167,7 @@ card 안이라면 `ghost`입니다. card가 이미 시트인데, 그 안의 두 
 
 ### render
 
-행의 `<a>` 자리에 라우터의 `Link`를 씁니다. 행의 padding, hover와 `selected`의 틴트, focus ring, `aria-current="page"`가 모두 그 요소에 붙습니다. `href`처럼 `render`만 줘도 행은 링크가 되고, 요소에 자기 `href`가 있으면 행의 `href`보다 그쪽이 우선합니다. disabled 행은 링크가 아니므로 `render`를 쓰지 않습니다.
+행의 `<a>` 자리에 라우터의 `Link`를 씁니다. 행의 padding, hover와 `selected`의 틴트, focus ring, `aria-current="page"`가 모두 그 요소에 붙습니다. `href`처럼 `render`만 줘도 행은 링크가 되고, 요소에 자기 `href`가 있으면 행의 `href`보다 그쪽이 우선합니다. disabled 행은 `render`를 쓰지 않고 주소 없는 평범한 `<a>`로 그려집니다. 요소에 달린 `href`가 링크를 살려 두기 때문입니다.
 
 ```tsx
 import NextLink from 'next/link';
@@ -190,6 +190,7 @@ import NextLink from 'next/link';
 - `role="list"`를 명시적으로 씁니다. Tailwind의 리셋이 모든 `<ul>`에서 불릿을 없애고, Safari는 그와 함께 목록 의미까지 없애기 때문입니다.
 - 선택된 링크는 `aria-current="page"`를, 선택된 button은 `aria-current="true"`를 답니다. 앞의 것은 "지금 보고 있는 페이지", 뒤의 것은 "이것들 중 고른 하나"입니다. `aria-pressed`는 세 번째 것, 즉 토글이고, 선택된 행은 토글이 아닙니다.
 - `onClick`도 `href`도 `render`도 없는 행은 role도 tab stop도 더하지 않습니다. click 핸들러만 달린 죽은 `<div>`는 키보드에 보이지 않습니다.
+- `href`나 `render`가 있는 disabled 행은 여전히 `<a>`이지만, 주소가 없어 따라갈 수 없습니다. 사용할 수 없는 링크로 읽히고, <kbd>Tab</kbd>은 이 행을 건너뜁니다. `onClick`만 있는 disabled 행은 평범한 텍스트입니다.
 - `action`에 든 컨트롤에는 자기 이름을 주세요. 행과는 별개의 tab stop이고, 거기 있는 이유가 그것입니다.
 
 :::

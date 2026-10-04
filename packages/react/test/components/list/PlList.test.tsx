@@ -175,18 +175,73 @@ describe('PlList', () => {
       expect(onNavigate).toHaveBeenCalledWith('/en/inbox');
     });
 
-    it("leaves a disabled row's `render` out, since the row is not a link", async () => {
+    it("leaves a disabled row's `render` out, since the row goes nowhere", async () => {
       const screen = await render(
         <PlList>
-          <PlListItem disabled render={<RouterLink href="/inbox" />}>
+          <PlListItem disabled selected render={<RouterLink href="/inbox" />}>
             Inbox
           </PlListItem>
         </PlList>
       );
 
-      expect(screen.getByRole('link').query()).toBeNull();
       expect(document.querySelector('[data-router]')).toBeNull();
-      expect(screen.getByText('Inbox').element().closest('[aria-disabled]')).not.toBeNull();
+
+      // Still announced as a link, one with no address.
+      const inbox = screen.getByRole('link', { name: 'Inbox' }).element();
+
+      expect(inbox).toHaveAttribute('aria-disabled', 'true');
+      expect(inbox).not.toHaveAttribute('href');
+      expect(inbox).not.toHaveAttribute('aria-current');
+    });
+
+    it('announces a disabled link as a link that cannot be followed, and Tab passes over it', async () => {
+      const onClick = vi.fn();
+      // A button in the row on either side, with a `tabIndex` of its own:
+      // WebKit follows the platform and leaves a plain button or link out of
+      // the Tab order, so without one Tab would reach nothing there.
+      const screen = await render(
+        <PlList>
+          <PlListItem
+            action={
+              <button type="button" tabIndex={0}>
+                Before
+              </button>
+            }
+          >
+            Drafts
+          </PlListItem>
+          <PlListItem disabled href="/inbox" onClick={onClick}>
+            Inbox
+          </PlListItem>
+          <PlListItem
+            action={
+              <button type="button" tabIndex={0}>
+                After
+              </button>
+            }
+          >
+            Sent
+          </PlListItem>
+        </PlList>
+      );
+
+      const inbox = screen.getByRole('link', { name: 'Inbox' });
+
+      expect(inbox.element()).toHaveAttribute('aria-disabled', 'true');
+      expect(inbox.element()).not.toHaveAttribute('href');
+
+      // Dispatched rather than driven: Playwright waits for an
+      // `aria-disabled` element to be enabled before it will press it.
+      (inbox.element() as HTMLElement).click();
+
+      expect(onClick).not.toHaveBeenCalled();
+
+      const before = screen.getByRole('button', { name: 'Before' });
+
+      (before.element() as HTMLElement).focus();
+      await expect.element(before).toHaveFocus();
+      await userEvent.tab();
+      await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
     });
 
     it('stops being pressable when disabled', async () => {
@@ -199,6 +254,7 @@ describe('PlList', () => {
       );
 
       expect(screen.getByRole('button').query()).toBeNull();
+      expect(screen.getByRole('link').query()).toBeNull();
       expect(screen.getByText('Inbox').element().closest('[aria-disabled]')).not.toBeNull();
     });
 
