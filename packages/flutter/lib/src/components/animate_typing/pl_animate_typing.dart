@@ -114,18 +114,22 @@ class PlAnimateTyping extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PlassAnimateGate(
+      // Told nothing of `paused`, so what it hands over is whether the trigger
+      // has let the typing go. The typewriter reads the pause itself, because a
+      // pause holds the line where it is, and a trigger taking the typing back
+      // empties it.
       settings: PlassAnimateSettings(
         duration: duration ?? _caretPeriod,
         repeat: repeat,
-        paused: paused,
         trigger: trigger,
         play: play,
         once: once,
         threshold: threshold,
       ),
-      builder: (BuildContext context, bool running, int runs, Widget? _) {
+      builder: (BuildContext context, bool started, int runs, Widget? _) {
         return _Typewriter(
-          running: running,
+          started: started,
+          paused: paused,
           runs: runs,
           text: text,
           speed: speed,
@@ -147,7 +151,8 @@ class PlAnimateTyping extends StatelessWidget {
 /// already reserved.
 class _Typewriter extends StatefulWidget {
   const _Typewriter({
-    required this.running,
+    required this.started,
+    required this.paused,
     required this.runs,
     required this.text,
     required this.speed,
@@ -161,7 +166,11 @@ class _Typewriter extends StatefulWidget {
     required this.repeat,
   });
 
-  final bool running;
+  /// Whether the trigger has let the typing go.
+  final bool started;
+
+  /// Whether the caller is holding it where it is.
+  final bool paused;
   final int runs;
   final String text;
   final double speed;
@@ -262,7 +271,26 @@ class _TypewriterState extends State<_Typewriter> {
       return;
     }
 
-    if (!widget.running) {
+    if (!widget.started) {
+      _next?.cancel();
+      _next = null;
+
+      // Waiting is empty, not finished: a typewriter that showed its whole
+      // string until it scrolled into view and then blanked would be worse than
+      // no effect at all. That holds for one its trigger has taken back as well,
+      // a `visible` one that is not `once` gone off screen or `play` turned off:
+      // it waits for its next run as one that was never let go does, and that
+      // run types the line from its first character.
+      _drivenRun = -1;
+
+      if (_shown != 0) {
+        setState(() => _shown = 0);
+      }
+
+      return;
+    }
+
+    if (widget.paused) {
       final Duration? left = _waitLeft;
 
       if (left != null && _next != null) {
@@ -276,9 +304,8 @@ class _TypewriterState extends State<_Typewriter> {
       _next?.cancel();
       _next = null;
 
-      // Waiting is empty, not finished: a typewriter that showed its whole
-      // string until it scrolled into view and then blanked would be worse than
-      // no effect at all.
+      // A pause holds the line where it is, unless the run it holds has not
+      // begun: that one waits empty, as a run not yet let go does.
       if (_drivenRun != widget.runs && _shown != 0) {
         setState(() => _shown = 0);
       }

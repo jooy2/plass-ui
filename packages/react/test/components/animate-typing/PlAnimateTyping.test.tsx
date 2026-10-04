@@ -301,6 +301,33 @@ describe('PlAnimateTyping', () => {
     await expect.poll(() => visible(root)).toBe('Hello');
   });
 
+  it('waits empty again when `play` is turned off, and types the line again when it is back on', async () => {
+    const typing = (play: boolean) => (
+      <PlAnimateTyping
+        className="typing-under-test"
+        text="Hello"
+        speed={400}
+        caret={false}
+        trigger="manual"
+        play={play}
+      />
+    );
+    const screen = await render(typing(true));
+    const root = document.querySelector('.typing-under-test');
+
+    await expect.poll(() => visible(root)).toBe('Hello');
+
+    await screen.rerender(typing(false));
+
+    // Taken back by its trigger, it waits as it did before it was first
+    // played, rather than holding the line as a pause does.
+    expect(root).toHaveAttribute('data-state', 'paused');
+    expect(visible(root)).toBe('');
+
+    await screen.rerender(typing(true));
+    await expect.poll(() => visible(root)).toBe('Hello');
+  });
+
   it('deletes the line again before repeating, one grapheme at a time', async () => {
     await render(
       <PlAnimateTyping

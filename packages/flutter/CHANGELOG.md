@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `PlAnimateTyping` whose trigger has let it go now waits with an empty line.** A `visible` one with `once: false` that left the screen, a `manual` one whose `play` was turned off, or a `hover` one with `repeat: null` that the pointer left went on showing the line it had typed until its next run cleared it. It now waits empty, as it does before it is first let go and as the React build does, and types the line from its first character when it is let go again. `paused` still holds the line where it is.
+
 - **A new `value` no longer starts a `PlAnimateCounter` its trigger has not started, nor a new `text` a `PlAnimateScramble`.** A `manual` counter with `play` off, or a `visible` one not yet seen, started counting as soon as its `value` changed, before it was asked to or where nobody could see it. A new `value` before then only changes what the count arrives at: the counter goes on showing `from` and counts to the new value when its trigger comes, and a scramble's new `text` waits the same way. A counter that has started still counts on from the figure on screen, and `PlAnimateShake` still plays on every new `replay`.
 
 - **A `PlAnimateCounter` or `PlAnimateScramble` that its trigger lets go of waits on its first frame, as the React build does.** A `visible` one that is not `once` and has left the screen, or a `manual` one whose `play` was turned off, held the frame it was on, so a counter showed its old figure while it waited, and on its return drew that figure for a frame before dropping to `from`. A counter now shows `from` while it waits and a scramble its noise, so the next run starts from the frame already on screen. Every other effect still holds the frame it was on.

@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -168,6 +169,160 @@ void main() {
       await tester.pump(const Duration(milliseconds: 60));
 
       expect(visibleOf(tester), 'Hello');
+    });
+
+    testWidgets('waits empty again while it is off screen with once off', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(
+        host(
+          SingleChildScrollView(
+            controller: page,
+            child: const Column(
+              children: <Widget>[
+                PlAnimateTyping(
+                  'Hello',
+                  speed: 100,
+                  caret: false,
+                  trigger: PlassAnimateTrigger.visible,
+                  once: false,
+                ),
+                SizedBox(height: 2000),
+              ],
+            ),
+          ),
+          width: 320,
+          height: 400,
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(visibleOf(tester), 'Hello');
+
+      page.jumpTo(1000);
+      await tester.pump();
+      await tester.pump();
+
+      // Waiting to be seen again is an empty line, as it is before the first
+      // run. Held where it was, it showed the line it had typed.
+      expect(visibleOf(tester), '');
+
+      page.jumpTo(0);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 25));
+
+      // A new run, from its first character.
+      expect(visibleOf(tester).length, inInclusiveRange(1, 4));
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(visibleOf(tester), 'Hello');
+    });
+
+    group('with play turned off and on', () {
+      Widget typing({required bool play, bool paused = false}) {
+        return host(
+          PlAnimateTyping(
+            'Hello',
+            speed: 100,
+            caret: false,
+            trigger: PlassAnimateTrigger.manual,
+            play: play,
+            paused: paused,
+          ),
+          width: 400,
+        );
+      }
+
+      testWidgets('waits empty again, and types from the first character', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(typing(play: true));
+        await tester.pump(const Duration(milliseconds: 25));
+
+        expect(visibleOf(tester).length, inInclusiveRange(1, 4));
+
+        await tester.pumpWidget(typing(play: false));
+
+        // Taken back by its trigger, it waits as it did before it was first
+        // played. Held where it was, it showed the part it had typed.
+        expect(visibleOf(tester), '');
+
+        await tester.pump(const Duration(milliseconds: 200));
+
+        expect(visibleOf(tester), '');
+
+        await tester.pumpWidget(typing(play: true));
+        await tester.pump(const Duration(milliseconds: 25));
+
+        expect(visibleOf(tester).length, inInclusiveRange(1, 4));
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(visibleOf(tester), 'Hello');
+      });
+
+      testWidgets('holds the line where it is while it is paused', (WidgetTester tester) async {
+        await tester.pumpWidget(typing(play: true));
+        await tester.pump(const Duration(milliseconds: 25));
+
+        final String typed = visibleOf(tester);
+
+        expect(typed.length, inInclusiveRange(1, 4));
+
+        await tester.pumpWidget(typing(play: true, paused: true));
+        await tester.pump(const Duration(milliseconds: 200));
+
+        // A pause is the caller holding it, and it holds the frame it is on.
+        expect(visibleOf(tester), typed);
+
+        await tester.pumpWidget(typing(play: true));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(visibleOf(tester), 'Hello');
+      });
+    });
+
+    testWidgets('waits empty again when the pointer leaves one that never stops', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          const PlAnimateTyping(
+            'Hello',
+            speed: 100,
+            caret: false,
+            repeat: null,
+            trigger: PlassAnimateTrigger.hover,
+          ),
+          width: 400,
+        ),
+      );
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+
+      await mouse.addPointer(location: Offset.zero);
+      await tester.pump();
+      await mouse.moveTo(tester.getCenter(find.byType(PlAnimateTyping)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 25));
+
+      expect(visibleOf(tester).length, inInclusiveRange(1, 4));
+
+      await mouse.moveTo(Offset.zero);
+      await tester.pump();
+
+      // An endless one stops when the pointer leaves, and waits as it did
+      // before the pointer first arrived. Held where it was, it showed the part
+      // it had typed.
+      expect(visibleOf(tester), '');
     });
 
     testWidgets('deletes the line again before repeating, one grapheme at a time', (
