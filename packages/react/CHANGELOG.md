@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A list or a paragraph passed to `PlEmpty` as its `description` stays where it was put.** The description was drawn in a `<p>`, which cannot hold a block, so a server-rendered page split it around the list, and React reported a hydration mismatch and rendered the tree again. It is now a `<div>` like the title, and it looks and reads as before.
+
 - **A marquee and an indeterminate `PlProgressLinear` inside a left-to-right region of a right-to-left page travel the English way.** The stylesheet turned them round whenever any ancestor said `dir="rtl"`, so an English quote, a code sample or a form set to `dir="ltr"` inside an Arabic page ran its marquee backwards and swept its progress bar from the wrong end. The nearest `dir` now decides, in either order of nesting.
 
 - **A `PlSkeleton` highlight runs left to right on a right-to-left page too, as the design language and the Flutter build have it.** The React highlight turned round under RTL because it was placed from the inline start, so the same placeholder swept one way in English and the other in Arabic. A sweep is a light crossing a surface rather than something read along a line, and it now crosses from left to right in every writing direction. The indeterminate `PlProgressLinear` segment still runs toward the reader's end.

@@ -119,9 +119,11 @@ export const PlEmpty = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlEmptyP
           </span>
         ) : null}
 
-        {/* A `div` and not a `p`, so a heading passed as the title is valid
-            markup. Inside a `p` the parser closes the paragraph at the
-            heading, and the server's markup no longer matches the tree. */}
+        {/* The title and the description are a `div` and not a `p`, so a
+            heading passed as the title, or a list or a paragraph passed as the
+            description, is valid markup. Inside a `p` the parser closes the
+            paragraph at the block, and the server's markup no longer matches
+            the tree. */}
         {hasContent(title) ? (
           <div className={cx('m-0 font-semibold text-(--plass-fg)', sheetTitleClasses[size])}>
             {title}
@@ -129,9 +131,9 @@ export const PlEmpty = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlEmptyP
         ) : null}
 
         {hasContent(description) ? (
-          <p className={cx('m-0 max-w-prose text-(--plass-muted-fg)', metaTextClasses[size])}>
+          <div className={cx('m-0 max-w-prose text-(--plass-muted-fg)', metaTextClasses[size])}>
             {description}
-          </p>
+          </div>
         ) : null}
 
         {children}
