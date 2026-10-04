@@ -12,10 +12,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import type { ReactNode } from 'react';
-import { PlAnimateFade, PlAnimateSlide } from 'plass-ui';
+import { PlAnimateFade, PlAnimateRotate, PlAnimateSlide } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import { emulateMedia } from '../support/media';
-import { scrollAndReport } from '../support/visible';
+import { reported, scrollAndReport } from '../support/visible';
 
 let sheet: HTMLStyleElement;
 
@@ -34,8 +34,17 @@ afterAll(() => {
 });
 
 /** The box the slide page recommends: a mask cut to the size of what it holds. */
-function mask(children: ReactNode) {
-  return <div style={{ overflow: 'hidden', width: '200px', height: '120px' }}>{children}</div>;
+function mask(children: ReactNode, width = 200, height = 120) {
+  return (
+    <div style={{ overflow: 'hidden', width: `${width}px`, height: `${height}px` }}>{children}</div>
+  );
+}
+
+/** Two frames, long enough for React to have drawn what a report started or stopped. */
+function settled() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
 }
 
 function slide() {
@@ -141,5 +150,138 @@ describe('a visible trigger that is not `once`', () => {
     await expect.poll(() => fade().getAttribute('data-state')).toBe('running');
 
     expect(fade().getAnimations()[0]).not.toBe(first);
+  });
+});
+
+function moving(): HTMLElement {
+  return document.querySelector('.moving-under-test') as HTMLElement;
+}
+
+function scrollMoving(to: number) {
+  return scrollAndReport(document.querySelector<HTMLElement>('.panel-under-test')!, to, moving());
+}
+
+/**
+ * Sends the effect to `midway`, where most of what is drawn is outside its mask
+ * though where it will land is all inside it, and then on to its end.
+ */
+async function playsThrough(duration: number, midway: number) {
+  await expect.poll(() => moving().getAttribute('data-state')).toBe('running');
+  await settled();
+
+  const run = moving().getAnimations()[0];
+
+  run.currentTime = midway;
+  await reported(moving());
+  await settled();
+
+  // Still this run, and still going. Measured where it was drawn, it read as
+  // leaving: a slide was held there, and a turn, rewound to a first frame that
+  // fits the mask, started again from the beginning.
+  expect(moving()).toHaveAttribute('data-state', 'running');
+  expect(moving().getAnimations()[0]).toBe(run);
+
+  run.currentTime = duration;
+
+  await expect.poll(() => run.playState).toBe('finished');
+  expect(moving()).toHaveAttribute('data-state', 'running');
+
+  return run;
+}
+
+describe('a visible trigger that is not `once`, on an effect that moves its own box', () => {
+  it('plays a slide in a mask to its end, and again once it has left and come back', async () => {
+    await render(
+      panel(
+        mask(
+          <PlAnimateSlide
+            className="moving-under-test"
+            trigger="visible"
+            once={false}
+            duration={10000}
+            easing="linear"
+            style={{ width: '200px', height: '120px' }}
+          >
+            Arriving
+          </PlAnimateSlide>
+        )
+      )
+    );
+
+    // A tenth of the way up, a tenth of the slide is inside the mask.
+    const first = await playsThrough(10000, 1000);
+
+    await scrollMoving(400);
+    await expect.poll(() => moving().getAttribute('data-state')).toBe('paused');
+
+    await scrollMoving(0);
+    await expect.poll(() => moving().getAttribute('data-state')).toBe('running');
+
+    const second = moving().getAnimations()[0];
+
+    expect(second).not.toBe(first);
+    expect(Number(second.currentTime)).toBeLessThan(5000);
+  });
+
+  it('plays a turn in a mask to its end', async () => {
+    await render(
+      panel(
+        mask(
+          <PlAnimateRotate
+            className="moving-under-test"
+            trigger="visible"
+            once={false}
+            duration={10000}
+            easing="linear"
+            style={{ width: '300px', height: '30px' }}
+          >
+            Turning
+          </PlAnimateRotate>,
+          300,
+          30
+        )
+      )
+    );
+
+    // Halfway, it stands on its end: a tenth of the box its corners sweep is
+    // inside a mask cut to where it lands.
+    await playsThrough(10000, 5000);
+  });
+
+  it('leaves a slide that goes out of its mask gone while the mask is on screen', async () => {
+    await render(
+      panel(
+        <>
+          <div style={{ height: '40px' }} />
+          {mask(
+            <PlAnimateSlide
+              className="moving-under-test"
+              mode="out"
+              trigger="visible"
+              once={false}
+              duration={10000}
+              easing="linear"
+              style={{ width: '200px', height: '120px' }}
+            >
+              Leaving
+            </PlAnimateSlide>
+          )}
+        </>
+      )
+    );
+
+    const run = await playsThrough(10000, 9000);
+
+    // Each of these changes how much of the mask is in view, and each report
+    // used to find the slide gone from it, let it go, rewind it into the mask
+    // and send it out again.
+    for (const to of [50, 60, 70, 80]) {
+      await scrollMoving(to);
+      await settled();
+
+      expect(moving().getAnimations()[0]).toBe(run);
+    }
+
+    expect(run.playState).toBe('finished');
   });
 });

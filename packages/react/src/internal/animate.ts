@@ -354,35 +354,98 @@ function clipRect(entry: IntersectionObserverEntry): DOMRectReadOnly {
   return box.width * box.height > 0 ? entry.intersectionRect : (entry.rootBounds ?? viewportRect());
 }
 
+/** What the keyframes in `src/styles.css` move an element's own box with. */
+const boxProperties = ['translate', 'scale', 'rotate'] as const;
+
 /**
- * Where the element will be once its effect is over, in window coordinates.
+ * Which of `boxProperties` the element's own animations set.
  *
- * An effect that has not been let go yet is held on its own first frame, so a
- * slide waiting to arrive measures a screen away from where it lives, and a
- * turn measures as the box its corners sweep. Both of those are what the
- * observer sees, and it is why a slide inside a mask — the arrangement the
- * slide page recommends — used to report as off the screen for ever.
- *
- * Clearing `animation-name` for the length of the read is the move the rewind
- * above makes, for the same reason: it is the only way to ask the browser where
- * the element itself sits. Nothing is painted in between, and what the restore
- * starts again is an animation held paused on its first frame.
- *
- * Once it has been let go the element is on its way to that box or already in
- * it, so the plain read is the answer and the animation is left alone.
+ * Only those are taken off for a read. Whatever a caller has set on another one
+ * is still there when the effect lands, and so is their `transform`, which no
+ * keyframe here touches.
  */
-function restingRect(element: HTMLElement, held: boolean): DOMRect {
-  if (!held) {
-    return element.getBoundingClientRect();
+function movedProperties(element: HTMLElement): string[] {
+  // A DOM without the Web Animations API, a test environment's, has no
+  // keyframes to take off.
+  if (typeof element.getAnimations !== 'function') {
+    return [];
   }
 
-  const name = element.style.animationName;
+  const moved = new Set<string>();
 
-  element.style.animationName = 'none';
+  for (const animation of element.getAnimations()) {
+    if (!(animation.effect instanceof KeyframeEffect)) {
+      continue;
+    }
+
+    for (const keyframe of animation.effect.getKeyframes()) {
+      for (const property of boxProperties) {
+        if (property in keyframe) {
+          moved.add(property);
+        }
+      }
+    }
+  }
+
+  return [...moved];
+}
+
+/**
+ * Where the element itself sits, in window coordinates: where an entrance
+ * lands, and where an exit leaves from.
+ *
+ * Read off what is drawn, a slide waiting to arrive measures a screen away from
+ * where it lives, and a turn measures as the box its corners sweep. Both of
+ * those are what the observer sees, and it is why a slide inside a mask — the
+ * arrangement the slide page recommends — used to report as off the screen for
+ * ever. A running one is no different: a slide a tenth of the way in is a
+ * tenth inside its mask, which read as leaving and held it there.
+ *
+ * So the properties the effect moves the box with are set to `none` for the
+ * length of the read. An `!important` declaration outranks an animation, and
+ * all it changes is what the cascade hands the element: the animation goes on
+ * from the frame it is on, starts no transition and fires no event. A value a
+ * caller set on one of those properties goes with it, which costs nothing,
+ * since the keyframes fill both ends of the run and it is never drawn.
+ *
+ * An effect that has not been let go yet has its `animation-name` cleared for
+ * the read as well, which is the move the rewind above makes. That one starts
+ * the animation again, which is why only a held one is given it: what the
+ * restore starts is an animation held paused on its first frame, which is what
+ * was there.
+ */
+function restingRect(element: HTMLElement, held: boolean): DOMRect {
+  // Asked before the name is cleared, which takes the animations with it.
+  const moved = movedProperties(element);
+  const style = element.style;
+  const name = style.animationName;
+  const before = moved.map((property) => ({
+    property,
+    value: style.getPropertyValue(property),
+    priority: style.getPropertyPriority(property)
+  }));
+
+  if (held) {
+    style.animationName = 'none';
+  }
+
+  for (const property of moved) {
+    style.setProperty(property, 'none', 'important');
+  }
 
   const rect = element.getBoundingClientRect();
 
-  element.style.animationName = name;
+  for (const { property, value, priority } of before) {
+    if (value) {
+      style.setProperty(property, value, priority);
+    } else {
+      style.removeProperty(property);
+    }
+  }
+
+  if (held) {
+    style.animationName = name;
+  }
 
   return rect;
 }
@@ -563,8 +626,9 @@ export interface AnimationRun {
  * **`visible` is measured rather than observed.** Two observers report and
  * neither decides: what they say is that the view has moved, and the answer is
  * then read off the element's own resting box. An `IntersectionObserver` sees
- * the element where its first frame is holding it, which for a slide is a
- * screen from where it lives, so the box it reports on is the wrong box.
+ * the element where its first frame is holding it, or where a running one has
+ * got to, which for a slide is up to a screen from where it lives, so the box
+ * it reports on is the wrong box.
  */
 /**
  * Marks an element whose animation is being rewound, for the length of one

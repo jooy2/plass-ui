@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A `PlAnimateSlide` or `PlAnimateRotate` with `trigger="visible"` and `once={false}` plays to its end inside a mask.** Once such an effect had started, whether it was on screen was judged by where it was drawn rather than where it sits, so a slide a tenth of the way into a box with `overflow: hidden` read as leaving and stopped there until the page scrolled, a turn whose corners swung outside the box started again from its first frame, and a `mode="out"` slide that had left the box went out again each time a scroll moved it. It is now judged by where the element sits, as it already was while the effect waited, so each plays through once, and one that leaves the screen and comes back still plays again.
+
 - **A disabled `PlBreadcrumbItem` or `PlListItem` that has only an `onClick` is announced as an unavailable button.** It was drawn as a `<span>` or a `<div>` carrying `aria-disabled` and no role, so a screen reader read it as plain text, where a disabled `PlChip` stays a button. It is now the `<button>` it is when enabled, with `disabled`, so Tab passes over it and its `onClick` is not called, and its look is unchanged. A disabled row says nothing about being `selected`, as a disabled link row does. A step or row with neither `onClick` nor an address stays plain text.
 
 - **The time columns of `PlTimePicker` and `PlDateTimePicker` show the chosen row on a scaled page.** When a `transform` reached the popup, on a page scaled as a whole for example, a column measured how far down its chosen row was at the size it was drawn at and scrolled that far in its own pixels, so it opened with the chosen hour or minute out of view, and an arrow, Home or End key chose a row it left out of view. The row is now scrolled into view.
