@@ -329,4 +329,55 @@ describe('PlAnimateTyping', () => {
     expect(full).toBeGreaterThanOrEqual(0);
     expect(shrinking.length).toBeGreaterThan(0);
   });
+
+  it('plays only the passes it was asked for when it is paused and let go during one', async () => {
+    const typing = (paused: boolean) => (
+      <PlAnimateTyping
+        className="typing-under-test"
+        text="Hello"
+        speed={20}
+        hold={60}
+        repeat={2}
+        paused={paused}
+        caret={false}
+      />
+    );
+    const screen = await render(typing(false));
+    const root = document.querySelector('.typing-under-test');
+    const drawn = root!.querySelector('[aria-hidden="true"]')!;
+    let clears = 0;
+    let last = visible(root);
+    const observer = new MutationObserver(() => {
+      const now = visible(root);
+
+      // A pass ends by clearing the line in one frame, so a clear is a pass.
+      if (now === '' && last !== '') {
+        clears += 1;
+      }
+
+      last = now;
+    });
+
+    observer.observe(drawn, { attributes: true, attributeFilter: ['data-text'] });
+
+    try {
+      // Partway through the second pass, which is the last one.
+      await expect
+        .poll(() => clears === 1 && visible(root).length > 0 && visible(root).length < 5)
+        .toBe(true);
+
+      await screen.rerender(typing(true));
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await screen.rerender(typing(false));
+
+      await expect.poll(() => visible(root)).toBe('Hello');
+      // Longer than a hold and a whole pass, so a third would have started.
+      await new Promise((resolve) => setTimeout(resolve, 400));
+    } finally {
+      observer.disconnect();
+    }
+
+    expect(clears).toBe(1);
+    expect(visible(root)).toBe('Hello');
+  });
 });

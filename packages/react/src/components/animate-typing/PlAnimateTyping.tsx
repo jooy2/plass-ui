@@ -135,6 +135,14 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   const erasing = React.useRef(false);
 
   /**
+   * Which pass of `repeat` it is on, kept beside `progress` as well. Counted
+   * afresh each time the chain was built, a typing paused during its last pass
+   * started counting from the first again when it was let go, and played every
+   * pass it had already played a second time.
+   */
+  const pass = React.useRef(1);
+
+  /**
    * `duration` is honoured as the time for the whole string, because a caller
    * who has set a duration on every other PlAnimate component will reach for it
    * here too. `speed` is the natural unit for a typewriter — a long paragraph
@@ -152,6 +160,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   React.useEffect(() => {
     progress.current = 0;
     erasing.current = false;
+    pass.current = 1;
   }, [source, run.runs]);
 
   React.useEffect(() => {
@@ -169,13 +178,15 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       // no effect at all.
       progress.current = 0;
       erasing.current = false;
+      pass.current = 1;
       setShown(0);
 
       return;
     }
 
     // Held by the caller, or resting off screen. Either way the chain is torn
-    // down here and built again from `progress` and `erasing` when it goes on.
+    // down here and built again from `progress`, `erasing` and `pass` when it
+    // goes on.
     if (paused || run.resting) {
       return;
     }
@@ -183,14 +194,43 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
     let count = progress.current;
-    let pass = 1;
     let deleting = erasing.current;
 
     const passes = repeat === 'infinite' ? Infinity : Math.max(1, repeat);
 
-    if (count >= total && passes === 1) {
+    if (count >= total && !deleting && pass.current >= passes) {
       return;
     }
+
+    // The line is typed out: hold it, then delete it or clear it for the next
+    // pass, unless this was the last one. The pass is counted once the next
+    // one starts, so a chain built again during the hold holds and goes on
+    // rather than skipping a pass or playing one twice.
+    const finish = () => {
+      if (pass.current >= passes) {
+        return;
+      }
+
+      if (erase) {
+        deleting = true;
+        erasing.current = true;
+        timer = setTimeout(step, hold);
+
+        return;
+      }
+
+      timer = setTimeout(() => {
+        if (cancelled) {
+          return;
+        }
+
+        pass.current += 1;
+        count = 0;
+        progress.current = 0;
+        setShown(0);
+        timer = setTimeout(step, typeDelay);
+      }, hold);
+    };
 
     const step = () => {
       if (cancelled) {
@@ -205,7 +245,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
         if (count <= 0) {
           deleting = false;
           erasing.current = false;
-          pass += 1;
+          pass.current += 1;
         }
 
         timer = setTimeout(step, deleting ? deleteDelay : typeDelay);
@@ -223,35 +263,19 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
         return;
       }
 
-      if (pass >= passes) {
-        return;
-      }
-
-      if (erase) {
-        deleting = true;
-        erasing.current = true;
-        timer = setTimeout(step, hold);
-
-        return;
-      }
-
-      pass += 1;
-      timer = setTimeout(() => {
-        if (cancelled) {
-          return;
-        }
-
-        count = 0;
-        progress.current = 0;
-        setShown(0);
-        timer = setTimeout(step, typeDelay);
-      }, hold);
+      finish();
     };
 
     setShown(count);
-    // Resuming picks up at the next character, in the direction it was going;
-    // starting waits out the delay.
-    timer = setTimeout(step, count === 0 ? delay : deleting ? deleteDelay : typeDelay);
+
+    if (count >= total && !deleting) {
+      // Resumed with the line typed out, which is the hold between two passes.
+      finish();
+    } else {
+      // Resuming picks up at the next character, in the direction it was going;
+      // starting waits out the delay.
+      timer = setTimeout(step, count === 0 ? delay : deleting ? deleteDelay : typeDelay);
+    }
 
     return () => {
       cancelled = true;
