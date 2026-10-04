@@ -222,6 +222,13 @@
   user-select: none;
 }
 
+/* One of these per framework, and `framework.css` hides the ones that are not
+   selected. The one left lays its mark and its name out as the badge's own
+   items, as if the wrapper were not there. */
+.plass-demo-badge > .plass-fw {
+  display: contents;
+}
+
 .plass-demo--plain .plass-demo-canvas {
   padding: 0;
   background: none;

@@ -71,7 +71,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useData, withBase } from 'vitepress';
 import { basePath, localeOf, t, tf } from '../../data/i18n';
 import { framework } from '../../data/framework';
-import { FRAMEWORKS } from '../../data/frameworks';
+import { DEFAULT_FRAMEWORK, FRAMEWORKS } from '../../data/frameworks';
 import FrameworkMark from './FrameworkMark.vue';
 
 /*
@@ -191,10 +191,25 @@ function flip() {
  * Which framework this preview is showing
  * ------------------------------------------------------------------------- */
 
-const embedded = computed(() => props.flutter && framework.value === 'flutter');
+/*
+ * The framework this preview draws, which is the default for one tick after
+ * hydration — the same detour `FrameworkSelect.vue` takes, for the same reason.
+ * The pre-rendered HTML holds the default's half, and `syncFramework()` has put
+ * the stored choice in `framework` before hydration starts, so a first render
+ * that read it would disagree with the server's DOM for every reader who picked
+ * Flutter: the badge, the `--embedded` class and the frame where the server
+ * wrote a mount point. Vue logs that as a mismatch and leaves the class as the
+ * server wrote it. Rendering the default first and switching in `onMounted`
+ * makes the switch an ordinary update, and it lands before `sync()` has
+ * mounted anything into the preview.
+ */
+const hydrated = ref(false);
+const shown = computed(() => (hydrated.value ? framework.value : DEFAULT_FRAMEWORK));
+
+const embedded = computed(() => props.flutter && shown.value === 'flutter');
 
 const frameworkLabel = computed(
-  () => FRAMEWORKS.find((item) => item.id === framework.value)?.label ?? framework.value
+  () => FRAMEWORKS.find((item) => item.id === shown.value)?.label ?? shown.value
 );
 
 /**
@@ -205,6 +220,13 @@ const frameworkLabel = computed(
  * one am I looking at" is exactly the question a preview should be able to
  * answer about itself. A preview with only one implementation would be
  * answering a question nobody asked.
+ *
+ * The badge carries every framework's mark and name, and `html[data-fw]`
+ * displays one of them, as it does a `::: fw` block. A preview that has both
+ * always draws the selected one, so the attribute is the right answer, and it
+ * is the right answer before hydration too: the head script sets it before the
+ * first paint, where a badge drawn from `shown` would say "React" to a Flutter
+ * reader until the bundle arrived.
  */
 const marked = computed(() => props.flutter && !props.plain);
 
@@ -384,6 +406,9 @@ watch(embedded, sync);
 watch(theme, pushTheme);
 
 onMounted(() => {
+  // First, so that the `sync()` below already answers for the stored choice.
+  hydrated.value = true;
+
   window.addEventListener('message', onMessage);
 
   /*
@@ -441,8 +466,10 @@ onBeforeUnmount(() => {
         class="plass-demo-badge"
         :title="tf(locale, 'renderedWith', { framework: frameworkLabel })"
       >
-        <FrameworkMark :framework="framework" :size="12" />
-        <span>{{ frameworkLabel }}</span>
+        <span v-for="item in FRAMEWORKS" :key="item.id" class="plass-fw" :data-fw="item.id">
+          <FrameworkMark :framework="item.id" :size="12" />
+          <span>{{ item.label }}</span>
+        </span>
       </div>
       <button
         v-if="!plain"
