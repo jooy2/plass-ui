@@ -443,6 +443,36 @@ const fitClasses: Record<PlImageFit, string> = {
   'scale-down': 'object-scale-down'
 };
 
+/** A store with nothing to watch: only its server snapshot differs. */
+function subscribeToNothing() {
+  return () => {};
+}
+
+function onClient() {
+  return false;
+}
+
+function onServer() {
+  return true;
+}
+
+/**
+ * The `src` a server rendered this picture with, or `undefined` for a picture
+ * mounted in the browser.
+ *
+ * A server render and the hydration of it both read the store's server
+ * snapshot, and a picture mounted on the client reads the other one. The
+ * answer is kept from the first render, because the store re-renders with the
+ * client's answer once hydration is over and the picture is still the one the
+ * server sent.
+ */
+function useServedSrc(src: string | undefined): string | undefined {
+  const rendering = React.useSyncExternalStore(subscribeToNothing, onClient, onServer);
+  const [served] = React.useState(rendering ? src : undefined);
+
+  return served;
+}
+
 /**
  * The overlay a `preview` opens, which is a download of its own.
  *
@@ -513,6 +543,16 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
     });
     const status = picture.status;
     const [open, setOpen] = React.useState(false);
+
+    /*
+     * A picture in a server's markup is drawn without the fade, so the browser
+     * paints it over the placeholder as the file decodes rather than holding
+     * it at `opacity: 0` until the page's JavaScript has run. A picture mounted
+     * in the browser, or a later `src`, still fades in.
+     */
+    const servedSrc = useServedSrc(src);
+    const atOnce = Boolean(src) && servedSrc === src;
+    const shown = atOnce || status === 'loaded' ? 'opacity-100' : 'opacity-0';
 
     // Lazy unless the picture is the one the page is judged by, and whatever
     // the caller wrote out if they wrote anything.
@@ -695,7 +735,7 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           className={cx(
             'pointer-events-none block object-cover select-none',
             transitionClasses,
-            status === 'loaded' ? 'opacity-100' : 'opacity-0'
+            shown
           )}
           style={{
             ...layerStyle(quarters, flip, LETTERBOX_BLUR * 2),
@@ -745,6 +785,24 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
         />
       );
 
+    const waiting =
+      status === 'loading' && standIn === null ? (
+        <span className="absolute inset-0">
+          {placeholder === undefined ? (
+            <PlSkeleton
+              shape="rect"
+              color={color}
+              size={size}
+              width="100%"
+              height="100%"
+              className={radius}
+            />
+          ) : (
+            (placeholder as React.ReactNode)
+          )}
+        </span>
+      ) : null;
+
     const onPictureLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
       const node = event.currentTarget;
       const owed = owedLoad.current;
@@ -781,11 +839,13 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
           transitionClasses,
           // Positioned, so it paints over the copy under it: an absolutely
           // positioned sibling paints above a static one whatever the order.
-          blurred || standInLayer !== null ? 'relative' : '',
+          // A picture drawn at once paints over its placeholder the same way,
+          // for as long as there is one.
+          blurred || standInLayer !== null || (atOnce && waiting !== null) ? 'relative' : '',
           // Hidden rather than unmounted: an `<img>` that is not in the document
           // never loads, so unmounting it while it loads is a picture that never
           // arrives.
-          status === 'loaded' ? 'opacity-100' : 'opacity-0',
+          shown,
           status === 'error' ? 'hidden' : '',
           protect ? 'select-none [-webkit-touch-callout:none]' : ''
         )}
@@ -803,24 +863,11 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
       <>
         {backdrop}
         {standInLayer}
+        {/* Under a picture drawn at once, which comes after it and paints over
+            it as the file decodes; over one that fades in. */}
+        {atOnce ? waiting : null}
         {img}
-
-        {status === 'loading' && standIn === null ? (
-          <span className="absolute inset-0">
-            {placeholder === undefined ? (
-              <PlSkeleton
-                shape="rect"
-                color={color}
-                size={size}
-                width="100%"
-                height="100%"
-                className={radius}
-              />
-            ) : (
-              (placeholder as React.ReactNode)
-            )}
-          </span>
-        ) : null}
+        {atOnce ? null : waiting}
 
         {status === 'error' ? (
           <span className="absolute inset-0 flex items-center justify-center bg-(--plass-glass-press) p-3 text-center text-[0.8125rem] text-(--plass-muted-fg)">

@@ -57,6 +57,12 @@ An `<img>` is one tag and it works, so it is worth saying what this is for rathe
 3. **The two are one state machine**, so the placeholder is not still sitting behind a picture that has already loaded, and a changed `src` starts again rather than inheriting the last one's success.
 4. **The picture fades up over the placeholder** rather than replacing it between two frames. A photograph that cuts in reads as the layout changing its mind, and it reads that way hardest on the slow connection the placeholder exists for. A picture that was already decoded is drawn whole, because an entrance for something that never had to be waited for is an entrance for nothing.
 
+::: fw react
+
+A picture rendered on a server is drawn without the fade as well. Its markup is painted before the page's JavaScript has run, so the browser draws the picture over the placeholder as the file arrives instead of waiting for hydration. A `src` changed after that fades in as usual.
+
+:::
+
 ::: fw flutter
 
 **The picture is decoded at the size of its box**, as a browser keeps an `<img>` at the pixels it is drawn at. The box is measured on the first frame and the picture is asked for on the next, decoded no larger than the box needs at the screen's pixel ratio, and decoded again only when the box grows. A cropped picture reaches both sides of the box and one shown whole fits inside it. A `ResizeImage` you pass is used as it is, and a picture with `fit: PlAspectFit.none` is decoded whole.

@@ -10,6 +10,7 @@
  * with motion and without it.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { renderToString } from 'react-dom/server';
 import { render } from 'vitest-browser-react';
 import { PlImage } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -79,5 +80,31 @@ describe('the image stylesheet', () => {
 
     expect(opacityTiming(picture(), 'transitionDuration')).toBe(0);
     expect(opacityTiming(standIn(), 'transitionDelay')).toBe(0);
+  });
+});
+
+describe('a picture a server rendered', () => {
+  it('is drawn over its placeholder before any script has run', async () => {
+    // A file nothing has fetched yet, so the markup is painted while it loads.
+    const src = `data:image/svg+xml,${encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="5" height="4"></svg>'
+    )}`;
+    const host = document.createElement('div');
+
+    host.style.width = '200px';
+    host.innerHTML = renderToString(<PlImage src={src} alt="A portrait" ratio="1" priority />);
+    document.body.append(host);
+
+    try {
+      const shown = host.querySelector<HTMLImageElement>('img')!;
+      const box = shown.getBoundingClientRect();
+
+      expect(getComputedStyle(shown).opacity).toBe('1');
+      // The skeleton is still in the markup, and the picture is the one on top.
+      expect(host.querySelector('.plass-skeleton')).not.toBeNull();
+      expect(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)).toBe(shown);
+    } finally {
+      host.remove();
+    }
   });
 });

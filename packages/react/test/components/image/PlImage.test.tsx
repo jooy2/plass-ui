@@ -1217,6 +1217,171 @@ describe('PlImage', () => {
     });
   });
 
+  describe('a picture a server rendered', () => {
+    /*
+     * The fade waits for React, and a server's markup is painted before React
+     * has run, so a picture held at `opacity: 0` until then is a picture that
+     * is not on the page until the JavaScript is. A server-rendered picture is
+     * drawn at once instead, and a picture mounted in the browser fades in as
+     * it always has.
+     */
+    let servedCount = 0;
+    const hosts: HTMLElement[] = [];
+    const roots: Array<ReturnType<typeof hydrateRoot>> = [];
+
+    afterEach(async () => {
+      await React.act(async () => roots.splice(0).forEach((root) => root.unmount()));
+      hosts.splice(0).forEach((host) => host.remove());
+    });
+
+    /** Hydrates the server's markup, and leaves the root for `afterEach` to unmount. */
+    async function hydrate(
+      host: HTMLElement,
+      element: React.ReactElement,
+      options?: Parameters<typeof hydrateRoot>[2]
+    ) {
+      let root: ReturnType<typeof hydrateRoot> | undefined;
+
+      await React.act(async () => {
+        root = hydrateRoot(host, element, options);
+      });
+      roots.push(root!);
+
+      return root!;
+    }
+
+    /** A picture nothing has fetched yet, so it is still loading when React arrives. */
+    function freshPicture() {
+      servedCount += 1;
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${servedCount}" height="9"></svg>`;
+
+      return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    }
+
+    /** The server's markup, in the document the way a browser parsed it. */
+    function serve(element: React.ReactElement) {
+      const host = document.createElement('div');
+
+      host.innerHTML = renderToString(element);
+      document.body.append(host);
+      hosts.push(host);
+
+      return host;
+    }
+
+    const pictureIn = (host: HTMLElement) =>
+      host.querySelector<HTMLImageElement>('img:not([aria-hidden])')!;
+
+    it('is not held transparent in the markup', async () => {
+      const src = freshPicture();
+      const host = serve(<PlImage src={src} alt="A portrait" priority />);
+
+      expect(pictureIn(host)).toHaveClass('opacity-100');
+      expect(pictureIn(host)).not.toHaveClass('opacity-0');
+    });
+
+    it('stays drawn through hydration and reports the picture once it arrives', async () => {
+      const src = freshPicture();
+      const element = (onStatusChange?: (status: string) => void) => (
+        <PlImage src={src} alt="A portrait" ratio="1" onStatusChange={onStatusChange} />
+      );
+      const host = serve(element());
+      const onStatusChange = vi.fn();
+      const onRecoverableError = vi.fn();
+      const mismatch = vi.spyOn(console, 'error');
+
+      try {
+        await hydrate(host, element(onStatusChange), { onRecoverableError });
+
+        expect(onRecoverableError).not.toHaveBeenCalled();
+        // An attribute the client would have written differently is only ever
+        // reported, never repaired, so it is caught here or nowhere.
+        expect(mismatch.mock.calls.filter((call) => /hydrat/i.test(String(call[0])))).toEqual([]);
+        expect(pictureIn(host)).not.toHaveClass('opacity-0');
+
+        await expect.poll(() => onStatusChange.mock.calls).toEqual([['loaded']]);
+        expect(pictureIn(host)).toHaveClass('opacity-100');
+        expect(host.querySelector('.plass-skeleton')).toBeNull();
+        // With nothing left under it, it stacks the way a picture mounted in
+        // the browser does.
+        expect(pictureIn(host)).not.toHaveClass('relative');
+      } finally {
+        mismatch.mockRestore();
+      }
+    });
+
+    it('draws the blurred letterbox at once as well', async () => {
+      const src = freshPicture();
+      const host = serve(<PlImage src={src} alt="A portrait" fit="contain" letterbox="blur" />);
+
+      expect(host.querySelector('img[aria-hidden="true"]')).toHaveClass('opacity-100');
+    });
+
+    it('puts the placeholder under the picture rather than over it', async () => {
+      const host = serve(<PlImage src={freshPicture()} alt="A portrait" ratio="1" />);
+      const picture = pictureIn(host);
+      const skeleton = host.querySelector('.plass-skeleton')!;
+
+      // Positioned and after the placeholder, so it is the one painted on top.
+      expect(picture).toHaveClass('relative');
+      expect(
+        skeleton.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_FOLLOWING
+      ).toBeTruthy();
+    });
+
+    it('keeps a picture with no src hidden', async () => {
+      // There is nothing coming to draw, and an `<img>` with no `src` would
+      // otherwise draw its alt text over the placeholder.
+      const host = serve(<PlImage alt="A portrait" />);
+
+      expect(pictureIn(host)).toHaveClass('opacity-0');
+    });
+
+    it('still fades in a picture mounted in the browser', async () => {
+      const classes: string[] = [];
+
+      await render(
+        <PlImage
+          src={freshPicture()}
+          alt="A portrait"
+          ref={(node) => {
+            if (node) classes.push(node.className);
+          }}
+        />
+      );
+
+      // The class the element was committed with, before anything had loaded.
+      expect(classes[0]).toContain('opacity-0');
+      await expect.poll(() => image().className).toContain('opacity-100');
+    });
+
+    it('fades in a src it is given after hydration', async () => {
+      const first = freshPicture();
+      const second = freshPicture();
+      const host = serve(<PlImage src={first} alt="A portrait" />);
+      const root = await hydrate(host, <PlImage src={first} alt="A portrait" />);
+
+      // Settled first, so the only thing the next render changes is the file.
+      await expect.poll(() => host.querySelector('.plass-skeleton')).toBeNull();
+
+      const classes: string[] = [];
+      const seen = new MutationObserver(() => classes.push(pictureIn(host).className));
+
+      seen.observe(pictureIn(host), { attributes: true, attributeFilter: ['class'] });
+
+      await React.act(async () => {
+        root.render(<PlImage src={second} alt="A portrait" />);
+      });
+
+      // The new file is one the browser fetches for this page, and it arrives
+      // the way any other does.
+      await expect.poll(() => pictureIn(host).className).toContain('opacity-100');
+      seen.disconnect();
+      expect(classes.some((name) => name.split(' ').includes('opacity-0'))).toBe(true);
+    });
+  });
+
   describe('caller styling', () => {
     it('hands the img back through a forwarded ref', async () => {
       // The component keeps a ref of its own to ask the element how it got on,
