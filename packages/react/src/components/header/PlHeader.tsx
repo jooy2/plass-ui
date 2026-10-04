@@ -186,6 +186,16 @@ const positionClasses: Record<PlassPosition, string> = {
 };
 
 /**
+ * Hooks rather than styles: what `styles.css` reads to tell a bar a
+ * `PlPageLayout` has to make room for, before the layout has measured it.
+ */
+const layoutHookClasses: Record<PlassPosition, string> = {
+  static: '',
+  sticky: 'plass-header-sticky',
+  fixed: 'plass-header-fixed'
+};
+
+/**
  * How the three slots divide the bar.
  *
  * `center` is the one that needs explaining. Centring the middle in the space
@@ -291,15 +301,16 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
       [register, ref]
     );
 
-    // Out of the flow, so a `PlPageLayout` has to keep its content clear of the
-    // bar. The hook and the attributes that say how tall the bar is at least
-    // are what `styles.css` reads to do that in the HTML a server sends, before
-    // the layout can measure anything.
-    const fixed = position === 'fixed';
+    // A bar that holds its place, so a `PlPageLayout` starts its sidebars below
+    // it, and keeps its content clear of it as well when it is `fixed` and out
+    // of the flow. The hook and the attributes that say how tall the bar is at
+    // least are what `styles.css` reads to do both in the HTML a server sends,
+    // before the layout can measure anything.
+    const pinned = position !== 'static';
 
     const classNames = cx(
       'w-full min-w-0',
-      fixed ? 'plass-header-fixed' : '',
+      layoutHookClasses[position],
       variantClasses[variant],
       // The rule faces the content. `--plass-divider` and not the sheet's own
       // white edge line: this is a mark the sheet makes on itself, and white
@@ -315,9 +326,9 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
       ref: setRef,
       props: {
         'aria-label': label,
-        'data-size': fixed ? size : undefined,
-        'data-variant': fixed ? variant : undefined,
-        'data-divider': fixed && divider ? '' : undefined,
+        'data-size': pinned ? size : undefined,
+        'data-variant': pinned ? variant : undefined,
+        'data-divider': pinned && divider ? '' : undefined,
         className: classNames,
         style: { ...surfaceSlots(color, elevation), ...style },
         children: (

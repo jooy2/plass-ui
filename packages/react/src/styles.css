@@ -196,13 +196,17 @@
 }
 
 /* ---------------------------------------------------------------------------
- * The room a fixed header takes in a page layout
+ * The room a pinned header takes in a page layout
  *
  * A `PlHeader` with `position="fixed"` is out of the flow, so a `PlPageLayout`
  * pads its content down by the header's height and starts its sidebars there.
- * It measures that height and writes it on its root — but only once JavaScript
- * runs, so the HTML a server sends would be drawn with the content under the
- * header and pushed down a moment later, when the page hydrates.
+ * A `sticky` one across the whole width is in the flow, but it stays across
+ * the top of the window, so the sidebars under it start below it and are that
+ * much shorter. The layout measures the height and writes it on its root — but
+ * only once JavaScript runs, so the HTML a server sends would be drawn with
+ * the content under a fixed header, or with the sidebars under a sticky one as
+ * tall as the whole window, which pushes a short page's footer a header's
+ * height down. Both would move a moment later, when the page hydrates.
  *
  * These rules give that first paint the same room out of what the stylesheet
  * already knows: the header's floor for its `size`, which is the ladder of
@@ -211,9 +215,11 @@
  * taller than its floor is still measured, and the measurement is an inline
  * style on the same root, so it replaces all of this the moment it is written.
  *
- * Two paths, because a fixed header is the layout's own child or, with
- * `headerSpan="content"`, its content column's. A `PlHeader` any deeper is one
- * the page drew rather than the layout's.
+ * Two paths for a fixed header, because it is the layout's own child or, with
+ * `headerSpan="content"`, its content column's. A sticky header counts only as
+ * the layout's own child: in the content column it sits beside the sidebars
+ * rather than over them. A `PlHeader` any deeper is one the page drew rather
+ * than the layout's.
  *
  * Every layout starts from zero rather than from what it inherits, so a layout
  * inside another one's page does not take the outer header's room as its own.
@@ -231,37 +237,46 @@
   --p-layout-header-inset: var(--p-layout-header);
 }
 
+.plass-layout:has(> .plass-header-sticky) {
+  --p-layout-header: calc(var(--p-layout-header-floor) + var(--p-layout-header-rule));
+}
+
 .plass-layout:has(
   > .plass-header-fixed[data-size='xs'],
-  > div > div > .plass-header-fixed[data-size='xs']
+  > div > div > .plass-header-fixed[data-size='xs'],
+  > .plass-header-sticky[data-size='xs']
 ) {
   --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 10);
 }
 
 .plass-layout:has(
   > .plass-header-fixed[data-size='sm'],
-  > div > div > .plass-header-fixed[data-size='sm']
+  > div > div > .plass-header-fixed[data-size='sm'],
+  > .plass-header-sticky[data-size='sm']
 ) {
   --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 12);
 }
 
 .plass-layout:has(
   > .plass-header-fixed[data-size='md'],
-  > div > div > .plass-header-fixed[data-size='md']
+  > div > div > .plass-header-fixed[data-size='md'],
+  > .plass-header-sticky[data-size='md']
 ) {
   --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 16);
 }
 
 .plass-layout:has(
   > .plass-header-fixed[data-size='lg'],
-  > div > div > .plass-header-fixed[data-size='lg']
+  > div > div > .plass-header-fixed[data-size='lg'],
+  > .plass-header-sticky[data-size='lg']
 ) {
   --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 20);
 }
 
 .plass-layout:has(
   > .plass-header-fixed[data-size='xl'],
-  > div > div > .plass-header-fixed[data-size='xl']
+  > div > div > .plass-header-fixed[data-size='xl'],
+  > .plass-header-sticky[data-size='xl']
 ) {
   --p-layout-header-floor: calc(var(--spacing, 0.25rem) * 24);
 }
@@ -270,14 +285,16 @@
    which the divider only colours. Later, so the glass wins where both match. */
 .plass-layout:has(
   > .plass-header-fixed[data-divider],
-  > div > div > .plass-header-fixed[data-divider]
+  > div > div > .plass-header-fixed[data-divider],
+  > .plass-header-sticky[data-divider]
 ) {
   --p-layout-header-rule: 1px;
 }
 
 .plass-layout:has(
   > .plass-header-fixed[data-variant='glass'],
-  > div > div > .plass-header-fixed[data-variant='glass']
+  > div > div > .plass-header-fixed[data-variant='glass'],
+  > .plass-header-sticky[data-variant='glass']
 ) {
   --p-layout-header-rule: 2px;
 }

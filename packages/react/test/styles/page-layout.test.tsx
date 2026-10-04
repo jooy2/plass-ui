@@ -9,9 +9,10 @@
  * Loaded the way `back-top.test.tsx` loads it, and read with
  * `document.elementFromPoint`, which is what a press goes to.
  *
- * The last group asks the stylesheet a second question: where the content of a
- * page with a fixed header is in the HTML a server sends, before the layout has
- * measured anything, and whether hydrating moves it.
+ * The last two groups ask the stylesheet a second question: where the content
+ * of a page with a fixed header is in the HTML a server sends, and how tall the
+ * sidebar under a sticky one is, before the layout has measured anything, and
+ * whether hydrating moves either.
  */
 import { act, type ReactElement } from 'react';
 import { hydrateRoot, type Root } from 'react-dom/client';
@@ -24,6 +25,7 @@ import {
   PlPageLayout,
   PlSidebar,
   type PlPageLayoutScroll,
+  type PlPageLayoutSpan,
   type PlassPosition
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -405,29 +407,37 @@ describe('a fixed bar in a layout whose bars span the content', () => {
   });
 });
 
+/** A server's markup in the document, as a browser has it before any script runs. */
+function serve(tree: ReactElement) {
+  const host = document.createElement('div');
+
+  host.innerHTML = renderToString(tree);
+  document.body.append(host);
+
+  const layout = host.querySelector<HTMLElement>('[data-testid="layout"]')!;
+  const header = host.querySelector<HTMLElement>('header')!;
+  const first = host.querySelector<HTMLElement>('[data-testid="first"]')!;
+  const aside = host.querySelector<HTMLElement>('aside')!;
+
+  return {
+    host,
+    layout,
+    header,
+    aside,
+    // How far below the top of the layout the content and the sidebar start.
+    content: () => first.getBoundingClientRect().top - layout.getBoundingClientRect().top,
+    sidebar: () => aside.getBoundingClientRect().top - layout.getBoundingClientRect().top
+  };
+}
+
+/** Every size, variant and divider a header can be drawn with. */
+const headerCases = (['xs', 'sm', 'md', 'lg', 'xl'] as const).flatMap((size) =>
+  (['glass', 'solid', 'ghost'] as const).flatMap((variant) =>
+    [true, false].map((divider) => ({ size, variant, divider }))
+  )
+);
+
 describe('a fixed header in the HTML a server sends', () => {
-  /** A server's markup in the document, as a browser has it before any script runs. */
-  function serve(tree: ReactElement) {
-    const host = document.createElement('div');
-
-    host.innerHTML = renderToString(tree);
-    document.body.append(host);
-
-    const layout = host.querySelector<HTMLElement>('[data-testid="layout"]')!;
-    const header = host.querySelector<HTMLElement>('header')!;
-    const first = host.querySelector<HTMLElement>('[data-testid="first"]')!;
-    const aside = host.querySelector<HTMLElement>('aside')!;
-
-    return {
-      host,
-      layout,
-      header,
-      // How far below the top of the layout the content and the sidebar start.
-      content: () => first.getBoundingClientRect().top - layout.getBoundingClientRect().top,
-      sidebar: () => aside.getBoundingClientRect().top - layout.getBoundingClientRect().top
-    };
-  }
-
   const page = (header: ReactElement, children?: ReactElement) => (
     <PlPageLayout
       data-testid="layout"
@@ -443,13 +453,7 @@ describe('a fixed header in the HTML a server sends', () => {
     </PlPageLayout>
   );
 
-  const cases = (['xs', 'sm', 'md', 'lg', 'xl'] as const).flatMap((size) =>
-    (['glass', 'solid', 'ghost'] as const).flatMap((variant) =>
-      [true, false].map((divider) => ({ size, variant, divider }))
-    )
-  );
-
-  it.each(cases)(
+  it.each(headerCases)(
     'has the content below a $size $variant header (divider: $divider) before hydration, and leaves it there',
     async ({ size, variant, divider }) => {
       const tree = page(
@@ -525,6 +529,191 @@ describe('a fixed header in the HTML a server sends', () => {
       const inner = host.querySelector<HTMLElement>('[data-testid="inner"]')!;
 
       expect(getComputedStyle(inner).paddingTop).toBe('0px');
+    } finally {
+      host.remove();
+    }
+  });
+});
+
+describe('a sticky header in the HTML a server sends', () => {
+  // `sticky` is a header's default, so none of these bars says so.
+  const page = (
+    header: ReactElement,
+    { span = 'full', long = false }: { span?: PlPageLayoutSpan; long?: boolean } = {}
+  ) => (
+    <PlPageLayout
+      data-testid="layout"
+      collapseBelow="none"
+      headerSpan={span}
+      header={header}
+      footer={<PlFooter>Footer</PlFooter>}
+      sidebar={<PlSidebar>Navigation</PlSidebar>}
+    >
+      <p data-testid="first" style={{ margin: 0, height: long ? 2000 : undefined }}>
+        The first line of the page
+      </p>
+    </PlPageLayout>
+  );
+
+  /**
+   * Where the sidebar starts and how tall it is, where it sticks once the page
+   * scrolls, and where the footer starts, against the top of the layout.
+   */
+  function place({ layout, aside, sidebar }: ReturnType<typeof serve>) {
+    const footer = layout.querySelector('footer')!;
+
+    return {
+      sidebar: sidebar(),
+      height: aside.getBoundingClientRect().height,
+      stuck: getComputedStyle(aside).top,
+      footer: footer.getBoundingClientRect().top - layout.getBoundingClientRect().top
+    };
+  }
+
+  it.each(headerCases)(
+    'has the sidebar below a $size $variant header (divider: $divider) before hydration, and leaves it there',
+    async ({ size, variant, divider }) => {
+      const tree = page(
+        <PlHeader size={size} variant={variant} divider={divider}>
+          Bar
+        </PlHeader>
+      );
+      const served = serve(tree);
+      const { host, layout, header, content } = served;
+      const onRecoverableError = vi.fn();
+      let root: Root | undefined;
+
+      try {
+        const height = header.getBoundingClientRect().height;
+        const before = place(served);
+
+        // Before any script ran: the sidebar is the window less the header and
+        // holds its place below it, so the footer of a short page is already
+        // where it stays rather than a header further down. The header is in
+        // the flow, so the content has no room made for it beyond that.
+        expect(height).toBeGreaterThan(0);
+        expect(before).toEqual({
+          sidebar: height,
+          height: innerHeight - height,
+          stuck: `${height}px`,
+          footer: innerHeight
+        });
+        expect(content()).toBe(height);
+        expect(getComputedStyle(layout).paddingTop).toBe('0px');
+
+        root = await act(async () => hydrateRoot(host, tree, { onRecoverableError }));
+        await frame();
+
+        // After it, nothing has moved, and the room is the measured height.
+        expect(onRecoverableError).not.toHaveBeenCalled();
+        expect(place(served)).toEqual(before);
+        expect(content()).toBe(height);
+        expect(layout.style.getPropertyValue('--p-layout-header')).toBe(`${height}px`);
+        expect(layout.style.getPropertyValue('--p-layout-header-inset')).toBe('0px');
+      } finally {
+        await act(async () => root?.unmount());
+        host.remove();
+      }
+    }
+  );
+
+  it('holds the sidebar below the header of a page scrolled before hydration', async () => {
+    const tree = page(<PlHeader>Bar</PlHeader>, { long: true });
+    const { host, layout, header, aside } = serve(tree);
+    let root: Root | undefined;
+
+    try {
+      window.scrollTo(0, layout.getBoundingClientRect().top + 500);
+      await frame();
+
+      const height = header.getBoundingClientRect().height;
+
+      // Both have stuck: the header to the top of the window, and the sidebar
+      // below it rather than under it.
+      expect(header.getBoundingClientRect().top).toBe(0);
+      expect(aside.getBoundingClientRect().top).toBe(height);
+      expect(aside.getBoundingClientRect().bottom).toBe(innerHeight);
+
+      root = await act(async () => hydrateRoot(host, tree));
+      await frame();
+
+      expect(aside.getBoundingClientRect().top).toBe(height);
+      expect(aside.getBoundingClientRect().bottom).toBe(innerHeight);
+    } finally {
+      await act(async () => root?.unmount());
+      host.remove();
+    }
+  });
+
+  it('leaves the sidebar the whole window beside a header that spans the content', async () => {
+    const tree = page(<PlHeader>Bar</PlHeader>, { span: 'content' });
+    const served = serve(tree);
+    const { host, layout } = served;
+    let root: Root | undefined;
+
+    try {
+      const before = place(served);
+
+      expect(before).toEqual({
+        sidebar: 0,
+        height: innerHeight,
+        stuck: '0px',
+        footer: innerHeight
+      });
+
+      root = await act(async () => hydrateRoot(host, tree));
+      await frame();
+
+      expect(place(served)).toEqual(before);
+      expect(layout.style.getPropertyValue('--p-layout-header')).toBe('0px');
+    } finally {
+      await act(async () => root?.unmount());
+      host.remove();
+    }
+  });
+
+  it('measures a header that grows past its floor, and follows it back', async () => {
+    const tree = page(<PlHeader>Bar</PlHeader>);
+    const served = serve(tree);
+    const { host, layout, header } = served;
+    const height = () => header.getBoundingClientRect().height;
+    let root: Root | undefined;
+
+    try {
+      root = await act(async () => hydrateRoot(host, tree));
+      await frame();
+
+      const floor = height();
+      const row = header.firstElementChild as HTMLElement;
+
+      row.style.minHeight = '120px';
+      await expect.poll(() => place(served).height).toBe(innerHeight - height());
+      expect(height()).toBeGreaterThan(floor);
+      expect(place(served).stuck).toBe(`${height()}px`);
+      expect(layout.style.getPropertyValue('--p-layout-header')).toBe(`${height()}px`);
+
+      row.style.minHeight = '';
+      await expect.poll(() => place(served).height).toBe(innerHeight - floor);
+    } finally {
+      await act(async () => root?.unmount());
+      host.remove();
+    }
+  });
+
+  it("leaves a header the page draws out of the layout's room", async () => {
+    const { host, aside } = serve(
+      <PlPageLayout
+        data-testid="layout"
+        collapseBelow="none"
+        sidebar={<PlSidebar>Navigation</PlSidebar>}
+      >
+        <PlHeader label="Article">An article&apos;s own header</PlHeader>
+      </PlPageLayout>
+    );
+
+    try {
+      expect(getComputedStyle(aside).top).toBe('0px');
+      expect(aside.getBoundingClientRect().height).toBe(innerHeight);
     } finally {
       host.remove();
     }

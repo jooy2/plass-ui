@@ -158,7 +158,7 @@ A sidebar that holds its place has to start below a header whose height nobody b
 
 They are two rather than one because a bar takes two different things away depending on how it is positioned. A `sticky` bar is still in the flow, so nothing has to be reserved for it, but it is permanently across the top of the window, so a column has to start below it. A `fixed` bar is out of the flow, so the page _does_ have to reserve its height, and it spans the window whatever `headerSpan` or `footerSpan` says, so a column starts below it too. Which of the two a bar is is read off the element rather than plumbed through a prop.
 
-A `fixed` `PlHeader` has its room before any script runs as well. The stylesheet knows how tall it is at least from its `size` and its edges, so a page rendered on a server draws the content below the header in the first paint, and the measured height takes over when the page hydrates. Only a header whose content is taller than its `size` allows pushes the content down at that point.
+A `fixed` `PlHeader` has its room before any script runs as well, and so does a `sticky` one that spans the full width. The stylesheet knows how tall it is at least from its `size` and its edges, so a page rendered on a server draws the content below a fixed header and starts the sidebars below either one in the first paint, and the measured height takes over when the page hydrates. Only a header whose content is taller than its `size` allows moves the content or the sidebars at that point.
 
 A bar that never registered itself is left at zero: the measurement is a contract a slot opts into, not a `querySelector`, so a bar rendered through `render={<MyBar />}` is found as reliably as one that is not.
 

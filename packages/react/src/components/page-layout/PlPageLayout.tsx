@@ -420,8 +420,9 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
         <div
           ref={setRootRef}
           className={cx(
-            // A hook, not a style: `styles.css` gives a fixed `PlHeader` its
-            // room through it before anything here has measured the header.
+            // A hook, not a style: `styles.css` gives a fixed or a full-width
+            // sticky `PlHeader` its room through it before anything here has
+            // measured the header.
             'plass-layout relative flex w-full flex-col',
             // The whole difference between a document and a workspace. A floor
             // lets the page grow and the window scroll it; an exact height with
