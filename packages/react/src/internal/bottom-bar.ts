@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { layoutBox } from './layout-box.js';
 
 /**
  * The room a `fixed` bottom bar takes, published for the page to reserve.
@@ -35,6 +36,18 @@ let observer: ResizeObserver | null = null;
  * The tallest rather than the last, so two bars mounted at once — a page and a
  * dialog each with its own — reserve enough for either, and one unmounting does
  * not take the room away from the other.
+ *
+ * Each is the height the bar is laid out at, which is not always the height it
+ * is drawn at. Inside a `transform`, a bar in a scaled `PlMockup` for one, a
+ * `fixed` bar is fixed to that box rather than to the window, and covers only
+ * what is laid out in it, in the pixels the bar is laid out in too. So the
+ * height measured on the screen is turned into those, which is also what the
+ * `ResizeObserver` that calls this watches.
+ *
+ * The ratio comes from the computed style, which writes a length to a few
+ * decimals, so with nothing scaling the bar it is a few thousandths of a pixel
+ * off the box on the screen. Two heights within a hundredth of a pixel are one
+ * height, and the box on the screen, which is exact, is kept.
  */
 function publish(): void {
   const root = document.documentElement;
@@ -48,7 +61,10 @@ function publish(): void {
   let tallest = 0;
 
   for (const bar of bars) {
-    tallest = Math.max(tallest, bar.getBoundingClientRect().height);
+    const drawn = bar.getBoundingClientRect().height;
+    const laidOut = drawn * layoutBox(bar, false).perPixel;
+
+    tallest = Math.max(tallest, Math.abs(laidOut - drawn) < 0.01 ? drawn : laidOut);
   }
 
   root.style.setProperty(bottomBarToken, `${tallest}px`);

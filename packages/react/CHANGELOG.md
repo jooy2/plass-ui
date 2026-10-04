@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A fixed `PlBottomNavigation` or `PlFloatingBottomNavigation` inside a scaled ancestor publishes the room it takes there.** Inside a `transform`, a bar in a scaled `PlMockup` for example, a `fixed` bar is fixed to that box and covers what is laid out in it, but `--plass-bottom-navigation-height` was the height the bar was drawn at, so a page inside that box reserved half the room at half the scale. It is now the height the bar is laid out at, the same number it publishes with nothing scaling it.
+
 - **A `PlAnchor` with a `target` inside a scaled ancestor lights the heading the reader has reached.** Inside a `transform`, a shell in a scaled `PlMockup` for example, the list measured how far each heading was below the top of `target` at the size it was drawn at, and took `offset` and the panel's top border off that in the panel's own pixels, so the reading line sat at another depth and a heading was lit before it had reached it. The distance is now measured in the panel's own pixels, which is what `offset` is counted in.
 
 - **Charts inside a scaled ancestor read the column or the mark under the pointer.** Inside a `transform`, a chart in a scaled `PlMockup` for example, `PlLineChart`, `PlAreaChart`, `PlBarChart`, `PlScatterChart` and `PlTimelineChart` measured the pointer at the size the chart was drawn at and compared it with a plot laid out in the chart's own pixels, so the panel read another column or another mark than the one under the pointer, the crosshair was drawn through that other column, and `tooltip={{ mode: 'item' }}` named another series. The pointer is now read in the chart's own pixels, across and down, in both orientations.
