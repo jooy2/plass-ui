@@ -257,6 +257,8 @@ import 'plass-ui/styles.css';
 
 그 밖에 설정할 것은 없습니다. `transpilePackages`도, `next.config` 항목도, provider도 필요 없습니다. `dist/`는 모든 상대 경로 import에 `.js`가 붙은 컴파일된 ESM이고, 이는 bundler와 Node의 resolver, server render가 모두 똑같이 읽는 형태입니다.
 
+서버가 URL이나 `Accept-Language` 헤더로 독자의 locale을 안다면 더해 둘 만한 것이 하나 있습니다. `locale`을 아무 데서도 정하지 않으면 server render는 숫자와 날짜를 `en-US`로 쓰고, hydration이 끝나야 독자의 형식으로 바뀝니다. root layout의 `PlassProvider`에 그 `locale`을 주면 서버가 처음부터 독자의 형식으로 씁니다. 캘린더가 어느 날을 오늘로 표시하는지를 비롯한 나머지는 [서버에서 렌더링하는 페이지](locales#서버에서-렌더링하는-페이지)에 있습니다.
+
 `PlTable`은 의도한 예외입니다. **directive가 없어서 Server Component가 통째로 렌더링합니다.** 이 컴포넌트는 모든 컬럼이 `render` 콜백이라, 위의 규칙을 그대로 적용하면 표가 가장 어울리는 페이지, 곧 자기 행을 직접 가져오는 페이지에서 쓸 수 없게 됩니다. 클라이언트 쪽에서 부를 때 달라지는 것은 없습니다. 최상단에 `'use client'`가 있는 모듈이 `PlTable`을 import하면 다른 무엇과 똑같이 client component가 됩니다.
 
 ```tsx

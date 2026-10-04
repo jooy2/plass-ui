@@ -257,6 +257,8 @@ import 'plass-ui/styles.css';
 
 Nothing else is configured: no `transpilePackages`, no `next.config` entry, no provider. `dist/` is compiled ESM carrying a `.js` on every relative import, which a bundler, Node's own loader and a server render all read the same way.
 
+One thing is worth adding when the server knows the reader's locale from the URL or the `Accept-Language` header. With no `locale` named, a server render writes numbers and dates in `en-US`, and the page switches to the reader's format once hydration is done. Give a `PlassProvider` in the root layout that `locale` and the server writes the reader's format from the start. [A page rendered on a server](locales#a-page-rendered-on-a-server) has the rest, including the day a calendar shows as today.
+
 `PlTable` is a deliberate exception: **it has no directive, so a Server Component renders it whole.** Every column in it is a `render` callback, so the rule above would have made a table unusable on the page a table belongs on, the one that fetches its own rows. Nothing changes for a client-side caller: a module with `'use client'` at the top of it gets a client component from `PlTable`, the way it does from anything else it imports.
 
 ```tsx
