@@ -29,6 +29,14 @@ int clearsIn(List<String> seen) {
   return clears;
 }
 
+/// Moves the clock on a minute without drawing a frame, and says whether
+/// anything asked for one in that time.
+Future<bool> redrawsIn(WidgetTester tester) async {
+  await tester.binding.delayed(const Duration(minutes: 1));
+
+  return tester.binding.hasScheduledFrame;
+}
+
 void main() {
   group('PlAnimateTyping', () {
     testWidgets('gives a screen reader the whole string once', (WidgetTester tester) async {
@@ -481,14 +489,6 @@ void main() {
         );
       }
 
-      /// Moves the clock on a minute without drawing a frame, and says whether
-      /// anything asked for one in that time.
-      Future<bool> redrawsIn(WidgetTester tester) async {
-        await tester.binding.delayed(const Duration(minutes: 1));
-
-        return tester.binding.hasScheduledFrame;
-      }
-
       for (final int? repeat in <int?>[2, null]) {
         for (final bool erase in <bool>[false, true]) {
           testWidgets('waits for nothing with a repeat of $repeat${erase ? ', erased' : ''}', (
@@ -914,6 +914,90 @@ void main() {
       await tester.pumpWidget(host(const SizedBox(), width: 400, disableAnimations: true));
 
       expect(tester.takeException(), isNull);
+    });
+
+    group('as the platform asks for less movement', () {
+      /// "Hello" typed at ten milliseconds a character, held, erased and typed
+      /// again for ever.
+      Widget typing({required bool still, bool caret = false, Duration delay = Duration.zero}) {
+        return host(
+          PlAnimateTyping(
+            'Hello',
+            speed: 100,
+            hold: const Duration(milliseconds: 100),
+            erase: true,
+            repeat: null,
+            delay: delay,
+            caret: caret,
+          ),
+          width: 400,
+          disableAnimations: still,
+        );
+      }
+
+      testWidgets('types nothing under the whole line, and its caret asks for no frame', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(typing(still: true, caret: true));
+        await tester.pump();
+
+        // The line is simply there, so nothing is typing it. A chain of timers
+        // used to type, hold and erase it under the whole line, pass after
+        // pass, drawing a frame each time.
+        expect(await redrawsIn(tester), isFalse);
+        expect(visibleOf(tester), 'Hello');
+      });
+
+      testWidgets('stops typing and shows the whole line once it is asked partway through', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(typing(still: false));
+        await tester.pump(const Duration(milliseconds: 15));
+
+        expect(visibleOf(tester), 'He');
+
+        await tester.pumpWidget(typing(still: true));
+
+        expect(visibleOf(tester), 'Hello');
+        expect(await redrawsIn(tester), isFalse);
+      });
+
+      testWidgets('goes on from the character it was on once the setting is taken back', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(typing(still: false));
+        await tester.pump(const Duration(milliseconds: 15));
+        await tester.pumpWidget(typing(still: true));
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpWidget(typing(still: false));
+
+        // As the React build does: the line it had got to, and the next
+        // character once what was left of the wait for it has gone by.
+        expect(visibleOf(tester), 'He');
+
+        await tester.pump(const Duration(milliseconds: 10));
+
+        expect(visibleOf(tester), 'Hel');
+      });
+
+      testWidgets('types the line from its first character, after its delay, once the setting '
+          'is taken back', (WidgetTester tester) async {
+        const Duration delay = Duration(milliseconds: 200);
+
+        await tester.pumpWidget(typing(still: true, delay: delay));
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpWidget(typing(still: false, delay: delay));
+
+        expect(visibleOf(tester), '');
+
+        await tester.pump(const Duration(milliseconds: 199));
+
+        expect(visibleOf(tester), '');
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(visibleOf(tester), 'H');
+      });
     });
   });
 }

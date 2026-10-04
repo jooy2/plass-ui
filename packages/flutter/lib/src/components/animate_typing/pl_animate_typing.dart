@@ -229,6 +229,15 @@ class _TypewriterState extends State<_Typewriter> {
   Timer? _next;
   int _drivenRun = -1;
 
+  /// Whether the platform has asked for less movement, as of the last change
+  /// of dependencies.
+  ///
+  /// Kept so that [_drive] can read it after the frame, and set where a change
+  /// arrives so that the change reaches [_drive] at once: under it the whole
+  /// line is drawn, and a chain left running would type what nobody sees and
+  /// ask for a frame for every character.
+  bool _still = false;
+
   Duration get _typeDelay {
     final Duration? whole = widget.duration;
 
@@ -265,6 +274,18 @@ class _TypewriterState extends State<_Typewriter> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final bool still = prefersReducedMotion(context);
+
+    if (still != _still) {
+      _still = still;
+      _drive();
+    }
+  }
+
+  @override
   void dispose() {
     _next?.cancel();
     super.dispose();
@@ -295,7 +316,7 @@ class _TypewriterState extends State<_Typewriter> {
       return;
     }
 
-    if (widget.paused) {
+    if (widget.paused || _still) {
       final Duration? left = _waitLeft;
 
       if (left != null && _next != null) {
@@ -313,6 +334,11 @@ class _TypewriterState extends State<_Typewriter> {
       // new run, a hover the pointer makes again while it is paused for one,
       // and through a new string: either starts once the pause lets it go, and
       // types the line from its first character, as it does in the React build.
+      //
+      // Less movement holds it the same way, under the whole line `build`
+      // draws instead, so no chain types what nobody sees, as none does in the
+      // React build. Given back, the platform lets it go on from the character
+      // it was on, or type a line it never began after its `delay`.
       return;
     }
 
@@ -468,10 +494,9 @@ class _TypewriterState extends State<_Typewriter> {
 
   @override
   Widget build(BuildContext context) {
-    final bool still = prefersReducedMotion(context);
     // Not "nothing happens" — the text is simply there, which is the only
     // outcome that still delivers what the widget was carrying.
-    final String shown = still ? widget.text : _graphemes.take(_shown).join();
+    final String shown = _still ? widget.text : _graphemes.take(_shown).join();
 
     return Semantics(
       label: widget.text,
@@ -497,7 +522,7 @@ class _TypewriterState extends State<_Typewriter> {
                     WidgetSpan(
                       alignment: PlaceholderAlignment.baseline,
                       baseline: TextBaseline.alphabetic,
-                      child: _Caret(char: widget.caretChar, still: still),
+                      child: _Caret(char: widget.caretChar, still: _still),
                     ),
                 ],
               ),

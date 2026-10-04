@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `PlAnimateTyping` runs no timers while the platform has asked for less movement, as the React build does.** It drew the whole line then, but went on typing, holding and erasing it underneath, drawing a frame for every character, and one with `repeat: null` never stopped. It now types nothing while the setting is on. Asked for partway through, it shows the whole line and holds where it was; given back, it goes on from that character, or types a line it never began from its first character after the `delay`.
+
 - **A disabled `PlListItem` that is `selected` sets its label at the weight of a row that is not chosen.** It was drawn without the tint and in the unchosen colour, but its label kept the chosen row's medium weight, where the React row drops `font-medium` with the tint while it is disabled. It is now drawn as a row that is not chosen, whether it has an `onPressed` or not.
 
 - **A `PlAnimateTyping` with an empty `text` runs no timers, as the React build does.** With a `repeat` of 2 or more, or `null`, it typed the empty line, held it and cleared or deleted it again pass after pass, drawing a frame each time, and a `repeat: null` one never stopped. It now draws an empty line and waits for nothing, also when its text is emptied partway through typing, and a `text` it is given later is typed from its first character after the `delay`.
