@@ -143,14 +143,22 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
   const pass = React.useRef(1);
 
   /**
-   * Whether the typed-out line is being held before the next pass, and what is
-   * left of that hold in milliseconds, kept beside `erasing` as well. Marked as
-   * deleting from the start of the hold, a chain built again during it deleted
-   * the next character at once; now it holds the line for what was left of the
-   * hold first, rather than the whole of it again.
+   * Whether the typed-out line is being held before the next pass, kept beside
+   * `erasing` as well. Marked as deleting from the start of the hold, a chain
+   * built again during it deleted the next character at once; now it holds the
+   * line first.
    */
   const holding = React.useRef(false);
-  const holdLeft = React.useRef(0);
+
+  /**
+   * What is left of the wait the chain is in, in milliseconds, or `null` when
+   * it is in none: the `delay` before the first character, the wait before the
+   * next one, the hold, or the wait before the first character of the next
+   * pass. A chain built again goes on with what was left of it: let go during
+   * the `delay` or between two passes, it used to wait the whole `delay` again,
+   * and between two characters a whole character's time.
+   */
+  const waitLeft = React.useRef<number | null>(null);
 
   /**
    * `duration` is honoured as the time for the whole string, because a caller
@@ -172,7 +180,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     erasing.current = false;
     pass.current = 1;
     holding.current = false;
-    holdLeft.current = 0;
+    waitLeft.current = null;
   }, [source, run.runs]);
 
   React.useEffect(() => {
@@ -192,15 +200,15 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       erasing.current = false;
       pass.current = 1;
       holding.current = false;
-      holdLeft.current = 0;
+      waitLeft.current = null;
       setShown(0);
 
       return;
     }
 
     // Held by the caller, or resting off screen. Either way the chain is torn
-    // down here and built again from `progress`, `erasing` and `pass` when it
-    // goes on.
+    // down here and built again from `progress`, `erasing`, `pass`, `holding`
+    // and `waitLeft` when it goes on.
     if (paused || run.resting) {
       return;
     }
@@ -209,14 +217,29 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     let timer: ReturnType<typeof setTimeout>;
     let count = progress.current;
     let deleting = erasing.current;
-    // When the hold, or what was left of it, started.
-    let holdFrom = 0;
+    // When the wait the chain is in, or what was left of it, started.
+    let waitFrom = 0;
 
     const passes = repeat === 'infinite' ? Infinity : Math.max(1, repeat);
 
     if (count >= total && !deleting && pass.current >= passes) {
       return;
     }
+
+    // Waits `ms`, then does `next`. Every wait in the chain goes through here,
+    // so a chain torn down during any of them knows what was left of it.
+    const wait = (ms: number, next: () => void) => {
+      waitLeft.current = ms;
+      waitFrom = performance.now();
+      timer = setTimeout(() => {
+        if (cancelled) {
+          return;
+        }
+
+        waitLeft.current = null;
+        next();
+      }, ms);
+    };
 
     // The line is typed out: hold it, then delete it or clear it for the next
     // pass, unless this was the last one. The pass is counted once the next
@@ -228,43 +251,29 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       }
 
       holding.current = true;
-      holdLeft.current = hold;
-      rest();
+      wait(hold, release);
     };
 
-    // Holds the typed-out line for what is left of the hold, then deletes it
-    // or clears it for the next pass.
-    const rest = () => {
-      holdFrom = performance.now();
-      timer = setTimeout(() => {
-        if (cancelled) {
-          return;
-        }
+    // The hold is over: delete the line, or clear it for the next pass.
+    const release = () => {
+      holding.current = false;
 
-        holding.current = false;
-        holdLeft.current = 0;
+      if (erase) {
+        deleting = true;
+        erasing.current = true;
+        step();
 
-        if (erase) {
-          deleting = true;
-          erasing.current = true;
-          step();
-
-          return;
-        }
-
-        pass.current += 1;
-        count = 0;
-        progress.current = 0;
-        setShown(0);
-        timer = setTimeout(step, typeDelay);
-      }, holdLeft.current);
-    };
-
-    const step = () => {
-      if (cancelled) {
         return;
       }
 
+      pass.current += 1;
+      count = 0;
+      progress.current = 0;
+      setShown(0);
+      wait(typeDelay, step);
+    };
+
+    const step = () => {
       if (deleting) {
         count -= 1;
         progress.current = count;
@@ -276,7 +285,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
           pass.current += 1;
         }
 
-        timer = setTimeout(step, deleting ? deleteDelay : typeDelay);
+        wait(deleting ? deleteDelay : typeDelay, step);
 
         return;
       }
@@ -286,7 +295,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       setShown(count);
 
       if (count < total) {
-        timer = setTimeout(step, typeDelay);
+        wait(typeDelay, step);
 
         return;
       }
@@ -296,25 +305,28 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
     setShown(count);
 
+    // What was left of the wait it was let go in, if it was in one. Otherwise
+    // it is starting, and waits out the `delay`.
+    const left = waitLeft.current;
+
     if (holding.current) {
-      // Resumed during the hold between two passes: what was left of it.
-      rest();
+      // Resumed during the hold between two passes.
+      wait(left ?? hold, release);
     } else if (count >= total && !deleting) {
       // Resumed with the line typed out and no hold begun, which is a pass that
       // `repeat` has since been raised past.
       finish();
     } else {
-      // Resuming picks up at the next character, in the direction it was going;
-      // starting waits out the delay.
-      timer = setTimeout(step, count === 0 ? delay : deleting ? deleteDelay : typeDelay);
+      // The next character, in the direction it was going.
+      wait(left ?? (count === 0 ? delay : deleting ? deleteDelay : typeDelay), step);
     }
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
 
-      if (holding.current) {
-        holdLeft.current = Math.max(0, holdLeft.current - (performance.now() - holdFrom));
+      if (waitLeft.current !== null) {
+        waitLeft.current = Math.max(0, waitLeft.current - (performance.now() - waitFrom));
       }
     };
     // `run.runs` and `source` are listed although nothing above reads them. A

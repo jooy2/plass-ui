@@ -1,8 +1,10 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { PlAnimateTyping } from 'plass-ui';
 import standaloneCss from '../../../src/standalone.css?inline';
+import { committed } from '../../support/timing';
 
 /**
  * The visible half — the one that is `aria-hidden` and actually animates. What
@@ -431,5 +433,131 @@ describe('PlAnimateTyping', () => {
     expect(first.text).toBe('H');
     expect(first.after).toBeGreaterThan(400);
     expect(first.after).toBeLessThan(1000);
+  });
+
+  describe('paused and let go during a wait', () => {
+    // The typing runs on timeouts and measures what was left of a wait with
+    // `performance.now()`, so both run on a clock the test holds.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    /** Moves the clock on by `ms`, and waits for what that renders. */
+    function advance(ms: number): Promise<void> {
+      return committed(() => {
+        vi.advanceTimersByTime(ms);
+      });
+    }
+
+    /** Pauses it now, holds it for a long while, and lets it go again. */
+    async function pauseAndLetGo(
+      screen: Awaited<ReturnType<typeof render>>,
+      typing: (paused: boolean) => ReactElement
+    ): Promise<void> {
+      await screen.rerender(typing(true));
+      await advance(5000);
+      await screen.rerender(typing(false));
+    }
+
+    it('waits out only what was left of `delay`', async () => {
+      const typing = (paused: boolean) => (
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Hi"
+          delay={1000}
+          speed={10}
+          paused={paused}
+          caret={false}
+        />
+      );
+      const screen = await render(typing(false));
+      const root = document.querySelector('.typing-under-test');
+
+      await advance(600);
+      await pauseAndLetGo(screen, typing);
+      await advance(399);
+
+      // 400ms of the wait was left. It used to wait the whole `delay` again.
+      expect(visible(root)).toBe('');
+
+      await advance(1);
+
+      expect(visible(root)).toBe('H');
+    });
+
+    it('waits out only what was left of the wait for the next character', async () => {
+      const typing = (paused: boolean) => (
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Hi"
+          speed={1}
+          paused={paused}
+          caret={false}
+        />
+      );
+      const screen = await render(typing(false));
+      const root = document.querySelector('.typing-under-test');
+
+      // The first character at once, and the next a second after it.
+      await advance(400);
+
+      expect(visible(root)).toBe('H');
+
+      await pauseAndLetGo(screen, typing);
+      await advance(599);
+
+      expect(visible(root)).toBe('H');
+
+      await advance(1);
+
+      // 600ms of the wait was left. It used to wait the whole second again.
+      expect(visible(root)).toBe('Hi');
+    });
+
+    it.each([
+      ['erased', true],
+      ['cleared', false]
+    ])('waits out only what was left of the wait after a pass it %s', async (_, erase) => {
+      // Typed a character a second after a 3s `delay` and held for 100ms,
+      // and an erased line is deleted at 10ms a character, so the line is
+      // gone at 4,110ms when it is erased and at 4,100ms when it is cleared.
+      // The next pass types its first character a second after that.
+      const typing = (paused: boolean) => (
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Hi"
+          delay={3000}
+          speed={1}
+          eraseSpeed={100}
+          hold={100}
+          erase={erase}
+          repeat={2}
+          paused={paused}
+          caret={false}
+        />
+      );
+      const screen = await render(typing(false));
+      const root = document.querySelector('.typing-under-test');
+      const gone = erase ? 4110 : 4100;
+
+      await advance(gone);
+
+      expect(visible(root)).toBe('');
+
+      await advance(400);
+      await pauseAndLetGo(screen, typing);
+      await advance(599);
+
+      // 600ms of the wait was left. It used to wait the whole `delay`.
+      expect(visible(root)).toBe('');
+
+      await advance(1);
+
+      expect(visible(root)).toBe('H');
+    });
   });
 });

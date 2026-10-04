@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A `PlAnimateTyping` let go during its `delay` or between two characters waits only what was left of that wait.** Paused during the `delay`, or in the wait before the next pass types its first character, it waited the whole `delay` again once it was let go, and paused between two characters it waited a whole character's time again. Every wait now goes on with the time that was left of it, as the hold already did.
+
 - **A disabled `PlBottomNavigationItem` or `PlFloatingBottomNavigationItem` that is a link is announced as an unavailable link.** It is drawn on an `<a>` with no `href`, which has no role, so a screen reader read it as plain text and never said it was unavailable. It now carries `role="link"` with its `aria-disabled`, as a disabled `PlNavigationMenuItem` link does, and Tab still passes over it.
 
 - **A `PlPanes` inside a scaled ancestor sizes its panes in its own pixels.** Inside a `transform`, a split in a scaled `PlMockup` for example, the split measured the size it was drawn at rather than the size it is laid out at, so a pane with a pixel `defaultSize` moved as the page hydrated, a pixel `minSize` held it at the wrong width, an arrow key moved the line the wrong distance, and a drag ran slightly ahead of the pointer. Pixel lengths, minimums and an arrow key's 16 pixels are now measured in the split's own pixels, and a drag keeps the handle under the pointer.

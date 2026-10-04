@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `PlAnimateTyping` let go during its `delay` or between two characters waits only what was left of that wait.** Paused during the `delay`, or in the wait before the next pass types its first character, it waited a character's time once it was let go, and paused between two characters it waited a whole character's time again. Every wait now goes on with the time that was left of it, as the hold already did, and the two builds wait the same.
+
 - **Moving to another step of a horizontal `PlStepper` builds the new step's panel afresh.** Two panels of the same shape shared their state, so text typed into a field on one step was still in the field at the same place on the next, and so was a scroll position. The panel under the rail is now built anew for each step, as the React panel is; a vertical stepper already was.
 
 - **A `PlAnimateTyping` let go during a hold, or partway through deleting, goes on as it was.** Paused during the hold before `erase` deletes, it started deleting after the typing delay, and paused during the hold between two passes without `erase`, it held for the whole hold again; both now hold for the time that was left of the hold. Let go partway through deleting, it waited the typing delay before the next character rather than the delete delay.

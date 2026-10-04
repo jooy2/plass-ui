@@ -399,6 +399,116 @@ void main() {
       });
     });
 
+    group('paused and let go during a wait', () {
+      /// Pauses it now, holds it for a long while, and lets it go again.
+      Future<void> pauseAndLetGo(
+        WidgetTester tester,
+        Widget Function({required bool paused}) typing,
+      ) async {
+        await tester.pumpWidget(typing(paused: true));
+        await tester.pump(const Duration(milliseconds: 5000));
+        await tester.pumpWidget(typing(paused: false));
+      }
+
+      testWidgets('waits out only what was left of the delay', (WidgetTester tester) async {
+        Widget typing({required bool paused}) {
+          return host(
+            PlAnimateTyping(
+              'Hi',
+              speed: 10,
+              delay: const Duration(milliseconds: 1000),
+              paused: paused,
+              caret: false,
+            ),
+            width: 400,
+          );
+        }
+
+        await tester.pumpWidget(typing(paused: false));
+        await tester.pump(const Duration(milliseconds: 600));
+        await pauseAndLetGo(tester, typing);
+        await tester.pump(const Duration(milliseconds: 399));
+
+        // 400ms of the wait was left. It used to wait a character's time.
+        expect(visibleOf(tester), '');
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(visibleOf(tester), 'H');
+      });
+
+      testWidgets('waits out only what was left of the wait for the next character', (
+        WidgetTester tester,
+      ) async {
+        Widget typing({required bool paused}) {
+          return host(PlAnimateTyping('Hi', speed: 1, paused: paused, caret: false), width: 400);
+        }
+
+        await tester.pumpWidget(typing(paused: false));
+        // The first character on this frame, and the next a second after it.
+        await tester.pump(Duration.zero);
+
+        expect(visibleOf(tester), 'H');
+
+        await tester.pump(const Duration(milliseconds: 400));
+        await pauseAndLetGo(tester, typing);
+        await tester.pump(const Duration(milliseconds: 599));
+
+        expect(visibleOf(tester), 'H');
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        // 600ms of the wait was left. It used to wait the whole second again.
+        expect(visibleOf(tester), 'Hi');
+      });
+
+      for (final bool erase in <bool>[true, false]) {
+        testWidgets(
+          'waits out only what was left of the wait after a pass it ${erase ? 'erased' : 'cleared'}',
+          (WidgetTester tester) async {
+            // Typed a character a second after a 3s delay and held for 100ms,
+            // and an erased line is deleted at 10ms a character, so the line is
+            // gone at 4,110ms when it is erased and at 4,100ms when it is
+            // cleared. The next pass types its first character a second after
+            // that.
+            Widget typing({required bool paused}) {
+              return host(
+                PlAnimateTyping(
+                  'Hi',
+                  speed: 1,
+                  eraseSpeed: 100,
+                  delay: const Duration(milliseconds: 3000),
+                  hold: const Duration(milliseconds: 100),
+                  erase: erase,
+                  repeat: 2,
+                  paused: paused,
+                  caret: false,
+                ),
+                width: 400,
+              );
+            }
+
+            await tester.pumpWidget(typing(paused: false));
+            await tester.pump(Duration(milliseconds: erase ? 4110 : 4100));
+
+            expect(visibleOf(tester), '');
+
+            await tester.pump(const Duration(milliseconds: 400));
+            await pauseAndLetGo(tester, typing);
+            await tester.pump(const Duration(milliseconds: 599));
+
+            // 600ms of the wait was left. It used to wait a whole character's
+            // time again.
+            expect(visibleOf(tester), '');
+
+            await tester.pump(const Duration(milliseconds: 1));
+
+            expect(visibleOf(tester), 'H');
+          },
+        );
+      }
+    });
+
     testWidgets('is simply there where the platform has asked for less movement', (
       WidgetTester tester,
     ) async {
