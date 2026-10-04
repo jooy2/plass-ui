@@ -971,6 +971,98 @@ void main() {
       });
     }
 
+    group('an endless run when the setting is taken away', () {
+      testWidgets('turns on from where its passes would have got to', (WidgetTester tester) async {
+        await tester.pumpWidget(host(spin(), disableAnimations: true));
+        await tester.pump();
+
+        expect(turnOf(tester), closeTo(90, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 1250));
+        await tester.pumpWidget(host(spin()));
+
+        // A quarter of the way through its second pass, where a keyframe that
+        // has counted a second and a quarter stands. It used to stay at 90°
+        // and ask for no frame again.
+        expect(turnOf(tester), closeTo(22.5, 0.01));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(turnOf(tester), closeTo(31.5, 0.01));
+      });
+
+      testWidgets('goes back on every other pass, with alternate', (WidgetTester tester) async {
+        await tester.pumpWidget(host(spin(alternate: true), disableAnimations: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1250));
+        await tester.pumpWidget(host(spin(alternate: true)));
+
+        // A quarter of the way back.
+        expect(turnOf(tester), closeTo(67.5, 0.01));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(turnOf(tester), closeTo(58.5, 0.01));
+      });
+
+      testWidgets('counts the turn it had made before the setting arrived', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(spin()));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(turnOf(tester), closeTo(22.5, 0.01));
+
+        await tester.pumpWidget(host(spin(), disableAnimations: true));
+        await tester.pump();
+
+        expect(turnOf(tester), closeTo(90, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(host(spin()));
+
+        expect(turnOf(tester), closeTo(67.5, 0.01));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(turnOf(tester), closeTo(76.5, 0.01));
+      });
+
+      testWidgets('counts nothing while it is paused, and turns on once it is let go', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(spin()));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+
+        await tester.pumpWidget(host(spin(), disableAnimations: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpWidget(host(spin(paused: true), disableAnimations: true));
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pumpWidget(host(spin(paused: true)));
+
+        // As a keyframe stands once a pause has held it where it landed: the
+        // turn it had made when the setting arrived, and none of the time it
+        // was let go after that.
+        expect(turnOf(tester), closeTo(22.5, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(turnOf(tester), closeTo(22.5, 0.01));
+
+        await tester.pumpWidget(host(spin()));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(turnOf(tester), closeTo(31.5, 0.01));
+      });
+    });
+
     testWidgets('plays a run still waiting out its delay when the setting is taken away', (
       WidgetTester tester,
     ) async {

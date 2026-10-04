@@ -634,7 +634,10 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 ///
 /// Under reduced motion nothing moves in between. `t` is `1` until the moment
 /// the run would have started, its delay included, and then wherever the last
-/// pass would have left it, so an exit has gone and a turn has turned.
+/// pass would have left it, so an exit has gone and a turn has turned. When the
+/// platform gives movement back, a run that landed stays where it is, except an
+/// endless one, which goes on from wherever its passes would have got to by
+/// then.
 class PlassAnimateRun extends StatefulWidget {
   /// Creates a run.
   const PlassAnimateRun({
@@ -733,6 +736,22 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// started and so stands on its last frame. Until then nothing has changed.
   bool _landed = false;
 
+  /// How far into its passes the run had got when it landed: nowhere yet when
+  /// it landed at the end of its delay, and as far as it had moved when the
+  /// setting arrived while it was moving.
+  ///
+  /// With [_landedFrom], the clock an endless run goes on from when the
+  /// platform gives movement back, which is the clock a keyframe keeps. The
+  /// browser goes on counting a finished animation's time from when it began,
+  /// so an endless one given its passes back stands wherever that count has
+  /// got to. A pause takes the count back to where the run finished, which is
+  /// where it landed, and it counts on from there once it is let go.
+  Duration _landedAt = Duration.zero;
+
+  /// The frame from which a landed run has been let go, and so counting on
+  /// from [_landedAt]. `null` while it is held, which counts nothing.
+  Duration? _landedFrom;
+
   @override
   void initState() {
     super.initState();
@@ -799,6 +818,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   void _drive(bool started, int runs, {required bool resting}) {
     if (!started || widget.settings.paused || resting) {
       _holdDelay();
+      _landedFrom = null;
 
       if (_controller.isAnimating) {
         _controller.stop();
@@ -823,14 +843,17 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     if (_startedRuns == runs) {
       if (_still && _landed) {
+        _landedFrom ??= SchedulerBinding.instance.currentSystemFrameTimeStamp;
+
         return;
       }
 
       // A run that has finished stays where it ended, wherever that is: at
       // `0` after an alternating run with an even number of passes, which is
       // also where one that has not begun stands, so where the controller
-      // stopped does not tell the two apart on its own.
-      if (!_controller.isAnimating && !_controller.isCompleted && !_finished) {
+      // stopped does not tell the two apart on its own. An endless run never
+      // finishes, so one standing at the end of a pass goes on.
+      if (!_controller.isAnimating && !_finished) {
         // A pause during the wait held the wait too, so what is let go is
         // whatever was left of it. Nothing was left of it once the pass had
         // begun, and this then starts the pass again from where it stopped.
@@ -862,30 +885,67 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       return;
     }
 
-    _waitingFrom = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+    final Duration from = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+
+    _waitingFrom = from;
     _waiting = Timer(_delayLeft, () {
       _waiting = null;
       _delayLeft = Duration.zero;
 
       if (mounted && _startedRuns == runs) {
-        _go();
+        // The frame the wait ends on, which the frame clock has not reached
+        // yet: a timer fires between frames.
+        _go(at: from + wait);
       }
     });
   }
 
   /// The moment the run starts or goes on: the first pass, the pass a pause or
-  /// a rest stopped, or under reduced motion the last frame at once.
+  /// a rest stopped, or under reduced motion the last frame at once, which the
+  /// run lands on [at], this frame unless said otherwise.
   ///
-  /// A pass stopped on its way back goes on back, as a paused keyframe goes on
-  /// the way it was going, and turns at the end of it as it would have.
-  void _go() {
+  /// Every other pass of an alternating run goes back, so a pass stopped on its
+  /// way back goes on back, as a paused keyframe goes on the way it was going,
+  /// and turns at the end of it as it would have.
+  void _go({Duration? at}) {
     if (_still) {
+      _landedAt = _runTime;
+      _landedFrom = at ?? SchedulerBinding.instance.currentSystemFrameTimeStamp;
       _setLanded(true);
-    } else if (_controller.status == AnimationStatus.reverse) {
+    } else if (widget.settings.alternate && _pass.isEven) {
       _controller.reverse();
     } else {
       _controller.forward();
     }
+  }
+
+  /// How far into its passes the run stands, as time: every pass behind it,
+  /// and as much of the one it is on as it has run through, out or back.
+  Duration get _runTime {
+    final double through = widget.settings.alternate && _pass.isEven
+        ? 1 - _controller.value
+        : _controller.value;
+
+    return widget.settings.duration * (_pass - 1 + through);
+  }
+
+  /// Puts the run [time] into its passes, as [_runTime] measures them: on the
+  /// pass that time falls in, and as far through it.
+  void _place(Duration time) {
+    final int length = widget.settings.duration.inMicroseconds;
+    final int into = time > Duration.zero ? time.inMicroseconds : 0;
+
+    if (length <= 0) {
+      _pass = 1;
+      _controller.value = 0;
+
+      return;
+    }
+
+    final double through = into.remainder(length) / length;
+
+    _pass = into ~/ length + 1;
+    _controller.value = widget.settings.alternate && _pass.isEven ? 1 - through : through;
   }
 
   void _setLanded(bool value) {
@@ -944,22 +1004,41 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         // delay, which lands it when the wait is over.
         _controller.stop();
         _landed = _startedRuns >= 0 && _waiting == null;
+
+        // As far as it has moved, counting on from this frame if it is let
+        // go, which `_drive` says once the frame is over.
+        if (_landed) {
+          _landedAt = _runTime;
+          _landedFrom = null;
+        }
       } else if (_landed) {
-        // And given back after a run had landed: the controller is put where
-        // the run left the screen, so nothing jumps back to where it began.
-        // Nothing is listening to it yet — the builder that does is only in the
-        // tree while the platform allows movement.
-        //
-        // On its last pass as well, since a landed run has played them all,
-        // so one that landed at `0` is `_finished` rather than a run at its
-        // first frame still to go.
+        // And given back after a run had landed. Nothing is listening to the
+        // controller yet — the builder that does is only in the tree while the
+        // platform allows movement.
         final int? repeat = widget.settings.repeat;
 
-        if (repeat != null && repeat > _pass) {
-          _pass = repeat;
-        }
+        if (repeat == null) {
+          // An endless run has no last frame to stay on. It goes on from
+          // where its passes would have got to by now, as a keyframe that is
+          // given its passes back does, rather than standing at the end of
+          // the one it landed on and never moving again.
+          final Duration? from = _landedFrom;
+          final Duration since = from == null
+              ? Duration.zero
+              : SchedulerBinding.instance.currentSystemFrameTimeStamp - from;
 
-        _controller.value = _end;
+          _place(_landedAt + since);
+        } else {
+          // A run that ends is put where it left the screen, so nothing jumps
+          // back to where it began. On its last pass as well, since a landed
+          // run has played them all, so one that landed at `0` is `_finished`
+          // rather than a run at its first frame still to go.
+          if (repeat > _pass) {
+            _pass = repeat;
+          }
+
+          _controller.value = _end;
+        }
       }
 
       _still = still;
