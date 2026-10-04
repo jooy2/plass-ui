@@ -52,8 +52,11 @@
  * glass around it, and the `accent` — the one value that has to be *read* off a
  * surface rather than looked at.
  *
- * Three values are hand-picked per family and everything else is derived with
- * `color-mix()`. Adding a family is still five places, though: one entry in
+ * Three values are hand-picked per family here, and an `accent` in each theme
+ * block below. Everything else is derived from those: `-fill` is a
+ * `linear-gradient()` between the two ends, `-tint`, `-soft` and `-line` are a
+ * `color-mix()` of `solid` or `accent` with `transparent`, and `-ring` is
+ * `accent` itself. Adding a family is still five places, though: one entry in
  * `PlassColor`, those three lines here, an `accent` in each of the three theme
  * blocks below, the eight derived declarations, which are written out per
  * family rather than generated, and the Flutter package's own enum and
@@ -899,8 +902,9 @@
 /* ---------------------------------------------------------------------------
  * Derived tokens
  *
- * Gradients, glows, tints, hairlines and focus rings are all one base colour at
- * different strengths, so they are computed rather than hand-picked per theme.
+ * A family's gradient, tint, soft fills, hairlines and focus ring are computed
+ * from its hand-picked values rather than picked per theme: the gradient from
+ * the two ends, the tint from `solid`, and the rest from `accent`.
  *
  * **This block is repeated for every theme root**, because a custom property
  * resolves its `var()`s on the element that declares it — declaring these only
@@ -911,8 +915,9 @@
  * `--plass-primary-solid` on a `<div>` changes the base and nothing else,
  * because every value derived from it was computed further up, where the old
  * colour still is. The class re-runs the whole block on that element, so the
- * gradient, the tint, the hairline and the ring follow the base that was just
- * written beside them. It is the one hook here that does not force a theme:
+ * gradient and the tint follow the ends that were just written beside them,
+ * and the soft fills, the hairline and the ring follow an `accent` written
+ * there too. It is the one hook here that does not force a theme:
  * `--plass-tint-strength` and the rest inherit from whichever theme root is
  * above, so a scoped family works the same in light and in dark.
  * ------------------------------------------------------------------------- */
