@@ -1,12 +1,12 @@
 {
   "note": "gzip bytes of a real esbuild bundle of dist/, React external and @base-ui/react bundled. Regenerate with `npm run size -- --update`.",
   "scenarios": {
-    "One PlButton": 6794,
+    "One PlButton": 7043,
     "One PlTypography": 3113,
-    "One PlImage": 8959,
-    "One PlGallery": 11836,
-    "Five form controls": 22544,
-    "Five overlays": 92238,
-    "Everything": 308596
+    "One PlImage": 9591,
+    "One PlGallery": 12212,
+    "Five form controls": 22616,
+    "Five overlays": 92113,
+    "Everything": 312822
   }
 }
