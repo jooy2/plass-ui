@@ -53,5 +53,12 @@
     "vitepress": "^1.6.4",
     "vitepress-i18n": "^1.4.0",
     "vitepress-sidebar": "^1.40.0"
+  },
+  "overrides": {
+    "@docsearch/react": {
+      "react": "$react",
+      "react-dom": "$react-dom",
+      "@types/react": "$@types/react"
+    }
   }
 }
