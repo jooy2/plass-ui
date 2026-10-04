@@ -55,7 +55,7 @@ If your project already runs Tailwind v4, import the token sheet instead:
 
 ```css
 @import 'tailwindcss';
-@import 'plass-ui/css/base.css'; /* tokens + what every component shares */
+@import 'plass-ui/css/base.css'; /* the tokens, once */
 @import 'plass-ui/css/button.css';
 @import 'plass-ui/css/text-field.css';
 ```

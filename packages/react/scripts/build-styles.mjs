@@ -29,11 +29,11 @@
  * connects `import { PlButton }` to the classes `PlSelect.js` spells out.
  *
  * So the scan is also published in pieces. `dist/tokens.css` is the token sheet
- * with no `@source` at all, `dist/css/base.css` adds the shared table nearly
- * every component reads, and `dist/css/<component>.css` holds the `@source`
- * lines for one component, for every component it renders and for every other
- * module it reaches. A project that wants to pay for what it uses writes the
- * pieces instead of the whole:
+ * with no `@source` at all, `dist/css/base.css` imports it with nothing added,
+ * and `dist/css/<component>.css` holds the `@source` lines for one component,
+ * for every component it renders and for every other module it reaches. A
+ * project that wants to pay for what it uses writes the pieces instead of the
+ * whole:
  *
  *   @import 'tailwindcss';
  *   @import 'plass-ui/css/base.css';
@@ -53,7 +53,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 import tailwindcss from '@tailwindcss/postcss';
-import { componentSources } from './component-sources.mjs';
+import { scanManifests } from './component-sources.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = resolve(root, 'dist');
@@ -88,9 +88,9 @@ writeFileSync(
   )
 );
 
-/* One scan manifest per component, plus the shared floor every component needs.
-   These are written rather than hand-maintained so that a new component folder
-   cannot be added without its manifest. */
+/* One scan manifest per component, plus `base.css`, which is the tokens alone
+   (see `scanManifests`). These are written rather than hand-maintained so that
+   a new component folder cannot be added without its manifest. */
 const cssDir = resolve(dist, 'css');
 rmSync(cssDir, { recursive: true, force: true });
 mkdirSync(cssDir, { recursive: true });
@@ -110,30 +110,9 @@ const builtModules = Object.fromEntries(
     .filter((name) => name.endsWith('.js'))
     .map((name) => [name.split('\\').join('/'), readFileSync(resolve(dist, name), 'utf8')])
 );
-const sources = componentSources(builtModules);
 
-writeFileSync(
-  resolve(cssDir, 'base.css'),
-  [
-    '/* The tokens, plus the shared table nearly every component reads.',
-    ' * Import this once, then one `plass-ui/css/<component>.css` per component. */',
-    "@import '../tokens.css';",
-    ...sources.shared.map((path) => `@source '../${path}';`),
-    ''
-  ].join('\n')
-);
-
-for (const component of components) {
-  writeFileSync(
-    resolve(cssDir, `${component}.css`),
-    [
-      `/* Scan manifest for <${component}>. Needs \`plass-ui/css/base.css\` first. */`,
-      ...(sources.components[component] ?? [`components/${component}`]).map(
-        (path) => `@source '../${path}';`
-      ),
-      ''
-    ].join('\n')
-  );
+for (const [name, text] of Object.entries(scanManifests(builtModules, components))) {
+  writeFileSync(resolve(cssDir, name), text);
 }
 
 /* The finished stylesheet, for everyone else.

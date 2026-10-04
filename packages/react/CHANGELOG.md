@@ -6,7 +6,7 @@
 
 ### Changed
 
-- **`plass-ui/css/<component>.css` registers only the library modules its component reaches.** `plass-ui/css/base.css` scanned every one of the library's internal modules, so a Tailwind project that registered one component still generated the utilities of all of them: `PlButton` on its own came to 14.3 kB gzipped. Each manifest now lists the modules its component reaches, and `base.css` keeps only the table of sizes and surfaces nearly every component reads, which brings `PlButton` to 11.1 kB and `PlButton` with `PlTextField` from 14.4 kB to 11.8 kB, against 22.2 kB for `plass-ui/tailwind.css`. Nothing changes in a project's imports, and nothing a component uses is left out.
+- **`plass-ui/css/<component>.css` registers only the library modules its component reaches.** `plass-ui/css/base.css` scanned every one of the library's internal modules, so a Tailwind project that registered one component still generated the utilities of all of them: `PlButton` on its own came to 14.3 kB gzipped. Each manifest now lists the modules its component reaches, and `base.css` is the tokens alone, which brings `PlButton` to 11.4 kB, `PlButton` with `PlTextField` to 12.1 kB and `PlTypography` to 8.9 kB, against 22.5 kB for `plass-ui/tailwind.css`. Nothing changes in a project's imports, and nothing a component uses is left out.
 
 ### Fixed
 
