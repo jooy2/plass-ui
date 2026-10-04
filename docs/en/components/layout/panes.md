@@ -78,6 +78,8 @@ That is the one decision the rest of the component follows from. A split describ
 
 The measurement is a `ResizeObserver` rather than a single read, because a split inside a closed `PlAccordion` or an unselected `PlTab` is zero wide when it mounts, and dividing by that would put every pane at nothing.
 
+Until it has run, the panes are drawn from the `defaultSize`s alone wherever those settle the split on their own: percentages, pixel lengths that name every pane, and pixel lengths beside a pane with no `defaultSize` to take the rest. A split rendered on the server is then in place when the page loads, and does not move as it hydrates. A `rem` or `em` length, or pixel lengths beside percentages with no pane left to take up the difference, waits for the measurement, and every pane takes an even share until then.
+
 :::
 
 ::: fw flutter

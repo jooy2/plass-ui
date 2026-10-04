@@ -21,14 +21,21 @@ export type PlPaneSize = number | string;
 
 /** What a `PlPane` is told by the `PlPanes` around it. */
 interface PlassPaneContextValue {
-  /** The `flex-basis` this pane has been given, or `null` before measurement. */
-  basis: string | null;
+  /** The `flex` this pane has been given. */
+  flex: string;
   /** The `id` the handle before it points at with `aria-controls`. */
   id: string | undefined;
 }
 
+/**
+ * The `flex` of a pane nothing has sized: an even share of what is left. It is
+ * what a pane outside a split gets, and one inside a split whose sizes only a
+ * measurement can work out, until it has been measured.
+ */
+const EVEN_SHARE = '1 1 0%';
+
 const PaneContext = /* @__PURE__ */ React.createContext<PlassPaneContextValue>({
-  basis: null,
+  flex: EVEN_SHARE,
   id: undefined
 });
 
@@ -104,21 +111,23 @@ const handleTrackValues: Record<PlassSize, number> = {
 /** How far one arrow key press moves a handle. */
 const KEYBOARD_STEP = 16;
 
+/** A pane size taken apart: a bare number is a percentage. */
+interface PaneLength {
+  amount: number;
+  unit: 'px' | 'rem' | 'em' | '%';
+}
+
 /**
- * A CSS length, in pixels.
+ * A pane size as an amount and a unit.
  *
  * Only the four units a split is ever written in are accepted; anything else
  * resolves to `undefined`, which every caller here reads as "no constraint"
  * rather than as zero. A bad string should leave a pane unbounded, not pin it
  * shut.
  */
-function toPixels(
-  value: PlPaneSize | undefined,
-  extent: number,
-  root: Element | null
-): number | undefined {
+function parseLength(value: PlPaneSize | undefined): PaneLength | undefined {
   if (value === undefined || value === null) return undefined;
-  if (typeof value === 'number') return (extent * value) / 100;
+  if (typeof value === 'number') return { amount: value, unit: '%' };
 
   const match = /^\s*(-?[\d.]+)\s*(px|rem|em|%)\s*$/.exec(value);
   if (!match) return undefined;
@@ -126,18 +135,35 @@ function toPixels(
   const amount = Number(match[1]);
   if (Number.isNaN(amount)) return undefined;
 
-  switch (match[2]) {
+  return { amount, unit: match[2] as PaneLength['unit'] };
+}
+
+/** A CSS length, in pixels. `undefined` for anything `parseLength` refuses. */
+function toPixels(
+  value: PlPaneSize | undefined,
+  extent: number,
+  root: Element | null
+): number | undefined {
+  const length = parseLength(value);
+  if (!length) return undefined;
+
+  switch (length.unit) {
     case 'px':
-      return amount;
+      return length.amount;
     case '%':
-      return (extent * amount) / 100;
+      return (extent * length.amount) / 100;
     case 'rem':
-      return amount * parseFloat(getComputedStyle(document.documentElement).fontSize || '16');
+      return (
+        length.amount * parseFloat(getComputedStyle(document.documentElement).fontSize || '16')
+      );
     case 'em':
-      return amount * parseFloat((root && getComputedStyle(root).fontSize) || '16');
-    default:
-      return undefined;
+      return length.amount * parseFloat((root && getComputedStyle(root).fontSize) || '16');
   }
+}
+
+/** The `flex-basis` of a pane given `fraction` of what the handles leave. */
+function basisOf(fraction: number, gutter: number): string {
+  return `calc((100% - ${gutter}px) * ${fraction.toFixed(6)})`;
 }
 
 /** Every pane's share of the space, summing to 1. */
@@ -162,6 +188,45 @@ function initialFractions(
 }
 
 /**
+ * Every pane's `flex` before the split has measured itself, worked out from the
+ * `defaultSize`s alone, so the server's HTML and the first paint already have
+ * the split the measurement then arrives at. `null` when only the container's
+ * size can say it.
+ *
+ * - **No pane is a pixel length**, or **every pane is one**: the shares come out
+ *   the same whatever size the container is, so they are worked out at any
+ *   size and written as the measurement writes them.
+ * - **A pixel length beside a pane that takes what is left**: the length is
+ *   written as it is and the panes with no size share the rest, which is what
+ *   the measurement turns into fractions, as long as the lengths fit.
+ * - Anything else, a `rem` or an `em`, or pixel lengths beside percentages with
+ *   no pane to take up the difference, is left to the measurement, and every
+ *   pane takes an even share until it has run.
+ */
+function presplit(constraints: PlPaneProps[], gutter: number): string[] | null {
+  const lengths = constraints.map((pane) => parseLength(pane.defaultSize));
+  const units = new Set(lengths.map((length) => length?.unit));
+
+  if (units.has('rem') || units.has('em')) return null;
+
+  if (!units.has('px') || (!units.has('%') && !units.has(undefined))) {
+    return initialFractions(constraints, 100, null).map(
+      (fraction) => `0 0 ${basisOf(fraction, gutter)}`
+    );
+  }
+
+  if (!units.has(undefined)) return null;
+
+  return lengths.map((length) => {
+    if (!length) return EVEN_SHARE;
+
+    const amount = Math.max(0, length.amount);
+
+    return length.unit === 'px' ? `0 0 ${amount}px` : `0 0 ${basisOf(amount / 100, gutter)}`;
+  });
+}
+
+/**
  * A set of panes with draggable handles between them.
  *
  * The panes are sized in **fractions**, written out as
@@ -170,7 +235,10 @@ function initialFractions(
  * window being resized without a single line of JavaScript running, so the
  * component measures itself only twice — once on mount, to turn a `'240px'`
  * default into a fraction, and once at the start of each drag, to know what a
- * pixel of pointer movement is worth.
+ * pixel of pointer movement is worth. Until the first measurement the panes are
+ * drawn from their `defaultSize`s alone wherever those settle the split on
+ * their own (see `presplit`), so a split rendered on the server does not move
+ * as it hydrates.
  *
  * The handles are interleaved here rather than written by the caller, so the
  * children of a `PlPanes` are just panes. That does mean the direct children have
@@ -227,20 +295,26 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
 
     // The constraints are read during render and used inside pointer handlers that
     // outlive it, so they go through a ref rather than through the closure.
+    const constraints = items.map((item) => item.props);
     const constraintsRef = React.useRef<PlPaneProps[]>([]);
-    constraintsRef.current = items.map((item) => item.props);
+    constraintsRef.current = constraints;
 
     const [stored, setFractions] = React.useState<number[] | null>(null);
     // A pane added or removed leaves the stored split a render behind the children
     // — the effect below re-splits, but the render in between would be reading a
-    // share off the end of the list. Until the two agree, nobody has a size and
-    // every pane falls back to an even share.
+    // share off the end of the list. Until the two agree, nobody has a measured
+    // size, and every pane takes what the `defaultSize`s say on their own.
     const fractions = stored && stored.length === count ? stored : null;
     const fractionsRef = React.useRef<number[] | null>(null);
     fractionsRef.current = fractions;
 
     const horizontal = orientation === 'horizontal';
     const gutter = handleTrackValues[size] * Math.max(0, count - 1);
+
+    // What a pane is drawn at before the split has been measured: on the
+    // server, on the first paint, and while a pane added or removed waits for
+    // the effect below.
+    const early = fractions ? null : presplit(constraints, gutter);
 
     /*
      * One measurement, for one purpose: turning a `defaultSize` written as a
@@ -488,9 +562,9 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
 
             <PaneContext.Provider
               value={{
-                basis: fractions
-                  ? `calc((100% - ${gutter}px) * ${fractions[index].toFixed(6)})`
-                  : null,
+                flex: fractions
+                  ? `0 0 ${basisOf(fractions[index], gutter)}`
+                  : (early?.[index] ?? EVEN_SHARE),
                 id: paneId(index)
               }}
             >
@@ -522,16 +596,14 @@ export const PlPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanePro
   { defaultSize, minSize, maxSize, className, style, children, ...props },
   ref
 ) {
-  const { basis, id } = React.useContext(PaneContext);
+  const { flex, id } = React.useContext(PaneContext);
 
   return (
     <div
       ref={ref}
       id={id}
       className={cx('relative min-h-0 min-w-0 overflow-auto', className)}
-      // `1 1 0%` before the split has measured itself, so a pane renders at an
-      // even share on the first paint instead of at nothing and then jumping.
-      style={{ flex: basis ? `0 0 ${basis}` : '1 1 0%', ...style }}
+      style={{ flex, ...style }}
       {...props}
     >
       {children}
