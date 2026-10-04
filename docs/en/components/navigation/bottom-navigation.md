@@ -196,7 +196,7 @@ A browser gives a page that inset only when its viewport meta tag has `viewport-
 
 With an `href` an item is a real `<a>`, which is what makes a long press offer "open in a new tab" and what puts the destination in the status bar, neither of which a `<button>` that calls `router.push` can do. Without one it is a `<button>`, because a `<div>` carrying a click handler is invisible to a keyboard.
 
-A disabled link loses its `href` rather than keeping a live one behind an `aria-disabled`, because `disabled` is not a state an `<a>` can be in.
+A disabled link loses its `href` rather than keeping a live one behind an `aria-disabled`, because `disabled` is not a state an `<a>` can be in. It is still announced as a link, one that is unavailable, and <kbd>Tab</kbd> passes over it.
 
 <Demo src="bottom-navigation/links" :min-height="160">
 

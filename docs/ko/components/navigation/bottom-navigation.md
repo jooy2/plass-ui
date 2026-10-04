@@ -196,7 +196,7 @@ html {
 
 `href`가 있으면 항목은 진짜 `<a>`입니다. 길게 눌렀을 때 "새 탭에서 열기"가 뜨게 하고 목적지를 상태 표시줄에 보여 주는 것이 그것인데, `router.push`를 부르는 `<button>`은 둘 다 하지 못합니다. `href`가 없으면 `<button>`입니다. 클릭 핸들러를 단 `<div>`는 키보드에 보이지 않기 때문입니다.
 
-비활성화된 링크는 `aria-disabled` 뒤에 살아 있는 링크를 남기는 대신 `href`를 잃습니다. `disabled`는 `<a>`가 될 수 있는 상태가 아니기 때문입니다.
+비활성화된 링크는 `aria-disabled` 뒤에 살아 있는 링크를 남기는 대신 `href`를 잃습니다. `disabled`는 `<a>`가 될 수 있는 상태가 아니기 때문입니다. 그래도 사용할 수 없는 링크로 읽히고, <kbd>Tab</kbd>은 이 항목을 건너뜁니다.
 
 <Demo src="bottom-navigation/links" :min-height="160">
 

@@ -293,6 +293,37 @@ describe('PlBottomNavigation', () => {
       expect(element).not.toHaveAttribute('href');
       expect(element).toHaveAttribute('aria-disabled', 'true');
     });
+
+    it('announces a disabled link as a link that cannot be followed, and Tab passes over it', async () => {
+      // Buttons either side with a `tabIndex` of their own: WebKit follows the
+      // platform and leaves a plain button or link out of the Tab order, so
+      // without one Tab would reach nothing there.
+      const screen = await render(
+        <PlBottomNavigation>
+          <PlBottomNavigationItem value="home" tabIndex={0}>
+            Home
+          </PlBottomNavigationItem>
+          <PlBottomNavigationItem value="search" href="/search" disabled>
+            Search
+          </PlBottomNavigationItem>
+          <PlBottomNavigationItem value="profile" tabIndex={0}>
+            Profile
+          </PlBottomNavigationItem>
+        </PlBottomNavigation>
+      );
+
+      const search = screen.getByRole('link', { name: 'Search' }).element();
+
+      expect(search).toHaveAttribute('aria-disabled', 'true');
+      expect(search).not.toHaveAttribute('href');
+
+      const home = screen.getByRole('button', { name: 'Home' });
+
+      (home.element() as HTMLElement).focus();
+      await expect.element(home).toHaveFocus();
+      await userEvent.tab();
+      await expect.element(screen.getByRole('button', { name: 'Profile' })).toHaveFocus();
+    });
   });
 
   describe('labels', () => {

@@ -610,6 +610,11 @@ export const PlFloatingBottomNavigationItem = /* @__PURE__ */ React.forwardRef<
     ref: ref as React.Ref<HTMLAnchorElement>,
     props: {
       href: disabled ? undefined : href,
+      // An `<a>` with no `href` has no role, so the link it still is would be
+      // read out as plain text and its `aria-disabled` not at all. Said out
+      // loud, it is announced as a link that is unavailable, as a disabled
+      // `PlNavigationMenuItem` link is, and it stays out of the Tab order.
+      role: disabled ? 'link' : undefined,
       'aria-current': selected ? 'page' : undefined,
       'aria-disabled': disabled || undefined,
       ...discAttributes,

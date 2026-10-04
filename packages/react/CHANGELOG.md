@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A disabled `PlBottomNavigationItem` or `PlFloatingBottomNavigationItem` that is a link is announced as an unavailable link.** It is drawn on an `<a>` with no `href`, which has no role, so a screen reader read it as plain text and never said it was unavailable. It now carries `role="link"` with its `aria-disabled`, as a disabled `PlNavigationMenuItem` link does, and Tab still passes over it.
+
 - **A `PlPanes` inside a scaled ancestor sizes its panes in its own pixels.** Inside a `transform`, a split in a scaled `PlMockup` for example, the split measured the size it was drawn at rather than the size it is laid out at, so a pane with a pixel `defaultSize` moved as the page hydrated, a pixel `minSize` held it at the wrong width, an arrow key moved the line the wrong distance, and a drag ran slightly ahead of the pointer. Pixel lengths, minimums and an arrow key's 16 pixels are now measured in the split's own pixels, and a drag keeps the handle under the pointer.
 
 - **A `PlAnimateTyping` paused during a hold holds for the rest of it when it is let go.** Paused during the hold before `erase` deletes its line, it started deleting one character after it was let go; paused during the hold between two passes without `erase`, it held for the whole hold again. Both now hold for the time that was left of the hold.
