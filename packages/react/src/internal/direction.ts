@@ -100,7 +100,22 @@ function subscribe(onChange: () => void): () => void {
   };
 }
 
-/** Which way the document runs, re-rendering when it turns over. */
-export function useDocumentDirection(): PlassDirection {
-  return React.useSyncExternalStore(subscribe, snapshot, onServer);
+/** What a component that has no use for the answer yet subscribes to: nothing. */
+function idle(): () => void {
+  return () => {};
+}
+
+/**
+ * Which way the document runs, re-rendering when it turns over.
+ *
+ * `active: false` answers `ltr` without reading the document or listening to
+ * it, for a component that needs the direction only in one of its states and
+ * should cost nothing in the others.
+ */
+export function useDocumentDirection(active = true): PlassDirection {
+  return React.useSyncExternalStore(
+    active ? subscribe : idle,
+    active ? snapshot : onServer,
+    onServer
+  );
 }

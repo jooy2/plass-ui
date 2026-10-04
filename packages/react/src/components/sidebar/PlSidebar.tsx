@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { useDocumentDirection } from '../../internal/direction.js';
 import { useLabels } from '../../internal/labels.js';
 import { beginPointerDrag } from '../../internal/drag.js';
 import { lazyPart } from '../../internal/lazy.js';
@@ -304,6 +305,12 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
     const collapseBelow = collapseBelowProp ?? (layout.present ? layout.collapseBelow : 'none');
     const collapsed = useCollapsed(collapseBelow);
 
+    // The edge the drawer opens from, which only a collapsed sidebar has and a
+    // provider that names a direction answers on its own. The document is read
+    // once and listened to while it is the answer, rather than read again on
+    // every render, and a page that turns over turns the drawer with it.
+    const documentDirection = useDocumentDirection(collapsed && !defaults.direction);
+
     const [ownOpen, setOwnOpen] = React.useState(defaultOpen);
     const controlled = openProp !== undefined;
     const open = controlled ? openProp : layout.present ? layout.open[side] : ownOpen;
@@ -531,7 +538,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       // the document rather than leaving it and coming back.
       <React.Suspense fallback={column}>
         <PlDrawer
-          side={drawerSide(side, defaults.direction)}
+          side={drawerSide(side, defaults.direction ?? documentDirection)}
           mode="overlay"
           open={open}
           onOpenChange={changeOpen}

@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A `PlHeader` or `PlFooter` that changes only its `position` inside a `PlPageLayout` has its room reserved again.** The layout measured a bar when it arrived or changed size, so a bar switched from `static` to `fixed` left the page reserving nothing for it and covering the top of the content, or its end for a footer, until something resized it. The layout now measures it on that commit. A collapsed `PlSidebar` also reads the page's direction once rather than on every render, and its drawer turns round with a page that turns over while it is open.
+
 - **A `PlSegmentedButton`'s tile and a `PlFloatingBottomNavigation`'s key follow an inline `style` that moves the chosen segment or the current destination.** They measured again only on a commit that changed the value, a prop, the children, a class or a `dir`, so a `style` that moved a segment without resizing the set left the tile where it was until the next change. They now measure on that commit too, and a parent render that hands over the same styles still measures nothing.
 
 - **A padded `PlPanes` or `PlMockup` no longer moves as the page hydrates.** A split measured its border box where its panes' `flex-basis` percentages resolve against its content box, so with padding or a border a pane given a pixel `defaultSize` shrank as the split measured itself, and a handle fell behind the pointer and the arrow keys. A mockup measured its content box where the stylesheet scales the device to the box inside its border, so a padded mockup drawn on the server shrank at hydration. Both now measure the box their CSS reads, and a padded mockup's device fills the box inside its border, padding included, as its first paint already did.

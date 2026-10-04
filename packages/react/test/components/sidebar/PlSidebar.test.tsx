@@ -558,6 +558,50 @@ describe('PlSidebar', () => {
         document.documentElement.removeAttribute('dir');
       }
     });
+    it('reads the document once rather than on every render while it is a drawer', async () => {
+      const read = vi.spyOn(window, 'getComputedStyle');
+
+      try {
+        const screen = await render(<PlSidebar collapseBelow="md">Links</PlSidebar>);
+
+        read.mockClear();
+
+        for (const width of [200, 220, 240]) {
+          await screen.rerender(
+            <PlSidebar collapseBelow="md" width={width}>
+              Links
+            </PlSidebar>
+          );
+        }
+
+        expect(read.mock.calls.filter(([element]) => element === document.documentElement)).toEqual(
+          []
+        );
+      } finally {
+        read.mockRestore();
+      }
+    });
+
+    it('turns round with a document that turns over while it is open', async () => {
+      try {
+        const screen = await render(
+          <PlSidebar collapseBelow="md" open>
+            Links
+          </PlSidebar>
+        );
+
+        // Left to right, `start` is the left-hand edge and the panel rules its
+        // right side; nothing else renders the sidebar again once the page
+        // turns over.
+        await expect.element(screen.getByRole('dialog')).toHaveClass('border-r');
+
+        document.documentElement.setAttribute('dir', 'rtl');
+
+        await expect.element(screen.getByRole('dialog')).toHaveClass('border-l');
+      } finally {
+        document.documentElement.removeAttribute('dir');
+      }
+    });
   });
 
   describe('rendered on a server', () => {

@@ -200,6 +200,31 @@ describe('PlFooter', () => {
       await expect.poll(() => layout.style.getPropertyValue('--p-layout-footer-inset')).toBe('0px');
     });
 
+    it('measures again when it changes only its position', async () => {
+      const page = (position: 'static' | 'fixed') => (
+        <PlPageLayout
+          data-testid="layout"
+          footer={
+            <PlFooter
+              position={position}
+              style={{ position, bottom: 0, left: 0, width: 300, height: 56 }}
+            >
+              © 2026
+            </PlFooter>
+          }
+        >
+          Body
+        </PlPageLayout>
+      );
+      const screen = await render(page('static'));
+      const layout = screen.getByTestId('layout').element() as HTMLElement;
+
+      await expect.poll(() => layout.style.getPropertyValue('--p-layout-footer-inset')).toBe('0px');
+
+      await screen.rerender(page('fixed'));
+      expect(layout.style.getPropertyValue('--p-layout-footer-inset')).toBe('56px');
+    });
+
     it('is still a sheet with no layout above it', async () => {
       const screen = await render(<PlFooter>© 2026 Acme</PlFooter>);
 

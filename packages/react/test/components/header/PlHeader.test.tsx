@@ -250,6 +250,35 @@ describe('PlHeader', () => {
       expect(layout.style.getPropertyValue('--p-layout-header-inset')).toBe('48px');
     });
 
+    it('measures again when it changes only its position', async () => {
+      // The same width and height either way, so the bar's size gives the
+      // layout's observer nothing to report: `position` is the whole change.
+      const page = (position: 'static' | 'fixed') => (
+        <PlPageLayout
+          data-testid="layout"
+          header={
+            <PlHeader
+              position={position}
+              style={{ position, top: 0, left: 0, width: 300, height: 48 }}
+              brand="Acme"
+            />
+          }
+        >
+          Body
+        </PlPageLayout>
+      );
+      const screen = await render(page('static'));
+      const layout = screen.getByTestId('layout').element() as HTMLElement;
+
+      await expect.poll(() => layout.style.getPropertyValue('--p-layout-header-inset')).toBe('0px');
+
+      await screen.rerender(page('fixed'));
+      expect(layout.style.getPropertyValue('--p-layout-header-inset')).toBe('48px');
+
+      await screen.rerender(page('static'));
+      expect(layout.style.getPropertyValue('--p-layout-header-inset')).toBe('0px');
+    });
+
     it('is still a bar with no layout above it', async () => {
       const screen = await render(<PlHeader brand="Acme" />);
 

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { belowQuery } from './breakpoints.js';
 import type { PlassDirection } from './direction.js';
 import { useMediaQuery } from './media.js';
-import type { PlassBreakpoint, PlassSide } from '../types.js';
+import type { PlassBreakpoint, PlassPosition, PlassSide } from '../types.js';
 
 /**
  * The vocabulary a page's structure is written in, and the context the four
@@ -86,6 +86,12 @@ export interface PlPageLayoutContextValue {
    * reliably as one that is not.
    */
   register: (slot: PlPageLayoutSlot, node: HTMLElement | null) => void;
+  /**
+   * Measures the registered bars again, for the one change to a bar that
+   * neither its ref nor the layout's `ResizeObserver` reports: its `position`,
+   * which decides what its height is reserved for. See `useSlotPosition`.
+   */
+  remeasure: () => void;
   /** Where the sidebars stop being columns. */
   collapseBelow: PlPageLayoutCollapse;
   /** Whether each sidebar's drawer is open. Only meaningful while it is collapsed. */
@@ -98,11 +104,33 @@ export interface PlPageLayoutContextValue {
 export const PlPageLayoutContext = /* @__PURE__ */ React.createContext<PlPageLayoutContextValue>({
   present: false,
   register: () => {},
+  remeasure: () => {},
   collapseBelow: 'none',
   open: { start: false, end: false },
   setOpen: () => {},
   scroll: 'page'
 });
+
+/**
+ * Tells the layout around a bar that the bar's `position` changed.
+ *
+ * A bar that turns from `static` to `fixed` keeps its element, so its ref is
+ * not handed over again, and usually its size, so the layout's observer has
+ * nothing to report either — and the layout went on reserving nothing for a
+ * bar that had left the flow, until something else happened to resize it. Not
+ * on the first commit, which the layout measures on its own.
+ */
+export function useSlotPosition(position: PlassPosition): void {
+  const { remeasure } = React.useContext(PlPageLayoutContext);
+  const lastRef = React.useRef(position);
+
+  React.useLayoutEffect(() => {
+    if (lastRef.current === position) return;
+
+    lastRef.current = position;
+    remeasure();
+  }, [position, remeasure]);
+}
 
 /**
  * Which end of the band the sidebar being rendered right now takes.
@@ -185,23 +213,15 @@ export function useCollapsed(breakpoint: PlPageLayoutCollapse): boolean {
  * a tooltip above a button is above it in every writing direction — so the two
  * have to be translated.
  *
- * `direction` is what the nearest `PlassProvider` was told, and it wins for the
- * reason it wins there: a provider given a direction is describing a subtree
- * that runs the other way from the page, and a drawer is portalled out of that
- * subtree, so the document is the one place that cannot say which way it runs.
- * Without one, the document's own direction is the answer, as it is for the
- * provider.
- *
- * The document is read during render rather than in an effect, which is safe
- * here for a narrower reason than it looks: the only caller is a sidebar that
- * has already collapsed, and collapsing is a client-side answer. There is no
- * server render of this to disagree with.
+ * `direction` is the caller's to resolve: what the nearest `PlassProvider` was
+ * told, which wins for the reason it wins there — a provider given a direction
+ * is describing a subtree that runs the other way from the page, and a drawer
+ * is portalled out of that subtree, so the document is the one place that
+ * cannot say which way it runs — and without one, the document's own
+ * direction, as it is for the provider.
  */
-export function drawerSide(side: PlassSidebarSide, direction?: PlassDirection): PlassSide {
-  const rtl = direction
-    ? direction === 'rtl'
-    : typeof document !== 'undefined' &&
-      getComputedStyle(document.documentElement).direction === 'rtl';
+export function drawerSide(side: PlassSidebarSide, direction: PlassDirection): PlassSide {
+  const rtl = direction === 'rtl';
 
   if (side === 'start') return rtl ? 'right' : 'left';
 

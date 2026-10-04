@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useRender } from '@base-ui/react/use-render';
-import { PlPageLayoutContext } from '../../internal/page-layout.js';
+import { PlPageLayoutContext, useSlotPosition } from '../../internal/page-layout.js';
 import { measureSlots, type PlassMeasure } from '../../internal/responsive.js';
 import {
   cx,
@@ -300,6 +300,8 @@ export const PlHeader = /* @__PURE__ */ React.forwardRef<HTMLElement, PlHeaderPr
       },
       [register, ref]
     );
+
+    useSlotPosition(position);
 
     // A bar that holds its place, so a `PlPageLayout` starts its sidebars below
     // it, and keeps its content clear of it as well when it is `fixed` and out

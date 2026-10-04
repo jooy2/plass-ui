@@ -368,14 +368,18 @@ export const PlPageLayout = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlP
       rootRef.current?.style.setProperty(`--p-layout-${slot}-inset`, '0px');
     }, []);
 
+    // A bar that changed only its `position` says so through this. See
+    // `useSlotPosition`.
+    const remeasure = React.useCallback(() => measureRef.current(), []);
+
     const context = React.useMemo(
-      () => ({ present: true, register, collapseBelow, open, setOpen, scroll }),
-      [register, collapseBelow, open, setOpen, scroll]
+      () => ({ present: true, register, remeasure, collapseBelow, open, setOpen, scroll }),
+      [register, remeasure, collapseBelow, open, setOpen, scroll]
     );
 
     // What the page inside `<main>` sees: the same layout, with no slot to take.
     const mainContext = React.useMemo(
-      () => ({ ...context, register: (): void => undefined }),
+      () => ({ ...context, register: (): void => undefined, remeasure: (): void => undefined }),
       [context]
     );
 
