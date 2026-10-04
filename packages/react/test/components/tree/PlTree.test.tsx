@@ -1,3 +1,6 @@
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlTree, type PlTreeNode } from 'plass-ui';
@@ -443,6 +446,129 @@ describe('PlTree', () => {
       } finally {
         sheet.remove();
       }
+    });
+  });
+
+  describe('keepMounted', () => {
+    /** The rows a reader can see, which with `keepMounted` is not every row. */
+    const shown = () =>
+      Array.from(document.querySelectorAll<HTMLElement>('[role="treeitem"]'))
+        .filter((n) => n.closest('[hidden]') === null)
+        .map((n) => n.textContent?.trim());
+
+    it('sends no row of a shut branch without it', () => {
+      const html = renderToString(<PlTree items={items} />);
+
+      expect(html).toContain('README.md');
+      expect(html).not.toContain('index.ts');
+      expect(html).not.toContain('PlButton.tsx');
+    });
+
+    it('sends the rows of every shut branch with it, and hydrates them', async () => {
+      const tree = <PlTree items={items} keepMounted />;
+      const html = renderToString(tree);
+
+      // What a search engine reads: the whole tree, down to a branch inside a
+      // shut branch.
+      expect(html).toContain('index.ts');
+      expect(html).toContain('PlButton.tsx');
+      expect(html).toContain('PlCard.tsx');
+
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      host.innerHTML = html;
+      document.body.append(host);
+
+      const root = await act(async () => hydrateRoot(host, tree, { onRecoverableError }));
+
+      try {
+        expect(onRecoverableError).not.toHaveBeenCalled();
+        expect(
+          host.querySelector('[role="treeitem"][aria-level="3"]')?.closest('[hidden]')
+        ).not.toBeNull();
+      } finally {
+        await act(async () => root.unmount());
+        host.remove();
+      }
+    });
+
+    it('builds the rows of a shut branch', async () => {
+      await render(<PlTree items={items} keepMounted />);
+
+      expect(rows()).toEqual([
+        'src',
+        'index.ts',
+        'components',
+        'PlButton.tsx',
+        'PlCard.tsx',
+        'README.md',
+        'package-lock.json'
+      ]);
+    });
+
+    it('keeps them out of sight, off the accessibility tree and out of the focus order', async () => {
+      const screen = await render(<PlTree items={items} keepMounted />);
+
+      expect(shown()).toEqual(['src', 'README.md', 'package-lock.json']);
+      expect(screen.getByRole('treeitem', { name: 'index.ts' }).query()).toBeNull();
+      expect(screen.getByRole('treeitem', { name: 'PlButton.tsx' }).query()).toBeNull();
+      expect(row('src').getAttribute('aria-expanded')).toBe('false');
+
+      // Still one tab stop, and a hidden row cannot take the focus at all.
+      expect(document.querySelectorAll('[role="treeitem"][tabindex="0"]')).toHaveLength(1);
+      row('index.ts').focus();
+      expect(document.activeElement).not.toBe(row('index.ts'));
+    });
+
+    it('walks only the visible rows with the arrow keys', async () => {
+      await render(<PlTree items={items} keepMounted />);
+
+      row('src').focus();
+      await press('ArrowDown');
+
+      // Past the kept rows of the shut branch, to the next row on screen.
+      expect(document.activeElement?.textContent?.trim()).toBe('README.md');
+
+      await press('Home');
+      await press('End');
+
+      expect(document.activeElement?.textContent?.trim()).toBe('README.md');
+    });
+
+    it('opens, steps in, steps out and closes as it does without it', async () => {
+      const onSelectedChange = vi.fn();
+
+      await render(<PlTree items={items} keepMounted onSelectedChange={onSelectedChange} />);
+
+      row('src').focus();
+      await press('ArrowRight');
+
+      expect(row('src').getAttribute('aria-expanded')).toBe('true');
+      expect(shown()).toEqual(['src', 'index.ts', 'components', 'README.md', 'package-lock.json']);
+      expect(document.activeElement?.textContent?.trim()).toBe('src');
+
+      await press('ArrowRight');
+      expect(document.activeElement?.textContent?.trim()).toBe('index.ts');
+
+      // The open branch's own shut branch is still skipped.
+      await press('ArrowDown');
+      await press('ArrowDown');
+      expect(document.activeElement?.textContent?.trim()).toBe('README.md');
+
+      await press('Enter');
+      expect(onSelectedChange).toHaveBeenCalledWith(['readme']);
+
+      row('index.ts').focus();
+      await press('ArrowLeft');
+      expect(document.activeElement?.textContent?.trim()).toBe('src');
+
+      await press('ArrowLeft');
+      expect(row('src').getAttribute('aria-expanded')).toBe('false');
+
+      // Shut again, the rows stay in the document and leave the screen.
+      await expect.poll(() => shown()).toEqual(['src', 'README.md', 'package-lock.json']);
+      expect(rows()).toContain('index.ts');
     });
   });
 

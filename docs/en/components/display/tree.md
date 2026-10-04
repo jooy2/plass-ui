@@ -122,6 +122,8 @@ A shut branch is **not built at all**. Its rows are made while the branch is ope
 
 ::: fw react
 
+A shut branch is therefore not in the server HTML a search engine reads either. Give the tree `keepMounted` when the whole of it should be indexed: every branch is then built, a shut one stays in the HTML, hidden, and the arrow keys still walk only the visible rows.
+
 Moving the focus draws again only the row it left, the row it reached and the branches they sit in, rather than the whole tree.
 
 :::

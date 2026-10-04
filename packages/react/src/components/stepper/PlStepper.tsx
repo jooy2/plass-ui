@@ -49,6 +49,7 @@ interface StepperContextValue {
   active: number;
   linear: boolean;
   connector: PlStepConnector;
+  keepMounted: boolean;
   baseId: string;
   onSelect: (index: number) => void;
 }
@@ -84,6 +85,17 @@ export interface PlStepperProps extends Omit<React.ComponentPropsWithoutRef<'div
   orientation?: PlassResponsive<PlassOrientation>;
   /** How the line between two steps is drawn. @default 'solid' */
   connector?: PlStepConnector;
+  /**
+   * Keeps every step's panel in the document, hidden while `active` is on
+   * another step, rather than only the panel of the step it is on.
+   *
+   * For panels a search engine should read: the others are otherwise not in
+   * the HTML a server sends. A kept panel is `hidden`, so it is out of the
+   * layout, the focus order and the accessibility tree, and what it holds
+   * survives the reader stepping away from it. Off by default.
+   * @default false
+   */
+  keepMounted?: boolean;
   /** @default 'md' */
   size?: PlassSize;
   /** @default 'primary' */
@@ -165,6 +177,7 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
       linear = true,
       orientation: orientationProp,
       connector = 'solid',
+      keepMounted = false,
       size: sizeProp,
       color: colorProp,
       density: densityProp,
@@ -209,14 +222,46 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
     const count = steps.length;
 
     const context = React.useMemo<StepperContextValue>(
-      () => ({ size, density, orientation, color, active, linear, connector, baseId, onSelect }),
-      [size, density, orientation, color, active, linear, connector, baseId, onSelect]
+      () => ({
+        size,
+        density,
+        orientation,
+        color,
+        active,
+        linear,
+        connector,
+        keepMounted,
+        baseId,
+        onSelect
+      }),
+      [size, density, orientation, color, active, linear, connector, keepMounted, baseId, onSelect]
     );
 
     const horizontal = orientation === 'horizontal';
-    const panel = horizontal
-      ? (steps[active] as React.ReactElement<PlStepProps> | undefined)?.props?.children
-      : null;
+
+    /** The panel of the step at `index`, under the rail, or nothing when it has none. */
+    const panelAt = (index: number, key?: React.Key) => {
+      const content = (steps[index] as React.ReactElement<PlStepProps> | undefined)?.props
+        ?.children;
+
+      return hasContent(content) ? (
+        <div
+          key={key}
+          // A group named by the step it belongs to, so a screen reader that
+          // lands in the panel is told which step it is the panel for. A
+          // name on an element with no role is never read, and a tab panel
+          // or a region would claim more than a stepper is.
+          role="group"
+          aria-labelledby={`${baseId}-${index}`}
+          // A kept panel of another step: in the HTML, and out of the layout,
+          // the focus order and the accessibility tree.
+          hidden={index !== active}
+          className={cx('mt-4', sheetBodyClasses[size])}
+        >
+          {content}
+        </div>
+      ) : null;
+    };
 
     return (
       <StepperContext.Provider value={context}>
@@ -240,19 +285,14 @@ export const PlStepper = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStep
             ))}
           </ol>
 
-          {hasContent(panel) ? (
-            <div
-              // A group named by the step it belongs to, so a screen reader that
-              // lands in the panel is told which step it is the panel for. A
-              // name on an element with no role is never read, and a tab panel
-              // or a region would claim more than a stepper is.
-              role="group"
-              aria-labelledby={`${baseId}-${active}`}
-              className={cx('mt-4', sheetBodyClasses[size])}
-            >
-              {panel}
-            </div>
-          ) : null}
+          {/* Every step's panel when they are kept, each under its own key so
+              what one holds stays with it, and otherwise the one `active` is
+              on. */}
+          {horizontal
+            ? keepMounted
+              ? steps.map((_, index) => panelAt(index, index))
+              : panelAt(active)
+            : null}
         </div>
       </StepperContext.Provider>
     );
@@ -295,6 +335,7 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
   const family = color ?? stepper?.color ?? 'primary';
   const active = stepper?.active ?? null;
   const connector = stepper?.connector ?? 'solid';
+  const keepMounted = stepper?.keepMounted ?? false;
 
   const resolved: PlStepStatus = status ?? statusAt(index, active);
   const horizontal = orientation === 'horizontal';
@@ -447,13 +488,16 @@ export const PlStep = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlStepProp
           is the whole reason to lay one out vertically: the answer sits under
           the question rather than under the whole rail. It follows `active`
           rather than `status`, as the horizontal panel does, so a step marked
-          `current` again behind the reader does not open a second one. */}
-      {!horizontal && index === active && hasContent(children) ? (
+          `current` again behind the reader does not open a second one. With
+          `keepMounted` every step keeps its panel, hidden until `active`
+          reaches it. */}
+      {!horizontal && (index === active || keepMounted) && hasContent(children) ? (
         <div
           // Named by the step it sits in, as the horizontal panel is named by
           // the step it belongs to.
           role="group"
           aria-labelledby={stepper ? `${stepper.baseId}-${index}` : undefined}
+          hidden={index !== active}
           className={cx('ms-[calc(var(--p-bullet)+0.75rem)] pt-2 pb-4', sheetBodyClasses[size])}
         >
           {children}

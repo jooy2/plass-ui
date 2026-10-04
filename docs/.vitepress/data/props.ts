@@ -13056,6 +13056,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '모든 step의 패널을 문서에 남기고, active가 가리키지 않는 패널은 숨겨 focus와 접근성 트리에서 뺍니다. 검색 엔진이 읽어야 하는 패널용입니다',
+        en: "Keeps every step's panel in the document, and hides the ones active is not on, out of reach of focus and the accessibility tree. For panels a search engine should read"
+      }
+    },
+    {
       name: 'size',
       type: SIZE,
       default: "'md'",
@@ -13203,6 +13212,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '행을 눌렀을 때. 선택 가능하든 아니든',
         en: 'Called when a row is clicked, selectable or not'
+      }
+    },
+    {
+      name: 'keepMounted',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '닫힌 가지의 행도 만들어 숨긴 채 문서에 남기고, focus와 접근성 트리에서는 뺍니다. 화살표 키는 여전히 보이는 행만 걷습니다. 검색 엔진이 트리 전체를 읽어야 할 때 씁니다',
+        en: 'Builds the rows of shut branches too and keeps them in the document, hidden and out of reach of focus and the accessibility tree. The arrow keys still walk only the visible rows. For a tree a search engine should read in full'
       }
     },
     {

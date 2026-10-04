@@ -53,6 +53,12 @@ PlStepper(
 
 Every native `<div>` attribute passes through to the stepper, and every `<li>` attribute to a step. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
+::: fw react
+
+Only the panel of the step `active` is on is rendered, so the other steps' panels are not in the server HTML a search engine reads. Give the stepper `keepMounted` when what they hold should be indexed: every panel is then in the HTML, hidden until `active` reaches its step.
+
+:::
+
 ::: fw flutter
 
 The steps are a **list** rather than children, for the reason `PlTimeline`'s are: the stepper has to _reason_ about them (which one is complete is arithmetic on an index, and which one can be reached is arithmetic on the same index), and neither question can be asked of an opaque `Widget`. That also settles the sharp edge the React build has to warn about: there is no way to hand it a wrapper that holds three steps.

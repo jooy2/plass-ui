@@ -53,6 +53,12 @@ PlStepper(
 
 네이티브 `<div>` 속성은 stepper로, `<li>` 속성은 step으로 그대로 통과합니다. 공유 축이 라이브러리 전체에서 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
+::: fw react
+
+`active`가 가리키는 step의 패널만 렌더링되므로, 나머지 step의 패널은 검색 엔진이 읽는 서버 HTML에 없습니다. 패널 내용이 검색에 잡혀야 한다면 stepper에 `keepMounted`를 주세요. 그러면 모든 패널이 HTML에 들어가고, `active`가 그 step에 올 때까지 숨겨져 있습니다.
+
+:::
+
 ::: fw flutter
 
 step은 children이 아니라 **리스트**입니다. `PlTimeline`의 것이 그런 이유와 같습니다(stepper가 그것들에 대해 *추론*해야 하고(어느 것이 complete인지는 인덱스 산수이고, 어느 것에 닿을 수 있는지도 같은 인덱스 산수입니다), 두 질문 모두 불투명한 `Widget`에게는 물을 수 없습니다. React 빌드가 경고해야 하는 날카로운 모서리도 그것으로 사라집니다). step 셋을 품은 wrapper를 건넬 방법이 아예 없습니다.

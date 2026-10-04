@@ -6,6 +6,8 @@
 
 ### Added
 
+- **`PlStepper` and `PlTree` take `keepMounted`, which keeps content that is not on screen in the document.** A stepper rendered only the panel of the step `active` was on, and a tree built no row of a shut branch, so neither was in the HTML a server sends or a search engine reads. With `keepMounted` a stepper renders every step's panel and a tree builds every branch, and what is not on screen stays hidden, out of the focus order and off the accessibility tree. A kept panel keeps what it holds when the reader steps away, and the tree's arrow keys still walk only the visible rows. It is off by default.
+
 - **`PlDrawer` and `PlSidebar` take `keepMounted`, which keeps a closed drawer's content in the document.** A closed `overlay` drawer took its content out of the page, so below `collapseBelow` a sidebar's links were missing at the width a search engine indexes a page at. With `keepMounted` the content stays, hidden, out of the focus order and off the accessibility tree. It is off by default.
 
 ### Changed

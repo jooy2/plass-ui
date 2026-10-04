@@ -31,6 +31,8 @@ import type { PlassColor, PlassDensity, PlassSize } from '../../types.js';
  * nothing to travel. Once the fold is shut it renders nothing, which takes the
  * rows off the accessibility tree and out of the tab order, and since the rows
  * are a component inside the panel, a shut branch does not build them either.
+ * With the tree's `keepMounted` a shut fold is `hidden` instead, which takes
+ * its rows out of the same two places while leaving them in the HTML.
  */
 const groupClasses = /* @__PURE__ */ [
   'h-(--collapsible-panel-height) overflow-hidden',
@@ -82,6 +84,18 @@ export interface PlTreeProps extends Omit<React.ComponentPropsWithoutRef<'div'>,
   selection?: PlTreeSelection;
   /** Called when a row is clicked, selectable or not. */
   onItemClick?: (node: PlTreeNode) => void;
+  /**
+   * Builds the rows of every branch, open or shut, and keeps a shut branch's
+   * rows in the document, hidden, rather than leaving them out.
+   *
+   * For a tree a search engine should read in full: a shut branch is otherwise
+   * not in the HTML a server sends. A kept row is out of the layout, the focus
+   * order and the accessibility tree, and the arrow keys still walk only the
+   * rows that are visible. Off by default, because it builds every row the
+   * data holds.
+   * @default false
+   */
+  keepMounted?: boolean;
   /** @default 'md' */
   size?: PlassSize;
   /** @default 'primary' */
@@ -159,6 +173,7 @@ interface TreeShared {
   size: PlassSize;
   density: PlassDensity;
   selection: PlTreeSelection;
+  keepMounted: boolean;
   idPrefix: string;
   parents: ReadonlyMap<string, string | null>;
   focus: (id: string) => void;
@@ -246,7 +261,8 @@ const TreeRow = /* @__PURE__ */ React.memo(function TreeRow({
   expanded,
   selected
 }: TreeRowProps) {
-  const { size, density, selection, idPrefix, focus, actions } = React.useContext(TreeContext)!;
+  const { size, density, selection, keepMounted, idPrefix, focus, actions } =
+    React.useContext(TreeContext)!;
   const isBranch = node.children !== undefined;
 
   return (
@@ -314,7 +330,7 @@ const TreeRow = /* @__PURE__ */ React.memo(function TreeRow({
 
       {expanded && selected ? (
         <BaseUICollapsible.Root open={isOpen}>
-          <BaseUICollapsible.Panel role="group" className={groupClasses}>
+          <BaseUICollapsible.Panel role="group" keepMounted={keepMounted} className={groupClasses}>
             <TreeRows
               items={node.children!}
               level={level + 1}
@@ -357,6 +373,7 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
     onSelectedChange,
     selection = 'single',
     onItemClick,
+    keepMounted = false,
     size: sizeProp,
     color: colorProp,
     density: densityProp,
@@ -511,8 +528,17 @@ export const PlTree = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTreePro
   });
 
   const shared = React.useMemo<TreeShared>(
-    () => ({ size, density, selection, idPrefix, parents, focus: setTabStop, actions }),
-    [size, density, selection, idPrefix, parents]
+    () => ({
+      size,
+      density,
+      selection,
+      keepMounted,
+      idPrefix,
+      parents,
+      focus: setTabStop,
+      actions
+    }),
+    [size, density, selection, keepMounted, idPrefix, parents]
   );
 
   return (

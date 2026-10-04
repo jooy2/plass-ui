@@ -1,6 +1,9 @@
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlStep, PlStepper } from 'plass-ui';
+import { PlStep, PlStepper, type PlStepperProps } from 'plass-ui';
 
 /**
  * The three-step sign-up every test works against, as an **array** rather than
@@ -277,6 +280,122 @@ describe('PlStepper', () => {
       expect(document.querySelectorAll('li')[1]!.textContent).not.toContain('Verify panel');
       expect(document.querySelector('[aria-labelledby]')!.textContent).toBe('Verify panel');
     });
+  });
+
+  describe('keepMounted', () => {
+    /** A sign-up whose every panel holds something a reader could focus. */
+    const signUp = (props: PlStepperProps) => (
+      <PlStepper linear={false} {...props}>
+        <PlStep label="Account">
+          <input aria-label="Email" />
+        </PlStep>
+        <PlStep label="Verify">
+          <button type="button">Send the code</button>
+        </PlStep>
+        <PlStep label="Profile">
+          <a href="/privacy">Privacy policy</a>
+        </PlStep>
+      </PlStepper>
+    );
+
+    /** Renders on a "server", puts the HTML in a host and hydrates it there. */
+    async function hydrated(tree: React.ReactElement) {
+      const html = renderToString(tree);
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      host.innerHTML = html;
+      document.body.append(host);
+
+      const root = await act(async () => hydrateRoot(host, tree, { onRecoverableError }));
+
+      return {
+        html,
+        onRecoverableError,
+        async unmount() {
+          await act(async () => root.unmount());
+          host.remove();
+        }
+      };
+    }
+
+    for (const orientation of ['horizontal', 'vertical'] as const) {
+      it(`sends only the panel of the step it is on without it (${orientation})`, () => {
+        const html = renderToString(signUp({ orientation, active: 1 }));
+
+        expect(html).toContain('Send the code');
+        expect(html).not.toContain('Email');
+        expect(html).not.toContain('Privacy policy');
+      });
+
+      it(`sends every step's panel with it, and hydrates them (${orientation})`, async () => {
+        const { html, onRecoverableError, unmount } = await hydrated(
+          signUp({ orientation, active: 1, keepMounted: true })
+        );
+
+        try {
+          // What a search engine reads: every step's panel, not only this one.
+          expect(html).toContain('Email');
+          expect(html).toContain('Send the code');
+          expect(html).toContain('Privacy policy');
+          expect(onRecoverableError).not.toHaveBeenCalled();
+        } finally {
+          await unmount();
+        }
+      });
+
+      it(`keeps the other panels out of reach (${orientation})`, async () => {
+        const screen = await render(signUp({ orientation, active: 1, keepMounted: true }));
+
+        const email = document.querySelector<HTMLInputElement>('input[aria-label="Email"]')!;
+        const link = document.querySelector<HTMLAnchorElement>('a[href="/privacy"]')!;
+
+        // In the document, and in nothing a reader reaches: not on screen, not
+        // on the accessibility tree, and not something the focus can land on.
+        expect(email.closest('[hidden]')).not.toBeNull();
+        expect(link.closest('[hidden]')).not.toBeNull();
+        expect(screen.getByRole('textbox', { name: 'Email' }).query()).toBeNull();
+        expect(screen.getByRole('link', { name: 'Privacy policy' }).query()).toBeNull();
+        expect(screen.getByRole('group').elements()).toHaveLength(1);
+
+        email.focus();
+        expect(document.activeElement).not.toBe(email);
+
+        await expect
+          .element(screen.getByRole('group', { name: 'Verify' }))
+          .toHaveTextContent('Send the code');
+        await expect.element(screen.getByRole('button', { name: 'Send the code' })).toBeVisible();
+      });
+
+      it(`names every kept panel after its own step (${orientation})`, async () => {
+        await render(signUp({ orientation, active: 1, keepMounted: true }));
+
+        const names = Array.from(
+          document.querySelectorAll<HTMLElement>('[role="group"][aria-labelledby]')
+        ).map(
+          (group) => document.getElementById(group.getAttribute('aria-labelledby')!)?.textContent
+        );
+
+        expect(names).toEqual(['Account', 'Verify', 'Profile']);
+      });
+
+      it(`shows a kept panel when the reader reaches it, with what it held (${orientation})`, async () => {
+        const screen = await render(signUp({ orientation, defaultActive: 0, keepMounted: true }));
+
+        await screen.getByRole('textbox', { name: 'Email' }).fill('reader@example.com');
+        await screen.getByRole('button', { name: /Verify/ }).click();
+
+        await expect.element(screen.getByRole('button', { name: 'Send the code' })).toBeVisible();
+        expect(screen.getByRole('textbox', { name: 'Email' }).query()).toBeNull();
+
+        await screen.getByRole('button', { name: /Account/ }).click();
+
+        // The same field, not a new one: what it held is still in it.
+        await expect
+          .element(screen.getByRole('textbox', { name: 'Email' }))
+          .toHaveValue('reader@example.com');
+      });
+    }
   });
 
   describe('caller styling', () => {

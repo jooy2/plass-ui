@@ -118,3 +118,30 @@ describe('a stepper', () => {
     expect(inked).toEqual([[], []]);
   });
 });
+
+describe('a stepper that keeps its panels', () => {
+  for (const orientation of ['horizontal', 'vertical'] as const) {
+    it(`draws only the panel of the step it is on (${orientation})`, async () => {
+      // The browser's own `display: none` for `hidden` is all that hides a kept
+      // panel, so the question is whether a class on it outranks that once the
+      // real stylesheet is in the room.
+      await render(
+        <PlStepper active={1} orientation={orientation} keepMounted>
+          {[
+            <PlStep key="account" label="Account">
+              <a href="/account">Account panel</a>
+            </PlStep>,
+            <PlStep key="verify" label="Verify">
+              Verify panel
+            </PlStep>
+          ]}
+        </PlStepper>
+      );
+
+      const kept = document.querySelector<HTMLElement>('a[href="/account"]')!;
+
+      expect(getComputedStyle(kept.closest('[hidden]')!).display).toBe('none');
+      expect(kept.checkVisibility()).toBe(false);
+    });
+  }
+});
