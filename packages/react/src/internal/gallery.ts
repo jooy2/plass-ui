@@ -13,6 +13,8 @@
  * forty photographs does not reflow forty times.
  */
 import { isSideways, quartersOf } from './image.js';
+import { breakpoints, resolveAt } from './responsive.js';
+import type { PlassResponsive } from '../types.js';
 
 /**
  * A tile's proportion as the number the layouts do arithmetic on.
@@ -196,4 +198,81 @@ export function masonryRows(
   }));
 
   return { tracks, tiles };
+}
+
+/**
+ * A column count as a gallery uses it: a whole number of lanes, and at least
+ * one. The column slot and the masonry deal both read it through here, so the
+ * columns the stylesheet draws are the columns the tiles were dealt into.
+ */
+export function laneCount(value: number): number {
+  return Math.max(1, Math.round(value));
+}
+
+/**
+ * A masonry dealt at every rung of the breakpoint ladder, as the slots the
+ * stylesheet switches between.
+ *
+ * Which lane a tile lands in depends on the heights of the tiles before it, so
+ * a stylesheet cannot work it out — but it can choose between answers worked
+ * out ahead of time. The deal is made once per lane count the columns name,
+ * and the rung it starts at is written as slots: the list's rows as
+ * `--p-lane-rows-{rung}`, and each tile's place and the number of rows it spans
+ * as `--p-lane-area-{rung}` and `--p-lane-span-{rung}`. A rung that changes
+ * nothing is left out, and the stylesheet carries the rung below up through it,
+ * so a server's markup is laid out right at every width before any script has
+ * run, and a resize redraws without React hearing about it.
+ *
+ * `track` writes one row track as CSS, because the gap and the caption rows
+ * are lengths only the gallery knows.
+ */
+export function masonrySlots(
+  ratios: readonly number[],
+  columns: PlassResponsive<number>,
+  captions: boolean,
+  track: (track: PlassMasonryTrack) => string
+): { list: Record<string, string>; tiles: Array<Record<string, string>> } {
+  const list: Record<string, string> = {};
+  const tiles: Array<Record<string, string>> = ratios.map(() => ({}));
+  const lastArea: string[] = [];
+  const lastSpan: string[] = [];
+  let lastRows: string | undefined;
+  let lastCount: number | undefined;
+
+  for (const rung of breakpoints) {
+    // Two below the first rung the columns name, which is what the stylesheet
+    // draws there too.
+    const count = laneCount(resolveAt(columns, rung) ?? 2);
+
+    if (count === lastCount) {
+      continue;
+    }
+
+    lastCount = count;
+
+    const dealt = masonryRows(ratios, count, captions);
+    const rows = dealt.tracks.map(track).join(' ');
+
+    if (rows !== lastRows) {
+      list[`--p-lane-rows-${rung}`] = rows;
+      lastRows = rows;
+    }
+
+    dealt.tiles.forEach(({ column, start, end }, index) => {
+      const area = `${start} / ${column} / ${end}`;
+      const span = String(end - start);
+
+      if (area !== lastArea[index]) {
+        tiles[index][`--p-lane-area-${rung}`] = area;
+        lastArea[index] = area;
+      }
+
+      if (span !== lastSpan[index]) {
+        tiles[index][`--p-lane-span-${rung}`] = span;
+        lastSpan[index] = span;
+      }
+    });
+  }
+
+  return { list, tiles };
 }

@@ -21,6 +21,26 @@ const shapes = () =>
     node.style.aspectRatio ? [node.style.aspectRatio] : []
   );
 
+const rungs = ['xs', 'sm', 'md', 'lg', 'xl'];
+
+/**
+ * The lane a masonry tile is dealt into at one rung of the breakpoint ladder,
+ * read from the slots the stylesheet places it with, `row-start / column /
+ * row-end`. A rung that changed nothing is not written, and the stylesheet
+ * carries the one below up through it, so this does as well.
+ */
+function lane(tile: HTMLElement, rung = 'xs'): string | undefined {
+  for (let at = rungs.indexOf(rung); at >= 0; at -= 1) {
+    const area = tile.style.getPropertyValue(`--p-lane-area-${rungs[at]}`);
+
+    if (area !== '') {
+      return area.split(' / ')[1];
+    }
+  }
+
+  return undefined;
+}
+
 const pictures = () =>
   Array.from(document.querySelectorAll<HTMLImageElement>('.plass-gallery img')).map(
     (node) => node.alt
@@ -118,7 +138,7 @@ describe('PlGallery', () => {
 
       expect(direct).toHaveLength(4);
       expect(pictures()).toEqual(['A harbour', 'A bridge', 'A hillside', 'A market']);
-      expect(direct.map((tile) => tile.style.gridColumn)).toEqual(['1', '2', '2', '1']);
+      expect(direct.map((tile) => lane(tile))).toEqual(['1', '2', '2', '1']);
     });
 
     it('walks a masonry in the order it was given rather than lane by lane', async () => {
@@ -147,7 +167,38 @@ describe('PlGallery', () => {
       await screen.rerender(<PlGallery items={items} layout="masonry" columns={3} />);
 
       expect(before.every((node) => node.isConnected)).toBe(true);
-      expect(tiles().map((tile) => tile.style.gridColumn)).toEqual(['1', '2', '3', '2']);
+      expect(tiles().map((tile) => lane(tile))).toEqual(['1', '2', '3', '2']);
+    });
+
+    it('deals a masonry for every lane count its columns name', async () => {
+      await render(<PlGallery items={items} layout="masonry" columns={{ xs: 2, md: 3 }} />);
+
+      const list = document.querySelector('.plass-gallery') as HTMLElement;
+
+      // Both deals are in the markup, and the stylesheet draws the one for the
+      // width the window is, so nothing has to be measured before it is right.
+      expect(tiles().map((tile) => lane(tile, 'sm'))).toEqual(['1', '2', '2', '1']);
+      expect(tiles().map((tile) => lane(tile, 'xl'))).toEqual(['1', '2', '3', '2']);
+      expect(list.style.getPropertyValue('--p-lane-rows-xs')).not.toBe('');
+      expect(list.style.getPropertyValue('--p-lane-rows-md')).not.toBe('');
+      // A rung where the count does not change is left to the one below it.
+      expect(list.style.getPropertyValue('--p-lane-rows-sm')).toBe('');
+      expect(tiles().every((tile) => tile.style.getPropertyValue('--p-lane-area-sm') === '')).toBe(
+        true
+      );
+    });
+
+    it('writes the columns it deals into, so the two cannot disagree', async () => {
+      await render(<PlGallery items={items} layout="masonry" columns={{ xs: 1.6, lg: 0 }} />);
+
+      const list = document.querySelector('.plass-gallery') as HTMLElement;
+
+      // A count is a whole number of lanes and at least one, in the column
+      // slot and in the deal alike.
+      expect(list.style.getPropertyValue('--p-cols-xs')).toBe('2');
+      expect(list.style.getPropertyValue('--p-cols-lg')).toBe('1');
+      expect(tiles().map((tile) => lane(tile, 'xs'))).toEqual(['1', '2', '2', '1']);
+      expect(tiles().map((tile) => lane(tile, 'lg'))).toEqual(['1', '1', '1', '1']);
     });
 
     it('grows a justified tile in proportion to its own picture', async () => {
@@ -350,7 +401,7 @@ describe('PlGallery', () => {
 
       // On its side the first picture is four times as tall as the second, so
       // the third goes under the second rather than under the first.
-      expect(tiles().map((tile) => tile.style.gridColumn)).toEqual(['1', '2', '2']);
+      expect(tiles().map((tile) => lane(tile))).toEqual(['1', '2', '2']);
     });
 
     it('grows a turned justified tile by the width it is shown at', async () => {

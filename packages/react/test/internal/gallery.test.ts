@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   dealColumns,
   isTurned,
+  laneCount,
   masonryRows,
+  masonrySlots,
   ratioOf,
   shownRatio
 } from '../../src/internal/gallery';
@@ -115,6 +117,63 @@ describe('masonryRows', () => {
 
   it('has no rows for an empty set', () => {
     expect(masonryRows([], 3, true)).toEqual({ tracks: [], tiles: [] });
+  });
+});
+
+describe('laneCount', () => {
+  it('is a whole number of lanes, and at least one', () => {
+    expect([3, 2.4, 2.5, 0, -2].map(laneCount)).toEqual([3, 2, 3, 1, 1]);
+  });
+});
+
+describe('masonrySlots', () => {
+  /** A row track as the gallery writes it, short enough to read in a test. */
+  const track = (value: number | 'caption' | 'gap') =>
+    value === 'gap' ? 'G' : value === 'caption' ? 'C' : String(value);
+
+  it('writes one deal for a single count', () => {
+    expect(masonrySlots([1, 1, 1, 1], 2, false, track)).toEqual({
+      list: { '--p-lane-rows-xs': '1 G 1' },
+      tiles: [
+        { '--p-lane-area-xs': '1 / 1 / 2', '--p-lane-span-xs': '1' },
+        { '--p-lane-area-xs': '1 / 2 / 2', '--p-lane-span-xs': '1' },
+        { '--p-lane-area-xs': '3 / 1 / 4', '--p-lane-span-xs': '1' },
+        { '--p-lane-area-xs': '3 / 2 / 4', '--p-lane-span-xs': '1' }
+      ]
+    });
+  });
+
+  it('deals again only where the count changes', () => {
+    const { list, tiles } = masonrySlots([0.5, 1, 1], { xs: 1, sm: 1, md: 2 }, false, track);
+
+    // One lane, then two: the tall picture fills the first and the squares
+    // stack in the second. `sm` repeats `xs` and is not written.
+    expect(list).toEqual({ '--p-lane-rows-xs': '2 G 1 G 1', '--p-lane-rows-md': '1 G 1' });
+    expect(tiles).toEqual([
+      {
+        '--p-lane-area-xs': '1 / 1 / 2',
+        '--p-lane-span-xs': '1',
+        '--p-lane-area-md': '1 / 1 / 4',
+        '--p-lane-span-md': '3'
+      },
+      { '--p-lane-area-xs': '3 / 1 / 4', '--p-lane-span-xs': '1', '--p-lane-area-md': '1 / 2 / 2' },
+      { '--p-lane-area-xs': '5 / 1 / 6', '--p-lane-span-xs': '1', '--p-lane-area-md': '3 / 2 / 4' }
+    ]);
+  });
+
+  it('carries the count below up to a rung the columns do not name', () => {
+    const { list } = masonrySlots([1, 1], { md: 2 }, false, track);
+
+    // Two below `md` as well, which is what the stylesheet draws there.
+    expect(Object.keys(list)).toEqual(['--p-lane-rows-xs']);
+  });
+
+  it('writes a count that changes but deals the same only once', () => {
+    // One picture is in the first lane however many there are.
+    const { list, tiles } = masonrySlots([1], { xs: 2, lg: 4 }, true, track);
+
+    expect(list).toEqual({ '--p-lane-rows-xs': '1 C' });
+    expect(tiles).toEqual([{ '--p-lane-area-xs': '1 / 1 / 3', '--p-lane-span-xs': '2' }]);
   });
 });
 

@@ -96,6 +96,8 @@ A masonry deals **across before it deals down**. CSS `columns` fills the first c
 
 The tiles stay in one list, in the order they were given, and CSS Grid draws each one into its lane. The Tab order and a screen reader follow that order, and a tile that moves to another lane when the column count changes keeps its picture as it was. A picture that runs past the end of a tile in another lane is drawn taller by one gap at each such edge, and by that tile's caption with `caption="below"`. `fit` decides how the picture fills the extra height.
 
+The deal is worked out for every column count `columns` names, and the stylesheet draws the one for the width of the window. A masonry rendered on a server therefore has the right number of lanes at every width before the page's JavaScript runs, and a resize redraws it without a render.
+
 :::
 
 ::: fw flutter

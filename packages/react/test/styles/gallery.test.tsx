@@ -8,7 +8,11 @@
  * the thing under test here is the layout, with `src/standalone.css` loaded
  * the way `grid.test.tsx` loads it.
  */
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { page } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlGallery, type PlGalleryItem } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
@@ -88,5 +92,77 @@ describe('the masonry layout', () => {
     // its caption row is empty.
     expect(courtyard.height).toBe(200);
     expect(tower.height).toBe(408 + words);
+  });
+});
+
+describe('a masonry a server rendered', () => {
+  /*
+   * The default columns are two, three from `sm` and four from `lg`, and the
+   * lane count is what the stylesheet chooses rather than what a script
+   * measures, so the markup a server sends is already laid out in the lanes of
+   * the window it lands in, and hydrating it moves nothing.
+   */
+  const set: PlGalleryItem[] = Array.from({ length: 8 }, (_, index) => ({
+    src: `/${index}.jpg`,
+    alt: `Picture ${index + 1}`,
+    ratio: [1, 0.75, 1.5, 1][index % 4]
+  }));
+
+  let initial: [number, number];
+  const hosts: HTMLElement[] = [];
+
+  beforeAll(() => {
+    initial = [window.innerWidth, window.innerHeight];
+  });
+
+  afterEach(async () => {
+    hosts.splice(0).forEach((host) => host.remove());
+    await page.viewport(...initial);
+  });
+
+  function serve() {
+    const host = document.createElement('div');
+
+    host.innerHTML = renderToString(<PlGallery items={set} layout="masonry" />);
+    document.body.append(host);
+    hosts.push(host);
+
+    return host;
+  }
+
+  const lanes = () => new Set(boxes().map((box) => box.x)).size;
+
+  it('has the lanes of a wide window before it hydrates, and keeps them', async () => {
+    await page.viewport(1100, 800);
+
+    const host = serve();
+    const before = boxes();
+    const onRecoverableError = vi.fn();
+
+    expect(lanes()).toBe(4);
+
+    const root = await act(async () =>
+      hydrateRoot(host, <PlGallery items={set} layout="masonry" />, { onRecoverableError })
+    );
+
+    try {
+      expect(onRecoverableError).not.toHaveBeenCalled();
+      expect(boxes()).toEqual(before);
+    } finally {
+      await act(async () => root.unmount());
+    }
+  });
+
+  it('has the lanes of a narrow window from the same markup', async () => {
+    await page.viewport(500, 800);
+    serve();
+
+    expect(lanes()).toBe(2);
+
+    // The same markup, wider: the stylesheet switches to the deal for three
+    // lanes without a script running.
+    await page.viewport(800, 800);
+
+    expect(lanes()).toBe(3);
   });
 });

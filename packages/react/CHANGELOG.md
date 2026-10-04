@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A masonry `PlGallery` rendered on a server has the right number of lanes before hydration.** Its lane count was worked out in JavaScript from the window, so the server's markup always held two lanes and a desktop page laid the gallery out again once React ran. It is now dealt for every column count `columns` names and the stylesheet draws the one for the window's width, so nothing moves at hydration and a resize no longer re-renders it. A `columns` that is not a whole number, which threw, now rounds as the grid's column count does.
+
 - **`preview` on `PlImage` and `PlGallery` no longer downloads the overlay before anyone reaches for it.** The closed preview sat in a `Suspense` boundary on every page that offered one, so its chunk was fetched on load and a server render left a boundary that hydration had to switch to client rendering. The overlay is now rendered from the first open, and its chunk is requested when the pointer, the focus or a touch arrives on the picture or tile.
 
 - **A `PlImage` rendered on a server is drawn as soon as its file arrives.** The server's markup held the picture at `opacity: 0` until React had hydrated, with `priority` too, so a hero's Largest Contentful Paint waited for the page's JavaScript and a page without JavaScript never showed it. A picture in a server's markup is now drawn over its placeholder as it decodes; a picture mounted in the browser, and a `src` changed later, still fade in. `PlGallery`'s tiles change with it.

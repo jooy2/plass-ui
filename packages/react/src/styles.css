@@ -1561,6 +1561,81 @@
   inherits: false;
 }
 
+@property --p-lane-rows-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-rows-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-rows-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-rows-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-rows-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-area-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-area-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-area-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-area-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-area-xl {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-span-xs {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-span-sm {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-span-md {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-span-lg {
+  syntax: '*';
+  inherits: false;
+}
+
+@property --p-lane-span-xl {
+  syntax: '*';
+  inherits: false;
+}
+
 .plass-grid,
 .plass-flex {
   --p-gap-x: var(--p-gap-x-xs, 0px);
@@ -1573,6 +1648,21 @@
 
 .plass-gallery {
   --p-cols: var(--p-cols-xs, 2);
+}
+
+/*
+ * A masonry's deal at the width the window is: the list's rows, and each
+ * tile's place in them and how many it spans. The span is read by the tile's
+ * button, picture and caption as well, so it is the one of the three that
+ * inherits.
+ */
+.plass-gallery-masonry {
+  --p-lane-rows: var(--p-lane-rows-xs, none);
+}
+
+.plass-gallery-masonry > li {
+  --p-lane-area: var(--p-lane-area-xs, auto);
+  --p-lane-span: var(--p-lane-span-xs, 1);
 }
 
 /*
@@ -1639,6 +1729,15 @@
     --p-cols: var(--p-cols-sm, var(--p-cols-xs, 2));
   }
 
+  .plass-gallery-masonry {
+    --p-lane-rows: var(--p-lane-rows-sm, var(--p-lane-rows-xs, none));
+  }
+
+  .plass-gallery-masonry > li {
+    --p-lane-area: var(--p-lane-area-sm, var(--p-lane-area-xs, auto));
+    --p-lane-span: var(--p-lane-span-sm, var(--p-lane-span-xs, 1));
+  }
+
   .plass-flex {
     --p-dir: var(--p-dir-sm, var(--p-dir-xs, row));
   }
@@ -1668,6 +1767,15 @@
     --p-cols: var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 2)));
   }
 
+  .plass-gallery-masonry {
+    --p-lane-rows: var(--p-lane-rows-md, var(--p-lane-rows-sm, var(--p-lane-rows-xs, none)));
+  }
+
+  .plass-gallery-masonry > li {
+    --p-lane-area: var(--p-lane-area-md, var(--p-lane-area-sm, var(--p-lane-area-xs, auto)));
+    --p-lane-span: var(--p-lane-span-md, var(--p-lane-span-sm, var(--p-lane-span-xs, 1)));
+  }
+
   .plass-flex {
     --p-dir: var(--p-dir-md, var(--p-dir-sm, var(--p-dir-xs, row)));
   }
@@ -1695,6 +1803,24 @@
 
   .plass-gallery {
     --p-cols: var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 2))));
+  }
+
+  .plass-gallery-masonry {
+    --p-lane-rows: var(
+      --p-lane-rows-lg,
+      var(--p-lane-rows-md, var(--p-lane-rows-sm, var(--p-lane-rows-xs, none)))
+    );
+  }
+
+  .plass-gallery-masonry > li {
+    --p-lane-area: var(
+      --p-lane-area-lg,
+      var(--p-lane-area-md, var(--p-lane-area-sm, var(--p-lane-area-xs, auto)))
+    );
+    --p-lane-span: var(
+      --p-lane-span-lg,
+      var(--p-lane-span-md, var(--p-lane-span-sm, var(--p-lane-span-xs, 1)))
+    );
   }
 
   .plass-flex {
@@ -1741,6 +1867,30 @@
     --p-cols: var(
       --p-cols-xl,
       var(--p-cols-lg, var(--p-cols-md, var(--p-cols-sm, var(--p-cols-xs, 2))))
+    );
+  }
+
+  .plass-gallery-masonry {
+    --p-lane-rows: var(
+      --p-lane-rows-xl,
+      var(
+        --p-lane-rows-lg,
+        var(--p-lane-rows-md, var(--p-lane-rows-sm, var(--p-lane-rows-xs, none)))
+      )
+    );
+  }
+
+  .plass-gallery-masonry > li {
+    --p-lane-area: var(
+      --p-lane-area-xl,
+      var(
+        --p-lane-area-lg,
+        var(--p-lane-area-md, var(--p-lane-area-sm, var(--p-lane-area-xs, auto)))
+      )
+    );
+    --p-lane-span: var(
+      --p-lane-span-xl,
+      var(--p-lane-span-lg, var(--p-lane-span-md, var(--p-lane-span-sm, var(--p-lane-span-xs, 1))))
     );
   }
 
@@ -2777,17 +2927,28 @@
  * tiles across and a layout grid is counted in tracks, and two is the narrowest
  * arrangement that still reads as a set.
  *
- * The three lines below are what the slot is *for*. A grid and a quilt lay out
- * in CSS Grid off `--p-cols`; a masonry deals its items into lanes in JavaScript
- * and writes the count and the rows inline, because which lane an item lands in
- * depends on the heights of the items before it and no stylesheet can work that
- * out; and a justified row is flexbox, which needs no count at all — it fills
- * to the edge with whatever fits.
+ * The rules below are what the slot is *for*. A grid, a quilt and a masonry lay
+ * out in CSS Grid off `--p-cols`. A masonry also deals its items into lanes in
+ * JavaScript, because which lane an item lands in depends on the heights of the
+ * items before it and no stylesheet can work that out; it deals once for every
+ * lane count the columns name and writes each deal as `--p-lane-*` slots, which
+ * the chains above switch between, so a server's markup has the right lanes at
+ * every width. A justified row is flexbox, which needs no count at all — it
+ * fills to the edge with whatever fits.
  * ------------------------------------------------------------------------- */
 
 .plass-gallery-grid,
-.plass-gallery-quilted {
+.plass-gallery-quilted,
+.plass-gallery-masonry {
   grid-template-columns: repeat(var(--p-cols, 2), minmax(0, 1fr));
+}
+
+.plass-gallery-masonry {
+  grid-template-rows: var(--p-lane-rows);
+}
+
+.plass-gallery-masonry > li {
+  grid-area: var(--p-lane-area);
 }
 
 /*
