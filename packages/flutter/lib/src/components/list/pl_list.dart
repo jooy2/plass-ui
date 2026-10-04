@@ -253,6 +253,8 @@ class PlListItem extends StatelessWidget {
   final Widget? action;
 
   /// Marks the row as the chosen one — the open page, the current filter.
+  ///
+  /// A [disabled] row is not announced as selected, and takes no tint.
   final bool selected;
 
   /// Unavailable. The light goes out, the same way it does everywhere else.
@@ -307,7 +309,9 @@ class PlListItem extends StatelessWidget {
                 // `<button disabled>` is.
                 button: onPressed != null ? true : null,
                 enabled: interactive ? null : !disabled,
-                selected: selected,
+                // A disabled row takes no tint, so it does not say it is
+                // chosen either, as the React row drops `aria-current`.
+                selected: selected && !disabled,
                 focused: focus.focused,
                 onFocus: focus.onFocus,
                 expanded: focus.expanded,

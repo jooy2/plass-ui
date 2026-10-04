@@ -198,7 +198,7 @@ import NextLink from 'next/link';
 ::: fw flutter
 
 - A list is not a composite widget (it has no roving focus, no selection model and no keyboard contract of its own), so it adds no role beyond grouping its rows, and each row speaks for itself.
-- A chosen row reports that it is selected. It is not a toggle, and it does not claim to be one.
+- A chosen row reports that it is selected. It is not a toggle, and it does not claim to be one. A disabled row is drawn without the tint and reports that it is not selected.
 - A row with no `onPressed` adds no role and takes no focus stop.
 - A disabled row with an `onPressed` is still announced as a button, one that is unavailable. It does not answer a tap and takes no focus.
 - Give the widget in `action` its own name. It is a separate focus stop from the row, which is the point of it being there.

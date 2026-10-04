@@ -198,7 +198,7 @@ import NextLink from 'next/link';
 ::: fw flutter
 
 - 목록은 복합 위젯이 아닙니다(roving focus도, 선택 모델도, 자기만의 키보드 규약도 없습니다). 그래서 행을 묶는 것 말고는 role을 더하지 않고, 각 행이 스스로 이름을 갖습니다.
-- 선택된 행은 선택되었다고 보고합니다. 토글이 아니고, 토글인 척하지도 않습니다.
+- 선택된 행은 선택되었다고 보고합니다. 토글이 아니고, 토글인 척하지도 않습니다. disabled 행은 틴트 없이 그려지고, 선택되지 않았다고 보고합니다.
 - `onPressed`가 없는 행은 role도 focus stop도 더하지 않습니다.
 - `onPressed`가 있는 disabled 행도 button으로 알려지며, 사용할 수 없는 button으로 읽힙니다. 눌러도 반응하지 않고 focus도 받지 않습니다.
 - `action`에 든 위젯에는 자기 이름을 주세요. 행과는 별개의 focus stop이고, 거기 있는 이유가 그것입니다.

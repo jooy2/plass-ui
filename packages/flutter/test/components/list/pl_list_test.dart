@@ -265,6 +265,52 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('is not announced as selected while disabled', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlList(
+              children: <Widget>[
+                PlListItem(
+                  selected: true,
+                  disabled: true,
+                  onPressed: () {},
+                  child: const Text('One'),
+                ),
+                const PlListItem(selected: true, disabled: true, child: Text('Two')),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+
+        // Drawn with no tint, a disabled row says what an unchosen row says,
+        // whether it is a button or not, as the React row drops
+        // `aria-current`.
+        expect(
+          tester.getSemantics(find.text('One')),
+          isSemantics(
+            isButton: true,
+            hasEnabledState: true,
+            isEnabled: false,
+            hasSelectedState: true,
+            isSelected: false,
+          ),
+        );
+        expect(
+          tester.getSemantics(find.text('Two')),
+          isSemantics(
+            isButton: false,
+            hasEnabledState: true,
+            isEnabled: false,
+            hasSelectedState: true,
+            isSelected: false,
+          ),
+        );
+        handle.dispose();
+      });
+
       testWidgets('keeps what it holds as onPressed, disabled and selected change', (
         WidgetTester tester,
       ) async {
@@ -307,7 +353,9 @@ void main() {
           (true, false, false),
           (true, true, false),
           (true, false, true),
+          (true, true, true),
           (false, false, true),
+          (false, true, true),
           (false, true, false),
           (true, false, false),
           (false, false, false),
@@ -331,7 +379,8 @@ void main() {
 
           // A button with its tap only while it can be pressed, a button that
           // is unavailable while it is disabled, and otherwise a row that says
-          // whether it is available, as it always said.
+          // whether it is available, as it always said. Chosen only while it
+          // is not disabled.
           expect(
             tester.getSemantics(find.text('Billing')),
             interactive
@@ -348,7 +397,7 @@ void main() {
                     hasEnabledState: true,
                     isEnabled: !disabled,
                     hasSelectedState: true,
-                    isSelected: selected,
+                    isSelected: selected && !disabled,
                   ),
             reason: reason,
           );
