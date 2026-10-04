@@ -97,8 +97,8 @@ interface PlNavigationMenuItemBaseProps {
   value?: string;
   /**
    * Unavailable. The word stays in the row, dimmed, and opens nothing or goes
-   * nowhere: a link item loses its `href` and its `render`. The arrow keys pass
-   * over it and Tab still reaches it, as Base UI does with a trigger.
+   * nowhere: a link item loses its `href` and its `render`. It is announced as
+   * unavailable, and neither the arrow keys nor Tab stop on it.
    */
   disabled?: boolean;
   /**
@@ -381,14 +381,13 @@ export function PlNavigationMenuItem({
           rel={safeRel(target, rel)}
           aria-current={active ? 'page' : undefined}
           /*
-           * What Base UI gives a disabled trigger beside it: announced as
-           * unavailable, passed over by the arrow keys, which skip an
-           * `aria-disabled` item, and still a Tab stop. An `<a>` with no `href`
-           * has neither a role nor a place in the Tab order, so both are said
-           * out loud, and `data-disabled` is what draws it dimmed.
+           * What a disabled trigger beside it gets: announced as unavailable,
+           * passed over by the arrow keys, which skip an `aria-disabled` item,
+           * and out of the Tab order, which an `<a>` with no `href` already
+           * is. It has no role either, so that one is said out loud, and
+           * `data-disabled` is what draws it dimmed.
            */
           role={disabled ? 'link' : undefined}
-          tabIndex={disabled ? 0 : undefined}
           aria-disabled={disabled || undefined}
           data-disabled={disabled ? '' : undefined}
           className={chrome}
@@ -399,7 +398,17 @@ export function PlNavigationMenuItem({
         </BaseUINavigationMenu.Link>
       ) : (
         <>
-          <BaseUINavigationMenu.Trigger disabled={disabled} className={chrome} style={style}>
+          <BaseUINavigationMenu.Trigger
+            disabled={disabled}
+            // Base UI keeps a disabled trigger a Tab stop, with no prop to say
+            // otherwise, where a disabled control elsewhere in the library
+            // leaves the Tab order. `aria-disabled` and the arrow keys passing
+            // over it stay Base UI's. Left out rather than `undefined` when
+            // enabled, since `undefined` would win the merge over Base UI's own.
+            {...(disabled ? { tabIndex: -1 } : {})}
+            className={chrome}
+            style={style}
+          >
             {hasContent(startIcon) ? startIcon : null}
             {label}
             {/* Drawn pointing down and turned when the panel is open, which is

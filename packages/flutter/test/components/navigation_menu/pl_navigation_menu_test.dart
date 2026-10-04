@@ -1,4 +1,5 @@
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -332,6 +333,64 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text('Analytics'), findsNothing);
+      });
+
+      testWidgets('passes over a disabled item with Tab, a link and a panel alike', (
+        WidgetTester tester,
+      ) async {
+        final FocusNode before = FocusNode();
+        addTearDown(before.dispose);
+
+        await tester.pumpWidget(
+          host(
+            afterFocusStop(
+              before,
+              PlNavigationMenu(
+                items: <PlNavigationMenuItem>[
+                  PlNavigationMenuItem(label: 'Pricing', onPressed: () {}),
+                  PlNavigationMenuItem(label: 'Docs', onPressed: () {}, disabled: true),
+                  const PlNavigationMenuItem(
+                    label: 'Product',
+                    disabled: true,
+                    links: <PlNavigationMenuLink>[PlNavigationMenuLink(title: 'Analytics')],
+                  ),
+                  PlNavigationMenuItem(label: 'Blog', onPressed: () {}),
+                ],
+              ),
+            ),
+            width: 600,
+            height: 400,
+            overlay: true,
+          ),
+        );
+
+        /// The word whose item holds the focus.
+        String? focused() {
+          final BuildContext? context = FocusManager.instance.primaryFocus?.context;
+          if (context == null) {
+            return null;
+          }
+          for (final String word in <String>['Pricing', 'Docs', 'Product', 'Blog']) {
+            final Finder inside = find.descendant(
+              of: find.byElementPredicate((Element element) => element == context),
+              matching: find.text(word),
+            );
+            if (inside.evaluate().isNotEmpty) {
+              return word;
+            }
+          }
+          return null;
+        }
+
+        before.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(focused(), 'Pricing');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(focused(), 'Blog');
       });
     });
 

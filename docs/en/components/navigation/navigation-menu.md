@@ -201,7 +201,7 @@ import NextLink from 'next/link';
 - Base UI owns the keyboard: the arrow keys move along the row, <kbd>Enter</kbd> and <kbd>Space</kbd> open a panel, <kbd>Esc</kbd> closes it and focus returns to the trigger, and <kbd>Tab</kbd> moves into an open panel's links.
 - A trigger reports `aria-expanded`, so a reader is told what pressing it will do.
 - `active` marks the destination the reader is on, as `aria-current="page"` in React and as a selected node in Flutter, where the parameter is `selected`. The word takes the accent, the same one an open panel's word takes.
-- A `disabled` item keeps its word in the row, opens nothing and goes nowhere. It is dimmed rather than recoloured, which is what `disabled` looks like everywhere in the library.
+- A `disabled` item keeps its word in the row, opens nothing and goes nowhere, and <kbd>Tab</kbd> passes over it. It is dimmed rather than recoloured, which is what `disabled` looks like everywhere in the library.
 - The popup is portalled to the end of `<body>` and its positioner carries `.plass-portal`, which is where a host that scopes a CSS reset hangs the same reset.
 - The panel never slides. A row's chevron turns over while its panel is open, and a rail's points at the side its panel opens on. Nothing here moves under the pointer.
 
@@ -209,6 +209,6 @@ import NextLink from 'next/link';
 
 - Every panel's links are in the page's HTML from the first render, open or not, so a crawler that never opens a panel still finds them. A closed panel is `hidden`: it is not drawn, not announced and not a focus stop.
 - Moving from one item to the next, the sheet eases to the new panel's size and to its place at the new item, and the links keep their lines while it does. Under `prefers-reduced-motion` it takes both at once.
-- A `disabled` item is announced as unavailable, the arrow keys pass over it and <kbd>Tab</kbd> still reaches it, whether it opens a panel or is a link. A disabled link has no `href` and leaves its `render` out, so it cannot be followed.
+- A `disabled` item is announced as unavailable and the arrow keys pass over it too, whether it opens a panel or is a link. A disabled link has no `href` and leaves its `render` out, so it cannot be followed.
 
 :::

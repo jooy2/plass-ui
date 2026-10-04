@@ -201,7 +201,7 @@ import NextLink from 'next/link';
 - 키보드는 Base UI의 것입니다. 화살표 키가 행을 따라 움직이고, <kbd>Enter</kbd>와 <kbd>Space</kbd>가 패널을 열고, <kbd>Esc</kbd>가 닫으며 focus는 trigger로 돌아가고, <kbd>Tab</kbd>이 열린 패널의 링크로 들어갑니다.
 - trigger는 `aria-expanded`를 보고하므로, 누르면 무엇이 일어날지 미리 알려집니다.
 - `active`는 독자가 지금 있는 목적지를 표시합니다. React에서는 `aria-current="page"`로, Flutter에서는 선택된 노드로 알리며 Flutter의 매개변수 이름은 `selected`입니다. 단어는 열린 패널의 단어와 같은 강조색을 띱니다.
-- `disabled` 항목은 단어를 행에 남기고, 아무것도 열지 않으며 어디로도 가지 않습니다. 색을 바꾸는 대신 흐려지는데, 라이브러리 전체에서 `disabled`가 그렇게 보입니다.
+- `disabled` 항목은 단어를 행에 남기고, 아무것도 열지 않으며 어디로도 가지 않고, <kbd>Tab</kbd>도 건너뜁니다. 색을 바꾸는 대신 흐려지는데, 라이브러리 전체에서 `disabled`가 그렇게 보입니다.
 - 팝업은 `<body>` 끝으로 portal되고 positioner가 `.plass-portal`을 지닙니다. CSS reset을 범위 지정한 호스트가 같은 reset을 거는 자리가 그것입니다.
 - 패널은 미끄러지지 않습니다. 가로 행의 셰브런은 패널이 열려 있는 동안 뒤집히고, rail의 셰브런은 패널이 열리는 쪽을 가리킵니다. 여기서 포인터 아래에서 움직이는 것은 없습니다.
 
@@ -209,6 +209,6 @@ import NextLink from 'next/link';
 
 - 모든 패널의 링크는 열렸든 닫혔든 첫 렌더부터 페이지 HTML에 있어서, 패널을 열지 않는 크롤러도 찾습니다. 닫힌 패널은 `hidden`이므로 그려지지 않고, 읽히지 않고, focus가 멈추지도 않습니다.
 - 한 항목에서 다음 항목으로 넘어가면 시트가 새 패널의 크기와 새 항목에 붙은 자리로 옮겨 가고, 그동안 링크의 줄바꿈은 그대로입니다. `prefers-reduced-motion`에서는 둘 다 바로 바뀝니다.
-- `disabled` 항목은 패널을 여는 항목이든 링크든 사용할 수 없다고 알려지고, 화살표 키는 건너뛰지만 <kbd>Tab</kbd>으로는 닿습니다. disabled 링크에는 `href`가 없고 `render`도 쓰지 않으므로 따라갈 수 없습니다.
+- `disabled` 항목은 패널을 여는 항목이든 링크든 사용할 수 없다고 알려지고, 화살표 키도 건너뜁니다. disabled 링크에는 `href`가 없고 `render`도 쓰지 않으므로 따라갈 수 없습니다.
 
 :::

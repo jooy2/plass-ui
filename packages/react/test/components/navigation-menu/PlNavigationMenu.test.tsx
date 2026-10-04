@@ -553,7 +553,7 @@ describe('PlNavigationMenu', () => {
       expect(blog).not.toHaveAttribute('data-router');
     });
 
-    it('goes nowhere from a disabled link item, pressed or followed with Enter', async () => {
+    it('goes nowhere from a disabled link item, pressed or focused', async () => {
       const onNavigate = vi.fn();
       const screen = await render(
         <PlNavigationMenu>
@@ -568,30 +568,53 @@ describe('PlNavigationMenu', () => {
       const blog = screen.getByRole('link', { name: 'Blog' });
 
       await blog.click({ force: true });
+      // An `<a>` with no `href` and no `tabIndex` cannot hold the focus, so
+      // there is nothing for Enter to follow.
       (blog.element() as HTMLElement).focus();
-      await expect.element(blog).toHaveFocus();
-      await userEvent.keyboard('{Enter}');
 
+      expect(blog.element()).not.toHaveFocus();
       expect(onNavigate).not.toHaveBeenCalled();
     });
 
-    it('passes over a disabled link item with the arrow keys and keeps it a Tab stop, as it does a trigger', async () => {
+    it('passes over a disabled item with the arrow keys and with Tab, a link and a trigger alike', async () => {
+      // Enabled triggers either side, which carry a `tabIndex` of their own:
+      // WebKit follows the platform and leaves a plain link out of the Tab
+      // order, so links there would prove nothing.
       const screen = await render(
         <PlNavigationMenu>
-          <PlNavigationMenuItem label="Pricing" href="/pricing" />
+          <PlNavigationMenuItem label="Product">
+            <PlNavigationMenuLink href="/a" title="Analytics" />
+          </PlNavigationMenuItem>
           <PlNavigationMenuItem label="Docs" href="/docs" disabled />
-          <PlNavigationMenuItem label="Blog" href="/blog" />
+          <PlNavigationMenuItem label="Pricing" disabled>
+            <PlNavigationMenuLink href="/b" title="Billing" />
+          </PlNavigationMenuItem>
+          <PlNavigationMenuItem label="Company">
+            <PlNavigationMenuLink href="/c" title="About" />
+          </PlNavigationMenuItem>
         </PlNavigationMenu>
       );
 
-      const pricing = screen.getByRole('link', { name: 'Pricing' });
+      const product = screen.getByRole('button', { name: /Product/ });
+      const company = screen.getByRole('button', { name: /Company/ });
 
-      (pricing.element() as HTMLElement).focus();
-      await expect.element(pricing).toHaveFocus();
+      expect(screen.getByRole('link', { name: 'Docs' }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+      expect(screen.getByRole('button', { name: /Pricing/ }).element()).toHaveAttribute(
+        'aria-disabled',
+        'true'
+      );
+
+      (product.element() as HTMLElement).focus();
+      await expect.element(product).toHaveFocus();
       await userEvent.keyboard('{ArrowRight}');
-      await expect.element(screen.getByRole('link', { name: 'Blog' })).toHaveFocus();
+      await expect.element(company).toHaveFocus();
       await userEvent.tab({ shift: true });
-      await expect.element(screen.getByRole('link', { name: 'Docs' })).toHaveFocus();
+      await expect.element(product).toHaveFocus();
+      await userEvent.tab();
+      await expect.element(company).toHaveFocus();
     });
 
     it('carries no surface at rest, because the words are the page s', async () => {
