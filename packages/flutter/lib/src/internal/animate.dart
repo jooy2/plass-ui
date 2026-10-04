@@ -763,21 +763,24 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   void didUpdateWidget(PlassAnimateRun oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (oldWidget.settings.duration == widget.settings.duration) {
-      return;
+    if (oldWidget.settings.duration != widget.settings.duration) {
+      _controller.duration = widget.settings.duration;
+
+      // A controller reads its `duration` when a simulation *starts*, so a
+      // pass already in flight would finish at the old rate. That matters
+      // exactly once, and it is the case a marquee lives in: the strip is
+      // measured after the first frame, so the run that has already begun is
+      // the run whose duration has just become correct. `_go()` from where it
+      // is starts the pass again the way it was going, so one on its way back
+      // goes on back, and scales the new duration by what is left, so nothing
+      // jumps.
+      if (_controller.isAnimating) {
+        _go();
+      }
     }
 
-    _controller.duration = widget.settings.duration;
-
-    // A controller reads its `duration` when a simulation *starts*, so a pass
-    // already in flight would finish at the old rate. That matters exactly
-    // once, and it is the case a marquee lives in: the strip is measured after
-    // the first frame, so the run that has already begun is the run whose
-    // duration has just become correct. `_go()` from where it is starts the
-    // pass again the way it was going, so one on its way back goes on back,
-    // and scales the new duration by what is left, so nothing jumps.
-    if (_controller.isAnimating) {
-      _go();
+    if (oldWidget.settings.delay != widget.settings.delay) {
+      _redate(oldWidget.settings.delay);
     }
   }
 
@@ -848,12 +851,21 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         return;
       }
 
+      // A wait that is under way is left to run. A build that changed nothing
+      // about it is no reason to wait the whole delay again, and a new delay
+      // has already been measured against it.
+      if (_waiting != null) {
+        return;
+      }
+
       // A run that has finished stays where it ended, wherever that is: at
       // `0` after an alternating run with an even number of passes, which is
       // also where one that has not begun stands, so where the controller
       // stopped does not tell the two apart on its own. An endless run never
-      // finishes, so one standing at the end of a pass goes on.
-      if (!_controller.isAnimating && !_finished) {
+      // finishes, so one standing at the end of a pass goes on. Under reduced
+      // motion a run that has not landed yet lands, even where a new delay
+      // already finished it.
+      if (!_controller.isAnimating && (_still || !_finished)) {
         // A pause during the wait held the wait too, so what is let go is
         // whatever was left of it. Nothing was left of it once the pass had
         // begun, and this then starts the pass again from where it stopped.
@@ -930,14 +942,23 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   }
 
   /// Puts the run [time] into its passes, as [_runTime] measures them: on the
-  /// pass that time falls in, and as far through it.
+  /// pass that time falls in, and as far through it, or at the end of the run
+  /// once that time has gone past it.
   void _place(Duration time) {
     final int length = widget.settings.duration.inMicroseconds;
     final int into = time > Duration.zero ? time.inMicroseconds : 0;
+    final int? repeat = widget.settings.repeat;
 
     if (length <= 0) {
       _pass = 1;
       _controller.value = 0;
+
+      return;
+    }
+
+    if (repeat != null && into >= length * (repeat < 1 ? 1 : repeat)) {
+      _pass = repeat < 1 ? 1 : repeat;
+      _controller.value = _end;
 
       return;
     }
@@ -976,6 +997,45 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _pass >= repeat &&
         !_controller.isAnimating &&
         _controller.value == _end;
+  }
+
+  /// Measures a wait that is under way, running or held, against a new
+  /// `delay`, as a keyframe measures a new `animation-delay`: from when the
+  /// wait began, leaving out the time a pause held it.
+  ///
+  /// What has gone by stays gone, so the new delay is waited from where the
+  /// wait has got to, and one the wait has already gone past starts the run as
+  /// far into it as it would be by now, or holds it there while it is held.
+  void _redate(Duration before) {
+    final bool running = _waiting != null;
+
+    // A wait that has not begun reads the new delay when it does, and once the
+    // run has begun there is none left to measure.
+    if (!running && _delayLeft == Duration.zero) {
+      return;
+    }
+
+    _holdDelay();
+
+    final Duration left = widget.settings.delay - (before - _delayLeft);
+
+    if (left > Duration.zero) {
+      if (running) {
+        _startAfter(left);
+      } else {
+        _delayLeft = left;
+      }
+
+      return;
+    }
+
+    _delayLeft = Duration.zero;
+    _place(-left);
+
+    // Under reduced motion it lands, wherever that puts it.
+    if (running && (_still || !_finished)) {
+      _go();
+    }
   }
 
   /// Holds a wait that is still running, keeping what is left of it.

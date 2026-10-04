@@ -767,6 +767,140 @@ void main() {
     }
   });
 
+  group('a run waiting out its delay', () {
+    /// A fade at an even pace over 200ms, after [delay], built anew on every
+    /// call so that pumping it builds the run again.
+    Widget fade({required Duration delay, bool paused = false}) {
+      return host(
+        PlAnimateFade(
+          delay: delay,
+          paused: paused,
+          curve: Curves.linear,
+          duration: const Duration(milliseconds: 200),
+          child: const SizedBox.square(dimension: 100),
+        ),
+      );
+    }
+
+    /// Lets 100ms go by and builds [build] again, [times] times over.
+    Future<void> rebuildEvery100ms(WidgetTester tester, Widget Function() build, int times) async {
+      for (int i = 0; i < times; i += 1) {
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(build());
+      }
+    }
+
+    testWidgets('waits it out while its parent builds it again every 100ms', (
+      WidgetTester tester,
+    ) async {
+      Widget waiting() => fade(delay: const Duration(milliseconds: 300));
+
+      await tester.pumpWidget(waiting());
+
+      // The wait is over on the third, and the pass begins.
+      await rebuildEvery100ms(tester, waiting, 3);
+
+      expect(opacityOf(tester), 0);
+
+      await rebuildEvery100ms(tester, waiting, 1);
+
+      // It used to wait the whole delay again on every build, and stayed
+      // invisible for as long as the builds went on.
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+
+      await rebuildEvery100ms(tester, waiting, 2);
+
+      expect(opacityOf(tester), 1);
+    });
+
+    testWidgets('waits only what a pause left of it while it is built again', (
+      WidgetTester tester,
+    ) async {
+      const Duration delay = Duration(milliseconds: 300);
+
+      await tester.pumpWidget(fade(delay: delay));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpWidget(fade(delay: delay, paused: true));
+      await rebuildEvery100ms(tester, () => fade(delay: delay, paused: true), 2);
+
+      // Let go with 200ms of the wait left, and built again on the way.
+      await tester.pumpWidget(fade(delay: delay));
+      await rebuildEvery100ms(tester, () => fade(delay: delay), 2);
+
+      expect(opacityOf(tester), 0);
+
+      await rebuildEvery100ms(tester, () => fade(delay: delay), 1);
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+    });
+
+    testWidgets('measures a shorter delay from when the wait began', (WidgetTester tester) async {
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 600)));
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 300)));
+
+      // As a keyframe whose `animation-delay` changes: 300ms after the wait
+      // began, rather than 300ms after the change, or 600ms.
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+    });
+
+    testWidgets('measures a longer delay from when the wait began', (WidgetTester tester) async {
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 300)));
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 600)));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+    });
+
+    testWidgets('starts as far into the run as it would be when the wait is past a new delay', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 600)));
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 100)));
+
+      // Begun 100ms after the wait did, and so 100ms into the pass.
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(opacityOf(tester), closeTo(0.75, 0.01));
+    });
+
+    testWidgets('measures a new delay against what a pause left of the wait', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 600)));
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 600), paused: true));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 300), paused: true));
+
+      // 200ms of the wait went by before the pause, so 100ms is left of 300.
+      await tester.pumpWidget(fade(delay: const Duration(milliseconds: 300)));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+    });
+  });
+
   group('under reduced motion', () {
     /// The turn the rotation under test is carrying, in degrees.
     double degreesOf(WidgetTester tester) {
@@ -1085,12 +1219,40 @@ void main() {
       // plays out and back as a run that never met the setting does.
       expect(opacityOf(tester), 0);
 
-      await tester.pump(const Duration(milliseconds: 400));
+      // What is left of the wait, which it used to wait again in full.
+      await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(opacityOf(tester), closeTo(0.5, 0.01));
 
       await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 0);
+    });
+
+    testWidgets('lands at the end of a delay that was under way when the setting arrived', (
+      WidgetTester tester,
+    ) async {
+      Widget leaving({bool still = false}) {
+        return host(
+          PlAnimateFade(
+            mode: PlassAnimateMode.exit,
+            delay: const Duration(milliseconds: 400),
+            child: const Text('Leaving'),
+          ),
+          disableAnimations: still,
+        );
+      }
+
+      await tester.pumpWidget(leaving());
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpWidget(leaving(still: true));
+      await tester.pump(const Duration(milliseconds: 299));
+
+      expect(opacityOf(tester), 1);
+
+      // 400ms after the wait began, rather than 400ms after the setting came.
+      await tester.pump(const Duration(milliseconds: 1));
 
       expect(opacityOf(tester), 0);
     });
