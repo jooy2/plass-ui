@@ -287,9 +287,15 @@ const itemClasses = /* @__PURE__ */ [
   '[outline:none]'
 ].join(' ');
 
-/** The chevron and the ×, which sit in the field rather than in the list. */
+/**
+ * The chevron and the ×, which sit in the field rather than in the list.
+ *
+ * `p-0` because a browser pads a button on every side, and
+ * `plass-ui/styles.css` does not reset that padding: without it each would be
+ * wider than its glyph.
+ */
 const adornmentClasses = /* @__PURE__ */ [
-  'inline-flex h-[1lh] shrink-0 cursor-pointer items-center justify-center',
+  'inline-flex h-[1lh] shrink-0 cursor-pointer items-center justify-center p-0',
   'rounded-(--plass-radius-xs) text-(--plass-muted-fg)',
   '[transition:color_var(--plass-duration)_var(--plass-ease)]',
   'motion-reduce:[transition-duration:0ms]',

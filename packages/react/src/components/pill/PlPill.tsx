@@ -371,7 +371,10 @@ export const PlPill = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPillPro
           <button
             type="button"
             className={cx(
-              'flex min-w-0 flex-1 cursor-pointer items-center justify-center self-stretch',
+              // `py-0` because a browser pads a button top and bottom, and
+              // `plass-ui/styles.css` does not reset that padding: without
+              // it a pressable pill would stand taller than one that is not.
+              'flex min-w-0 flex-1 cursor-pointer items-center justify-center self-stretch py-0',
               // `inherit`, so the focus ring traces the lozenge's own corners
               // rather than drawing a second, squarer rectangle inside them.
               'rounded-[inherit]',

@@ -393,8 +393,12 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
 
     const mark = isSeparatorName(separator) ? separatorMark(separator) : separator;
 
+    // `py-0` because a fold that opens is a `<button>`, and a browser pads a
+    // button top and bottom. `plass-ui/styles.css` does not reset that
+    // padding, so without it the fold would stand taller than one that cannot
+    // be opened.
     const foldClassNames = cx(
-      'inline-flex items-center rounded-(--plass-radius-xs) px-0.5',
+      'inline-flex items-center rounded-(--plass-radius-xs) px-0.5 py-0',
       'text-(--plass-muted-fg)',
       transitionClasses,
       iconClasses,
@@ -520,8 +524,12 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
   const pressable = Boolean(onClick) && !linked && !isCurrent;
   const interactive = (linked || Boolean(onClick)) && !isCurrent && !disabled;
 
+  // `py-0` because a step with an `onClick` is a `<button>`, and a browser
+  // pads a button top and bottom. `plass-ui/styles.css` does not reset that
+  // padding, so without it the step would stand taller than a link or a text
+  // step beside it.
   const stepClassNames = cx(
-    'inline-flex min-w-0 items-center px-1',
+    'inline-flex min-w-0 items-center px-1 py-0',
     gapClasses[size],
     stepRadiusClasses[size],
     transitionClasses,

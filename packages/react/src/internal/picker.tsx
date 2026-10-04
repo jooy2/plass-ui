@@ -450,8 +450,12 @@ export function PickerShell({
                         leaveFormControl(controlRef.current);
                       }
                     }}
+                    // `p-0` because a browser pads a button on every side,
+                    // and `plass-ui/styles.css` does not reset that padding:
+                    // without it the value would start further in than the
+                    // field's own padding puts it, and the field would grow.
                     className={cx(
-                      'flex min-w-0 flex-1 items-center bg-transparent text-start [font:inherit] text-inherit',
+                      'flex min-w-0 flex-1 items-center bg-transparent p-0 text-start [font:inherit] text-inherit',
                       gapClasses[size],
                       '[outline:none]',
                       inert ? 'cursor-default' : 'cursor-pointer'

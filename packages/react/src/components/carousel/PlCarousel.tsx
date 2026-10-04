@@ -713,9 +713,12 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
                 aria-current={dotIndex === index ? 'true' : undefined}
                 // The press target is 24px on each side, what WCAG 2.5.8 asks
                 // for, around a dot a few pixels across. The dot is the only
-                // thing drawn.
+                // thing drawn. `p-0` because a browser pads a button, and
+                // `plass-ui/styles.css` does not reset that padding: without
+                // it the current dot's target would be wider than the rest,
+                // and the row would move as the slide changes.
                 className={cx(
-                  'group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full',
+                  'group flex h-6 min-w-6 cursor-pointer items-center justify-center rounded-full p-0',
                   'focus-visible:[outline:2px_solid_var(--p-ring)] focus-visible:outline-offset-0'
                 )}
                 onClick={() => steer(dotIndex)}

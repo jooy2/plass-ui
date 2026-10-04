@@ -588,8 +588,12 @@ function ColorPanel({
                 aria-label={swatch}
                 aria-pressed={chosen}
                 onClick={() => onChange(parsed)}
+                // `p-0` because a browser pads a button, and
+                // `plass-ui/styles.css` does not reset that padding: without
+                // it the chosen swatch, the one with a tick in it, would stand
+                // taller than it is wide.
                 className={cx(
-                  'flex aspect-square items-center justify-center rounded-full border',
+                  'flex aspect-square items-center justify-center rounded-full border p-0',
                   '[border-color:var(--plass-border)]',
                   '[transition:box-shadow_var(--plass-duration)_var(--plass-ease)]',
                   'motion-reduce:[transition-duration:0ms]',
