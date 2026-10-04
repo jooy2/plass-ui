@@ -311,6 +311,39 @@ void main() {
         handle.dispose();
       });
 
+      testWidgets('sets its label at the weight of an unchosen row while disabled', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlList(
+              children: <Widget>[
+                PlListItem(
+                  selected: true,
+                  disabled: true,
+                  onPressed: () {},
+                  child: const Text('One'),
+                ),
+                const PlListItem(selected: true, disabled: true, child: Text('Two')),
+                const PlListItem(child: Text('Three')),
+                const PlListItem(selected: true, child: Text('Four')),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+
+        final FontWeight? unchosen = styleOf(tester, 'Three').fontWeight;
+
+        expect(styleOf(tester, 'Four').fontWeight, FontWeight.w500);
+        expect(unchosen, isNot(FontWeight.w500));
+        // Drawn with no tint, a disabled row is set as an unchosen row is, as
+        // the React row drops `font-medium` with the tint. It used to keep the
+        // chosen row's weight.
+        expect(styleOf(tester, 'One').fontWeight, unchosen);
+        expect(styleOf(tester, 'Two').fontWeight, unchosen);
+      });
+
       testWidgets('keeps what it holds as onPressed, disabled and selected change', (
         WidgetTester tester,
       ) async {
