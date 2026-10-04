@@ -4,6 +4,28 @@ import { render } from 'vitest-browser-react';
 import { PlDatePicker } from 'plass-ui';
 import { fullDate, headerButtons, mediumDate, monthAndYear } from '../../support/dates';
 
+/**
+ * How many times the picker has rendered.
+ *
+ * The picker returns its shell and nothing else, so the real `PickerShell`,
+ * wrapped in one that counts and changes nothing, renders exactly when the
+ * picker does. A render that changes nothing leaves nothing on the page to read.
+ */
+const shellRenders = vi.hoisted(() => ({ count: 0 }));
+
+vi.mock('../../../src/internal/picker.js', async (importOriginal) => {
+  const React = await import('react');
+  const real = await importOriginal<typeof import('../../../src/internal/picker.js')>();
+
+  function Counted(props: React.ComponentProps<typeof real.PickerShell>) {
+    shellRenders.count += 1;
+
+    return React.createElement(real.PickerShell, props);
+  }
+
+  return { ...real, PickerShell: Counted };
+});
+
 /** A fixed day to work against, so nothing here depends on when it is run. */
 const JULY_27 = new Date(2026, 6, 27);
 const JULY_15 = new Date(2026, 6, 15);
@@ -106,6 +128,37 @@ describe('PlDatePicker', () => {
 
       expect(headerButtons()[0].textContent).toBe('July');
       expect(headerButtons('Choose a year')[0].textContent).toBe('2026');
+    });
+
+    it('renders the picker once to open it', async () => {
+      const screen = await render(
+        <PlDatePicker label="Departure" locale="en-GB" defaultValue={JULY_27} />
+      );
+
+      shellRenders.count = 0;
+      await screen.getByRole('button', { name: /^Departure/ }).click();
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(1));
+
+      // One render for `open`. The month it opens on is the month already on
+      // screen, which is no reason to render the whole picker a second time.
+      expect(shellRenders.count).toBe(1);
+    });
+
+    it('opens back on the chosen month after browsing away from it', async () => {
+      const screen = await render(
+        <PlDatePicker label="Departure" locale="en-GB" defaultValue={JULY_27} />
+      );
+      const trigger = screen.getByRole('button', { name: /^Departure/ });
+
+      await trigger.click();
+      await screen.getByRole('button', { name: 'Next month' }).click();
+      await vi.waitFor(() => expect(headerButtons()[0]?.textContent).toBe('August'));
+
+      await userEvent.keyboard('{Escape}');
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(0));
+
+      await trigger.click();
+      await vi.waitFor(() => expect(headerButtons()[0]?.textContent).toBe('July'));
     });
 
     it('names the header buttons with the month and the year they show', async () => {

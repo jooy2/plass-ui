@@ -1,7 +1,30 @@
 import { describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import { PlDateTimePicker } from 'plass-ui';
-import { fullDate, mediumDate } from '../../support/dates';
+import { fullDate, headerButtons, mediumDate } from '../../support/dates';
+
+/**
+ * How many times the picker has rendered.
+ *
+ * The picker returns its shell and nothing else, so the real `PickerShell`,
+ * wrapped in one that counts and changes nothing, renders exactly when the
+ * picker does. A render that changes nothing leaves nothing on the page to read.
+ */
+const shellRenders = vi.hoisted(() => ({ count: 0 }));
+
+vi.mock('../../../src/internal/picker.js', async (importOriginal) => {
+  const React = await import('react');
+  const real = await importOriginal<typeof import('../../../src/internal/picker.js')>();
+
+  function Counted(props: React.ComponentProps<typeof real.PickerShell>) {
+    shellRenders.count += 1;
+
+    return React.createElement(real.PickerShell, props);
+  }
+
+  return { ...real, PickerShell: Counted };
+});
 
 /** Half past nine on 27 July 2026, so nothing here depends on when it is run. */
 const MOMENT = new Date(2026, 6, 27, 9, 30);
@@ -55,6 +78,37 @@ describe('PlDateTimePicker', () => {
       await expect.element(screen.getByRole('grid')).toBeInTheDocument();
       await expect.element(screen.getByRole('listbox', { name: 'Hour' })).toBeInTheDocument();
       await expect.element(screen.getByRole('listbox', { name: 'Minute' })).toBeInTheDocument();
+    });
+
+    it('renders the picker once to open it', async () => {
+      const screen = await render(
+        <PlDateTimePicker label="Starts" locale="en-GB" defaultValue={MOMENT} />
+      );
+
+      shellRenders.count = 0;
+      await screen.getByRole('button', { name: /^Starts/ }).click();
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(1));
+
+      // One render for `open`. The month it opens on is the month already on
+      // screen, which is no reason to render the whole picker a second time.
+      expect(shellRenders.count).toBe(1);
+    });
+
+    it('opens back on the chosen month after browsing away from it', async () => {
+      const screen = await render(
+        <PlDateTimePicker label="Starts" locale="en-GB" defaultValue={MOMENT} />
+      );
+      const trigger = screen.getByRole('button', { name: /^Starts/ });
+
+      await trigger.click();
+      await screen.getByRole('button', { name: 'Next month' }).click();
+      await vi.waitFor(() => expect(headerButtons()[0]?.textContent).toBe('August'));
+
+      await userEvent.keyboard('{Escape}');
+      await vi.waitFor(() => expect(headerButtons()).toHaveLength(0));
+
+      await trigger.click();
+      await vi.waitFor(() => expect(headerButtons()[0]?.textContent).toBe('July'));
     });
 
     it('measures both panels off one cell ladder', async () => {

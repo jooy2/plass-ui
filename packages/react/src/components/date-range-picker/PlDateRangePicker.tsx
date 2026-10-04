@@ -12,6 +12,7 @@ import {
   compareDay,
   displaySamples,
   formatDate,
+  isSameMonth,
   isValidDate,
   localeWeekStart,
   startOfDay,
@@ -181,7 +182,11 @@ export const PlDateRangePicker = /* @__PURE__ */ React.forwardRef<
 
   React.useEffect(() => {
     if (open) {
-      setMonth(startOfMonth(start ?? defaultMonth ?? today()));
+      const chosen = startOfMonth(start ?? defaultMonth ?? today());
+
+      // The month already on screen is kept as the same object, so an ordinary
+      // opening does not render the whole picker a second time.
+      setMonth((current) => (isSameMonth(current, chosen) ? current : chosen));
     } else {
       // An abandoned half-selection does not survive the popup closing.
       setAnchor(null);

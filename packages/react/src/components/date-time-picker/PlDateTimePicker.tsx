@@ -22,6 +22,7 @@ import {
   formatDate,
   isDayOutside,
   isHour12,
+  isSameMonth,
   isValidDate,
   localeWeekStart,
   mergeDateAndTime,
@@ -170,7 +171,11 @@ export const PlDateTimePicker = /* @__PURE__ */ React.forwardRef<
 
   React.useEffect(() => {
     if (open) {
-      setMonth(startOfMonth(isValidDate(value) ? value : (defaultMonth ?? today())));
+      const chosen = startOfMonth(isValidDate(value) ? value : (defaultMonth ?? today()));
+
+      // The month already on screen is kept as the same object, so an ordinary
+      // opening does not render the whole picker a second time.
+      setMonth((current) => (isSameMonth(current, chosen) ? current : chosen));
     }
     // Only when the popup opens — following `value` here would drag the calendar
     // out from under someone typing into a form elsewhere.
