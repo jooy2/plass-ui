@@ -161,6 +161,38 @@ function toPixels(
   }
 }
 
+/**
+ * The length a pane's `flex-basis` percentage is a percentage of: the split's
+ * content box along its axis, inside its padding and its border.
+ *
+ * The border box is the same number only while the split has neither. A padded
+ * split measured by it gave every fraction more room than the panes have, so a
+ * length moved as the split measured itself and a handle fell behind the
+ * pointer dragging it.
+ */
+function contentExtent(root: HTMLElement, horizontal: boolean): number {
+  const rect = root.getBoundingClientRect();
+  const style = getComputedStyle(root);
+  const edges = horizontal
+    ? [
+        style.paddingInlineStart,
+        style.paddingInlineEnd,
+        style.borderInlineStartWidth,
+        style.borderInlineEndWidth
+      ]
+    : [
+        style.paddingBlockStart,
+        style.paddingBlockEnd,
+        style.borderBlockStartWidth,
+        style.borderBlockEndWidth
+      ];
+
+  return (
+    (horizontal ? rect.width : rect.height) -
+    edges.reduce((total, edge) => total + (parseFloat(edge) || 0), 0)
+  );
+}
+
 /** The `flex-basis` of a pane given `fraction` of what the handles leave. */
 function basisOf(fraction: number, gutter: number): string {
   return `calc((100% - ${gutter}px) * ${fraction.toFixed(6)})`;
@@ -327,8 +359,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       if (!root) return;
 
       const measure = () => {
-        const rect = root.getBoundingClientRect();
-        const extent = (horizontal ? rect.width : rect.height) - gutter;
+        const extent = contentExtent(root, horizontal) - gutter;
         if (extent <= 0) return;
 
         setFractions((previous) =>
@@ -359,8 +390,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       const current = fractionsRef.current;
       if (!resizable || !root || !current || current[index + 1] === undefined) return null;
 
-      const rect = root.getBoundingClientRect();
-      const extent = (horizontal ? rect.width : rect.height) - gutter;
+      const extent = contentExtent(root, horizontal) - gutter;
       if (extent <= 0) return null;
 
       const before = constraintsRef.current[index];

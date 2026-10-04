@@ -233,6 +233,12 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
      * Both axes, because `height` on its own is a legitimate way to size a mockup
      * and because a caller who pins both would otherwise get a device overflowing
      * whichever one it was not scaled against.
+     *
+     * The box measured is the one the device is centred in rather than the
+     * mockup itself: the box `drawn` reads as `100cqw` and `100cqh`, which is
+     * inset in the mockup's padding box. The mockup's own content box is the
+     * same size only while it has no padding, and a padded mockup measured by it
+     * shrank as it hydrated.
      */
     const box = usePlElementSize(boxRef);
     const empty = box !== null && (box.width <= 0 || box.height <= 0);
@@ -275,19 +281,6 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
     const drawn =
       scale ?? `min(tan(atan2(100cqw, ${frame.width}px)), tan(atan2(100cqh, ${frame.height}px)))`;
 
-    const setRef = React.useCallback(
-      (node: HTMLDivElement | null) => {
-        boxRef.current = node;
-
-        if (typeof ref === 'function') {
-          ref(node);
-        } else if (ref) {
-          ref.current = node;
-        }
-      },
-      [ref]
-    );
-
     const chrome = systemUi ? mockupChrome({ os: system, notch: cutout, landscape, time }) : {};
     const bare = bezel === 'none';
 
@@ -327,7 +320,7 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
 
     return useRender({
       render,
-      ref: setRef,
+      ref,
       props: {
         className: classNames,
         style: {
@@ -349,6 +342,7 @@ export const PlMockup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMocku
           // other in a right-to-left page, and there is nothing about a phone
           // that runs either way.
           <div
+            ref={boxRef}
             className="absolute inset-0 flex items-center justify-center"
             style={{
               // A container for the scale in CSS above. Its size comes from the

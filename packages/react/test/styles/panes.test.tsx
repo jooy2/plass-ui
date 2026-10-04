@@ -15,6 +15,7 @@ import { renderToString } from 'react-dom/server';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { PlPane, PlPanes } from 'plass-ui';
 import type { PlPaneSize } from 'plass-ui';
+import { render } from 'vitest-browser-react';
 import standaloneCss from '../../src/standalone.css?inline';
 import { committed } from '../support/timing';
 
@@ -136,5 +137,47 @@ describe('a server-rendered PlPanes', () => {
 
     expectWidths(server, [200, 400]);
     expectWidths(hydrated, server);
+  });
+
+  describe('with padding and a border of its own', () => {
+    /**
+     * A split 808 wide with 100px of padding and 4px of border either side,
+     * which leaves the panes 600 between them, 8 of it the handle's.
+     */
+    const padded = (
+      <div style={{ width: '808px', height: '300px' }}>
+        <PlPanes className="split-under-test" style={{ padding: '0 100px', border: '4px solid' }}>
+          <PlPane defaultSize="200px">Pane 1</PlPane>
+          <PlPane>Pane 2</PlPane>
+        </PlPanes>
+      </div>
+    );
+
+    it('keeps a pixel length where the server drew it', async () => {
+      const { server, hydrated, errors } = await serverThenHydrated(padded);
+
+      expectWidths(server, [200, 392]);
+      expectWidths(hydrated, server);
+      expect(errors).toEqual([]);
+    });
+
+    it('moves the line as far as the key says', async () => {
+      const screen = await render(padded);
+      const handle = screen.getByRole('separator').element() as HTMLElement;
+
+      await expect.poll(() => handle.getAttribute('aria-valuenow')).not.toBeNull();
+
+      const [before] = widths(document.body);
+
+      handle.focus();
+      await committed(() => {
+        handle.dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true })
+        );
+      });
+
+      // One press is 16 pixels of the panes' own room.
+      expect(Math.abs(widths(document.body)[0] - before - 16)).toBeLessThanOrEqual(0.5);
+    });
   });
 });

@@ -132,4 +132,17 @@ describe('a server-rendered PlMockup sized by a CSS length', () => {
     expect(Math.abs(server.height - 290)).toBeLessThanOrEqual(1);
     expectSameBox(server, measured);
   });
+
+  it('keeps a padded mockup at the scale the stylesheet drew it at', async () => {
+    const { server, measured, errors } = await serverThenMeasured(
+      <PlMockup device="mobile" className="mockup-under-test" style={{ padding: 24 }} />,
+      312
+    );
+
+    // The device is centred in the padding box, which is what the stylesheet's
+    // ratio reads, so the padding takes nothing off it before or after.
+    expect(Math.abs(server.width - 312)).toBeLessThanOrEqual(1);
+    expectSameBox(server, measured);
+    expect(errors).toEqual([]);
+  });
 });
