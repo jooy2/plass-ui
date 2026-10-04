@@ -110,6 +110,8 @@ class PlAnimateScramble extends StatelessWidget {
             // A new line is a new run, however far the old one had settled.
             nonce: text,
           ),
+          // Waiting to be seen again is noise, as it is before the first run.
+          rewindsWhenWaiting: true,
           builder: (BuildContext context, double t, Widget? child) {
             // The draw is stepped rather than taken every frame, so the line
             // changes at `tick` and not at the refresh rate.

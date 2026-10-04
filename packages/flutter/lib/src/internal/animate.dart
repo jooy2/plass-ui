@@ -437,6 +437,8 @@ class PlassAnimateRun extends StatefulWidget {
     required this.builder,
     this.mode = PlassAnimateMode.enter,
     this.onRun,
+    this.rewindsWhenWaiting = false,
+    this.onWait,
     this.child,
     super.key,
   });
@@ -458,6 +460,23 @@ class PlassAnimateRun extends StatefulWidget {
   /// effect whose start depends on why it is starting again, as a counter's
   /// does on whether its target moved, can tell the frames apart with this.
   final VoidCallback? onRun;
+
+  /// Whether the run goes back to its first frame when its trigger takes it
+  /// back, rather than holding the frame it was on as a pause does: a
+  /// `visible` trigger that is not `once` seeing it leave the screen, or `play`
+  /// turned off.
+  ///
+  /// For an effect that draws its frames itself, as the React build's counter
+  /// and scramble do: waiting there is their first frame, whether or not they
+  /// have run before, so one that comes back on screen starts from it rather
+  /// than drawing where it was and jumping back on the next frame. A keyframe
+  /// there holds the frame it was on, which is what a run without this does.
+  final bool rewindsWhenWaiting;
+
+  /// Called when [rewindsWhenWaiting] takes the run back to its first frame,
+  /// before [builder] is handed it, so an effect whose first frame depends on
+  /// how the last run started, as a counter's does, can put it back.
+  final VoidCallback? onWait;
 
   /// Passed through to [builder] untouched, so a subtree that does not depend
   /// on `t` is built once rather than on every frame.
@@ -567,9 +586,10 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     }
   }
 
-  /// Starts, holds or rewinds, from whatever the gate is currently saying.
-  void _drive(bool running, int runs) {
-    if (!running) {
+  /// Starts, holds or rewinds, from whatever the gate is currently saying:
+  /// whether the trigger has let the run go, and how many times it has.
+  void _drive(bool started, int runs) {
+    if (!started || widget.settings.paused) {
       _holdDelay();
 
       if (_controller.isAnimating) {
@@ -581,6 +601,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       if (_startedRuns != runs) {
         _controller.value = 0;
         _delayLeft = Duration.zero;
+      } else if (!started && widget.rewindsWhenWaiting) {
+        // Taken back by its trigger, it waits for the next run as one that
+        // was never triggered does, and that run starts it again.
+        _startedRuns = -1;
+        _controller.value = 0;
+        _delayLeft = Duration.zero;
+        widget.onWait?.call();
       }
 
       return;
@@ -698,14 +725,18 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     }
 
     return PlassAnimateGate(
-      settings: widget.settings,
+      // Told nothing of `paused`, so what it hands over is whether the trigger
+      // has let the run go. `_drive` reads the pause itself, because a pause
+      // holds the frame the run is on, and a trigger taking the run back may
+      // not.
+      settings: _withoutPause(widget.settings),
       child: widget.child,
-      builder: (BuildContext context, bool running, int runs, Widget? child) {
+      builder: (BuildContext context, bool started, int runs, Widget? child) {
         // After the frame rather than during it, because starting a controller
         // inside a build is a build that schedules a build.
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            _drive(running, runs);
+            _drive(started, runs);
           }
         });
 
@@ -744,6 +775,26 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       },
     );
   }
+}
+
+/// [settings] with `paused` off, and the same object when it already is.
+PlassAnimateSettings _withoutPause(PlassAnimateSettings settings) {
+  if (!settings.paused) {
+    return settings;
+  }
+
+  return PlassAnimateSettings(
+    duration: settings.duration,
+    delay: settings.delay,
+    curve: settings.curve,
+    repeat: settings.repeat,
+    alternate: settings.alternate,
+    trigger: settings.trigger,
+    play: settings.play,
+    once: settings.once,
+    threshold: settings.threshold,
+    nonce: settings.nonce,
+  );
 }
 
 /// Where a slide starts, given the edge it comes from.

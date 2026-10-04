@@ -101,6 +101,50 @@ void main() {
       });
     });
 
+    testWidgets('is noise again while it is off screen with once off', (WidgetTester tester) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(
+        host(
+          SingleChildScrollView(
+            controller: page,
+            child: const Column(
+              children: <Widget>[
+                PlAnimateScramble(text: _line, once: false, duration: Duration(milliseconds: 100)),
+                SizedBox(height: 2000),
+              ],
+            ),
+          ),
+          width: 320,
+          height: 400,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_drawn(tester), _line);
+
+      page.jumpTo(1000);
+      await tester.pump();
+      await tester.pump();
+
+      // Waiting to be seen again is the first frame, as it is before the first
+      // run. Held where it was, it showed the settled line.
+      expect(_drawn(tester), isNot(_line));
+
+      page.jumpTo(0);
+      await tester.pump();
+
+      // The first frame back on screen. Held where it was, it drew the settled
+      // line here and turned to noise on the next.
+      expect(_drawn(tester), isNot(_line));
+
+      await tester.pumpAndSettle();
+
+      expect(_drawn(tester), _line);
+    });
+
     testWidgets('is simply the line where the platform asked for less motion', (
       WidgetTester tester,
     ) async {

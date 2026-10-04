@@ -206,6 +206,63 @@ void main() {
       });
     });
 
+    testWidgets('shows the number it counts from while it is off screen with once off', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(
+        host(
+          SingleChildScrollView(
+            controller: page,
+            child: const Column(
+              children: <Widget>[
+                PlAnimateCounter(
+                  value: 500,
+                  from: 7,
+                  once: false,
+                  duration: Duration(milliseconds: 200),
+                  curve: Curves.linear,
+                ),
+                SizedBox(height: 2000),
+              ],
+            ),
+          ),
+          width: 240,
+          height: 400,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_drawn(tester), '500');
+
+      page.jumpTo(1000);
+      await tester.pump();
+      await tester.pump();
+
+      // Waiting to be seen again is the first frame, as it is before the first
+      // count. Held where it was, it showed the answer.
+      expect(_drawn(tester), '7');
+
+      page.jumpTo(0);
+      await tester.pump();
+
+      // The first frame back on screen. Held where it was, it drew the answer
+      // here and dropped back to 7 on the next.
+      expect(_drawn(tester), '7');
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(_drawn(tester), '254');
+
+      await tester.pumpAndSettle();
+
+      expect(_drawn(tester), '500');
+    });
+
     testWidgets('is simply the number where the platform asked for less motion', (
       WidgetTester tester,
     ) async {

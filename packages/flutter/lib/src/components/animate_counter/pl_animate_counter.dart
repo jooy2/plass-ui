@@ -142,6 +142,18 @@ class _PlAnimateCounterState extends State<PlAnimateCounter> {
     _waiting = null;
   }
 
+  /// The trigger has taken the run back, a `visible` one that is not `once`
+  /// seeing the counter leave the screen or `play` turned off, and it waits on
+  /// its first frame for the next. That is [PlAnimateCounter.from], as it is
+  /// before the first count and as the React build shows it, rather than where
+  /// the last count started.
+  void _onWait() {
+    setState(() {
+      _origin = widget.from;
+      _waiting = null;
+    });
+  }
+
   String _format(double at) {
     final String Function(double value)? formatValue = widget.formatValue;
 
@@ -171,6 +183,8 @@ class _PlAnimateCounterState extends State<PlAnimateCounter> {
             nonce: widget.value,
           ),
           onRun: _onRun,
+          rewindsWhenWaiting: true,
+          onWait: _onWait,
           builder: (BuildContext context, double t, Widget? child) {
             final double? waiting = still ? null : _waiting;
 

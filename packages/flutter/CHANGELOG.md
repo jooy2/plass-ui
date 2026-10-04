@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `PlAnimateCounter` or `PlAnimateScramble` that its trigger lets go of waits on its first frame, as the React build does.** A `visible` one that is not `once` and has left the screen, or a `manual` one whose `play` was turned off, held the frame it was on, so a counter showed its old figure while it waited, and on its return drew that figure for a frame before dropping to `from`. A counter now shows `from` while it waits and a scramble its noise, so the next run starts from the frame already on screen. Every other effect still holds the frame it was on.
+
 - **A `PlAnimateTyping` let go during its `delay` or between two characters waits only what was left of that wait.** Paused during the `delay`, or in the wait before the next pass types its first character, it waited a character's time once it was let go, and paused between two characters it waited a whole character's time again. Every wait now goes on with the time that was left of it, as the hold already did, and the two builds wait the same.
 
 - **Moving to another step of a horizontal `PlStepper` builds the new step's panel afresh.** Two panels of the same shape shared their state, so text typed into a field on one step was still in the field at the same place on the next, and so was a scroll position. The panel under the rail is now built anew for each step, as the React panel is; a vertical stepper already was.

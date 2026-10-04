@@ -246,6 +246,30 @@ void main() {
       expect(startedOf(tester), isFalse);
     });
 
+    testWidgets('holds the frame it was on while it is out of view, with once off', (
+      WidgetTester tester,
+    ) async {
+      final ScrollController page = ScrollController();
+
+      addTearDown(page.dispose);
+
+      await tester.pumpWidget(pageWithRow(page: page, once: false));
+
+      page.jumpTo(700);
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 1);
+
+      page.jumpTo(0);
+      await tester.pumpAndSettle();
+
+      // As a keyframe that is let go of holds its frame in the React build.
+      // Only the effects that draw their frames themselves, a counter and a
+      // scramble, go back to their first frame there.
+      expect(startedOf(tester), isFalse);
+      expect(opacityOf(tester), 1);
+    });
+
     testWidgets('follows the scrollables above it when it is moved under others', (
       WidgetTester tester,
     ) async {
