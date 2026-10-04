@@ -6,7 +6,7 @@
  * `[year, month, day]` with the month counted from 1 in both files, so the rows
  * read the same, and converted to a `Date` month here.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   addDays,
   addMonths,
@@ -17,6 +17,7 @@ import {
   displaySamples,
   isMonthOutside,
   isYearOutside,
+  localeWeekStart,
   makeDate,
   toISODate,
   yearPageStart
@@ -180,5 +181,32 @@ describe('displaySamples', () => {
 
   it('writes every weekday name', () => {
     expect(displaySamples('en-US', { weekday: 'long' })).toHaveLength(7);
+  });
+});
+
+describe('localeWeekStart', () => {
+  it('reads the day a locale starts its week on', () => {
+    expect(localeWeekStart('en-US')).toBe(0);
+    expect(localeWeekStart('de-DE')).toBe(1);
+  });
+
+  it('asks Intl once per locale, however many renders ask it', () => {
+    const locales = vi.spyOn(Intl, 'Locale');
+    const formatters = vi.spyOn(Intl, 'DateTimeFormat');
+
+    try {
+      for (let render = 0; render < 3; render += 1) {
+        expect(localeWeekStart('en-GB')).toBe(1);
+        localeWeekStart(undefined);
+      }
+
+      // One `Intl.Locale` for each of the two, and one formatter to learn which
+      // locale is the runtime's.
+      expect(locales).toHaveBeenCalledTimes(2);
+      expect(formatters).toHaveBeenCalledTimes(1);
+    } finally {
+      locales.mockRestore();
+      formatters.mockRestore();
+    }
   });
 });

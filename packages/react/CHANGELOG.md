@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A calendar or date picker no longer works out which day its week starts on at every render.** With no `weekStartsOn` given, `PlCalendar`, `PlDatePicker`, `PlDateRangePicker` and `PlDateTimePicker` built an `Intl.Locale` on every render, and with no `locale` named a formatter as well, about 30 µs each time. The answer is now kept for each locale.
+
 - **A calendar keeps its month and weekday names on the right day when the browser's time zone changes while the page is open.** The pickers kept the formatters they write names with, and a formatter keeps the zone it was made in, so after the zone changed a calendar could head September as August or start its week on Saturday until the page was reloaded. The formatters are now made again when the zone changes.
 
 - **A `PlSlider` inside a `PlassProvider` writes its value in the provider's `locale`.** It read only its own `locale`, so on a page that named its locale once on the provider a slider wrote `1,234.5` while the number fields and meters beside it wrote `1.234,5`. It now reads the provider's, as `PlNumberField` and `PlMeter` do, and its own `locale` still wins.

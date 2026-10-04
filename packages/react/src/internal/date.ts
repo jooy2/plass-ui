@@ -599,7 +599,28 @@ interface LocaleWeekInfo {
   getWeekInfo?: () => WeekInfo;
 }
 
+/**
+ * Each locale's answer, once asked. Every picker asks on every render, and with
+ * no locale named the question costs a formatter, to learn the runtime's
+ * locale, as well as an `Intl.Locale`: about thirty microseconds a render. A
+ * locale's week does not change under a page, and the runtime's locale is taken
+ * as fixed here as it is by the formatters in `internal/format.ts`. Unbounded
+ * for their reason too: a page names a handful of locales.
+ */
+const weekStarts = new Map<string | undefined, PlassWeekday>();
+
 export function localeWeekStart(locale: string | undefined): PlassWeekday {
+  let start = weekStarts.get(locale);
+
+  if (start === undefined) {
+    start = readWeekStart(locale);
+    weekStarts.set(locale, start);
+  }
+
+  return start;
+}
+
+function readWeekStart(locale: string | undefined): PlassWeekday {
   try {
     const resolved = locale ?? new Intl.DateTimeFormat().resolvedOptions().locale;
     const info = new Intl.Locale(resolved) as LocaleWeekInfo;
