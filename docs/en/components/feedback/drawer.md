@@ -123,6 +123,7 @@ The body is the only part that scrolls either way.
 - An `overlay` drawer holds the focus while it is up, puts it back where it came from on the way out, and takes the screen behind it away.
 - `description` describes it and `title` is announced as a heading, both wired to the panel rather than sitting near it.
 - An `inline` drawer is **not** a dialog and claims none of that. It is a panel in the layout, and its heading is an ordinary one.
+- The title is a level-2 heading unless `headingLevel` sets another, in both modes, so a panel inside a section that already has a level-2 heading can take level 3 rather than sit beside it in the outline.
 - `dismissible={false}` refuses both Escape and a press on the scrim. Give a drawer that refuses them actions that answer it, because there will be no other way out.
 
 ::: fw react

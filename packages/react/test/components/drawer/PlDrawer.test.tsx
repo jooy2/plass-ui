@@ -245,6 +245,69 @@ describe('PlDrawer', () => {
     });
   });
 
+  describe('headingLevel', () => {
+    it('makes the title a level-2 heading unless it is told otherwise', async () => {
+      const screen = await render(
+        <PlDrawer mode="inline" title="Sections">
+          The sidebar that is simply there.
+        </PlDrawer>
+      );
+
+      await expect
+        .element(screen.getByRole('heading', { level: 2, name: 'Sections' }))
+        .toBeInTheDocument();
+    });
+
+    it('puts an inline title at the level it names, and follows it on re-render', async () => {
+      const screen = await render(
+        <PlDrawer mode="inline" title="Sections" headingLevel={3}>
+          A panel inside a section headed by an h2.
+        </PlDrawer>
+      );
+
+      await expect
+        .element(screen.getByRole('heading', { level: 3, name: 'Sections' }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2 }).query()).toBeNull();
+
+      await screen.rerender(
+        <PlDrawer mode="inline" title="Sections" headingLevel={4}>
+          A panel inside a section headed by an h2.
+        </PlDrawer>
+      );
+
+      await expect
+        .element(screen.getByRole('heading', { level: 4, name: 'Sections' }))
+        .toBeInTheDocument();
+    });
+
+    it('puts an overlay title at the level it names, and still names the dialog by it', async () => {
+      const screen = await render(
+        <PlDrawer defaultOpen modal="trap-focus" title="Filters" headingLevel={3}>
+          Everything you can narrow by.
+        </PlDrawer>
+      );
+
+      await expect.element(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('heading', { level: 3, name: 'Filters' }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2 }).query()).toBeNull();
+    });
+
+    it('falls back to level 2 for a level no heading has', async () => {
+      const screen = await render(
+        <PlDrawer mode="inline" title="Sections" headingLevel={7 as 2}>
+          The sidebar that is simply there.
+        </PlDrawer>
+      );
+
+      await expect
+        .element(screen.getByRole('heading', { level: 2, name: 'Sections' }))
+        .toBeInTheDocument();
+    });
+  });
+
   describe('the panel', () => {
     it('cuts only the corners that face the page', async () => {
       const screen = await render(

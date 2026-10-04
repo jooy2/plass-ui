@@ -5106,6 +5106,15 @@ export const propTables: Record<string, PropRow[]> = {
       description: { ko: '서랍의 이름이 되는 제목', en: 'The heading, and what names the drawer' }
     },
     {
+      name: 'headingLevel',
+      type: '1 | 2 | 3 | 4 | 5 | 6',
+      default: '2',
+      description: {
+        ko: 'title이 되는 heading의 수준. 두 mode 모두에 적용되며, 페이지 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
+        en: "The heading level the title is, in both modes. Set it so the page's outline does not skip a level; the type scale stays the same"
+      }
+    },
+    {
       name: 'description',
       type: 'ReactNode',
       description: {

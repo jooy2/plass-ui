@@ -240,6 +240,65 @@ void main() {
       });
     });
 
+    group('headingLevel', () {
+      /// The heading level the title is announced at.
+      int titleLevel(WidgetTester tester) {
+        return semanticsNodeLabelled(tester, 'Filters')!.getSemanticsData().headingLevel;
+      }
+
+      testWidgets('makes the title a level-2 heading unless it is told otherwise', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(const _Harness(mode: PlDrawerMode.inline), width: 480, height: 640),
+        );
+        await tester.pumpAndSettle();
+
+        expect(semanticsNodeLabelled(tester, 'Filters'), isSemantics(isHeader: true));
+        expect(titleLevel(tester), 2);
+
+        handle.dispose();
+      });
+
+      testWidgets('puts the title at the level it names, inline and over the screen', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        for (final mode in PlDrawerMode.values) {
+          for (final level in <int>[3, 5]) {
+            await tester.pumpWidget(
+              host(
+                PlDrawer(
+                  key: ValueKey<(PlDrawerMode, int)>((mode, level)),
+                  open: true,
+                  mode: mode,
+                  label: 'Filters panel',
+                  headingLevel: level,
+                  title: const Text('Filters'),
+                  child: const Text('Everything you can narrow by.'),
+                ),
+                overlay: true,
+                width: 480,
+                height: 640,
+              ),
+            );
+            await tester.pumpAndSettle();
+
+            expect(titleLevel(tester), level, reason: '${mode.name} at $level');
+          }
+        }
+
+        handle.dispose();
+      });
+
+      test('refuses a level no heading has', () {
+        expect(() => PlDrawer(open: true, headingLevel: 7), throwsAssertionError);
+        expect(() => PlDrawer(open: true, headingLevel: 0), throwsAssertionError);
+      });
+    });
+
     group('the panel', () {
       testWidgets('takes the width its size implies along the sides', (WidgetTester tester) async {
         await tester.pumpWidget(host(const _Harness(mode: PlDrawerMode.inline), height: 640));

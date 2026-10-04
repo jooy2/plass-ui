@@ -38,6 +38,9 @@ import type { PlassPortalClassNames, PlassSide, PlassSize, PlassStyleProps } fro
  */
 export type PlDrawerMode = 'overlay' | 'inline';
 
+/** The six levels an HTML heading has. */
+export type PlDrawerHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
 /**
  * A drawer takes `size`, `color` and `density` and stops there.
  *
@@ -83,6 +86,18 @@ export interface PlDrawerProps
   trigger?: React.ReactElement;
   /** The heading. Rendered as the element that names the drawer. */
   title?: React.ReactNode;
+  /**
+   * The level of the heading `title` is, `1` to `6`.
+   *
+   * An `inline` drawer's title sits in the page's outline, and a heading has
+   * to sit one level under the one above it, or the outline skips a step. `2`
+   * fits a sidebar beside the page's `<h1>`; a panel inside a section headed by
+   * an `<h2>` wants `3`. An `overlay` drawer's title takes the level too and
+   * still names the dialog. Only the element changes: the type scale is the
+   * drawer's either way.
+   * @default 2
+   */
+  headingLevel?: PlDrawerHeadingLevel;
   /** A line under the title, and the drawer's accessible description. */
   description?: React.ReactNode;
   /**
@@ -324,6 +339,7 @@ export function PlDrawer({
   onOpenChange,
   trigger,
   title,
+  headingLevel: headingLevelProp = 2,
   description,
   actions,
   dividers = false,
@@ -383,10 +399,18 @@ export function PlDrawer({
     className
   );
 
+  // The type keeps a TypeScript caller inside the six; this keeps a JavaScript
+  // one there too, where a `7` would have written an `<h7>`, which is no
+  // heading at all.
+  const Heading = `h${
+    Number.isInteger(headingLevelProp) && headingLevelProp >= 1 && headingLevelProp <= 6
+      ? headingLevelProp
+      : 2
+  }` as const;
+
   // Base UI's parts carry the `aria-labelledby` / `aria-describedby` wiring an
   // overlay drawer needs. An inline one is not a dialog and needs none, so it
   // gets the plain tags rather than a dialog's parts outside a dialog.
-  const TitleTag = overlay ? BaseUIDialog.Title : 'h2';
   const DescriptionTag = overlay ? BaseUIDialog.Description : 'p';
 
   const contents = (
@@ -395,9 +419,21 @@ export function PlDrawer({
         <div className={cx('flex shrink-0 items-start gap-3', sectionClasses)}>
           <div className={cx('flex min-w-0 flex-1 flex-col', sheetHeaderGapClasses[size])}>
             {hasContent(title) ? (
-              <TitleTag className={cx('m-0 font-semibold', sheetTitleClasses[size])}>
-                {title}
-              </TitleTag>
+              overlay ? (
+                // Base UI's title draws an `<h2>`. Through `render` it draws
+                // the level asked for, and keeps the id the dialog is
+                // labelled by.
+                <BaseUIDialog.Title
+                  render={<Heading />}
+                  className={cx('m-0 font-semibold', sheetTitleClasses[size])}
+                >
+                  {title}
+                </BaseUIDialog.Title>
+              ) : (
+                <Heading className={cx('m-0 font-semibold', sheetTitleClasses[size])}>
+                  {title}
+                </Heading>
+              )
             ) : null}
             {hasContent(description) ? (
               <DescriptionTag className={cx('m-0 text-(--plass-muted-fg)', metaTextClasses[size])}>

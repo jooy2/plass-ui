@@ -5062,6 +5062,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlDrawer', 'side', { type: 'PlassSide', default: 'PlassSide.left' }),
     from('PlDrawer', 'mode', { type: 'PlDrawerMode', default: 'PlDrawerMode.overlay' }),
     from('PlDrawer', 'title', { type: 'Widget?' }),
+    from('PlDrawer', 'headingLevel', {
+      type: 'int',
+      default: '2',
+      description: {
+        ko: 'title이 되는 heading의 수준, 1부터 6까지. 두 mode 모두에 적용되며, 화면 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
+        en: "The heading level the title is, 1 to 6, in both modes. Set it so the screen's outline does not skip a level; the type scale stays the same"
+      }
+    }),
     from('PlDrawer', 'description', { type: 'Widget?' }),
     from('PlDrawer', 'actions', { type: 'List<Widget>?' }),
     from('PlDrawer', 'dividers', { type: 'bool', default: 'false' }),

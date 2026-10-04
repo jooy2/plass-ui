@@ -107,6 +107,7 @@ class PlDrawer extends StatelessWidget {
     this.side = PlassSide.left,
     this.mode = PlDrawerMode.overlay,
     this.title,
+    this.headingLevel = 2,
     this.description,
     this.actions,
     this.dividers = false,
@@ -121,7 +122,7 @@ class PlDrawer extends StatelessWidget {
     this.color,
     this.density,
     super.key,
-  });
+  }) : assert(headingLevel >= 1 && headingLevel <= 6, 'headingLevel must be between 1 and 6');
 
   /// Whether the drawer is shown.
   ///
@@ -151,6 +152,15 @@ class PlDrawer extends StatelessWidget {
 
   /// The heading, and the drawer's name.
   final Widget? title;
+
+  /// The level of the heading [title] is, `1` to `6`.
+  ///
+  /// An inline drawer's title sits in the screen's outline, and a heading has
+  /// to sit one level under the one above it, or the outline skips a step. `2`
+  /// fits a sidebar beside the screen's title; a panel inside a section headed
+  /// at level 2 wants `3`. An overlay drawer's title takes the level too. Only
+  /// the semantics change: the type scale is the drawer's either way.
+  final int headingLevel;
 
   /// A line under the title.
   final Widget? description;
@@ -360,8 +370,8 @@ class PlDrawer extends StatelessWidget {
                         ),
                         // The heading is what names the drawer, so it is
                         // announced as one rather than read as the first line of
-                        // the body.
-                        child: Semantics(header: true, child: title!),
+                        // the body, at the level it was given.
+                        child: Semantics(header: true, headingLevel: headingLevel, child: title!),
                       ),
                     if (description != null)
                       DefaultTextStyle.merge(

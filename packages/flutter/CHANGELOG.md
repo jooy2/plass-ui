@@ -8,6 +8,10 @@
 
 - **A `PlAppLogo` with no `name` needs a `semanticLabel`.** The mark said only what its child said about itself, and an image says nothing, so a logo given `onPressed` was a button with no name. The constructor now asserts that one of the two is given. Pass what the mark says, or `semanticLabel: ''` for a decorative mark, which now takes the mark off the semantics tree, as `alt=""` does on the web.
 
+### Added
+
+- **`PlDrawer` takes `headingLevel`, so its title sits at the level the screen's outline needs.** It takes `1` to `6` and defaults to `2`, the level the web build already drew the title at, in both modes. Only the semantics change, never the type scale.
+
 ### Fixed
 
 - **A `PlAnimateTyping` with a finite `repeat` plays every pass it was asked for when it is paused during the hold between two passes.** The next pass was counted as soon as the line was typed out, before the hold, so a typewriter paused during the hold came back to a pass that was already counted and stopped, and `repeat: 2` without `erase` typed its line once. A pass is now counted when it starts: a typewriter let go during the hold holds again and goes on to the next pass, and one let go during its last pass finishes that pass and plays no other, as the React build does.
