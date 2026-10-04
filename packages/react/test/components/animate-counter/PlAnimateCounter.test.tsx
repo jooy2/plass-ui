@@ -322,7 +322,9 @@ describe('PlAnimateCounter', () => {
   describe('the figures on the way', () => {
     /**
      * Every figure a count draws on its way to `value`, recorded as each one
-     * reaches the DOM. Held first, so the record starts before the first frame.
+     * reaches the DOM. Held first, so the record starts before the first frame,
+     * and run on a clock the test holds, a frame every 15ms, so a runner that
+     * paints twice in 150ms still sees the figures on the way.
      */
     async function framesOf(
       value: number,
@@ -340,22 +342,30 @@ describe('PlAnimateCounter', () => {
           format={format}
         />
       );
-      const screen = await render(counter(false));
+      const clock = frameClock();
       const frames: string[] = [];
       const observer = new MutationObserver(() => frames.push(drawn()));
 
-      observer.observe(root().querySelector('[aria-hidden="true"]')!, {
-        attributes: true,
-        attributeFilter: ['data-text']
-      });
-
       try {
+        const screen = await render(counter(false));
+
+        observer.observe(root().querySelector('[aria-hidden="true"]')!, {
+          attributes: true,
+          attributeFilter: ['data-text']
+        });
+
         await screen.rerender(counter(true));
-        await expect
-          .poll(() => drawn())
-          .toBe(new Intl.NumberFormat(undefined, format).format(value));
+
+        // The count's clock starts at its first frame, and the last one is
+        // past the end of the run.
+        for (let now = 1000; now <= 1165; now += 15) {
+          await clock.draw(now);
+        }
+
+        expect(drawn()).toBe(new Intl.NumberFormat(undefined, format).format(value));
       } finally {
         observer.disconnect();
+        clock.restore();
       }
 
       // More than the first and the last, or nothing was seen on the way.
