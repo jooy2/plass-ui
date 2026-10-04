@@ -910,7 +910,12 @@ void main() {
     group('as the platform asks for less movement', () {
       /// "Hello" typed at ten milliseconds a character, held, erased and typed
       /// again for ever.
-      Widget typing({required bool still, bool caret = false, Duration delay = Duration.zero}) {
+      Widget typing({
+        required bool still,
+        bool caret = false,
+        bool paused = false,
+        Duration delay = Duration.zero,
+      }) {
         return host(
           PlAnimateTyping(
             'Hello',
@@ -920,6 +925,7 @@ void main() {
             repeat: null,
             delay: delay,
             caret: caret,
+            paused: paused,
           ),
           width: 400,
           disableAnimations: still,
@@ -988,6 +994,131 @@ void main() {
         await tester.pump(const Duration(milliseconds: 1));
 
         expect(visibleOf(tester), 'H');
+      });
+
+      group('while it is paused', () {
+        testWidgets('keeps the whole line until the pause is let go, and then goes on from the '
+            'character it was on', (WidgetTester tester) async {
+          await tester.pumpWidget(typing(still: false));
+          await tester.pump(const Duration(milliseconds: 15));
+          await tester.pumpWidget(typing(still: false, paused: true));
+
+          expect(visibleOf(tester), 'He');
+
+          await tester.pumpWidget(typing(still: true, paused: true));
+          await tester.pumpWidget(typing(still: false, paused: true));
+
+          // A pause holds what is on the screen, as the React build keeps it.
+          // The line it had got to used to come back at once, while paused.
+          expect(visibleOf(tester), 'Hello');
+
+          await tester.pump(const Duration(seconds: 5));
+
+          expect(visibleOf(tester), 'Hello');
+
+          await tester.pumpWidget(typing(still: false));
+
+          expect(visibleOf(tester), 'He');
+
+          await tester.pump(const Duration(milliseconds: 10));
+
+          expect(visibleOf(tester), 'Hel');
+        });
+
+        testWidgets('keeps a whole line it never began until the pause is let go, and then types '
+            'it from its first character after its delay', (WidgetTester tester) async {
+          const Duration delay = Duration(milliseconds: 200);
+
+          await tester.pumpWidget(typing(still: true, paused: true, delay: delay));
+          await tester.pump(const Duration(seconds: 5));
+          await tester.pumpWidget(typing(still: false, paused: true, delay: delay));
+
+          expect(visibleOf(tester), 'Hello');
+
+          await tester.pumpWidget(typing(still: false, delay: delay));
+
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 199));
+
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(visibleOf(tester), 'H');
+        });
+
+        testWidgets('waits empty once its trigger takes the typing back', (
+          WidgetTester tester,
+        ) async {
+          Widget played({required bool still, required bool play}) {
+            return host(
+              PlAnimateTyping(
+                'Hello',
+                speed: 100,
+                caret: false,
+                paused: true,
+                trigger: PlassAnimateTrigger.manual,
+                play: play,
+              ),
+              width: 400,
+              disableAnimations: still,
+            );
+          }
+
+          await tester.pumpWidget(played(still: true, play: true));
+          await tester.pumpWidget(played(still: false, play: true));
+
+          expect(visibleOf(tester), 'Hello');
+
+          await tester.pumpWidget(played(still: false, play: false));
+
+          expect(visibleOf(tester), '');
+        });
+      });
+
+      testWidgets('goes on from the character it was on at once when it is resting off screen '
+          'rather than paused', (WidgetTester tester) async {
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        Widget scrolled({required bool still}) {
+          return host(
+            SingleChildScrollView(
+              controller: page,
+              child: const Column(
+                children: <Widget>[
+                  PlAnimateTyping('Hello', speed: 100, repeat: null, caret: false),
+                  SizedBox(height: 1000),
+                ],
+              ),
+            ),
+            width: 300,
+            height: 400,
+            disableAnimations: still,
+          );
+        }
+
+        await tester.pumpWidget(scrolled(still: false));
+        await tester.pump(const Duration(milliseconds: 15));
+
+        page.jumpTo(600);
+        await pumpScrolled(tester);
+        await tester.pumpWidget(scrolled(still: true));
+
+        expect(visibleOf(tester), 'Hello');
+
+        await tester.pumpWidget(scrolled(still: false));
+
+        // Only the caller's pause keeps the whole line, as in the React build.
+        expect(visibleOf(tester), 'He');
+
+        page.jumpTo(0);
+        await pumpScrolled(tester);
+        await tester.pump(const Duration(milliseconds: 10));
+
+        expect(visibleOf(tester), 'Hel');
       });
     });
 

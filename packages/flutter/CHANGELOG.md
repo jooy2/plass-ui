@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A paused `PlAnimateTyping` keeps the whole line it drew under less movement when the platform gives movement back, as the React build does.** It showed the line it had got to at once, while `paused` was still on. It now keeps the whole line until `paused` is let go, and then goes on from that character, or types a line it never began from its first character after the `delay`. One resting off screen, or one its trigger takes back, draws what it did before.
+
 - **A `visible` `PlAnimate*` effect in a `ListView` starts on the scroll that brings it into view.** It was measured as the scroll moved, before the list laid its items out where the scroll had moved them, so an effect the last step of a scroll brought on screen was found where the step before had left it, and waited for the next scroll. It is now measured once the frame is laid out, at most once a frame, as the endless rest already is. In a `SingleChildScrollView`, which was not affected, it now starts and stops one frame later, after the frame the scroll is laid out in.
 
 - **An `alternate` `PlAnimate*` effect paused on its way back goes on back when it is let go, as the React build does.** A run with `alternate: true` held during a pass that ran backwards turned round and ran forwards again when `paused` was let go, and an endless one did the same when it was scrolled back into view. It now goes on the way it was going, and turns at the end of that pass as before.

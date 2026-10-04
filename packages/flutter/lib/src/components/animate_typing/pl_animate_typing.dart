@@ -137,7 +137,8 @@ class PlAnimateTyping extends StatelessWidget {
           // let it go: it holds the line where it is, as a pause does, and
           // goes on from the same character when it is back.
           started: running || resting,
-          paused: paused || resting,
+          paused: paused,
+          resting: resting,
           runs: runs,
           text: text,
           speed: speed,
@@ -161,6 +162,7 @@ class _Typewriter extends StatefulWidget {
   const _Typewriter({
     required this.started,
     required this.paused,
+    required this.resting,
     required this.runs,
     required this.text,
     required this.speed,
@@ -177,8 +179,12 @@ class _Typewriter extends StatefulWidget {
   /// Whether the trigger has let the typing go.
   final bool started;
 
-  /// Whether it is held where it is: by the caller, or resting off screen.
+  /// Whether the caller holds it where it is.
   final bool paused;
+
+  /// Whether it is resting off screen, which holds it where it is as a pause
+  /// does.
+  final bool resting;
   final int runs;
   final String text;
   final double speed;
@@ -246,6 +252,15 @@ class _TypewriterState extends State<_Typewriter> {
   /// ask for a frame for every character.
   bool _still = false;
 
+  /// The whole line less movement drew, kept on the screen when the platform
+  /// gives movement back while the caller holds the typing, until the pause
+  /// is let go, or `null` when nothing is kept.
+  ///
+  /// A pause holds what is on the screen, and under less movement that is the
+  /// whole line, as the React build keeps it: given back, the line it had got
+  /// to used to come back at once, while it was still paused.
+  String? _kept;
+
   Duration get _typeDelay {
     final Duration? whole = widget.duration;
 
@@ -288,6 +303,10 @@ class _TypewriterState extends State<_Typewriter> {
     final bool still = prefersReducedMotion(context);
 
     if (still != _still) {
+      if (!still && widget.started && widget.paused) {
+        _kept = widget.text;
+      }
+
       _still = still;
       _drive();
     }
@@ -314,17 +333,27 @@ class _TypewriterState extends State<_Typewriter> {
       // no effect at all. That holds for one its trigger has taken back as well,
       // a `visible` one that is not `once` gone off screen or `play` turned off:
       // it waits for its next run as one that was never let go does, and that
-      // run types the line from its first character.
+      // run types the line from its first character. A whole line kept
+      // through a pause goes as well.
       _drivenRun = -1;
 
-      if (_shown != 0) {
-        setState(() => _shown = 0);
+      if (_shown != 0 || _kept != null) {
+        setState(() {
+          _shown = 0;
+          _kept = null;
+        });
       }
 
       return;
     }
 
-    if (widget.paused || _still) {
+    // The pause that kept the whole line is let go, and the line it had got
+    // to is drawn again, as it is in the React build.
+    if (!widget.paused && _kept != null) {
+      setState(() => _kept = null);
+    }
+
+    if (widget.paused || widget.resting || _still) {
       final Duration? left = _waitLeft;
 
       if (left != null && _next != null) {
@@ -346,7 +375,9 @@ class _TypewriterState extends State<_Typewriter> {
       // Less movement holds it the same way, under the whole line `build`
       // draws instead, so no chain types what nobody sees, as none does in the
       // React build. Given back, the platform lets it go on from the character
-      // it was on, or type a line it never began after its `delay`.
+      // it was on, or type a line it never began after its `delay`. While the
+      // caller holds it, that waits for the pause to be let go, and the whole
+      // line stays drawn until then.
       return;
     }
 
@@ -504,7 +535,7 @@ class _TypewriterState extends State<_Typewriter> {
   Widget build(BuildContext context) {
     // Not "nothing happens" — the text is simply there, which is the only
     // outcome that still delivers what the widget was carrying.
-    final String shown = _still ? widget.text : _graphemes.take(_shown).join();
+    final String shown = _still ? widget.text : _kept ?? _graphemes.take(_shown).join();
 
     return PlassAnimateGate(
       // The caret blinks for ever, after a typing that finishes as much as
