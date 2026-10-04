@@ -16,6 +16,8 @@
 
 ### Fixed
 
+- **A parent's render no longer makes a `PlTabs` bar measure its indicator again.** Base UI's indicator measures the list and the chosen tab while it renders, and the bar made a new indicator on every render, so every render of whatever held the bar read the list's box, its scroll width and the tab's computed style for a tab that had not moved. The indicator is now made again only when its look or the bar's direction changes, and it still moves on the same frame as before when the value changes, when a tab is renamed or resized, when the bar is resized, and when the bar or the document turns round.
+
 - **A `PlCodeBlock` asks for the highlighter again after the first request for it failed.** If the highlight.js core did not arrive once, for example because the connection dropped while it was in flight, the failure was kept, and every code block on the page stayed plain for as long as the page was open. A failed request is now forgotten: the next block that needs the highlighter asks for it again, and blocks still show their code plain until the colours arrive.
 
 - **A `PlCalendar` rendered on a server hydrates in a browser whose clock is on another day.** Today was read in each runtime's own zone, so at 08:00 in Seoul a UTC server marked yesterday and, on the 1st of a month, opened on the month before, and React threw the server's tree away. A server render and its hydration now read the clock in UTC, and the calendar moves its month, its today mark and its tab stop to the reader's day as soon as hydration is done. A calendar rendered only in the browser reads the browser's clock from the first paint, as before.

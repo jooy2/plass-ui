@@ -1,9 +1,10 @@
 import { page } from 'vitest/browser';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { renderToString } from 'react-dom/server';
-import { PlTab, PlTabPanel, PlTabs } from 'plass-ui';
+import { PlassProvider, PlTab, PlTabPanel, PlTabs } from 'plass-ui';
+import { committed } from '../../support/timing';
 
 function Settings(props: React.ComponentProps<typeof PlTabs>) {
   return (
@@ -590,6 +591,297 @@ describe('PlTabs', () => {
         restore();
       }
     });
+  });
+
+  describe('the indicator', () => {
+    const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+    /**
+     * A bar whose tabs are as wide as their labels and laid out from the
+     * start, across or down, and a list the tabs are measured from. No
+     * component test loads CSS, and without these the tabs would sit wherever
+     * an inline button does.
+     */
+    function lay() {
+      const style = document.createElement('style');
+
+      style.textContent =
+        '[role="tablist"] { position: relative; display: flex; width: 400px; }' +
+        '[role="tablist"][aria-orientation="vertical"] { flex-direction: column; align-items: flex-start; }' +
+        '[role="tab"] { flex: 0 0 auto; white-space: nowrap; }';
+      document.head.append(style);
+
+      return () => style.remove();
+    }
+
+    /**
+     * Whether the indicator is under `tab`: the offset and the width Base UI
+     * wrote for it against the ones the tab has now, to the pixel. What the
+     * stylesheet does with them is a `left` and a `width`.
+     */
+    function under(list: Element, tab: HTMLElement) {
+      const indicator = list.querySelector<HTMLElement>('[role="presentation"]');
+      const left = parseFloat(indicator?.style.getPropertyValue('--active-tab-left') ?? '');
+      const width = parseFloat(indicator?.style.getPropertyValue('--active-tab-width') ?? '');
+
+      return (
+        Math.abs(left - tab.offsetLeft) <= 1 &&
+        Math.abs(width - tab.getBoundingClientRect().width) <= 1
+      );
+    }
+
+    /**
+     * Waits for the indicator to be under `tab`, and then for the observers'
+     * first reports to have been delivered. A report still on its way when a
+     * test changes something would move the indicator by itself, and hide
+     * whether the change did.
+     */
+    async function settle(list: Element, tab: HTMLElement) {
+      await expect.poll(() => under(list, tab)).toBe(true);
+      await frame();
+      await frame();
+    }
+
+    interface Knobs {
+      value: string;
+      label: string;
+      width: number;
+      dir: 'ltr' | 'rtl';
+      note: string;
+    }
+
+    /** Changes what the page around the bar renders, as a parent would. */
+    let change: (next: Partial<Knobs>) => void = () => {};
+
+    /**
+     * A page holding a bar, three tabs and a line of its own, all of it driven
+     * from one piece of state the way a parent drives a bar. The direction is
+     * said twice, as the docs ask of a subtree that runs the other way: on the
+     * box, and to the `PlassProvider` around it.
+     */
+    function Page() {
+      const [knobs, setKnobs] = useState<Knobs>({
+        value: 'c',
+        label: 'A',
+        width: 40,
+        dir: 'ltr',
+        note: 'Draft'
+      });
+
+      useEffect(() => {
+        change = (next) => setKnobs((previous) => ({ ...previous, ...next }));
+      }, []);
+
+      return (
+        <PlassProvider direction={knobs.dir}>
+          <div dir={knobs.dir}>
+            <p>{knobs.note}</p>
+            <PlTabs value={knobs.value}>
+              <PlTab value="a" style={{ minWidth: knobs.width }}>
+                {knobs.label}
+              </PlTab>
+              <PlTab value="b">Beta</PlTab>
+              <PlTab value="c">Gamma</PlTab>
+            </PlTabs>
+          </div>
+        </PlassProvider>
+      );
+    }
+
+    async function renderPage() {
+      const screen = await render(<Page />);
+      const list = screen.getByRole('tablist').element();
+      const tab = (name: string) => screen.getByRole('tab', { name }).element() as HTMLElement;
+
+      await settle(list, tab('Gamma'));
+
+      return { screen, list, tab };
+    }
+
+    it('reads no layout when its parent renders and nothing in the bar moved', async () => {
+      const restore = lay();
+      const { list } = await renderPage();
+      const rect = vi.spyOn(Element.prototype, 'getBoundingClientRect');
+
+      try {
+        await committed(() => change({ note: 'Saved' }));
+        await frame();
+
+        // Base UI's indicator measures the list while it renders, so a new
+        // indicator on every render of the bar was a layout read on every
+        // render of whatever the bar is in.
+        expect(rect.mock.contexts.filter((context) => context === list)).toHaveLength(0);
+      } finally {
+        rect.mockRestore();
+        restore();
+      }
+    });
+
+    it('moves at once when the value changes', async () => {
+      const restore = lay();
+
+      try {
+        const { list, tab } = await renderPage();
+
+        await committed(() => change({ value: 'a' }));
+
+        expect(under(list, tab('A'))).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it('follows the chosen tab when a tab before it is renamed', async () => {
+      const restore = lay();
+
+      try {
+        const { list, tab } = await renderPage();
+        const before = tab('Gamma').offsetLeft;
+
+        await committed(() => change({ label: 'A label a good deal longer' }));
+        // Base UI's observer of the tabs, which reports on the frame after the
+        // tab grew: a measurement taken while the bar renders reads the label
+        // that was there before.
+        await frame();
+        await frame();
+
+        expect(tab('Gamma').offsetLeft).toBeGreaterThan(before);
+        expect(under(list, tab('Gamma'))).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it('follows the chosen tab when a tab before it changes size', async () => {
+      const restore = lay();
+
+      try {
+        const { list, tab } = await renderPage();
+        const before = tab('Gamma').offsetLeft;
+
+        await committed(() => change({ width: 160 }));
+        await frame();
+        await frame();
+
+        expect(tab('Gamma').offsetLeft).toBeGreaterThan(before);
+        expect(under(list, tab('Gamma'))).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it('follows the chosen tab when the bar is resized', async () => {
+      const restore = lay();
+
+      try {
+        const { list, tab } = await renderPage();
+
+        await committed(() => change({ dir: 'rtl' }));
+
+        const before = tab('Gamma').offsetLeft;
+
+        // Right to left, the tabs are laid out from the right-hand edge, so a
+        // narrower bar moves every one of them without resizing any.
+        (list as HTMLElement).style.width = '300px';
+        await frame();
+        await frame();
+
+        expect(tab('Gamma').offsetLeft).toBeLessThan(before);
+        expect(under(list, tab('Gamma'))).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it('stays under the chosen tab while the bar scrolls', async () => {
+      const restore = clip();
+
+      try {
+        const screen = await render(<Settings defaultValue="billing" />);
+        const list = screen.getByRole('tablist').element() as HTMLElement;
+        const tab = screen.getByRole('tab', { name: 'Billing' }).element() as HTMLElement;
+
+        await settle(list, tab);
+
+        const scrolled = new Promise((resolve) =>
+          list.addEventListener('scroll', resolve, { once: true })
+        );
+
+        list.scrollTo({ left: list.scrollWidth, behavior: 'auto' });
+        await scrolled;
+        await frame();
+
+        // Measured in the list's own coordinates, which a scroll does not move.
+        expect(list.scrollLeft).toBeGreaterThan(0);
+        expect(under(list, tab)).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it('moves at once when the bar turns round', async () => {
+      const restore = lay();
+
+      try {
+        const { list, tab } = await renderPage();
+        const before = tab('Gamma').offsetLeft;
+
+        await committed(() => change({ dir: 'rtl' }));
+
+        expect(tab('Gamma').offsetLeft).not.toBe(before);
+        expect(under(list, tab('Gamma'))).toBe(true);
+
+        await committed(() => change({ dir: 'ltr' }));
+
+        expect(tab('Gamma').offsetLeft).toBe(before);
+        expect(under(list, tab('Gamma'))).toBe(true);
+      } finally {
+        restore();
+      }
+    });
+
+    it.each(['horizontal', 'vertical'] as const)(
+      'moves a %s bar when the document turns round',
+      async (orientation) => {
+        const restore = lay();
+        const root = document.documentElement;
+        const was = root.getAttribute('dir');
+
+        try {
+          // Down the side, the tabs are as wide as their labels here, so a turn
+          // moves them across without resizing one, as it does a bar that runs
+          // across.
+          const screen = await render(
+            <PlTabs orientation={orientation} value="c">
+              <PlTab value="a">Alpha</PlTab>
+              <PlTab value="b">Beta</PlTab>
+              <PlTab value="c">Gamma</PlTab>
+            </PlTabs>
+          );
+          const list = screen.getByRole('tablist').element();
+          const tab = screen.getByRole('tab', { name: 'Gamma' }).element() as HTMLElement;
+
+          await settle(list, tab);
+
+          const before = tab.offsetLeft;
+
+          root.setAttribute('dir', 'rtl');
+          await frame();
+          await frame();
+
+          expect(tab.offsetLeft).not.toBe(before);
+          expect(under(list, tab)).toBe(true);
+        } finally {
+          if (was === null) {
+            root.removeAttribute('dir');
+          } else {
+            root.setAttribute('dir', was);
+          }
+
+          restore();
+        }
+      }
+    );
   });
 
   describe('the wheel', () => {

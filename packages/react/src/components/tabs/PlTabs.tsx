@@ -371,6 +371,11 @@ interface ListOverflow {
   style: React.CSSProperties | undefined;
   onScroll: (() => void) | undefined;
   state: PlTabsOverflow | undefined;
+  /**
+   * Changes whenever the bar may have turned round: the document's direction,
+   * the provider's, and the one the list was last measured in.
+   */
+  turn: string;
 }
 
 /**
@@ -545,8 +550,10 @@ function useListOverflow(
     return () => observer.disconnect();
   }, [active, measure, node]);
 
+  const turn = `${documentDirection} ${providedDirection} ${reach.rtl}`;
+
   if (!active) {
-    return { style: undefined, onScroll: undefined, state: undefined };
+    return { style: undefined, onScroll: undefined, state: undefined, turn };
   }
 
   // The one turn from the reader's order into the screen's. A gradient runs in
@@ -562,7 +569,8 @@ function useListOverflow(
       '--p-fade-right': right ? 'var(--p-fade)' : undefined
     } as React.CSSProperties,
     onScroll,
-    state: reach.start ? (reach.end ? 'both' : 'start') : reach.end ? 'end' : 'none'
+    state: reach.start ? (reach.end ? 'both' : 'start') : reach.end ? 'end' : 'none',
+    turn
   };
 }
 
@@ -632,6 +640,45 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
     overflows: overflow.state !== undefined && overflow.state !== 'none',
     overscroll
   });
+
+  // The indicator, made once for each look rather than on every render.
+  //
+  // Base UI's indicator measures the list and the chosen tab while it renders:
+  // both boxes, the list's scroll width, the tab's computed style. A new element
+  // on every render of a bar that renders whenever its parent does was all of
+  // that for a tab that had not moved. It still moves on everything that moves
+  // it: a new value or a change to the set of tabs reaches it through Base UI's
+  // context, and a resize of the list or of any tab through Base UI's own
+  // observer. What neither sees is the bar turning round, which moves every tab
+  // without resizing one, so the direction is part of what the element is made
+  // from: the document's and the provider's, which a bar that runs down the side
+  // has to go by, and the one a bar that runs across was measured in after the
+  // turn was laid out.
+  const indicator = React.useMemo(
+    () => (
+      <BaseUITabs.Indicator
+        className={[
+          'pointer-events-none',
+          indicatorClasses[variant][orientation],
+          indicatorSurfaceClasses[variant],
+          // The pane or the bar is all that says which tab is active, and
+          // forced-colours mode would otherwise paint it out.
+          forcedFillClasses,
+          variant === 'solid' ? radiusClasses[size] : 'rounded-full',
+          // The same easing everything else uses, on the four properties the
+          // measurement actually writes.
+          '[transition-property:left,top,width,height]',
+          '[transition-duration:var(--plass-duration)]',
+          '[transition-timing-function:var(--plass-ease)]',
+          'motion-reduce:[transition-duration:0ms]'
+        ].join(' ')}
+      />
+    ),
+    // `overflow.turn` is not read inside: it is there to make a new element,
+    // and with it a new measurement, once the bar has turned round.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [variant, orientation, size, overflow.turn]
+  );
 
   // Everything a caller writes between the tags is either a tab or a panel, and
   // the two go in different boxes — so they are sorted here rather than made the
@@ -707,23 +754,7 @@ export const PlTabs = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTabsPro
         >
           {tabs}
 
-          <BaseUITabs.Indicator
-            className={[
-              'pointer-events-none',
-              indicatorClasses[variant][orientation],
-              indicatorSurfaceClasses[variant],
-              // The pane or the bar is all that says which tab is active, and
-              // forced-colours mode would otherwise paint it out.
-              forcedFillClasses,
-              variant === 'solid' ? radiusClasses[size] : 'rounded-full',
-              // The same easing everything else uses, on the four properties the
-              // measurement actually writes.
-              '[transition-property:left,top,width,height]',
-              '[transition-duration:var(--plass-duration)]',
-              '[transition-timing-function:var(--plass-ease)]',
-              'motion-reduce:[transition-duration:0ms]'
-            ].join(' ')}
-          />
+          {indicator}
         </BaseUITabs.List>
 
         {panels}
