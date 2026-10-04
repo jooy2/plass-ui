@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A `PlAnimateTyping` with an empty `text` runs no timers, as the React build does.** With a `repeat` of 2 or more, or `null`, it typed the empty line, held it and cleared or deleted it again pass after pass, drawing a frame each time, and a `repeat: null` one never stopped. It now draws an empty line and waits for nothing, also when its text is emptied partway through typing, and a `text` it is given later is typed from its first character after the `delay`.
+
 - **A disabled `PlListItem` is no longer announced as selected.** A row with both `selected` and `disabled` said it was selected while it was drawn without the tint, where the React row drops `aria-current` while it is disabled. It now says what a row that is not chosen says, whether it has an `onPressed` or not.
 
 - **A paused `PlAnimateTyping` holds its line when its `text` changes, as the React build does.** Given a new `text` while `paused` was on, it emptied the line, so the pause showed nothing where it was asked to hold what was there. The line on screen now stays as it was until `paused` is let go, and the new text is then typed from its first character, as a new run that arrives while it is paused already is. A screen reader is given the new text whole at once, as before.

@@ -458,6 +458,101 @@ void main() {
       });
     });
 
+    group('with no text', () {
+      Widget typing(
+        String text, {
+        int? repeat = 1,
+        bool erase = false,
+        bool paused = false,
+        Duration delay = Duration.zero,
+      }) {
+        return host(
+          PlAnimateTyping(
+            text,
+            speed: 100,
+            hold: const Duration(milliseconds: 100),
+            erase: erase,
+            repeat: repeat,
+            paused: paused,
+            delay: delay,
+            caret: false,
+          ),
+          width: 400,
+        );
+      }
+
+      /// Moves the clock on a minute without drawing a frame, and says whether
+      /// anything asked for one in that time.
+      Future<bool> redrawsIn(WidgetTester tester) async {
+        await tester.binding.delayed(const Duration(minutes: 1));
+
+        return tester.binding.hasScheduledFrame;
+      }
+
+      for (final int? repeat in <int?>[2, null]) {
+        for (final bool erase in <bool>[false, true]) {
+          testWidgets('waits for nothing with a repeat of $repeat${erase ? ', erased' : ''}', (
+            WidgetTester tester,
+          ) async {
+            await tester.pumpWidget(typing('', repeat: repeat, erase: erase));
+            await tester.pump();
+
+            // Nothing to type, so nothing is waiting to type it. It used to
+            // type the empty line, hold it and clear or delete it again, pass
+            // after pass, drawing a frame each time.
+            expect(await redrawsIn(tester), isFalse);
+            expect(visibleOf(tester), '');
+          });
+        }
+      }
+
+      testWidgets('waits for nothing once its text is emptied partway through typing', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(typing('Hello', repeat: null));
+        await tester.pump(const Duration(milliseconds: 25));
+
+        expect(visibleOf(tester).length, inInclusiveRange(1, 4));
+
+        await tester.pumpWidget(typing('', repeat: null));
+        await tester.pump();
+
+        expect(await redrawsIn(tester), isFalse);
+        expect(visibleOf(tester), '');
+      });
+
+      testWidgets('waits for nothing once a pause lets it go', (WidgetTester tester) async {
+        await tester.pumpWidget(typing('', repeat: null));
+        await tester.pump();
+        await tester.pumpWidget(typing('', repeat: null, paused: true));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpWidget(typing('', repeat: null));
+        await tester.pump();
+
+        expect(await redrawsIn(tester), isFalse);
+        expect(visibleOf(tester), '');
+      });
+
+      testWidgets('types a text it is given later, after its delay', (WidgetTester tester) async {
+        const Duration delay = Duration(milliseconds: 200);
+
+        await tester.pumpWidget(typing('', repeat: null, delay: delay));
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpWidget(typing('Hello', repeat: null, delay: delay));
+        await tester.pump(const Duration(milliseconds: 199));
+
+        expect(visibleOf(tester), '');
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(visibleOf(tester), 'H');
+
+        await tester.pump(const Duration(milliseconds: 40));
+
+        expect(visibleOf(tester), 'Hello');
+      });
+    });
+
     testWidgets('deletes the line again before repeating, one grapheme at a time', (
       WidgetTester tester,
     ) async {

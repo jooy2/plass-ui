@@ -317,7 +317,8 @@ class _TypewriterState extends State<_Typewriter> {
     }
 
     if (_drivenRun == widget.runs) {
-      if (_next != null) {
+      // Nothing to type: there is nothing to go on with either.
+      if (_next != null || _graphemes.isEmpty) {
         return;
       }
 
@@ -348,6 +349,18 @@ class _TypewriterState extends State<_Typewriter> {
 
     if (_shown != 0) {
       setState(() => _shown = 0);
+    }
+
+    if (_graphemes.isEmpty) {
+      // Nothing to type, so nothing waits to type it, as in the React build. A
+      // chain run on an empty line typed one character past its end, held it
+      // and cleared or deleted it again for as long as `repeat` let it, and a
+      // `repeat` of `null` never stopped. The last string's chain goes too. A
+      // new string is a new run, and types after the `delay`.
+      _next?.cancel();
+      _next = null;
+
+      return;
     }
 
     _wait(widget.delay, _tick);
