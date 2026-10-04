@@ -1,9 +1,15 @@
 import { act } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlAccordion, PlAccordionItem } from 'plass-ui';
+import {
+  PlAccordion,
+  PlAccordionItem,
+  type PlAccordionHeadingLevel,
+  type PlAccordionProps,
+  type PlassHeadingLevel
+} from 'plass-ui';
 
 /** Two sections, which is the smallest accordion that can close one to open another. */
 function TwoSections(props: React.ComponentProps<typeof PlAccordion>) {
@@ -332,6 +338,14 @@ describe('PlAccordion', () => {
       const screen = await render(<TwoSections headingLevel={7 as 3} />);
 
       expect(screen.getByRole('heading', { level: 3 }).all()).toHaveLength(2);
+    });
+
+    it('takes the shared heading level, which its own name still spells', () => {
+      // Checked by `npm run typecheck`, not by this run.
+      expectTypeOf<PlAccordionProps['headingLevel']>().toEqualTypeOf<
+        PlassHeadingLevel | undefined
+      >();
+      expectTypeOf<PlAccordionHeadingLevel>().toEqualTypeOf<PlassHeadingLevel>();
     });
   });
 });

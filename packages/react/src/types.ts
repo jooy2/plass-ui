@@ -44,6 +44,16 @@ export type PlassSide = 'top' | 'right' | 'bottom' | 'left';
 export type PlassAlign = 'start' | 'center' | 'end';
 
 /**
+ * The level of a heading a component draws, `1` to `6`, as HTML counts them.
+ *
+ * A heading has to sit one level under the one above it, or the page's outline
+ * skips a step, so a component that draws one takes its level from the caller
+ * rather than guessing where it sits. Only the element changes: the type scale
+ * stays the component's own.
+ */
+export type PlassHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
  * A day of the week, as `Date.getDay()` counts them: Sunday is `0`.
  *
  * `Date`'s own numbering rather than CLDR's, which starts the week on Monday at

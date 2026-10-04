@@ -21,7 +21,13 @@ import {
   surfaceSlots,
   targetClasses
 } from '../../internal/styles.js';
-import type { PlassPortalClassNames, PlassSide, PlassSize, PlassStyleProps } from '../../types.js';
+import type {
+  PlassHeadingLevel,
+  PlassPortalClassNames,
+  PlassSide,
+  PlassSize,
+  PlassStyleProps
+} from '../../types.js';
 
 /**
  * How the panel relates to the page.
@@ -37,9 +43,6 @@ import type { PlassPortalClassNames, PlassSide, PlassSize, PlassStyleProps } fro
  * across the whole library and would be a second spelling of nothing.
  */
 export type PlDrawerMode = 'overlay' | 'inline';
-
-/** The six levels an HTML heading has. */
-export type PlDrawerHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
  * A drawer takes `size`, `color` and `density` and stops there.
@@ -97,7 +100,7 @@ export interface PlDrawerProps
    * drawer's either way.
    * @default 2
    */
-  headingLevel?: PlDrawerHeadingLevel;
+  headingLevel?: PlassHeadingLevel;
   /** A line under the title, and the drawer's accessible description. */
   description?: React.ReactNode;
   /**

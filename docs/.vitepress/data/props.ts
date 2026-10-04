@@ -33,6 +33,7 @@ const VARIANT = "'solid' | 'glass' | 'ghost'";
 const DENSITY = "'default' | 'compact'";
 const ELEVATION = '0 | 1 | 2 | 3';
 const LABEL_PLACEMENT = "'top' | 'notch' | 'float'";
+const HEADING_LEVEL = '1 | 2 | 3 | 4 | 5 | 6';
 
 /**
  * Where a labelled control puts its label, written once: it means the same
@@ -790,8 +791,9 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'headingLevel',
-      type: '1 | 2 | 3 | 4 | 5 | 6',
+      type: HEADING_LEVEL,
       default: '3',
+      shared: true,
       description: {
         ko: '모든 섹션 헤더가 되는 heading의 수준. 페이지 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
         en: "The heading level every section's header is. Set it so the page's outline does not skip a level; the type scale stays the same"
@@ -5123,8 +5125,9 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'headingLevel',
-      type: '1 | 2 | 3 | 4 | 5 | 6',
+      type: HEADING_LEVEL,
       default: '2',
+      shared: true,
       description: {
         ko: 'title이 되는 heading의 수준. 두 mode 모두에 적용되며, 페이지 개요가 한 단계를 건너뛰지 않게 맞춥니다. 타입 스케일은 그대로입니다',
         en: "The heading level the title is, in both modes. Set it so the page's outline does not skip a level; the type scale stays the same"

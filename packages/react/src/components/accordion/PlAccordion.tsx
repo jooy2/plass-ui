@@ -21,10 +21,21 @@ import {
   surfaceSlots,
   transitionClasses
 } from '../../internal/styles.js';
-import type { PlassDensity, PlassElevation, PlassSize, PlassStyleProps } from '../../types.js';
+import type {
+  PlassDensity,
+  PlassElevation,
+  PlassHeadingLevel,
+  PlassSize,
+  PlassStyleProps
+} from '../../types.js';
 
-/** The six levels an HTML heading has. */
-export type PlAccordionHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+/**
+ * The six levels an HTML heading has.
+ *
+ * @deprecated Use `PlassHeadingLevel`, the same type in the shared vocabulary,
+ * which `PlDrawer` takes too.
+ */
+export type PlAccordionHeadingLevel = PlassHeadingLevel;
 
 /**
  * What a `PlAccordionItem` inherits from the `PlAccordion` around it.
@@ -38,7 +49,7 @@ interface AccordionContextValue {
   size: PlassSize;
   density: PlassDensity;
   dividers: boolean;
-  headingLevel: PlAccordionHeadingLevel;
+  headingLevel: PlassHeadingLevel;
 }
 
 const AccordionContext = /* @__PURE__ */ React.createContext<AccordionContextValue>({
@@ -93,7 +104,7 @@ export interface PlAccordionProps
    * Only the element changes: the type scale is the accordion's either way.
    * @default 3
    */
-  headingLevel?: PlAccordionHeadingLevel;
+  headingLevel?: PlassHeadingLevel;
   /**
    * Keeps closed panels in the DOM so the browser's own page search can find
    * and open them. Overrides `keepMounted`.
@@ -247,7 +258,7 @@ export const PlAccordion = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAc
     // The type keeps a TypeScript caller inside the six; this keeps a
     // JavaScript one there too, where a `7` would have written an `<h7>`, which
     // is no heading at all.
-    const headingLevel: PlAccordionHeadingLevel =
+    const headingLevel: PlassHeadingLevel =
       Number.isInteger(headingLevelProp) && headingLevelProp >= 1 && headingLevelProp <= 6
         ? headingLevelProp
         : 3;

@@ -1,6 +1,12 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, expectTypeOf, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlButton, PlDrawer, PlDrawerClose } from 'plass-ui';
+import {
+  PlButton,
+  PlDrawer,
+  PlDrawerClose,
+  type PlassHeadingLevel,
+  type PlDrawerProps
+} from 'plass-ui';
 
 describe('PlDrawer', () => {
   describe('overlay mode', () => {
@@ -305,6 +311,11 @@ describe('PlDrawer', () => {
       await expect
         .element(screen.getByRole('heading', { level: 2, name: 'Sections' }))
         .toBeInTheDocument();
+    });
+
+    it('takes the shared heading level', () => {
+      // Checked by `npm run typecheck`, not by this run.
+      expectTypeOf<PlDrawerProps['headingLevel']>().toEqualTypeOf<PlassHeadingLevel | undefined>();
     });
   });
 
