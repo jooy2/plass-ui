@@ -465,7 +465,11 @@ export function PlNumberField({
               // is answered by the thing that has the focus.
               onKeyDown={hotKeyHandler(hotKeys, undefined)}
               className={[
-                'min-w-0 flex-1 self-stretch bg-transparent [font:inherit] text-inherit',
+                // `p-0` because a browser pads an input, and
+                // `plass-ui/styles.css` does not reset that padding: the
+                // shell's padding is the field's, so without it the number
+                // would start further in than a text field's text.
+                'min-w-0 flex-1 self-stretch bg-transparent p-0 [font:inherit] text-inherit',
                 // Not `outline-none`: that utility zeroes `--tw-outline-style`, and
                 // the shell's focus ring is drawn from the same family.
                 '[outline:none]',

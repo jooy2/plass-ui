@@ -535,8 +535,11 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
     // `self-stretch` and no height of its own, in both modes. An input centres
     // its own text in its box, so letting the box be the full height of the row
     // it sits on — the field in single mode, the chip line in multiple — is what
-    // puts the placeholder on the same baseline as the chips beside it.
-    'min-w-0 flex-1 self-stretch bg-transparent [font:inherit] text-inherit',
+    // puts the placeholder on the same baseline as the chips beside it. `p-0`
+    // because a browser pads an input, and `plass-ui/styles.css` does not
+    // reset that padding: the shell's padding is the field's, so without it
+    // the text would start further in than a text field's.
+    'min-w-0 flex-1 self-stretch bg-transparent p-0 [font:inherit] text-inherit',
     // Not `outline-none`: that utility zeroes `--tw-outline-style`, and the
     // shell's focus ring is drawn from the same variable family.
     '[outline:none]',

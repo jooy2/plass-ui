@@ -375,8 +375,12 @@ export function PlCommandPalette({
                 <Autocomplete.Input
                   ref={field}
                   placeholder={placeholder}
+                  // `p-0` because a browser pads an input, and
+                  // `plass-ui/styles.css` does not reset that padding: the
+                  // row's padding is the field's, so without it the query
+                  // would start further in than the row puts it.
                   className={cx(
-                    'min-w-0 flex-1 bg-transparent [font:inherit] text-inherit [outline:none]',
+                    'min-w-0 flex-1 bg-transparent p-0 [font:inherit] text-inherit [outline:none]',
                     'placeholder:text-(--plass-muted-fg) caret-(--p-accent)',
                     'selection:bg-(--p-soft-press)',
                     inputHeights[size]

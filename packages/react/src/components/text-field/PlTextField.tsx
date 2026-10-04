@@ -286,7 +286,12 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     .join(' ');
 
   const controlClasses = [
-    'min-w-0 flex-1 bg-transparent [font:inherit] text-inherit',
+    // `p-0` because a browser pads an input and a textarea, and
+    // `plass-ui/styles.css` does not reset that padding: the shell's padding is
+    // the field's, so without it the text would start further in than a
+    // picker's value beside it, and a one-row textarea would stand taller than
+    // a single-line field.
+    'min-w-0 flex-1 bg-transparent p-0 [font:inherit] text-inherit',
     // Not `outline-none`: that utility zeroes `--tw-outline-style`, and the
     // shell's focus ring is drawn with the same variable family. The shorthand
     // takes the outline off this element and leaves the ring alone.
