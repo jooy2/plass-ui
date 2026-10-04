@@ -386,9 +386,15 @@ const loops: [string, React.ReactElement, string][] = [
   ]
 ];
 
-/** What a sighted reader sees right now, which is what the loop draws. */
+/**
+ * What a sighted reader sees right now, which is what the loop draws: the
+ * frame a counter or a scramble draws from its `data-text`, or the characters
+ * a typewriter has typed.
+ */
 function drawn(): string {
-  return root().querySelector<HTMLElement>('[aria-hidden="true"]')!.textContent ?? '';
+  const copy = root().querySelector<HTMLElement>('[aria-hidden="true"]')!;
+
+  return copy.dataset.text ?? copy.textContent ?? '';
 }
 
 function enter() {
@@ -416,7 +422,13 @@ function watchStartOver(finished: string): () => boolean {
     }
   });
 
-  observer.observe(root(), { childList: true, characterData: true, subtree: true });
+  observer.observe(root(), {
+    attributes: true,
+    attributeFilter: ['data-text'],
+    childList: true,
+    characterData: true,
+    subtree: true
+  });
 
   return () => startedOver;
 }

@@ -36,7 +36,7 @@ function root(): HTMLElement {
 
 /** What a sighted reader sees right now. */
 function drawn(): string {
-  return root().querySelector<HTMLElement>('[aria-hidden="true"]')!.textContent ?? '';
+  return root().querySelector<HTMLElement>('[aria-hidden="true"]')!.dataset.text ?? '';
 }
 
 /** What a screen reader is told, which is the answer and not the count. */
@@ -370,7 +370,7 @@ describe('PlAnimateCounter', () => {
       await expect
         .poll(
           () =>
-            document.querySelector<HTMLElement>('.second [aria-hidden="true"]')?.textContent ?? ''
+            document.querySelector<HTMLElement>('.second [aria-hidden="true"]')?.dataset.text ?? ''
         )
         .toBe('20');
     });
@@ -401,9 +401,8 @@ describe('PlAnimateCounter', () => {
       const observer = new MutationObserver(() => seen.push(figure()));
 
       observer.observe(root().querySelector('[aria-hidden="true"]')!, {
-        characterData: true,
-        childList: true,
-        subtree: true
+        attributes: true,
+        attributeFilter: ['data-text']
       });
 
       const restore = frameBeforeTheNextRender();

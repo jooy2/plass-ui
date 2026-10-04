@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- **A text effect's line is in the page's text once.** `PlAnimateCounter`, `PlAnimateScramble` and `PlAnimateSplit` put the line they draw beside a clipped copy for a screen reader, and both were text, so the server's HTML and what a search engine indexed held it twice: a counter on 12,345 read "12,3450", and a split or scrambled line said its sentence twice. `PlAnimateHeadline` ran its lines together. The drawn copy is now generated content, the clipped copy is the only text and is what a copy gives, and a headline's lines are separated by a space that is not laid out. Selecting the line no longer highlights the drawn copy, but copying still gives the line once.
+
 - **Typing in the search field of a long `PlTreeSelect` or `PlTransfer` no longer folds every label again for each character.** `PlTransfer` also did it again on every tick while a search was active. The matches are unchanged.
 
 - **A page with many `PlCodeBlock`s is coloured one short task per block, and each grammar is fetched together with the highlighter.** Blocks waiting on one grammar were coloured back to back in one long task, and the grammar was only requested once the core had arrived. Each block still shows plain text until its colours are ready.

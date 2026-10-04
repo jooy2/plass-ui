@@ -40,6 +40,26 @@ function parts(): HTMLElement[] {
   return Array.from(root().querySelectorAll<HTMLElement>('[aria-hidden="true"] .plass-anim'));
 }
 
+/**
+ * The line as it is drawn: each part's own text, which is generated content
+ * read from its `data-text`, and the gaps between the parts, which are text.
+ */
+function drawnLine(): string {
+  const drawn = root().querySelector('[aria-hidden="true"]')!;
+
+  return Array.from(drawn.childNodes, (node) => {
+    if (!(node instanceof HTMLElement)) {
+      return node.textContent;
+    }
+
+    const pieces = node.matches('[data-text]')
+      ? [node]
+      : Array.from(node.querySelectorAll<HTMLElement>('[data-text]'));
+
+    return pieces.map((piece) => piece.dataset.text).join('');
+  }).join('');
+}
+
 /** What a screen reader is told, which is the line and not the parts. */
 function announced(): string {
   return (root().firstElementChild as HTMLElement).textContent ?? '';
@@ -50,7 +70,7 @@ describe('PlAnimateSplit', () => {
     it('is by word by default', async () => {
       await render(<PlAnimateSplit className="split-under-test">{LINE}</PlAnimateSplit>);
 
-      expect(parts().map((part) => part.textContent)).toEqual(['Ship', 'it', 'on', 'Friday']);
+      expect(parts().map((part) => part.dataset.text)).toEqual(['Ship', 'it', 'on', 'Friday']);
     });
 
     it('is by character when it was asked for', async () => {
@@ -60,7 +80,7 @@ describe('PlAnimateSplit', () => {
         </PlAnimateSplit>
       );
 
-      expect(parts().map((part) => part.textContent)).toEqual(['S', 'h', 'i', 'p']);
+      expect(parts().map((part) => part.dataset.text)).toEqual(['S', 'h', 'i', 'p']);
     });
 
     it('keeps a character built out of several code points in one part', async () => {
@@ -73,7 +93,7 @@ describe('PlAnimateSplit', () => {
       // A letter with a combining accent, a flag made of two regional
       // indicators and an emoji outside the basic plane. Cut by code point,
       // each would come apart into pieces that draw as broken glyphs.
-      expect(parts().map((part) => part.textContent)).toEqual([
+      expect(parts().map((part) => part.dataset.text)).toEqual([
         'é',
         '\u{1F1F0}\u{1F1F7}',
         '\u{1F680}'
@@ -86,7 +106,7 @@ describe('PlAnimateSplit', () => {
       // Giving whitespace an entrance would animate the space between two
       // words, which is nothing arriving.
       expect(parts().length).toBe(4);
-      expect(root().querySelector('[aria-hidden="true"]')!.textContent).toBe(LINE);
+      expect(drawnLine()).toBe(LINE);
     });
 
     it('makes each part inline-block, or nothing would move', async () => {

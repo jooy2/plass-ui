@@ -6,7 +6,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import { poolOf, scrambleAt } from '../../internal/scramble.js';
-import { cx, srOnlyCopyClasses } from '../../internal/styles.js';
+import { cx, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassAnimateTrigger } from '../../types.js';
 
 export interface PlAnimateScrambleProps extends Omit<
@@ -204,9 +204,14 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
       'data-state': run.state,
       children: (
         <>
-          {/* The line, once, for a reader who is not watching it settle. */}
-          <span className={srOnlyCopyClasses}>{children}</span>
-          <span aria-hidden="true">{shown}</span>
+          {/* The line, once, for a reader who is not watching it settle. It is
+              the only copy that is text, so it is also the one a selection
+              copies. */}
+          <span className={srOnlyClasses}>{children}</span>
+          {/* The settling line is generated content drawn from an attribute
+              rather than text, for `PlAnimateCounter`'s reason: written out as
+              text, the page's text held the line twice. */}
+          <span aria-hidden="true" data-text={shown} className="before:content-[attr(data-text)]" />
         </>
       ),
       ...mergeProps(props, run.handlers)

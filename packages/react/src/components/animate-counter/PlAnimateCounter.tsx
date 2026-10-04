@@ -6,7 +6,7 @@ import { useRender } from '@base-ui/react/use-render';
 import { useAnimationRun } from '../../internal/animate.js';
 import { useLocale } from '../../internal/defaults.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
-import { cx, srOnlyCopyClasses } from '../../internal/styles.js';
+import { cx, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassAnimateTrigger } from '../../types.js';
 
 export interface PlAnimateCounterProps extends Omit<
@@ -252,9 +252,20 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
       'data-state': run.state,
       children: (
         <>
-          {/* The answer, once, for a reader who is not watching it arrive. */}
-          <span className={srOnlyCopyClasses}>{answer}</span>
-          <span aria-hidden="true">{formatter.format(shown)}</span>
+          {/* The answer, once, for a reader who is not watching it arrive. It
+              is the only copy that is text, so it is also the one a selection
+              copies. */}
+          <span className={srOnlyClasses}>{answer}</span>
+          {/* The ticking figure is generated content drawn from an attribute
+              rather than text, so the page's text holds the number once: in
+              the server's HTML, in what a crawler indexes and in what a
+              selection copies. Written out as text, the count it starts from
+              was glued onto the answer, and 12,345 read as "12,3450". */}
+          <span
+            aria-hidden="true"
+            data-text={formatter.format(shown)}
+            className="before:content-[attr(data-text)]"
+          />
         </>
       ),
       ...mergeProps(props, run.handlers)

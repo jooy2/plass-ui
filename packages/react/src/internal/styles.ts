@@ -555,12 +555,15 @@ export const srOnlyClasses =
   'absolute size-px overflow-hidden whitespace-nowrap [clip-path:inset(50%)]';
 
 /**
- * The same clipped box, for a copy of text that is also drawn.
+ * The same clipped box, for a copy of text that is also drawn as text.
  *
- * A text effect draws its line and puts a second copy of it beside it for a
- * screen reader, so a selection across the pair used to hand back the line
- * twice. This one is left out of the selection: the drawn copy is the one a
- * sighted reader can see, and the one they mean when they copy it.
+ * A text effect puts a copy of its line beside what it draws for a screen
+ * reader, so where the drawn line is text too a selection across the pair
+ * used to hand back the line twice. This one is left out of the selection: the
+ * drawn copy is the one a sighted reader can see, and the one they mean when
+ * they copy it. An effect that draws its line as generated content instead,
+ * from a `data-text`, uses the plain clipped box, because the copy beside it is
+ * then the only text there is to copy.
  */
 export const srOnlyCopyClasses = `${srOnlyClasses} select-none`;
 

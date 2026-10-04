@@ -226,23 +226,32 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
         const state =
           position === active ? 'active' : position === leaving && !reduced ? 'leaving' : undefined;
 
-        const wrap = (content: React.ReactNode, key: React.Key) => (
-          <span key={key} className="plass-headline-item" data-state={state}>
-            {content}
+        const childProps = React.isValidElement(child)
+          ? (child.props as { className?: string })
+          : null;
+
+        const line = childProps ? (
+          React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
+            className: cx('plass-headline-item', childProps.className),
+            'data-state': state
+          })
+        ) : (
+          <span className="plass-headline-item" data-state={state}>
+            {child}
           </span>
         );
 
-        if (!React.isValidElement(child)) {
-          return wrap(child, position);
-        }
-
-        const childProps = child.props as { className?: string };
-
-        return React.cloneElement(child as React.ReactElement<Record<string, unknown>>, {
-          key: position,
-          className: cx('plass-headline-item', childProps.className),
-          'data-state': state
-        });
+        // A space before every line but the first. The lines are grid items,
+        // so nothing between them is drawn, and a grid lays out no text that is
+        // only white space; but without it the page's text ran the lines into
+        // one another, and "ships on Friday" and "reads like prose" were
+        // indexed as "Fridayreads".
+        return (
+          <React.Fragment key={position}>
+            {position > 0 ? ' ' : null}
+            {line}
+          </React.Fragment>
+        );
       })}
     </div>
   );

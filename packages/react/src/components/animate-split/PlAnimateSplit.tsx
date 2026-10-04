@@ -14,7 +14,7 @@ import {
   useAnimationRun,
   type AnimationSlotOptions
 } from '../../internal/animate.js';
-import { cx, srOnlyCopyClasses } from '../../internal/styles.js';
+import { cx, srOnlyClasses } from '../../internal/styles.js';
 import { graphemesOf } from '../../internal/text.js';
 import type {
   PlassAnimateMode,
@@ -241,9 +241,15 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
       // itself, as the `Text` of a part does in the Flutter build: a line of
       // Chinese or Japanese has no space to cut at, so the whole line is one
       // part, and a part that could not wrap would run out of its box.
+      //
+      // The part is drawn as generated content from `data-text` rather than
+      // written as text, so the page's text holds the line once, in the
+      // clipped copy beside it. Written out, the line was in the server's HTML
+      // and in what a crawler indexes twice over.
       <span
         key={key}
-        className={`${partClass} inline-block whitespace-normal`}
+        data-text={part}
+        className={`${partClass} inline-block whitespace-normal before:content-[attr(data-text)]`}
         style={
           {
             ...animationSlots(
@@ -252,9 +258,7 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
             '--p-anim-state': run.state
           } as React.CSSProperties
         }
-      >
-        {part}
-      </span>
+      />
     );
   };
 
@@ -269,9 +273,13 @@ export const PlAnimateSplit = /* @__PURE__ */ React.forwardRef<
       'data-state': run.state,
       children: (
         <>
-          {/* The line, once, rather than one announcement per part. */}
-          <span className={srOnlyCopyClasses}>{children}</span>
-          <span aria-hidden="true">
+          {/* The line, once, rather than one announcement per part. It is the
+              only copy that is text, so it is also the one a selection copies. */}
+          <span className={srOnlyClasses}>{children}</span>
+          {/* `select-none` for the gaps, which are the one part of the drawn
+              line that is still text: selected on their own, they lit up as
+              stripes between words that were not selected. */}
+          <span aria-hidden="true" className="select-none">
             {pieces.map((piece, index) => {
               // A separator is a gap and is left as one: giving whitespace an
               // entrance would animate the space between two words, which is

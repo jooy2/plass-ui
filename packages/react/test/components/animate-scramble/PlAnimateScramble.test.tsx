@@ -38,7 +38,7 @@ function root(): HTMLElement {
 
 /** What a sighted reader sees right now. */
 function drawn(): string {
-  return root().querySelector<HTMLElement>('[aria-hidden="true"]')!.textContent ?? '';
+  return root().querySelector<HTMLElement>('[aria-hidden="true"]')!.dataset.text ?? '';
 }
 
 /** What a screen reader is told, which is the line and not the noise. */
@@ -319,7 +319,7 @@ describe('PlAnimateScramble', () => {
       await expect
         .poll(
           () =>
-            document.querySelector<HTMLElement>('.second [aria-hidden="true"]')?.textContent ?? ''
+            document.querySelector<HTMLElement>('.second [aria-hidden="true"]')?.dataset.text ?? ''
         )
         .toBe('Ship it on Monday');
     });
@@ -357,9 +357,8 @@ describe('PlAnimateScramble', () => {
       const observer = new MutationObserver(() => seen.push(drawn()));
 
       observer.observe(root().querySelector('[aria-hidden="true"]')!, {
-        characterData: true,
-        childList: true,
-        subtree: true
+        attributes: true,
+        attributeFilter: ['data-text']
       });
 
       const restore = frameBeforeTheNextRender();
