@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A paused `PlAnimateTyping` holds its line through a new run, as the React build does.** A new run that arrived while it was paused, such as a `hover` one the pointer left and entered again, emptied the line, so the pause showed nothing where it was asked to hold what was there. The line now stays as it was until `paused` is let go, and the new run then types from its first character.
+
 - **A `visible` `PlAnimate*` effect with a `threshold` of `0` waits until some of it is on screen, as the React build does.** A share of `0` reached a `threshold` of `0`, so such an effect started at once wherever it was, however far below the screen. It now starts when the first of it comes into view.
 
 - **A disabled `PlListItem` that has an `onPressed` is announced as an unavailable button.** It dropped its button semantics while it was disabled, so a screen reader read it as an unavailable row rather than a button it could not press. It is now a button with `enabled: false`, and it still takes no tap and no focus. A row with no `onPressed` is unchanged.

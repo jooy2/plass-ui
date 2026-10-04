@@ -325,6 +325,61 @@ void main() {
       expect(visibleOf(tester), '');
     });
 
+    testWidgets('holds the line through a new run while it is paused, and types that run from its '
+        'first character once it is let go', (WidgetTester tester) async {
+      Widget typing({required bool paused}) {
+        return host(
+          PlAnimateTyping(
+            'Hello',
+            speed: 10,
+            caret: false,
+            trigger: PlassAnimateTrigger.hover,
+            paused: paused,
+          ),
+          width: 400,
+        );
+      }
+
+      await tester.pumpWidget(typing(paused: false));
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      final Offset over = tester.getCenter(find.byType(PlAnimateTyping));
+
+      addTearDown(mouse.removePointer);
+
+      await mouse.addPointer(location: Offset.zero);
+      await tester.pump();
+      await mouse.moveTo(over);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+
+      expect(visibleOf(tester), 'Hel');
+
+      await tester.pumpWidget(typing(paused: true));
+
+      // Out and back in, which is a new run, and the pause holds it.
+      await mouse.moveTo(Offset.zero);
+      await tester.pump();
+      await mouse.moveTo(over);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // A pause holds what is on the screen, whichever run it is holding. It
+      // used to empty the line for a run that had not begun.
+      expect(visibleOf(tester), 'Hel');
+
+      await tester.pumpWidget(typing(paused: false));
+      await tester.pump(const Duration(milliseconds: 50));
+
+      // The new run, from its first character, rather than the old line typed
+      // on from where it was held.
+      expect(visibleOf(tester), 'H');
+
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(visibleOf(tester), 'Hello');
+    });
+
     testWidgets('deletes the line again before repeating, one grapheme at a time', (
       WidgetTester tester,
     ) async {

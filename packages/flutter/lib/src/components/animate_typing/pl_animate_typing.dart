@@ -304,12 +304,10 @@ class _TypewriterState extends State<_Typewriter> {
       _next?.cancel();
       _next = null;
 
-      // A pause holds the line where it is, unless the run it holds has not
-      // begun: that one waits empty, as a run not yet let go does.
-      if (_drivenRun != widget.runs && _shown != 0) {
-        setState(() => _shown = 0);
-      }
-
+      // A pause holds the line where it is, and goes on holding it through a
+      // new run, a hover the pointer makes again while it is paused for one:
+      // that run starts once the pause lets it go, and types the line from its
+      // first character, as it does in the React build.
       return;
     }
 

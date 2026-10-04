@@ -587,4 +587,62 @@ describe('PlAnimateTyping', () => {
       expect(visible(root)).toBe('H');
     });
   });
+
+  describe('paused through a new run', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('holds the line it is on, and types the new run from its first character once let go', async () => {
+      const typing = (paused: boolean) => (
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Hello"
+          trigger="hover"
+          speed={10}
+          paused={paused}
+          caret={false}
+        />
+      );
+      const screen = await render(typing(false));
+      const root = document.querySelector<HTMLElement>('.typing-under-test')!;
+      const pointer = (type: string) =>
+        committed(() => {
+          root.dispatchEvent(new PointerEvent(type, { bubbles: true }));
+        });
+      const advance = (ms: number) =>
+        committed(() => {
+          vi.advanceTimersByTime(ms);
+        });
+
+      await pointer('pointerover');
+      await advance(250);
+
+      expect(visible(root)).toBe('Hel');
+
+      await screen.rerender(typing(true));
+
+      // Out and back in, which is a new run, and the pause holds it.
+      await pointer('pointerout');
+      await pointer('pointerover');
+      await advance(500);
+
+      expect(visible(root)).toBe('Hel');
+
+      await screen.rerender(typing(false));
+      await advance(50);
+
+      // The new run, from its first character, rather than the old line typed
+      // on from where it was held.
+      expect(visible(root)).toBe('H');
+
+      await advance(500);
+
+      expect(visible(root)).toBe('Hello');
+    });
+  });
 });
