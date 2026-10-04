@@ -6,6 +6,7 @@ import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { PlIconButton } from '../icon-button/PlIconButton.js';
 import { ChevronIcon, PauseIcon, PlayIcon } from '../../internal/icons.js';
+import { layoutBox } from '../../internal/layout-box.js';
 import { usePrefersReducedMotion } from '../../internal/media.js';
 import {
   cx,
@@ -131,15 +132,18 @@ const SETTLE_MS = 700;
  * per `interval` while it played. The offset is measured against the track
  * rather than read off `offsetLeft`, which counts from whichever ancestor is
  * positioned, and in physical pixels, which is also what `scrollLeft` counts in
- * under RTL. Left without a `behavior`, the track's own `scroll-behavior`
- * decides, which is smooth unless the reader has asked for reduced motion.
+ * under RTL. It is measured on the screen and `scrollLeft` counts the track's
+ * own pixels, so it is turned into those: the two differ inside a scaled
+ * ancestor, a carousel in a scaled `PlMockup` for one, where the strip landed
+ * part of the way to the slide. Left without a `behavior`, the track's own
+ * `scroll-behavior` decides, which is smooth unless the reader has asked for
+ * reduced motion.
  */
 function scrollTrackTo(track: HTMLElement, slide: HTMLElement, behavior?: ScrollBehavior) {
-  track.scrollTo({
-    left:
-      track.scrollLeft + slide.getBoundingClientRect().left - track.getBoundingClientRect().left,
-    behavior
-  });
+  const { perPixel } = layoutBox(track, true);
+  const offset = slide.getBoundingClientRect().left - track.getBoundingClientRect().left;
+
+  track.scrollTo({ left: track.scrollLeft + offset * perPixel, behavior });
 }
 
 /**

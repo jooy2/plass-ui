@@ -11,6 +11,7 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlCarousel } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
+import { emulateMedia } from '../support/media';
 
 let sheet: HTMLStyleElement;
 
@@ -226,5 +227,51 @@ describe('a PlCarousel whose slide changes while it is hidden', () => {
     await expect
       .element(screen.getByRole('button', { name: 'Slide 3 of 3' }))
       .toHaveAttribute('aria-current', 'true');
+  });
+});
+
+describe('a PlCarousel inside a scaled ancestor', () => {
+  // Reduced motion makes the track's own scrolling instant, so the strip is
+  // where it is going as soon as it is sent there rather than on its way.
+  beforeAll(async () => {
+    await emulateMedia({ reducedMotion: 'reduce' });
+  });
+
+  afterAll(async () => {
+    await emulateMedia({ reducedMotion: 'no-preference' });
+  });
+
+  /** The strip laid out 320 wide and drawn at half that, as inside a scaled `PlMockup`. */
+  function Scaled(props: { value?: number; defaultValue?: number; dir?: 'rtl' }) {
+    return (
+      <div style={{ transform: 'scale(0.5)', transformOrigin: '0 0' }}>
+        <Strip {...props} />
+      </div>
+    );
+  }
+
+  it.each([
+    ['ltr', undefined],
+    ['rtl', 'rtl' as const]
+  ])('opens on the slide `defaultValue` names, %s', async (_, dir) => {
+    const screen = await render(<Scaled defaultValue={2} dir={dir} />);
+
+    expect(offsetOf('Slide 3 of 3')).toBeLessThan(1);
+    await expect
+      .element(screen.getByRole('button', { name: 'Slide 3 of 3' }))
+      .toHaveAttribute('aria-current', 'true');
+  });
+
+  it.each([
+    ['ltr', undefined],
+    ['rtl', 'rtl' as const]
+  ])('goes to the slide `value` names, forwards and back, %s', async (_, dir) => {
+    const screen = await render(<Scaled value={0} dir={dir} />);
+
+    await screen.rerender(<Scaled value={2} dir={dir} />);
+    await expect.poll(() => offsetOf('Slide 3 of 3')).toBeLessThan(1);
+
+    await screen.rerender(<Scaled value={1} dir={dir} />);
+    await expect.poll(() => offsetOf('Slide 2 of 3')).toBeLessThan(1);
   });
 });

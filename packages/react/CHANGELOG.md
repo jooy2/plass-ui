@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **A `PlCarousel` inside a scaled ancestor shows the slide it is sent to.** Inside a `transform`, a carousel in a scaled `PlMockup` for example, the strip measured the distance to a slide at the size it was drawn at and scrolled that far in its own pixels, so it opened on, and went to, a slide short of the one its dots marked, in either direction and under RTL. It now lands on the slide.
+
 - **A `PlSidebar` inside a scaled ancestor resizes from the width it is laid out at.** Inside a `transform`, a sidebar in a scaled `PlMockup` for example, a drag or an arrow key started from the width the sidebar was drawn at, so the width jumped as soon as it began and a drag moved the edge at a different speed from the pointer. Both now start from the sidebar's own width, a key moves it 16 of its own pixels, and a drag keeps the edge under the pointer.
 
 - **A disabled `PlBreadcrumbItem` or `PlListItem` that has an `href` or a `render` is announced as an unavailable link.** It was drawn as a `<span>` or a `<div>` carrying `aria-disabled` and no role, so a screen reader read it as plain text and never said it was unavailable. It is now an `<a>` with no address, `role="link"` and `aria-disabled="true"`, as a disabled `PlBottomNavigationItem` link is, so it still goes nowhere and Tab still passes over it. A disabled step or row with only an `onClick`, or with neither, stays plain text.
