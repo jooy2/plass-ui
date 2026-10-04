@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A disabled `PlBreadcrumbItem` that has an `onPressed` is announced as an unavailable link.** It dropped its link semantics while it was disabled, so a screen reader read it as unavailable text rather than as a link it could not follow, where the React step that would have been a link is announced as an unavailable link. It is now a link with `enabled: false`, and it still takes no tap and no focus. A step with no `onPressed` and the current step are unchanged.
+
 - **A `PlAnimateTyping` whose trigger has let it go now waits with an empty line.** A `visible` one with `once: false` that left the screen, a `manual` one whose `play` was turned off, or a `hover` one with `repeat: null` that the pointer left went on showing the line it had typed until its next run cleared it. It now waits empty, as it does before it is first let go and as the React build does, and types the line from its first character when it is let go again. `paused` still holds the line where it is.
 
 - **A new `value` no longer starts a `PlAnimateCounter` its trigger has not started, nor a new `text` a `PlAnimateScramble`.** A `manual` counter with `play` off, or a `visible` one not yet seen, started counting as soon as its `value` changed, before it was asked to or where nobody could see it. A new `value` before then only changes what the count arrives at: the counter goes on showing `from` and counts to the new value when its trigger comes, and a scramble's new `text` waits the same way. A counter that has started still counts on from the figure on screen, and `PlAnimateShake` still plays on every new `replay`.

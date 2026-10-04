@@ -191,6 +191,73 @@ void main() {
         expect(tester.getSemantics(find.text('Step 0')), isSemantics(isLink: true));
         handle.dispose();
       });
+
+      testWidgets('a disabled step that goes somewhere is a link that is unavailable', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        var pressed = 0;
+
+        await tester.pumpWidget(
+          host(
+            PlBreadcrumb(
+              items: <PlBreadcrumbItem>[
+                PlBreadcrumbItem(
+                  label: const Text('Docs'),
+                  onPressed: () => pressed += 1,
+                  disabled: true,
+                ),
+                const PlBreadcrumbItem(label: Text('Here')),
+              ],
+            ),
+            width: 480,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Docs')),
+          isSemantics(
+            isLink: true,
+            hasEnabledState: true,
+            isEnabled: false,
+            hasTapAction: false,
+            isHeader: false,
+          ),
+        );
+
+        await tester.tap(find.text('Docs'), warnIfMissed: false);
+
+        expect(pressed, 0);
+        handle.dispose();
+      });
+
+      testWidgets('a disabled step with nowhere to go, or the current one, is not a link', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlBreadcrumb(
+              items: <PlBreadcrumbItem>[
+                const PlBreadcrumbItem(label: Text('Docs'), disabled: true),
+                PlBreadcrumbItem(label: const Text('Here'), onPressed: () {}, disabled: true),
+              ],
+            ),
+            width: 480,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Docs')),
+          isSemantics(isLink: false, hasEnabledState: true, isEnabled: false, isHeader: false),
+        );
+        expect(
+          tester.getSemantics(find.text('Here')),
+          isSemantics(isLink: false, hasEnabledState: true, isEnabled: false, isHeader: true),
+        );
+        handle.dispose();
+      });
     });
 
     group('a step that changes what it does', () {
@@ -259,15 +326,16 @@ void main() {
             expect(now[index], same(resting[index]), reason: 'probe $index, $reason');
           }
 
-          // A link with its tap only while it can be followed, and otherwise
-          // plain text that says whether it is the page and whether it is
-          // available, as it always said.
+          // A link with its tap only while it can be followed, a link that is
+          // unavailable while it is disabled, and otherwise plain text that
+          // says whether it is the page and whether it is available, as it
+          // always said.
           expect(
             tester.getSemantics(find.text('Settings')),
             interactive
                 ? isSemantics(isLink: true, hasTapAction: true, hasEnabledState: false)
                 : isSemantics(
-                    isLink: false,
+                    isLink: pressable && !current,
                     hasTapAction: false,
                     isHeader: current,
                     hasEnabledState: true,

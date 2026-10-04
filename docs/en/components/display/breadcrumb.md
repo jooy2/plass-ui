@@ -217,6 +217,7 @@ import NextLink from 'next/link';
 - The trail is a named group, and `label` is that name.
 - A step that goes somewhere is announced as a **link**, which is what puts it in a screen reader's list of links. <kbd>Enter</kbd> follows it; <kbd>Space</kbd> deliberately does not.
 - The current step is announced as a heading rather than as a link. It is where the reader is, not somewhere to go.
+- A disabled step with an `onPressed` is still announced as a link, one that is unavailable. It does not answer a tap and takes no focus.
 - The separators are excluded from semantics: a screen reader reading "greater-than" between every step is reading the punctuation.
 - The `…` is a real focus stop with a name of its own, so a folded trail can be opened from a keyboard.
 

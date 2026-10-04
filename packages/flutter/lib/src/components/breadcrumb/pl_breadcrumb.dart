@@ -107,6 +107,9 @@ class PlBreadcrumbItem {
   final bool? current;
 
   /// Unavailable. Stops answering, keeps its place in the trail.
+  ///
+  /// A step with [onPressed] is still announced as a link, one that is
+  /// unavailable.
   final bool disabled;
 }
 
@@ -320,7 +323,9 @@ class _Step extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final interactive = item.onPressed != null && !current && !item.disabled;
+    // A step that goes somewhere, whether or not it can be followed now.
+    final linked = item.onPressed != null && !current;
+    final interactive = linked && !item.disabled;
     final radius = BorderRadius.circular(tokens.radii[_stepRadiusScale[size]!]!);
     final line = controlText[size]! * 1.4;
     final reduceMotion = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
@@ -407,7 +412,10 @@ class _Step extends StatelessWidget {
 
         return Semantics(
           container: true,
-          link: interactive ? true : null,
+          // A disabled step that would go somewhere is still a link, announced
+          // as one that is unavailable, as the React step is. It takes no tap
+          // and no focus all the same.
+          link: linked ? true : null,
           focused: focus.focused,
           onFocus: focus.onFocus,
           expanded: focus.expanded,
