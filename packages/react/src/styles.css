@@ -300,6 +300,135 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * The room a pinned footer takes in a page layout
+ *
+ * The same arrangement at the other end, with one difference: a `PlFooter`
+ * has no height floor. What the stylesheet knows of its height is the air
+ * above and below its content, which is `sheetPaddingYClasses` in
+ * `internal/styles.ts` for its `size` and `density` spelled in the same
+ * `--spacing`, and the hairlines along its edges. The content is the caller's,
+ * and only the layout's measurement knows how tall it is, so a server's first
+ * paint reserves the air and the edges and the measurement adds the rest.
+ *
+ * The two paths of a fixed footer, the one path of a sticky footer that spans
+ * the full width, and the start from zero are the header's, for its reasons.
+ * ------------------------------------------------------------------------- */
+
+.plass-layout {
+  --p-layout-footer: 0px;
+  --p-layout-footer-inset: 0px;
+  --p-layout-footer-floor: 0px;
+  --p-layout-footer-rule: 0px;
+}
+
+.plass-layout:has(> .plass-footer-fixed, > div > div > .plass-footer-fixed) {
+  --p-layout-footer: calc(var(--p-layout-footer-floor) + var(--p-layout-footer-rule));
+  --p-layout-footer-inset: var(--p-layout-footer);
+}
+
+.plass-layout:has(> .plass-footer-sticky) {
+  --p-layout-footer: calc(var(--p-layout-footer-floor) + var(--p-layout-footer-rule));
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='xs'][data-density='default'],
+  > div > div > .plass-footer-fixed[data-size='xs'][data-density='default'],
+  > .plass-footer-sticky[data-size='xs'][data-density='default']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 5);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='sm'][data-density='default'],
+  > div > div > .plass-footer-fixed[data-size='sm'][data-density='default'],
+  > .plass-footer-sticky[data-size='sm'][data-density='default']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 7);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='md'][data-density='default'],
+  > div > div > .plass-footer-fixed[data-size='md'][data-density='default'],
+  > .plass-footer-sticky[data-size='md'][data-density='default']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 10);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='lg'][data-density='default'],
+  > div > div > .plass-footer-fixed[data-size='lg'][data-density='default'],
+  > .plass-footer-sticky[data-size='lg'][data-density='default']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 12);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='xl'][data-density='default'],
+  > div > div > .plass-footer-fixed[data-size='xl'][data-density='default'],
+  > .plass-footer-sticky[data-size='xl'][data-density='default']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 14);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='xs'][data-density='compact'],
+  > div > div > .plass-footer-fixed[data-size='xs'][data-density='compact'],
+  > .plass-footer-sticky[data-size='xs'][data-density='compact']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 4);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='sm'][data-density='compact'],
+  > div > div > .plass-footer-fixed[data-size='sm'][data-density='compact'],
+  > .plass-footer-sticky[data-size='sm'][data-density='compact']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 5);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='md'][data-density='compact'],
+  > div > div > .plass-footer-fixed[data-size='md'][data-density='compact'],
+  > .plass-footer-sticky[data-size='md'][data-density='compact']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 7);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='lg'][data-density='compact'],
+  > div > div > .plass-footer-fixed[data-size='lg'][data-density='compact'],
+  > .plass-footer-sticky[data-size='lg'][data-density='compact']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 8);
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-size='xl'][data-density='compact'],
+  > div > div > .plass-footer-fixed[data-size='xl'][data-density='compact'],
+  > .plass-footer-sticky[data-size='xl'][data-density='compact']
+) {
+  --p-layout-footer-floor: calc(var(--spacing, 0.25rem) * 10);
+}
+
+/* The divider is a line along the top; the glass wins where both match, as
+   on the header. */
+.plass-layout:has(
+  > .plass-footer-fixed[data-divider],
+  > div > div > .plass-footer-fixed[data-divider],
+  > .plass-footer-sticky[data-divider]
+) {
+  --p-layout-footer-rule: 1px;
+}
+
+.plass-layout:has(
+  > .plass-footer-fixed[data-variant='glass'],
+  > div > div > .plass-footer-fixed[data-variant='glass'],
+  > .plass-footer-sticky[data-variant='glass']
+) {
+  --p-layout-footer-rule: 2px;
+}
+
+/* ---------------------------------------------------------------------------
  * Light theme (default)
  *
  * `.light` and `[data-theme='light']` carry the same block rather than only

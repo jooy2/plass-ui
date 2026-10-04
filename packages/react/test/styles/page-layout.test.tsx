@@ -9,10 +9,10 @@
  * Loaded the way `back-top.test.tsx` loads it, and read with
  * `document.elementFromPoint`, which is what a press goes to.
  *
- * The last two groups ask the stylesheet a second question: where the content
- * of a page with a fixed header is in the HTML a server sends, and how tall the
- * sidebar under a sticky one is, before the layout has measured anything, and
- * whether hydrating moves either.
+ * The last three groups ask the stylesheet a second question: where the
+ * content of a page with a fixed header is in the HTML a server sends, how tall
+ * the sidebar under a sticky one is, and how much room a pinned footer has,
+ * before the layout has measured anything, and what hydrating moves.
  */
 import { act, type ReactElement } from 'react';
 import { hydrateRoot, type Root } from 'react-dom/client';
@@ -714,6 +714,210 @@ describe('a sticky header in the HTML a server sends', () => {
     try {
       expect(getComputedStyle(aside).top).toBe('0px');
       expect(aside.getBoundingClientRect().height).toBe(innerHeight);
+    } finally {
+      host.remove();
+    }
+  });
+});
+
+describe('a pinned footer in the HTML a server sends', () => {
+  const page = (footer: ReactElement, { span = 'full' }: { span?: PlPageLayoutSpan } = {}) => (
+    <PlPageLayout
+      data-testid="layout"
+      collapseBelow="none"
+      footerSpan={span}
+      footer={footer}
+      sidebar={<PlSidebar>Navigation</PlSidebar>}
+    >
+      <p data-testid="first" style={{ margin: 0 }}>
+        The first line of the page
+      </p>
+    </PlPageLayout>
+  );
+
+  /** The footer's one line of content, whose height only a measurement knows. */
+  const line = (
+    <p data-testid="line" style={{ margin: 0 }}>
+      The last line of the page
+    </p>
+  );
+
+  /**
+   * What the layout takes off the sidebar for the footer, and what it pads its
+   * own end by.
+   */
+  function room({ layout, aside }: ReturnType<typeof serve>) {
+    return {
+      sidebar: innerHeight - aside.getBoundingClientRect().height,
+      inset: Number.parseFloat(getComputedStyle(layout).paddingBottom)
+    };
+  }
+
+  /** The footer's height, and the part of it that is not its content. */
+  function extent(layout: HTMLElement) {
+    const footer = layout.querySelector('footer')!;
+    const height = footer.getBoundingClientRect().height;
+    const content = footer.querySelector('[data-testid="line"]')?.getBoundingClientRect().height;
+
+    return { height, floor: height - (content ?? 0) };
+  }
+
+  const footerCases = (['sticky', 'fixed'] as const).flatMap((position) =>
+    (['default', 'compact'] as const).flatMap((density) =>
+      headerCases.map((sheet) => ({ position, density, ...sheet }))
+    )
+  );
+
+  it.each(footerCases)(
+    'reserves the air and the edges of a $position $size $density $variant footer (divider: $divider) before hydration, and the rest once it is measured',
+    async ({ position, size, density, variant, divider }) => {
+      const tree = page(
+        <PlFooter
+          position={position}
+          size={size}
+          density={density}
+          variant={variant}
+          divider={divider}
+        >
+          {line}
+        </PlFooter>
+      );
+      const served = serve(tree);
+      const { host, layout } = served;
+      const onRecoverableError = vi.fn();
+      const inset = (value: number) => (position === 'fixed' ? value : 0);
+      let root: Root | undefined;
+
+      try {
+        const { height, floor } = extent(layout);
+
+        // Before any script ran: everything but the content, which is the one
+        // part of a footer the stylesheet cannot know. A fixed footer is out
+        // of the flow, so the page's end is padded by as much as well.
+        expect(floor).toBeGreaterThan(0);
+        expect(floor).toBeLessThan(height);
+        expect(room(served)).toEqual({ sidebar: floor, inset: inset(floor) });
+
+        root = await act(async () => hydrateRoot(host, tree, { onRecoverableError }));
+        await frame();
+
+        // After it, the measured height, content and all.
+        expect(onRecoverableError).not.toHaveBeenCalled();
+        expect(room(served)).toEqual({ sidebar: height, inset: inset(height) });
+        expect(layout.style.getPropertyValue('--p-layout-footer')).toBe(`${height}px`);
+      } finally {
+        await act(async () => root?.unmount());
+        host.remove();
+      }
+    }
+  );
+
+  it.each(['sticky', 'fixed'] as const)(
+    'moves nothing at hydration for a %s footer with nothing in it',
+    async (position) => {
+      const tree = page(<PlFooter position={position} />);
+      const served = serve(tree);
+      const { host, layout } = served;
+      let root: Root | undefined;
+
+      try {
+        const { height } = extent(layout);
+        const before = room(served);
+
+        expect(before).toEqual({ sidebar: height, inset: position === 'fixed' ? height : 0 });
+
+        root = await act(async () => hydrateRoot(host, tree));
+        await frame();
+
+        expect(room(served)).toEqual(before);
+      } finally {
+        await act(async () => root?.unmount());
+        host.remove();
+      }
+    }
+  );
+
+  it('reserves the air and the edges of a fixed footer that spans the content', async () => {
+    const tree = page(<PlFooter position="fixed">{line}</PlFooter>, { span: 'content' });
+    const served = serve(tree);
+    const { host, layout } = served;
+    let root: Root | undefined;
+
+    try {
+      const { height, floor } = extent(layout);
+
+      expect(room(served)).toEqual({ sidebar: floor, inset: floor });
+
+      root = await act(async () => hydrateRoot(host, tree));
+      await frame();
+
+      expect(room(served)).toEqual({ sidebar: height, inset: height });
+    } finally {
+      await act(async () => root?.unmount());
+      host.remove();
+    }
+  });
+
+  it('leaves the sidebar the whole window beside a sticky footer that spans the content', async () => {
+    const tree = page(<PlFooter position="sticky">{line}</PlFooter>, { span: 'content' });
+    const served = serve(tree);
+    const { host } = served;
+    let root: Root | undefined;
+
+    try {
+      expect(room(served)).toEqual({ sidebar: 0, inset: 0 });
+
+      root = await act(async () => hydrateRoot(host, tree));
+      await frame();
+
+      expect(room(served)).toEqual({ sidebar: 0, inset: 0 });
+    } finally {
+      await act(async () => root?.unmount());
+      host.remove();
+    }
+  });
+
+  it('measures a footer that grows, and follows it back', async () => {
+    const tree = page(<PlFooter position="fixed">{line}</PlFooter>);
+    const served = serve(tree);
+    const { host, layout } = served;
+    let root: Root | undefined;
+
+    try {
+      root = await act(async () => hydrateRoot(host, tree));
+      await frame();
+
+      const { height: before } = extent(layout);
+      const content = layout.querySelector<HTMLElement>('[data-testid="line"]')!;
+
+      content.style.height = '120px';
+      await expect.poll(() => room(served).inset).toBe(extent(layout).height);
+      expect(extent(layout).height).toBeGreaterThan(before);
+      expect(room(served).sidebar).toBe(extent(layout).height);
+
+      content.style.height = '';
+      await expect.poll(() => room(served).inset).toBe(before);
+    } finally {
+      await act(async () => root?.unmount());
+      host.remove();
+    }
+  });
+
+  it("leaves a layout inside the page out of the outer footer's room", async () => {
+    const { host } = serve(
+      <PlPageLayout data-testid="layout" footer={<PlFooter position="sticky">{line}</PlFooter>}>
+        <PlPageLayout
+          height="auto"
+          collapseBelow="none"
+          sidebar={<PlSidebar>Inner navigation</PlSidebar>}
+        >
+          Inner
+        </PlPageLayout>
+      </PlPageLayout>
+    );
+
+    try {
+      expect(host.querySelector('aside')!.getBoundingClientRect().height).toBe(innerHeight);
     } finally {
       host.remove();
     }

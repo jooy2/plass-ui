@@ -110,6 +110,16 @@ const positionClasses: Record<PlassPosition, string> = {
 };
 
 /**
+ * Hooks rather than styles: what `styles.css` reads to tell a bar a
+ * `PlPageLayout` has to make room for, before the layout has measured it.
+ */
+const layoutHookClasses: Record<PlassPosition, string> = {
+  static: '',
+  sticky: 'plass-footer-sticky',
+  fixed: 'plass-footer-fixed'
+};
+
+/**
  * The sheet at the end of a page.
  *
  * A real `<footer>`, which is the whole reason it is a component rather than a
@@ -171,8 +181,18 @@ export const PlFooter = /* @__PURE__ */ React.forwardRef<HTMLElement, PlFooterPr
       [register, ref]
     );
 
+    // A bar that holds its place, so a `PlPageLayout` ends its sidebars above
+    // it, and keeps its content clear of it as well when it is `fixed` and out
+    // of the flow. The hook and the attributes that say how tall the bar is at
+    // least, its air and its edges, are what `styles.css` reads to do both in
+    // the HTML a server sends, before the layout can measure anything. What
+    // the caller put in it is the rest of its height, and only a measurement
+    // can say how much that is.
+    const pinned = position !== 'static';
+
     const classNames = cx(
       'w-full min-w-0',
+      layoutHookClasses[position],
       variantClasses[variant],
       // The rule faces the content, which is above a footer rather than below
       // it. `--plass-divider` and not the sheet's own white edge line, for the
@@ -188,6 +208,12 @@ export const PlFooter = /* @__PURE__ */ React.forwardRef<HTMLElement, PlFooterPr
       ref: setRef,
       props: {
         'aria-label': label,
+        // The air above and below is `size` and `density` together, and a
+        // footer that is not `padded` has none.
+        'data-size': pinned && padded ? size : undefined,
+        'data-density': pinned && padded ? density : undefined,
+        'data-variant': pinned ? variant : undefined,
+        'data-divider': pinned && divider ? '' : undefined,
         className: classNames,
         style: { ...surfaceSlots(color, elevation), ...style },
         children: (
