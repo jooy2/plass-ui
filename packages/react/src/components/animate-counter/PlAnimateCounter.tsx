@@ -90,6 +90,13 @@ function fractionDigitsOf(formatter: Intl.NumberFormat, value: number): number {
 /**
  * `formatter`, or a copy of it that writes no more fraction digits than it
  * writes `value` with. What `PlAnimateCounter` draws its frames with.
+ *
+ * Significant digits that decide the rounding alone set no ceiling on the
+ * fraction digits: three of them write 4,812 as "4,810" and 12.345 as "12.3".
+ * The copy then takes the coarser of the two, so a frame keeps to the caller's
+ * significant digits and to the answer's fraction digits both. A
+ * `roundingPriority` other than `auto`, which compact notation has of its own,
+ * already weighs the two, and such a formatter is capped as any other is.
  */
 function frameFormatter(
   formatter: Intl.NumberFormat,
@@ -100,14 +107,18 @@ function frameFormatter(
   const digits = fractionDigitsOf(formatter, value);
   const resolved = formatter.resolvedOptions();
   const most = resolved.maximumFractionDigits ?? digits;
+  const significant =
+    resolved.maximumSignificantDigits !== undefined &&
+    (resolved.roundingPriority ?? 'auto') === 'auto';
 
-  if (most <= digits) {
+  if (most <= digits && !significant) {
     return formatter;
   }
 
   try {
     return new Intl.NumberFormat(locale, {
       ...format,
+      ...(significant ? { roundingPriority: 'lessPrecision' } : {}),
       minimumFractionDigits: Math.min(resolved.minimumFractionDigits ?? 0, digits),
       maximumFractionDigits: digits
     });

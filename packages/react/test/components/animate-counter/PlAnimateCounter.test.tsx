@@ -400,6 +400,40 @@ describe('PlAnimateCounter', () => {
       }
     });
 
+    it('keep to the significant digits of the answer, and to its fraction digits', async () => {
+      // Taken before the render, so the first frame the count asks for is one
+      // this test draws.
+      const frames = frameClock();
+
+      try {
+        await render(
+          <PlAnimateCounter
+            className="counter-under-test"
+            trigger="mount"
+            value={4812}
+            duration={1000}
+            easing={(t) => t}
+            format={{ maximumSignificantDigits: 3 }}
+          />
+        );
+
+        // The count's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1000.25);
+
+        // 1.203, which three significant digits alone write as "1.2", with a
+        // decimal the answer, "4,810", never has.
+        expect(drawn()).toBe('1');
+
+        await frames.draw(1500);
+
+        // 2,406, to three significant digits.
+        expect(drawn()).toBe('2,410');
+      } finally {
+        frames.restore();
+      }
+    });
+
     it('write a figure that rounds to zero from below as 0, and a negative one as it is', async () => {
       // Held on the figure it counts from. `Intl.NumberFormat` keeps the sign of
       // a negative number it rounds to zero, so -0.4 was drawn as "-0".
