@@ -77,14 +77,17 @@ function easeOut(t: number): number {
   return 1 - (1 - t) ** 3;
 }
 
-/** How many fraction digits `formatter` writes `value` with. */
-function fractionDigitsOf(formatter: Intl.NumberFormat, value: number): number {
-  return formatter
-    .formatToParts(value)
-    .reduce(
-      (count, part) => (part.type === 'fraction' ? count + [...part.value].length : count),
-      0
-    );
+/** How many fraction digits there are in a number written out as `parts`. */
+function fractionDigitsIn(parts: Intl.NumberFormatPart[]): number {
+  return parts.reduce(
+    (count, part) => (part.type === 'fraction' ? count + [...part.value].length : count),
+    0
+  );
+}
+
+/** What a frame on the way is written with. */
+interface FrameFormat {
+  format(figure: number): string;
 }
 
 /**
@@ -94,29 +97,39 @@ function fractionDigitsOf(formatter: Intl.NumberFormat, value: number): number {
  * Significant digits that decide the rounding alone set no ceiling on the
  * fraction digits: three of them write 4,812 as "4,810" and 12.345 as "12.3".
  * The copy then takes the coarser of the two, so a frame keeps to the caller's
- * significant digits and to the answer's fraction digits both. A
- * `roundingPriority` other than `auto`, which compact notation has of its own,
- * already weighs the two, and such a formatter is capped as any other is.
+ * significant digits and to the answer's fraction digits both.
+ *
+ * Compact notation with no digits of its own weighs two significant digits
+ * against no fraction digits and keeps the finer, so it writes 1.6 as "1.6" and
+ * 1,700 as "1.7K" on the way to "5K", and 0.048 as "0.048" on the way to
+ * "4.8K". Its frames are written as it writes them, and those with more
+ * fraction digits than the answer again, rounded to the answer's digits. A
+ * `roundingPriority` the caller wrote stays as they wrote it, and such a
+ * formatter is capped as any other is.
  */
 function frameFormatter(
   formatter: Intl.NumberFormat,
   value: number,
   locale: string | undefined,
   format: Intl.NumberFormatOptions | undefined
-): Intl.NumberFormat {
-  const digits = fractionDigitsOf(formatter, value);
+): FrameFormat {
+  const digits = fractionDigitsIn(formatter.formatToParts(value));
   const resolved = formatter.resolvedOptions();
+  const priority = resolved.roundingPriority ?? 'auto';
   const most = resolved.maximumFractionDigits ?? digits;
-  const significant =
-    resolved.maximumSignificantDigits !== undefined &&
-    (resolved.roundingPriority ?? 'auto') === 'auto';
+  const significant = resolved.maximumSignificantDigits !== undefined && priority === 'auto';
+  // Weighed by the notation rather than by the caller, whose own digits would
+  // have set the rounding to `auto`.
+  const weighed = priority !== 'auto' && format?.roundingPriority === undefined;
 
-  if (most <= digits && !significant) {
+  if (most <= digits && !significant && !weighed) {
     return formatter;
   }
 
+  let capped: Intl.NumberFormat;
+
   try {
-    return new Intl.NumberFormat(locale, {
+    capped = new Intl.NumberFormat(locale, {
       ...format,
       ...(significant ? { roundingPriority: 'lessPrecision' } : {}),
       minimumFractionDigits: Math.min(resolved.minimumFractionDigits ?? 0, digits),
@@ -127,6 +140,20 @@ function frameFormatter(
     // `roundingIncrement`, keep the caller's formatter rather than throw.
     return formatter;
   }
+
+  if (!weighed) {
+    return capped;
+  }
+
+  return {
+    format(figure) {
+      const parts = formatter.formatToParts(figure);
+
+      return fractionDigitsIn(parts) > digits
+        ? capped.format(figure)
+        : parts.map((part) => part.value).join('');
+    }
+  };
 }
 
 /**
@@ -221,8 +248,9 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
    * `maximumFractionDigits` included, which stays the most a frame can show;
    * `minimumFractionDigits` is kept up to the answer's digits, so the two
    * decimals of a currency are in every frame. A formatter that already writes
-   * no more than the answer, such as a compact or a percentage one, is used as
-   * it is.
+   * no more than the answer, such as a percentage one, is used as it is; a
+   * compact one on the way to "5K" goes through whole numbers and then "1K",
+   * "2K", rather than "1.6" and "1.7K".
    *
    * `write` draws a frame with it, and draws zero where it writes `-0`.
    * `Intl.NumberFormat` keeps the sign of a negative number it rounds to zero,

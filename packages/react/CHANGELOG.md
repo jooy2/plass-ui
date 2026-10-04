@@ -38,6 +38,8 @@
 
 ### Fixed
 
+- **`PlAnimateCounter` in compact notation writes the figures on its way with no more decimals than the answer.** Compact notation keeps two significant digits where that is the finer rounding, so a count to "5K" showed "1.6" and "1.7K" on the way, and a count to "4.8K" could show "0.048". A frame with more fraction digits than the answer is now rounded to the answer's, so a count to "5K" goes through whole numbers and then "1K", "2K", and a frame that already fits, such as "123" or "1.2K", is written as compact notation writes it. A `roundingPriority` written in `format` is left as it is.
+
 - **A `PlAnimateTyping` let go during its `delay` or between two characters waits only what was left of that wait.** Paused during the `delay`, or in the wait before the next pass types its first character, it waited the whole `delay` again once it was let go, and paused between two characters it waited a whole character's time again. Every wait now goes on with the time that was left of it, as the hold already did.
 
 - **A disabled `PlBottomNavigationItem` or `PlFloatingBottomNavigationItem` that is a link is announced as an unavailable link.** It is drawn on an `<a>` with no `href`, which has no role, so a screen reader read it as plain text and never said it was unavailable. It now carries `role="link"` with its `aria-disabled`, as a disabled `PlNavigationMenuItem` link does, and Tab still passes over it.

@@ -54,7 +54,7 @@ afterEach(async () => {
 });
 
 describe('PlAnimateCounter', () => {
-  it('builds one formatter for a `format` written inline', async () => {
+  it('builds its formatters once for a `format` written inline', async () => {
     const Native = Intl.NumberFormat;
     let built = 0;
 
@@ -77,6 +77,8 @@ describe('PlAnimateCounter', () => {
       );
 
       const screen = await render(counter());
+      // The caller's, and the copy the figures on the way are written with.
+      const first = built;
 
       // An options object written inline is a new reference on every render
       // around the counter, and memoising on the object itself built another
@@ -85,7 +87,8 @@ describe('PlAnimateCounter', () => {
         await screen.rerender(counter());
       }
 
-      expect(built).toBe(1);
+      expect(first).toBe(2);
+      expect(built).toBe(first);
     } finally {
       Object.defineProperty(Intl, 'NumberFormat', {
         value: Native,
@@ -432,6 +435,77 @@ describe('PlAnimateCounter', () => {
       } finally {
         frames.restore();
       }
+    });
+
+    describe('in compact notation', () => {
+      /**
+       * The figures a linear count to `value` in compact notation draws at
+       * each of `at`, in milliseconds into a one-second count.
+       */
+      async function compactAt(
+        value: number,
+        at: number[],
+        format: Intl.NumberFormatOptions = {}
+      ): Promise<string[]> {
+        // Taken before the render, so the first frame the count asks for is
+        // one this test draws.
+        const frames = frameClock();
+        const seen: string[] = [];
+
+        try {
+          await render(
+            <PlAnimateCounter
+              className="counter-under-test"
+              trigger="mount"
+              value={value}
+              duration={1000}
+              easing={(t) => t}
+              format={{ notation: 'compact', ...format }}
+            />
+          );
+
+          // The count's clock starts at its first frame, whatever time that is.
+          await frames.draw(1000);
+
+          for (const ms of at) {
+            await frames.draw(1000 + ms);
+            seen.push(drawn());
+          }
+        } finally {
+          frames.restore();
+        }
+
+        return seen;
+      }
+
+      it('are whole numbers, then whole thousands, on the way to an answer with no decimals', async () => {
+        // 1.6, 1,700 and 4,000. Compact notation writes the first two with a
+        // decimal of their own, "1.6" and "1.7K", which "5K" never has.
+        expect(await compactAt(5000, [0.32, 340, 800, 1000])).toEqual(['2', '2K', '4K', '5K']);
+      });
+
+      it('have the one decimal of an answer that has one, and no more', async () => {
+        // 0.048, 123.36 and 1,152. Compact notation writes the first as
+        // "0.048", with more decimals than "4.8K", and the other two as it
+        // writes them anyway.
+        expect(await compactAt(4800, [0.01, 25.7, 240, 1000])).toEqual([
+          '0',
+          '123',
+          '1.2K',
+          '4.8K'
+        ]);
+      });
+
+      it('leave a `roundingPriority` the caller wrote as they wrote it', async () => {
+        // The rounding compact notation has of its own, written out.
+        const written: Intl.NumberFormatOptions = {
+          maximumFractionDigits: 0,
+          maximumSignificantDigits: 2,
+          roundingPriority: 'morePrecision'
+        };
+
+        expect(await compactAt(5000, [0.32, 1000], written)).toEqual(['1.6', '5K']);
+      });
     });
 
     it('write a figure that rounds to zero from below as 0, and a negative one as it is', async () => {
