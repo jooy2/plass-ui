@@ -157,12 +157,49 @@ describe('PlBreadcrumb', () => {
       await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
     });
 
+    it('is a button that cannot be pressed when it is disabled with only an onClick, and Tab passes over it', async () => {
+      const onClick = vi.fn();
+      const screen = await render(
+        <>
+          <button type="button" tabIndex={0}>
+            Before
+          </button>
+          <PlBreadcrumb>
+            <PlBreadcrumbItem disabled onClick={onClick}>
+              Docs
+            </PlBreadcrumbItem>
+            <PlBreadcrumbItem>Here</PlBreadcrumbItem>
+          </PlBreadcrumb>
+          <button type="button" tabIndex={0}>
+            After
+          </button>
+        </>
+      );
+
+      const docs = screen.getByRole('button', { name: 'Docs' });
+
+      await expect.element(docs).toBeDisabled();
+      expect(docs.element()).toHaveClass('cursor-not-allowed', 'opacity-50');
+      expect(screen.getByRole('link').query()).toBeNull();
+
+      // Dispatched rather than driven: Playwright waits for a disabled
+      // button to be enabled before it will press it.
+      (docs.element() as HTMLElement).click();
+
+      expect(onClick).not.toHaveBeenCalled();
+
+      const before = screen.getByRole('button', { name: 'Before' });
+
+      (before.element() as HTMLElement).focus();
+      await expect.element(before).toHaveFocus();
+      await userEvent.tab();
+      await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
     it('is plain text when it is disabled with nowhere to go', async () => {
       const screen = await render(
         <PlBreadcrumb>
-          <PlBreadcrumbItem disabled onClick={() => {}}>
-            Docs
-          </PlBreadcrumbItem>
+          <PlBreadcrumbItem disabled>Docs</PlBreadcrumbItem>
           <PlBreadcrumbItem>Here</PlBreadcrumbItem>
         </PlBreadcrumb>
       );
@@ -170,6 +207,23 @@ describe('PlBreadcrumb', () => {
       expect(screen.getByRole('link').query()).toBeNull();
       expect(screen.getByRole('button').query()).toBeNull();
       expect(screen.getByText('Docs').element().closest('[aria-disabled]')).not.toBeNull();
+    });
+
+    it('stays the current page, and not a button, when it is the current step with an onClick', async () => {
+      const screen = await render(
+        <PlBreadcrumb>
+          <PlBreadcrumbItem href="/">Home</PlBreadcrumbItem>
+          <PlBreadcrumbItem disabled onClick={() => {}}>
+            Billing
+          </PlBreadcrumbItem>
+        </PlBreadcrumb>
+      );
+
+      expect(screen.getByRole('button').query()).toBeNull();
+      expect(screen.getByText('Billing').element().closest('[aria-current]')).toHaveAttribute(
+        'aria-current',
+        'page'
+      );
     });
 
     it('stays the current page, and not a link, when it is the current step and disabled', async () => {

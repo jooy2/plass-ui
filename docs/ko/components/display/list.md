@@ -190,7 +190,7 @@ import NextLink from 'next/link';
 - `role="list"`를 명시적으로 씁니다. Tailwind의 리셋이 모든 `<ul>`에서 불릿을 없애고, Safari는 그와 함께 목록 의미까지 없애기 때문입니다.
 - 선택된 링크는 `aria-current="page"`를, 선택된 button은 `aria-current="true"`를 답니다. 앞의 것은 "지금 보고 있는 페이지", 뒤의 것은 "이것들 중 고른 하나"입니다. `aria-pressed`는 세 번째 것, 즉 토글이고, 선택된 행은 토글이 아닙니다.
 - `onClick`도 `href`도 `render`도 없는 행은 role도 tab stop도 더하지 않습니다. click 핸들러만 달린 죽은 `<div>`는 키보드에 보이지 않습니다.
-- `href`나 `render`가 있는 disabled 행은 여전히 `<a>`이지만, 주소가 없어 따라갈 수 없습니다. 사용할 수 없는 링크로 읽히고, <kbd>Tab</kbd>은 이 행을 건너뜁니다. `onClick`만 있는 disabled 행은 평범한 텍스트입니다.
+- `href`나 `render`가 있는 disabled 행은 여전히 `<a>`이지만, 주소가 없어 따라갈 수 없습니다. 사용할 수 없는 링크로 읽히고, <kbd>Tab</kbd>은 이 행을 건너뜁니다. `onClick`만 있는 disabled 행은 `disabled`가 붙은 `<button>` 그대로입니다. 사용할 수 없는 button으로 읽히고, <kbd>Tab</kbd>은 이 행을 건너뛰며, `onClick`은 불리지 않습니다.
 - `action`에 든 컨트롤에는 자기 이름을 주세요. 행과는 별개의 tab stop이고, 거기 있는 이유가 그것입니다.
 
 :::
@@ -200,6 +200,7 @@ import NextLink from 'next/link';
 - 목록은 복합 위젯이 아닙니다(roving focus도, 선택 모델도, 자기만의 키보드 규약도 없습니다). 그래서 행을 묶는 것 말고는 role을 더하지 않고, 각 행이 스스로 이름을 갖습니다.
 - 선택된 행은 선택되었다고 보고합니다. 토글이 아니고, 토글인 척하지도 않습니다.
 - `onPressed`가 없는 행은 role도 focus stop도 더하지 않습니다.
+- `onPressed`가 있는 disabled 행도 button으로 알려지며, 사용할 수 없는 button으로 읽힙니다. 눌러도 반응하지 않고 focus도 받지 않습니다.
 - `action`에 든 위젯에는 자기 이름을 주세요. 행과는 별개의 focus stop이고, 거기 있는 이유가 그것입니다.
 - 목록에 선이 그어져 있으면 행의 focus ring은 안쪽으로 돌아섭니다. 잘리는 시트 가장자리에서 잘려 나가지 않게 하기 위해서입니다.
 

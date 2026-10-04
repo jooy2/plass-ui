@@ -190,7 +190,7 @@ import NextLink from 'next/link';
 - `role="list"` is written out because Tailwind's reset takes the bullets off every `<ul>`, and Safari takes the list semantics off with them.
 - A chosen link carries `aria-current="page"` and a chosen button `aria-current="true"`. The first says "this is the page you are on", the second "this is the chosen one of these". `aria-pressed` would be a third thing, a toggle, and a selected row is not a toggle.
 - A row with none of `onClick`, `href` and `render` adds no role and takes no tab stop. An inert `<div>` with a click handler on it is invisible to a keyboard.
-- A disabled row with an `href` or a `render` is still an `<a>`, with no address, so it cannot be followed. It is announced as a link that is unavailable, and <kbd>Tab</kbd> passes over it. A disabled row with only an `onClick` is plain text.
+- A disabled row with an `href` or a `render` is still an `<a>`, with no address, so it cannot be followed. It is announced as a link that is unavailable, and <kbd>Tab</kbd> passes over it. A disabled row with only an `onClick` is still a `<button>`, with `disabled`, so it is announced as a button that is unavailable, <kbd>Tab</kbd> passes over it, and its `onClick` is not called.
 - Give the control in `action` its own accessible name. It is a separate tab stop from the row, which is the point of it being there.
 
 :::
@@ -200,6 +200,7 @@ import NextLink from 'next/link';
 - A list is not a composite widget (it has no roving focus, no selection model and no keyboard contract of its own), so it adds no role beyond grouping its rows, and each row speaks for itself.
 - A chosen row reports that it is selected. It is not a toggle, and it does not claim to be one.
 - A row with no `onPressed` adds no role and takes no focus stop.
+- A disabled row with an `onPressed` is still announced as a button, one that is unavailable. It does not answer a tap and takes no focus.
 - Give the widget in `action` its own name. It is a separate focus stop from the row, which is the point of it being there.
 - A row's focus ring turns inward when the list is ruled, so it is not sliced off at the sheet's clipped edge.
 

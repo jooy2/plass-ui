@@ -18,6 +18,8 @@
 
 ### Fixed
 
+- **A disabled `PlListItem` that has an `onPressed` is announced as an unavailable button.** It dropped its button semantics while it was disabled, so a screen reader read it as an unavailable row rather than a button it could not press. It is now a button with `enabled: false`, and it still takes no tap and no focus. A row with no `onPressed` is unchanged.
+
 - **A disabled `PlBreadcrumbItem` that has an `onPressed` is announced as an unavailable link.** It dropped its link semantics while it was disabled, so a screen reader read it as unavailable text rather than as a link it could not follow, where the React step that would have been a link is announced as an unavailable link. It is now a link with `enabled: false`, and it still takes no tap and no focus. A step with no `onPressed` and the current step are unchanged.
 
 - **A `PlAnimateTyping` whose trigger has let it go now waits with an empty line.** A `visible` one with `once: false` that left the screen, a `manual` one whose `play` was turned off, or a `hover` one with `repeat: null` that the pointer left went on showing the line it had typed until its next run cleared it. It now waits empty, as it does before it is first let go and as the React build does, and types the line from its first character when it is let go again. `paused` still holds the line where it is.

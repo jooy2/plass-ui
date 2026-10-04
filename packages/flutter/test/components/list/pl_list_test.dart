@@ -236,6 +236,35 @@ void main() {
         expect(pressed, 0);
       });
 
+      testWidgets('is a button that is unavailable while disabled with onPressed', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlList(
+              children: <Widget>[
+                PlListItem(disabled: true, onPressed: () {}, child: const Text('One')),
+                const PlListItem(disabled: true, child: Text('Two')),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('One')),
+          isSemantics(isButton: true, hasEnabledState: true, isEnabled: false, hasTapAction: false),
+        );
+        // With nothing to press, it stays a row that says it is unavailable.
+        expect(
+          tester.getSemantics(find.text('Two')),
+          isSemantics(isButton: false, hasEnabledState: true, isEnabled: false),
+        );
+        handle.dispose();
+      });
+
       testWidgets('keeps what it holds as onPressed, disabled and selected change', (
         WidgetTester tester,
       ) async {
@@ -300,8 +329,9 @@ void main() {
             expect(now[index], same(resting[index]), reason: 'probe $index, $reason');
           }
 
-          // A button with its tap only while it can be pressed, and otherwise
-          // a row that says whether it is available, as it always said.
+          // A button with its tap only while it can be pressed, a button that
+          // is unavailable while it is disabled, and otherwise a row that says
+          // whether it is available, as it always said.
           expect(
             tester.getSemantics(find.text('Billing')),
             interactive
@@ -313,7 +343,7 @@ void main() {
                     isSelected: selected,
                   )
                 : isSemantics(
-                    isButton: false,
+                    isButton: pressable,
                     hasTapAction: false,
                     hasEnabledState: true,
                     isEnabled: !disabled,

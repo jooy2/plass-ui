@@ -492,7 +492,8 @@ export const PlBreadcrumb = /* @__PURE__ */ React.forwardRef<HTMLElement, PlBrea
  * `<a>` with an `href` or a `render`, a `<button>` with an `onClick`, and a
  * plain `<span>` with neither — which is what the last step is, because the
  * page you are already on is not somewhere to go. A disabled link is still an
- * `<a>`, with no address; a disabled button is the `<span>`.
+ * `<a>`, with no address, and a disabled button is still a `<button>`, with
+ * `disabled`.
  */
 export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
   HTMLLIElement,
@@ -515,6 +516,8 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
   const { size, last } = React.useContext(BreadcrumbContext);
   const isCurrent = current ?? last;
   const linked = Boolean(href || render);
+  // A step that is a button, whether or not it can be pressed now.
+  const pressable = Boolean(onClick) && !linked && !isCurrent;
   const interactive = (linked || Boolean(onClick)) && !isCurrent && !disabled;
 
   const stepClassNames = cx(
@@ -574,8 +577,11 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
     <li ref={ref} className={cx('flex min-w-0 items-center', className)} {...props}>
       {link ? (
         link
-      ) : interactive ? (
-        <button type="button" className={stepClassNames} onClick={onClick}>
+      ) : pressable ? (
+        // Still a button while it is disabled, as a disabled `PlChip` is, so
+        // it is announced as a button that cannot be pressed, and Tab passes
+        // over it.
+        <button type="button" className={stepClassNames} disabled={disabled} onClick={onClick}>
           {body}
         </button>
       ) : (
@@ -583,7 +589,7 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
         // and the step the reader is on is a *page*, not the chosen one of a
         // set of options.
         //
-        // A disabled step with nowhere to go is plain text. It keeps
+        // A disabled step with nothing to press is plain text. It keeps
         // `aria-disabled`, which a screen reader does not say on an element
         // with no role, as the mark a stylesheet or a test reads, as a
         // `PlChip` that cannot be pressed does.

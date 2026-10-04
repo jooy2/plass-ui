@@ -210,7 +210,7 @@ import NextLink from 'next/link';
 - The current step carries `aria-current="page"` rather than `"true"`. A trail is navigation, and the step the reader is on is a _page_, not the chosen one of a set of options.
 - The separators are `aria-hidden`: a screen reader reading "greater-than" between every step is reading the punctuation.
 - A step with only an `onClick` is a real `<button>`, and one with an `href` a real `<a>`. Neither is a `<span>` with a handler on it.
-- A disabled step with an `href` or a `render` is still an `<a>`, with no address, so it cannot be followed. It is announced as a link that is unavailable, and <kbd>Tab</kbd> passes over it. A disabled step with only an `onClick` is plain text.
+- A disabled step with an `href` or a `render` is still an `<a>`, with no address, so it cannot be followed. It is announced as a link that is unavailable, and <kbd>Tab</kbd> passes over it. A disabled step with only an `onClick` is still a `<button>`, with `disabled`, so it is announced as a button that is unavailable, <kbd>Tab</kbd> passes over it, and its `onClick` is not called.
 
 :::
 

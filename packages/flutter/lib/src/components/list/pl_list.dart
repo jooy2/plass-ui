@@ -256,6 +256,9 @@ class PlListItem extends StatelessWidget {
   final bool selected;
 
   /// Unavailable. The light goes out, the same way it does everywhere else.
+  ///
+  /// A row with [onPressed] is still announced as a button, one that is
+  /// unavailable.
   final bool disabled;
 
   /// Drive focus from outside.
@@ -282,7 +285,7 @@ class PlListItem extends StatelessWidget {
           // as `onPressed` came or went, or as `disabled` changed, and a field
           // or a picture in it started over. A row that cannot be pressed takes
           // no focus and claims no tap, so a press on it reaches whatever is
-          // around it, and it is not announced as a button.
+          // around it. With no `onPressed` it is not announced as a button.
           child: PlassInteractive(
             onTap: onPressed,
             enabled: interactive,
@@ -299,7 +302,10 @@ class PlListItem extends StatelessWidget {
 
               return Semantics(
                 container: true,
-                button: interactive ? true : null,
+                // A disabled row with an `onPressed` is still a button,
+                // announced as one that is unavailable, as the React row's
+                // `<button disabled>` is.
+                button: onPressed != null ? true : null,
                 enabled: interactive ? null : !disabled,
                 selected: selected,
                 focused: focus.focused,

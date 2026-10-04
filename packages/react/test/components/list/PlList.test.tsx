@@ -244,12 +244,60 @@ describe('PlList', () => {
       await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
     });
 
-    it('stops being pressable when disabled', async () => {
+    it('announces a disabled button as a button that cannot be pressed, and Tab passes over it', async () => {
+      const onClick = vi.fn();
       const screen = await render(
         <PlList>
-          <PlListItem disabled onClick={() => {}}>
+          <PlListItem
+            action={
+              <button type="button" tabIndex={0}>
+                Before
+              </button>
+            }
+          >
+            Drafts
+          </PlListItem>
+          <PlListItem disabled selected onClick={onClick}>
             Inbox
           </PlListItem>
+          <PlListItem
+            action={
+              <button type="button" tabIndex={0}>
+                After
+              </button>
+            }
+          >
+            Sent
+          </PlListItem>
+        </PlList>
+      );
+
+      const inbox = screen.getByRole('button', { name: 'Inbox' });
+
+      await expect.element(inbox).toBeDisabled();
+      expect(inbox.element()).toHaveClass('cursor-not-allowed', 'opacity-50');
+      // Drawn unselected, so it says nothing about being the chosen one.
+      expect(inbox.element()).not.toHaveAttribute('aria-current');
+      expect(screen.getByRole('link').query()).toBeNull();
+
+      // Dispatched rather than driven: Playwright waits for a disabled
+      // button to be enabled before it will press it.
+      (inbox.element() as HTMLElement).click();
+
+      expect(onClick).not.toHaveBeenCalled();
+
+      const before = screen.getByRole('button', { name: 'Before' });
+
+      (before.element() as HTMLElement).focus();
+      await expect.element(before).toHaveFocus();
+      await userEvent.tab();
+      await expect.element(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
+    it('is plain text when it is disabled with nowhere to go', async () => {
+      const screen = await render(
+        <PlList>
+          <PlListItem disabled>Inbox</PlListItem>
         </PlList>
       );
 

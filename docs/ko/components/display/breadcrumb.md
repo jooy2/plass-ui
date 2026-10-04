@@ -210,7 +210,7 @@ import NextLink from 'next/link';
 - 현재 단계는 `"true"`가 아니라 `aria-current="page"`를 답니다. 자취는 내비게이션이고, 독자가 있는 단계는 선택지 중 고른 하나가 아니라 **페이지**입니다.
 - 구분자는 `aria-hidden`입니다. 단계마다 "보다 큼"을 읽는 스크린리더는 문장부호를 읽고 있는 것입니다.
 - `onClick`만 있는 단계는 진짜 `<button>`이고, `href`가 있는 단계는 진짜 `<a>`입니다. 어느 쪽도 핸들러가 달린 `<span>`이 아닙니다.
-- `href`나 `render`가 있는 disabled 단계는 여전히 `<a>`이지만, 주소가 없어 따라갈 수 없습니다. 사용할 수 없는 링크로 읽히고, <kbd>Tab</kbd>은 이 단계를 건너뜁니다. `onClick`만 있는 disabled 단계는 평범한 텍스트입니다.
+- `href`나 `render`가 있는 disabled 단계는 여전히 `<a>`이지만, 주소가 없어 따라갈 수 없습니다. 사용할 수 없는 링크로 읽히고, <kbd>Tab</kbd>은 이 단계를 건너뜁니다. `onClick`만 있는 disabled 단계는 `disabled`가 붙은 `<button>` 그대로입니다. 사용할 수 없는 button으로 읽히고, <kbd>Tab</kbd>은 이 단계를 건너뛰며, `onClick`은 불리지 않습니다.
 
 :::
 

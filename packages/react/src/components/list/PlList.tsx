@@ -267,6 +267,8 @@ export const PlList = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlListP
  * as a separate control. This is the same shape a `PlChip` uses, for the same
  * two reasons: a `<span>` carrying a click handler is invisible to a keyboard,
  * and a `<button>` inside a `<button>` is markup the browser silently un-nests.
+ * A disabled row keeps its element: the `<a>` loses its address and the
+ * `<button>` takes `disabled`.
  */
 export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlListItemProps>(
   function PlListItem(
@@ -380,17 +382,21 @@ export const PlListItem = /* @__PURE__ */ React.forwardRef<HTMLLIElement, PlList
       >
         {link ? (
           link
-        ) : interactive ? (
+        ) : onClick ? (
+          // Still a button while it is disabled, as a disabled `PlChip` is, so
+          // it is announced as a button that cannot be pressed, and Tab passes
+          // over it. Drawn unselected, it says nothing about being chosen.
           <button
             type="button"
             className={bodyClassNames}
-            aria-current={selected ? true : undefined}
+            disabled={disabled}
+            aria-current={selected && !disabled ? true : undefined}
             onClick={onClick}
           >
             {body}
           </button>
         ) : (
-          // A disabled row with nowhere to go is plain text. It keeps
+          // A disabled row with nothing to press is plain text. It keeps
           // `aria-disabled`, which a screen reader does not say on an element
           // with no role, as the mark a stylesheet or a test reads, as a
           // `PlChip` that cannot be pressed does.
