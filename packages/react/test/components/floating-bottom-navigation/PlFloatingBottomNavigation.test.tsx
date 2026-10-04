@@ -570,5 +570,30 @@ describe('PlFloatingBottomNavigation', () => {
 
       expect(keyOf()?.style.getPropertyValue('--p-disc-x')).toBe(`${disc.offsetLeft}px`);
     });
+
+    it('measures again when a style moves the current destination without resizing the bar', async () => {
+      const bar = (width: number) => (
+        <PlFloatingBottomNavigation className="bar-under-test" value="search">
+          <PlFloatingBottomNavigationItem value="home" icon={glyph} style={{ width }}>
+            Home
+          </PlFloatingBottomNavigationItem>
+          <PlFloatingBottomNavigationItem value="search" icon={glyph}>
+            Search
+          </PlFloatingBottomNavigationItem>
+        </PlFloatingBottomNavigation>
+      );
+      const screen = await render(bar(40));
+      const before = keyOf()?.style.getPropertyValue('--p-disc-x');
+
+      // Home grows inside a capsule that stays as wide as it was, so the
+      // observer on the capsule has nothing to report, and Search stands
+      // somewhere else.
+      await screen.rerender(bar(90));
+
+      const disc = screen.getByRole('button', { name: 'Search' }).element() as HTMLElement;
+
+      expect(`${disc.offsetLeft}px`).not.toBe(before);
+      expect(keyOf()?.style.getPropertyValue('--p-disc-x')).toBe(`${disc.offsetLeft}px`);
+    });
   });
 });

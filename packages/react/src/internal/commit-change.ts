@@ -16,9 +16,13 @@
  *
  * - one of `deps`, which are the props the component sizes its children by;
  * - the markup under the element: a child added, removed or moved, text
- *   edited, a `class` or a `dir` changed. A `MutationObserver` records those,
- *   and its records are taken in the layout effect, before the browser delivers
- *   them, so they are exactly the ones the commit being checked made;
+ *   edited, a `class`, a `style` or a `dir` changed. A `MutationObserver`
+ *   records those, and its records are taken in the layout effect, before the
+ *   browser delivers them, so they are exactly the ones the commit being
+ *   checked made. A parent rendering again with the same `style` writes
+ *   nothing, since React sets only the declarations whose values changed, and
+ *   the `style` of the element the callback writes its own answer to, such as
+ *   a sliding tile, is the answer landing rather than anything that moved;
  * - the nearest `dir` above the element, since a document turned over in the
  *   same commit moves every child without touching the markup under it.
  *
@@ -32,12 +36,14 @@ import * as React from 'react';
 /**
  * Calls `onChange` before the browser paints, on the first commit and on every
  * later one that changed `deps`, the markup under `ref`, or the direction it
- * runs in.
+ * runs in. `output` is the element `onChange` writes to, whose own `style` does
+ * not count.
  */
 export function useCommitChange(
   ref: React.RefObject<HTMLElement | null>,
   deps: readonly unknown[],
-  onChange: () => void
+  onChange: () => void,
+  output?: React.RefObject<HTMLElement | null>
 ): void {
   const mutationsRef = React.useRef<MutationObserver | null>(null);
   const lastRef = React.useRef<readonly unknown[] | null>(null);
@@ -58,7 +64,7 @@ export function useCommitChange(
       subtree: true,
       childList: true,
       characterData: true,
-      attributeFilter: ['class', 'dir']
+      attributeFilter: ['class', 'style', 'dir']
     });
     mutationsRef.current = observer;
 
@@ -75,7 +81,10 @@ export function useCommitChange(
       return;
     }
 
-    const edited = (mutationsRef.current?.takeRecords().length ?? 0) > 0;
+    const written = output?.current;
+    const edited = (mutationsRef.current?.takeRecords() ?? []).some(
+      (record) => !(record.attributeName === 'style' && record.target === written)
+    );
     const next = [...deps, element.closest('[dir]')?.getAttribute('dir')];
     const last = lastRef.current;
 

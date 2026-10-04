@@ -437,7 +437,12 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
   // Not on every render a parent does, which hands the set new `children` each
   // time: only on a commit that changed the choice, a prop the segments are
   // sized by, or the segments themselves. See `internal/commit-change.ts`.
-  useCommitChange(rootRef, [value, variant, size, density, fullWidth], () => measure(true));
+  useCommitChange(
+    rootRef,
+    [value, variant, size, density, fullWidth],
+    () => measure(true),
+    tileRef
+  );
 
   React.useEffect(() => {
     const root = rootRef.current;

@@ -407,7 +407,12 @@ export const PlFloatingBottomNavigation = /* @__PURE__ */ React.forwardRef<
   // time: only on a commit that changed the destination, a prop the discs are
   // sized by, or the discs themselves, a disc made unavailable among them. See
   // `internal/commit-change.ts`.
-  useCommitChange(capsuleRef, [value, variant, size, density, disabled], () => measure(true));
+  useCommitChange(
+    capsuleRef,
+    [value, variant, size, density, disabled],
+    () => measure(true),
+    keyRef
+  );
 
   React.useEffect(() => {
     const capsule = capsuleRef.current;

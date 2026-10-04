@@ -7,6 +7,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import * as React from 'react';
+import { flushSync } from 'react-dom';
 import { useCommitChange } from '../../src/internal/commit-change';
 import { committed } from '../support/timing';
 
@@ -156,5 +157,74 @@ describe('useCommitChange', () => {
     await screen.rerender(box('md'));
 
     expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls back when the commit changes a child’s style', async () => {
+    const onChange = vi.fn();
+    const box = (width: number) => (
+      <Box onChange={onChange}>
+        <span style={{ display: 'inline-block', width }}>One</span>
+      </Box>
+    );
+    const screen = await render(box(40));
+
+    await screen.rerender(box(80));
+
+    expect(onChange).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not call back when a parent hands it the same style again', async () => {
+    const onChange = vi.fn();
+    const box = () => (
+      <Box onChange={onChange}>
+        <span style={{ display: 'inline-block', width: 40 }}>One</span>
+      </Box>
+    );
+    const screen = await render(box());
+
+    await screen.rerender(box());
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not count the style of the element it writes its answer to', async () => {
+    const onChange = vi.fn();
+    const renderAgainRef: React.RefObject<((write: HTMLElement | null) => void) | null> = {
+      current: null
+    };
+
+    /**
+     * A box that writes to an element of its own, and renders again in the
+     * same task as that write, before the browser has delivered the record.
+     */
+    function Writer() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const outputRef = React.useRef<HTMLSpanElement>(null);
+      const [, setCount] = React.useState(0);
+
+      useCommitChange(ref, [], onChange, outputRef);
+
+      React.useEffect(() => {
+        renderAgainRef.current = (write) => {
+          write?.style.setProperty('--p-x', '1px');
+          flushSync(() => setCount((count) => count + 1));
+        };
+      }, []);
+
+      return (
+        <div ref={ref}>
+          <span ref={outputRef} className="output" />
+          <span className="other" />
+        </div>
+      );
+    }
+
+    await render(<Writer />);
+
+    renderAgainRef.current?.(document.querySelector<HTMLElement>('.output'));
+    expect(onChange).toHaveBeenCalledTimes(1);
+
+    renderAgainRef.current?.(document.querySelector<HTMLElement>('.other'));
+    expect(onChange).toHaveBeenCalledTimes(2);
   });
 });

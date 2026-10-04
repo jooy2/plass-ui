@@ -34,6 +34,8 @@
 
 ### Fixed
 
+- **A `PlSegmentedButton`'s tile and a `PlFloatingBottomNavigation`'s key follow an inline `style` that moves the chosen segment or the current destination.** They measured again only on a commit that changed the value, a prop, the children, a class or a `dir`, so a `style` that moved a segment without resizing the set left the tile where it was until the next change. They now measure on that commit too, and a parent render that hands over the same styles still measures nothing.
+
 - **A padded `PlPanes` or `PlMockup` no longer moves as the page hydrates.** A split measured its border box where its panes' `flex-basis` percentages resolve against its content box, so with padding or a border a pane given a pixel `defaultSize` shrank as the split measured itself, and a handle fell behind the pointer and the arrow keys. A mockup measured its content box where the stylesheet scales the device to the box inside its border, so a padded mockup drawn on the server shrank at hydration. Both now measure the box their CSS reads, and a padded mockup's device fills the box inside its border, padding included, as its first paint already did.
 
 - **A calendar or date picker no longer works out which day its week starts on at every render.** With no `weekStartsOn` given, `PlCalendar`, `PlDatePicker`, `PlDateRangePicker` and `PlDateTimePicker` built an `Intl.Locale` on every render, and with no `locale` named a formatter as well, about 30 µs each time. The answer is now kept for each locale.

@@ -151,6 +151,76 @@ describe('PlSegmentedButton', () => {
       expect(`${week.offsetLeft}px`).not.toBe(second);
       expect(tile.style.getPropertyValue('--p-seg-x')).toBe(`${week.offsetLeft}px`);
     });
+    it('measures again when a style moves the chosen segment without resizing the set', async () => {
+      const set = (width: number) => (
+        <PlSegmentedButton
+          aria-label="Period"
+          className="set-under-test"
+          defaultValue="week"
+          style={{ width: 400 }}
+        >
+          <PlSegment value="day" style={{ display: 'inline-block', width }}>
+            Day
+          </PlSegment>
+          <PlSegment value="week" style={{ display: 'inline-block' }}>
+            Week
+          </PlSegment>
+        </PlSegmentedButton>
+      );
+      const screen = await render(set(100));
+      const tile = document.querySelector(
+        '.set-under-test > span[aria-hidden="true"]'
+      ) as HTMLElement;
+
+      const before = tile.style.getPropertyValue('--p-seg-x');
+
+      // Day grows, inside a set held at one width: the observer on the set has
+      // nothing to report, and Week stands somewhere else.
+      await screen.rerender(set(150));
+
+      const week = screen.getByRole('radio', { name: 'Week' }).element() as HTMLElement;
+
+      expect(`${week.offsetLeft}px`).not.toBe(before);
+      expect(tile.style.getPropertyValue('--p-seg-x')).toBe(`${week.offsetLeft}px`);
+    });
+
+    it('does not measure again when a parent hands it the same styles again', async () => {
+      const set = () => (
+        <PlSegmentedButton
+          aria-label="Period"
+          className="set-under-test"
+          defaultValue="week"
+          style={{ width: 400 }}
+        >
+          <PlSegment value="day" style={{ display: 'inline-block', width: 100 }}>
+            Day
+          </PlSegment>
+          <PlSegment value="week" style={{ display: 'inline-block' }}>
+            Week
+          </PlSegment>
+        </PlSegmentedButton>
+      );
+      const screen = await render(set());
+
+      await frames(3);
+
+      const reads = vi.spyOn(HTMLElement.prototype, 'offsetLeft', 'get');
+
+      try {
+        // New style objects with the same declarations, which React writes
+        // nothing for.
+        await screen.rerender(set());
+        await frames(2);
+
+        expect(
+          reads.mock.contexts.filter((element) =>
+            (element as HTMLElement).hasAttribute('data-segment')
+          )
+        ).toEqual([]);
+      } finally {
+        reads.mockRestore();
+      }
+    });
   });
 
   describe('choosing', () => {
