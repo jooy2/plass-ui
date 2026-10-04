@@ -10,6 +10,7 @@
  * The dialog itself is not what is under test; those tests are next door. What
  * is asserted here is the promise: that it resolves, with what, and when.
  */
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlButton, PlConfirmProvider, PlassProvider, usePlConfirm } from 'plass-ui';
@@ -32,17 +33,21 @@ function Asker({
   );
 }
 
-/** A button inside the open dialog. See the note at the top of the file. */
-function pressInDialog(name: string): void {
-  const button = Array.from(
-    document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')
-  ).find((candidate) => candidate.textContent?.trim() === name);
+/**
+ * A button inside the open dialog. See the note at the top of the file.
+ *
+ * Waited for rather than read at once: the dialog is a chunk of its own, and a
+ * question asked before it has arrived opens the dialog as soon as it does.
+ */
+async function pressInDialog(name: string): Promise<void> {
+  const find = () =>
+    Array.from(document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')).find(
+      (candidate) => candidate.textContent?.trim() === name
+    );
 
-  if (!button) {
-    throw new Error(`no button named ${name} in the dialog`);
-  }
+  await expect.poll(find, { message: `no button named ${name} in the dialog` }).toBeDefined();
 
-  button.click();
+  find()!.click();
 }
 
 describe('PlConfirmProvider', () => {
@@ -55,6 +60,54 @@ describe('PlConfirmProvider', () => {
       );
 
       expect(screen.getByRole('dialog').query()).toBeNull();
+    });
+
+    it('opens on the first question and takes the focus into the dialog', async () => {
+      const screen = await render(
+        <PlConfirmProvider>
+          <Asker answer={() => {}} cancelLabel="Keep it" />
+        </PlConfirmProvider>
+      );
+
+      // Nothing of the dialog is mounted before anything asks.
+      expect(document.querySelector('.plass-portal')).toBeNull();
+
+      await screen.getByRole('button', { name: 'Delete' }).click();
+
+      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+      await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
+    });
+
+    it('fades the first question in, as it does every later one', async () => {
+      let started = false;
+
+      // `data-starting-style` is what the fade starts from. A dialog mounted
+      // already open never carries it, so it would appear at full strength.
+      const observer = new MutationObserver(() => {
+        started ||= document.querySelector('[role="dialog"][data-starting-style]') !== null;
+      });
+
+      observer.observe(document.body, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ['data-starting-style']
+      });
+
+      try {
+        const screen = await render(
+          <PlConfirmProvider>
+            <Asker answer={() => {}} />
+          </PlConfirmProvider>
+        );
+
+        await screen.getByRole('button', { name: 'Delete' }).click();
+        await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+
+        expect(started).toBe(true);
+      } finally {
+        observer.disconnect();
+      }
     });
 
     it('opens with the question it was given', async () => {
@@ -144,7 +197,7 @@ describe('PlConfirmProvider', () => {
       );
 
       await screen.getByRole('button', { name: 'Delete' }).click();
-      pressInDialog('Delete it');
+      await pressInDialog('Delete it');
 
       await expect.poll(() => answer.mock.calls).toEqual([[true]]);
     });
@@ -159,7 +212,7 @@ describe('PlConfirmProvider', () => {
       );
 
       await screen.getByRole('button', { name: 'Delete' }).click();
-      pressInDialog('Keep it');
+      await pressInDialog('Keep it');
 
       await expect.poll(() => answer.mock.calls).toEqual([[false]]);
     });
@@ -191,7 +244,7 @@ describe('PlConfirmProvider', () => {
       );
 
       await screen.getByRole('button', { name: 'Delete' }).click();
-      pressInDialog('Delete it');
+      await pressInDialog('Delete it');
 
       await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
     });
@@ -229,11 +282,11 @@ describe('PlConfirmProvider', () => {
 
       await expect.element(screen.getByText('First?')).toBeInTheDocument();
 
-      pressInDialog('Yes');
+      await pressInDialog('Yes');
 
       await expect.element(screen.getByText('Second?')).toBeInTheDocument();
 
-      pressInDialog('Yes');
+      await pressInDialog('Yes');
 
       await expect.poll(() => answers).toEqual([true, true]);
     });
@@ -269,7 +322,7 @@ describe('PlConfirmProvider', () => {
       await expect.element(screen.getByText('Your session expired.')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Cancel' }).query()).toBeNull();
 
-      pressInDialog('OK');
+      await pressInDialog('OK');
 
       await expect.poll(() => done.mock.calls.length).toBe(1);
     });
@@ -334,6 +387,20 @@ describe('PlConfirmProvider', () => {
 
       await expect.element(screen.getByText('Delete it?')).toBeInTheDocument();
       await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
+    });
+  });
+
+  describe('rendered on a server', () => {
+    it('sends its children and nothing of the dialog', () => {
+      const html = renderToString(
+        <PlConfirmProvider>
+          <p>The page</p>
+        </PlConfirmProvider>
+      );
+
+      // No boundary for the dialog's chunk either: one that suspended on the
+      // server would be `<!--$!-->` and rendered again in the browser.
+      expect(html).toBe('<p>The page</p>');
     });
   });
 

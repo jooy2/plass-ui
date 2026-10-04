@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { beginPointerDrag } from '../../internal/drag.js';
-import { PlDrawer } from '../drawer/PlDrawer.js';
 import {
   drawerSide,
   expandedOnlyClasses,
@@ -185,6 +184,19 @@ const widthValues: Record<PlassSize, string> = {
  * `PlHeader` and `PlFooter`.
  */
 const variantClasses = sheetRestClasses;
+
+/**
+ * The drawer a collapsed sidebar becomes, which is a download of its own.
+ *
+ * A drawer is the dialog stack — the focus trap, the scroll lock, the inert
+ * page — and a sidebar on a screen wide enough for its column never uses any
+ * of it. Behind `React.lazy` the chunk is fetched the moment the window is
+ * narrower than `collapseBelow`, which is before anyone can have pressed the
+ * trigger, and never by a page that stays wider.
+ */
+const PlDrawer = /* @__PURE__ */ React.lazy(() =>
+  import('../drawer/PlDrawer.js').then((module) => ({ default: module.PlDrawer }))
+);
 
 /** How far one arrow key press moves the edge. The same step `PlPanes` uses. */
 const KEYBOARD_STEP = 16;
@@ -405,35 +417,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       onResizeEnd?.(next);
     };
 
-    if (collapsed) {
-      return (
-        <PlDrawer
-          side={drawerSide(side, defaults.direction)}
-          mode="overlay"
-          open={open}
-          onOpenChange={changeOpen}
-          keepMounted={keepMounted}
-          title={title}
-          size={size}
-          color={color}
-          density={density}
-          closeLabel={closeLabel}
-          // An explicit width is the caller's decision and survives the change
-          // of shape; the default one does not, because a column sized against
-          // the article beside it and a panel sized against a phone are two
-          // different numbers, and the drawer's own ladder already knows the
-          // second.
-          extent={widthProp === undefined ? undefined : width}
-          aria-label={title ? undefined : label}
-          className={className}
-          style={style}
-        >
-          {children}
-        </PlDrawer>
-      );
-    }
-
-    return (
+    const column = (
       <aside
         ref={setRootRef}
         aria-label={label}
@@ -518,6 +502,42 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
           />
         ) : null}
       </aside>
+    );
+
+    if (!collapsed) {
+      return column;
+    }
+
+    return (
+      // The column stands in while the drawer's chunk is on its way. Below the
+      // breakpoint the class that holds the first paint together keeps it out
+      // of sight, exactly as it does before hydration, and the children stay in
+      // the document rather than leaving it and coming back.
+      <React.Suspense fallback={column}>
+        <PlDrawer
+          side={drawerSide(side, defaults.direction)}
+          mode="overlay"
+          open={open}
+          onOpenChange={changeOpen}
+          keepMounted={keepMounted}
+          title={title}
+          size={size}
+          color={color}
+          density={density}
+          closeLabel={closeLabel}
+          // An explicit width is the caller's decision and survives the change
+          // of shape; the default one does not, because a column sized against
+          // the article beside it and a panel sized against a phone are two
+          // different numbers, and the drawer's own ladder already knows the
+          // second.
+          extent={widthProp === undefined ? undefined : width}
+          aria-label={title ? undefined : label}
+          className={className}
+          style={style}
+        >
+          {children}
+        </PlDrawer>
+      </React.Suspense>
     );
   }
 );

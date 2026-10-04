@@ -2,9 +2,64 @@
 
 import * as React from 'react';
 import { PlButton } from '../button/PlButton.js';
-import { PlModal } from '../modal/PlModal.js';
+import type { PlModalProps } from '../modal/PlModal.js';
 import { useLabels } from '../../internal/labels.js';
 import type { PlassColor, PlassSize } from '../../types.js';
+
+/**
+ * The dialog the questions are asked in, which is a download of its own.
+ *
+ * A provider sits at the root of every page, and most pages never ask it
+ * anything, so the dialog stack — the focus trap, the scroll lock, the inert
+ * page — should not be in the first paint's bundle on their account. Behind
+ * `React.lazy` the chunk is fetched once the page has gone idle, and the modal
+ * is mounted by the first question. A question asked before the chunk arrives
+ * is answered as soon as it does.
+ */
+const loadModal = () => import('../modal/PlModal.js');
+
+const PlModal = /* @__PURE__ */ React.lazy(() =>
+  loadModal().then((module) => ({ default: module.PlModal }))
+);
+
+/**
+ * Calls `callback` once the browser has nothing more pressing to do, and
+ * returns what calls it off. A browser without `requestIdleCallback` gets a
+ * timer instead, long enough to leave the page's own first requests ahead of
+ * the chunk.
+ */
+function whenIdle(callback: () => void): () => void {
+  if (typeof window.requestIdleCallback === 'function') {
+    const handle = window.requestIdleCallback(callback, { timeout: 2000 });
+
+    return () => window.cancelIdleCallback(handle);
+  }
+
+  const handle = window.setTimeout(callback, 500);
+
+  return () => window.clearTimeout(handle);
+}
+
+/**
+ * The modal, mounted closed and opened one commit later.
+ *
+ * The first question is what mounts it, and a dialog that mounts already open
+ * has no closed state to fade in from: Base UI starts the transition when
+ * `open` changes. Opening it from a layout effect, before the browser paints,
+ * gives the first question the same arrival every later one gets.
+ */
+function ConfirmModal({ open, ...props }: PlModalProps) {
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useLayoutEffect(() => {
+    // The second render is the point: the closed one has to be committed for
+    // the open one to have something to change from. It runs once, on mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  return <PlModal open={open === true && mounted} {...props} />;
+}
 
 /** What one question looks like. Every field is optional but `title`. */
 export interface PlConfirmOptions {
@@ -177,6 +232,16 @@ export function PlConfirmProvider({
     [ask]
   );
 
+  // Fetched ahead of the first question, so the dialog is normally there the
+  // moment that question is asked rather than a download later.
+  React.useEffect(
+    () =>
+      whenIdle(() => {
+        void loadModal().catch(() => undefined);
+      }),
+    []
+  );
+
   // Everything an unmounting provider is still holding. A promise that is never
   // settled is a handler that never runs its `finally`, so a route change would
   // leave a button spinning for the rest of the session.
@@ -193,11 +258,12 @@ export function PlConfirmProvider({
   const isAlert = current?.kind === 'alert';
   const focusConfirm = (options?.initialFocus ?? 'cancel') === 'confirm' || isAlert;
 
-  return (
-    <ConfirmContext.Provider value={value}>
-      {children}
-
-      <PlModal
+  // Nothing is mounted until something asks, and `current` is never cleared,
+  // so from the first question on the modal stays mounted between questions
+  // exactly as it would have from the start.
+  const modal = current ? (
+    <React.Suspense fallback={null}>
+      <ConfirmModal
         open={open}
         // The only path that reaches here is Escape or a click outside — the
         // buttons below settle and close it themselves, and a controlled `open`
@@ -251,7 +317,14 @@ export function PlConfirmProvider({
         }
       >
         {options?.children}
-      </PlModal>
+      </ConfirmModal>
+    </React.Suspense>
+  ) : null;
+
+  return (
+    <ConfirmContext.Provider value={value}>
+      {children}
+      {modal}
     </ConfirmContext.Provider>
   );
 }

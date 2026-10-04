@@ -1,3 +1,6 @@
+import { act } from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlassProvider, PlHeader, PlPageLayout, PlSidebar, PlSidebarTrigger } from 'plass-ui';
@@ -445,6 +448,10 @@ describe('PlSidebar', () => {
     });
   });
 
+  // The drawer is a chunk of its own, fetched once the sidebar has collapsed,
+  // and the column stands in for it until it arrives. The class that keeps the
+  // column off a narrow screen is not loaded here, so a test that is about the
+  // drawer waits for the column to have gone.
   describe('as a drawer', () => {
     it('is not in the document while it is closed', async () => {
       const screen = await render(
@@ -453,8 +460,9 @@ describe('PlSidebar', () => {
         </PlSidebar>
       );
 
-      expect(screen.getByRole('complementary').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('complementary').query()).toBeNull();
       expect(screen.getByRole('dialog').query()).toBeNull();
+      expect(screen.getByText('Links').query()).toBeNull();
     });
 
     it('keeps its links in the document while it is closed when it is asked to', async () => {
@@ -468,10 +476,9 @@ describe('PlSidebar', () => {
 
       const link = () => document.querySelector<HTMLAnchorElement>('a[href="/docs"]');
 
-      await expect.poll(link).not.toBeNull();
-
       // There for a crawler reading the markup, and for nobody else.
-      expect(link()!.closest('[hidden]')).not.toBeNull();
+      await expect.poll(() => link()?.closest('[hidden]') ?? null).not.toBeNull();
+      expect(screen.getByRole('complementary').query()).toBeNull();
       expect(screen.getByRole('dialog').query()).toBeNull();
       expect(screen.getByRole('link', { name: 'Docs' }).query()).toBeNull();
     });
@@ -549,6 +556,43 @@ describe('PlSidebar', () => {
         await expect.element(screen.getByRole('dialog')).toHaveClass('border-l');
       } finally {
         document.documentElement.removeAttribute('dir');
+      }
+    });
+  });
+
+  describe('rendered on a server', () => {
+    it('sends the column with no boundary to fall back from, and hydrates into the drawer', async () => {
+      const tree = (
+        <PlSidebar collapseBelow="md" keepMounted>
+          <a href="/docs">Docs</a>
+        </PlSidebar>
+      );
+      const html = renderToString(tree);
+
+      // A server has no window, so it sends the column, and the drawer's chunk
+      // is no part of it: a boundary that suspended would be `<!--$!-->`.
+      expect(html).toContain('<aside');
+      expect(html).not.toContain('<!--$');
+
+      const host = document.createElement('div');
+      const onRecoverableError = vi.fn();
+
+      host.innerHTML = html;
+      document.body.append(host);
+
+      const root = await act(async () => hydrateRoot(host, tree, { onRecoverableError }));
+
+      try {
+        // Narrower than `md` here, so the column gives way to the drawer, and
+        // the drawer keeps the link.
+        await expect.poll(() => host.querySelector('aside')).toBeNull();
+        await expect
+          .poll(() => document.querySelector('a[href="/docs"]')?.closest('[hidden]') ?? null)
+          .not.toBeNull();
+        expect(onRecoverableError).not.toHaveBeenCalled();
+      } finally {
+        await act(async () => root.unmount());
+        host.remove();
       }
     });
   });

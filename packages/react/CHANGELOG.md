@@ -10,6 +10,8 @@
 
 ### Changed
 
+- **`PlConfirmProvider` and `PlSidebar` fetch their dialog when it is needed rather than with the page.** An app shell of `PlassProvider`, `PlToastProvider`, `PlConfirmProvider`, `PlPageLayout`, `PlSidebar` and `PlHeader` carried the whole dialog stack, 37.2 kB gzip. The confirm dialog is now fetched once the page is idle and mounted by the first question, which still fades in and takes the focus; the sidebar's drawer is fetched once the window is narrower than `collapseBelow`. The same shell is 25.1 kB, and a server render is unchanged.
+
 - **`plass-ui/css/<component>.css` registers only the library modules its component reaches.** `plass-ui/css/base.css` scanned every one of the library's internal modules, so a Tailwind project that registered one component still generated the utilities of all of them: `PlButton` on its own came to 14.3 kB gzipped. Each manifest now lists the modules its component reaches, and `base.css` is the tokens alone, which brings `PlButton` to 11.4 kB, `PlButton` with `PlTextField` to 12.1 kB and `PlTypography` to 8.9 kB, against 22.5 kB for `plass-ui/tailwind.css`. Nothing changes in a project's imports, and nothing a component uses is left out.
 
 ### Fixed
