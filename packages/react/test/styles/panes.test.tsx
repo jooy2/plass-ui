@@ -17,6 +17,7 @@ import { PlPane, PlPanes } from 'plass-ui';
 import type { PlPaneSize } from 'plass-ui';
 import { render } from 'vitest-browser-react';
 import standaloneCss from '../../src/standalone.css?inline';
+import { moveMouseOntoPage } from '../support/pointer';
 import { committed } from '../support/timing';
 
 let sheet: HTMLStyleElement;
@@ -178,6 +179,116 @@ describe('a server-rendered PlPanes', () => {
 
       // One press is 16 pixels of the panes' own room.
       expect(Math.abs(widths(document.body)[0] - before - 16)).toBeLessThanOrEqual(0.5);
+    });
+  });
+
+  describe('inside a scaled ancestor', () => {
+    /**
+     * A split laid out 608 wide, which leaves the panes 600 between them, and
+     * drawn at half that by a `transform` on the box around it, as a split
+     * inside a scaled `PlMockup` is.
+     */
+    const scaled = (minSize?: PlPaneSize) => (
+      <div style={{ transform: 'scale(0.5)', transformOrigin: '0 0' }}>
+        <div style={{ width: '608px', height: '300px' }}>
+          <PlPanes className="split-under-test">
+            <PlPane defaultSize="200px" minSize={minSize}>
+              Pane 1
+            </PlPane>
+            <PlPane>Pane 2</PlPane>
+          </PlPanes>
+        </div>
+      </div>
+    );
+
+    /** Every pane's width as laid out, which is twice the width drawn. */
+    const laidOut = (host: Element) => widths(host).map((width) => width * 2);
+
+    /** The handle, once the split has measured itself. */
+    async function measuredHandle(): Promise<HTMLElement> {
+      const handle = document.querySelector<HTMLElement>('[role="separator"]')!;
+
+      await expect.poll(() => handle.getAttribute('aria-valuenow')).not.toBeNull();
+
+      return handle;
+    }
+
+    /** Presses `key` on the focused handle, and waits for the render it asks for. */
+    async function press(handle: HTMLElement, key: string): Promise<void> {
+      await committed(() => {
+        handle.dispatchEvent(
+          new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
+        );
+      });
+    }
+
+    it('keeps a pixel length where the server drew it', async () => {
+      const { server, hydrated, errors } = await serverThenHydrated(scaled());
+
+      expectWidths(
+        server.map((width) => width * 2),
+        [200, 400]
+      );
+      expectWidths(hydrated, server);
+      expect(errors).toEqual([]);
+    });
+
+    it('moves the line as far as the key says', async () => {
+      await render(scaled());
+      const handle = await measuredHandle();
+      const [before] = laidOut(document.body);
+
+      handle.focus();
+      await press(handle, 'ArrowRight');
+
+      // One press is 16 pixels of the panes' own room, which is 8 on the screen.
+      expect(Math.abs(laidOut(document.body)[0] - before - 16)).toBeLessThanOrEqual(0.5);
+    });
+
+    it('holds a pane at a minimum in pixels of its own room', async () => {
+      await render(scaled('150px'));
+      const handle = await measuredHandle();
+
+      handle.focus();
+
+      for (let presses = 0; presses < 6; presses++) {
+        await press(handle, 'ArrowLeft');
+      }
+
+      expectWidths(laidOut(document.body), [150, 450]);
+    });
+
+    it('keeps the line under the pointer dragging it', async () => {
+      await render(scaled());
+      const handle = await measuredHandle();
+      const pointerId = await moveMouseOntoPage();
+      const start = handle.getBoundingClientRect();
+      const at = (x: number) => ({
+        bubbles: true,
+        pointerType: 'mouse',
+        pointerId,
+        button: 0,
+        buttons: 1,
+        clientX: x,
+        clientY: start.top + start.height / 2
+      });
+      const x = start.left + start.width / 2;
+
+      await committed(() => {
+        handle.dispatchEvent(new PointerEvent('pointerdown', at(x)));
+      });
+      await committed(() => {
+        handle.dispatchEvent(new PointerEvent('pointermove', at(x + 100)));
+      });
+
+      // The handle went as far on the screen as the pointer did.
+      expect(Math.abs(handle.getBoundingClientRect().left - start.left - 100)).toBeLessThanOrEqual(
+        0.5
+      );
+
+      await committed(() => {
+        handle.dispatchEvent(new PointerEvent('pointerup', at(x + 100)));
+      });
     });
   });
 });

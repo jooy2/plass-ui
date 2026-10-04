@@ -162,35 +162,56 @@ function toPixels(
 }
 
 /**
- * The length a pane's `flex-basis` percentage is a percentage of: the split's
- * content box along its axis, inside its padding and its border.
+ * The split along its axis, as two numbers.
  *
- * The border box is the same number only while the split has neither. A padded
- * split measured by it gave every fraction more room than the panes have, so a
- * length moved as the split measured itself and a handle fell behind the
- * pointer dragging it.
+ * - `content` is the length a pane's `flex-basis` percentage is a percentage
+ *   of: the split's content box as it is laid out, inside its padding and its
+ *   border. The border box is the same number only while the split has
+ *   neither. A padded split measured by it gave every fraction more room than
+ *   the panes have, so a length moved as the split measured itself and a handle
+ *   fell behind the pointer dragging it.
+ * - `perPixel` is how many of those pixels one pixel on the screen is, which is
+ *   what a pointer's movement is measured in.
+ *
+ * The two differ under a `transform` on an ancestor, a split inside a scaled
+ * `PlMockup` for one. The box on the screen is the drawn size there, so the
+ * laid-out size is read off the computed style instead, which a transform does
+ * not reach, and the box on the screen is kept for the pointer. A split that is
+ * not laid out, inside a closed `PlAccordion` for example, measures nothing.
  */
-function contentExtent(root: HTMLElement, horizontal: boolean): number {
+function measureSplit(
+  root: HTMLElement,
+  horizontal: boolean
+): { content: number; perPixel: number } {
   const rect = root.getBoundingClientRect();
-  const style = getComputedStyle(root);
-  const edges = horizontal
-    ? [
-        style.paddingInlineStart,
-        style.paddingInlineEnd,
-        style.borderInlineStartWidth,
-        style.borderInlineEndWidth
-      ]
-    : [
-        style.paddingBlockStart,
-        style.paddingBlockEnd,
-        style.borderBlockStartWidth,
-        style.borderBlockEndWidth
-      ];
+  const drawn = horizontal ? rect.width : rect.height;
 
-  return (
-    (horizontal ? rect.width : rect.height) -
-    edges.reduce((total, edge) => total + (parseFloat(edge) || 0), 0)
-  );
+  if (!(drawn > 0)) {
+    return { content: 0, perPixel: 1 };
+  }
+
+  const style = getComputedStyle(root);
+  const edges = (
+    horizontal
+      ? [
+          style.paddingInlineStart,
+          style.paddingInlineEnd,
+          style.borderInlineStartWidth,
+          style.borderInlineEndWidth
+        ]
+      : [
+          style.paddingBlockStart,
+          style.paddingBlockEnd,
+          style.borderBlockStartWidth,
+          style.borderBlockEndWidth
+        ]
+  ).reduce((total, edge) => total + (parseFloat(edge) || 0), 0);
+  // The used size, which is the border box or the content box as
+  // `box-sizing` says.
+  const size = parseFloat(horizontal ? style.width : style.height) || 0;
+  const border = style.boxSizing === 'border-box' ? size : size + edges;
+
+  return { content: border - edges, perPixel: border > 0 ? border / drawn : 1 };
 }
 
 /** The `flex-basis` of a pane given `fraction` of what the handles leave. */
@@ -359,7 +380,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       if (!root) return;
 
       const measure = () => {
-        const extent = contentExtent(root, horizontal) - gutter;
+        const extent = measureSplit(root, horizontal).content - gutter;
         if (extent <= 0) return;
 
         setFractions((previous) =>
@@ -390,7 +411,8 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
       const current = fractionsRef.current;
       if (!resizable || !root || !current || current[index + 1] === undefined) return null;
 
-      const extent = contentExtent(root, horizontal) - gutter;
+      const { content, perPixel } = measureSplit(root, horizontal);
+      const extent = content - gutter;
       if (extent <= 0) return null;
 
       const before = constraintsRef.current[index];
@@ -415,6 +437,8 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
         extent,
         start,
         pair,
+        perPixel,
+        /** Moves the boundary `delta` of the split's own pixels from where it started. */
         resize(delta: number) {
           const sized = Math.min(upper, Math.max(lower, start + delta));
 
@@ -463,7 +487,9 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
         pointerId: event.pointerId,
         onMove: (moveEvent) => {
           const position = horizontal ? moveEvent.clientX : moveEvent.clientY;
-          latest = held.resize((position - origin) * towardsEnd);
+          // The pointer moves in the screen's pixels and the panes are laid out
+          // in the split's own, which differ inside a scaled ancestor.
+          latest = held.resize((position - origin) * towardsEnd * held.perPixel);
         },
         // Only the pointer being released settles the split. An unmount runs the
         // teardown below instead, which gives back the listeners and the selection
