@@ -222,6 +222,55 @@ describe('the room a changing line takes', () => {
     expect(getComputedStyle(drawn, '::after').visibility).toBe('hidden');
   });
 
+  it('is no narrower than the figure PlAnimateCounter counts down from until it lands', async () => {
+    const counter = (value: number) => (
+      <p style={{ textAlign: 'center' }}>
+        Shipped{' '}
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          play
+          value={value}
+          duration={300}
+        />{' '}
+        times
+      </p>
+    );
+    const screen = await render(counter(12345));
+    const element = document.querySelector<HTMLElement>('.counter-under-test')!;
+    const drawn = element.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+    const landed = new Intl.NumberFormat().format(12345);
+
+    await expect.poll(() => drawn.dataset.text).toBe(landed);
+
+    const wide = element.getBoundingClientRect().width;
+    const frames: [string, number][] = [];
+    const observer = new MutationObserver(() => {
+      frames.push([drawn.dataset.text ?? '', element.getBoundingClientRect().width]);
+    });
+
+    observer.observe(drawn, { attributes: true, attributeFilter: ['data-text'] });
+
+    try {
+      // A new `value` counts on from the figure on screen, which is far wider
+      // than the answer it counts down to.
+      await screen.rerender(counter(5));
+      // Landed, it is the answer's width again. A frame just short of the
+      // answer is written as "5" too, so the width is what says it landed.
+      await expect.poll(() => element.getBoundingClientRect().width).toBeLessThan(wide);
+    } finally {
+      observer.disconnect();
+    }
+
+    const counting = frames.filter(([text]) => text !== '5');
+
+    // Reserved for the answer alone, the box narrowed under the text around it
+    // at every digit the count lost on its way down.
+    expect(counting.length).toBeGreaterThan(1);
+    expect(new Set(counting.map(([, width]) => width))).toEqual(new Set([wide]));
+    expect(drawn.dataset.text).toBe('5');
+  });
+
   it('is the width of the line from the first frame of PlAnimateScramble', async () => {
     // Noise drawn from a full stop alone, which is narrower than every letter
     // of the line, so every frame on the way is narrower than the line too.

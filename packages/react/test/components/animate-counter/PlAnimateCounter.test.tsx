@@ -485,7 +485,7 @@ describe('PlAnimateCounter', () => {
         .toBe('20');
     });
 
-    it('counts a new `value` from `from`, even when a frame lands before its run starts', async () => {
+    it('counts a new `value` on from the figure it landed on, even when a frame lands before its run starts', async () => {
       function Host() {
         const [value, setValue] = useState(100);
 
@@ -498,7 +498,7 @@ describe('PlAnimateCounter', () => {
               className="counter-under-test"
               trigger="mount"
               value={value}
-              duration={50}
+              duration={300}
             />
           </>
         );
@@ -521,14 +521,99 @@ describe('PlAnimateCounter', () => {
         // A native click rather than a rerender, which would finish every render
         // it causes before any frame could run.
         document.querySelector('button')!.click();
-        await expect.poll(() => seen.length).toBeGreaterThan(0);
+        await expect.poll(() => figure()).toBe(200);
       } finally {
         restore();
         observer.disconnect();
       }
 
-      // The count that finished at 100 lends the new one nothing. Given its
-      // progress, that frame would draw 200 before the new run dropped to 0.
+      // Counted from `from`, the new count dropped to 0 first. Given the last
+      // count's progress, the frame before its run started would draw 200.
+      expect(seen.length).toBeGreaterThan(1);
+      expect(seen.at(-1)).toBe(200);
+      expect(seen.slice(0, -1).every((count) => count >= 100 && count < 200)).toBe(true);
+    });
+
+    it('counts a new `value` on from the frame a running count had got to', async () => {
+      const linear = (t: number) => t;
+      const counter = (value: number) => (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="mount"
+          value={value}
+          duration={1000}
+          easing={linear}
+        />
+      );
+
+      // Taken before the render, so the first frame the count asks for is one
+      // this test draws.
+      const frames = frameClock();
+
+      try {
+        const screen = await render(counter(1000));
+
+        await frames.draw(1000);
+        await frames.draw(1300);
+
+        expect(figure()).toBe(300);
+
+        await screen.rerender(counter(2000));
+        await frames.draw(1400);
+
+        // The figure on screen, which the new count starts from. A count that
+        // started again from `from` would be back at 0.
+        expect(figure()).toBe(300);
+
+        await frames.draw(1900);
+
+        // Halfway, over the whole `duration`, from 300 to 2,000.
+        expect(figure()).toBe(1150);
+
+        await frames.draw(2400);
+
+        expect(figure()).toBe(2000);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('counts a replay from `from` again, after a new `value`', async () => {
+      const counter = (value: number) => (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="hover"
+          value={value}
+          duration={300}
+        />
+      );
+      const hover = () => root().dispatchEvent(new PointerEvent('pointerover', { bubbles: true }));
+      const screen = await render(counter(100));
+
+      hover();
+      await expect.poll(() => figure()).toBe(100);
+
+      await screen.rerender(counter(200));
+      await expect.poll(() => figure()).toBe(200);
+
+      const seen: number[] = [];
+      const observer = new MutationObserver(() => seen.push(figure()));
+
+      observer.observe(root().querySelector('[aria-hidden="true"]')!, {
+        attributes: true,
+        attributeFilter: ['data-text']
+      });
+
+      try {
+        root().dispatchEvent(new PointerEvent('pointerout', { bubbles: true }));
+        hover();
+        await expect.poll(() => seen.length > 1 && seen.at(-1) === 200).toBe(true);
+      } finally {
+        observer.disconnect();
+      }
+
+      // A second hover is the first count again, from `from`, rather than the
+      // last one, from 100.
       expect(seen[0]).toBeLessThan(100);
     });
   });

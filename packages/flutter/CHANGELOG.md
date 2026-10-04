@@ -12,6 +12,10 @@
 
 - **`PlDrawer` takes `headingLevel`, so its title sits at the level the screen's outline needs.** It takes `1` to `6` and defaults to `2`, the level the web build already drew the title at, in both modes. Only the semantics change, never the type scale.
 
+### Changed
+
+- **A new `value` makes `PlAnimateCounter` count on from the figure on screen.** It counted from `from` every time, and the frame the new value arrived in drew it at the old count's progress, so a counter that had landed showed the new figure for a frame, dropped to `from` and counted up again. It now counts from the figure the last count landed on, or from the frame a count still running had got to, over the same `duration` with the same `curve`. The first count and a replay, such as a new `play`, still start at `from`, and reduced motion, `paused` and `trigger` work as before.
+
 ### Fixed
 
 - **Moving to another step of a `PlStepper` from inside its panel puts the focus in the new step's panel.** The focus went back to whatever had held it before, often a step behind the reader. The panel that arrives now takes it, and the next Tab goes on to what is in it, in both orientations. The panel is never a Tab stop, and a focus elsewhere stays where it is.

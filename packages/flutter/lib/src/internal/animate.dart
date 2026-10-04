@@ -436,6 +436,7 @@ class PlassAnimateRun extends StatefulWidget {
     required this.settings,
     required this.builder,
     this.mode = PlassAnimateMode.enter,
+    this.onRun,
     this.child,
     super.key,
   });
@@ -448,6 +449,15 @@ class PlassAnimateRun extends StatefulWidget {
 
   /// Called with the eased progress of the current pass, `0` to `1`.
   final ValueWidgetBuilder<double> builder;
+
+  /// Called as each run begins, before [builder] is handed its first frame:
+  /// the first run, and every one a restart, a new `play` or a new `nonce`
+  /// starts after it.
+  ///
+  /// Until then [builder] is still handed the progress the last run left, so an
+  /// effect whose start depends on why it is starting again, as a counter's
+  /// does on whether its target moved, can tell the frames apart with this.
+  final VoidCallback? onRun;
 
   /// Passed through to [builder] untouched, so a subtree that does not depend
   /// on `t` is built once rather than on every frame.
@@ -593,6 +603,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     _startedRuns = runs;
     _pass = 1;
+    widget.onRun?.call();
     _controller.value = 0;
     _setLanded(false);
     _startAfter(widget.settings.delay);

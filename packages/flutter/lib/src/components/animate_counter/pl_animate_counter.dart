@@ -32,7 +32,7 @@ import 'package:plass_ui/src/types.dart';
 /// `PlProgressLinear.formatValue`'s reason: there is no `Intl` in the framework,
 /// and a package that pulled `package:intl` in to provide one would be making a
 /// dependency decision on its consumer's behalf.
-class PlAnimateCounter extends StatelessWidget {
+class PlAnimateCounter extends StatefulWidget {
   /// Creates a counter.
   const PlAnimateCounter({
     required this.value,
@@ -53,7 +53,9 @@ class PlAnimateCounter extends StatelessWidget {
   /// The number it arrives at, and the one a screen reader is told.
   final double value;
 
-  /// The number it starts from.
+  /// The number the first count starts from, and a replay of it: a new
+  /// [play], a [PlassAnimateTrigger.visible] trigger seen again, a hover. A new
+  /// [value] counts on from the figure on screen instead.
   final double from;
 
   /// How the number is written.
@@ -94,32 +96,87 @@ class PlAnimateCounter extends StatelessWidget {
   /// screen before it counts as visible, from `0` to `1`.
   final double threshold;
 
+  @override
+  State<PlAnimateCounter> createState() => _PlAnimateCounterState();
+}
+
+class _PlAnimateCounterState extends State<PlAnimateCounter> {
+  /// Where the count runs from.
+  ///
+  /// The first count starts at [PlAnimateCounter.from], and so does a replay of
+  /// it. A new [PlAnimateCounter.value] is a figure that moved, and it counts on
+  /// from the figure on screen at that moment, the one the last count landed on
+  /// or the frame a count still running had got to, so a dashboard figure that
+  /// changes counts from the old figure to the new one rather than from `from`
+  /// every time. A new `from` starts there.
+  late double _origin = widget.from;
+
+  /// The figure last drawn, which a new value counts on from.
+  late double _shown = widget.from;
+
+  /// The figure a new value counts on from, held until its run begins.
+  ///
+  /// The run starts after the frame the value arrives in, and until it does the
+  /// builder is handed the progress the last run left: a count that had landed
+  /// would draw the new value at once and then drop back to where it starts.
+  double? _waiting;
+
+  @override
+  void didUpdateWidget(PlAnimateCounter oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.from != oldWidget.from) {
+      _origin = widget.from;
+
+      if (_waiting != null || widget.value != oldWidget.value) {
+        _waiting = widget.from;
+      }
+    } else if (widget.value != oldWidget.value) {
+      _waiting = _shown;
+    }
+  }
+
+  /// A run is beginning: the count a new value asked for, or a replay.
+  void _onRun() {
+    _origin = _waiting ?? widget.from;
+    _waiting = null;
+  }
+
   String _format(double at) {
-    return formatValue == null ? at.round().toString() : formatValue!(at);
+    final String Function(double value)? formatValue = widget.formatValue;
+
+    return formatValue == null ? at.round().toString() : formatValue(at);
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool still = prefersReducedMotion(context);
+
     return Semantics(
       // The answer, once. What is drawn is excluded below.
-      label: _format(value),
+      label: _format(widget.value),
       container: true,
       child: ExcludeSemantics(
         child: PlassAnimateRun(
           settings: PlassAnimateSettings(
-            duration: duration,
-            delay: delay,
-            curve: curve,
-            paused: paused,
-            trigger: trigger,
-            play: play,
-            once: once,
-            threshold: threshold,
+            duration: widget.duration,
+            delay: widget.delay,
+            curve: widget.curve,
+            paused: widget.paused,
+            trigger: widget.trigger,
+            play: widget.play,
+            once: widget.once,
+            threshold: widget.threshold,
             // A new target is a new count, wherever the old one had got to.
-            nonce: value,
+            nonce: widget.value,
           ),
+          onRun: _onRun,
           builder: (BuildContext context, double t, Widget? child) {
-            return Text(_format(from + (value - from) * t), style: style);
+            final double? waiting = still ? null : _waiting;
+
+            _shown = waiting ?? _origin + (widget.value - _origin) * t;
+
+            return Text(_format(_shown), style: widget.style);
           },
         ),
       ),

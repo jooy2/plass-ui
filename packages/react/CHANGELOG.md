@@ -28,6 +28,8 @@
 
 ### Changed
 
+- **A new `value` makes `PlAnimateCounter` count on from the figure on screen.** It counted from `from` every time, so a figure that moved from 4,812 to 4,830 dropped to 0 and counted all the way up again, although the page said it went on from where the last count landed. It now counts from the figure the last count landed on, or from the frame a count still running had got to, over the same `duration` with the same `easing`. The first count and a replay, such as a second hover or a new `play`, still start at `from`, and reduced motion, `paused` and `trigger` work as before. Until it lands, the box keeps the width of the figure it started from, so a count down to a smaller number narrows once, when it lands, rather than at every digit it loses.
+
 - **A disabled `PlNavigationMenuItem` is no longer a Tab stop.** Base UI keeps a disabled trigger in the Tab order, so Tab stopped on an item that opens nothing, where a disabled `PlBottomNavigationItem`, the Flutter menu and most disabled controls are passed over. A disabled trigger or link is now passed over by Tab as well as by the arrow keys, and is still announced as unavailable and drawn dimmed.
 
 - **`PlConfirmProvider` and `PlSidebar` fetch their dialog when it is needed rather than with the page.** An app shell of `PlassProvider`, `PlToastProvider`, `PlConfirmProvider`, `PlPageLayout`, `PlSidebar` and `PlHeader` carried the whole dialog stack, 37.2 kB gzip. The confirm dialog is now fetched once the page is idle and mounted by the first question, which still fades in and takes the focus; the sidebar's drawer is fetched once the window is narrower than `collapseBelow`. The same shell is 25.1 kB, and a server render is unchanged.

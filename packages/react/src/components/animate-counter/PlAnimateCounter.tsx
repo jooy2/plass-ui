@@ -16,7 +16,9 @@ export interface PlAnimateCounterProps extends Omit<
   /** The number it arrives at, and the one a screen reader is told. */
   value: number;
   /**
-   * The number it starts from.
+   * The number the first count starts from, and a replay of it: a second
+   * hover, a new `play`, a `visible` trigger seen again. A new `value` counts
+   * on from the figure on screen instead.
    * @default 0
    */
   from?: number;
@@ -211,29 +213,29 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
    * no more than the answer, such as a compact or a percentage one, is used as
    * it is.
    *
-   * Beside it, how that formatter writes `-0` and `0`. `Intl.NumberFormat`
-   * keeps the sign of a negative number it rounds to zero, so a count from -3
-   * to a whole number drew "-0" for every frame between -0.5 and 0, a figure
-   * no count passes through. A frame written exactly as `-0` is written is one
-   * of those, whatever the style, and is drawn as zero instead, as the Flutter
-   * build draws it; a frame that is really negative is drawn as it is.
+   * `write` draws a frame with it, and draws zero where it writes `-0`.
+   * `Intl.NumberFormat` keeps the sign of a negative number it rounds to zero,
+   * so a count from -3 to a whole number drew "-0" for every frame between
+   * -0.5 and 0, a figure no count passes through. A frame written exactly as
+   * `-0` is written is one of those, whatever the style, and is drawn as zero
+   * instead, as the Flutter build draws it; a frame that is really negative is
+   * drawn as it is.
    */
   const frameKey = `${formatKey}\u0000${value}`;
-  const framed = React.useRef<{
-    key: string;
-    formatter: Intl.NumberFormat;
-    negativeZero: string;
-    zero: string;
-  } | null>(null);
+  const framed = React.useRef<{ key: string; write: (figure: number) => string } | null>(null);
 
   if (framed.current === null || framed.current.key !== frameKey) {
     const frameFormat = frameFormatter(formatter, value, locale, format);
+    const negativeZero = frameFormat.format(-0);
+    const zero = frameFormat.format(0);
 
     framed.current = {
       key: frameKey,
-      formatter: frameFormat,
-      negativeZero: frameFormat.format(-0),
-      zero: frameFormat.format(0)
+      write: (figure) => {
+        const written = frameFormat.format(figure);
+
+        return written === negativeZero ? zero : written;
+      }
     };
   }
 
@@ -242,13 +244,57 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   const [shown, setShown] = React.useState(() => (still ? value : from));
 
   /**
+   * Where the count runs from, and the props it was decided for.
+   *
+   * The first count starts at `from`, and so does a replay of it: a second
+   * hover, a new `play`, a `visible` trigger seen again. A new `value` is a
+   * figure that moved, and it counts on from the figure on screen at that
+   * moment, the one the last count landed on or the frame a count still running
+   * had got to, so a dashboard figure that changes counts from the old figure to
+   * the new one rather than from `from` every time. A new `from` starts there.
+   *
+   * Decided while rendering rather than in an effect, so the frame drawn before
+   * the new count's first one already counts from it. A new `value` starts its
+   * run only on the render after it arrives; `pending` is what tells that run
+   * apart from a replay, and `count` is what moves when a new count begins,
+   * which that run is not.
+   */
+  const [course, setCourse] = React.useState({
+    value,
+    from,
+    runs: run.runs,
+    origin: from,
+    pending: false,
+    count: 0
+  });
+
+  if (course.value !== value || course.from !== from) {
+    setCourse({
+      value,
+      from,
+      runs: run.runs,
+      origin: course.from !== from ? from : shown,
+      pending: course.pending || course.value !== value,
+      count: course.count + 1
+    });
+  } else if (course.runs !== run.runs) {
+    setCourse(
+      course.pending
+        ? { ...course, runs: run.runs, pending: false }
+        : { ...course, runs: run.runs, origin: from, count: course.count + 1 }
+    );
+  }
+
+  const origin = course.origin;
+
+  /**
    * How far into the run the count has got, in milliseconds and counting the
    * `delay`, outside React's state.
    *
    * Pausing tears the frame loop down and resuming builds a new one, and the
    * new one works its start time back from this. Without it, a count held at
-   * 40% would drop back to `from` the moment it was let go, and one held while
-   * it was still waiting would wait out the whole `delay` a second time.
+   * 40% would drop back to its start the moment it was let go, and one held
+   * while it was still waiting would wait out the whole `delay` a second time.
    */
   const elapsed = React.useRef(0);
 
@@ -264,14 +310,13 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     ease.current = easing;
   });
 
-  // A new count starts from `from` instead of going on from where the last one
-  // got: a second hover, a new `play`, a new `value` or a new `from`. The two
-  // props are listed beside `run.runs` because a new `value` starts its run only
-  // on the render after it arrives, and a frame drawn in between would put the
-  // new figure at the old count's progress.
+  // A new count starts at its beginning instead of going on from where the last
+  // one got: a second hover, a new `play`, a new `value` or a new `from`. Keyed
+  // on `course.count` rather than on `run.runs`, so the run a new `value` starts
+  // on the render after it arrives goes on with the count already under way.
   React.useEffect(() => {
     elapsed.current = 0;
-  }, [run.runs, value, from]);
+  }, [course.count]);
 
   React.useEffect(() => {
     // A reader who asked for less movement gets the figure and nothing else,
@@ -315,7 +360,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
         return;
       }
 
-      setShown(from + (value - from) * ease.current(t));
+      setShown(origin + (value - origin) * ease.current(t));
 
       if (t < 1) {
         frame = requestAnimationFrame(step);
@@ -325,13 +370,17 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     frame = requestAnimationFrame(step);
 
     return () => cancelAnimationFrame(frame);
-    // `run.runs` is listed although nothing above reads it. A second hover starts
-    // a new run without changing `started`, and a new run is a new count.
-  }, [run.started, run.runs, still, paused, value, from, duration, delay]);
+    // `course.count` is listed although nothing above reads it. A second hover
+    // starts a new run without changing `started`, and a new run is a new count.
+  }, [run.started, course.count, still, paused, value, from, origin, duration, delay]);
 
   // The answer is the caller's own figure and is drawn as it is written.
-  const written = shown === value ? answer : frame.formatter.format(shown);
-  const drawn = shown !== value && written === frame.negativeZero ? frame.zero : written;
+  const drawn = shown === value ? answer : frame.write(shown);
+  // The figure the count started from, laid out under it until it lands. A
+  // count down from 12,345 to 5 is as wide as its start rather than its answer,
+  // and without it the box narrowed under the text around it at every digit
+  // the count lost.
+  const reserve = shown === value ? null : frame.write(origin);
 
   return useRender({
     render: render ?? <span />,
@@ -361,7 +410,14 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
             data-text={drawn}
             data-sample={answer}
             className={drawnCopyClasses}
-          />
+          >
+            {reserve === null ? null : (
+              <span
+                data-text={reserve}
+                className="invisible [grid-area:1/1] before:content-[attr(data-text)]"
+              />
+            )}
+          </span>
         </>
       ),
       ...mergeProps(props, run.handlers)

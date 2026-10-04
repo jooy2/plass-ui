@@ -74,7 +74,7 @@ The case it exists for, and the reason `visible` is the default.
 
 ### Counting to a new number
 
-Changing `value` counts again, from wherever the last one landed. A dashboard whose figure updates every minute does not need to be told to replay.
+Changing `value` counts again, from the figure on screen: the one the last count landed on, or the one a count still running had got to. A dashboard whose figure updates every minute does not need to be told to replay. A replay, such as a second hover or a new `play`, counts from `from` again.
 
 ```tsx
 <PlAnimateCounter value={deploys} />
@@ -95,6 +95,6 @@ Changing `value` counts again, from wherever the last one landed. A dashboard wh
 
 ::: fw react
 
-- The final figure is laid out under the count and not drawn, so the box is as wide as the answer from the first frame, in the server's HTML too, and the text around it stays where it is while the count is still short of it. A figure on the way never has more decimals than the answer, so a count to a whole number shows only whole numbers.
+- The final figure is laid out under the count and not drawn, so the box is as wide as the answer from the first frame, in the server's HTML too, and the text around it stays where it is while the count is still short of it. Until the count lands, the figure it started from is laid out there as well, so a count down to a smaller number keeps the width it started at and narrows once, when it lands. A figure on the way never has more decimals than the answer, so a count to a whole number shows only whole numbers.
 
 :::

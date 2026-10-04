@@ -1051,7 +1051,10 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'from',
       type: 'number',
       default: '0',
-      description: { ko: '세기 시작하는 숫자', en: 'The number it starts from' }
+      description: {
+        ko: '첫 카운트와 다시 재생한 카운트가 시작하는 숫자. 새 `value`는 화면에 있는 수치에서 이어 셉니다',
+        en: 'The number the first count starts from, and a replay of it. A new `value` counts on from the figure on screen'
+      }
     },
     {
       name: 'duration',

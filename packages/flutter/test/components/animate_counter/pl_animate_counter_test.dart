@@ -113,6 +113,99 @@ void main() {
       expect(_drawn(tester), '100');
     });
 
+    group('a new value', () {
+      Widget counter(double value) {
+        return PlAnimateCounter(
+          value: value,
+          trigger: PlassAnimateTrigger.mount,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.linear,
+        );
+      }
+
+      testWidgets('counts on from the figure the last count landed on', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, counter(100));
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '100');
+
+        await tester.pumpWidget(host(counter(200), width: 240, height: 120));
+
+        // The frame the value arrives in, before its run has begun. Handed the
+        // last run's progress, it drew the new value and then dropped back.
+        expect(_drawn(tester), '100');
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Halfway, from 100 to 200, rather than from 0.
+        expect(_drawn(tester), '150');
+
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '200');
+      });
+
+      testWidgets('counts on from the frame a running count had got to', (
+        WidgetTester tester,
+      ) async {
+        await _pump(tester, counter(100));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(_drawn(tester), '50');
+
+        await tester.pumpWidget(host(counter(300), width: 240, height: 120));
+
+        expect(_drawn(tester), '50');
+
+        await tester.pump();
+
+        expect(_drawn(tester), '50');
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // Halfway, over the whole duration, from 50 to 300.
+        expect(_drawn(tester), '175');
+
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '300');
+      });
+
+      testWidgets('leaves a replay to count from where it was told', (WidgetTester tester) async {
+        Widget played(double value, {required bool play}) {
+          return PlAnimateCounter(
+            value: value,
+            trigger: PlassAnimateTrigger.manual,
+            play: play,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.linear,
+          );
+        }
+
+        await _pump(tester, played(100, play: true));
+        await tester.pumpAndSettle();
+        await _pump(tester, played(200, play: true));
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '200');
+
+        await _pump(tester, played(200, play: false));
+        await _pump(tester, played(200, play: true));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        // A new `play` is the first count again, from `from`, rather than the
+        // last one, from 100.
+        expect(_drawn(tester), '100');
+
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '200');
+      });
+    });
+
     testWidgets('is simply the number where the platform asked for less motion', (
       WidgetTester tester,
     ) async {
