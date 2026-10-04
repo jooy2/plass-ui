@@ -68,6 +68,12 @@ provider의 prop은 그 아래에서 던지는 모든 질문의 기본값입니�
 
 이 규칙들의 이유는 [prop 규약](../../design/prop-conventions#핸들러에서-묻기)에 있습니다.
 
+::: fw react
+
+dialog는 별도 청크이고, 페이지가 한가해지면 받아 옵니다. 한 번 더 시도해도 받아 오지 못하면 dialog를 열지 않고 throw도 하지 않은 채, Escape를 눌렀을 때처럼 답합니다. `confirm`은 `false`를 돌려주고 `alert`는 그대로 완료됩니다.
+
+:::
+
 ### PlConfirmOptions
 
 <PropsTable name="PlConfirmOptions" />

@@ -74,7 +74,7 @@ export default defineConfig({
       headless: true,
       screenshotFailures: false,
       instances: resolveBrowsers().map((browser) => ({ browser })),
-      // The two pieces of Playwright the suite is handed, both of them state the
+      // The pieces of Playwright the suite is handed, all of them state the
       // browser owns rather than the document. Declared for TypeScript in
       // `test/env.d.ts`.
       commands: {
@@ -115,6 +115,16 @@ export default defineConfig({
 
           devToolsSessions.set(page, session);
           await session.send('Emulation.setTimezoneOverride', { timezoneId: timeZone });
+        },
+        // A chunk that cannot be fetched is the network's doing rather than the
+        // page's, so only the browser can arrange one: every request whose URL
+        // matches the glob is aborted as a dropped connection would be, until
+        // the same glob is allowed again.
+        async failRequests({ page }, pattern: string) {
+          await page.route(pattern, (route) => route.abort('failed'));
+        },
+        async allowRequests({ page }, pattern: string) {
+          await page.unroute(pattern);
         }
       }
     }

@@ -402,7 +402,7 @@ It is a [`PlOverlay`](../feedback/overlay) at `tone="glass"`, so Escape and a cl
 
 ::: fw react
 
-The overlay is a **separate chunk**, reached through `React.lazy`. It is several times the weight of the picture component that opens it, and `preview` is off by default, so a page drawing a wall of thumbnails does not download a lightbox it never shows. Turn it on and the chunk is fetched once, the first time a reader points at, focuses or touches the picture, so it has usually arrived by the time the picture is pressed. Nothing to configure either way, but on a slow connection the overlay can still appear a moment after the very first press.
+The overlay is a **separate chunk**, reached through `React.lazy`. It is several times the weight of the picture component that opens it, and `preview` is off by default, so a page drawing a wall of thumbnails does not download a lightbox it never shows. Turn it on and the chunk is fetched once, the first time a reader points at, focuses or touches the picture, so it has usually arrived by the time the picture is pressed. Nothing to configure either way, but on a slow connection the overlay can still appear a moment after the very first press. If the chunk cannot be fetched, even on a second try, the overlay does not open and nothing is thrown, and the next press asks for it again.
 
 :::
 

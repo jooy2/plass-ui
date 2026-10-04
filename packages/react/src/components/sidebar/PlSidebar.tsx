@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { beginPointerDrag } from '../../internal/drag.js';
+import { lazyPart } from '../../internal/lazy.js';
 import {
   drawerSide,
   expandedOnlyClasses,
@@ -192,10 +193,11 @@ const variantClasses = sheetRestClasses;
  * page — and a sidebar on a screen wide enough for its column never uses any
  * of it. Behind `React.lazy` the chunk is fetched the moment the window is
  * narrower than `collapseBelow`, which is before anyone can have pressed the
- * trigger, and never by a page that stays wider.
+ * trigger, and never by a page that stays wider. A chunk that cannot be had
+ * leaves the hidden column where it is, and the trigger opens nothing.
  */
-const PlDrawer = /* @__PURE__ */ React.lazy(() =>
-  import('../drawer/PlDrawer.js').then((module) => ({ default: module.PlDrawer }))
+const PlDrawer = /* @__PURE__ */ lazyPart(() =>
+  import('../drawer/PlDrawer.js').then((module) => module.PlDrawer)
 );
 
 /** How far one arrow key press moves the edge. The same step `PlPanes` uses. */
@@ -314,6 +316,20 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
 
       onOpenChange?.(next);
     };
+
+    // Whether the drawer's chunk could not be fetched. The column stays, out of
+    // sight below the breakpoint as it is while the chunk is on its way, and
+    // the next time the sidebar is opened is the next try. Only an open that
+    // follows a close counts, so a parent that keeps `open` set after the
+    // failure is not a loop of tries.
+    const [drawerMissing, setDrawerMissing] = React.useState(false);
+    const [openBefore, setOpenBefore] = React.useState(open);
+
+    if (open !== openBefore) {
+      setOpenBefore(open);
+
+      if (open && drawerMissing) setDrawerMissing(false);
+    }
 
     const width = toLength(widthProp) ?? widthValues[size];
 
@@ -504,7 +520,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
       </aside>
     );
 
-    if (!collapsed) {
+    if (!collapsed || drawerMissing) {
       return column;
     }
 
@@ -519,6 +535,11 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
           mode="overlay"
           open={open}
           onOpenChange={changeOpen}
+          onUnavailable={() => {
+            setDrawerMissing(true);
+
+            if (open) changeOpen(false);
+          }}
           keepMounted={keepMounted}
           title={title}
           size={size}

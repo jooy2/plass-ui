@@ -68,6 +68,12 @@ The provider's props are defaults for every question asked under it. A single ca
 
 [Prop conventions](../../design/prop-conventions#asking-from-a-handler) has the reasons for these rules.
 
+::: fw react
+
+The dialog is a separate chunk, fetched once the page has gone idle. If it cannot be fetched, even on a second try, no dialog opens and nothing is thrown, and the question is answered as Escape answers it: `confirm` resolves `false` and `alert` resolves.
+
+:::
+
 ### PlConfirmOptions
 
 <PropsTable name="PlConfirmOptions" />

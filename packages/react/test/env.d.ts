@@ -41,8 +41,10 @@ interface ImportMeta {
  * the runner happened to be set to. The pointer is the browser's too, and it
  * survives the end of a file, so a file whose subject reacts to hover has to
  * park it somewhere harmless before it renders anything. So is the time zone
- * the clock is read in, which only Chromium can change while a page is open.
- * Playwright can do all of it, and a command is how a test reaches Playwright.
+ * the clock is read in, which only Chromium can change while a page is open,
+ * and so is the network, which is the only place a chunk that fails to load can
+ * come from. Playwright can do all of it, and a command is how a test reaches
+ * Playwright.
  */
 declare module 'vitest/internal/browser' {
   interface BrowserCommands {
@@ -53,5 +55,7 @@ declare module 'vitest/internal/browser' {
     }) => Promise<void>;
     parkPointer: () => Promise<void>;
     emulateTimeZone: (timeZone: string) => Promise<void>;
+    failRequests: (pattern: string) => Promise<void>;
+    allowRequests: (pattern: string) => Promise<void>;
   }
 }

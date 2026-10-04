@@ -62,6 +62,8 @@ Which of the two is showing is a media query, answered in CSS for the first pain
 
 A closed drawer is not in the document, so below `collapseBelow` the sidebar's links are not either, and that is the width a search engine reads a page at. For a sidebar that is the site's navigation, `keepMounted` keeps them there, hidden and out of reach of the keyboard and of a screen reader.
 
+The drawer is a separate chunk, fetched once the window is narrower than `collapseBelow`. If it cannot be fetched, even on a second try, the trigger opens nothing and nothing is thrown, the hidden column stays where it was, and the next press asks for the drawer again.
+
 :::
 
 ## Examples

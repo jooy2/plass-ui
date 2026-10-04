@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
+import { lazyPart } from '../../internal/lazy.js';
 import { PlSkeleton } from '../skeleton/PlSkeleton.js';
 import { PlassWatermark } from '../../internal/watermark.js';
 import {
@@ -473,20 +474,6 @@ function useServedSrc(src: string | undefined): string | undefined {
   return served;
 }
 
-/** Asks for the overlay's chunk. The module loader keeps it once it has arrived. */
-function loadPreview() {
-  return import('./PlImagePreview.js');
-}
-
-/**
- * Starts the download before the press, when the pointer arrives on a picture
- * or the focus does, so the overlay is usually there by the time it is asked
- * for. A failure is left to the open, which asks again and reports it.
- */
-function warmPreview() {
-  loadPreview().catch(() => {});
-}
-
 /**
  * The overlay a `preview` opens, which is a download of its own.
  *
@@ -494,10 +481,13 @@ function warmPreview() {
  * picture component that opens it, so a page drawing a wall of thumbnails should
  * not be carrying one. Behind `React.lazy`, and rendered only once a picture
  * has been opened, the chunk is fetched by a reader who reaches for a preview
- * and never by one who does not.
+ * and never by one who does not. `preload` starts it before the press, when the
+ * pointer or the focus arrives on the picture, so the overlay is usually there
+ * by the time it is asked for; a chunk that cannot be had opens nothing, and
+ * the next press tries again.
  */
-const PlImagePreview = /* @__PURE__ */ React.lazy(() =>
-  loadPreview().then((module) => ({ default: module.PlImagePreview }))
+const PlImagePreview = /* @__PURE__ */ lazyPart(() =>
+  import('./PlImagePreview.js').then((module) => module.PlImagePreview)
 );
 
 /**
@@ -976,9 +966,9 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             setPreviewed(true);
             setOpen(true);
           }}
-          onPointerEnter={warmPreview}
-          onFocus={warmPreview}
-          onTouchStart={warmPreview}
+          onPointerEnter={PlImagePreview.preload}
+          onFocus={PlImagePreview.preload}
+          onTouchStart={PlImagePreview.preload}
           disabled={status !== 'loaded'}
           // `w-full` because a block `<button>` still sizes itself to its
           // content, and the content is a picture sized off the box: before
@@ -998,6 +988,10 @@ export const PlImage = /* @__PURE__ */ React.forwardRef<HTMLImageElement, PlImag
             <PlImagePreview
               open={open}
               onOpenChange={setOpen}
+              onUnavailable={() => {
+                setOpen(false);
+                setPreviewed(false);
+              }}
               src={src}
               alt={alt}
               label={previewLabel}

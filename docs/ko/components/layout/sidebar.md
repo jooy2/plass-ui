@@ -62,6 +62,8 @@ PlPageLayout(
 
 닫힌 drawer는 문서에 들어 있지 않아서, `collapseBelow`보다 좁은 화면에서는 sidebar의 링크도 문서에서 빠집니다. 검색 엔진이 페이지를 읽는 너비가 바로 그 너비입니다. 사이트 내비게이션을 담은 sidebar라면 `keepMounted`를 켜 둡니다. 링크가 숨겨진 채 문서에 남고, 키보드와 스크린 리더는 거기에 닿지 않습니다.
 
+drawer는 별도 청크이고, 창이 `collapseBelow`보다 좁아지면 받아 옵니다. 한 번 더 시도해도 받아 오지 못하면 trigger를 눌러도 아무것도 열리지 않고 throw도 하지 않습니다. 숨겨진 열은 그 자리에 그대로 남고, 다음에 누를 때 drawer를 다시 받아 옵니다.
+
 :::
 
 ## Examples

@@ -4,6 +4,7 @@ import * as React from 'react';
 import { PlButton } from '../button/PlButton.js';
 import type { PlModalProps } from '../modal/PlModal.js';
 import { useLabels } from '../../internal/labels.js';
+import { lazyPart, type LazyPartProps } from '../../internal/lazy.js';
 import type { PlassColor, PlassSize } from '../../types.js';
 
 /**
@@ -14,12 +15,11 @@ import type { PlassColor, PlassSize } from '../../types.js';
  * page — should not be in the first paint's bundle on their account. Behind
  * `React.lazy` the chunk is fetched once the page has gone idle, and the modal
  * is mounted by the first question. A question asked before the chunk arrives
- * is answered as soon as it does.
+ * is answered as soon as it does, and one asked of a chunk that cannot be had
+ * is answered as Escape answers it.
  */
-const loadModal = () => import('../modal/PlModal.js');
-
-const PlModal = /* @__PURE__ */ React.lazy(() =>
-  loadModal().then((module) => ({ default: module.PlModal }))
+const PlModal = /* @__PURE__ */ lazyPart(() =>
+  import('../modal/PlModal.js').then((module) => module.PlModal)
 );
 
 /**
@@ -51,7 +51,7 @@ function whenIdle(callback: () => void): () => void {
 function ConfirmModal({
   open,
   ...props
-}: PlModalProps & { initialFocus?: React.RefObject<HTMLElement | null> }) {
+}: LazyPartProps<PlModalProps> & { initialFocus?: React.RefObject<HTMLElement | null> }) {
   const [mounted, setMounted] = React.useState(false);
 
   React.useLayoutEffect(() => {
@@ -239,13 +239,23 @@ export function PlConfirmProvider({
 
   // Fetched ahead of the first question, so the dialog is normally there the
   // moment that question is asked rather than a download later.
-  React.useEffect(
-    () =>
-      whenIdle(() => {
-        void loadModal().catch(() => undefined);
-      }),
-    []
-  );
+  React.useEffect(() => whenIdle(PlModal.preload), []);
+
+  /*
+   * The dialog's chunk could not be fetched, twice. Every question waiting on
+   * it is answered the way Escape answers one — `false`, and an `alert`
+   * resolves — because nobody was shown a question to say yes to. Clearing
+   * `current` unmounts the modal, so the next question is the next try.
+   */
+  const unavailable = React.useCallback(() => {
+    const waiting = [live.current, ...queue.current];
+
+    live.current = null;
+    queue.current = [];
+    waiting.forEach((request) => request?.resolve(false));
+    setOpen(false);
+    setCurrent(null);
+  }, []);
 
   // Everything an unmounting provider is still holding. A promise that is never
   // settled is a handler that never runs its `finally`, so a route change would
@@ -279,13 +289,15 @@ export function PlConfirmProvider({
     wasOpen.current = open;
   }, [open, current]);
 
-  // Nothing is mounted until something asks, and `current` is never cleared,
-  // so from the first question on the modal stays mounted between questions
-  // exactly as it would have from the start.
+  // Nothing is mounted until something asks, and `current` is cleared only
+  // when the dialog could not be fetched, so from the first question on the
+  // modal stays mounted between questions exactly as it would have from the
+  // start.
   const modal = current ? (
     <React.Suspense fallback={null}>
       <ConfirmModal
         open={open}
+        onUnavailable={unavailable}
         // The only path that reaches here is Escape or a click outside — the
         // buttons below settle and close it themselves, and a controlled `open`
         // does not call this back for that.

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
+import { lazyPart } from '../../internal/lazy.js';
 import { isTurned, laneCount, masonrySlots, ratioOf, shownRatio } from '../../internal/gallery.js';
 import { responsiveSlots, withBaseline } from '../../internal/responsive.js';
 import {
@@ -209,19 +210,6 @@ export interface PlGalleryProps extends Omit<
   classNames?: PlGalleryClassNames;
 }
 
-/** Asks for the viewer's chunk. The module loader keeps it once it has arrived. */
-function loadViewer() {
-  return import('./PlGalleryViewer.js');
-}
-
-/**
- * Starts the download before the press, when the pointer or the focus arrives
- * on a tile. A failure is left to the open, which asks again and reports it.
- */
-function warmViewer() {
-  loadViewer().catch(() => {});
-}
-
 /**
  * The viewer, fetched only once somebody reaches for it.
  *
@@ -230,10 +218,11 @@ function warmViewer() {
  * and for the same reason: a wall of thumbnails is the common case and a
  * lightbox is not. It is rendered from the first open, and the chunk is asked
  * for as a tile is pointed at or focused, so a page where nobody opens a
- * picture never downloads it.
+ * picture never downloads it. A chunk that cannot be had opens nothing, and
+ * the next press tries again.
  */
-const PlGalleryViewer = /* @__PURE__ */ React.lazy(() =>
-  loadViewer().then((module) => ({ default: module.PlGalleryViewer }))
+const PlGalleryViewer = /* @__PURE__ */ lazyPart(() =>
+  import('./PlGalleryViewer.js').then((module) => module.PlGalleryViewer)
 );
 
 /** The default, which is also the shape most photograph grids end up. */
@@ -545,9 +534,9 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
                   : undefined
               }
               onClick={() => choose(index)}
-              onPointerEnter={preview ? warmViewer : undefined}
-              onFocus={preview ? warmViewer : undefined}
-              onTouchStart={preview ? warmViewer : undefined}
+              onPointerEnter={preview ? PlGalleryViewer.preload : undefined}
+              onFocus={preview ? PlGalleryViewer.preload : undefined}
+              onTouchStart={preview ? PlGalleryViewer.preload : undefined}
             >
               {body}
             </button>
@@ -661,6 +650,10 @@ export const PlGallery = /* @__PURE__ */ React.forwardRef<HTMLUListElement, PlGa
               items={items}
               index={openAt}
               onIndexChange={setOpenAt}
+              onUnavailable={() => {
+                setOpenAt(null);
+                setViewed(false);
+              }}
               size={size}
               color={color}
               label={name}
