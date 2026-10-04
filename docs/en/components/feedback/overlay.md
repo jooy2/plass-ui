@@ -69,6 +69,8 @@ The four steps are one axis, how legible is what is behind, and they are tuned w
 
 `scrim` matches `PlModal`'s backdrop exactly. The two have to, or a modal opened over an overlay would show a seam.
 
+On React, a reader who has asked their system for less transparency gets `glass` as an opaque sheet: the same dim, laid over the page's surface with no blur. Flutter is not told about that preference, so there it stays glass.
+
 `clear` draws nothing at all and still covers the viewport, which is the whole reason to use it: an invisible sheet that catches a click.
 
 <Demo src="overlay/tones" :min-height="180">

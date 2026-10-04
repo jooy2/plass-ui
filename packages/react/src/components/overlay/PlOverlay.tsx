@@ -100,12 +100,19 @@ export interface PlOverlayProps extends Omit<
  * `scrim` matches `PlModal`'s backdrop exactly — the two have to, or a modal
  * opened over an overlay would show a seam. `clear` draws nothing and still
  * covers the viewport, so it goes on catching pointer events.
+ *
+ * `glass` is the one tone whose job the blur does, and a reader who has asked
+ * for less transparency gets no blur: `--plass-blur` is `none` for them, and a
+ * light dim over a sharp page is a page that can still be read. So for that
+ * reader the same dim is laid over the page's own surface instead, the way the
+ * glass ladder is, and the overlay is opaque.
  */
 const toneClasses: Record<PlOverlayTone, string> = {
   scrim: 'bg-(--plass-scrim) [backdrop-filter:blur(2px)] [-webkit-backdrop-filter:blur(2px)]',
   glass: /* @__PURE__ */ [
-    '[background-color:color-mix(in_oklab,var(--plass-scrim)_45%,transparent)]',
-    '[backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]'
+    '[--p-dim:color-mix(in_oklab,var(--plass-scrim)_45%,transparent)] [background-color:var(--p-dim)]',
+    '[backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]',
+    '[@media(prefers-reduced-transparency:reduce)]:[background:linear-gradient(var(--p-dim),var(--p-dim)),var(--plass-surface)]'
   ].join(' '),
   solid: 'bg-(--plass-surface)',
   clear: ''

@@ -828,6 +828,67 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Reduced transparency
+ *
+ * A reader who has asked their system for less transparency gets every sheet
+ * opaque. The blur goes, and each rung of the glass ladder is laid over the
+ * theme's own `--plass-surface` instead of over the page: the same white at the
+ * same strength, with the opaque sheet behind it where the page used to be.
+ * That is the pair of layers a pinned table header already stacks so that rows
+ * do not show through it, and it keeps the ladder: an engaged sheet still holds
+ * more light than one at rest, except on a white surface, which has no lighter
+ * step to take.
+ *
+ * Only the fill and the blur move. The hairline, the light along the top edge,
+ * the shadows and the focus ring are drawn exactly as before, so a sheet keeps
+ * its edge and its place above the page.
+ *
+ * It is done here, on the tokens, rather than on the components, because the
+ * sheets in the library paint with these four: a new component that draws glass
+ * the house way is opaque for this reader without having to know that this
+ * block exists. The two that blur a translucency of their own, `PlOverlay`'s
+ * `glass` tone and a `PlWindowPane`, answer the same reader in their own
+ * classes.
+ *
+ * Three blocks for the three theme blocks above, each with the selector of the
+ * one it overrides, because the strengths are per theme and a rule only takes
+ * over from one at least as specific as itself. The forced dark block stays
+ * last, for the reason it is last up there. The surface is the first colour in
+ * each mix because the compiler writes that one out as the fallback for a
+ * browser with no `color-mix()`, and the opaque surface is the right one.
+ * ------------------------------------------------------------------------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  .light,
+  [data-theme='light'] {
+    --plass-glass: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 62%);
+    --plass-glass-hover: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 76%);
+    --plass-glass-press: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 88%);
+    --plass-blur: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme='light']) {
+    --plass-glass: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 7%);
+    --plass-glass-hover: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 11%);
+    --plass-glass-press: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 15%);
+    --plass-blur: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .dark,
+  [data-theme='dark'] {
+    --plass-glass: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 7%);
+    --plass-glass-hover: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 11%);
+    --plass-glass-press: color-mix(in srgb, var(--plass-surface), rgb(255 255 255) 15%);
+    --plass-blur: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Derived tokens
  *
  * Gradients, glows, tints, hairlines and focus rings are all one base colour at

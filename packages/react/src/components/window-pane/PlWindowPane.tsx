@@ -83,6 +83,9 @@ export interface PlWindowPaneProps extends Omit<
    * Anything above `0` also turns the acrylic on, so the page underneath is
    * blurred rather than merely visible. `1` is a window that is nothing but its
    * edge and its chrome.
+   *
+   * A reader who has asked their system for less transparency gets an opaque
+   * window with no blur, whatever this says.
    * @default 0
    */
   transparency?: number;
@@ -982,13 +985,23 @@ export const PlWindowPane = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlW
         className: cx(
           'plass-window relative flex min-w-0 flex-col overflow-hidden',
           // The acrylic is what a translucent window is made of. An opaque one
-          // has nothing to blur and pays for nothing.
-          transparency > 0 ? glassClasses : '',
+          // has nothing to blur and pays for nothing. A reader who has asked for
+          // less transparency gets no blur, so the window keeps all of its
+          // colour for them instead (`veil` in `internal/window.tsx`).
+          transparency > 0
+            ? `${glassClasses} [@media(prefers-reduced-transparency:reduce)]:[--p-window-keep:100%]`
+            : '',
           // Aero's blur is the *window's* rather than the title bar's, and that
           // is the difference between a pale blue bar and a sheet of glass with
           // the content sunk into it: the band down the sides and along the
           // bottom is showing the same blurred page.
           chrome.glass && transparency === 0 ? '[backdrop-filter:var(--plass-blur)]' : '',
+          // Its glass is in its own paint, which no `transparency` reaches. With
+          // no blur, the band is laid over the page's surface instead, under the
+          // band colour still set inline, and the bar is drawn over that.
+          chrome.glass
+            ? '[@media(prefers-reduced-transparency:reduce)]:[background-image:linear-gradient(var(--p-window-band),var(--p-window-band)),linear-gradient(var(--plass-surface),var(--plass-surface))]'
+            : '',
           // Maximizing, restoring and rolling up are journeys between two
           // geometries, so the window travels rather than jumps. No `transform` is
           // in the list and none should be added: a window that scaled would

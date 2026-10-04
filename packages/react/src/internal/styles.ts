@@ -374,6 +374,10 @@ export const sheetHeaderGapClasses: Record<PlassSize, string> = {
  *
  * `-webkit-backdrop-filter` is written alongside the standard property because
  * Safari still needs it, and Tailwind will not add it for an arbitrary value.
+ *
+ * For a reader who has asked for less transparency `--plass-blur` is `none` and
+ * the glass tokens are opaque (`styles.css`), so a surface that pairs these with
+ * a `--plass-glass*` fill needs nothing of its own for that reader.
  */
 export const glassClasses =
   '[backdrop-filter:var(--plass-blur)] [-webkit-backdrop-filter:var(--plass-blur)]';

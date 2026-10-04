@@ -71,6 +71,14 @@ BackdropGroup(
 
 Where the group goes is yours to decide, because two sheets that overlap must not share one. A row of cards down a list is the case it is for. A sheet **inside** another surface — a glass field on a glass card, or a glass button on a `solid` alert — is taken care of for you: every surface that paints something, glass or a fill, puts what it holds in a group of its own, so the field blurs the card it sits on rather than the page behind the card, and the fields on one card still share one read. A `ghost` surface paints nothing at rest and leaves what it holds in the group around it until it does. A layer that opens over the page, such as a modal, a popover, a select's list or the toast stack, reads the backdrop in a group of its own too. A modal's barrier and a tour's dimming stay out of every group: both cover the screen and overlap everything under them.
 
+Flutter does not tell an app whether its reader has asked for less transparency, so a sheet here is glass for every reader.
+
+:::
+
+::: fw react
+
+A reader who has asked their system for less transparency gets every sheet opaque instead. The blur goes, and each step of the ladder is laid over `--plass-surface` rather than over the page, so a sheet keeps its theme, its hairline, its shadow and its focus ring, and an engaged sheet still holds more light than one at rest. This follows `prefers-reduced-transparency`, and a browser that does not report it draws the glass as usual.
+
 :::
 
 **Glass is never dyed.** A sheet holds other people's content, and that content arrives with its own colours: body text, links, buttons, fields. Tinting the sheet underneath puts every one of them on a background they were not chosen against. So **the family stops at the hairline, the focus ring and the caret, and the glass stays clear.**

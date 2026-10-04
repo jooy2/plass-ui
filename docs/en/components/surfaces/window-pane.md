@@ -115,7 +115,7 @@ On React, `active` works itself out if you leave it off. A window is in front un
 
 </Demo>
 
-It applies to the title bar, the body's own fill and the border, **never to the content on it**, which stays exactly as legible as it was. On React anything above `0` also turns the blur on, so the page underneath is blurred rather than merely visible.
+It applies to the title bar, the body's own fill and the border, **never to the content on it**, which stays exactly as legible as it was. On React anything above `0` also turns the blur on, so the page underneath is blurred rather than merely visible. A reader who has asked their system for less transparency gets an opaque window with no blur there, whatever the value, and the `windows7` chrome's own glass is opaque for them too.
 
 ### draggable and resizable
 

@@ -519,11 +519,20 @@ export function orderControls(
  * surface, but 30% of it is whatever is behind the window".
  * ------------------------------------------------------------------------- */
 
-/** Mixes a colour toward nothing. `0` leaves it exactly as it was. */
+/**
+ * Mixes a colour toward nothing. `0` leaves it exactly as it was.
+ *
+ * The share that is kept reads `--p-window-keep` first, which nothing sets
+ * except the window's own class for a reader who has asked for less
+ * transparency: there it is `100%`, and the window is opaque whatever the
+ * caller passed. It cannot be written over these slots, which are inline.
+ */
 function veil(color: string, transparency: number): string {
   const keep = Math.round((1 - transparency) * 100);
 
-  return keep >= 100 ? color : `color-mix(in oklab, ${color} ${keep}%, transparent)`;
+  return keep >= 100
+    ? color
+    : `color-mix(in oklab, ${color} var(--p-window-keep, ${keep}%), transparent)`;
 }
 
 export function windowSlots(options: {
