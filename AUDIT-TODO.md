@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**1 item is open, and the last number used is 170.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 169; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
+**1 item is open, and the last number used is 171.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 170; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
 
 ## Working through a batch
 
@@ -44,8 +44,8 @@ None.
 
 ## Items
 
-Line numbers are from `79cad2ec0` and drift as the code changes; when one no longer matches, search for the symbol.
+Line numbers are from `93f7d9f8d` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ### Low
 
-- **170.** **An endless Flutter `PlAnimateMarquee` or `PlAnimateLighting` given a finite `repeat` under reduced motion lands again, and given `repeat: null` after the setting has gone it turns from its clock** (`animate.dart` ~1488: the last branch does not set `_staysLanded` for a `restartsWithMotion` run; only `_go` ~1135 does); React keeps `data-plass-landed` and stands it (`styles.css` ~3759–3762). Item 167's rule covers it: a run that landed stands until it runs again.
+- **171.** **An endless `PlAnimateMarquee` or `PlAnimateLighting` that landed under reduced motion and is given a finite `repeat` while it is `paused` and the setting is on may differ between the builds once the setting goes and the pause is let go**: Flutter stands it at the end of the count (`animate.dart` ~1488 marks it `_staysLanded` and `_keepsLanded`), and React is expected, from the code only, to keep the new keyframe paused inside its 1ms delay, never land it, and play it from the start once let go (`styles.css` ~3675–3679, `land` in `animate.ts` runs on `animationend` only). Check React first with a browser test in the "a light or a strip when movement is given back" block of `test/styles/animate-reduced.test.tsx`, then decide.
