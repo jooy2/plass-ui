@@ -1317,7 +1317,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlColorPicker', 'labels', {
       type: 'PlColorPickerLabels',
       default: 'const PlColorPickerLabels()'
-    })
+    }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '보이는 label이 없는 trigger를, inline이면 패널이 놓인 그룹을 스크린 리더가 부를 이름',
+        en: 'The name a screen reader gives a trigger with no visible label, or the group an inline panel sits in'
+      }
+    }
   ],
 
   PlCombobox: [

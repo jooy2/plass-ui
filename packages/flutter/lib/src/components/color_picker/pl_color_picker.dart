@@ -173,6 +173,7 @@ class PlColorPicker extends StatefulWidget {
     this.fullWidth = false,
     this.clearable = false,
     this.labels = const PlColorPickerLabels(),
+    this.semanticLabel,
     this.variant = PlassVariant.glass,
     this.size,
     this.color,
@@ -235,6 +236,10 @@ class PlColorPicker extends StatefulWidget {
 
   /// The accessible names of the parts that have no text on them.
   final PlColorPickerLabels labels;
+
+  /// The name a screen reader gives the trigger, or the group an [inline]
+  /// panel sits in, in the [label]'s place.
+  final String? semanticLabel;
 
   /// What the trigger is made of.
   final PlassVariant variant;
@@ -369,25 +374,35 @@ class _PlColorPickerState extends State<PlColorPicker> {
     if (widget.inline) {
       final PlassColor family = invalid ? PlassColor.danger : _color;
 
+      final bool named = widget.semanticLabel != null;
+
       // One node over the field, so the label, the description and the error
       // name the group the square and the rails sit in: they are called "Hue"
       // and "Opacity" whatever field they are for, and two inline pickers were
-      // otherwise two sets of the same sliders.
+      // otherwise two sets of the same sliders. A `semanticLabel` names it in
+      // the label's place.
       return Semantics(
         container: true,
+        label: widget.semanticLabel,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: stackGap[_size]!,
           children: <Widget>[
             if (widget.label != null)
-              DefaultTextStyle.merge(
-                style: TextStyle(
-                  color: _disabled ? tokens.mutedFg : tokens.fg,
-                  fontSize: metaText[_size]!,
-                  fontWeight: FontWeight.w600,
+              // Beside a `semanticLabel` the label is read on its own rather
+              // than as part of the name, as it is above a trigger it does not
+              // name. In the tree either way, with only the flag switched.
+              Semantics(
+                container: named,
+                child: DefaultTextStyle.merge(
+                  style: TextStyle(
+                    color: _disabled ? tokens.mutedFg : tokens.fg,
+                    fontSize: metaText[_size]!,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  child: widget.label!,
                 ),
-                child: widget.label!,
               ),
             panel,
             if (widget.description != null)
@@ -418,6 +433,7 @@ class _PlColorPickerState extends State<PlColorPicker> {
       invalid: widget.invalid,
       disabled: _disabled,
       readOnly: widget.readOnly,
+      semanticLabel: widget.semanticLabel,
       fullWidth: widget.fullWidth,
       clearable: widget.clearable,
       clearLabel: widget.labels.clear,

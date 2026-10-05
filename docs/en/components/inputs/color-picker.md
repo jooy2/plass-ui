@@ -180,6 +180,7 @@ A `readOnly` picker shows its colour and takes nothing: the rails keep their val
 ::: fw flutter
 
 - An `inline` picker is one semantics node over its `label`, `description` and `error`, with the square and the rails inside it, so two of them on one screen are not two sets of sliders called "Hue". An `error` also marks the square and the rails invalid.
+- `semanticLabel` names the trigger, or an `inline` picker's group, in the `label`'s place, for a picker with no room for a visible one.
 - Under `NavigationMode.directional`, a remote's D-pad, a rail answers only <kbd>←</kbd> and <kbd>→</kbd>; <kbd>↑</kbd> and <kbd>↓</kbd> move the focus to the control above or below. The square has two axes and keeps all four.
 - The hue rail stops at either end there rather than wrapping, so an arrow past red moves the focus on instead of going round the wheel for ever.
 - Under `NavigationMode.directional`, the value field lets the arrow keys leave it: <kbd>↑</kbd> and <kbd>↓</kbd> at once, and <kbd>←</kbd> and <kbd>→</kbd> once the caret is at the start or the end of the text.
@@ -198,6 +199,7 @@ A `readOnly` picker shows its colour and takes nothing: the rails keep their val
 | `name`, the hidden input | — | There is no native form submission to be part of. |
 | a chequer of four linear gradients | a painter | A `CustomPainter` has no seam to avoid and no tiling to fight. |
 | `labels` as a partial | `PlColorPickerLabels`, a class with defaults | Dart names its optional fields; a partial of a record is not a thing it has. |
+| `aria-label`, outranked by a visible `label` | `semanticLabel`, in the `label`'s place | Flutter's name, with the meaning it has on every picker in this package. It names the trigger, or the group an `inline` panel sits in. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

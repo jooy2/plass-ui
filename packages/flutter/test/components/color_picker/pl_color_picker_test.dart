@@ -9,6 +9,17 @@ import 'package:plass_ui/src/internal/color.dart';
 import '../../support/host.dart';
 import '../../support/text_input.dart';
 
+/// The nearest node above [node] that carries a name of its own.
+String _groupOf(SemanticsNode node) {
+  SemanticsNode? parent = node.parent;
+
+  while (parent != null && parent.label.isEmpty) {
+    parent = parent.parent;
+  }
+
+  return parent?.label ?? '';
+}
+
 void main() {
   group('colour arithmetic', () {
     test('reads hex in all four lengths', () {
@@ -121,25 +132,90 @@ void main() {
         ),
       );
 
-      /// The nearest node above [node] that carries a name of its own.
-      String groupOf(SemanticsNode node) {
-        SemanticsNode? parent = node.parent;
-
-        while (parent != null && parent.label.isEmpty) {
-          parent = parent.parent;
-        }
-
-        return parent?.label ?? '';
-      }
-
       // Two inline pickers are otherwise two sets of sliders called "Hue".
       final SemanticsNode accent = tester.getSemantics(find.bySemanticsLabel('Hue').at(0));
       final SemanticsNode background = tester.getSemantics(find.bySemanticsLabel('Hue').at(1));
 
-      expect(groupOf(accent), 'Accent\nLinks and focus rings.\nToo light to read.');
-      expect(groupOf(background), 'Background');
+      expect(_groupOf(accent), 'Accent\nLinks and focus rings.\nToo light to read.');
+      expect(_groupOf(background), 'Background');
       expect(accent.getSemanticsData().validationResult, SemanticsValidationResult.invalid);
       expect(background.getSemanticsData().validationResult, SemanticsValidationResult.none);
+
+      handle.dispose();
+    });
+
+    testWidgets('names the trigger by semanticLabel, in the label\'s place', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          const Column(
+            children: <Widget>[
+              PlColorPicker(value: '#ff0000', semanticLabel: 'Brand colour'),
+              PlColorPicker(value: '#0000ff', label: Text('Accent'), semanticLabel: 'Link colour'),
+            ],
+          ),
+          width: 400,
+          height: 300,
+          overlay: true,
+        ),
+      );
+
+      expect(
+        tester.getSemantics(find.text('#ff0000')),
+        isSemantics(label: 'Brand colour', value: '#ff0000', isButton: true),
+      );
+      expect(
+        tester.getSemantics(find.text('#0000ff')),
+        isSemantics(label: 'Link colour', value: '#0000ff', isButton: true),
+      );
+      // The label is read on its own beside the trigger it no longer names, as
+      // it is beside a date picker's.
+      expect(semanticsNodeLabelled(tester, 'Accent'), isNotNull);
+
+      handle.dispose();
+    });
+
+    testWidgets('names an inline panel\'s group by semanticLabel, in the label\'s place', (
+      WidgetTester tester,
+    ) async {
+      final SemanticsHandle handle = tester.ensureSemantics();
+
+      await tester.pumpWidget(
+        host(
+          const SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                PlColorPicker(
+                  inline: true,
+                  value: '#ff0000',
+                  label: Text('Accent'),
+                  description: Text('Links and focus rings.'),
+                  semanticLabel: 'Brand colour',
+                ),
+                PlColorPicker(inline: true, value: '#ffffff', semanticLabel: 'Background'),
+              ],
+            ),
+          ),
+          width: 400,
+          height: 1200,
+          overlay: true,
+        ),
+      );
+
+      final SemanticsNode brand = tester.getSemantics(find.bySemanticsLabel('Hue').at(0));
+      final SemanticsNode background = tester.getSemantics(find.bySemanticsLabel('Hue').at(1));
+
+      expect(_groupOf(brand), 'Brand colour\nLinks and focus rings.');
+      expect(_groupOf(background), 'Background');
+      // The label keeps a node of its own inside the group rather than being
+      // read as part of its name.
+      expect(
+        semanticsNodeLabelled(tester, 'Accent')?.parent?.label,
+        'Brand colour\nLinks and focus rings.',
+      );
 
       handle.dispose();
     });
