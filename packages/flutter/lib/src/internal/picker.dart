@@ -278,10 +278,18 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
     // One widget for both placements, so the label a reader taps and the label
     // a screen reader reads are the same widget wherever it is drawn — the
     // exclusion included, or the notch would name the trigger a second time.
+    // The trigger is named by `semanticLabel`, or else by the label's words.
+    // Above the trigger, the label is read on its own only when the trigger is
+    // named by something else. In the notch it sits inside the trigger's node,
+    // where it would be added to the name the trigger already has, so it is
+    // left out whenever there is one.
+    final bool triggerNamed = widget.semanticLabel != null || plassTextOf(widget.label) != null;
     final Widget? labelNode = widget.label == null
         ? null
         : ExcludeSemantics(
-            excluding: widget.semanticLabel == null && plassTextOf(widget.label) != null,
+            excluding: notched
+                ? triggerNamed
+                : widget.semanticLabel == null && plassTextOf(widget.label) != null,
             child: DefaultTextStyle.merge(
               // In a notch the size, the weight and the ink are the notch's,
               // since a floating label changes all three as it moves.

@@ -884,6 +884,39 @@ void main() {
           closeTo(field.top + notchRise(PlassSize.md), 0.5),
         );
       });
+
+      for (final PlassFieldLabelPlacement placement in <PlassFieldLabelPlacement>[
+        PlassFieldLabelPlacement.notch,
+        PlassFieldLabelPlacement.float,
+      ]) {
+        testWidgets(
+          'names the trigger by semanticLabel alone with the label in its ${placement.name}',
+          (WidgetTester tester) async {
+            final handle = tester.ensureSemantics();
+
+            await _pump(
+              tester,
+              PlDatePicker(
+                value: july27,
+                label: const Text('Departure'),
+                labelPlacement: placement,
+                semanticLabel: 'Outbound flight',
+                onChanged: (DateTime? _) {},
+              ),
+            );
+
+            // Every picker draws `internal/picker`'s shell. The label sits inside
+            // the trigger's node there, and used to be added to the name it gave
+            // way to: "Outbound flight" then "Departure".
+            expect(
+              tester.getSemantics(_triggerGlyph()),
+              isSemantics(label: 'Outbound flight', isButton: true),
+            );
+
+            handle.dispose();
+          },
+        );
+      }
     });
   });
 }

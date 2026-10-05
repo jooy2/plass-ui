@@ -729,6 +729,41 @@ void main() {
         );
       });
 
+      for (final PlassFieldLabelPlacement placement in <PlassFieldLabelPlacement>[
+        PlassFieldLabelPlacement.notch,
+        PlassFieldLabelPlacement.float,
+      ]) {
+        testWidgets(
+          'names the trigger by semanticLabel alone with the label in its ${placement.name}',
+          (WidgetTester tester) async {
+            final handle = tester.ensureSemantics();
+
+            await tester.pumpWidget(
+              host(
+                PlSelect<String>(
+                  options: _cities,
+                  value: 'jp-13',
+                  label: const Text('City'),
+                  labelPlacement: placement,
+                  semanticLabel: 'Destination',
+                  onChanged: (String? _) {},
+                ),
+                width: 320,
+              ),
+            );
+
+            // The label sits inside the trigger's node there, and used to be added
+            // to the name it gave way to: "Destination" then "City".
+            expect(
+              tester.getSemantics(_trigger()),
+              isSemantics(label: 'Destination', isButton: true),
+            );
+
+            handle.dispose();
+          },
+        );
+      }
+
       testWidgets('rests a floating label in an empty trigger and raises it for a value', (
         WidgetTester tester,
       ) async {
