@@ -1256,5 +1256,76 @@ void main() {
 
       expect(opacityOf(tester), 0);
     });
+
+    group('a delay held by a pause when the setting arrives', () {
+      /// An exit at an even pace over 200ms, after a delay of 400ms.
+      Widget leaving({bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateFade(
+            mode: PlassAnimateMode.exit,
+            delay: const Duration(milliseconds: 400),
+            paused: paused,
+            curve: Curves.linear,
+            duration: const Duration(milliseconds: 200),
+            child: const Text('Leaving'),
+          ),
+          disableAnimations: still,
+        );
+      }
+
+      testWidgets('stays held, and lands once the rest of the wait is over', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(leaving());
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(leaving(paused: true));
+        await tester.pump(const Duration(milliseconds: 200));
+        await tester.pumpWidget(leaving(paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // As a paused keyframe stands before the moment it would have started:
+        // the exit is still there. It used to land as the setting arrived.
+        expect(opacityOf(tester), 1);
+
+        await tester.pumpWidget(leaving(still: true));
+        await tester.pump(const Duration(milliseconds: 299));
+
+        // 400ms of waiting in all, 100 before the pause and 300 after it,
+        // which it used to skip.
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(opacityOf(tester), 0);
+      });
+
+      testWidgets('plays once it is let go after the setting has gone again', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(leaving());
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(leaving(paused: true));
+        await tester.pumpWidget(leaving(paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pumpWidget(leaving(paused: true));
+        await tester.pump(const Duration(milliseconds: 200));
+
+        // On its first frame, which for an exit is all of it. It used to stand
+        // gone, and never play.
+        expect(opacityOf(tester), 1);
+
+        await tester.pumpWidget(leaving());
+
+        // The rest of the wait, and then halfway through the pass.
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(opacityOf(tester), closeTo(0.5, 0.01));
+
+        await tester.pumpAndSettle();
+
+        expect(opacityOf(tester), 0);
+      });
+    });
   });
 }

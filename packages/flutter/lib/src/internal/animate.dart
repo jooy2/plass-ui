@@ -1061,9 +1061,12 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       if (still) {
         // Asked for while a run was going, or after one had finished: from
         // here it stands on its last frame, unless it is still waiting out its
-        // delay, which lands it when the wait is over.
+        // delay, which lands it when the wait is over. A wait that a pause
+        // holds is still a wait, as a paused keyframe still stands before its
+        // delay is over, so it lands once it is let go and the rest of the
+        // wait has gone by.
         _controller.stop();
-        _landed = _startedRuns >= 0 && _waiting == null;
+        _landed = _startedRuns >= 0 && _waiting == null && _delayLeft == Duration.zero;
 
         // As far as it has moved, counting on from this frame if it is let
         // go, which `_drive` says once the frame is over.
