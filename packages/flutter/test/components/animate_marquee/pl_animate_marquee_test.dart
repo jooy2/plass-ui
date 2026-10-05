@@ -445,6 +445,84 @@ void main() {
       });
     });
 
+    group('paused when the platform gives movement back', () {
+      /// Six hundred pixels of strip in a box two hundred wide.
+      Widget strip({bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateMarquee(
+            paused: paused,
+            gap: 0,
+            children: List<Widget>.generate(10, (_) => const SizedBox(width: 60, height: 20)),
+          ),
+          width: 200,
+          height: 40,
+          disableAnimations: still,
+        );
+      }
+
+      /// The box's scroll position, while it is the box that scrolls.
+      ScrollPosition positionOf(WidgetTester tester) {
+        return tester
+            .state<ScrollableState>(
+              find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+            )
+            .position;
+      }
+
+      for (final bool fromMount in <bool>[false, true]) {
+        final String when = fromMount ? 'from the mount' : 'once it had been going';
+
+        testWidgets('keeps the copy it scrolls until it is let go, paused $when', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(strip(paused: fromMount, still: true));
+          await tester.pump();
+
+          positionOf(tester).jumpTo(250);
+
+          await tester.pumpWidget(strip(paused: true, still: true));
+          await tester.pump();
+          await tester.pumpWidget(strip(paused: true));
+          await tester.pump(const Duration(milliseconds: 500));
+
+          // A pause holds what is on the screen, which is the one copy the box
+          // scrolls along, where the reader left it. It used to become the
+          // clipped strip of copies at once, while it was still paused.
+          expect(
+            find.descendant(
+              of: find.byType(PlAnimateMarquee),
+              matching: find.byType(ExcludeSemantics),
+            ),
+            findsNothing,
+          );
+          expect(positionOf(tester).pixels, 250);
+          expect(await redrawsIn(tester), isFalse);
+
+          await tester.pumpWidget(strip());
+          await tester.pump();
+
+          // Let go, it is the strip again, clipped rather than scrolled.
+          expect(
+            find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+            findsNothing,
+          );
+          expect(
+            find.descendant(
+              of: find.byType(PlAnimateMarquee),
+              matching: find.byType(ExcludeSemantics),
+            ),
+            findsOneWidget,
+          );
+
+          final Offset before = shiftOf(tester);
+
+          await tester.pump(const Duration(milliseconds: 100));
+
+          expect(shiftOf(tester), isNot(before));
+        });
+      }
+    });
+
     testWidgets('keeps what it holds, and a strip that landed, as the setting comes and goes', (
       WidgetTester tester,
     ) async {

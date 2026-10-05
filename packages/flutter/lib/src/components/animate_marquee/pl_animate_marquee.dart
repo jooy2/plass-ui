@@ -195,7 +195,6 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
 
   @override
   Widget build(BuildContext context) {
-    final bool still = prefersReducedMotion(context);
     // A speed of zero is not a speed, and a negative one is not a direction —
     // `reverse` is what says which way the strip goes. Either holds the strip
     // where it is, rather than rounding an infinite number of milliseconds,
@@ -224,7 +223,7 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         once: widget.once,
         threshold: widget.threshold,
       ),
-      child: _copies(still: still),
+      child: _copies(still: false),
       // The box is drawn under the run rather than around it, so what the run
       // measures to know whether the marquee is in view, for a `visible`
       // trigger and for resting off screen, is the box a reader sees. The
@@ -233,35 +232,12 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
       // `threshold` while the box was wholly on screen, and one whose box had
       // been scrolled away still reached into view.
       builder: (BuildContext context, double t, Widget? inner) {
-        // A marquee's reduced-motion answer is the *opposite* of an entrance's:
-        // what an entrance has delivered is its finished frame, and what a
-        // strip has delivered is the content standing where it started.
-        final double shift = (still ? 0 : t) * _travel;
+        final double shift = t * _travel;
 
         // A strip travels *towards* the reader's start: in English it enters on
         // the right and leaves on the left, and in Arabic it does the opposite,
         // because otherwise the words arrive backwards.
         final double away = _rtl ? shift : -shift;
-        final Widget moved = Transform.translate(
-          offset: _vertical ? Offset(0, -shift) : Offset(away, 0),
-          child: inner,
-        );
-
-        if (still) {
-          // A strip that stands still is scrolled rather than clipped, so what
-          // is past the edge of the box can still be reached, by the keyboard
-          // as well. The box keeps the height the clipped strip had.
-          return PlassKeyboardScroll(
-            vertical: _vertical ? _scroll : null,
-            horizontal: _vertical ? null : _scroll,
-            borderRadius: BorderRadius.zero,
-            child: SingleChildScrollView(
-              controller: _scroll,
-              scrollDirection: _vertical ? Axis.vertical : Axis.horizontal,
-              child: moved,
-            ),
-          );
-        }
 
         // The strip is longer than its box by design, so it has to be laid out
         // against an unbounded main axis and clipped — a `ClipRect` alone would
@@ -270,7 +246,34 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
           constrainedAxis: _vertical ? Axis.horizontal : Axis.vertical,
           alignment: _vertical ? Alignment.topCenter : AlignmentDirectional.centerStart,
           clipBehavior: Clip.hardEdge,
-          child: moved,
+          child: Transform.translate(
+            offset: _vertical ? Offset(0, -shift) : Offset(away, 0),
+            child: inner,
+          ),
+        );
+      },
+      // Under reduced motion, and while `paused` keeps that on the screen once
+      // the platform gives movement back, until the pause is let go. Drawn
+      // around the strip, it turned into the clipped strip of copies as soon
+      // as the setting went, while the pause was still on.
+      //
+      // A marquee's reduced-motion answer is the *opposite* of an entrance's:
+      // what an entrance has delivered is its finished frame, and what a strip
+      // has delivered is the content standing where it started. A strip that
+      // stands still is scrolled rather than clipped, so what is past the edge
+      // of the box can still be reached, by the keyboard as well, and it has no
+      // seam to close, so one copy is laid down. The box keeps the height the
+      // clipped strip had.
+      stillBuilder: (BuildContext context, double t, Widget? _) {
+        return PlassKeyboardScroll(
+          vertical: _vertical ? _scroll : null,
+          horizontal: _vertical ? null : _scroll,
+          borderRadius: BorderRadius.zero,
+          child: SingleChildScrollView(
+            controller: _scroll,
+            scrollDirection: _vertical ? Axis.vertical : Axis.horizontal,
+            child: Transform.translate(offset: Offset.zero, child: _copies(still: true)),
+          ),
         );
       },
     );
