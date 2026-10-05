@@ -3,6 +3,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/animate.dart';
@@ -61,7 +62,8 @@ class PlAnimateHeadline extends StatelessWidget {
   /// How long each line is held before the next one comes up.
   ///
   /// Counted from the moment a line arrives, so it is reading time rather than
-  /// a cycle length.
+  /// a cycle length. A pause, or a rest off screen, holds the count, and once
+  /// it is let go the reel waits only what is left of it.
   final Duration interval;
 
   /// Which line is showing.
@@ -127,24 +129,30 @@ class PlAnimateHeadline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PlassAnimateGate(
+      // Told nothing of `paused`, so what it hands over is whether the trigger
+      // has let the reel go. The reel reads the pause itself, because a pause
+      // holds the wait for the next line where it is, and a trigger taking the
+      // reel back ends it.
       settings: PlassAnimateSettings(
         duration: duration,
         repeat: repeat,
-        paused: paused,
         trigger: trigger,
         play: play,
         once: once,
         threshold: threshold,
         // A reel that loops on its own timer turns for ever, whatever `repeat`
-        // says, so it rests off screen and its timer with it: the timer only
-        // runs while the gate says it is running. Back on screen, the line it
-        // stopped on is held for a whole `interval` again before the next one
-        // comes up.
-        endless: loop && index == null,
+        // says, so it rests off screen and its timer with it, unless it is
+        // paused, which already holds it still. Back on screen, the line it
+        // stopped on is held for what was left of its `interval` before the
+        // next one comes up.
+        endless: loop && index == null && !paused,
       ),
       builder: (BuildContext context, bool running, int runs, bool resting, Widget? _) {
         return _Reel(
-          running: running,
+          // Resting off screen, it is not running and its trigger has still
+          // let it go: it holds the wait where it is, as a pause does.
+          started: running || resting,
+          held: paused || resting,
           interval: interval,
           index: index,
           defaultIndex: defaultIndex,
@@ -165,7 +173,8 @@ class PlAnimateHeadline extends StatelessWidget {
 /// timer that turns it.
 class _Reel extends StatefulWidget {
   const _Reel({
-    required this.running,
+    required this.started,
+    required this.held,
     required this.interval,
     required this.index,
     required this.defaultIndex,
@@ -178,7 +187,11 @@ class _Reel extends StatefulWidget {
     required this.children,
   });
 
-  final bool running;
+  /// Whether the trigger has let the reel go.
+  final bool started;
+
+  /// Whether the caller holds it where it is, or it is resting off screen.
+  final bool held;
   final List<Widget> children;
   final Duration interval;
   final int? index;
@@ -205,11 +218,35 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   /// The line on its way out. Cleared once its animation has had its time.
   int? _leaving;
 
+  /// The timer that turns the reel, while the wait for the next line runs.
   Timer? _turn;
+
+  /// Whether a wait for the next line is under way, running or held.
+  bool _waiting = false;
+
+  /// How much of the wait for the next line went by before it last stopped,
+  /// leaving out the time a pause or a rest held it.
+  ///
+  /// Let go, the reel waits only what is left of the wait, as the typewriter
+  /// waits what is left of its hold, rather than a whole `interval` again, and
+  /// the whole `delay` with it before the reel has turned. A new `interval` or
+  /// `delay` is measured against it, so the wait ends that long after it
+  /// began.
+  Duration _gone = Duration.zero;
+
+  /// The frame the wait went on from when it last started or was let go, on
+  /// [animationNow], which is what the part gone by since is measured against,
+  /// or `null` while it is held, or until the frame that draws a line the
+  /// timer brought up.
+  Duration? _waitFrom;
 
   /// Whether the reel has turned at all, which is what [PlAnimateHeadline.delay]
   /// is counted against.
   bool _turned = false;
+
+  /// How long the wait for the next line lasts: the `interval`, and the
+  /// `delay` as well before the reel has turned.
+  Duration get _length => widget.interval + (_turned ? Duration.zero : widget.delay);
 
   int get _count => widget.children.length;
 
@@ -244,14 +281,22 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
     // new reel down every time its parent builds, so a parent that rebuilds
     // every second restarted the 2600ms timer before it ever fired, and the
     // line never changed.
-    if (widget.running != oldWidget.running ||
-        widget.interval != oldWidget.interval ||
-        widget.delay != oldWidget.delay ||
+    //
+    // A line that has just come up, a run the trigger has just let go and a
+    // reel that has started or stopped turning on its own wait from the
+    // beginning. A pause or a rest holds the wait under way, and letting go
+    // goes on with it.
+    final bool fresh =
+        (widget.started && !oldWidget.started) ||
         widget.index != oldWidget.index ||
         widget.loop != oldWidget.loop ||
         widget.children.length != oldWidget.children.length ||
-        before != _active) {
-      _schedule();
+        before != _active;
+
+    if (fresh || widget.started != oldWidget.started || widget.held != oldWidget.held) {
+      _schedule(fresh: fresh);
+    } else if (widget.interval != oldWidget.interval || widget.delay != oldWidget.delay) {
+      _remeasure();
     }
   }
 
@@ -274,29 +319,111 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
       });
   }
 
-  /// Arms the timer that turns the reel, or takes it away.
+  /// Arms the timer that turns the reel, holds it, or takes it away, starting
+  /// the wait for the next line from its beginning when [fresh] says so or
+  /// none is under way.
   ///
   /// The reel only turns on its own when it was not handed an index: a
-  /// controlled headline is somebody else's timer.
-  void _schedule() {
-    _turn?.cancel();
+  /// controlled headline is somebody else's timer. One its trigger takes back
+  /// ends the wait, and waits from the beginning once it is let go again.
+  void _schedule({bool fresh = false}) {
+    final bool turns =
+        widget.index == null &&
+        _count >= 2 &&
+        (widget.loop || _active < _count - 1) &&
+        widget.started;
 
-    if (widget.index != null || _count < 2 || !widget.running) {
+    if (fresh || !turns || !_waiting) {
+      _turn?.cancel();
+      _turn = null;
+      _waitFrom = null;
+      _gone = Duration.zero;
+      _waiting = turns;
+    }
+
+    if (!turns) {
       return;
     }
 
-    if (!widget.loop && _active == _count - 1) {
+    if (widget.held) {
+      _hold();
+    } else if (_turn == null) {
+      _run();
+    }
+  }
+
+  /// Stops the wait that is running, keeping how much of it has gone by.
+  void _hold() {
+    final Timer? turn = _turn;
+
+    if (turn == null) {
       return;
     }
 
-    _turn = Timer(widget.interval + (_turned ? Duration.zero : widget.delay), () {
-      if (!mounted) {
-        return;
+    turn.cancel();
+    _turn = null;
+
+    final Duration? from = _waitFrom;
+
+    if (from != null) {
+      _gone += animationNow() - from;
+    }
+
+    _waitFrom = null;
+  }
+
+  /// Runs what is left of the wait, and turns the reel at the end of it, or
+  /// at once when nothing is left.
+  void _run() {
+    final Duration remaining = _length - _gone;
+
+    _turn = Timer(remaining > Duration.zero ? remaining : Duration.zero, _onTurn);
+
+    final SchedulerBinding scheduler = SchedulerBinding.instance;
+
+    if (scheduler.schedulerPhase != SchedulerPhase.idle) {
+      // Started inside a frame, whose time is the time it started.
+      _waitFrom = animationNow();
+
+      return;
+    }
+
+    // Started from the timer that brought a line up, between two frames, when
+    // the last frame's time is already behind it: measured from the frame
+    // that draws the line, which is when it arrives.
+    _waitFrom = null;
+    scheduler.addPostFrameCallback((_) {
+      if (_turn != null) {
+        _waitFrom ??= animationNow();
       }
-
-      _turned = true;
-      _advance();
     });
+    scheduler.scheduleFrame();
+  }
+
+  /// Measures the wait under way against a new `interval` or `delay`: from
+  /// when it began, leaving out the time a pause or a rest held it. One the
+  /// wait has already gone past turns the reel at once. A held wait reads the
+  /// new one when it is let go.
+  void _remeasure() {
+    if (_turn == null) {
+      return;
+    }
+
+    _hold();
+    _run();
+  }
+
+  void _onTurn() {
+    _turn = null;
+    _waitFrom = null;
+    _waiting = false;
+
+    if (!mounted) {
+      return;
+    }
+
+    _turned = true;
+    _advance();
   }
 
   void _advance() {
@@ -310,7 +437,7 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
     setState(() => _uncontrolled = next);
     widget.onIndexChange?.call(next);
     _showFrom(previous);
-    _schedule();
+    _schedule(fresh: true);
   }
 
   @override

@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import * as React from 'react';
-import { PlAnimateHeadline } from 'plass-ui';
+import { PlAnimateHeadline, type PlAnimateHeadlineProps } from 'plass-ui';
+import { committed } from '../../support/timing';
 
 describe('PlAnimateHeadline', () => {
   it('names the effect it is running', async () => {
@@ -214,6 +215,189 @@ describe('PlAnimateHeadline', () => {
       await expect
         .element(screen.getByText('simpler'), { timeout: 2000 })
         .toHaveAttribute('data-state', 'active');
+    });
+  });
+
+  describe('the wait for the next line', () => {
+    // The reel turns on a timeout and measures its wait with
+    // `performance.now()`, so both run on a clock the test holds.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    function advance(ms: number): Promise<void> {
+      return committed(() => {
+        vi.advanceTimersByTime(ms);
+      });
+    }
+
+    function showing(): string | null | undefined {
+      return document.querySelector('.headline-under-test [data-state="active"]')?.textContent;
+    }
+
+    const reel = (props: Partial<PlAnimateHeadlineProps> = {}) => (
+      <PlAnimateHeadline className="headline-under-test" interval={1000} duration={10} {...props}>
+        <span>faster</span>
+        <span>simpler</span>
+        <span>cheaper</span>
+      </PlAnimateHeadline>
+    );
+
+    it('is what was left of the `interval` once a pause lets it go', async () => {
+      const screen = await render(reel());
+
+      await advance(600);
+      await screen.rerender(reel({ paused: true }));
+      await advance(5000);
+      await screen.rerender(reel({ paused: false }));
+      await advance(399);
+
+      // It used to wait a whole `interval` again.
+      expect(showing()).toBe('faster');
+
+      await advance(1);
+
+      expect(showing()).toBe('simpler');
+    });
+
+    it('is what was left of the `delay` and the `interval` once a pause lets it go', async () => {
+      const screen = await render(reel({ delay: 500 }));
+
+      await advance(600);
+      await screen.rerender(reel({ delay: 500, paused: true }));
+      await advance(5000);
+      await screen.rerender(reel({ delay: 500, paused: false }));
+      await advance(899);
+
+      expect(showing()).toBe('faster');
+
+      await advance(1);
+
+      expect(showing()).toBe('simpler');
+
+      // The next line waits an `interval` and no `delay`.
+      await advance(999);
+
+      expect(showing()).toBe('simpler');
+
+      await advance(1);
+
+      expect(showing()).toBe('cheaper');
+    });
+
+    it('is what was left of the `interval` once it is back on screen', async () => {
+      await render(
+        <div className="panel-under-test" style={{ height: '200px', overflow: 'auto' }}>
+          {reel()}
+          <div style={{ height: '1200px' }} />
+        </div>
+      );
+
+      const panel = document.querySelector<HTMLElement>('.panel-under-test')!;
+      const root = document.querySelector<HTMLElement>('.headline-under-test')!;
+
+      // Waits for the observer on frames, which the test leaves alone.
+      // `expect.poll` would move the clock the test holds between its tries.
+      const reports = async (state: string) => {
+        while (root.dataset.state !== state) {
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+      };
+
+      await advance(600);
+
+      panel.scrollTop = 800;
+      await reports('paused');
+      await advance(5000);
+
+      expect(showing()).toBe('faster');
+
+      panel.scrollTop = 0;
+      await reports('running');
+      await advance(399);
+
+      expect(showing()).toBe('faster');
+
+      await advance(1);
+
+      expect(showing()).toBe('simpler');
+    });
+
+    it.each([
+      ['longer', 1600],
+      ['shorter', 800]
+    ])('measures a new `interval` that is %s from when the wait began', async (_, to) => {
+      const screen = await render(reel());
+
+      await advance(600);
+      await screen.rerender(reel({ interval: to }));
+      await advance(to - 600 - 1);
+
+      expect(showing()).toBe('faster');
+
+      await advance(1);
+
+      expect(showing()).toBe('simpler');
+    });
+
+    it('turns at once to a new `interval` the wait has already gone past', async () => {
+      const screen = await render(reel());
+
+      await advance(600);
+      await screen.rerender(reel({ interval: 300 }));
+      await advance(0);
+
+      expect(showing()).toBe('simpler');
+    });
+
+    it.each([
+      ['longer', 1600],
+      ['shorter', 300]
+    ])(
+      'measures a new `delay` that is %s from when the wait began, before the first turn',
+      async (_, to) => {
+        const screen = await render(reel({ delay: 1000 }));
+
+        await advance(600);
+        await screen.rerender(reel({ delay: to }));
+        await advance(to + 1000 - 600 - 1);
+
+        expect(showing()).toBe('faster');
+
+        await advance(1);
+
+        expect(showing()).toBe('simpler');
+      }
+    );
+
+    it('turns at once to a new `delay` the wait has already gone past', async () => {
+      const screen = await render(reel({ delay: 1000, interval: 200 }));
+
+      await advance(600);
+      await screen.rerender(reel({ delay: 100, interval: 200 }));
+      await advance(0);
+
+      expect(showing()).toBe('simpler');
+    });
+
+    it('waits a whole `interval` again once it is started again after it was stopped', async () => {
+      const screen = await render(reel({ trigger: 'manual', play: true }));
+
+      await advance(600);
+      await screen.rerender(reel({ trigger: 'manual', play: false }));
+      await advance(100);
+      await screen.rerender(reel({ trigger: 'manual', play: true }));
+      await advance(999);
+
+      expect(showing()).toBe('faster');
+
+      await advance(1);
+
+      expect(showing()).toBe('simpler');
     });
   });
 

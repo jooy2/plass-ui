@@ -107,7 +107,7 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
     // A reel that loops on its own timer turns for ever, whatever `repeat` says,
     // so it rests off screen and its timer with it: the timer below only runs
     // while the state is `running`. Back on screen, the line it stopped on is
-    // held for a whole `interval` again before the next comes up.
+    // held for what was left of its wait before the next comes up.
     endless: loop && index === undefined
   });
   const reduced = usePrefersReducedMotion();
@@ -180,7 +180,27 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
    */
   const turned = React.useRef(false);
 
+  /**
+   * How much of the wait for the next line has gone by, in milliseconds, and
+   * which line it is held on. The wait is measured from when it began, so the
+   * timer built again after a pause or a rest off screen waits only what was
+   * left of it, and a new `interval` or `delay` is waited out from when the
+   * wait began, turning at once when the wait is already past it. Built again
+   * with the whole wait, the reel held a line for a whole `interval` once more
+   * every time it was let go, and a reel paused more often than that never
+   * turned.
+   */
+  const waited = React.useRef({ line: active, gone: 0 });
+
   React.useEffect(() => {
+    // Stopped rather than held: a reel started again waits the whole wait, as
+    // every effect plays its run again from the start.
+    if (!run.started) {
+      waited.current = { line: active, gone: 0 };
+
+      return;
+    }
+
     if (index !== undefined || count < 2 || run.state !== 'running') {
       return;
     }
@@ -189,6 +209,13 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
       return;
     }
 
+    if (waited.current.line !== active) {
+      waited.current = { line: active, gone: 0 };
+    }
+
+    const wait = waited.current;
+    const from = performance.now();
+
     // `delay` is what happens before the reel starts turning at all, so it is
     // added once rather than to every line — which is what an `interval` is.
     const timer = setTimeout(
@@ -196,11 +223,14 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
         turned.current = true;
         advanceRef.current();
       },
-      interval + (turned.current ? 0 : delay)
+      Math.max(0, interval + (turned.current ? 0 : delay) - wait.gone)
     );
 
-    return () => clearTimeout(timer);
-  }, [index, count, run.state, interval, delay, loop, active]);
+    return () => {
+      clearTimeout(timer);
+      wait.gone += performance.now() - from;
+    };
+  }, [index, count, run.started, run.state, interval, delay, loop, active]);
 
   return (
     <div
