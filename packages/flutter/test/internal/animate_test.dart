@@ -1654,5 +1654,87 @@ void main() {
         expect(opacityOf(tester), 0);
       });
     });
+
+    group('an exit started again while it is paused', () {
+      /// An exit after a delay of 400ms, started by `play`.
+      Widget leaving({required bool play, bool paused = false, bool still = true}) {
+        return host(
+          PlAnimateFade(
+            mode: PlassAnimateMode.exit,
+            trigger: PlassAnimateTrigger.manual,
+            play: play,
+            paused: paused,
+            delay: const Duration(milliseconds: 400),
+            curve: Curves.linear,
+            duration: const Duration(milliseconds: 200),
+            child: const Text('Leaving'),
+          ),
+          disableAnimations: still,
+        );
+      }
+
+      testWidgets('is there until it is let go, and lands once its delay is over', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(leaving(play: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(opacityOf(tester), 0);
+
+        await tester.pumpWidget(leaving(play: true, paused: true));
+        await tester.pumpWidget(leaving(play: false, paused: true));
+        await tester.pumpWidget(leaving(play: true, paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // As a new keyframe held by a pause stands, before its delay. It used
+        // to stay gone, where the run before it had landed.
+        expect(opacityOf(tester), 1);
+
+        await tester.pumpWidget(leaving(play: true));
+        await tester.pump(const Duration(milliseconds: 399));
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(opacityOf(tester), 0);
+      });
+
+      testWidgets('is there when the setting arrives before it is let go', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(leaving(play: true, still: false));
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpAndSettle();
+
+        expect(opacityOf(tester), 0);
+
+        await tester.pumpWidget(leaving(play: true, paused: true, still: false));
+        await tester.pumpWidget(leaving(play: false, paused: true, still: false));
+        await tester.pumpWidget(leaving(play: true, paused: true, still: false));
+        await tester.pump();
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pumpWidget(leaving(play: true, paused: true));
+
+        // It has not begun, so it has not landed. It used to land where the
+        // run before it had, and was gone while it was still paused.
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pumpWidget(leaving(play: true));
+        await tester.pump(const Duration(milliseconds: 399));
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(opacityOf(tester), 0);
+      });
+    });
   });
 }

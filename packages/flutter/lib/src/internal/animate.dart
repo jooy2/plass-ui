@@ -864,11 +864,17 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       }
 
       // A run that was never triggered sits on its own first frame; one that
-      // was merely paused, or is resting, stays exactly where it is.
+      // was merely paused, or is resting, stays exactly where it is. One
+      // started again while it is held has not begun either, and waits as one
+      // that was never triggered does: not where the run before it landed
+      // under reduced motion, and not landed by a setting that arrives before
+      // it is let go.
       if (_startedRuns != runs) {
+        _startedRuns = -1;
         _setValue(0);
         _delayLeft = Duration.zero;
         _keepsLanding = false;
+        _setLanded(false);
       } else if (!started && widget.rewindsWhenWaiting) {
         // Taken back by its trigger, it waits for the next run as one that
         // was never triggered does, and that run starts it again.
