@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**4 items are open, and the last number used is 161.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 157; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
+**4 items are open, and the last number used is 165.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 161; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
 
 ## Working through a batch
 
@@ -44,11 +44,11 @@ None.
 
 ## Items
 
-Line numbers are from `5ba93a90d` and drift as the code changes; when one no longer matches, search for the symbol.
+Line numbers are from `79cad2ec0` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ### Low
 
-- **158.** **An endless Flutter `PlAnimateMarquee` or `PlAnimateLighting` goes on from where its clock stands when reduced motion is turned off** (since item 154 keeps the run; `animate.dart` ~1322–1340), so the strip jumps from 0 to where its passes would be; React switches both off under the setting (`styles.css` ~3630, ~3663) and starts them from the beginning after their `delay`. Decided: Flutter starts these two from the beginning, as React does; the other endless effects keep item 129's rule.
-- **159.** **A finite Flutter `PlAnimateMarquee` or `PlAnimateLighting` that landed under reduced motion and is held by `paused` turns into the strip or the arc when the setting is turned off** (`animate.dart` ~1322–1340 keeps the reduced-motion view only for an endless run and one paused before it started); React keeps it for every held run since item 157. Item 131's rule covers it.
-- **160.** **A Flutter `PlAnimateMarquee` drops every copy but the first under reduced motion** (`pl_animate_marquee.dart` ~300), so the copies are built again, and lose any state, when the setting changes; React keeps them on the page and hides them.
-- **161.** **Adding lines to a `PlAnimateHeadline` or changing its `loop` starts the whole `interval` again**, in both builds (`pl_animate_headline.dart` ~293, `PlAnimateHeadline.tsx` ~203); item 156 measures a new `interval` from when the wait began.
+- **162.** **A Flutter `PlAnimateMarquee` treats a hover pause as `paused`** (`pl_animate_marquee.dart` ~226: `paused: widget.paused || stopped || (widget.pauseOnHover && _hovered)`), so with the pointer over it when reduced motion is turned off it keeps the scroll box, and item 158's restart waits, until the pointer leaves; React passes only `paused || stopped` (`PlAnimateMarquee.tsx` ~141) and pauses on hover in CSS.
+- **163.** **A landed endless Flutter run held by `paused` draws one wrong frame when it is let go** (`animate.dart` ~946: `_place(_clockAt)` runs after the frame, so the frame of the release draws `_end`, 90deg for a rotate, and the next one the clock's place).
+- **164.** **A finite run that landed under reduced motion and is given a higher `repeat` plays the passes it adds in Flutter** (`_recount`, `animate.dart` ~1219) **and stays on its last frame in React** (`.plass-anim[data-plass-landed]` holds the 0s timing, `styles.css` ~3706); read from the code, not run.
+- **165.** **A `PlAnimateHeadline` whose lines are all taken away and given back counts its wait from the beginning in Flutter** (`pl_animate_headline.dart` ~348) **and goes on with the old wait in React** (`PlAnimateHeadline.tsx` ~209 keeps `waited` while `count < 1`).
