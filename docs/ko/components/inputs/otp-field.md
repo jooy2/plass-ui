@@ -39,7 +39,7 @@ PlOtpField(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 바깥의 field가 아니라 칸이 늘어선 줄에 그대로 전달되고, `aria-label`과 `aria-labelledby`는 `label`처럼 각 칸의 이름 앞에도 붙습니다. `color`는 여기서 Plass의 prop이라, `onChange`는 이 컴포넌트가 `onValueChange`로 쓰기 때문에, `children`은 칸들이 곧 children이기 때문에 제외됩니다.
+네이티브 `<div>` 속성은 바깥의 field가 아니라 칸이 늘어선 줄에 그대로 전달되고, `aria-label`과 `aria-labelledby`는 `label` 대신 각 칸의 이름 앞에 붙습니다. `color`는 여기서 Plass의 prop이라, `onChange`는 이 컴포넌트가 `onValueChange`로 쓰기 때문에, `children`은 칸들이 곧 children이기 때문에 제외됩니다.
 
 `className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(칸이 늘어선 줄), `description`, `error`.
 
@@ -192,7 +192,8 @@ PlOtpField(
 - Base UI의 OTP Field 위에 있습니다. 보기보다 어려운 부분을 전부 그쪽이 맡습니다: 칸이 몇 개든 그 뒤의 값 하나, 캐럿이 있던 자리에서부터 칸에 흩뿌려지는 붙여넣기, 한 칸 뒤로 물러나는 백스페이스, 그리고 포인터 아래가 아니라 첫 빈 칸에 떨어지는 클릭.
 - 첫 칸은 `autocomplete="one-time-code"`를, 나머지 칸은 `off`를 들고 있습니다. 그래서 휴대폰이 메시지의 코드를 코드가 시작되는 칸에서 한 번만 바로 제안합니다.
 - 라벨 · 설명 · 오류는 Base UI의 `Field`가 줄에 연결합니다. `for` 하나, `aria-describedby` 하나, 호출자가 맞춰 두어야 할 id는 없습니다.
-- 칸마다 라벨 뒤에 줄 안의 위치를 붙인 이름이 있습니다. "Verification code Character 2 of 6"처럼 읽힙니다. Base UI는 칸마다 라벨만 이름으로 주기 때문에, 그대로 두면 같은 이름을 여섯 번 읽고 캐럿이 어느 칸에 있는지는 말하지 않습니다. 위치 문구는 라벨 묶음의 `otpSlot`에서 오고, 필드 하나만 다르게 하려면 `slotLabel`을 주면 됩니다. 보이는 `label`이 없으면 `aria-label`이 그 자리를 대신합니다.
+- 칸마다 라벨 뒤에 줄 안의 위치를 붙인 이름이 있습니다. "Verification code Character 2 of 6"처럼 읽힙니다. Base UI는 칸마다 라벨만 이름으로 주기 때문에, 그대로 두면 같은 이름을 여섯 번 읽고 캐럿이 어느 칸에 있는지는 말하지 않습니다. 위치 문구는 라벨 묶음의 `otpSlot`에서 오고, 필드 하나만 다르게 하려면 `slotLabel`을 주면 됩니다. 보이는 `label`이 있든 없든 `aria-label`이 그 자리를 대신하고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 필드를 찾을 수 있습니다.
 - 구분자는 `role="separator"`가 아니라 `aria-hidden`이 붙은 `<span>`입니다. 두 가지 사이의 경계가 아니라 값 하나 안의 구두점입니다.
 - 칸의 포커스 링은 `:focus-visible`이 아니라 `:focus`입니다. 라이브러리에서 그 구분을 의도적으로 내려놓는 유일한 자리입니다. 칸은 타이핑만큼이나 클릭으로 포커스를 받고, 다음 키가 어느 글자에 떨어지는지를 말해 주는 것은 그 링뿐입니다.
 

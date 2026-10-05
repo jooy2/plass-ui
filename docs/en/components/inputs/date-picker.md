@@ -263,7 +263,8 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 - The grid is a `role="grid"` of `gridcell`s, named by the header above it: `July 2026`, `2026` over the months, or the page of years.
 - The month and year buttons are named by the words they show and described by what they do, so a screen reader hears `July` before "Choose a month", and a voice command that says `July` finds the button.
 - A blocked day carries `aria-disabled` rather than the `disabled` attribute, so it stays in the arrow-key path and is still announced, as unavailable.
-- The trigger is named by the label and then by what it holds, `Departure 27 Jul 2026`, as a native select is read. Without a visible `label`, an `aria-label` takes its place.
+- The trigger is named by the label and then by what it holds, `Departure 27 Jul 2026`, as a native select is read. An `aria-label` takes the label's place, visible `label` or not, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the picker.
 
 :::
 

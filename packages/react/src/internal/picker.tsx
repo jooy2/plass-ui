@@ -328,11 +328,11 @@ export function PickerShell({
   const descriptionId = `${generatedId}-description`;
   const errorId = `${generatedId}-error`;
   // What the trigger's name starts with: a caller's `aria-labelledby`, else
-  // the visible label, else the trigger itself, which a reference resolves to
-  // its own `aria-label`. The name goes on the trigger rather than on the
-  // stack the other props land on, because a picker with no room for a
-  // `label` is named there or nowhere.
-  const nameFrom = ariaLabelledBy ?? (label ? labelId : ariaLabel ? triggerId : undefined);
+  // the trigger itself, which a reference resolves to its own `aria-label`, in
+  // the visible label's place, else the label. The name goes on the trigger
+  // rather than on the stack the other props land on, because a picker with no
+  // room for a `label` is named there or nowhere.
+  const nameFrom = ariaLabelledBy ?? (ariaLabel ? triggerId : label ? labelId : undefined);
 
   // Read here rather than in each of the six pickers that draw this shell: they
   // all hand their shell props straight through, and one resolution cannot

@@ -133,12 +133,13 @@ describe('PlDatePicker', () => {
         .toBeInTheDocument();
     });
 
-    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+    it("points the trigger at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="date-heading">Outbound</span>
           <PlDatePicker
             label="Departure"
+            aria-label="Departure date"
             aria-labelledby="date-heading"
             locale="en-GB"
             defaultValue={JULY_27}
@@ -154,11 +155,23 @@ describe('PlDatePicker', () => {
       expect(trigger.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe('date-heading');
     });
 
-    it('is still named by a visible label when it is given an `aria-label` too', async () => {
-      const screen = await render(<PlDatePicker label="Departure" aria-label="Outbound" />);
+    it("names the trigger with an `aria-label` in a visible label's place, then reads the date", async () => {
+      const screen = await render(
+        <PlDatePicker
+          label="Departure"
+          aria-label="Departure date"
+          locale="en-GB"
+          defaultValue={JULY_27}
+        />
+      );
 
       await expect
-        .element(screen.getByRole('button', { name: 'Departure', exact: true }))
+        .element(
+          screen.getByRole('button', {
+            name: `Departure date ${mediumDate(JULY_27)}`,
+            exact: true
+          })
+        )
         .toBeInTheDocument();
     });
   });

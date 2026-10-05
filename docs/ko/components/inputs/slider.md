@@ -42,7 +42,7 @@ PlSlider(
 
 ::: fw react
 
-Base UI `Slider.Root`의 나머지 prop은 그대로 전달됩니다: `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`. `aria-label`과 `aria-labelledby`는 `label`처럼 group과 그 안의 모든 thumb에 이름을 붙입니다.
+Base UI `Slider.Root`의 나머지 prop은 그대로 전달됩니다: `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`. `aria-label`과 `aria-labelledby`는 `label` 대신 group과 그 안의 모든 thumb에 이름을 붙입니다.
 
 :::
 
@@ -207,8 +207,9 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 ::: fw react
 
 - 각 thumb은 진짜 `<input type="range">`입니다. 브라우저 자체의 slider 의미론, 포커스 순서, `disabled`가 전부 그대로 따라옵니다.
-- `label`은 Base UI가 컨트롤에 엮어 줍니다. 라벨이 없는 경우(여러 개가 늘어선 페이더 같은) 에는 `aria-label`을 주세요.
-- range의 두 끝은 `getAriaLabel`로 "최소 가격", "최대 가격"처럼 각각 이름을 주지 않으면 `label`을 함께 씁니다. `getAriaValueText`는 각 값을 무엇이라고 읽을지 정하며, "start range" 같은 Base UI의 영어 문구를 대신합니다. `description`은 모든 thumb의 설명이 됩니다.
+- `label`은 Base UI가 컨트롤에 엮어 줍니다. 라벨이 없는 경우(여러 개가 늘어선 페이더 같은) 에는 `aria-label`을 주세요. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 group과 모든 thumb의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 슬라이더를 찾을 수 있습니다.
+- range의 두 끝은 `getAriaLabel`로 "최소 가격", "최대 가격"처럼 각각 이름을 주지 않으면 슬라이더의 이름을 함께 씁니다. `getAriaValueText`는 각 값을 무엇이라고 읽을지 정하며, "start range" 같은 Base UI의 영어 문구를 대신합니다. `description`은 모든 thumb의 설명이 됩니다.
 - 키보드는 primitive의 것입니다. <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>로 한 칸씩, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>으로 크게, <kbd>Home</kbd>과 <kbd>End</kbd>로 양 끝까지 갑니다.
 - 포인터가 닿는 곳은 레일이 아니라 띠 전체입니다. 컨트롤 박스가 홈 두께의 몇 배라서, 띠 어디를 눌러도 thumb이 그리로 옵니다.
 - thumb은 hover와 드래그 중에 자기가 커지는 대신 후광을 두릅니다. 손가락 아래의 것은 절대 크기가 변하지 않습니다.

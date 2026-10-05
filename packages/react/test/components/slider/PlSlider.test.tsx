@@ -149,27 +149,48 @@ describe('PlSlider', () => {
       expect(screen.getByRole('slider', { name: 'Price', exact: true }).elements()).toHaveLength(2);
     });
 
-    it("points the thumb at the caller's element with an `aria-labelledby`", async () => {
+    it("points the thumb at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="slider-heading">Channel 3</span>
-          <PlSlider label="Gain" aria-labelledby="slider-heading" defaultValue={40} />
+          <PlSlider
+            label="Gain"
+            aria-label="Gain of channel 3"
+            aria-labelledby="slider-heading"
+            defaultValue={40}
+          />
         </>
       );
 
       const thumb = screen.getByRole('slider', { name: 'Channel 3', exact: true });
 
       await expect.element(thumb).toHaveAttribute('aria-labelledby', 'slider-heading');
+      await expect
+        .element(screen.getByRole('group', { name: 'Channel 3', exact: true }))
+        .toBeInTheDocument();
     });
 
-    it('is still named by a visible label when it is given an `aria-label` too', async () => {
+    it("names the thumb and the group with an `aria-label` in a visible label's place", async () => {
       const screen = await render(
         <PlSlider label="Volume" aria-label="Master volume" defaultValue={40} />
       );
 
       await expect
-        .element(screen.getByRole('slider', { name: 'Volume', exact: true }))
+        .element(screen.getByRole('slider', { name: 'Master volume', exact: true }))
         .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('group', { name: 'Master volume', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names both ends of a range with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlSlider label="Price" aria-label="Price range" defaultValue={[20, 80]} />
+      );
+
+      expect(
+        screen.getByRole('slider', { name: 'Price range', exact: true }).elements()
+      ).toHaveLength(2);
     });
   });
 

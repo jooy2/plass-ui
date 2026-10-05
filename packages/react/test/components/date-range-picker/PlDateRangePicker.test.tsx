@@ -98,11 +98,17 @@ describe('PlDateRangePicker', () => {
       await expect.element(screen.getByRole('button', { name: /^Stay/ })).toBeInTheDocument();
     });
 
-    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+    it("names the trigger with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<PlDateRangePicker label="Stay" aria-label="Stay dates" />);
+
+      await expect.element(screen.getByRole('button', { name: /^Stay dates/ })).toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="range-heading">Hotel nights</span>
-          <PlDateRangePicker label="Stay" aria-labelledby="range-heading" />
+          <PlDateRangePicker label="Stay" aria-label="Stay dates" aria-labelledby="range-heading" />
         </>
       );
 

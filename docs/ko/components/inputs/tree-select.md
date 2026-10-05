@@ -190,7 +190,8 @@ node 자신의 `selectable`이 어느 쪽으로든 덮어쓰므로, 진짜 카�
 
 ## Accessibility
 
-- trigger는 다른 모든 picker와 똑같이 button이고, label과 description, error, `aria-invalid`를 함께 답니다. 보이는 `label`이 없다면 <Fw react="aria-label" flutter="semanticLabel" code />을 주세요.
+- trigger는 다른 모든 picker와 똑같이 button이고, label과 description, error, `aria-invalid`를 함께 답니다. 보이는 `label`이 없다면 <Fw react="aria-label" flutter="semanticLabel" code />을 주세요. <Fw react="보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 trigger의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다." flutter="보이는 `label`이 있어도 `semanticLabel`이 그 자리를 대신해 trigger의 이름이 됩니다." />
+- <Fw react="aria-label" flutter="semanticLabel" code />에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 - 팝업 안은 진짜 [`PlTree`](../display/tree)입니다: `role="tree"`와 `role="treeitem"`, `aria-level`, `aria-expanded`, `aria-selected`, 그리고 트리 전체에 **tab 정거장 하나**.
 - <kbd>↓</kbd>와 <kbd>↑</kbd>는 실제로 보이는 행을 걷고, <kbd>→</kbd>는 가지를 연 뒤 안으로 들어가고, <kbd>←</kbd>는 닫거나 부모로 나가고, <kbd>Enter</kbd>나 <kbd>Space</kbd>가 고릅니다.
 - 가지라서 고를 수 없을 뿐인 node에는 `aria-disabled`를 붙이지 않습니다. 아래 있는 것을 여는 조작 가능한 행이기 때문입니다. `disabled` node는 표시되고, 화살표 키의 정거장도 아닙니다.

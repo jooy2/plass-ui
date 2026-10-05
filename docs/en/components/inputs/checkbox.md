@@ -152,7 +152,8 @@ It is a display state, not a value, pressing an indeterminate box ticks it.
 - The tick is centred on the label's **first** line with `1lh`, so it stays put when the label wraps to three.
 - `indeterminate` is announced as `aria-checked="mixed"`, and the dash rather than the check is what says so without colour.
 - The focus ring only appears on `:focus-visible`, so a mouse press never draws one.
-- A checkbox with no `label` needs an `aria-label`. A box with nothing beside it is a box nobody can name.
+- A checkbox with no `label` needs an `aria-label`. A box with nothing beside it is a box nobody can name. Beside a visible `label`, an `aria-label` names the box in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the checkbox.
 
 :::
 

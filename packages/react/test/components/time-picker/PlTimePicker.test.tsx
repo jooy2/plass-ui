@@ -77,11 +77,19 @@ describe('PlTimePicker', () => {
         .toBeInTheDocument();
     });
 
-    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+    it("names the trigger with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<PlTimePicker label="Doors" aria-label="Doors open" />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Doors open', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="time-heading">Opening</span>
-          <PlTimePicker label="Doors" aria-labelledby="time-heading" />
+          <PlTimePicker label="Doors" aria-label="Doors open" aria-labelledby="time-heading" />
         </>
       );
 

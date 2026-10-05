@@ -152,7 +152,8 @@ tick은 컨트롤 높이에서 한 단계 내린 값이 아니라 자기 사다�
 - tick은 `1lh`로 라벨의 **첫 줄**에 맞춰 중앙에 놓입니다. 라벨이 세 줄로 늘어나도 자리를 지킵니다.
 - `indeterminate`는 `aria-checked="mixed"`로 읽히고, 색 없이도 그것을 말해 주는 것이 체크가 아닌 대시입니다.
 - focus ring은 `:focus-visible`에서만 나타나므로 마우스 클릭에는 그려지지 않습니다.
-- `label`이 없는 checkbox에는 `aria-label`이 필요합니다. 옆에 아무것도 없는 박스는 아무도 이름을 붙일 수 없습니다.
+- `label`이 없는 checkbox에는 `aria-label`이 필요합니다. 옆에 아무것도 없는 박스는 아무도 이름을 붙일 수 없습니다. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 박스의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 checkbox를 찾을 수 있습니다.
 
 :::
 

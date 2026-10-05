@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { useDisabled, useLabelReference } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Checkbox as BaseUICheckbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
@@ -225,12 +225,19 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
       className,
       classNames,
       style,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
   ) {
     const defaults = useDefaults();
     const disabled = useDisabled(disabledProp);
+    // An `aria-label` names the tick in a visible label's place, as it would a
+    // native checkbox, and a caller's `aria-labelledby` outranks both. Base UI
+    // names the tick by the label unless it is given a reference, so an
+    // `aria-label` comes with one, to a hidden copy of its words.
+    const reference = useLabelReference(ariaLabel, ariaLabelledBy);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 
@@ -271,6 +278,8 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
               className={tickClasses}
               disabled={disabled}
               readOnly={readOnly}
+              aria-label={ariaLabel}
+              aria-labelledby={reference.labelledBy}
               {...props}
             >
               <BaseUICheckbox.Indicator keepMounted className={markClasses}>
@@ -322,6 +331,8 @@ export const PlCheckbox = /* @__PURE__ */ React.forwardRef<HTMLElement, PlCheckb
             className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
           />
         )}
+
+        {reference.node}
       </Field.Root>
     );
   }

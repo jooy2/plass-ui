@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { useDisabled, useLabelReference } from '../../internal/form.js';
 import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { Slider as BaseUISlider } from '@base-ui/react/slider';
 import {
@@ -42,7 +42,8 @@ export interface PlSliderProps extends BaseSliderProps {
   /**
    * The name of the thumb at `index`, for a range whose two ends need names of
    * their own, such as "Minimum price" and "Maximum price". Left out, every
-   * thumb is named by `label`.
+   * thumb takes the slider's own name: an `aria-labelledby`, else an
+   * `aria-label`, else `label`.
    */
   getAriaLabel?: (index: number) => string;
   /**
@@ -233,6 +234,7 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
     ref
   ) {
     const descriptionId = React.useId();
+    const reference = useLabelReference(ariaLabel, ariaLabelledBy);
     const defaults = useDefaults();
     const locale = useLocale(localeProp);
     const disabled = useDisabled(disabledProp);
@@ -263,10 +265,12 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
         // `solid`, always: the run and the thumb are the coloured thing, so the
         // interaction light on them is white rather than the family's own tint.
         style={{ ...controlSlots(color, elevation, 'solid'), ...style }}
-        // Both name the group, as `label` does, and Base UI hands an
-        // `aria-labelledby` on to every thumb.
+        // Both name the group, an `aria-label` in a visible label's place and
+        // an `aria-labelledby` over both. Base UI names the group by the label
+        // unless it is given a reference, so an `aria-label` comes with one, to
+        // a hidden copy of its words.
         aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
+        aria-labelledby={reference.labelledBy}
         {...props}
       >
         {label || showValue ? (
@@ -307,10 +311,11 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
                 index={index}
                 // Each goes onto the thumb's own `<input type="range">`, which is
                 // the element a screen reader lands on. An `aria-label` does not
-                // reach it through the group, so it is handed down here, and
-                // only where nothing outranks it: Base UI lets a thumb's own
-                // `aria-label` push a visible label out.
-                aria-label={label || ariaLabelledBy ? undefined : ariaLabel}
+                // reach it through the group, so it is handed down here, where
+                // it pushes a visible label out, and only where a caller's
+                // `aria-labelledby`, which Base UI hands every thumb, does not
+                // outrank it: a thumb's own `aria-label` would push that out too.
+                aria-label={ariaLabelledBy === undefined ? ariaLabel : undefined}
                 getAriaLabel={getAriaLabel}
                 getAriaValueText={getAriaValueText}
                 aria-describedby={description ? descriptionId : undefined}
@@ -325,6 +330,8 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
             {description}
           </div>
         ) : null}
+
+        {reference.node}
       </BaseUISlider.Root>
     );
   }

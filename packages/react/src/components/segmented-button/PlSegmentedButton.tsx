@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useCommitChange } from '../../internal/commit-change.js';
-import { useDisabled } from '../../internal/form.js';
+import { controlNaming, useDisabled } from '../../internal/form.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
@@ -312,6 +312,8 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
     className,
     style,
     children,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy,
     ...props
   },
   ref
@@ -500,6 +502,10 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
           .filter(Boolean)
           .join(' ')}
         style={{ ...controlSlots(color, elevation, variant), ...style }}
+        // Base UI names the set by the legend of a `PlFieldset` around it. An
+        // `aria-label` names it in the legend's place, and a caller's
+        // `aria-labelledby` outranks both.
+        {...controlNaming(ariaLabel, ariaLabelledBy)}
         {...props}
       >
         {/* Rendered only once something is chosen. An empty set has no tile to

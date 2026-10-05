@@ -44,7 +44,7 @@ PlFilePicker(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 wrapper로 그대로 전달됩니다. `color`, `defaultValue`, `title`, `children`은 넷 다 여기서는 Plass의 prop이라 제외됩니다.
+네이티브 `<div>` 속성은 wrapper로 그대로 전달되지만, `aria-label`과 `aria-labelledby`는 browse 버튼에 붙어 이름이 됩니다. `color`, `defaultValue`, `title`, `children`은 넷 다 여기서는 Plass의 prop이라 제외됩니다.
 
 wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 포함해 필드 어디에 파일을 놓아도 picker로 들어가고, `data-testid`로 찾은 요소에 보낸 드래그 이벤트도 여기에 닿습니다. `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`은 picker가 이벤트를 처리한 뒤 호출자에게도 그대로 전달됩니다.
 
@@ -215,7 +215,8 @@ wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 �
 ::: fw react
 
 - 누를 수 있는 영역은 진짜 `<button>`입니다. 포커스 순서에 들어가고 <kbd>Enter</kbd>와 <kbd>Space</kbd>에 반응합니다. 드래그 앤 드롭은 거기에 더해진 것이지 유일한 통로가 아닙니다.
-- 버튼의 이름은 `label`이 먼저이고 버튼 자신의 `title`과 `hint`가 뒤따릅니다. 그래서 한 화면의 picker 두 개가 똑같이 읽히지 않습니다.
+- 버튼의 이름은 `label`이 먼저이고 버튼 자신의 `title`과 `hint`가 뒤따릅니다. 그래서 한 화면의 picker 두 개가 똑같이 읽히지 않습니다. 보이는 `label`이 있든 없든 `aria-label`이 그 이름에서 label의 자리를 대신하고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 - `<input type="file">`은 `display: none`이 아니라 화면 밖으로 잘려 DOM에 남습니다. 전자는 일부 브라우저에서 focus를 받을 수 없게 만들고, 네이티브 form 검증에서도 빠지게 합니다.
 - input은 화면에 보이는 목록을 그대로 담습니다. 그래서 `name`이 있는 form은 끌어다 놓은 파일을 제출하고, 지우거나 거절된 파일은 제출하지 않습니다.
 - `description`과 `error`는 `aria-describedby`로 버튼에 연결되고, error는 `aria-invalid`도 함께 세웁니다.

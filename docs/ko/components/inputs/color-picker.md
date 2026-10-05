@@ -174,6 +174,8 @@ PlColorPicker(
 ::: fw react
 
 - `inline` picker는 `label`로 이름이 붙고 `description`과 `error`로 설명되는 `role="group"`입니다. 그래서 한 페이지의 picker 두 개가 "Hue"라는 같은 슬라이더 두 벌이 되지 않습니다. `error`는 사각형과 레일에 `aria-invalid`도 붙입니다.
+- `aria-label`은 보이는 `label` 대신 trigger의 이름이 되고, `inline` picker에서는 그룹의 이름이 됩니다. `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 
 :::
 
@@ -199,7 +201,7 @@ PlColorPicker(
 | `name`과 hidden input | — | 참여할 네이티브 폼 제출이 없습니다. |
 | linear 그러데이션 넷으로 만든 체커 | painter | `CustomPainter`에는 피할 이음매도, 싸울 타일링도 없습니다. |
 | partial인 `labels` | 기본값이 붙은 클래스 `PlColorPickerLabels` | Dart는 선택적 필드에 이름을 붙입니다. 레코드의 partial 같은 것은 없습니다. |
-| 보이는 `label`에 밀리는 `aria-label` | `label` 자리를 대신하는 `semanticLabel` | Flutter의 이름이고, 이 패키지의 모든 picker에서와 같은 뜻입니다. trigger에, `inline`이면 패널이 놓인 그룹에 이름을 붙입니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style` | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::

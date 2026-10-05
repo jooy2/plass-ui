@@ -215,7 +215,8 @@ controlled 형태 하나뿐입니다. `value`와 `onChanged`. 옵션은 `==`로 
 ::: fw react
 
 - Base UI가 진짜 radio들을 담은 `role="radiogroup"`을 렌더링하고 `aria-checked`를 맞춰 주며, roving tab index를 소유합니다. 묶음이 tab stop 하나를 차지하고 <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>로 그 안에서 움직입니다. radio group이 `<div>`에 input을 담은 것이 아니라 컴포넌트여야 하는 이유가 바로 이것입니다.
-- 그룹의 `label`, `description`, `error`는 Base UI의 Field가 엮어 주고, 각 옵션의 라벨도 마찬가지입니다. 라벨을 누르면 그 옵션이 선택됩니다.
+- 그룹의 `label`, `description`, `error`는 Base UI의 Field가 엮어 주고, 각 옵션의 라벨도 마찬가지입니다. 라벨을 누르면 그 옵션이 선택됩니다. 보이는 라벨이 있어도 `aria-label`이 그 자리를 대신해 그룹이나 옵션의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 그룹이나 옵션을 찾을 수 있습니다.
 - 각 dot은 자기 라벨의 **첫 줄**에 맞춰 중앙에 놓이므로, 라벨이 줄바꿈되어도 자리를 지킵니다.
 - 선택된 dot은 색이 바뀌기만 하는 것이 아니라 채워진 원입니다. 채움을 볼 수 없는 사람에게는 모양이 상태를 나릅니다.
 - `name`을 주면 Base UI가 hidden input을 렌더링해서 선택이 네이티브 form 제출에 포함됩니다.

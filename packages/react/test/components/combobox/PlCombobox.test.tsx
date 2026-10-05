@@ -151,11 +151,26 @@ describe('PlCombobox', () => {
         .toBeInTheDocument();
     });
 
-    it("points the input at the caller's element with an `aria-labelledby`", async () => {
+    it("names the input with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlCombobox items={items} label="City" aria-label="Office city" />
+      );
+
+      await expect
+        .element(screen.getByRole('combobox', { name: 'Office city', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the input at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="combobox-heading">Office city</span>
-          <PlCombobox items={items} label="City" aria-labelledby="combobox-heading" />
+          <PlCombobox
+            items={items}
+            label="City"
+            aria-label="Office"
+            aria-labelledby="combobox-heading"
+          />
         </>
       );
 

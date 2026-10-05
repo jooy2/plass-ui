@@ -161,6 +161,8 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 ::: fw react
 
+- `aria-label`은 보이는 `label` 대신 trigger의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다. trigger에 담긴 날짜와 시각은 어느 쪽이든 이름 뒤에 읽힙니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 - 막힌 날과 막힌 행 둘 다 `disabled` 속성이 아니라 `aria-disabled`를 답니다.
 - `name`이 있으면 hidden input이 값을 로컬 `YYYY-MM-DDTHH:MM`으로 담습니다. `<input type="datetime-local">`이 제출하는 모양입니다. `toISOString()`은 절대 아닙니다. 서울의 picker라면 다른 날을 제출하게 됩니다.
 

@@ -190,7 +190,8 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 ::: fw react
 
 - Base UI가 `combobox`/`listbox` 쌍을 렌더링하고 `aria-expanded`와 `aria-activedescendant`를 맞춰 두며, 필터링과 collator도 소유합니다.
-- `label` `description` `error`는 Base UI의 Field가 입력창과 엮어 주므로 `htmlFor`가 필요 없습니다. 보이는 `label`이 없다면 `aria-label`을 주세요.
+- `label` `description` `error`는 Base UI의 Field가 입력창과 엮어 주므로 `htmlFor`가 필요 없습니다. 보이는 `label`이 없다면 `aria-label`을 주세요. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 입력창의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 combobox를 찾을 수 있습니다.
 - 키보드는 primitive의 것입니다. <kbd>↑</kbd> <kbd>↓</kbd>로 목록을 움직이고, <kbd>Enter</kbd>로 강조된 행을 취하고, <kbd>Esc</kbd>로 닫습니다. `multiple`에서는 <kbd>←</kbd> <kbd>→</kbd>가 chip 사이를 걷고 <kbd>Backspace</kbd>가 하나를 지웁니다.
 - 목록이 닫혀 있을 때 <kbd>Esc</kbd>는 값이 있는 field를 비우고, 값이 없으면 field를 담은 modal 같은 곳으로 넘어갑니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
 - 입력하는 동안 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. "이걸 추가" 행이 키보드로 닿을 수 있는 이유도 이것입니다. 목록에 없는 값은 유일한 일치 항목이기 때문입니다.

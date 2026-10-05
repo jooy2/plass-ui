@@ -161,6 +161,8 @@ One `names` object carries the month and weekday names, the order of the header'
 
 ::: fw react
 
+- An `aria-label` names the trigger in place of a visible `label`, and an `aria-labelledby` outranks both. The day and time the trigger holds are read after either.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the picker.
 - A blocked day and a blocked row both carry `aria-disabled` rather than the `disabled` attribute.
 - With `name`, a hidden input carries the value as a local `YYYY-MM-DDTHH:MM`, the shape `<input type="datetime-local">` submits. Never `toISOString()`: a picker in Seoul would submit a different day.
 

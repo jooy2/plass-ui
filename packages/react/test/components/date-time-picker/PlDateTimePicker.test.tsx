@@ -78,11 +78,23 @@ describe('PlDateTimePicker', () => {
         .toBeInTheDocument();
     });
 
-    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+    it("names the trigger with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<PlDateTimePicker label="Starts" aria-label="Starts at" />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Starts at', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="moment-heading">Kick-off</span>
-          <PlDateTimePicker label="Starts" aria-labelledby="moment-heading" />
+          <PlDateTimePicker
+            label="Starts"
+            aria-label="Starts at"
+            aria-labelledby="moment-heading"
+          />
         </>
       );
 

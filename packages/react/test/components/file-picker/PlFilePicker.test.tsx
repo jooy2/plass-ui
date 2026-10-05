@@ -125,6 +125,59 @@ describe('PlFilePicker', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the zone with an `aria-label`, then its own words', async () => {
+      const screen = await render(<PlFilePicker aria-label="Résumé" title="Drop a PDF" />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Résumé Drop a PDF', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names the zone with an `aria-label` in a visible label's place, then its own words", async () => {
+      const screen = await render(
+        <PlFilePicker label="Résumé" aria-label="Résumé as a PDF" title="Drop a PDF" />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Résumé as a PDF Drop a PDF', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the zone at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="file-heading">Cover letter</span>
+          <PlFilePicker
+            label="Résumé"
+            aria-label="Résumé as a PDF"
+            aria-labelledby="file-heading"
+            title="Drop a PDF"
+          />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Cover letter Drop a PDF', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('keeps both off the wrapper', async () => {
+      await render(
+        <PlFilePicker
+          className="picker-under-test"
+          aria-label="Résumé"
+          aria-labelledby="file-heading"
+        />
+      );
+
+      const wrapper = document.querySelector('.picker-under-test');
+
+      expect(wrapper).not.toHaveAttribute('aria-label');
+      expect(wrapper).not.toHaveAttribute('aria-labelledby');
+    });
+  });
+
   describe('choosing files', () => {
     it('takes a dropped file and lists it', async () => {
       const onFilesChange = vi.fn();

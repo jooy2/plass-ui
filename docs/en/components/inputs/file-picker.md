@@ -44,7 +44,7 @@ PlFilePicker(
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the wrapper. `color`, `defaultValue`, `title` and `children` are excluded because all four are Plass props here.
+Every native `<div>` attribute passes straight through to the wrapper, except `aria-label` and `aria-labelledby`, which name the browse button. `color`, `defaultValue`, `title` and `children` are excluded because all four are Plass props here.
 
 The wrapper is also the drop area: a file let go anywhere over the field, its label and its messages included, lands in the picker, and a drag event dispatched on the element a `data-testid` finds reaches it. `onDragEnter`, `onDragOver`, `onDragLeave` and `onDrop` still reach the caller, after the picker has handled the event.
 
@@ -215,7 +215,8 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 ::: fw react
 
 - The pressable area is a real `<button>`, so it is in the tab order and answers <kbd>Enter</kbd> and <kbd>Space</kbd>. Drag-and-drop is an addition to that, never the only way in.
-- The button is named by `label` first and by its own `title` and `hint` after, so two pickers on one screen are not read out the same.
+- The button is named by `label` first and by its own `title` and `hint` after, so two pickers on one screen are not read out the same. An `aria-label` takes the label's place in that name, visible `label` or not, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the picker.
 - The `<input type="file">` stays in the DOM, clipped off-screen rather than `display: none`. The latter is unfocusable in some browsers and would take the input out of native form validation.
 - The input holds the list as it is shown, so a form with `name` submits the dropped files and not the removed or rejected ones.
 - `description` and `error` are wired to the button with `aria-describedby`; the error also sets `aria-invalid`.

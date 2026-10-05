@@ -194,7 +194,8 @@ select는 값 타입에 대해 제네릭입니다(`PlSelect<String>`, `PlSelect<
 ::: fw react
 
 - Base UI가 `role="combobox"` trigger와 진짜 `option` 행이 붙은 `listbox` 팝업을 렌더링하고, `aria-expanded`와 `aria-activedescendant`를 맞춰 주며, 목록이 열려 있는 동안 focus를 가둡니다.
-- `label`, `description`, `error`는 Base UI의 Field가 trigger에 엮어 주므로 `htmlFor`가 필요 없습니다. 툴바 안의 select처럼 보이는 `label`이 없다면 `aria-label`을 주세요.
+- `label`, `description`, `error`는 Base UI의 Field가 trigger에 엮어 주므로 `htmlFor`가 필요 없습니다. 툴바 안의 select처럼 보이는 `label`이 없다면 `aria-label`을 주세요. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 trigger의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 select를 찾을 수 있습니다.
 - 키보드는 primitive의 것입니다. <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Home</kbd> <kbd>End</kbd>로 이동하고, 글자를 치면 prefix로 건너뛰며, <kbd>Enter</kbd>로 고르고 <kbd>Esc</kbd>로 닫습니다.
 - 행은 `:hover`가 아니라 `data-highlighted`에서 밝아집니다. 포인터와 방향키가 같은 행을 비춥니다.
 - `name`을 주면 Base UI가 hidden input을 렌더링해서 값이 네이티브 form 제출에 포함됩니다.

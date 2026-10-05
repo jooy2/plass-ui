@@ -82,6 +82,47 @@ describe('PlTextField', () => {
     });
   });
 
+  describe('naming', () => {
+    it("names the control with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<PlTextField label="Email" aria-label="Work email" />);
+
+      await expect
+        .element(screen.getByRole('textbox', { name: 'Work email', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names a multiline control with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlTextField multiline label="Notes" aria-label="Delivery notes" />
+      );
+
+      await expect
+        .element(screen.getByRole('textbox', { name: 'Delivery notes', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the control at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="text-heading">Billing contact</span>
+          <PlTextField label="Email" aria-label="Work email" aria-labelledby="text-heading" />
+        </>
+      );
+
+      const input = screen.getByRole('textbox', { name: 'Billing contact', exact: true });
+
+      await expect.element(input).toHaveAttribute('aria-labelledby', 'text-heading');
+    });
+
+    it('is still named by its label with neither', async () => {
+      const screen = await render(<PlTextField label="Email" />);
+
+      await expect
+        .element(screen.getByRole('textbox', { name: 'Email', exact: true }))
+        .toBeInTheDocument();
+    });
+  });
+
   describe('multiline', () => {
     it('renders a textarea when multiline is set', async () => {
       const screen = await render(<PlTextField multiline label="Bio" />);

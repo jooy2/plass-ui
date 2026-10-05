@@ -76,6 +76,41 @@ describe('PlSwitch', () => {
   // Nothing loads Tailwind into the test run, so the track renders at zero size
   // and cannot be clicked directly. Every interaction below goes through the
   // label, which is the path a real user takes anyway.
+  describe('naming', () => {
+    it('names the switch with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlSwitch aria-label="Wi-Fi" />);
+
+      await expect
+        .element(screen.getByRole('switch', { name: 'Wi-Fi', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names the switch with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<PlSwitch label="Wi-Fi" aria-label="Wi-Fi on this device" />);
+
+      await expect
+        .element(screen.getByRole('switch', { name: 'Wi-Fi on this device', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the switch at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="switch-heading">Wireless</span>
+          <PlSwitch
+            label="Wi-Fi"
+            aria-label="Wi-Fi on this device"
+            aria-labelledby="switch-heading"
+          />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('switch', { name: 'Wireless', exact: true }))
+        .toBeInTheDocument();
+    });
+  });
+
   describe('flipping', () => {
     it('turns on when the label is pressed', async () => {
       const screen = await render(<PlSwitch label="Dark mode" />);

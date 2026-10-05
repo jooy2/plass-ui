@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { controlNaming, useDisabled, useLabelReference } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
 import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
@@ -172,10 +172,24 @@ const indicatorClasses = /* @__PURE__ */ [
  * option in the set.
  */
 export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProps>(function PlRadio(
-  { label, description, disabled = false, className, style, ...props },
+  {
+    label,
+    description,
+    disabled = false,
+    className,
+    style,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy,
+    ...props
+  },
   ref
 ) {
   const group = React.useContext(RadioGroupContext);
+  // An `aria-label` names the dot in a visible label's place, and a caller's
+  // `aria-labelledby` outranks both. Base UI names the dot by the label unless
+  // it is given a reference, so an `aria-label` comes with one, to a hidden copy
+  // of its words.
+  const reference = useLabelReference(ariaLabel, ariaLabelledBy);
   const readOnly = props.readOnly ?? group.readOnly;
   // Base UI already stops a disabled group's options answering. This is the
   // look, which the option draws from its own flag and has to take from the
@@ -201,6 +215,8 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
               inert ? disabledDotClasses : readOnly ? readOnlyDotClasses : restDotClasses
             ].join(' ')}
             disabled={disabled}
+            aria-label={ariaLabel}
+            aria-labelledby={reference.labelledBy}
             {...props}
           >
             <BaseUIRadio.Indicator
@@ -229,6 +245,8 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
           </span>
         ) : null}
       </div>
+
+      {reference.node}
     </Field.Root>
   );
 });
@@ -256,6 +274,8 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
       classNames,
       style,
       children,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
@@ -317,6 +337,9 @@ export const PlRadioGroup = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlR
                 : 'flex-col gap-2',
               classNames?.control
             )}
+            // An `aria-label` names the set in a visible label's place, and a
+            // caller's `aria-labelledby` outranks both.
+            {...controlNaming(ariaLabel, ariaLabelledBy)}
             {...props}
           >
             {children}

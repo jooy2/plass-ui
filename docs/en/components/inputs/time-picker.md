@@ -189,6 +189,8 @@ Because the popup stays up while the columns are being read, there has to be som
 
 ::: fw react
 
+- An `aria-label` names the trigger in place of a visible `label`, and an `aria-labelledby` outranks both. The time the trigger holds is read after either.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the picker.
 - Each column is a `role="listbox"`, and each row an `option` carrying `aria-selected`; a blocked one carries `aria-disabled` rather than the attribute.
 - Three unlabelled lists of numbers say nothing to a reader who is not looking at them, so a polite live region beside the columns reads the whole time back as one sentence whenever it changes.
 - The chosen row in each column is brought into view **inside its own column**, by setting `scrollTop` rather than calling `scrollIntoView`, which walks every scrollable ancestor up to the document and, on the frame the popup opens, would scroll the page to the top to reveal a row that is about to move anyway.

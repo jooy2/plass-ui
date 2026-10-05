@@ -307,7 +307,8 @@ controller가 **곧** 값이고, `onChanged`는 모든 변화를 알려줍니다
 ::: fw react
 
 - 네이티브 `<input>`을, `multiline`에서는 `<textarea>`를 렌더링합니다. 둘 다 각자의 요소가 받는 모든 속성을 받습니다.
-- `label`은 컨트롤을 가리키는 실제 `<label>`입니다. 라벨이 없다면 `aria-label`을 주거나, placeholder가 유일한 이름이 되지 않게 하세요.
+- `label`은 컨트롤을 가리키는 실제 `<label>`입니다. 라벨이 없다면 `aria-label`을 주거나, placeholder가 유일한 이름이 되지 않게 하세요. 보이는 `label`이 있어도 네이티브 input에서처럼 `aria-label`이 그 자리를 대신해 컨트롤의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 필드를 찾을 수 있습니다.
 - `description`과 `error`는 모두 `aria-describedby`에 들어가므로, 스크린 리더가 메시지를 필드 뒤가 아니라 필드와 함께 읽습니다.
 - `error`와 `invalid`는 `aria-invalid`를 설정합니다.
 - focus ring은 컨트롤이 아니라 shell에 그려져서, 안쪽에 떠 있는 사각형이 아니라 유리의 가장자리를 따라갑니다. `:focus-visible`에서만 나타납니다.

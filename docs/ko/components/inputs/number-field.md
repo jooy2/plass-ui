@@ -210,7 +210,8 @@ PlNumberField(
 ::: fw react
 
 - 어려운 부분은 Base UI의 NumberField가 가집니다. locale에 맞춰 입력을 해석하는 것, `min`/`max`로 고정하는 것, 스테퍼를 누르고 있을 때의 반복, form과 함께 제출되는 숨은 input.
-- 라벨과 설명, 오류는 Base UI의 Field가 컨트롤에 연결하므로 어느 것도 호출하는 쪽의 `id`를 필요로 하지 않습니다. 보이는 `label`이 없다면 `aria-label`을 주세요.
+- 라벨과 설명, 오류는 Base UI의 Field가 컨트롤에 연결하므로 어느 것도 호출하는 쪽의 `id`를 필요로 하지 않습니다. 보이는 `label`이 없다면 `aria-label`을 주세요. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 입력창의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 field를 찾을 수 있습니다.
 - 두 스테퍼에는 이미 접근 가능한 이름이 있습니다. `incrementLabel`과 `decrementLabel`이 그것을 바꿉니다.
 - 범위 끝에 닿은 스테퍼는 흐려지기만 하는 것이 아니라 진짜로 `disabled`입니다.
 - `allowWheelScrub`은 기본적으로 꺼져 있습니다. 포인터 아래에서 스크롤되는 페이지와 값이 바뀌는 field는 같은 동작이고, 의도된 것은 둘 중 하나뿐입니다.

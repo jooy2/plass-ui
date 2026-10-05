@@ -191,6 +191,7 @@ PlSegmentedButton<String>(
 - 묶음은 `role="radiogroup"`이고 각 세그먼트는 진짜 radio입니다. 접근성 논거는 이것이 전부입니다. segmented button은 "**이 중 정확히 하나**"입니다. `aria-pressed` 토글로 만들었다면 독립된 스위치 네 개를 읽어 주고, 그중 셋은 마침 꺼져 있는 상태가 됩니다.
 - 묶음 전체가 tab stop 하나를 차지하고, <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>로 그 안에서 움직입니다. roving tab index는 Base UI의 것입니다.
 - 묶음에 `aria-label`을 주세요. 눈에 보이는 자기 라벨이 없고, 이름 없는 그룹은 스크린리더가 "radio group"이라고만 읽습니다.
+- [`PlFieldset`](./fieldset) 안에서는 legend가 묶음의 이름이 되지만, `aria-label`을 주면 그 자리를 대신하고 `aria-labelledby`는 그 둘보다 앞섭니다. 그 `aria-label`에는 legend의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 묶음을 찾을 수 있습니다.
 - focus ring은 **안쪽으로** 그려집니다. 홈 안의 세그먼트에 바깥쪽 ring을 그리면 이웃 위에 덧칠됩니다.
 - 타일은 `transform`이 아니라 `left`, `top`, `width`, `height`를 애니메이션합니다. 빈 상자라서 이동하는 동안 다시 샘플링되는 글자가 없습니다. 무언가 움직이는 것이 존재 이유인 컴포넌트에서도 no-transform 규칙이 살아남는 이유입니다.
 - 아무것도 선택되지 않은 묶음의 첫 선택은 왼쪽 끝에서 날아오지 않고 **제자리에** 나타납니다. 앉을 자리가 생기기 전까지 타일을 마운트하지 않기 때문입니다.

@@ -189,6 +189,8 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 ::: fw react
 
+- `aria-label`은 보이는 `label` 대신 trigger의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다. trigger에 담긴 시각은 어느 쪽이든 이름 뒤에 읽힙니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 - 각 열은 `role="listbox"`이고 각 행은 `aria-selected`를 지닌 `option`입니다. 막힌 행은 속성이 아니라 `aria-disabled`를 답니다.
 - 이름 없는 숫자 목록 셋은 보지 않는 독자에게 아무 말도 하지 않습니다. 그래서 열들 옆의 polite live region이 값이 바뀔 때마다 전체 시각을 한 문장으로 읽어 줍니다.
 - 각 열에서 고른 행은 **자기 열 안에서만** 화면 안으로 들어옵니다. `scrollIntoView`가 아니라 `scrollTop`을 씁니다. 전자는 문서까지 올라가며 스크롤 가능한 모든 조상을 훑고, 팝업이 열리는 그 프레임에는 곧 움직일 행을 보여 주겠다고 페이지를 맨 위로 끌어올립니다.

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlSegment, PlSegmentedButton } from 'plass-ui';
+import { PlFieldset, PlSegment, PlSegmentedButton } from 'plass-ui';
 
 /** Waits out `count` frames. */
 async function frames(count: number): Promise<void> {
@@ -68,6 +68,45 @@ describe('PlSegmentedButton', () => {
       const screen = await render(<Periods className="my-own-class" />);
 
       expect(screen.getByRole('radiogroup').element()).toHaveClass('my-own-class');
+    });
+  });
+
+  describe('naming', () => {
+    it("is named by a fieldset's legend with no name of its own", async () => {
+      const screen = await render(
+        <PlFieldset legend="Report">
+          <Periods aria-label={undefined} />
+        </PlFieldset>
+      );
+
+      await expect
+        .element(screen.getByRole('radiogroup', { name: 'Report', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("is named by an `aria-label` in a fieldset legend's place", async () => {
+      const screen = await render(
+        <PlFieldset legend="Report">
+          <Periods aria-label="Report period" />
+        </PlFieldset>
+      );
+
+      await expect
+        .element(screen.getByRole('radiogroup', { name: 'Report period', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the set at the caller's element with an `aria-labelledby`, over a legend and an `aria-label`", async () => {
+      const screen = await render(
+        <PlFieldset legend="Report">
+          <span id="period-heading">Range</span>
+          <Periods aria-label="Report period" aria-labelledby="period-heading" />
+        </PlFieldset>
+      );
+
+      await expect
+        .element(screen.getByRole('radiogroup', { name: 'Range', exact: true }))
+        .toBeInTheDocument();
     });
   });
 

@@ -99,10 +99,15 @@ export interface ControlNaming {
  *
  * A labelled field spreads what it does not know onto the stack around it, and
  * a `<div>` with no role is named by neither: a select in a toolbar, with no
- * room for a `label`, had no way to name its trigger. Only the attributes the
- * caller gave are kept, because Base UI merges a caller's props over its own,
- * and a key holding `undefined` would take away the `aria-labelledby` it points
- * at the visible label.
+ * room for a `label`, had no way to name its trigger.
+ *
+ * Base UI merges a caller's props over its own, and its own `aria-labelledby`
+ * points at the visible label, which would outrank an `aria-label`. So an
+ * `aria-label` given without an `aria-labelledby` comes with that key holding
+ * `undefined`, which takes Base UI's away and leaves the `aria-label` as the
+ * name in the label's place, as an `aria-label` outranks a `<label>` on a
+ * native control. A caller's `aria-labelledby` outranks both. With neither,
+ * neither key is there, and the label goes on naming the control.
  */
 export function controlNaming(
   label: string | undefined,
@@ -110,7 +115,42 @@ export function controlNaming(
 ): ControlNaming {
   return {
     ...(label === undefined ? null : { 'aria-label': label }),
-    ...(labelledBy === undefined ? null : { 'aria-labelledby': labelledBy })
+    ...(labelledBy === undefined && !label ? null : { 'aria-labelledby': labelledBy })
+  };
+}
+
+/**
+ * The `aria-labelledby` that names a control by a caller's `aria-label`, and
+ * the hidden words it points at, for a Base UI part `controlNaming` cannot
+ * reach.
+ *
+ * A checkbox, a switch, a radio, and the group around a slider's thumbs or a
+ * code's slots read `aria-labelledby` themselves and fall back to the visible
+ * label for anything but a reference of the caller's, `undefined` included. So
+ * an `aria-label` given without an `aria-labelledby` is written into a hidden
+ * node as well, and the part is pointed at that, which leaves the `aria-label`
+ * as the name in the label's place. A caller's `aria-labelledby` comes back as
+ * it was, and with neither there is no reference and no node.
+ */
+export function useLabelReference(
+  label: string | undefined,
+  labelledBy: string | undefined
+): { labelledBy: string | undefined; node: React.ReactNode } {
+  const id = React.useId();
+
+  if (labelledBy !== undefined || !label) {
+    return { labelledBy, node: null };
+  }
+
+  return {
+    labelledBy: id,
+    // `hidden`, so the words are read as the name they make and never as text
+    // of their own.
+    node: (
+      <span id={id} hidden>
+        {label}
+      </span>
+    )
   };
 }
 

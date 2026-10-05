@@ -75,6 +75,60 @@ describe('PlRadioGroup', () => {
     });
   });
 
+  describe('naming', () => {
+    it("names the set with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<Plans aria-label="Plan for the team" />);
+
+      await expect
+        .element(screen.getByRole('radiogroup', { name: 'Plan for the team', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the set at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="plans-heading">Billing</span>
+          <Plans aria-label="Plan for the team" aria-labelledby="plans-heading" />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('radiogroup', { name: 'Billing', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names an option with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlRadioGroup label="Plan">
+          <PlRadio value="starter" label="Starter" aria-label="Starter plan" />
+          <PlRadio value="team" label="Team" />
+        </PlRadioGroup>
+      );
+
+      await expect
+        .element(screen.getByRole('radio', { name: 'Starter plan', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points an option at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <PlRadioGroup label="Plan">
+          <span id="starter-heading">Free tier</span>
+          <PlRadio
+            value="starter"
+            label="Starter"
+            aria-label="Starter plan"
+            aria-labelledby="starter-heading"
+          />
+        </PlRadioGroup>
+      );
+
+      await expect
+        .element(screen.getByRole('radio', { name: 'Free tier', exact: true }))
+        .toBeInTheDocument();
+    });
+  });
+
   // Nothing loads Tailwind into the test run, so the dot renders at zero size
   // and cannot be clicked directly. Every interaction below goes through the
   // label, which is the path a real user takes anyway.

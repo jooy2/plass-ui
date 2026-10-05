@@ -182,13 +182,42 @@ describe('PlOtpField', () => {
         .toBeInTheDocument();
     });
 
-    it("points every slot at the caller's element with an `aria-labelledby`", async () => {
+    it("names every slot and the row by an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlOtpField label="Code" aria-label="Code from the text" length={4} />
+      );
+
+      await expect
+        .element(
+          screen.getByRole('textbox', { name: 'Code from the text Character 1 of 4', exact: true })
+        )
+        .toBeInTheDocument();
+      await expect
+        .element(
+          screen.getByRole('textbox', { name: 'Code from the text Character 4 of 4', exact: true })
+        )
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('group', { name: 'Code from the text', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points every slot at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="otp-heading">Sign-in code</span>
-          <PlOtpField label="Code" aria-labelledby="otp-heading" length={4} />
+          <PlOtpField
+            label="Code"
+            aria-label="Code from the text"
+            aria-labelledby="otp-heading"
+            length={4}
+          />
         </>
       );
+
+      await expect
+        .element(screen.getByRole('group', { name: 'Sign-in code', exact: true }))
+        .toBeInTheDocument();
 
       const slot = screen.getByRole('textbox', {
         name: 'Sign-in code Character 2 of 4',

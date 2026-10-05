@@ -831,13 +831,15 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
 
       // A group named by the label and described by what is under it: the
       // square and the rails are called "Hue" and "Opacity" whatever field they
-      // are for, so two inline pickers were two sets of the same sliders.
+      // are for, so two inline pickers were two sets of the same sliders. An
+      // `aria-label` names it in the label's place, and a caller's
+      // `aria-labelledby` outranks both.
       return (
         <div
           ref={setRootRef}
           role="group"
           aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledBy ?? (label ? `${fieldId}-label` : undefined)}
+          aria-labelledby={ariaLabelledBy ?? (label && !ariaLabel ? `${fieldId}-label` : undefined)}
           aria-describedby={describedBy}
           className={cx('flex flex-col', stackGapClasses[size], className)}
           style={{ ...surfaceSlots(family, elevation), ...style }}

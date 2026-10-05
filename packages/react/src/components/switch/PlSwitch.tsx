@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { useDisabled, useLabelReference } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Switch as BaseUISwitch } from '@base-ui/react/switch';
 import { Field } from '@base-ui/react/field';
@@ -207,12 +207,19 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
       className,
       classNames,
       style,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
   ) {
     const defaults = useDefaults();
     const disabled = useDisabled(disabledProp);
+    // An `aria-label` names the track in a visible label's place, and a
+    // caller's `aria-labelledby` outranks both. Base UI names the track by the
+    // label unless it is given a reference, so an `aria-label` comes with one,
+    // to a hidden copy of its words.
+    const reference = useLabelReference(ariaLabel, ariaLabelledBy);
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
 
@@ -232,6 +239,8 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
           )}
           disabled={disabled}
           readOnly={readOnly}
+          aria-label={ariaLabel}
+          aria-labelledby={reference.labelledBy}
           {...props}
         >
           <BaseUISwitch.Thumb className={`${thumbClasses} ${thumbTravelClasses[size]}`} />
@@ -315,6 +324,8 @@ export const PlSwitch = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSwitchPr
             className={cx(metaTextClasses[size], 'text-(--p-accent)', classNames?.error)}
           />
         )}
+
+        {reference.node}
       </Field.Root>
     );
   }

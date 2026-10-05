@@ -48,11 +48,26 @@ describe('PlColorPicker', () => {
         .toBeInTheDocument();
     });
 
-    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+    it("names the trigger with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlColorPicker label="Colour" aria-label="Colour of the brand" defaultValue="#ff0000" />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Colour of the brand #ff0000', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="colour-heading">Accent</span>
-          <PlColorPicker label="Colour" aria-labelledby="colour-heading" defaultValue="#ff0000" />
+          <PlColorPicker
+            label="Colour"
+            aria-label="Colour of the brand"
+            aria-labelledby="colour-heading"
+            defaultValue="#ff0000"
+          />
         </>
       );
 
@@ -68,6 +83,34 @@ describe('PlColorPicker', () => {
 
       await expect
         .element(screen.getByRole('group', { name: 'Brand colour', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names an inline panel with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlColorPicker inline label="Colour" aria-label="Colour of the brand" />
+      );
+
+      await expect
+        .element(screen.getByRole('group', { name: 'Colour of the brand', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names an inline panel by the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="inline-colour-heading">Accent</span>
+          <PlColorPicker
+            inline
+            label="Colour"
+            aria-label="Colour of the brand"
+            aria-labelledby="inline-colour-heading"
+          />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('group', { name: 'Accent', exact: true }))
         .toBeInTheDocument();
     });
   });

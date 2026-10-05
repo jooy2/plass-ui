@@ -190,7 +190,8 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 ::: fw react
 
 - Base UI renders the `combobox`/`listbox` pair, keeps `aria-expanded` and `aria-activedescendant` in step, and owns the filtering and its collator.
-- `label`, `description` and `error` are wired to the input by Base UI's Field, so no `htmlFor` is needed. Without a visible `label`, give the combobox an `aria-label`.
+- `label`, `description` and `error` are wired to the input by Base UI's Field, so no `htmlFor` is needed. Without a visible `label`, give the combobox an `aria-label`. Beside a visible `label`, an `aria-label` names the input in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the combobox.
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> move through the list, <kbd>Enter</kbd> takes the highlighted row and <kbd>Esc</kbd> closes. With `multiple`, <kbd>←</kbd> <kbd>→</kbd> walk the chips and <kbd>Backspace</kbd> removes one.
 - With the list closed, <kbd>Esc</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.
 - The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is.

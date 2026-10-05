@@ -3,7 +3,13 @@
 import * as React from 'react';
 import { Field } from '@base-ui/react/field';
 import { useDefaults } from '../../internal/defaults.js';
-import { FormControl, leaveFormControl, useFormReport, useDisabled } from '../../internal/form.js';
+import {
+  FormControl,
+  leaveFormControl,
+  useFormReport,
+  useDisabled,
+  useLabelReference
+} from '../../internal/form.js';
 import { glowPointerMove } from '../../internal/glow.js';
 import { CloseIcon } from '../../internal/icons.js';
 import { useLabels } from '../../internal/labels.js';
@@ -416,6 +422,8 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       onDragOver,
       onDragLeave,
       onDrop,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
@@ -507,6 +515,14 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const errorId = `${descriptionId}-error`;
     const labelId = `${descriptionId}-label`;
     const zoneId = id ?? `${descriptionId}-zone`;
+    // What the zone's name starts with: a caller's `aria-labelledby`, else the
+    // caller's `aria-label`, in the visible label's place, else the label. The
+    // `aria-label` is read out of a hidden copy rather than set on the button,
+    // where it would also stand in for the button's own words at the end of
+    // the name. Both go to the button rather than to the wrapper the other
+    // props land on, because a `<div>` with no role names nothing.
+    const reference = useLabelReference(ariaLabel, ariaLabelledBy);
+    const nameFrom = reference.labelledBy ?? (hasContent(label) ? labelId : undefined);
 
     /*
      * `preventDocumentDrop`. On the document and in the bubbling phase, so a
@@ -841,10 +857,10 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                     ref={buttonRef}
                     type="button"
                     id={zoneId}
-                    // The field's label, then the button's own words. Two pickers
+                    // The field's name, then the button's own words. Two pickers
                     // on one screen, a résumé and a cover letter, are otherwise
                     // read out as the same "Drop files here".
-                    aria-labelledby={hasContent(label) ? `${labelId} ${zoneId}` : undefined}
+                    aria-labelledby={nameFrom ? `${nameFrom} ${zoneId}` : undefined}
                     disabled={disabled}
                     aria-describedby={describedBy}
                     aria-invalid={isInvalid || failed || undefined}
@@ -999,6 +1015,8 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
           disabled={disabled}
           standIn={() => buttonRef.current}
         />
+
+        {reference.node}
       </Field.Root>
     );
   }

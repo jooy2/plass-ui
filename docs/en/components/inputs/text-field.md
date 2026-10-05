@@ -307,7 +307,8 @@ The controller **is** the value, and `onChanged` is told about every change. `ma
 ::: fw react
 
 - Renders a native `<input>`, or a `<textarea>` under `multiline`. Both take every attribute their element takes.
-- `label` is a real `<label>` pointing at the control. Without one, give the field an `aria-label` or a `placeholder` that is not the only name it has.
+- `label` is a real `<label>` pointing at the control. Without one, give the field an `aria-label` or a `placeholder` that is not the only name it has. Beside a visible `label`, an `aria-label` names the control in its place, as it would on a native input, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the field.
 - `description` and `error` both land in `aria-describedby`, so a screen reader reads the message with the field rather than after it.
 - `error` and `invalid` set `aria-invalid`.
 - The focus ring is drawn on the shell rather than on the control, so it traces the glass edge instead of a rectangle floating inside it. It appears on `:focus-visible` only.

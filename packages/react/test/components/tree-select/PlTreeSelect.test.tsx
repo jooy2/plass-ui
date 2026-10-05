@@ -132,11 +132,26 @@ describe('PlTreeSelect', () => {
         .toBeInTheDocument();
     });
 
-    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+    it("names the trigger with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlTreeSelect items={items} label="Region" aria-label="Region of office" />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Region of office', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="tree-heading">Sales region</span>
-          <PlTreeSelect items={items} label="Region" aria-labelledby="tree-heading" />
+          <PlTreeSelect
+            items={items}
+            label="Region"
+            aria-label="Region of office"
+            aria-labelledby="tree-heading"
+          />
         </>
       );
 

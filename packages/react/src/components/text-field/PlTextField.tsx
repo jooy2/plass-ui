@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { controlNaming, useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { ownsPress } from '../../internal/focusable.js';
 import { Field } from '@base-ui/react/field';
@@ -226,6 +226,8 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
     className,
     classNames,
     style,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy,
     ...props
   },
   ref
@@ -386,6 +388,11 @@ export const PlTextField = /* @__PURE__ */ React.forwardRef<
             // empty, and it never matches an input that has no placeholder.
             placeholder={float ? placeholder || ' ' : placeholder}
             {...(multiline ? { render: <textarea rows={rows} /> } : { type })}
+            // Base UI points the control at the visible label, so an
+            // `aria-label` has to take that reference away to name it in the
+            // label's place, as it would on a native input. A caller's
+            // `aria-labelledby` outranks both.
+            {...controlNaming(ariaLabel, ariaLabelledBy)}
             {...props}
           />
 

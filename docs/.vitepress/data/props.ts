@@ -10630,8 +10630,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'getAriaLabel',
       type: '(index: number) => string',
       description: {
-        ko: 'index번 thumb의 이름. range의 두 끝에 "최소 가격", "최대 가격"처럼 따로 이름을 줄 때 씁니다. 생략하면 모든 thumb이 label로 불립니다',
-        en: 'The name of the thumb at index, for a range whose ends need names of their own, such as "Minimum price". Left out, every thumb is named by label'
+        ko: 'index번 thumb의 이름. range의 두 끝에 "최소 가격", "최대 가격"처럼 따로 이름을 줄 때 씁니다. 생략하면 모든 thumb이 슬라이더의 이름으로 불립니다',
+        en: 'The name of the thumb at index, for a range whose ends need names of their own, such as "Minimum price". Left out, every thumb takes the slider\'s own name'
       }
     },
     {

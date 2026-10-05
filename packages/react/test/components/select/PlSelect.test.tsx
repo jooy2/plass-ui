@@ -127,11 +127,16 @@ describe('PlSelect', () => {
         .toBeInTheDocument();
     });
 
-    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+    it("points the trigger at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="select-heading">Office city</span>
-          <PlSelect items={items} label="City" aria-labelledby="select-heading" />
+          <PlSelect
+            items={items}
+            label="City"
+            aria-label="Office"
+            aria-labelledby="select-heading"
+          />
         </>
       );
 
@@ -140,11 +145,11 @@ describe('PlSelect', () => {
       await expect.element(trigger).toHaveAttribute('aria-labelledby', 'select-heading');
     });
 
-    it('is still named by a visible label when it is given an `aria-label` too', async () => {
-      const screen = await render(<PlSelect items={items} label="City" aria-label="Office" />);
+    it("names the trigger with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<PlSelect items={items} label="City" aria-label="Office city" />);
 
       await expect
-        .element(screen.getByRole('combobox', { name: 'City', exact: true }))
+        .element(screen.getByRole('combobox', { name: 'Office city', exact: true }))
         .toBeInTheDocument();
     });
   });

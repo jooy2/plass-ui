@@ -210,7 +210,8 @@ The shell is a `PlTextField`'s, to the pixel. A form where the quantity box is a
 ::: fw react
 
 - Base UI's NumberField owns the hard parts: parsing what was typed against the locale, clamping to `min`/`max`, the press-and-hold repeat on the steppers, and the hidden input that submits with a form.
-- The label, the description and the error are wired to the control by Base UI's Field, so none of them needs an `id` from the caller. Without a visible `label`, give the field an `aria-label`.
+- The label, the description and the error are wired to the control by Base UI's Field, so none of them needs an `id` from the caller. Without a visible `label`, give the field an `aria-label`. Beside a visible `label`, an `aria-label` names the input in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the field.
 - Both steppers carry an accessible name already; `incrementLabel` and `decrementLabel` are what change them.
 - A stepper that has run into the end of the range is genuinely `disabled`, not just dimmed.
 - `allowWheelScrub` is off by default. A page that scrolls under the pointer and a field that changes under it are the same gesture, and only one of them was meant.

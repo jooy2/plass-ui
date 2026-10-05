@@ -215,7 +215,8 @@ There is only the controlled form: `value` with `onChanged`. Options are compare
 ::: fw react
 
 - Base UI renders a `role="radiogroup"` holding real radios, keeps `aria-checked` in step, and owns the roving tab index. The set takes one tab stop and <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> move within it. That is the whole reason a radio group is a component rather than a `<div>` full of inputs.
-- The group's `label`, `description` and `error` are wired to it by Base UI's Field, and so is each option's own label, pressing a label chooses its option.
+- The group's `label`, `description` and `error` are wired to it by Base UI's Field, and so is each option's own label, pressing a label chooses its option. Beside a visible label, an `aria-label` names the group, or an option, in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the group or the option.
 - Each dot is centred on its label's **first** line, so it stays put when a label wraps.
 - A chosen dot is a filled disc, not a colour change alone: the shape carries the state for a reader who cannot see the fill.
 - With `name`, Base UI renders the hidden input that makes the choice part of a native form submission.

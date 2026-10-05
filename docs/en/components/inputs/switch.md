@@ -152,7 +152,8 @@ The thumb is inset 2px on every side, so its diameter is the track's height minu
 - <kbd>Space</kbd> and <kbd>Enter</kbd> both flip it; the focus ring appears only on `:focus-visible`.
 - The thumb's position is not the only signal. The track changes material as well, so the state survives a reader who cannot tell the two ends of a 36px pill apart.
 - The thumb is the one thing in the library that moves, and it carries no text. The no-transform rule is about a control resampling its own label under the finger, which this cannot do. It travels in one house duration, the same 150ms everything else changes in.
-- A switch with no `label` needs an `aria-label`.
+- A switch with no `label` needs an `aria-label`. Beside a visible `label`, an `aria-label` names the switch in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the switch.
 
 :::
 

@@ -170,6 +170,8 @@ Pass `value` with `onValueChange`. The callback is always given an object, so th
 
 ::: fw react
 
+- An `aria-label` names the trigger in place of a visible `label`, and an `aria-labelledby` outranks both. The two ends the trigger holds are read after either.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the picker.
 - Both grids are `role="grid"`.
 - Every cell's accessible name is the **full date**, and no date appears twice in the popup, which is what turning off the outside days buys.
 - The footer says which end the next click will fill. The trigger says the same thing with its two halves, but the trigger is behind the popup while the popup is up, so the footer is the only place that can say it where it will be read.

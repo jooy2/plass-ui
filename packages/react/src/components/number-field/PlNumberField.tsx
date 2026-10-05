@@ -467,9 +467,9 @@ export function PlNumberField({
               // empty, and it never matches an input that has no placeholder.
               placeholder={float ? placeholder || ' ' : placeholder}
               // The thing being named, rather than the stack: a field with no
-              // room for a `label` is named here or nowhere. A visible label
-              // still outranks an `aria-label`, and a caller's `aria-labelledby`
-              // outranks the label.
+              // room for a `label` is named here or nowhere. An `aria-label`
+              // names it in a visible label's place, and a caller's
+              // `aria-labelledby` outranks both.
               {...controlNaming(ariaLabel, ariaLabelledBy)}
               // On the input rather than on the stack `...props` lands on: a chord
               // is answered by the thing that has the focus.

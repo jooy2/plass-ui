@@ -152,7 +152,8 @@ thumb은 사방으로 2px 안쪽에 들어가 있습니다. 그래서 지름이 
 - <kbd>Space</kbd>와 <kbd>Enter</kbd> 둘 다 전환합니다. focus ring은 `:focus-visible`에서만 나타납니다.
 - thumb의 위치만이 신호는 아닙니다. 트랙의 재질도 함께 바뀌므로, 36px 알약의 양 끝을 구분하기 어려운 사람에게도 상태가 전달됩니다.
 - thumb은 라이브러리에서 움직이는 유일한 것이고, 글자를 담고 있지 않습니다. no-transform 규칙은 손가락 아래에서 컨트롤이 자기 라벨을 다시 샘플링하는 것에 대한 것이고, thumb은 그럴 수가 없습니다. 다른 모든 것이 변하는 것과 같은 150ms 동안 이동합니다.
-- `label`이 없는 switch에는 `aria-label`이 필요합니다.
+- `label`이 없는 switch에는 `aria-label`이 필요합니다. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 switch의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 switch를 찾을 수 있습니다.
 
 :::
 

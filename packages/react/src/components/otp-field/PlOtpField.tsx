@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { useDisabled, useLabelReference } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { Field } from '@base-ui/react/field';
@@ -292,12 +292,14 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
     const separatorEvery = groupSize && groupSize > 0 ? Math.round(groupSize) : 0;
 
     // What each slot's name starts with: the caller's `aria-labelledby`, else
-    // the visible label, else the caller's `aria-label`. That last one is
-    // written into a hidden span below rather than onto the slots, where Base
-    // UI drops it from the first slot and lets it push the place in the row
-    // out of the others. The row itself carries both attributes as they came.
-    const named = hasContent(label) || Boolean(ariaLabel);
-    const nameFrom = ariaLabelledBy ?? (named ? `${nameId}-label` : undefined);
+    // the caller's `aria-label`, in the visible label's place, else the label.
+    // The `aria-label` is read out of a hidden node rather than written onto the
+    // slots, where Base UI drops it from the first slot and lets it push the
+    // place in the row out of the others. The row is pointed at the same node,
+    // since a reference is the one thing that keeps Base UI from naming it by
+    // the label.
+    const reference = useLabelReference(ariaLabel, ariaLabelledBy);
+    const nameFrom = reference.labelledBy ?? (hasContent(label) ? `${nameId}-label` : undefined);
 
     return (
       <Field.Root
@@ -340,7 +342,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
           onValueInvalid={(next) => onValueInvalid?.(next)}
           className={cx('flex items-center', slotGapClasses[density][size], classNames?.control)}
           aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledBy}
+          aria-labelledby={reference.labelledBy}
           {...props}
         >
           {Array.from({ length: slots }, (_, index) => (
@@ -383,11 +385,7 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
             {slotLabel(index + 1, slots)}
           </span>
         ))}
-        {!hasContent(label) && ariaLabel ? (
-          <span id={`${nameId}-label`} hidden>
-            {ariaLabel}
-          </span>
-        ) : null}
+        {reference.node}
 
         {hasContent(description) ? (
           <Field.Description className={cx(fieldDescriptionClasses(size), classNames?.description)}>

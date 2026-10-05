@@ -174,6 +174,8 @@ A `readOnly` picker shows its colour and takes nothing: the rails keep their val
 ::: fw react
 
 - An `inline` picker is a `role="group"` named by `label` and described by `description` and `error`, so two of them on one page are not two sets of sliders called "Hue". An `error` also marks the square and the rails `aria-invalid`.
+- An `aria-label` names the trigger, or an `inline` picker's group, in place of a visible `label`, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the picker.
 
 :::
 
@@ -199,7 +201,7 @@ A `readOnly` picker shows its colour and takes nothing: the rails keep their val
 | `name`, the hidden input | — | There is no native form submission to be part of. |
 | a chequer of four linear gradients | a painter | A `CustomPainter` has no seam to avoid and no tiling to fight. |
 | `labels` as a partial | `PlColorPickerLabels`, a class with defaults | Dart names its optional fields; a partial of a record is not a thing it has. |
-| `aria-label`, outranked by a visible `label` | `semanticLabel`, in the `label`'s place | Flutter's name, with the meaning it has on every picker in this package. It names the trigger, or the group an `inline` panel sits in. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

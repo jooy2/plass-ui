@@ -191,6 +191,7 @@ Both are sized against the label rather than against the row. An icon-only segme
 - The set is a `role="radiogroup"` and each segment is a real radio, which is the whole accessibility argument: a segmented button **is** "exactly one of these". Built out of `aria-pressed` toggles it would announce four independent switches, three of which happen to be off.
 - One tab stop for the whole set; <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move within it. Base UI owns the roving tab index.
 - Give the set an `aria-label`. It has no visible label of its own, and a group with no name is a group a screen reader announces as "radio group".
+- Inside a [`PlFieldset`](./fieldset), the legend names the set until an `aria-label` takes its place, and an `aria-labelledby` outranks both. Include the legend's words in that `aria-label`, so a reader who says them to a voice-control tool still reaches the set.
 
 :::
 

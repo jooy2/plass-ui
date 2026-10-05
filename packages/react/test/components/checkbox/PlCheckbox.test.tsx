@@ -88,6 +88,51 @@ describe('PlCheckbox', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the tick with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlCheckbox aria-label="Select row" />);
+
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Select row', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("names the tick with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(<PlCheckbox label="Email me" aria-label="Email me offers" />);
+
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Email me offers', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the tick at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="checkbox-heading">Newsletter</span>
+          <PlCheckbox
+            label="Email me"
+            aria-label="Email me offers"
+            aria-labelledby="checkbox-heading"
+          />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Newsletter', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('still ticks when its label is pressed', async () => {
+      const screen = await render(<PlCheckbox label="Email me" aria-label="Email me offers" />);
+
+      await screen.getByText('Email me', { exact: true }).click();
+
+      await expect
+        .element(screen.getByRole('checkbox', { name: 'Email me offers', exact: true }))
+        .toHaveAttribute('aria-checked', 'true');
+    });
+  });
+
   // Nothing loads Tailwind into the test run, so the tick renders at zero size
   // and cannot be clicked directly. Every interaction below goes through the
   // label, which is the path a real user takes anyway — and the fact that it

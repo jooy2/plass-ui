@@ -194,7 +194,8 @@ Drawn at 1.2× the value beside it, so it tracks the text. There is no `endIcon`
 ::: fw react
 
 - Base UI renders a `role="combobox"` trigger and a `listbox` popup with real `option` rows, keeps `aria-expanded` and `aria-activedescendant` in step, and traps focus while the list is open.
-- `label`, `description` and `error` are wired to the trigger by Base UI's Field, so no `htmlFor` is needed. Without a visible `label`, a select in a toolbar, give it an `aria-label`.
+- `label`, `description` and `error` are wired to the trigger by Base UI's Field, so no `htmlFor` is needed. Without a visible `label`, a select in a toolbar, give it an `aria-label`. Beside a visible `label`, an `aria-label` names the trigger in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the select.
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Home</kbd> <kbd>End</kbd> move, typing jumps by prefix, <kbd>Enter</kbd> chooses and <kbd>Esc</kbd> closes.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
 - With `name`, Base UI renders the hidden input that makes the value part of a native form submission.

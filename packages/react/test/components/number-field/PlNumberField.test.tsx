@@ -50,11 +50,25 @@ describe('PlNumberField', () => {
         .toBeInTheDocument();
     });
 
-    it("points the input at the caller's element with an `aria-labelledby`", async () => {
+    it("names the input with an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlNumberField label="Quantity" aria-label="Quantity of tickets" />
+      );
+
+      await expect
+        .element(screen.getByRole('textbox', { name: 'Quantity of tickets', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the input at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
       const screen = await render(
         <>
           <span id="number-heading">Tickets</span>
-          <PlNumberField label="Quantity" aria-labelledby="number-heading" />
+          <PlNumberField
+            label="Quantity"
+            aria-label="Quantity of seats"
+            aria-labelledby="number-heading"
+          />
         </>
       );
 

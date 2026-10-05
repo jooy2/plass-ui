@@ -190,7 +190,8 @@ Opening a folder is not choosing it, which is why the second pair exists at all.
 
 ## Accessibility
 
-- The trigger is a button, exactly as every other picker's is, and it carries the label, the description, the error and `aria-invalid`. Without a visible `label`, give the picker an <Fw react="aria-label" flutter="semanticLabel" code />.
+- The trigger is a button, exactly as every other picker's is, and it carries the label, the description, the error and `aria-invalid`. Without a visible `label`, give the picker an <Fw react="aria-label" flutter="semanticLabel" code />. <Fw react="Beside a visible `label`, an `aria-label` names the trigger in its place, and an `aria-labelledby` outranks both." flutter="Beside a visible `label`, `semanticLabel` names the trigger in its place." />
+- Include the visible label's words in an <Fw react="aria-label" flutter="semanticLabel" code />, so a reader who says them to a voice-control tool still reaches the picker.
 - What is inside the popup is a real [`PlTree`](../display/tree), `role="tree"` of `role="treeitem"`s, `aria-level`, `aria-expanded`, `aria-selected`, and **one tab stop** for the whole thing.
 - <kbd>↓</kbd> and <kbd>↑</kbd> walk the rows that are visible, <kbd>→</kbd> opens a branch and steps into it, <kbd>←</kbd> closes it or steps out, and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses.
 - A node that cannot be chosen is not marked `aria-disabled` when it is only a branch: it is still an operable row, because pressing it opens what is under it. A `disabled` node is marked, and is not a stop for the arrow keys.
