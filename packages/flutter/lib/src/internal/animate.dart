@@ -693,11 +693,14 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// A new `repeat` is counted against the time the run has been going, as a
 /// keyframe counts a new `animation-iteration-count`. A run that has finished
 /// and is given more passes goes on from wherever that time puts it, and a run
-/// that is past the end of a lower count stands where that count ends. A pass
-/// in flight that the new count still holds goes on as it was. A run that
-/// ends and landed under reduced motion stands on the last frame of the new
-/// count instead, or at the end of one pass when it is given `repeat: null`,
-/// whether the setting is still on or not, until it runs again.
+/// that is past the end of a lower count stands where that count ends. That
+/// time goes on through reduced motion for a run that had finished before the
+/// setting arrived, which is put where it says once the setting goes, so more
+/// passes given while the setting was on play from there. A pass in flight
+/// that the new count still holds goes on as it was. A run that ends and
+/// landed under reduced motion stands on the last frame of the new count
+/// instead, or at the end of one pass when it is given `repeat: null`, whether
+/// the setting is still on or not, until it runs again.
 class PlassAnimateRun extends StatefulWidget {
   /// Creates a run.
   const PlassAnimateRun({
@@ -870,6 +873,15 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// under the setting, and a new `repeat` is counted against its clock.
   bool _staysLanded = false;
 
+  /// With [_still], whether the run had finished moving before the setting
+  /// arrived, and so did not land under it. Its clock goes on counting from
+  /// when the run began, through the setting, as the clock of a keyframe that
+  /// has ended does, and a pause stops it where the run ended, as a paused
+  /// keyframe holds the time it ended on. When the setting goes, the run is
+  /// put where that clock says under whatever count it has by then, and plays
+  /// on from there when that count holds passes it has not played.
+  bool _countsOn = false;
+
   /// How far into its passes the run stood at [_clockFrom], as time: the clock
   /// a keyframe keeps, which the browser goes on counting from when the run
   /// began, through every pass and past the end of the last, for as long as
@@ -880,12 +892,15 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// end of a run that has finished, however long ago that was, and where it
   /// landed under reduced motion, which is nowhere yet when it landed at the
   /// end of its delay and as far as it had moved when the setting arrived
-  /// while it was moving. It counts on from there once it is let go.
+  /// while it was moving. It counts on from there once it is let go. A run
+  /// that had finished before the setting arrived is not put anywhere then,
+  /// and its clock goes on as it was.
   ///
   /// Read when the run has no frame of its own to go on from: an endless run
   /// that landed, when the platform gives movement back or the pause that
   /// kept it on its landing is let go, and a run that has finished, when it is
-  /// given a new `repeat`. Each stands wherever the count has got to.
+  /// given a new `repeat` or the setting it finished before goes. Each stands
+  /// wherever the count has got to.
   Duration _clockAt = Duration.zero;
 
   /// The frame from which the run has been let go, and so counting on from
@@ -996,6 +1011,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _delayLeft = Duration.zero;
         _keepsLanding = false;
         _staysLanded = false;
+        _countsOn = false;
         _setLanded(false);
       } else if (!started && widget.rewindsWhenWaiting) {
         // Taken back by its trigger, it waits for the next run as one that
@@ -1010,8 +1026,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       // The clock stops where the run stands, which for one that has not
       // begun is its start. A run that landed under reduced motion already
       // stands where its clock stopped, and so does one a pause keeps on the
-      // frame it landed on.
-      if (!_still && !_keepsLanding) {
+      // frame it landed on. One that had finished before the setting arrived
+      // did not land under it, and stops where it ended.
+      if ((!_still || _countsOn) && !_keepsLanding) {
         _clockAt = _startedRuns == runs ? _runTime : Duration.zero;
       }
 
@@ -1064,6 +1081,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _clockFrom = null;
     _keepsLanding = false;
     _staysLanded = false;
+    _countsOn = false;
     _setLanded(false);
     _startAfter(widget.settings.delay);
   }
@@ -1202,6 +1220,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _setValue(0);
     _landed = false;
     _staysLanded = false;
+    _countsOn = false;
     _keepsLanding = false;
     _keepsStill = false;
     _keepsLanded = false;
@@ -1377,11 +1396,16 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           _staysLanded = true;
         }
 
+        // And the clock of one that had already finished goes on counting
+        // from when the run began, through the setting, as a keyframe's does
+        // once it has ended.
+        _countsOn = _landed && _finished && !_staysLanded;
+
         // As far as it has moved, counting on from this frame if it is let
         // go, which `_drive` says once the frame is over. One a pause kept on
         // the frame it landed on has not moved, and its clock stands where it
         // stopped.
-        if (_landed && !_keepsLanding) {
+        if (_landed && !_keepsLanding && !_countsOn) {
           _clockAt = _runTime;
           _clockFrom = null;
         }
@@ -1435,6 +1459,16 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           } else {
             _place(_clockAt + since);
           }
+        } else if (_countsOn) {
+          // One that had finished before the setting arrived is put where its
+          // clock says under the count it has now, as a keyframe whose clock
+          // went on through the setting, so a higher `repeat` given while the
+          // setting was on plays on from there. A pause holds what reduced
+          // motion drew until it is let go, as below.
+          final Duration? from = _clockFrom;
+
+          _place(from == null ? _clockAt : _clockAt + (animationNow() - from));
+          _keepsLanded = widget.settings.paused;
         } else {
           // A run that ends is put where it left the screen, so nothing jumps
           // back to where it began. On its last pass as well, since a landed
@@ -1453,6 +1487,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           // glow, which turned into the strip and the arc at once.
           _keepsLanded = widget.settings.paused;
         }
+
+        _countsOn = false;
       } else if (widget.settings.paused) {
         // And given back to a run held by a pause before it would have
         // started, from the mount or during its delay, which shows its content

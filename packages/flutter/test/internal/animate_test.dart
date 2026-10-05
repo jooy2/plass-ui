@@ -1819,6 +1819,138 @@ void main() {
       });
     });
 
+    group('a run that had finished before the setting came', () {
+      /// Plays a run of one pass out, and lets 250ms go by after it before the
+      /// setting arrives, 450ms after the run began.
+      Future<void> finishedEarlier(WidgetTester tester) async {
+        await tester.pumpWidget(host(fade(repeat: 1, alternate: false)));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 200));
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 250));
+        await tester.pumpWidget(host(fade(repeat: 1, alternate: false), disableAnimations: true));
+      }
+
+      testWidgets('goes on from where its clock is when it is given a higher repeat once the '
+          'setting has gone', (WidgetTester tester) async {
+        await finishedEarlier(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(host(fade(repeat: 1, alternate: false)));
+        await tester.pumpWidget(host(fade(repeat: 5, alternate: false)));
+
+        // 550ms after the run began, three quarters of the way through its
+        // third pass, as a keyframe whose clock went on through the setting
+        // stands. Its clock used to be put back to the end of the run when
+        // the setting arrived, and it stood halfway through its second.
+        expect(opacityOf(tester), closeTo(0.75, 0.01));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 20));
+
+        expect(opacityOf(tester), closeTo(0.85, 0.01));
+
+        await tester.pumpAndSettle();
+
+        expect(opacityOf(tester), 1);
+      });
+
+      testWidgets('plays on its clock once the setting goes when it was given a higher repeat '
+          'while the setting was on', (WidgetTester tester) async {
+        await finishedEarlier(tester);
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pumpWidget(host(fade(repeat: 5, alternate: false), disableAnimations: true));
+
+        // On the last frame of the new count, as reduced motion shows it.
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pumpWidget(host(fade(repeat: 5, alternate: false)));
+
+        // 550ms after the run began. It used to stand at the end of the new
+        // count, and play none of the passes it adds.
+        expect(opacityOf(tester), closeTo(0.75, 0.01));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 20));
+
+        expect(opacityOf(tester), closeTo(0.85, 0.01));
+
+        await tester.pumpAndSettle();
+
+        expect(opacityOf(tester), 1);
+      });
+
+      for (final bool during in <bool>[false, true]) {
+        final String when = during ? 'while the setting is on' : 'once the setting has gone';
+
+        testWidgets('turns on from where its clock is when it is given null $when', (
+          WidgetTester tester,
+        ) async {
+          await finishedEarlier(tester);
+          await tester.pump(const Duration(milliseconds: 50));
+
+          if (during) {
+            await tester.pumpWidget(
+              host(fade(repeat: null, alternate: false), disableAnimations: true),
+            );
+          }
+
+          await tester.pump(const Duration(milliseconds: 50));
+          await tester.pumpWidget(host(fade(repeat: during ? null : 1, alternate: false)));
+          await tester.pumpWidget(host(fade(repeat: null, alternate: false)));
+
+          // 550ms after the run began. It used to count from the end of the
+          // run as the setting arrived, and stood halfway through its second
+          // pass.
+          expect(opacityOf(tester), closeTo(0.75, 0.01));
+
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 20));
+
+          expect(opacityOf(tester), closeTo(0.85, 0.01));
+        });
+      }
+
+      testWidgets('stops its clock where it ended while it is paused', (WidgetTester tester) async {
+        Widget fading({int repeat = 1, bool paused = false, bool still = false}) {
+          return host(
+            PlAnimateFade(
+              repeat: repeat,
+              paused: paused,
+              curve: Curves.linear,
+              duration: const Duration(milliseconds: 200),
+              child: const SizedBox.square(dimension: 100),
+            ),
+            disableAnimations: still,
+          );
+        }
+
+        await finishedEarlier(tester);
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pumpWidget(fading(paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(fading(paused: true));
+        await tester.pumpWidget(fading(repeat: 5, paused: true));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(opacityOf(tester), 1);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+
+        await tester.pumpWidget(fading(repeat: 5));
+
+        // A paused keyframe that had ended holds the time it ended on, the
+        // start of its second pass, as before.
+        expect(opacityOf(tester), 0);
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        expect(opacityOf(tester), closeTo(0.25, 0.01));
+      });
+    });
+
     group('an endless run when the setting is taken away', () {
       testWidgets('turns on from where its passes would have got to', (WidgetTester tester) async {
         await tester.pumpWidget(host(spin(), disableAnimations: true));
