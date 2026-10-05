@@ -261,6 +261,21 @@ class _TypewriterState extends State<_Typewriter> {
   /// to used to come back at once, while it was still paused.
   String? _kept;
 
+  /// Under less movement, what is left of the wait before the line would have
+  /// begun, for the run in [_stillRun]: all of the `delay` for a line the chain
+  /// never began, what was left of it when the setting arrived during it, and
+  /// nothing once the line has begun. The typing has landed once nothing is
+  /// left, as a keyframe lands once its delay is over. `null` while nothing is
+  /// counted.
+  Duration? _stillLeft;
+
+  /// The frame from which [_stillLeft] has been running down, or `null` while
+  /// the typing is held, since a wait a pause holds is still a wait.
+  Duration? _stillFrom;
+
+  /// The run [_stillLeft] is counted for, or `-1` for none.
+  int _stillRun = -1;
+
   Duration get _typeDelay {
     final Duration? whole = widget.duration;
 
@@ -284,7 +299,9 @@ class _TypewriterState extends State<_Typewriter> {
     if (oldWidget.text != widget.text) {
       // A new string starts a new performance rather than continuing the last,
       // which takes it up when it starts: at once, or once a pause lets it go.
+      // Under less movement its wait is counted from here.
       _drivenRun = -1;
+      _stillRun = -1;
     }
 
     _drive();
@@ -303,12 +320,98 @@ class _TypewriterState extends State<_Typewriter> {
     final bool still = prefersReducedMotion(context);
 
     if (still != _still) {
-      if (!still && widget.started && widget.paused) {
-        _kept = widget.text;
+      if (!still) {
+        _resumeFromStill();
+
+        if (widget.started && widget.paused) {
+          _kept = widget.text;
+        }
       }
 
       _still = still;
       _drive();
+    }
+  }
+
+  /// Under less movement, runs down what is left of the wait before the line
+  /// would have begun while the typing is let go, and holds it while it is
+  /// not, as `PlassAnimateRun` waits out its delay under the setting. Nothing
+  /// is typed and nothing asks for a frame: the frames the typing is built on
+  /// are the clock.
+  void _countStill() {
+    if (!widget.started) {
+      _stillRun = -1;
+      _stillLeft = null;
+      _stillFrom = null;
+
+      return;
+    }
+
+    final Duration now = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+
+    if (_stillRun != widget.runs) {
+      final bool begun =
+          _drivenRun == widget.runs && (_shown > 0 || _pass > 1 || _holding || _deleting);
+
+      _stillRun = widget.runs;
+      _stillFrom = null;
+      _stillLeft = _drivenRun != widget.runs
+          ? widget.delay
+          : begun
+          ? Duration.zero
+          : _waitLeft ?? Duration.zero;
+    }
+
+    final Duration? from = _stillFrom;
+    final Duration left = _stillLeft!;
+
+    if (from != null) {
+      final Duration gone = now - from;
+
+      _stillLeft = left > gone ? left - gone : Duration.zero;
+    }
+
+    _stillFrom = widget.paused || widget.resting ? null : now;
+  }
+
+  /// Given movement back, a typing that types once goes on from where its
+  /// wait under less movement has got to, as the React build does.
+  ///
+  /// One that has landed keeps its whole line, as a keyframe that landed stays
+  /// on its last frame: it is put at the end of its one pass, which [_drive]
+  /// finds finished. Typed again from its first character, the line emptied
+  /// and came back. One still waiting is empty for what is left of the wait
+  /// and then types, rather than waiting the whole `delay` again. One that
+  /// types more than once has no last character to stay on, and types again
+  /// as it did.
+  void _resumeFromStill() {
+    _countStill();
+
+    final Duration? left = _stillLeft;
+    final int? repeat = widget.repeat;
+
+    _stillRun = -1;
+    _stillLeft = null;
+    _stillFrom = null;
+
+    if (left == null || repeat == null || repeat > 1) {
+      return;
+    }
+
+    _next?.cancel();
+    _next = null;
+    _drivenRun = widget.runs;
+    _graphemes = widget.text.characters.toList();
+    _pass = 1;
+    _deleting = false;
+    _holding = false;
+
+    if (left == Duration.zero) {
+      _shown = _graphemes.length;
+      _waitLeft = null;
+    } else {
+      _shown = 0;
+      _waitLeft = left;
     }
   }
 
@@ -336,6 +439,7 @@ class _TypewriterState extends State<_Typewriter> {
       // run types the line from its first character. A whole line kept
       // through a pause goes as well.
       _drivenRun = -1;
+      _countStill();
 
       if (_shown != 0 || _kept != null) {
         setState(() {
@@ -367,6 +471,13 @@ class _TypewriterState extends State<_Typewriter> {
       _next?.cancel();
       _next = null;
 
+      // Under less movement the wait before the line is counted all the same,
+      // so a typing that has landed keeps its line once the setting goes, and
+      // one still waiting waits only the rest.
+      if (_still) {
+        _countStill();
+      }
+
       // A pause holds the line where it is, and goes on holding it through a
       // new run, a hover the pointer makes again while it is paused for one,
       // and through a new string: either starts once the pause lets it go, and
@@ -375,9 +486,11 @@ class _TypewriterState extends State<_Typewriter> {
       // Less movement holds it the same way, under the whole line `build`
       // draws instead, so no chain types what nobody sees, as none does in the
       // React build. Given back, the platform lets it go on from the character
-      // it was on, or type a line it never began after its `delay`. While the
-      // caller holds it, that waits for the pause to be let go, and the whole
-      // line stays drawn until then.
+      // it was on, or type a line it never began after its `delay`. A typing
+      // that types once instead keeps its whole line once it has landed, and
+      // waits only what is left of its `delay` before then. While the caller
+      // holds it, that waits for the pause to be let go, and the whole line
+      // stays drawn until then.
       return;
     }
 

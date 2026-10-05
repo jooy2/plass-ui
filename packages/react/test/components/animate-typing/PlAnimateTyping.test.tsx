@@ -4,6 +4,7 @@ import type { ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { PlAnimateTyping } from 'plass-ui';
 import standaloneCss from '../../../src/standalone.css?inline';
+import { emulateMedia, emulateReducedMotion } from '../../support/media';
 import { committed } from '../../support/timing';
 
 /**
@@ -731,6 +732,117 @@ describe('PlAnimateTyping', () => {
 
       expect(visible(root)).toBe('');
       expect(sample(root)).toBe('');
+    });
+  });
+
+  describe('when the reader gives movement back', () => {
+    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    beforeEach(async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+    });
+
+    afterEach(async () => {
+      await emulateMedia({ reducedMotion: 'no-preference' });
+    });
+
+    it('keeps the whole line of a typing that landed under reduced motion', async () => {
+      await render(
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Typed"
+          delay={100}
+          speed={400}
+          caret={false}
+        />
+      );
+
+      const root = document.querySelector('.typing-under-test');
+
+      expect(visible(root)).toBe('Typed');
+
+      // Past its `delay`, so it has landed.
+      await wait(300);
+      await emulateReducedMotion('no-preference');
+
+      // Typed again from its first character, it would be empty here.
+      expect(visible(root)).toBe('Typed');
+
+      await wait(200);
+
+      expect(visible(root)).toBe('Typed');
+    });
+
+    it('waits empty for the rest of a `delay` it was still in, and then types the line', async () => {
+      await render(
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Typed"
+          delay={1200}
+          speed={400}
+          caret={false}
+        />
+      );
+
+      const root = document.querySelector('.typing-under-test');
+
+      await wait(800);
+
+      expect(visible(root)).toBe('Typed');
+
+      await emulateReducedMotion('no-preference');
+
+      expect(visible(root)).toBe('');
+
+      // About 400ms of the wait was left. Waiting out the whole of it again
+      // would leave the line empty past the end of this poll.
+      await expect.poll(() => visible(root), { timeout: 1000 }).toBe('Typed');
+    });
+
+    it.each([
+      ['twice', 2],
+      ['for ever', 'infinite']
+    ] as const)('types a line it repeats %s again', async (_, repeat) => {
+      await render(
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Typed"
+          repeat={repeat}
+          delay={100}
+          speed={40}
+          caret={false}
+        />
+      );
+
+      const root = document.querySelector('.typing-under-test');
+
+      await wait(300);
+
+      expect(visible(root)).toBe('Typed');
+
+      await emulateReducedMotion('no-preference');
+
+      expect(visible(root)).toBe('');
+      await expect.poll(() => visible(root)).toBe('Typed');
+    });
+
+    it('waits empty for its trigger if it was never let go', async () => {
+      await render(
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Typed"
+          trigger="manual"
+          caret={false}
+        />
+      );
+
+      const root = document.querySelector('.typing-under-test');
+
+      expect(visible(root)).toBe('Typed');
+
+      await emulateReducedMotion('no-preference');
+
+      expect(visible(root)).toBe('');
     });
   });
 });

@@ -197,12 +197,50 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       );
     };
 
+    const passes = repeat === 'infinite' ? Infinity : Math.max(1, repeat);
+
     if (reduced) {
       // Not "nothing happens" — the text is simply there, which is the only
       // outcome that still delivers what the component was carrying.
       show(total);
 
-      return;
+      // A typing that types its line once still lands, as a keyframe here
+      // lands in no time, once its `delay` is over. It is then where its last
+      // character would leave it, so a reader who gives movement back keeps
+      // the whole line: typed from its first character again, the line
+      // emptied and was typed a second time. Given movement back while it is
+      // still waiting, it waits empty for the rest of the wait and types, and
+      // one never let go waits for its trigger. A typing that repeats has no
+      // last character to stay on, and types again from its first.
+      if (!run.started || paused || passes > 1 || total === 0) {
+        return;
+      }
+
+      const land = () => {
+        progress.current = total;
+        waitLeft.current = null;
+      };
+
+      // Past its first character, so past its `delay`.
+      if (progress.current > 0) {
+        land();
+
+        return;
+      }
+
+      const waitFrom = performance.now();
+
+      waitLeft.current ??= delay;
+
+      const timer = setTimeout(land, waitLeft.current);
+
+      return () => {
+        clearTimeout(timer);
+
+        if (waitLeft.current !== null) {
+          waitLeft.current = Math.max(0, waitLeft.current - (performance.now() - waitFrom));
+        }
+      };
     }
 
     if (!run.started) {
@@ -251,8 +289,6 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     let deleting = erasing.current;
     // When the wait the chain is in, or what was left of it, started.
     let waitFrom = 0;
-
-    const passes = repeat === 'infinite' ? Infinity : Math.max(1, repeat);
 
     if (count >= total && !deleting && pass.current >= passes) {
       return;

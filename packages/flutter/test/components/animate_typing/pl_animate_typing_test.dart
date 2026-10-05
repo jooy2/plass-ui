@@ -1077,6 +1077,178 @@ void main() {
         });
       });
 
+      group('when it types once', () {
+        /// "Hello" typed once at ten milliseconds a character, after [delay].
+        Widget once({
+          required bool still,
+          bool paused = false,
+          Duration delay = Duration.zero,
+          int? repeat = 1,
+        }) {
+          return host(
+            PlAnimateTyping(
+              'Hello',
+              speed: 100,
+              delay: delay,
+              repeat: repeat,
+              caret: false,
+              paused: paused,
+            ),
+            width: 400,
+            disableAnimations: still,
+          );
+        }
+
+        testWidgets('keeps the whole line it landed on once the setting is taken back', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(once(still: true));
+          await tester.pump();
+
+          expect(visibleOf(tester), 'Hello');
+
+          await tester.pumpWidget(once(still: false));
+
+          // As a keyframe that landed stays on its last frame. It used to empty
+          // the line and type it again from its first character.
+          expect(visibleOf(tester), 'Hello');
+          expect(await redrawsIn(tester), isFalse);
+          expect(visibleOf(tester), 'Hello');
+        });
+
+        testWidgets('keeps the whole line once its delay has gone by under the setting', (
+          WidgetTester tester,
+        ) async {
+          const Duration delay = Duration(milliseconds: 200);
+
+          await tester.pumpWidget(once(still: true, delay: delay));
+          await tester.pump(const Duration(milliseconds: 200));
+          await tester.pumpWidget(once(still: false, delay: delay));
+
+          expect(visibleOf(tester), 'Hello');
+          expect(await redrawsIn(tester), isFalse);
+        });
+
+        testWidgets('keeps the whole line once the setting arrived partway through it', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(once(still: false));
+          await tester.pump(const Duration(milliseconds: 15));
+
+          expect(visibleOf(tester), 'He');
+
+          await tester.pumpWidget(once(still: true));
+          await tester.pumpWidget(once(still: false));
+
+          // The setting landed it, as it lands a keyframe that is running. It
+          // used to go back to the character it was on and type on from there.
+          expect(visibleOf(tester), 'Hello');
+          expect(await redrawsIn(tester), isFalse);
+        });
+
+        testWidgets('keeps the whole line while it is paused, and once it is let go', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(once(still: true));
+          await tester.pump();
+          await tester.pumpWidget(once(still: true, paused: true));
+          await tester.pumpWidget(once(still: false, paused: true));
+
+          expect(visibleOf(tester), 'Hello');
+
+          await tester.pumpWidget(once(still: false));
+
+          expect(visibleOf(tester), 'Hello');
+          expect(await redrawsIn(tester), isFalse);
+        });
+
+        testWidgets('waits only what is left of its delay when the setting is taken back during '
+            'it', (WidgetTester tester) async {
+          const Duration delay = Duration(milliseconds: 200);
+
+          await tester.pumpWidget(once(still: true, delay: delay));
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(once(still: false, delay: delay));
+
+          // Not landed: its first frame, and the rest of the wait, as a
+          // keyframe still waiting goes on with it. It used to wait the whole
+          // delay again.
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 99));
+
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(visibleOf(tester), 'H');
+        });
+
+        testWidgets('counts none of its delay under the setting while it is paused', (
+          WidgetTester tester,
+        ) async {
+          const Duration delay = Duration(milliseconds: 200);
+
+          await tester.pumpWidget(once(still: true, delay: delay));
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(once(still: true, paused: true, delay: delay));
+          await tester.pump(const Duration(milliseconds: 500));
+          await tester.pumpWidget(once(still: false, paused: true, delay: delay));
+
+          expect(visibleOf(tester), 'Hello');
+
+          await tester.pumpWidget(once(still: false, delay: delay));
+
+          // A wait the pause held is still a wait, so it never landed, and the
+          // 100ms of it that went by before the pause stay gone.
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 99));
+
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(visibleOf(tester), 'H');
+        });
+
+        testWidgets('waits the rest of a delay the chain was in when the setting arrived', (
+          WidgetTester tester,
+        ) async {
+          const Duration delay = Duration(milliseconds: 300);
+
+          await tester.pumpWidget(once(still: false, delay: delay));
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(once(still: true, delay: delay));
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(once(still: false, delay: delay));
+
+          // 300ms in all: 100 before the setting, 100 under it, and the rest.
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 99));
+
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(visibleOf(tester), 'H');
+        });
+
+        testWidgets('types the line again with a repeat of 2', (WidgetTester tester) async {
+          await tester.pumpWidget(once(still: true, repeat: 2));
+          await tester.pump();
+          await tester.pumpWidget(once(still: false, repeat: 2));
+
+          // As before: from its first character.
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 15));
+
+          expect(visibleOf(tester), 'He');
+        });
+      });
+
       testWidgets('goes on from the character it was on at once when it is resting off screen '
           'rather than paused', (WidgetTester tester) async {
         final ScrollController page = ScrollController();
