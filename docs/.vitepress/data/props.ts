@@ -5420,6 +5420,15 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'preventDocumentDrop',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '상자 옆에 놓친 파일 때문에 페이지를 떠나지 않게 합니다. 켜져 있고 disabled나 readOnly가 아니면, 페이지의 나머지 위로 끌고 온 파일에는 드롭 불가 포인터가 뜨고 놓아도 떨어지지 않습니다. 파일을 직접 받는 드롭 대상(다른 picker, 네이티브 `<input type="file">`)과 파일이 없는 드래그는 그대로 둡니다',
+        en: 'Keeps a file let go beside the box from leaving the page. While it is on and the picker is neither disabled nor read-only, a file dragged over the rest of the page shows the no-drop pointer and is not dropped. A drop target that takes the file itself (another picker, a native `<input type="file">`) and a drag with no file are left alone'
+      }
+    },
+    {
       name: 'fullWidth',
       type: 'boolean',
       default: 'true',

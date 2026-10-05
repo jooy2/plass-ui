@@ -587,6 +587,97 @@ describe('PlFilePicker', () => {
     });
   });
 
+  describe('preventDocumentDrop', () => {
+    /** Drags a file over `target`, or drops it there, and says whether the page cancelled it. */
+    function cancelled(type: 'dragover' | 'drop', target: Element = document.body) {
+      const dataTransfer = new DataTransfer();
+
+      dataTransfer.items.add(file('stray.txt'));
+
+      const event = new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer });
+
+      target.dispatchEvent(event);
+
+      return { prevented: event.defaultPrevented, effect: dataTransfer.dropEffect };
+    }
+
+    it('leaves a file let go beside the box to the browser by default', async () => {
+      await render(<PlFilePicker className="picker-under-test" />);
+
+      expect(cancelled('dragover').prevented).toBe(false);
+      expect(cancelled('drop').prevented).toBe(false);
+    });
+
+    it('refuses a file dragged over the rest of the page, and cancels one dropped there', async () => {
+      await render(<PlFilePicker className="picker-under-test" preventDocumentDrop />);
+
+      // `none` is what turns the pointer into the no-drop sign, and a drag
+      // whose last answer was `none` ends without a drop at all.
+      expect(cancelled('dragover')).toEqual({ prevented: true, effect: 'none' });
+      expect(cancelled('drop').prevented).toBe(true);
+    });
+
+    it('still takes a file dropped on the box', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" preventDocumentDrop />
+      );
+
+      drop('.picker-under-test', [file('notes.txt')]);
+
+      await expect.element(screen.getByText('notes.txt')).toBeInTheDocument();
+    });
+
+    it('leaves a drop target of the page alone, a native file input included', async () => {
+      await render(
+        <>
+          <PlFilePicker className="picker-under-test" preventDocumentDrop />
+          <input type="file" className="native-input" />
+        </>
+      );
+
+      const input = document.querySelector('.native-input') as Element;
+
+      expect(cancelled('dragover', input).prevented).toBe(false);
+      expect(cancelled('drop', input).prevented).toBe(false);
+    });
+
+    it('leaves a drag that carries no file alone', async () => {
+      await render(<PlFilePicker className="picker-under-test" preventDocumentDrop />);
+
+      const dataTransfer = new DataTransfer();
+
+      dataTransfer.setData('text/plain', 'words');
+
+      const event = new DragEvent('dragover', { bubbles: true, cancelable: true, dataTransfer });
+
+      document.body.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it('stops guarding once it is disabled, read-only or gone', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" preventDocumentDrop disabled />
+      );
+
+      expect(cancelled('drop').prevented).toBe(false);
+
+      await screen.rerender(
+        <PlFilePicker className="picker-under-test" preventDocumentDrop readOnly />
+      );
+
+      expect(cancelled('drop').prevented).toBe(false);
+
+      await screen.rerender(<PlFilePicker className="picker-under-test" preventDocumentDrop />);
+
+      expect(cancelled('drop').prevented).toBe(true);
+
+      screen.unmount();
+
+      expect(cancelled('drop').prevented).toBe(false);
+    });
+  });
+
   describe('formatFileSize', () => {
     it('reports bytes below a kilobyte', () => {
       expect(formatFileSize(999)).toBe('999 B');

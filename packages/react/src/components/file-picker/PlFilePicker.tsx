@@ -123,6 +123,19 @@ export interface PlFilePickerProps
    * @default `Remove {name}`, from the label pack
    */
   removeLabel?: (name: string) => string;
+  /**
+   * Keeps a file let go beside the box from leaving the page. A browser opens a
+   * file dropped where nothing takes it, in place of the page, or downloads
+   * it, so a near miss throws away whatever the reader had filled in.
+   *
+   * While the picker is mounted and neither disabled nor read-only, a file
+   * dragged over the rest of the page shows the no-drop pointer and is not
+   * dropped. A drop target of the page that takes the file itself, another
+   * picker or a native `<input type="file">` among them, is left alone, and so
+   * is a drag that carries no file.
+   * @default false
+   */
+  preventDocumentDrop?: boolean;
   /** Stretches to the width of the container. @default true */
   fullWidth?: boolean;
   /** Unavailable. */
@@ -372,6 +385,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       showList = true,
       showRejections = true,
       removeLabel: removeLabelProp,
+      preventDocumentDrop = false,
       fullWidth = true,
       disabled: disabledProp = false,
       readOnly = false,
@@ -475,6 +489,50 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const errorId = `${descriptionId}-error`;
     const labelId = `${descriptionId}-label`;
     const zoneId = id ?? `${descriptionId}-zone`;
+
+    /*
+     * `preventDocumentDrop`. On the document and in the bubbling phase, so a
+     * drop target the file reached first has had its say: the picker's own
+     * listeners, another picker's, or anything else that cancels the event to
+     * take the file, which leaves it `defaultPrevented`. A native file input
+     * takes a dropped file by the browser's default action instead, which this
+     * would cancel, so it is left out by name.
+     *
+     * `dropEffect = 'none'` is what turns the pointer into the no-drop sign,
+     * and a drag whose last `dragover` answered `none` ends with no `drop` at
+     * all. The `drop` listener is there for one that arrives anyway.
+     */
+    React.useEffect(() => {
+      if (!preventDocumentDrop || inert) {
+        return undefined;
+      }
+
+      const stray = (event: DragEvent) =>
+        !event.defaultPrevented &&
+        Boolean(event.dataTransfer?.types.includes('Files')) &&
+        !(event.target instanceof HTMLInputElement && event.target.type === 'file');
+
+      const refuse = (event: DragEvent) => {
+        if (stray(event)) {
+          event.preventDefault();
+          event.dataTransfer!.dropEffect = 'none';
+        }
+      };
+
+      const cancel = (event: DragEvent) => {
+        if (stray(event)) {
+          event.preventDefault();
+        }
+      };
+
+      document.addEventListener('dragover', refuse);
+      document.addEventListener('drop', cancel);
+
+      return () => {
+        document.removeEventListener('dragover', refuse);
+        document.removeEventListener('drop', cancel);
+      };
+    }, [preventDocumentDrop, inert]);
 
     /*
      * The list is what a form submits. The input's own `files` only ever held

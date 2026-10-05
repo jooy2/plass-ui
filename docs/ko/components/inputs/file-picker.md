@@ -48,6 +48,8 @@ PlFilePicker(
 
 wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 포함해 필드 어디에 파일을 놓아도 picker로 들어가고, `data-testid`로 찾은 요소에 보낸 드래그 이벤트도 여기에 닿습니다. `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`은 picker가 이벤트를 처리한 뒤 호출자에게도 그대로 전달됩니다.
 
+상자에서 몇 픽셀 벗어나 놓은 파일은 브라우저가 처리해서, 페이지 대신 그 파일을 열거나 내려받습니다. `preventDocumentDrop`을 켜면 picker가 마운트되어 쓸 수 있는 동안에는 그러지 않습니다. 페이지의 나머지 위로 끌고 온 파일에는 드롭 불가 포인터가 뜨고, 놓아도 떨어지지 않습니다. 파일을 직접 받는 드롭 대상은 그대로 둡니다.
+
 `formatFileSize`도 함께 export되므로, 목록을 직접 그리는 쪽에서도 같은 단위로 크기를 찍을 수 있습니다.
 
 :::
@@ -212,6 +214,7 @@ wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 �
 | --- | --- | --- |
 | 스스로 파일 대화상자를 엶 | `onBrowse`가 앱의 picker를 실행 | 플러그인 없이는 Flutter에 파일 대화상자가 없고, 이 패키지에는 의존성이 없습니다. 규칙은 여기 남고, picker는 앱의 것입니다. |
 | 드래그 앤 드롭 | 앱이 세워 주는 `dragging` | OS 수준의 드래그도 없습니다. 그 상태의 생김새는 컴포넌트의 것이고, 감지는 앱의 것입니다. |
+| `preventDocumentDrop` | — | OS 수준의 드래그가 없으니 잘못 놓인 파일이 바꿔 버릴 페이지도 없습니다. |
 | `File` | `PlFile` | 이름과 크기, 종류, 그리고 실려 오는 앱 자신의 객체. 패키지는 아무것도 열지 않습니다. |
 | export되는 `formatFileSize` | `PlFile.readableSize` | 같은 숫자를, 그것이 붙은 것 위에서. |
 | `value` / `defaultValue` / `onFilesChange` | `value` / `onFilesChanged` | Flutter의 컨트롤은 controlled이고, 콜백 이름도 Flutter의 것입니다. |

@@ -48,6 +48,8 @@ Every native `<div>` attribute passes straight through to the wrapper. `color`, 
 
 The wrapper is also the drop area: a file let go anywhere over the field, its label and its messages included, lands in the picker, and a drag event dispatched on the element a `data-testid` finds reaches it. `onDragEnter`, `onDragOver`, `onDragLeave` and `onDrop` still reach the caller, after the picker has handled the event.
 
+A file let go a few pixels beside the box is the browser's, which opens it in place of the page or downloads it. `preventDocumentDrop` stops that while the picker is mounted and usable: the rest of the page shows the no-drop pointer to a dragged file, and nothing is dropped there. A drop target that takes files itself is left alone.
+
 `formatFileSize` is exported alongside the component, so a caller writing their own list can print sizes in the same units.
 
 :::
@@ -212,6 +214,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 | --- | --- | --- |
 | opens the file dialog itself | `onBrowse` runs the app's picker | There is no file dialog in Flutter without a plugin, and this package has no dependencies. The rules stay here; the picker is the app's. |
 | drag and drop | `dragging`, which the app sets | There is no OS-level drag either. The look of the state is the component's; the detection is the app's. |
+| `preventDocumentDrop` | — | With no OS-level drag there is no page a stray file could replace. |
 | `File` | `PlFile` | A name, a size, a kind and the app's own object carried through. The package opens nothing. |
 | `formatFileSize`, exported | `PlFile.readableSize` | The same number, on the thing that has it. |
 | `value` / `defaultValue` / `onFilesChange` | `value` / `onFilesChanged` | Flutter's own controls are controlled, and its name for the callback. |
