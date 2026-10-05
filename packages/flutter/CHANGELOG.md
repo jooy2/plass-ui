@@ -10,6 +10,7 @@
 
 ### Added
 
+- **`PlFilePicker` takes `onAdded`, which hands over what one pick kept and what it turned away together.** `onRejected` and `onFilesChanged` were called one after the other for the same pick and neither knew about the other, so an error shown only when a pick produced nothing usable took state set in one and cleared in the other, relying on an order the docs never stated. `onAdded` is called once per pick `onBrowse` hands back, after the other two, with a `PlFileBatch` of `kept` and `rejected`. A pick that found nothing, and a removal, call nothing.
 - **`PlTypography` takes a `headingLevel`, which sets the level the text is announced at without changing the text style `level` picks.** The heading level came from `level` alone, so a line could not keep the `h3` size and be announced as a level-2 heading. `headingLevel: 2` now does that. It works on any `level`, so a `body` line with `headingLevel: 2` is a level-2 heading at the body's size. A value outside 1–6 fails an assert, as it does on `PlAccordion` and `PlDrawer`.
 - **`PlDrawer` takes `headingLevel`, so its title sits at the level the screen's outline needs.** It takes `1` to `6` and defaults to `2`, the level the web build already drew the title at, in both modes. Only the semantics change, never the type scale.
 

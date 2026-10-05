@@ -3053,6 +3053,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'onRejected',
       type: 'ValueChanged<List<PlFileRejection>>?'
     }),
+    from('PlFilePicker', 'onAdd', {
+      name: 'onAdded',
+      type: 'ValueChanged<PlFileBatch>?',
+      description: {
+        ko: 'onBrowse가 돌려준 선택 한 번마다 onRejected와 onFilesChanged 다음에 한 번 호출됩니다. 남긴 파일(`kept`)과 돌려보낸 파일과 이유(`rejected`)를 함께 받으므로, 쓸 만한 파일이 하나도 없을 때만 오류를 보이는 것처럼 두 쪽이 다 필요한 규칙을 여기에 둡니다. 아무것도 찾지 못한 선택과 지우기에는 호출되지 않습니다',
+        en: 'Called once per pick onBrowse hands back, after onRejected and onFilesChanged, with what it kept (`kept`) and what it turned away and why (`rejected`). The place for a rule that needs both halves, such as an error only when nothing in the pick could be used. A pick that found nothing, and a removal, call nothing'
+      }
+    }),
     from('PlFilePicker', 'accept', {
       type: 'String?',
       description: {

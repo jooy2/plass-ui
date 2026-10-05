@@ -93,6 +93,20 @@ class PlFileRejection {
   final PlFileRejectionReason reason;
 }
 
+/// One pick, as [PlFilePicker.onAdded] hands it over: what it kept and what it
+/// turned away, together.
+@immutable
+class PlFileBatch {
+  /// Creates a batch.
+  const PlFileBatch({required this.kept, required this.rejected});
+
+  /// What the pick added to the list, in the order it arrived.
+  final List<PlFile> kept;
+
+  /// What it turned away, and why.
+  final List<PlFileRejection> rejected;
+}
+
 /// A file, as the picker needs to know it.
 ///
 /// Deliberately **not** a `dart:io` `File` and not an abstraction over one: this
@@ -196,6 +210,7 @@ class PlFilePicker extends StatefulWidget {
     this.onFilesChanged,
     this.onBrowse,
     this.onRejected,
+    this.onAdded,
     this.accept,
     this.multiple = false,
     this.maxSize,
@@ -246,6 +261,14 @@ class PlFilePicker extends StatefulWidget {
   /// Without it a rejected file disappears silently, which is the single worst
   /// thing a dropzone does.
   final ValueChanged<List<PlFileRejection>>? onRejected;
+
+  /// Called once per pick with what it kept and what it turned away together,
+  /// after [onRejected] and [onFilesChanged].
+  ///
+  /// The place for a rule that needs both halves, such as an error only when
+  /// nothing in the pick could be used. A pick that found nothing, and a
+  /// removal, call nothing.
+  final ValueChanged<PlFileBatch>? onAdded;
 
   /// Which files are kept, in the `accept` grammar — `'image/*,.pdf'`.
   final String? accept;
@@ -422,6 +445,8 @@ class _PlFilePickerState extends State<PlFilePicker> {
     if (kept.isNotEmpty) {
       widget.onFilesChanged?.call(widget.multiple ? <PlFile>[...widget.value, ...kept] : kept);
     }
+
+    widget.onAdded?.call(PlFileBatch(kept: kept, rejected: rejected));
   }
 
   void _clearRejected() {

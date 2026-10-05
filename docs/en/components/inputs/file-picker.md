@@ -120,6 +120,38 @@ The box says why files were turned away, one line per reason, counted. `showReje
 
 </Demo>
 
+### <Fw react="onAdd" flutter="onAdded" />
+
+<Fw react="onAdd" flutter="onAdded" code /> is called once per batch, after <Fw react="onReject" flutter="onRejected" code /> and <Fw react="onFilesChange" flutter="onFilesChanged" code />, with what the batch kept and what it turned away together. A rule that needs both halves belongs here, such as an error that only appears when nothing in a batch could be used.
+
+::: fw react
+
+A batch is one drop or one pick from the dialog, and `source` says which. A drag that carried no file, and a removal, call nothing.
+
+:::
+
+::: fw flutter
+
+A batch is one pick that `onBrowse` hands back, as a `PlFileBatch`. A pick that found nothing, and a removal, call nothing.
+
+:::
+
+<Demo src="file-picker/batch" :min-height="240">
+
+::: fw react
+
+<<< @/.vitepress/demos/file-picker/batch.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/file_picker/batch.dart
+
+:::
+
+</Demo>
+
 ### One file at a time
 
 Without `multiple` the box holds exactly one file, and a new one replaces it rather than being turned away for `count`. That is what an avatar picker wants.

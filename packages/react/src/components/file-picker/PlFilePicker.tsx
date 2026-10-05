@@ -43,6 +43,16 @@ export interface PlFileRejection {
   reason: PlFileRejectionReason;
 }
 
+/** One drop, or one pick from the file dialog, as `onAdd` hands it over. */
+export interface PlFileBatch {
+  /** What the batch added to the list, in the order it arrived. */
+  kept: File[];
+  /** What it turned away, and why. */
+  rejected: PlFileRejection[];
+  /** Whether the files were dropped on the field or chosen in the dialog. */
+  source: 'drop' | 'dialog';
+}
+
 export interface PlFilePickerProps
   extends
     PlassStyleProps,
@@ -78,6 +88,13 @@ export interface PlFilePickerProps
    * file disappears silently, which is the single worst thing a dropzone does.
    */
   onReject?: (rejections: PlFileRejection[]) => void;
+  /**
+   * Called once per drop or dialog pick with what it kept and what it turned
+   * away together, after `onReject` and `onFilesChange`. The place for a rule
+   * that needs both halves, such as an error only when nothing in the batch
+   * could be used. A batch with no file in it, and a removal, call nothing.
+   */
+  onAdd?: (batch: PlFileBatch) => void;
   /** The name of what the box collects. */
   label?: React.ReactNode;
   /**
@@ -374,6 +391,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       defaultValue,
       onFilesChange,
       onReject,
+      onAdd,
       label,
       labelPlacement: labelPlacementProp,
       description,
@@ -607,7 +625,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     );
 
     const add = React.useCallback(
-      (incoming: File[]) => {
+      (incoming: File[], source: PlFileBatch['source']) => {
         const { kept, rejections } = accepting(incoming);
         const tally: Record<PlFileRejectionReason, number> = { type: 0, size: 0, count: 0 };
 
@@ -623,8 +641,14 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
         if (kept.length > 0) {
           commit(multiple ? [...files, ...kept] : kept);
         }
+
+        // A drag that carried no file, or a dialog that changed nothing, is
+        // no batch.
+        if (incoming.length > 0) {
+          onAdd?.({ kept, rejected: rejections, source });
+        }
       },
-      [accepting, commit, files, multiple, onReject]
+      [accepting, commit, files, multiple, onAdd, onReject]
     );
 
     const clearRejected = React.useCallback(() => {
@@ -769,7 +793,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
             event.preventDefault();
             dragDepth.current = 0;
             setOver(false);
-            add(Array.from(event.dataTransfer.files));
+            add(Array.from(event.dataTransfer.files), 'drop');
           }
           onDrop?.(event);
         }}
@@ -868,7 +892,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
             aria-hidden="true"
             className="absolute size-px overflow-hidden opacity-0 [clip-path:inset(50%)]"
             onChange={(event) => {
-              add(Array.from(event.target.files ?? []));
+              add(Array.from(event.target.files ?? []), 'dialog');
               // The dialog's pick is in the input now. What was kept comes back
               // with the list; what was turned away has to leave it here, because
               // a batch with nothing kept changes no list and runs no effect.

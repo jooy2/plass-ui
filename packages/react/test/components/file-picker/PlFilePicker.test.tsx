@@ -261,6 +261,92 @@ describe('PlFilePicker', () => {
     });
   });
 
+  describe('onAdd', () => {
+    /** Picks `files` from the dialog, which is what the input's `change` says. */
+    function pick(picker: string, files: File[]) {
+      const input = document.querySelector<HTMLInputElement>(`${picker} input[type="file"]`)!;
+      const picked = new DataTransfer();
+
+      for (const item of files) {
+        picked.items.add(item);
+      }
+
+      input.files = picked.files;
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    it('hands over what one drop kept and what it turned away together, after the other two', async () => {
+      const calls: string[] = [];
+      const onAdd = vi.fn(() => calls.push('add'));
+      const kept = file('shot.png', 'image/png');
+      const turned = file('notes.txt');
+
+      await render(
+        <PlFilePicker
+          className="picker-under-test"
+          accept="image/*"
+          onReject={() => calls.push('reject')}
+          onFilesChange={() => calls.push('change')}
+          onAdd={onAdd}
+        />
+      );
+
+      drop('.picker-under-test', [turned, kept]);
+
+      expect(onAdd).toHaveBeenCalledTimes(1);
+      expect(onAdd).toHaveBeenCalledWith({
+        kept: [kept],
+        rejected: [{ file: turned, reason: 'type' }],
+        source: 'drop'
+      });
+      expect(calls).toEqual(['reject', 'change', 'add']);
+    });
+
+    it('says when a batch kept nothing, which is when it is worth an error', async () => {
+      const onAdd = vi.fn();
+      const turned = file('notes.txt');
+
+      await render(<PlFilePicker className="picker-under-test" accept="image/*" onAdd={onAdd} />);
+
+      drop('.picker-under-test', [turned]);
+
+      expect(onAdd).toHaveBeenCalledWith({
+        kept: [],
+        rejected: [{ file: turned, reason: 'type' }],
+        source: 'drop'
+      });
+    });
+
+    it('names the dialog as the source of a pick', async () => {
+      const onAdd = vi.fn();
+      const picked = file('picked.txt');
+
+      await render(<PlFilePicker className="picker-under-test" onAdd={onAdd} />);
+
+      pick('.picker-under-test', [picked]);
+
+      expect(onAdd).toHaveBeenCalledWith({ kept: [picked], rejected: [], source: 'dialog' });
+    });
+
+    it('stays quiet for a batch with no file in it, and for a removal', async () => {
+      const onAdd = vi.fn();
+      const screen = await render(
+        <PlFilePicker
+          className="picker-under-test"
+          multiple
+          defaultValue={[file('held.txt')]}
+          onAdd={onAdd}
+        />
+      );
+
+      drop('.picker-under-test', []);
+      pick('.picker-under-test', []);
+      await screen.getByRole('button', { name: 'Remove held.txt' }).click();
+
+      expect(onAdd).not.toHaveBeenCalled();
+    });
+  });
+
   describe('saying what was turned away', () => {
     it('says why, grouped by reason and counted', async () => {
       const screen = await render(

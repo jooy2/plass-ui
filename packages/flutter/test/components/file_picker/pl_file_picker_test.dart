@@ -29,6 +29,8 @@ class _Harness extends StatefulWidget {
     this.disabled = false,
     this.showRejections = true,
     this.onRejected,
+    this.onAdded,
+    this.calls,
   });
 
   final List<PlFile> files;
@@ -41,6 +43,10 @@ class _Harness extends StatefulWidget {
   final bool disabled;
   final bool showRejections;
   final ValueChanged<List<PlFileRejection>>? onRejected;
+  final ValueChanged<PlFileBatch>? onAdded;
+
+  /// Where the three callbacks write their names as they are called, in order.
+  final List<String>? calls;
 
   @override
   State<_Harness> createState() => _HarnessState();
@@ -62,9 +68,19 @@ class _HarnessState extends State<_Harness> {
       readOnly: widget.readOnly,
       disabled: widget.disabled,
       showRejections: widget.showRejections,
-      onRejected: widget.onRejected,
+      onRejected: (List<PlFileRejection> turned) {
+        widget.calls?.add('rejected');
+        widget.onRejected?.call(turned);
+      },
+      onAdded: (PlFileBatch batch) {
+        widget.calls?.add('added');
+        widget.onAdded?.call(batch);
+      },
       onBrowse: () async => widget.found,
-      onFilesChanged: (List<PlFile> next) => setState(() => _files = next),
+      onFilesChanged: (List<PlFile> next) {
+        widget.calls?.add('changed');
+        setState(() => _files = next);
+      },
     );
   }
 }
@@ -320,6 +336,68 @@ void main() {
 
         expect(state.files.length, 2);
         expect(turned.single.reason, PlFileRejectionReason.count);
+      });
+    });
+
+    group('onAdded', () {
+      testWidgets('hands over what one pick kept and what it turned away together, after the other '
+          'two', (WidgetTester tester) async {
+        final batches = <PlFileBatch>[];
+        final calls = <String>[];
+
+        await _pump(
+          tester,
+          _Harness(
+            accept: 'image/*',
+            found: const <PlFile>[_paper, _photo],
+            onAdded: batches.add,
+            calls: calls,
+          ),
+        );
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+
+        expect(batches, hasLength(1));
+        expect(batches.single.kept, <PlFile>[_photo]);
+        expect(batches.single.rejected.single.file, _paper);
+        expect(batches.single.rejected.single.reason, PlFileRejectionReason.type);
+        expect(calls, <String>['rejected', 'changed', 'added']);
+      });
+
+      testWidgets('says when a pick kept nothing, which is when it is worth an error', (
+        WidgetTester tester,
+      ) async {
+        final batches = <PlFileBatch>[];
+
+        await _pump(
+          tester,
+          _Harness(accept: 'image/*', found: const <PlFile>[_paper], onAdded: batches.add),
+        );
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+
+        expect(batches.single.kept, isEmpty);
+        expect(batches.single.rejected.single.file, _paper);
+      });
+
+      testWidgets('stays quiet for a pick that found nothing, and for a removal', (
+        WidgetTester tester,
+      ) async {
+        final batches = <PlFileBatch>[];
+
+        await _pump(
+          tester,
+          _Harness(multiple: true, files: const <PlFile>[_photo], onAdded: batches.add),
+        );
+
+        await tester.tap(find.text('Choose files'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.bySemanticsLabel('Remove aurora.png'));
+        await tester.pumpAndSettle();
+
+        expect(batches, isEmpty);
       });
     });
 

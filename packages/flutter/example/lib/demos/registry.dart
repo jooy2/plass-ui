@@ -256,6 +256,7 @@ import 'package:plass_ui_example/demos/divider/sizes.dart';
 import 'package:plass_ui_example/demos/drawer/hero.dart';
 import 'package:plass_ui_example/demos/drawer/inline.dart';
 import 'package:plass_ui_example/demos/drawer/sides.dart';
+import 'package:plass_ui_example/demos/file_picker/batch.dart';
 import 'package:plass_ui_example/demos/file_picker/hero.dart';
 import 'package:plass_ui_example/demos/file_picker/rejections.dart';
 import 'package:plass_ui_example/demos/file_picker/single.dart';
@@ -961,6 +962,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'file-picker/hero': _filePickerHero,
   'file-picker/variants': _filePickerVariants,
   'file-picker/rejections': _filePickerRejections,
+  'file-picker/batch': _filePickerBatch,
   'file-picker/single': _filePickerSingle,
   'file-picker/sizes': _filePickerSizes,
   'file-picker/states': _filePickerStates,
@@ -1844,6 +1846,7 @@ Widget _chatBubbleSizes(BuildContext context) => const ChatBubbleSizes();
 Widget _filePickerHero(BuildContext context) => const FilePickerHero();
 Widget _filePickerVariants(BuildContext context) => const FilePickerVariants();
 Widget _filePickerRejections(BuildContext context) => const FilePickerRejections();
+Widget _filePickerBatch(BuildContext context) => const FilePickerBatch();
 Widget _filePickerSingle(BuildContext context) => const FilePickerSingle();
 Widget _filePickerSizes(BuildContext context) => const FilePickerSizes();
 Widget _filePickerStates(BuildContext context) => const FilePickerStates();

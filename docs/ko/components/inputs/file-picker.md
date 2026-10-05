@@ -120,6 +120,38 @@ wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 �
 
 </Demo>
 
+### <Fw react="onAdd" flutter="onAdded" />
+
+<Fw react="onAdd" flutter="onAdded" code />는 묶음 하나마다 <Fw react="onReject" flutter="onRejected" code />와 <Fw react="onFilesChange" flutter="onFilesChanged" code /> 다음에 한 번 호출되고, 그 묶음에서 남긴 파일과 돌려보낸 파일을 함께 받습니다. 쓸 만한 파일이 하나도 없을 때만 오류를 보이는 것처럼, 두 쪽이 다 필요한 규칙은 여기에 둡니다.
+
+::: fw react
+
+묶음은 드롭 한 번이나 대화상자 선택 한 번이고, 어느 쪽인지는 `source`가 알려 줍니다. 파일이 없는 드래그와 지우기에는 호출되지 않습니다.
+
+:::
+
+::: fw flutter
+
+묶음은 `onBrowse`가 돌려준 선택 한 번이고, `PlFileBatch`로 전달됩니다. 아무것도 찾지 못한 선택과 지우기에는 호출되지 않습니다.
+
+:::
+
+<Demo src="file-picker/batch" :min-height="240">
+
+::: fw react
+
+<<< @/.vitepress/demos/file-picker/batch.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/file_picker/batch.dart
+
+:::
+
+</Demo>
+
 ### 한 번에 한 파일
 
 `multiple`이 없으면 상자는 정확히 파일 하나를 쥐고, 새 파일이 들어오면 `count`로 거절되는 대신 그것을 대체합니다. 아바타 선택기가 원하는 동작입니다.

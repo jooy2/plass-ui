@@ -5362,6 +5362,14 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'onAdd',
+      type: '(batch: PlFileBatch) => void',
+      description: {
+        ko: '드롭이나 대화상자 선택 한 번마다 onReject와 onFilesChange 다음에 한 번 호출됩니다. 남긴 파일(`kept`), 돌려보낸 파일과 이유(`rejected`), 출처(`source`: `drop` | `dialog`)를 함께 받으므로, 쓸 만한 파일이 하나도 없을 때만 오류를 보이는 것처럼 두 쪽이 다 필요한 규칙을 여기에 둡니다. 파일이 없는 묶음과 지우기에는 호출되지 않습니다',
+        en: 'Called once per drop or dialog pick, after onReject and onFilesChange, with what it kept (`kept`), what it turned away and why (`rejected`), and where it came from (`source`: `drop` | `dialog`). The place for a rule that needs both halves, such as an error only when nothing in the batch could be used. A batch with no file in it, and a removal, call nothing'
+      }
+    },
+    {
       name: 'label · description · error · invalid',
       type: 'ReactNode · ReactNode · ReactNode · boolean',
       description: {
