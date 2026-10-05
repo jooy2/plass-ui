@@ -482,6 +482,34 @@ describe('PlAnimateHeadline', () => {
       expect(showing()).toBe('faster');
     });
 
+    it.each([
+      ['the first line', 0, 'faster', 'simpler'],
+      ['a line it had turned to', 1, 'simpler', 'cheaper']
+    ])(
+      'holds %s a whole `interval` when every line is taken away and given back',
+      async (_, turns, held, next) => {
+        const screen = await render(reel());
+
+        await advance(1000 * turns);
+
+        expect(showing()).toBe(held);
+
+        await advance(600);
+        await screen.rerender(reel({}, 0));
+        await advance(5000);
+        await screen.rerender(reel());
+        await advance(999);
+
+        // It arrives anew. It used to go on with the wait it had before the
+        // lines were taken away, and turned 400ms later.
+        expect(showing()).toBe(held);
+
+        await advance(1);
+
+        expect(showing()).toBe(next);
+      }
+    );
+
     it('waits a whole `interval` again once it is started again after it was stopped', async () => {
       const screen = await render(reel({ trigger: 'manual', play: true }));
 

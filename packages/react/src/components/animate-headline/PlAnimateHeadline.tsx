@@ -206,7 +206,16 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
       return;
     }
 
-    if (index !== undefined || count < 1 || run.state !== 'running') {
+    // With no line there is no wait under way. A line given back to an empty
+    // reel arrives anew, so it is held for the whole wait, even when it is the
+    // line the reel was on before its lines were taken away.
+    if (count < 1) {
+      waited.current = { line: active, gone: 0 };
+
+      return;
+    }
+
+    if (index !== undefined || run.state !== 'running') {
       return;
     }
 
