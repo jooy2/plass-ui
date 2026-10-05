@@ -374,5 +374,57 @@ void main() {
       expect(turnOf(tester), closeTo(1, 0.001));
       expect(await redrawsIn(tester), isFalse);
     });
+
+    for (final int? after in <int?>[null, 8]) {
+      testWidgets('stays where a turn ends, until it runs again, when an endless light given a '
+          'finite repeat under the setting is given $after once it has gone', (
+        WidgetTester tester,
+      ) async {
+        Widget lighting({int? repeat, bool still = false, bool play = true}) {
+          return host(
+            PlAnimateLighting(
+              repeat: repeat,
+              trigger: PlassAnimateTrigger.manual,
+              play: play,
+              curve: Curves.linear,
+              duration: const Duration(seconds: 1),
+              child: const Text('Live'),
+            ),
+            width: 200,
+            height: 80,
+            disableAnimations: still,
+          );
+        }
+
+        await tester.pumpWidget(lighting(still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(repeat: 5, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(repeat: 5));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(repeat: after));
+        await tester.pump();
+
+        // The React build keeps the light marked as landed, which takes its
+        // keyframe off until it runs again. It used to turn on from where its
+        // clock had got to, half a turn in.
+        expect(even(tester), isFalse);
+        expect(turnOf(tester), closeTo(1, 0.001));
+        expect(await redrawsIn(tester), isFalse);
+
+        await tester.pumpWidget(lighting(repeat: after, play: false));
+        await tester.pumpWidget(lighting(repeat: after));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+
+        // Run again, it turns from the beginning, and goes on past one turn.
+        expect(turnOf(tester), closeTo(0.25, 0.001));
+
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
+
+        expect(tester.binding.hasScheduledFrame, isTrue);
+      });
+    }
   });
 }

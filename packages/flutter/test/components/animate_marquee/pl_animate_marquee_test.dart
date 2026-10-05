@@ -715,6 +715,67 @@ void main() {
       });
     });
 
+    for (final int? after in <int?>[null, 8]) {
+      testWidgets(
+        'stays where it landed, until it runs again, when an endless strip given a finite '
+        'repeat under the setting is given $after once it has gone',
+        (WidgetTester tester) async {
+          /// Two items of sixty and no gap, a pass of 120 pixels a second.
+          Widget strip({int? repeat, bool still = false, bool play = true}) {
+            return host(
+              PlAnimateMarquee(
+                repeat: repeat,
+                trigger: PlassAnimateTrigger.manual,
+                play: play,
+                gap: 0,
+                duration: const Duration(seconds: 1),
+                children: _three,
+              ),
+              width: 200,
+              height: 40,
+              disableAnimations: still,
+            );
+          }
+
+          await tester.pumpWidget(strip(still: true));
+          await tester.pump(const Duration(milliseconds: 500));
+          await tester.pumpWidget(strip(repeat: 5, still: true));
+          await tester.pump(const Duration(milliseconds: 500));
+          await tester.pumpWidget(strip(repeat: 5));
+          await tester.pump();
+
+          final Offset landed = shiftOf(tester);
+
+          await tester.pump(const Duration(milliseconds: 500));
+          await tester.pumpWidget(strip(repeat: after));
+          await tester.pump();
+
+          // The React build keeps the strip marked as landed, which takes its
+          // keyframe off until it runs again. It used to set off from where its
+          // clock had got to, half a pass in.
+          expect(shiftOf(tester), landed);
+          expect(await redrawsIn(tester), isFalse);
+
+          await tester.pumpWidget(strip(repeat: after, play: false));
+          await tester.pumpWidget(strip(repeat: after));
+
+          // Run again, it sets off from where it starts, and goes on past one
+          // pass.
+          expect(shiftOf(tester), Offset.zero);
+
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 100));
+
+          expect(shiftOf(tester).dx, closeTo(-12, 0.01));
+
+          await tester.pump(const Duration(seconds: 1));
+          await tester.pump(const Duration(seconds: 1));
+
+          expect(tester.binding.hasScheduledFrame, isTrue);
+        },
+      );
+    }
+
     testWidgets('keeps what it holds, and a strip that landed, as the setting comes and goes', (
       WidgetTester tester,
     ) async {

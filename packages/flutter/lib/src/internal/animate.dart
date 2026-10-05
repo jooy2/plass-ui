@@ -775,8 +775,9 @@ class PlassAnimateRun extends StatefulWidget {
   /// a strip and a light: its keyframe is not there under reduced motion, so
   /// it starts from the beginning, after its delay, once the setting goes. One
   /// given a finite `repeat` while the setting is on stays where that count
-  /// ends instead, as the keyframe a count gives it back lands under the
-  /// setting.
+  /// ends instead, whatever `repeat` it is given after, until it runs again,
+  /// as the keyframe a count gives it back lands under the setting and stays
+  /// landed.
   final bool restartsWithMotion;
 
   /// Holds the run where it is, its delay as well, as `paused` does, without
@@ -874,7 +875,10 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   ///
   /// A run the setting stops partway lands there, as a keyframe the setting
   /// runs in no time ends. One that had already finished moving did not land
-  /// under the setting, and a new `repeat` is counted against its clock.
+  /// under the setting, and a new `repeat` is counted against its clock. A
+  /// strip or a light that landed endless and was given a count while the
+  /// setting was on lands again where that count ends once the setting goes,
+  /// and stays there too.
   bool _staysLanded = false;
 
   /// With [_still], whether the run had finished moving before the setting
@@ -1490,6 +1494,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           }
 
           _setValue(_end);
+
+          // And it stays there until it runs again, whatever `repeat` it is
+          // given next. A strip or a light that landed endless and was given
+          // a count while the setting was on lands here, as the keyframe the
+          // count gives it back lands under the setting, and the React build
+          // keeps that one marked landed as it does any other.
+          _staysLanded = true;
 
           // A pause holds what is on the screen, which is what reduced motion
           // drew there, until it is let go, as it does for an endless run. It
