@@ -329,6 +329,45 @@ void main() {
       expect(shiftOf(tester), Offset.zero);
     });
 
+    testWidgets('keeps what it holds, and a strip that landed, as the setting comes and goes', (
+      WidgetTester tester,
+    ) async {
+      Widget strip({bool still = false}) {
+        return host(
+          const PlAnimateMarquee(
+            repeat: 1,
+            duration: Duration(seconds: 1),
+            children: <Widget>[_Held(), SizedBox(width: 60, height: 20)],
+          ),
+          width: 200,
+          height: 40,
+          disableAnimations: still,
+        );
+      }
+
+      await tester.pumpWidget(strip());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      tester.state<_HeldState>(find.byType(_Held).first).note = 'typed';
+
+      await tester.pumpWidget(strip(still: true));
+      await tester.pump();
+
+      expect(shiftOf(tester), Offset.zero);
+
+      await tester.pumpWidget(strip());
+      await tester.pump();
+
+      expect(tester.state<_HeldState>(find.byType(_Held).first).note, 'typed');
+
+      // It landed under the setting, and stays where it landed, where the
+      // copy after the first stands where the first began. The run was built
+      // again from scratch when the box around it changed, and set off on
+      // its whole pass again.
+      expect(await redrawsIn(tester), isFalse);
+    });
+
     testWidgets('rests while it is scrolled out of view, and goes on from where the strip was', (
       WidgetTester tester,
     ) async {
@@ -372,4 +411,20 @@ void main() {
       expect(shiftOf(tester).dx, closeTo(before.dx - 6, 0.01));
     });
   });
+}
+
+/// Content with a state of its own, as a field or a list has.
+class _Held extends StatefulWidget {
+  const _Held();
+
+  @override
+  State<_Held> createState() => _HeldState();
+}
+
+class _HeldState extends State<_Held> {
+  /// What it was given while it was on the screen.
+  String? note;
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(width: 60, height: 20);
 }

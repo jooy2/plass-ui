@@ -147,6 +147,12 @@ class PlAnimateMarquee extends StatefulWidget {
 
 class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
   final GlobalKey _track = GlobalKey();
+
+  /// The run, which moves between the clip and the scroll box as the platform
+  /// asks for less movement or gives it back. Keyed, it is moved rather than
+  /// built again from scratch, and keeps where the strip has got to, what its
+  /// trigger has let go and what it holds.
+  final GlobalKey _run = GlobalKey();
   final ScrollController _scroll = ScrollController();
 
   /// How far one copy has to go: its own length plus the gap after it.
@@ -209,6 +215,7 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
             : _unmeasured);
 
     Widget strip = PlassAnimateRun(
+      key: _run,
       mode: widget.reverse ? PlassAnimateMode.exit : PlassAnimateMode.enter,
       settings: PlassAnimateSettings(
         duration: duration,

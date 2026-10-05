@@ -2055,5 +2055,60 @@ void main() {
         expect(opacityOf(tester), 0);
       });
     });
+
+    group('as the setting comes and goes', () {
+      final Map<String, Widget Function(Widget child)> effects = <String, Widget Function(Widget)>{
+        'PlAnimateFade': (Widget child) => PlAnimateFade(child: child),
+        'PlAnimateAppear': (Widget child) => PlAnimateAppear(children: <Widget>[child]),
+        'PlAnimateZoom': (Widget child) => PlAnimateZoom(child: child),
+        'PlAnimateSlide': (Widget child) => PlAnimateSlide(child: child),
+        'PlAnimateGrow': (Widget child) => PlAnimateGrow(child: child),
+        'PlAnimateRotate': (Widget child) => PlAnimateRotate(child: child),
+        'PlAnimateReveal': (Widget child) => PlAnimateReveal(child: child),
+        'PlAnimateBlink': (Widget child) => PlAnimateBlink(child: child),
+        'PlAnimateShake': (Widget child) => PlAnimateShake(child: child),
+        'PlAnimateFloat': (Widget child) => PlAnimateFloat(child: child),
+        'PlAnimateLighting': (Widget child) => PlAnimateLighting(child: child),
+      };
+
+      for (final MapEntry<String, Widget Function(Widget child)> effect in effects.entries) {
+        testWidgets('keeps the state of what a ${effect.key} holds', (WidgetTester tester) async {
+          Widget holding({bool still = false}) {
+            return host(effect.value(const _Held()), disableAnimations: still);
+          }
+
+          await tester.pumpWidget(holding());
+          await tester.pump(const Duration(milliseconds: 100));
+
+          tester.state<_HeldState>(find.byType(_Held)).note = 'typed';
+
+          await tester.pumpWidget(holding(still: true));
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(holding());
+          await tester.pump(const Duration(milliseconds: 100));
+
+          // The tree above it changed shape with the setting, so it was built
+          // again from scratch each time and lost what it had, as a field
+          // loses its text and a list its scroll.
+          expect(tester.state<_HeldState>(find.byType(_Held)).note, 'typed');
+        });
+      }
+    });
   });
+}
+
+/// Content with a state of its own, as a field or a list has.
+class _Held extends StatefulWidget {
+  const _Held();
+
+  @override
+  State<_Held> createState() => _HeldState();
+}
+
+class _HeldState extends State<_Held> {
+  /// What it was given while it was on the screen.
+  String? note;
+
+  @override
+  Widget build(BuildContext context) => const SizedBox.square(dimension: 100);
 }

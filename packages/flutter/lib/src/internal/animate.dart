@@ -1314,9 +1314,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _keepsLanding = false;
         _keepsStill = false;
       } else if (_landed) {
-        // And given back after a run had landed. Nothing is listening to the
-        // controller yet — the builder that does is only in the tree while the
-        // platform allows movement.
+        // And given back after a run had landed. The builder listening to the
+        // controller is below this one, so putting the controller somewhere
+        // here only marks it for this build.
         final int? repeat = widget.settings.repeat;
 
         if (repeat == null) {
@@ -1395,25 +1395,6 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
         final ValueWidgetBuilder<double> stillBuilder = widget.stillBuilder ?? widget.builder;
 
-        // The reduced-motion answer is the *opposite* of the loading
-        // indicators': a spinner that stops is lying about whether anything is
-        // happening, while an effect that does not move has still delivered
-        // what it was carrying — for an entrance the content, and for an exit
-        // its absence. So the run is kept and the movement is taken out of it.
-        // Nothing changes until the moment it would have started, its delay
-        // included, and then it stands on its last frame. Until that moment
-        // the content is simply there, which is `1` whichever way the effect
-        // runs: the end of an entrance, and the start of an exit.
-        if (still) {
-          final double end = _landed ? _end : 1;
-
-          return stillBuilder(
-            context,
-            _landed && widget.mode == PlassAnimateMode.exit ? 1 - end : end,
-            child,
-          );
-        }
-
         // Kept by a pause on what reduced motion drew, until the pause is let
         // go: the frame the run landed on, where the controller already
         // stands, or before the run would have started, its content, which is
@@ -1424,10 +1405,35 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         final bool keepsStill = held && _keepsStill;
         final bool kept = keepsStill || (held && _keepsLanding);
 
+        // Through the same builder whether the platform asks for less movement
+        // or not, so the tree above what the effect holds keeps its shape when
+        // the setting changes. Returned straight from here under the setting,
+        // what the effect held was built again from scratch each time it
+        // changed, and lost its state: a field its text, a list its scroll.
         return AnimatedBuilder(
           animation: _controller,
           child: child,
           builder: (BuildContext context, Widget? inner) {
+            // The reduced-motion answer is the *opposite* of the loading
+            // indicators': a spinner that stops is lying about whether
+            // anything is happening, while an effect that does not move has
+            // still delivered what it was carrying — for an entrance the
+            // content, and for an exit its absence. So the run is kept and the
+            // movement is taken out of it. Nothing changes until the moment it
+            // would have started, its delay included, and then it stands on
+            // its last frame. Until that moment the content is simply there,
+            // which is `1` whichever way the effect runs: the end of an
+            // entrance, and the start of an exit.
+            if (still) {
+              final double end = _landed ? _end : 1;
+
+              return stillBuilder(
+                context,
+                _landed && widget.mode == PlassAnimateMode.exit ? 1 - end : end,
+                inner,
+              );
+            }
+
             final double eased = curve.transform(_controller.value.clamp(0, 1));
             final double t = widget.mode == PlassAnimateMode.exit ? 1 - eased : eased;
 

@@ -1008,6 +1008,38 @@ void main() {
         expect(visibleOf(tester), 'Hel');
       });
 
+      testWidgets('keeps the line and its caret as the setting comes and goes', (
+        WidgetTester tester,
+      ) async {
+        /// The state of the private widget under the typing called [name].
+        State stateOf(String name) {
+          return tester.state(
+            find.byWidgetPredicate((Widget widget) => '${widget.runtimeType}' == name),
+          );
+        }
+
+        await tester.pumpWidget(typing(still: false, caret: true));
+        await tester.pump(const Duration(milliseconds: 15));
+
+        final State line = stateOf('_Typewriter');
+        final State caret = stateOf('_Caret');
+
+        await tester.pumpWidget(typing(still: true, caret: true));
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpWidget(typing(still: false, caret: true));
+
+        // The line it had got to, and the caret that blinks after it, are the
+        // ones it had, rather than a typing and a caret built again from
+        // scratch.
+        expect(stateOf('_Typewriter'), same(line));
+        expect(stateOf('_Caret'), same(caret));
+        expect(visibleOf(tester), 'He');
+
+        await tester.pump(const Duration(milliseconds: 10));
+
+        expect(visibleOf(tester), 'Hel');
+      });
+
       testWidgets('types the line from its first character, after its delay, once the setting '
           'is taken back', (WidgetTester tester) async {
         const Duration delay = Duration(milliseconds: 200);
