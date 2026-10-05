@@ -130,6 +130,20 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
    */
   const elapsed = React.useRef(0);
 
+  /**
+   * The delay the run began settling with, or `null` while it is still
+   * waiting, kept until the next run, and the `delay` of the latest render,
+   * which the loop reads rather than listing it. Both for the reasons
+   * `PlAnimateCounter` gives for its own: read afresh, a delay changed while
+   * the line was settling sent it back to noise.
+   */
+  const begun = React.useRef<number | null>(null);
+  const delayed = React.useRef(delay);
+
+  React.useEffect(() => {
+    delayed.current = delay;
+  });
+
   // A new run settles the line from the start again, whether it came from a
   // second hover, a new `play` or a new line. `children` is listed beside
   // `run.runs` because a new line starts its run only on the render after it
@@ -137,6 +151,7 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
   // the old one had got.
   React.useEffect(() => {
     elapsed.current = 0;
+    begun.current = null;
   }, [run.runs, children]);
 
   React.useEffect(() => {
@@ -156,8 +171,13 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
         return undefined;
       }
 
-      if (elapsed.current >= delay) {
-        elapsed.current = Math.max(elapsed.current, delay + span);
+      const land = () => {
+        begun.current ??= delayed.current;
+        elapsed.current = Math.max(elapsed.current, begun.current + span);
+      };
+
+      if (begun.current !== null || elapsed.current >= delayed.current) {
+        land();
 
         return undefined;
       }
@@ -170,10 +190,10 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
         started ??= now - elapsed.current;
         elapsed.current = now - started;
 
-        if (elapsed.current < delay) {
+        if (elapsed.current < delayed.current) {
           frame = requestAnimationFrame(wait);
         } else {
-          elapsed.current = delay + span;
+          land();
         }
       };
 
@@ -186,6 +206,7 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
     // already noise, not already settled.
     if (!run.started) {
       elapsed.current = 0;
+      begun.current = null;
       setShown(scrambleAt(children, pool, 0, 0));
 
       return undefined;
@@ -205,9 +226,13 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
       started ??= now - elapsed.current;
       elapsed.current = now - started;
 
-      const since = elapsed.current - delay;
+      const since = elapsed.current - (begun.current ?? delayed.current);
       const t = Math.min(1, since / span);
       const slot = Math.floor(Math.max(0, since) / Math.max(1, tick));
+
+      if (since >= 0) {
+        begun.current ??= delayed.current;
+      }
 
       if (slot !== painted) {
         painted = slot;
@@ -227,7 +252,7 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
     return () => cancelAnimationFrame(frame);
     // `run.runs` is listed although nothing above reads it. A second hover starts
     // a new run without changing `started`, and a new run scrambles the line again.
-  }, [run.started, run.runs, still, paused, children, pool, duration, delay, tick]);
+  }, [run.started, run.runs, still, paused, children, pool, duration, tick]);
 
   return useRender({
     render: render ?? <span />,

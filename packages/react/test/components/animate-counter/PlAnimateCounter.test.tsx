@@ -257,6 +257,106 @@ describe('PlAnimateCounter', () => {
     });
   });
 
+  describe('a new `delay`', () => {
+    const linear = (t: number) => t;
+
+    function counter(delay: number, play = true) {
+      return (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          play={play}
+          value={1000}
+          delay={delay}
+          duration={1000}
+          easing={linear}
+        />
+      );
+    }
+
+    it('leaves a count that is under way going', async () => {
+      // Taken before the render, so the first frame the count asks for is one
+      // this test draws.
+      const frames = frameClock();
+
+      try {
+        const screen = await render(counter(100));
+
+        // The count's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1400);
+
+        expect(figure()).toBe(300);
+
+        await screen.rerender(counter(1000));
+        await frames.draw(1500);
+
+        // 400ms into the count. One that stopped on its frame would still be
+        // at 300, and would count again from `from` once the new delay was
+        // over.
+        expect(figure()).toBe(400);
+
+        await frames.draw(2100);
+
+        expect(figure()).toBe(1000);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('is measured from when the wait began while the count is still waiting', async () => {
+      const frames = frameClock();
+
+      try {
+        const screen = await render(counter(1000));
+
+        await frames.draw(1000);
+        await frames.draw(1300);
+
+        expect(figure()).toBe(0);
+
+        await screen.rerender(counter(200));
+        await frames.draw(1400);
+
+        // 400ms after the wait began, so 200ms into the count.
+        expect(figure()).toBe(200);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('is waited out from the next run on', async () => {
+      const frames = frameClock();
+
+      try {
+        const screen = await render(counter(0));
+
+        await frames.draw(1000);
+        await frames.draw(1500);
+
+        expect(figure()).toBe(500);
+
+        await screen.rerender(counter(600));
+        await frames.draw(2000);
+
+        expect(figure()).toBe(1000);
+
+        await screen.rerender(counter(600, false));
+        await screen.rerender(counter(600, true));
+        await frames.draw(3000);
+        await frames.draw(3599);
+
+        expect(figure()).toBe(0);
+
+        await frames.draw(4100);
+
+        expect(figure()).toBe(500);
+      } finally {
+        frames.restore();
+      }
+    });
+  });
+
   it('lands on the number it was given', async () => {
     await render(
       <PlAnimateCounter className="counter-under-test" trigger="mount" value={4812} duration={50} />

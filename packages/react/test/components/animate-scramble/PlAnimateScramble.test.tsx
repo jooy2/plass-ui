@@ -194,6 +194,106 @@ describe('PlAnimateScramble', () => {
     });
   });
 
+  describe('a new `delay`', () => {
+    function line(delay: number, play = true) {
+      return (
+        <PlAnimateScramble
+          className="scramble-under-test"
+          trigger="manual"
+          play={play}
+          delay={delay}
+          duration={1000}
+          tick={10}
+          characters="01"
+        >
+          {LINE}
+        </PlAnimateScramble>
+      );
+    }
+
+    it('leaves a line that is settling going', async () => {
+      // Taken before the render, so the first frame the line asks for is one
+      // this test draws.
+      const frames = frameClock();
+
+      try {
+        const screen = await render(line(100));
+
+        // The line's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1400);
+
+        // Three tenths of the way: five of the seventeen characters.
+        expect(settled()).toBe(5);
+
+        await screen.rerender(line(1000));
+        await frames.draw(1500);
+
+        // Four tenths. A run sent back to waiting would be noise again.
+        expect(settled()).toBe(6);
+
+        await frames.draw(2100);
+
+        expect(drawn()).toBe(LINE);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('is measured from when the wait began while the line is still waiting', async () => {
+      const frames = frameClock();
+
+      try {
+        const screen = await render(line(1000));
+
+        await frames.draw(1000);
+        await frames.draw(1300);
+
+        expect(settled()).toBe(0);
+
+        await screen.rerender(line(200));
+        await frames.draw(1400);
+
+        // 400ms after the wait began, so two tenths of the way: three
+        // characters.
+        expect(settled()).toBe(3);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('is waited out from the next run on', async () => {
+      const frames = frameClock();
+
+      try {
+        const screen = await render(line(0));
+
+        await frames.draw(1000);
+        await frames.draw(1500);
+
+        expect(settled()).toBe(8);
+
+        await screen.rerender(line(600));
+        await frames.draw(2000);
+
+        expect(drawn()).toBe(LINE);
+
+        await screen.rerender(line(600, false));
+        await screen.rerender(line(600, true));
+        await frames.draw(3000);
+        await frames.draw(3599);
+
+        expect(settled()).toBe(0);
+
+        await frames.draw(4100);
+
+        expect(settled()).toBe(8);
+      } finally {
+        frames.restore();
+      }
+    });
+  });
+
   it('settles on the line it was given', async () => {
     await render(
       <PlAnimateScramble className="scramble-under-test" trigger="mount" duration={40}>

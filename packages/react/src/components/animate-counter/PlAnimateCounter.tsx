@@ -347,6 +347,19 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   const early = React.useRef(false);
 
   /**
+   * The delay the run began counting with, or `null` while it is still
+   * waiting, kept until the next run.
+   *
+   * A run under way keeps the delay it started with, and a new `delay` is
+   * waited out from the next run on, as a keyframe's is. Read afresh, a delay
+   * changed during the count put the run back before its start, so the count
+   * stopped on its frame and, once the new delay had gone by, counted again
+   * almost from `from`. A run still waiting reads the latest delay, measured
+   * from when its wait began.
+   */
+  const begun = React.useRef<number | null>(null);
+
+  /**
    * The `easing` of the latest render, read by the loop rather than listed in
    * its dependencies. An inline `easing={(t) => t}` is a new function every
    * time the parent renders, and restarting the loop for each one would stall
@@ -354,8 +367,16 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
    */
   const ease = React.useRef(easing);
 
+  /**
+   * The `delay` of the latest render, read the same way, so a new one is
+   * weighed on the next frame rather than taking the loop down and putting it
+   * back a frame later.
+   */
+  const delayed = React.useRef(delay);
+
   React.useEffect(() => {
     ease.current = easing;
+    delayed.current = delay;
   });
 
   // A new count starts at its beginning instead of going on from where the last
@@ -364,6 +385,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   // on the render after it arrives goes on with the count already under way.
   React.useEffect(() => {
     elapsed.current = 0;
+    begun.current = null;
   }, [course.count]);
 
   React.useEffect(() => {
@@ -388,9 +410,14 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
         return undefined;
       }
 
-      if (elapsed.current >= delay) {
+      const land = () => {
+        begun.current ??= delayed.current;
         early.current = false;
-        elapsed.current = Math.max(elapsed.current, delay + span);
+        elapsed.current = Math.max(elapsed.current, begun.current + span);
+      };
+
+      if (begun.current !== null || elapsed.current >= delayed.current) {
+        land();
 
         return undefined;
       }
@@ -405,11 +432,10 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
         start ??= now - elapsed.current;
         elapsed.current = now - start;
 
-        if (elapsed.current < delay) {
+        if (elapsed.current < delayed.current) {
           frame = requestAnimationFrame(wait);
         } else {
-          early.current = false;
-          elapsed.current = delay + span;
+          land();
         }
       };
 
@@ -423,6 +449,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     // count from, not the one it is about to reach.
     if (!run.started) {
       elapsed.current = 0;
+      begun.current = null;
       early.current = false;
       setShown(from);
 
@@ -436,7 +463,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     if (early.current) {
       early.current = false;
 
-      if (elapsed.current < delay) {
+      if (begun.current === null && elapsed.current < delayed.current) {
         setShown(origin);
       }
     }
@@ -448,7 +475,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
       start ??= now - elapsed.current;
       elapsed.current = now - start;
 
-      const t = Math.min(1, (elapsed.current - delay) / span);
+      const t = Math.min(1, (elapsed.current - (begun.current ?? delayed.current)) / span);
 
       if (t < 0) {
         frame = requestAnimationFrame(step);
@@ -456,6 +483,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
         return;
       }
 
+      begun.current ??= delayed.current;
       setShown(origin + (value - origin) * ease.current(t));
 
       if (t < 1) {
@@ -468,7 +496,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     return () => cancelAnimationFrame(frame);
     // `course.count` is listed although nothing above reads it. A second hover
     // starts a new run without changing `started`, and a new run is a new count.
-  }, [run.started, course.count, still, paused, value, from, origin, duration, delay]);
+  }, [run.started, course.count, still, paused, value, from, origin, duration]);
 
   // The answer is the caller's own figure and is drawn as it is written.
   const drawn = shown === value ? answer : frame.write(shown);
