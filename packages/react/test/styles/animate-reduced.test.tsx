@@ -347,6 +347,142 @@ describe('an effect when movement is given back', () => {
     expect(Number(opacity(target()))).toBeLessThan(1);
   });
 
+  it('leaves an endless run held by `paused` on the frame it showed until it is let go', async () => {
+    const fade = (paused: boolean) => (
+      <PlAnimateFade
+        className="effect-under-test"
+        duration={long}
+        repeat="infinite"
+        paused={paused}
+      >
+        Pulsing
+      </PlAnimateFade>
+    );
+    const screen = await render(fade(true));
+
+    await frame();
+    expect(opacity(target())).toBe('1');
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('paused');
+    expect(opacity(target())).toBe('1');
+
+    // Let go, it goes on from where its clock stands, which is its start.
+    await screen.rerender(fade(false));
+
+    await expect.poll(() => keyframe(target()).playState).toBe('running');
+    expect(keyframe(target()).effect!.getComputedTiming().duration).toBe(long);
+    expect(Number(opacity(target()))).toBeLessThan(1);
+  });
+
+  it('leaves an endless turn that landed and was then held by `paused` at its angle', async () => {
+    const ended = vi.fn();
+    const rotate = (paused: boolean) => (
+      <PlAnimateRotate
+        className="effect-under-test"
+        from={0}
+        to={90}
+        fade={false}
+        duration={long}
+        repeat="infinite"
+        paused={paused}
+        onAnimationEnd={ended}
+      >
+        Turning
+      </PlAnimateRotate>
+    );
+    const screen = await render(rotate(false));
+
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await screen.rerender(rotate(true));
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('paused');
+    expect(getComputedStyle(target()).rotate).toBe('90deg');
+
+    await screen.rerender(rotate(false));
+
+    await expect.poll(() => keyframe(target()).playState).toBe('running');
+    expect(keyframe(target()).effect!.getComputedTiming().duration).toBe(long);
+  });
+
+  it('leaves an endless turn held by `paused` before it moved at the angle it stood at', async () => {
+    await render(
+      <PlAnimateRotate
+        className="effect-under-test"
+        from={0}
+        to={90}
+        fade={false}
+        duration={long}
+        repeat="infinite"
+        paused
+      >
+        Turning
+      </PlAnimateRotate>
+    );
+
+    await frame();
+    expect(getComputedStyle(target()).rotate).toBe('90deg');
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(getComputedStyle(target()).rotate).toBe('90deg');
+  });
+
+  it('leaves an endless run paused with movement on the frame reduced motion showed', async () => {
+    const fade = (paused: boolean) => (
+      <PlAnimateFade
+        className="effect-under-test"
+        duration={long}
+        repeat="infinite"
+        easing="linear"
+        paused={paused}
+      >
+        Pulsing
+      </PlAnimateFade>
+    );
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    const screen = await render(fade(false));
+
+    await expect.poll(() => keyframe(target()).playState).toBe('running');
+    await screen.rerender(fade(true));
+    await emulateMedia({ reducedMotion: 'reduce' });
+    // A page hears that the setting changed on the frame after it did.
+    await frame();
+
+    expect(opacity(target())).toBe('1');
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('paused');
+    expect(opacity(target())).toBe('1');
+  });
+
+  it('leaves every part of a staggered endless run held by `paused` on the frame it showed', async () => {
+    await render(
+      <PlAnimateFade
+        className="effect-under-test"
+        duration={long}
+        repeat="infinite"
+        stagger={100}
+        paused
+      >
+        <span>One</span>
+        <span>Two</span>
+      </PlAnimateFade>
+    );
+
+    const parts = Array.from(target().children) as HTMLElement[];
+
+    await frame();
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(parts.map(opacity)).toEqual(['1', '1']);
+  });
+
   it('leaves a run that was never let go waiting for its trigger', async () => {
     const fade = (play: boolean) => (
       <PlAnimateFade className="effect-under-test" duration={long} trigger="manual" play={play}>

@@ -54,7 +54,7 @@ import type {
   PlassAnimation,
   PlassSide
 } from '../types.js';
-import { prefersReducedMotion } from './media.js';
+import { prefersReducedMotion, reducedMotionQuery, useMediaQuery } from './media.js';
 import { cx } from './styles.js';
 
 /* ---------------------------------------------------------------------------
@@ -81,6 +81,8 @@ export const animationClasses: Record<PlassAnimation, string> = {
 
 /** The class that reads the slots. Always paired with one of the above. */
 export const animBaseClass = 'plass-anim';
+
+const animSelector = `.${animBaseClass}`;
 
 /**
  * The keyframes that move, turn or scale the element they run on, rather than
@@ -490,6 +492,19 @@ function ownsPart(element: HTMLElement, part: Element): boolean {
   return part.closest('[data-plass-animation]') === element;
 }
 
+/** The element, and the parts inside it that carry its own keyframe. */
+function ownParts(element: HTMLElement): HTMLElement[] {
+  const parts: HTMLElement[] = [element];
+
+  for (const part of element.querySelectorAll<HTMLElement>(partSelector)) {
+    if (ownsPart(element, part)) {
+      parts.push(part);
+    }
+  }
+
+  return parts;
+}
+
 /**
  * The element an animation event is about, when the keyframe is the effect's
  * own: one of the library's keyframes, on the root or on a part the root owns,
@@ -688,6 +703,13 @@ const REWIND_ATTRIBUTE = 'data-plass-rewind';
 const LANDED_ATTRIBUTE = 'data-plass-landed';
 
 /**
+ * Marks a part of an endless run that `paused` held while reduced motion was
+ * showing it, until the run is let go. `src/styles.css` reads it to keep the
+ * frame reduced motion showed once the reader gives movement back.
+ */
+const HELD_ATTRIBUTE = 'data-plass-held';
+
+/**
  * The delay a run started with, written onto the element or part it runs on
  * until the next run. `src/styles.css` reads it ahead of `--p-anim-delay`.
  */
@@ -742,13 +764,7 @@ export function useAnimationRun({
     // PlAnimate* nested inside is an animation with a trigger of its own, and
     // rewinding it too would fade an error message in again on every shake of
     // the form around it.
-    const targets: HTMLElement[] = [element];
-
-    for (const part of element.querySelectorAll<HTMLElement>(partSelector)) {
-      if (ownsPart(element, part)) {
-        targets.push(part);
-      }
-    }
+    const targets = ownParts(element);
 
     // An inline style cannot reach a pseudo-element, and the arc of a
     // `PlAnimateLighting` is drawn on one. The attribute is what the stylesheet
@@ -757,6 +773,7 @@ export function useAnimationRun({
 
     for (const target of targets) {
       target.removeAttribute(LANDED_ATTRIBUTE);
+      target.removeAttribute(HELD_ATTRIBUTE);
       target.style.removeProperty(RUN_DELAY);
       target.style.animationName = 'none';
     }
@@ -850,6 +867,46 @@ export function useAnimationRun({
       element.removeEventListener('animationend', land);
     };
   }, []);
+
+  // An endless run held by `paused` keeps the frame reduced motion showed when
+  // the reader gives movement back, until it is let go. A paused keyframe
+  // stands where its clock stopped, which for a run that landed in no time is
+  // where it landed, the start of a pass, and for one paused before it moved
+  // is its start: given its duration back, an endless fade held there went
+  // from fully drawn to nearly gone. Let go, it goes on from where its clock
+  // stands, as it did.
+  //
+  // Only while it is held, so a run that is not asks nothing of the media
+  // query. A run waiting for its trigger is not held: it waits on its first
+  // frame, as one that is not paused does. A finite run that landed is marked
+  // as landed already, and keeps its last frame whether it is paused or not.
+  const holding = endless && started && Boolean(paused);
+  const reduced = useMediaQuery(holding ? reducedMotionQuery : null);
+  const held = React.useRef(false);
+
+  React.useLayoutEffect(() => {
+    const element = node.current;
+
+    if (!element) {
+      return;
+    }
+
+    if (holding && reduced) {
+      held.current = true;
+
+      for (const part of ownParts(element)) {
+        if (part.matches(animSelector)) {
+          part.setAttribute(HELD_ATTRIBUTE, '');
+        }
+      }
+    } else if (!holding && held.current) {
+      held.current = false;
+
+      for (const part of ownParts(element)) {
+        part.removeAttribute(HELD_ATTRIBUTE);
+      }
+    }
+  }, [holding, reduced, run]);
 
   // Whether the element is still being held on its own first frame, which is
   // what the measurement below has to undo before it reads a box. A ref rather

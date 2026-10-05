@@ -3635,10 +3635,23 @@
  * when it lands, and takes the mark off when the run starts again. An endless
  * run is never marked: it has no last frame to stay on, and goes on from where
  * its passes would have got to.
+ *
+ * Unless `paused` is holding it. A paused keyframe stands where its clock
+ * stopped, the start of a pass as a rule, so an endless fade held while the
+ * reader gave movement back went from fully drawn to nearly gone. The script
+ * marks such a run while reduced motion shows it, and takes the mark off when
+ * it is let go, which plays it on from where its clock stands. Held before its
+ * delay was over, it stood where the block above stands a waiting effect,
+ * which is where a turn stands too.
  */
-.plass-anim[data-plass-landed] {
+.plass-anim[data-plass-landed],
+.plass-anim[data-plass-held] {
   animation-duration: 0s;
   animation-delay: max(1ms, var(--p-anim-run-delay, var(--p-anim-delay, 0ms)));
   animation-iteration-count: var(--p-anim-still-repeat, var(--p-anim-repeat, 1));
   animation-fill-mode: forwards;
+}
+
+.plass-anim-rotate[data-plass-held] {
+  rotate: var(--p-anim-angle-to, 0deg);
 }

@@ -1445,7 +1445,7 @@ void main() {
         expect(turnOf(tester), closeTo(76.5, 0.01));
       });
 
-      testWidgets('counts nothing while it is paused, and turns on once it is let go', (
+      testWidgets('keeps the frame it landed on while it is paused, and turns on once let go', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(host(spin()));
@@ -1459,20 +1459,68 @@ void main() {
         await tester.pump(const Duration(milliseconds: 300));
         await tester.pumpWidget(host(spin(paused: true)));
 
-        // As a keyframe stands once a pause has held it where it landed: the
-        // turn it had made when the setting arrived, and none of the time it
-        // was let go after that.
-        expect(turnOf(tester), closeTo(22.5, 0.01));
+        // A pause holds what is on the screen, which is the end of the pass it
+        // landed on. It used to go back to the turn it had made when the
+        // setting arrived, while it was still paused.
+        expect(turnOf(tester), closeTo(90, 0.01));
 
         await tester.pump(const Duration(milliseconds: 500));
 
-        expect(turnOf(tester), closeTo(22.5, 0.01));
+        expect(turnOf(tester), closeTo(90, 0.01));
+        expect(tester.binding.hasScheduledFrame, isFalse);
 
         await tester.pumpWidget(host(spin()));
         await tester.pump();
+
+        // As a keyframe goes on once a pause has held it where it landed: from
+        // the turn it had made when the setting arrived, and none of the time
+        // it was let go after that.
+        expect(turnOf(tester), closeTo(22.5, 0.01));
+
         await tester.pump(const Duration(milliseconds: 100));
 
         expect(turnOf(tester), closeTo(31.5, 0.01));
+      });
+
+      testWidgets('keeps a fade drawn while it is paused, and fades on once let go', (
+        WidgetTester tester,
+      ) async {
+        Widget fading({bool paused = false, bool still = false}) {
+          return host(
+            PlAnimateFade(
+              repeat: null,
+              paused: paused,
+              curve: Curves.linear,
+              duration: const Duration(milliseconds: 200),
+              child: const SizedBox.square(dimension: 100),
+            ),
+            disableAnimations: still,
+          );
+        }
+
+        await tester.pumpWidget(fading(still: true));
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pumpWidget(fading(paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 300));
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pumpWidget(fading(paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // It landed as it began, and used to go back to the frame it began on,
+        // which draws nothing, while it was still paused.
+        expect(opacityOf(tester), 1);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+
+        await tester.pumpWidget(fading());
+        await tester.pump();
+
+        expect(opacityOf(tester), 0);
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(opacityOf(tester), closeTo(0.5, 0.01));
       });
     });
 

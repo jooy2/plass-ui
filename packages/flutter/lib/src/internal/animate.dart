@@ -637,7 +637,8 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// pass would have left it, so an exit has gone and a turn has turned. When the
 /// platform gives movement back, a run that landed stays where it is, except an
 /// endless one, which goes on from wherever its passes would have got to by
-/// then.
+/// then. One that `paused` holds keeps the frame it landed on until the pause
+/// is let go, and goes on from there.
 ///
 /// A new `repeat` is counted against the time the run has been going, as a
 /// keyframe counts a new `animation-iteration-count`. A run that has finished
@@ -742,6 +743,12 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// started and so stands on its last frame. Until then nothing has changed.
   bool _landed = false;
 
+  /// Without [_still], whether an endless run that landed still stands on the
+  /// frame it landed on, because `paused` held it when the platform gave
+  /// movement back. A pause holds what is on the screen, so the run is put
+  /// where its clock says only once the pause is let go.
+  bool _keepsLanding = false;
+
   /// How far into its passes the run stood at [_clockFrom], as time: the clock
   /// a keyframe keeps, which the browser goes on counting from when the run
   /// began, through every pass and past the end of the last, for as long as
@@ -755,9 +762,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// while it was moving. It counts on from there once it is let go.
   ///
   /// Read when the run has no frame of its own to go on from: an endless run
-  /// that landed, when the platform gives movement back, and a run that has
-  /// finished, when it is given a new `repeat`. Each stands wherever the count
-  /// has got to.
+  /// that landed, when the platform gives movement back or the pause that
+  /// kept it on its landing is let go, and a run that has finished, when it is
+  /// given a new `repeat`. Each stands wherever the count has got to.
   Duration _clockAt = Duration.zero;
 
   /// The frame from which the run has been let go, and so counting on from
@@ -840,6 +847,14 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// whether an endless run is resting off screen, which holds it as a pause
   /// does.
   void _drive(bool started, int runs, {required bool resting}) {
+    // Let go of the pause that kept it on the frame it landed on, an endless
+    // run is put where its clock says, and goes on from there once nothing
+    // else holds it.
+    if (_keepsLanding && !widget.settings.paused) {
+      _keepsLanding = false;
+      _place(_clockAt);
+    }
+
     if (!started || widget.settings.paused || resting) {
       _holdDelay();
       _clockFrom = null;
@@ -853,19 +868,22 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       if (_startedRuns != runs) {
         _setValue(0);
         _delayLeft = Duration.zero;
+        _keepsLanding = false;
       } else if (!started && widget.rewindsWhenWaiting) {
         // Taken back by its trigger, it waits for the next run as one that
         // was never triggered does, and that run starts it again.
         _startedRuns = -1;
         _setValue(0);
         _delayLeft = Duration.zero;
+        _keepsLanding = false;
         widget.onWait?.call();
       }
 
       // The clock stops where the run stands, which for one that has not
       // begun is its start. A run that landed under reduced motion already
-      // stands where its clock stopped.
-      if (!_still) {
+      // stands where its clock stopped, and so does one a pause keeps on the
+      // frame it landed on.
+      if (!_still && !_keepsLanding) {
         _clockAt = _startedRuns == runs ? _runTime : Duration.zero;
       }
 
@@ -912,6 +930,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _setValue(0);
     _clockAt = Duration.zero;
     _clockFrom = null;
+    _keepsLanding = false;
     _setLanded(false);
     _startAfter(widget.settings.delay);
   }
@@ -1066,8 +1085,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   void _recount(int? before) {
     // Under reduced motion a run stands on the last frame of whatever count it
     // has, which the build reads. One that has not begun its passes, waiting
-    // for its trigger or out its delay, reads the new count when it does.
-    if (_still || _startedRuns < 0 || _waiting != null || _delayLeft > Duration.zero) {
+    // for its trigger or out its delay, reads the new count when it does, and
+    // one a pause keeps on the frame it landed on once the pause is let go.
+    if (_still ||
+        _keepsLanding ||
+        _startedRuns < 0 ||
+        _waiting != null ||
+        _delayLeft > Duration.zero) {
       return;
     }
 
@@ -1169,11 +1193,15 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _landed = _startedRuns >= 0 && _waiting == null && _delayLeft == Duration.zero;
 
         // As far as it has moved, counting on from this frame if it is let
-        // go, which `_drive` says once the frame is over.
-        if (_landed) {
+        // go, which `_drive` says once the frame is over. One a pause kept on
+        // the frame it landed on has not moved, and its clock stands where it
+        // stopped.
+        if (_landed && !_keepsLanding) {
           _clockAt = _runTime;
           _clockFrom = null;
         }
+
+        _keepsLanding = false;
       } else if (_landed) {
         // And given back after a run had landed. Nothing is listening to the
         // controller yet — the builder that does is only in the tree while the
@@ -1190,7 +1218,17 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
               ? Duration.zero
               : SchedulerBinding.instance.currentSystemFrameTimeStamp - from;
 
-          _place(_clockAt + since);
+          if (widget.settings.paused) {
+            // Unless a pause holds it: a pause holds what is on the screen,
+            // which is the last frame of the pass it landed on, and `_drive`
+            // puts it where its clock says once the pause is let go.
+            _clockAt += since;
+            _clockFrom = null;
+            _keepsLanding = true;
+            _setValue(_end);
+          } else {
+            _place(_clockAt + since);
+          }
         } else {
           // A run that ends is put where it left the screen, so nothing jumps
           // back to where it began. On its last pass as well, since a landed
