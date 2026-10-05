@@ -565,6 +565,7 @@ export const PlBreadcrumbItem = /* @__PURE__ */ React.forwardRef<
   const link = useRender({
     // An unavailable step has nowhere to go. A router's element would bring
     // its own `href`, which wins the merge, so it is left out here.
+    // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid -- useRender gives the anchor the component's children and the caller's `href`
     render: disabled ? <a /> : (render ?? <a />),
     enabled: linked && !isCurrent,
     props: {

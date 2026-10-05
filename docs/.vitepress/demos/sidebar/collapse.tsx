@@ -22,7 +22,7 @@ export default function SidebarCollapse() {
           <PlSidebar size="sm" label="Main navigation" title="Navigation">
             <nav className="flex flex-col gap-2 text-sm">
               {['Overview', 'Reports', 'Settings'].map((item) => (
-                <a key={item} href="#" className="no-underline">
+                <a key={item} href={`#${item.toLowerCase()}`} className="no-underline">
                   {item}
                 </a>
               ))}

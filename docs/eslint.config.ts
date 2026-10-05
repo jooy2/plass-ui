@@ -4,6 +4,7 @@ import pluginTypeScriptESLint from 'typescript-eslint';
 import parserTypeScript from '@typescript-eslint/parser';
 import pluginNode from 'eslint-plugin-n';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
+import pluginJsxA11y from 'eslint-plugin-jsx-a11y';
 import configPrettier from 'eslint-config-prettier';
 
 import globals from 'globals';
@@ -26,6 +27,22 @@ export default pluginTypeScriptESLint.config(
   // Every demo on this site is a React component, so the docs need the same
   // hook rules the library itself is held to.
   pluginReactHooks.configs.flat['recommended-latest'],
+  // And the accessibility rules, because a demo is code a reader copies: an
+  // empty heading or a link with nowhere to go in a sample is one in an app.
+  {
+    ...pluginJsxA11y.flatConfigs.recommended,
+    files: ['**/*.tsx'],
+    rules: {
+      ...pluginJsxA11y.flatConfigs.recommended.rules,
+      // The library's own exception, for the reason given in its config: a
+      // list styled without bullets loses its list semantics in Safari.
+      'jsx-a11y/no-redundant-roles': ['error', { nav: ['navigation'], ul: ['list'], ol: ['list'] }],
+      // `render={<a href="…" />}` is how a demo turns a button or a logo into
+      // a link, and the component fills the anchor with its own children,
+      // which the rule cannot see.
+      'jsx-a11y/anchor-has-content': 'off'
+    }
+  },
   {
     files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     languageOptions: {

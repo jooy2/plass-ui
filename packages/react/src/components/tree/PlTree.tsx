@@ -267,6 +267,7 @@ const TreeRow = /* @__PURE__ */ React.memo(function TreeRow({
 
   return (
     <>
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus -- the tree is not a stop of its own: its items take the focus, one at a time */}
       <div
         id={`${idPrefix}-${node.id}`}
         role="treeitem"

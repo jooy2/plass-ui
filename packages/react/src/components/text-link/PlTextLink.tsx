@@ -237,6 +237,7 @@ export const PlTextLink = /* @__PURE__ */ React.forwardRef<HTMLAnchorElement, Pl
     const rel = safeRel(target, askedFor);
 
     return useRender({
+      // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid -- useRender gives the anchor the component's children and the caller's `href`
       render: render ?? <a />,
       ref,
       props: {

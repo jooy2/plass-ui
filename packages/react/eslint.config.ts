@@ -4,6 +4,7 @@ import pluginTypeScriptESLint from 'typescript-eslint';
 import parserTypeScript from '@typescript-eslint/parser';
 import pluginNode from 'eslint-plugin-n';
 import pluginReactHooks from 'eslint-plugin-react-hooks';
+import pluginJsxA11y from 'eslint-plugin-jsx-a11y';
 import configPrettier from 'eslint-config-prettier';
 
 import globals from 'globals';
@@ -26,6 +27,25 @@ export default pluginTypeScriptESLint.config(
   // the first render, and a hook behind a condition desynchronises the whole
   // list for that component.
   pluginReactHooks.configs.flat['recommended-latest'],
+  // The markup the library ships. A heading or a link written empty, a role
+  // that contradicts its element, a handler on something a keyboard cannot
+  // reach: each is invisible until a reader with a screen reader or a
+  // keyboard meets it in someone else's app. The tests are left out, because
+  // a test draws whatever markup its case needs, an empty heading included.
+  {
+    ...pluginJsxA11y.flatConfigs.recommended,
+    files: ['src/**/*.tsx'],
+    rules: {
+      ...pluginJsxA11y.flatConfigs.recommended.rules,
+      // A list styled without bullets loses its list semantics in Safari, so
+      // the library says `role="list"` on purpose, and `nav` is the rule's own
+      // default.
+      'jsx-a11y/no-redundant-roles': ['error', { nav: ['navigation'], ul: ['list'], ol: ['list'] }],
+      // A component forwards a caller's own `autoFocus`, and a popup it opens
+      // moves the focus into itself, which is the point of opening it.
+      'jsx-a11y/no-autofocus': 'off'
+    }
+  },
   {
     files: ['**/*.{js,mjs,cjs,ts,tsx}'],
     languageOptions: {

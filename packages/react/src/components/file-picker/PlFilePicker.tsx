@@ -836,6 +836,7 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                           : zoneEdgeClasses
                   }
                 >
+                  {/* eslint-disable-next-line jsx-a11y/role-supports-aria-props -- ARIA 1.2 lists `aria-invalid` for input roles only, but browsers still expose it on a button and screen readers announce it, and this button is the only control the picker has */}
                   <button
                     ref={buttonRef}
                     type="button"

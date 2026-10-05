@@ -1388,6 +1388,7 @@ export function TimeGrid({
     };
 
     return (
+      // eslint-disable-next-line jsx-a11y/interactive-supports-focus -- the column is not a stop of its own: its options take the focus, one at a time
       <div
         key={unit}
         role="listbox"

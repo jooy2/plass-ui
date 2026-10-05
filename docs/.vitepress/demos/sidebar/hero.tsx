@@ -16,7 +16,7 @@ export default function SidebarHero() {
               {items.map((item, index) => (
                 <a
                   key={item}
-                  href="#"
+                  href={`#${item.toLowerCase()}`}
                   aria-current={index === 0 ? 'page' : undefined}
                   className="rounded-(--plass-radius-sm) px-2 py-1.5 no-underline aria-[current]:bg-(--plass-primary-soft) aria-[current]:font-medium"
                 >

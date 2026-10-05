@@ -10,7 +10,7 @@ export default function HeaderHero() {
           size="sm"
           name="Acme"
           src="/samples/marks/lantern.webp"
-          render={<a href="#" />}
+          render={<a href="#top" />}
         />
       }
       actions={

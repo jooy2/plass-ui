@@ -494,6 +494,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
         </div>
 
         {resizable ? (
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- a separator that takes the focus is a window splitter, which ARIA counts as a widget
           <div
             ref={handleRef}
             role="separator"
@@ -504,6 +505,7 @@ export const PlSidebar = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSidebar
             aria-valuenow={initialPixels}
             aria-valuemin={minPixels}
             aria-valuemax={maxPixels}
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a separator that takes the focus is a window splitter, which ARIA counts as a widget
             tabIndex={0}
             className={cx(
               // Straddling the edge rather than sitting inside it: a hairline

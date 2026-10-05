@@ -473,6 +473,7 @@ export function PlHeatmapChart({
     >
       {/* Two children rather than one: the readout under the picture has to be
           a *sibling* of it and not a child — see `ChartStatus`. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the chart is a picture whose numbers are in the table beside it, and it takes the focus so the arrow keys can walk its tooltip from mark to mark */}
       <div
         ref={hostRef}
         role="img"

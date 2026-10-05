@@ -319,6 +319,7 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
 
       if (unavailable) {
         return {
+          // eslint-disable-next-line jsx-a11y/anchor-has-content, jsx-a11y/anchor-is-valid -- a page that cannot be reached is a link with nowhere to go, which `role` and `aria-disabled` say, and useRender gives it the page number
           render: <a role="link" />,
           'aria-disabled': true,
           tabIndex: 0
@@ -327,6 +328,7 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
 
       const href = getPageHref(to);
 
+      // eslint-disable-next-line jsx-a11y/anchor-has-content -- useRender gives the anchor the page number
       return { render: renderLink ? renderLink(to, href) : <a href={href} />, rel };
     };
 

@@ -670,12 +670,14 @@ export const PlCodeBlock = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCo
         ) : null}
 
         <div className={cx('flex min-h-0 flex-col', codeTextClasses[size])}>
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused region answers a select-all with the code alone */}
           <div
             // A scrollable region has to be reachable by a keyboard that has no
             // pointer to drag with, and a focusable region has to have a name.
             role="region"
             aria-labelledby={labelledByTitle ? titleId : undefined}
             aria-label={labelledByTitle ? undefined : regionName}
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the code scrolls, and a keyboard scrolls only what holds the focus
             tabIndex={0}
             onKeyDown={selectEverything}
             className={cx(

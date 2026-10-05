@@ -606,6 +606,7 @@ export const PlCarousel = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCar
             // handling on a scroll container, which means it is already right
             // under RTL — a handler of ours mapping ArrowRight to "next" would
             // not have been.
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the track scrolls, and a keyboard scrolls only what holds the focus
             tabIndex={0}
             role="group"
             aria-label={label}

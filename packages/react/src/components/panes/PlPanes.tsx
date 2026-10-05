@@ -513,6 +513,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
         {items.map((item, index) => (
           <React.Fragment key={item.key ?? index}>
             {index > 0 ? (
+              // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- a separator that takes the focus is a window splitter, which ARIA counts as a widget
               <div
                 role="separator"
                 aria-label={label}
@@ -522,6 +523,7 @@ export const PlPanes = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlPanesP
                 aria-valuemin={0}
                 aria-valuemax={100}
                 aria-disabled={!resizable || undefined}
+                // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a separator that takes the focus is a window splitter, which ARIA counts as a widget
                 tabIndex={resizable ? 0 : -1}
                 className={handleClassNames}
                 // No `preventDefault` and no explicit focus: the browser focuses
