@@ -523,6 +523,76 @@ void main() {
       }
     });
 
+    group('endless when the platform gives movement back', () {
+      /// Two items of sixty and no gap, a pass of 120 pixels a second, after a
+      /// delay of 300ms.
+      Widget strip({bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateMarquee(
+            paused: paused,
+            gap: 0,
+            delay: const Duration(milliseconds: 300),
+            duration: const Duration(seconds: 1),
+            children: _three,
+          ),
+          width: 200,
+          height: 40,
+          disableAnimations: still,
+        );
+      }
+
+      /// Waits out the delay from the frame the strip was let go on, and the
+      /// tenth of a pass after it.
+      Future<void> expectStartAfterDelay(WidgetTester tester) async {
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 299));
+
+        expect(shiftOf(tester), Offset.zero);
+
+        await tester.pump(const Duration(milliseconds: 1));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(shiftOf(tester).dx, closeTo(-12, 0.01));
+      }
+
+      testWidgets('starts from the beginning, after its delay', (WidgetTester tester) async {
+        await tester.pumpWidget(strip(still: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1250));
+        await tester.pumpWidget(strip());
+
+        // Where it started, as the React build starts a strip the setting
+        // switched off. It used to jump to where its passes would have got
+        // to by now, most of the way along.
+        expect(shiftOf(tester), Offset.zero);
+
+        await expectStartAfterDelay(tester);
+      });
+
+      testWidgets('starts from the beginning, after its delay, once a pause is let go', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(strip());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(shiftOf(tester).dx, closeTo(-30, 0.01));
+
+        await tester.pumpWidget(strip(still: true));
+        await tester.pumpWidget(strip(paused: true, still: true));
+        await tester.pumpWidget(strip(paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(strip());
+
+        // It used to go on from where it stood when the setting arrived,
+        // straight away.
+        expect(shiftOf(tester), Offset.zero);
+
+        await expectStartAfterDelay(tester);
+      });
+    });
+
     testWidgets('keeps what it holds, and a strip that landed, as the setting comes and goes', (
       WidgetTester tester,
     ) async {

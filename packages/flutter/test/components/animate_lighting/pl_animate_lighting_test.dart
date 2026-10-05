@@ -6,6 +6,20 @@ import 'package:plass_ui/plass_ui.dart';
 
 import '../../support/host.dart';
 
+/// Whether the light is the even glow reduced motion draws.
+bool even(WidgetTester tester) {
+  final BoxDecoration light = lightOf(tester);
+
+  return light.gradient == null && light.color != null;
+}
+
+/// How far round the arc has turned, in turns.
+double turnOf(WidgetTester tester) {
+  final SweepGradient arc = lightOf(tester).gradient! as SweepGradient;
+
+  return (arc.transform! as GradientRotation).radians / (2 * math.pi);
+}
+
 BoxDecoration lightOf(WidgetTester tester) {
   return tester
           .widget<DecoratedBox>(
@@ -133,20 +147,6 @@ void main() {
         );
       }
 
-      /// Whether the light is the even glow reduced motion draws.
-      bool even(WidgetTester tester) {
-        final BoxDecoration light = lightOf(tester);
-
-        return light.gradient == null && light.color != null;
-      }
-
-      /// How far round the arc has turned, in turns.
-      double turnOf(WidgetTester tester) {
-        final SweepGradient arc = lightOf(tester).gradient! as SweepGradient;
-
-        return (arc.transform! as GradientRotation).radians / (2 * math.pi);
-      }
-
       testWidgets('keeps the even glow until it is let go, paused from the mount', (
         WidgetTester tester,
       ) async {
@@ -207,6 +207,78 @@ void main() {
         await tester.pump(const Duration(milliseconds: 250));
 
         expect(turnOf(tester), closeTo(0.25, 0.001));
+      });
+    });
+
+    group('endless when the platform gives movement back', () {
+      /// Once round a second at an even pace, after a delay of 300ms.
+      Widget lighting({bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateLighting(
+            paused: paused,
+            curve: Curves.linear,
+            delay: const Duration(milliseconds: 300),
+            duration: const Duration(seconds: 1),
+            child: const Text('Live'),
+          ),
+          width: 200,
+          height: 80,
+          disableAnimations: still,
+        );
+      }
+
+      /// Waits out the delay from the frame the light was let go on, and a
+      /// quarter of a turn after it.
+      Future<void> expectStartAfterDelay(WidgetTester tester) async {
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 299));
+
+        expect(turnOf(tester), closeTo(0, 0.001));
+
+        await tester.pump(const Duration(milliseconds: 1));
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(turnOf(tester), closeTo(0.25, 0.001));
+      }
+
+      testWidgets('starts the arc from the beginning, after its delay', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(lighting(still: true));
+        await tester.pump(const Duration(milliseconds: 1250));
+        await tester.pumpWidget(lighting());
+
+        // Where the arc begins, as the React build starts a light the setting
+        // switched off. It used to jump to where its passes would have got to
+        // by now, most of the way round.
+        expect(turnOf(tester), closeTo(0, 0.001));
+
+        await expectStartAfterDelay(tester);
+      });
+
+      testWidgets('starts the arc from the beginning, after its delay, once a pause is let go', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(lighting());
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(turnOf(tester), closeTo(0.25, 0.001));
+
+        await tester.pumpWidget(lighting(still: true));
+        await tester.pumpWidget(lighting(paused: true, still: true));
+        await tester.pumpWidget(lighting(paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(even(tester), isTrue);
+
+        await tester.pumpWidget(lighting());
+
+        // It used to go on from where it stood when the setting arrived,
+        // straight away.
+        expect(turnOf(tester), closeTo(0, 0.001));
+
+        await expectStartAfterDelay(tester);
       });
     });
   });

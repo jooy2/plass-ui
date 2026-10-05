@@ -683,10 +683,12 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// pass would have left it, so an exit has gone and a turn has turned. When the
 /// platform gives movement back, a run that landed stays where it is, except an
 /// endless one, which goes on from wherever its passes would have got to by
-/// then. One that `paused` holds keeps what reduced motion showed until the
-/// pause is let go, and goes on from there: the frame it landed on, or its
-/// content when the pause held it before it would have started, which then
-/// stands on its first frame and waits out what is left of its delay.
+/// then, or with [restartsWithMotion] starts again from its first frame and
+/// waits out its delay. One that `paused` holds keeps what reduced motion
+/// showed until the pause is let go, and goes on from there: the frame it
+/// landed on, or its content when the pause held it before it would have
+/// started, which then stands on its first frame and waits out what is left of
+/// its delay.
 ///
 /// A new `repeat` is counted against the time the run has been going, as a
 /// keyframe counts a new `animation-iteration-count`. A run that has finished
@@ -703,6 +705,7 @@ class PlassAnimateRun extends StatefulWidget {
     this.onRun,
     this.rewindsWhenWaiting = false,
     this.onWait,
+    this.restartsWithMotion = false,
     this.child,
     super.key,
   });
@@ -753,6 +756,17 @@ class PlassAnimateRun extends StatefulWidget {
   /// before [builder] is handed it, so an effect whose first frame depends on
   /// how the last run started, as a counter's does, can put it back.
   final VoidCallback? onWait;
+
+  /// Whether an endless run that landed under reduced motion starts again
+  /// from its first frame when the platform gives movement back, and waits
+  /// out its `delay` before it moves, rather than going on from wherever its
+  /// passes would have got to by then. One that `paused` holds keeps what
+  /// reduced motion showed until the pause is let go, and starts then.
+  ///
+  /// For an effect the React build switches off under the setting, as it does
+  /// a strip and a light: its keyframe is not there under reduced motion, so
+  /// it starts from the beginning, after its delay, once the setting goes.
+  final bool restartsWithMotion;
 
   /// Passed through to [builder] untouched, so a subtree that does not depend
   /// on `t` is built once rather than on every frame.
@@ -819,6 +833,14 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// is on the screen, so the run stands on its first frame, and waits out
   /// what is left of its delay, only once the pause is let go.
   bool _keepsStill = false;
+
+  /// Without [_still], whether a run that landed still shows what reduced
+  /// motion drew, because `paused` held it when the platform gave movement
+  /// back, while it already stands where it goes on from once the pause is
+  /// let go: the first frame of an endless run that
+  /// [PlassAnimateRun.restartsWithMotion] starts again, which then waits out
+  /// its delay.
+  bool _keepsLanded = false;
 
   /// How far into its passes the run stood at [_clockFrom], as time: the clock
   /// a keyframe keeps, which the browser goes on counting from when the run
@@ -927,10 +949,11 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     }
 
     // Let go of the pause that kept what reduced motion drew before the run
-    // would have started, or taken back by its trigger, a run draws its own
-    // frames again, from the first.
-    if (_keepsStill && (!started || !widget.settings.paused)) {
+    // would have started, or after it landed where it now goes on from, or
+    // taken back by its trigger, a run draws its own frames again.
+    if (!started || !widget.settings.paused) {
       _keepsStill = false;
+      _keepsLanded = false;
     }
 
     if (!started || widget.settings.paused || resting) {
@@ -1150,6 +1173,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _landed = false;
     _keepsLanding = false;
     _keepsStill = false;
+    _keepsLanded = false;
   }
 
   /// Where the controller stops at the end of the run, as [_endOf] says it
@@ -1313,13 +1337,26 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
         _keepsLanding = false;
         _keepsStill = false;
+        _keepsLanded = false;
       } else if (_landed) {
         // And given back after a run had landed. The builder listening to the
         // controller is below this one, so putting the controller somewhere
         // here only marks it for this build.
         final int? repeat = widget.settings.repeat;
 
-        if (repeat == null) {
+        if (repeat == null && widget.restartsWithMotion) {
+          // Started again from its first frame, which this build draws, and
+          // moving once `_drive` has waited out its delay, as an effect the
+          // React build switched off under the setting starts once it goes.
+          // A pause keeps what reduced motion drew until it is let go, drawn
+          // whatever frame the run stands on, so the frame that lets it go
+          // draws the first one as well.
+          _place(Duration.zero);
+          _clockAt = Duration.zero;
+          _clockFrom = null;
+          _delayLeft = widget.settings.delay;
+          _keepsLanded = widget.settings.paused;
+        } else if (repeat == null) {
           // An endless run has no last frame to stay on. It goes on from
           // where its passes would have got to by now, as a keyframe that is
           // given its passes back does, rather than standing at the end of
@@ -1396,14 +1433,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         final ValueWidgetBuilder<double> stillBuilder = widget.stillBuilder ?? widget.builder;
 
         // Kept by a pause on what reduced motion drew, until the pause is let
-        // go: the frame the run landed on, where the controller already
-        // stands, or before the run would have started, its content, which is
-        // `1` again. Either is drawn as reduced motion drew it. A run its
+        // go: the frame the run landed on, or before the run would have
+        // started, its content. Either is drawn as reduced motion drew it,
+        // whatever frame the controller stands on underneath. A run its
         // trigger has not let go is not held by the pause, and waits on its
         // first frame.
-        final bool held = started && widget.settings.paused;
-        final bool keepsStill = held && _keepsStill;
-        final bool kept = keepsStill || (held && _keepsLanding);
+        final bool kept =
+            started && widget.settings.paused && (_keepsStill || _keepsLanding || _keepsLanded);
 
         // Through the same builder whether the platform asks for less movement
         // or not, so the tree above what the effect holds keeps its shape when
@@ -1424,7 +1460,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
             // its last frame. Until that moment the content is simply there,
             // which is `1` whichever way the effect runs: the end of an
             // entrance, and the start of an exit.
-            if (still) {
+            if (still || kept) {
               final double end = _landed ? _end : 1;
 
               return stillBuilder(
@@ -1437,7 +1473,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
             final double eased = curve.transform(_controller.value.clamp(0, 1));
             final double t = widget.mode == PlassAnimateMode.exit ? 1 - eased : eased;
 
-            return (kept ? stillBuilder : widget.builder)(context, keepsStill ? 1 : t, inner);
+            return widget.builder(context, t, inner);
           },
         );
       },

@@ -167,6 +167,12 @@ class PlAnimateLighting extends StatelessWidget {
               once: once,
               threshold: threshold,
             ),
+            // An endless light that was an even glow under reduced motion
+            // starts its arc from the beginning once the platform gives
+            // movement back, after its delay, as the React build starts the
+            // keyframe it switched off, rather than jumping to wherever its
+            // passes would have got to.
+            restartsWithMotion: true,
             builder: (BuildContext context, double t, Widget? _) {
               return _light(t: t, start: start, end: end, radius: radius, still: false);
             },

@@ -223,6 +223,11 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         once: widget.once,
         threshold: widget.threshold,
       ),
+      // An endless strip that stood still under reduced motion starts from
+      // where it started once the platform gives movement back, after its
+      // delay, as the React build starts the keyframe it switched off, rather
+      // than jumping to wherever its passes would have got to.
+      restartsWithMotion: true,
       child: _copies(still: false),
       // The box is drawn under the run rather than around it, so what the run
       // measures to know whether the marquee is in view, for a `visible`
