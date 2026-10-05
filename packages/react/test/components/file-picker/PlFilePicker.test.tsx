@@ -12,9 +12,8 @@ function file(name: string, type = 'text/plain', size = 1200): File {
  * Drops a batch on the zone, which is the one gesture a click cannot stand in
  * for.
  *
- * The event is dispatched on the browse button rather than on the wrapper,
- * because the drag listeners sit on the element *between* the two — an event
- * fired on an ancestor never reaches a descendant's handler.
+ * The event is dispatched on the browse button, the innermost element a real
+ * pointer would be over, and bubbles up to the listeners on the field.
  */
 function drop(picker: string, files: File[]) {
   const target = document.querySelector(`${picker} button`) as Element;
@@ -511,6 +510,69 @@ describe('PlFilePicker', () => {
       list.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
 
       await expect.element(screen.getByText('dropped.txt')).toBeInTheDocument();
+    });
+
+    // The element `className`, `style` and every native attribute land on, so
+    // a test or an automation tool that finds the picker by a `data-testid`
+    // can drop on what it found. The listeners used to be on a `<div>` inside
+    // it, which an event dispatched on the field never reaches.
+    it('lights for a file dragged onto the element its native attributes land on', async () => {
+      await render(<PlFilePicker className="picker-under-test" data-testid="picker" />);
+
+      const field = document.querySelector('[data-testid="picker"]') as Element;
+      const dataTransfer = new DataTransfer();
+
+      dataTransfer.items.add(file('dragged.txt'));
+      field.dispatchEvent(
+        new DragEvent('dragenter', { bubbles: true, cancelable: true, dataTransfer })
+      );
+
+      await vi.waitFor(() =>
+        expect(zoneClasses('.picker-under-test')).toContain('bg-(--p-soft-hover)')
+      );
+    });
+
+    it('takes a file dropped on that element', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" data-testid="picker" />
+      );
+
+      const field = document.querySelector('[data-testid="picker"]') as Element;
+      const dataTransfer = new DataTransfer();
+
+      dataTransfer.items.add(file('dropped.txt'));
+      field.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
+
+      await expect.element(screen.getByText('dropped.txt')).toBeInTheDocument();
+    });
+
+    it('takes a file dropped on its label, which is part of the same field', async () => {
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" label="Attachments" />
+      );
+
+      const label = screen.getByText('Attachments').element();
+      const dataTransfer = new DataTransfer();
+
+      dataTransfer.items.add(file('dropped.txt'));
+      label.dispatchEvent(new DragEvent('drop', { bubbles: true, cancelable: true, dataTransfer }));
+
+      await expect.element(screen.getByText('dropped.txt')).toBeInTheDocument();
+    });
+
+    it("still calls the caller's own drag handlers", async () => {
+      const entered = vi.fn();
+      const dropped = vi.fn();
+      const screen = await render(
+        <PlFilePicker className="picker-under-test" onDragEnter={entered} onDrop={dropped} />
+      );
+
+      dragEnter('.picker-under-test');
+      drop('.picker-under-test', [file('notes.txt')]);
+
+      await expect.element(screen.getByText('notes.txt')).toBeInTheDocument();
+      expect(entered).toHaveBeenCalledTimes(1);
+      expect(dropped).toHaveBeenCalledTimes(1);
     });
 
     it('stays put while it is read-only', async () => {

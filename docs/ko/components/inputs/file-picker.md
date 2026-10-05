@@ -46,6 +46,8 @@ PlFilePicker(
 
 네이티브 `<div>` 속성은 wrapper로 그대로 전달됩니다. `color`, `defaultValue`, `title`, `children`은 넷 다 여기서는 Plass의 prop이라 제외됩니다.
 
+wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 포함해 필드 어디에 파일을 놓아도 picker로 들어가고, `data-testid`로 찾은 요소에 보낸 드래그 이벤트도 여기에 닿습니다. `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`은 picker가 이벤트를 처리한 뒤 호출자에게도 그대로 전달됩니다.
+
 `formatFileSize`도 함께 export되므로, 목록을 직접 그리는 쪽에서도 같은 단위로 크기를 찍을 수 있습니다.
 
 :::

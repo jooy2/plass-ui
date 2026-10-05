@@ -46,6 +46,8 @@ PlFilePicker(
 
 Every native `<div>` attribute passes straight through to the wrapper. `color`, `defaultValue`, `title` and `children` are excluded because all four are Plass props here.
 
+The wrapper is also the drop area: a file let go anywhere over the field, its label and its messages included, lands in the picker, and a drag event dispatched on the element a `data-testid` finds reaches it. `onDragEnter`, `onDragOver`, `onDragLeave` and `onDrop` still reach the caller, after the picker has handled the event.
+
 `formatFileSize` is exported alongside the component, so a caller writing their own list can print sizes in the same units.
 
 :::

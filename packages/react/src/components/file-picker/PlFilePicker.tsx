@@ -380,6 +380,10 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       id,
       className,
       style,
+      onDragEnter,
+      onDragOver,
+      onDragLeave,
+      onDrop,
       ...props
     },
     ref
@@ -662,52 +666,55 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
           .join(' ')}
         style={{ ...fieldSlots(family, elevation), ...style }}
         {...props}
-      >
-        {hasContent(label) && !notched ? labelNode : null}
-
-        {/* The drag listeners belong to the shell rather than to the button: a
-            drop is a gesture over an *area*, and the file list under the box is
-            part of the same area as far as the pointer is concerned — which is
-            why the list is inside this element and not a sibling of it. The gap
-            is the one `Field.Root` would have put between the two. */}
-        <div
-          className={`flex w-full flex-col ${stackGapClasses[size]}`}
-          onDragEnter={(event) => {
-            if (inert) {
-              return;
-            }
+        // The drag listeners belong to the whole field rather than to the
+        // button: a drop is a gesture over an *area*, and the label above the
+        // box, the file list under it and the messages under that are part of
+        // the same area as far as the pointer is concerned. On this element as
+        // well because it is the one every native attribute lands on, so an
+        // event dispatched on what a `data-testid` finds reaches them, which an
+        // event fired on an ancestor of the listeners never does. The caller's
+        // own handlers run after them, on the same event.
+        onDragEnter={(event) => {
+          if (!inert) {
             event.preventDefault();
             dragDepth.current += 1;
             setOver(true);
-          }}
-          onDragOver={(event) => {
-            if (inert) {
-              return;
-            }
+          }
+          onDragEnter?.(event);
+        }}
+        onDragOver={(event) => {
+          if (!inert) {
             // Without this the browser navigates to the file instead of
             // dropping it, which is the default and is never what anybody wants.
             event.preventDefault();
             event.dataTransfer.dropEffect = 'copy';
-          }}
-          onDragLeave={() => {
-            if (inert) {
-              return;
-            }
+          }
+          onDragOver?.(event);
+        }}
+        onDragLeave={(event) => {
+          if (!inert) {
             dragDepth.current = Math.max(0, dragDepth.current - 1);
             if (dragDepth.current === 0) {
               setOver(false);
             }
-          }}
-          onDrop={(event) => {
-            if (inert) {
-              return;
-            }
+          }
+          onDragLeave?.(event);
+        }}
+        onDrop={(event) => {
+          if (!inert) {
             event.preventDefault();
             dragDepth.current = 0;
             setOver(false);
             add(Array.from(event.dataTransfer.files));
-          }}
-        >
+          }
+          onDrop?.(event);
+        }}
+      >
+        {hasContent(label) && !notched ? labelNode : null}
+
+        {/* The box and the list under it, at the gap `Field.Root` would have
+            put between the two. */}
+        <div className={`flex w-full flex-col ${stackGapClasses[size]}`}>
           <Field.Validity>
             {({ validity }) => {
               const failed = validity.valid === false;
