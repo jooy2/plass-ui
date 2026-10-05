@@ -75,13 +75,45 @@ Body sits on the same ladder a `PlCard`'s body does at `md`, 13px on 22px, so a 
 
 </Demo>
 
+### headingLevel
+
+`level` sets the scale _and_ the heading level, which is the common case. When the size a heading wants and its place in the outline disagree, `headingLevel` moves it to another level and leaves the scale where `level` put it. Any level takes one, so a `body` line with a `headingLevel` of `2` is a level-2 heading at body size.
+
+::: fw react
+
+The element is the matching `<h1>`–`<h6>`. `render` wins when both are given.
+
+:::
+
+::: fw flutter
+
+Only the semantics change: the line is announced as a heading at that level, and the text style stays the one `level` picks.
+
+:::
+
+<Demo src="typography/heading-level" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/typography/heading-level.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/typography/heading_level.dart
+
+:::
+
+</Demo>
+
 ::: fw react
 
 ### render
 
-`level` sets the scale _and_ the element, which is the common case. When they have to differ (a subheading that should not enter the document outline, a `<p>` that has to look like an `h3`) `render` breaks the tie.
+`render` is still the way to render any other element without changing the type scale: a `<p>` that has to look like an `h3`, or a subheading that should not enter the document outline.
 
-<Demo src="typography/render" :min-height="200">
+<Demo src="typography/render" :min-height="160">
 
 <<< @/.vitepress/demos/typography/render.tsx
 
@@ -175,7 +207,7 @@ One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. The text 
 
 ::: fw react
 
-- A `level` of `h1`–`h6` renders that heading, so it enters the document outline. Choose the level for what the section _is_, not for how big it should look, and use `render` when the two disagree.
+- A `level` of `h1`–`h6` renders that heading, so it enters the document outline. Choose the level for what the section _is_, not for how big it should look, and set `headingLevel` when the two disagree.
 - `lines` clips text visually and leaves the whole string in the DOM, so a screen reader and a find-on-page both still get all of it.
 - `gutter` is off by default. A component that injects margins is one a layout has to fight, and spacing is the page's decision.
 
@@ -183,7 +215,7 @@ One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. The text 
 
 ::: fw flutter
 
-- A `level` of `h1`–`h6` is announced as a heading at that level, so a screen reader can tell a section from the one inside it. Choose the level for what the section _is_ rather than for how big it should look.
+- A `level` of `h1`–`h6` is announced as a heading at that level, so a screen reader can tell a section from the one inside it. Choose the level for what the section _is_ rather than for how big it should look, and set `headingLevel` when the two disagree.
 - `lines` cuts the text visually only and leaves the whole string in the semantics tree, so a screen reader still reads all of it.
 - `gutter` is off by default. A component that injects margins is one a layout has to fight, and spacing is the page's decision.
 
@@ -195,7 +227,7 @@ One mechanism at every count: `maxLines` with `TextOverflow.ellipsis`. The text 
 
 | React | Flutter | Why |
 | --- | --- | --- |
-| `render` | — | Flutter has no polymorphic element. `level` decides the scale and whether the line is announced as a heading, and the two cannot be separated. |
+| `render` | — | Flutter has no polymorphic element. `headingLevel` moves a line to another heading level or makes any level a heading, but a line at a heading's scale that is not announced as one has no Flutter form. |
 | `children` | the first positional argument | Flutter's name, and `Text`'s shape. `PlTypography.rich` is the span form. |
 | `overline` upper-cases in CSS | upper-cases the string | There is no `text-transform`, so the one case that can be handled is the one where the library owns the characters, which is why `PlTypography.rich` leaves a span's case alone. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |

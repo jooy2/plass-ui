@@ -142,7 +142,7 @@ const Set<PlTypographyLevel> _muted = <PlTypographyLevel>{
 };
 
 /// The headings, which are the levels that enter the document outline, and the
-/// depth each one has in it.
+/// depth each one has in it when [PlTypography.headingLevel] names no other.
 const Map<PlTypographyLevel, int> _headingLevels = <PlTypographyLevel, int>{
   PlTypographyLevel.h1: 1,
   PlTypographyLevel.h2: 2,
@@ -180,9 +180,14 @@ class PlTypography extends StatelessWidget {
     this.align,
     this.lines,
     this.gutter = false,
+    this.headingLevel,
     this.semanticsLabel,
     super.key,
-  }) : textSpan = null;
+  }) : assert(
+         headingLevel == null || (headingLevel >= 1 && headingLevel <= 6),
+         'headingLevel must be between 1 and 6',
+       ),
+       textSpan = null;
 
   /// Creates a run of text out of spans, for text that changes style part of the
   /// way through.
@@ -198,9 +203,14 @@ class PlTypography extends StatelessWidget {
     this.align,
     this.lines,
     this.gutter = false,
+    this.headingLevel,
     this.semanticsLabel,
     super.key,
-  }) : data = null;
+  }) : assert(
+         headingLevel == null || (headingLevel >= 1 && headingLevel <= 6),
+         'headingLevel must be between 1 and 6',
+       ),
+       data = null;
 
   /// The text. Null on [PlTypography.rich].
   final String? data;
@@ -208,7 +218,8 @@ class PlTypography extends StatelessWidget {
   /// The spans. Null on the default constructor.
   final InlineSpan? textSpan;
 
-  /// The type scale, and whether this is a heading.
+  /// The type scale, and, unless [headingLevel] is set, whether this is a
+  /// heading.
   final PlTypographyLevel level;
 
   /// Semantic colour role. Unlike every other component this has **no default**:
@@ -233,6 +244,17 @@ class PlTypography extends StatelessWidget {
   /// Off by default: a library component that injects margins is one a layout
   /// has to fight.
   final bool gutter;
+
+  /// The text's depth in the screen's outline, `1` to `6`, without changing the
+  /// type scale [level] picks.
+  ///
+  /// A heading has to sit one level under the one above it, or the outline
+  /// skips a step, and the size that suits a heading is not always its place in
+  /// the outline. An `h3`-sized title directly under the screen's title wants
+  /// `2`. Any level takes one: [PlTypographyLevel.body] with `headingLevel: 2`
+  /// is announced as a level-2 heading and drawn at the body's size. Only the
+  /// semantics change.
+  final int? headingLevel;
 
   /// What a screen reader reads instead of the text — for a line whose
   /// characters are not the words. [lines] cuts the text visually only, so a
@@ -281,7 +303,7 @@ class PlTypography extends StatelessWidget {
             semanticsLabel: semanticsLabel,
           );
 
-    final int? headingLevel = _headingLevels[level];
+    final int? headingLevel = this.headingLevel ?? _headingLevels[level];
 
     if (headingLevel != null) {
       // What `<h1>`–`<h6>` buy on the web: a screen reader can list the

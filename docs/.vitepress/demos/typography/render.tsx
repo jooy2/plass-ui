@@ -8,10 +8,6 @@ export default function TypographyRender() {
       <PlTypography level="h3" render={<p />}>
         The same scale, semantically a paragraph
       </PlTypography>
-
-      <PlTypography level="body" render={<h2 />}>
-        A real h2 set at body size
-      </PlTypography>
     </div>
   );
 }

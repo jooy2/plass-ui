@@ -12640,8 +12640,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: "'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'body' | 'lead' | 'caption' | 'overline'",
       default: "'body'",
       description: {
-        ko: '타입 스케일과 그것을 담는 요소. h1~h6는 같은 이름의 heading, lead와 body는 p, caption과 overline은 span으로 그려집니다. variant가 아닌 이유는, 이 라이브러리에서 variant는 표면의 재질을 뜻하기 때문입니다',
-        en: 'The type scale, and the element that carries it. h1–h6 render the matching heading, lead/body a p, caption/overline a span. Not called variant, because in this library variant names what a surface is made of'
+        ko: '타입 스케일과 그것을 담는 요소. headingLevel이나 render가 다른 요소를 정하지 않으면 h1~h6는 같은 이름의 heading, lead와 body는 p, caption과 overline은 span으로 그려집니다. variant가 아닌 이유는, 이 라이브러리에서 variant는 표면의 재질을 뜻하기 때문입니다',
+        en: 'The type scale, and the element that carries it. h1–h6 render the matching heading, lead/body a p, caption/overline a span, unless headingLevel or render names another element. Not called variant, because in this library variant names what a surface is made of'
       }
     },
     {
@@ -12685,11 +12685,20 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'headingLevel',
+      type: HEADING_LEVEL,
+      shared: true,
+      description: {
+        ko: '텍스트가 되는 heading의 수준. level이 고른 타입 스케일은 그대로이고, heading이 아닌 level에도 줄 수 있습니다. 없으면 level이 정하고, render와 함께 주면 render가 이깁니다',
+        en: 'The heading level the text is, without changing the type scale level picks. Any level takes one. Left out, level decides; render wins when both are given'
+      }
+    },
+    {
       name: 'render',
       type: 'useRender.RenderProp',
       description: {
-        ko: '타입 스케일은 그대로 두고 다른 요소로 렌더링합니다 — 문서 개요에 들어가면 안 되는 소제목, 또는 그 반대',
-        en: 'Renders a different element without changing the type scale — a subheading that should not enter the document outline, or the other way round'
+        ko: '타입 스케일은 그대로 두고 다른 요소로 렌더링합니다. h3처럼 보이는 p나 문서 개요에 들어가면 안 되는 소제목에 씁니다. headingLevel보다 우선합니다',
+        en: 'Renders a different element without changing the type scale, such as a p that looks like an h3 or a subheading that should not enter the document outline. Wins over headingLevel'
       }
     },
     {

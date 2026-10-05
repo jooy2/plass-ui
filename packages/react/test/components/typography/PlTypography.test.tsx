@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 import { render } from 'vitest-browser-react';
-import { PlTypography } from 'plass-ui';
+import { PlTypography, type PlassHeadingLevel, type PlTypographyProps } from 'plass-ui';
 
 describe('PlTypography', () => {
   describe('the element', () => {
@@ -40,6 +40,101 @@ describe('PlTypography', () => {
 
       await expect.element(screen.getByRole('heading', { level: 4 })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2 }).query()).toBeNull();
+    });
+  });
+
+  describe('headingLevel', () => {
+    it('leaves a heading level at its own heading unless it is told otherwise', async () => {
+      const screen = await render(<PlTypography level="h3">Title</PlTypography>);
+
+      await expect
+        .element(screen.getByRole('heading', { level: 3, name: 'Title' }))
+        .toBeInTheDocument();
+    });
+
+    it('moves the heading to the level it names and keeps the scale', async () => {
+      const screen = await render(
+        <>
+          <PlTypography level="h3">Plain</PlTypography>
+          <PlTypography level="h3" headingLevel={2}>
+            Moved
+          </PlTypography>
+        </>
+      );
+      const moved = screen.getByRole('heading', { level: 2, name: 'Moved' });
+
+      await expect.element(moved).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 3, name: 'Moved' }).query()).toBeNull();
+      // The classes the `h3` would have had, so the size, the weight and the
+      // colour all stay where the level put them.
+      expect(moved.element().className).toBe(screen.getByText('Plain').element().className);
+    });
+
+    it('follows a changed heading level on re-render', async () => {
+      const screen = await render(
+        <PlTypography level="h3" headingLevel={2}>
+          Title
+        </PlTypography>
+      );
+
+      await screen.rerender(
+        <PlTypography level="h3" headingLevel={4}>
+          Title
+        </PlTypography>
+      );
+
+      await expect
+        .element(screen.getByRole('heading', { level: 4, name: 'Title' }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2 }).query()).toBeNull();
+    });
+
+    it('makes a level that is not a heading into one, at its own scale', async () => {
+      const screen = await render(
+        <>
+          <PlTypography>Plain</PlTypography>
+          <PlTypography headingLevel={2}>A real h2 set at body size</PlTypography>
+        </>
+      );
+      const heading = screen.getByRole('heading', { level: 2 });
+
+      await expect.element(heading).toHaveAccessibleName('A real h2 set at body size');
+      expect(heading.element().className).toBe(screen.getByText('Plain').element().className);
+    });
+
+    it('gives way to render when both are given', async () => {
+      const screen = await render(
+        <PlTypography level="h3" headingLevel={2} render={<p />}>
+          Looks like a heading, is not one
+        </PlTypography>
+      );
+
+      expect(screen.getByText('Looks like a heading, is not one').element().tagName).toBe('P');
+      expect(screen.getByRole('heading').query()).toBeNull();
+    });
+
+    it('ignores a level no heading has', async () => {
+      const screen = await render(
+        <>
+          <PlTypography level="h3" headingLevel={7 as 2}>
+            Title
+          </PlTypography>
+          <PlTypography headingLevel={0 as 2}>Body</PlTypography>
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('heading', { level: 3, name: 'Title' }))
+        .toBeInTheDocument();
+      expect(screen.getByText('Body').element().tagName).toBe('P');
+      expect(screen.getByRole('heading').all()).toHaveLength(1);
+    });
+
+    it('takes the shared heading level', () => {
+      // Checked by `npm run typecheck`, not by this run.
+      expectTypeOf<PlTypographyProps['headingLevel']>().toEqualTypeOf<
+        PlassHeadingLevel | undefined
+      >();
     });
   });
 

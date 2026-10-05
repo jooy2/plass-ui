@@ -6248,8 +6248,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       type: 'PlTypographyLevel',
       default: 'PlTypographyLevel.body',
       description: {
-        ko: '타입 스케일과, 이 줄이 heading으로 알려지는지 여부. variant가 아닌 이유는, 이 라이브러리에서 variant는 표면의 재질을 뜻하기 때문입니다',
-        en: 'The type scale, and whether the line is announced as a heading. Not called variant, because in this library variant names what a surface is made of'
+        ko: '타입 스케일과, headingLevel이 없을 때 이 줄이 heading으로 알려지는지 여부. variant가 아닌 이유는, 이 라이브러리에서 variant는 표면의 재질을 뜻하기 때문입니다',
+        en: 'The type scale, and, unless headingLevel is set, whether the line is announced as a heading. Not called variant, because in this library variant names what a surface is made of'
       }
     }),
     from('PlTypography', 'color', { type: `${COLOR}?`, default: 'null' }),
@@ -6263,6 +6263,13 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTypography', 'align', { type: 'TextAlign?' }),
     from('PlTypography', 'lines', { type: 'int?' }),
     from('PlTypography', 'gutter', { type: 'bool', default: 'false' }),
+    from('PlTypography', 'headingLevel', {
+      type: `${HEADING_LEVEL}?`,
+      description: {
+        ko: '텍스트가 화면 개요에서 가지는 깊이, 1부터 6까지. level이 고른 텍스트 스타일은 그대로이고, heading이 아닌 level에도 줄 수 있습니다. 없으면 level이 정합니다',
+        en: "The text's depth in the screen's outline, 1 to 6, without changing the text style level picks. Any level takes one. Left out, level decides"
+      }
+    }),
     {
       name: 'semanticsLabel',
       type: 'String?',

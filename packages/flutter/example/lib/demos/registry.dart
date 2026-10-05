@@ -557,6 +557,7 @@ import 'package:plass_ui_example/demos/window_pane/hero.dart';
 import 'package:plass_ui_example/demos/window_pane/os.dart';
 import 'package:plass_ui_example/demos/window_pane/transparency.dart';
 import 'package:plass_ui_example/demos/typography/colors.dart';
+import 'package:plass_ui_example/demos/typography/heading_level.dart';
 import 'package:plass_ui_example/demos/typography/hero.dart';
 import 'package:plass_ui_example/demos/typography/levels.dart';
 import 'package:plass_ui_example/demos/typography/lines.dart';
@@ -709,6 +710,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'window-pane/transparency': _windowPaneTransparency,
   'typography/hero': _typographyHero,
   'typography/levels': _typographyLevels,
+  'typography/heading-level': _typographyHeadingLevel,
   'typography/weight': _typographyWeight,
   'typography/colors': _typographyColors,
   'typography/lines': _typographyLines,
@@ -1390,6 +1392,7 @@ Widget _windowPaneTransparency(BuildContext context) => const WindowPaneTranspar
 
 Widget _typographyHero(BuildContext context) => const TypographyHero();
 Widget _typographyLevels(BuildContext context) => const TypographyLevels();
+Widget _typographyHeadingLevel(BuildContext context) => const TypographyHeadingLevel();
 Widget _typographyWeight(BuildContext context) => const TypographyWeight();
 Widget _typographyColors(BuildContext context) => const TypographyColors();
 Widget _typographyLines(BuildContext context) => const TypographyLines();

@@ -75,13 +75,45 @@ const PlTypography('Every surface answers one question.');
 
 </Demo>
 
+### headingLevel
+
+`level`은 스케일과 heading 단계를 **함께** 정하고, 그것이 보통의 경우입니다. heading에 어울리는 크기와 개요에서의 자리가 어긋나면 `headingLevel`이 heading을 다른 단계로 옮기고, 스케일은 `level`이 정한 그대로 둡니다. 어떤 level에도 줄 수 있어서, `body` 줄에 `headingLevel`을 `2`로 주면 본문 크기의 2단계 heading이 됩니다.
+
+::: fw react
+
+요소는 그 단계의 `<h1>`~`<h6>`입니다. 둘 다 주면 `render`가 이깁니다.
+
+:::
+
+::: fw flutter
+
+바뀌는 것은 semantics뿐입니다. 이 줄은 그 단계의 heading으로 알려지고, 텍스트 스타일은 `level`이 고른 그대로입니다.
+
+:::
+
+<Demo src="typography/heading-level" :min-height="200">
+
+::: fw react
+
+<<< @/.vitepress/demos/typography/heading-level.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/typography/heading_level.dart
+
+:::
+
+</Demo>
+
 ::: fw react
 
 ### render
 
-`level`은 스케일과 요소를 **함께** 정하고, 그것이 보통의 경우입니다. 둘이 달라야 할 때(문서 개요에 들어가면 안 되는 소제목, `h3`처럼 보여야 하는 `<p>`) `render`가 그 매듭을 풉니다.
+타입 스케일을 그대로 둔 채 다른 요소로 렌더링하려면 여전히 `render`를 씁니다. `h3`처럼 보여야 하는 `<p>`, 문서 개요에 들어가면 안 되는 소제목이 그런 경우입니다.
 
-<Demo src="typography/render" :min-height="200">
+<Demo src="typography/render" :min-height="160">
 
 <<< @/.vitepress/demos/typography/render.tsx
 
@@ -175,7 +207,7 @@ heading은 `semibold`이고, **모든 폰트에 600이 있는 것은 아닙니�
 
 ::: fw react
 
-- `level`이 `h1`~`h6`면 그 heading으로 그려지고, 문서 개요에 들어갑니다. 얼마나 커 보여야 하는지가 아니라 그 구획이 **무엇인지**로 level을 고르고, 둘이 어긋날 때 `render`를 쓰세요.
+- `level`이 `h1`~`h6`면 그 heading으로 그려지고, 문서 개요에 들어갑니다. 얼마나 커 보여야 하는지가 아니라 그 구획이 **무엇인지**로 level을 고르고, 둘이 어긋날 때 `headingLevel`을 쓰세요.
 - `lines`는 시각적으로만 자르고 문자열 전체를 DOM에 남깁니다. 스크린리더도 페이지 내 찾기도 전부를 그대로 받습니다.
 - `gutter`는 기본적으로 꺼져 있습니다. margin을 주입하는 컴포넌트는 레이아웃이 싸워야 하는 컴포넌트이고, 간격은 페이지의 결정입니다.
 
@@ -183,7 +215,7 @@ heading은 `semibold`이고, **모든 폰트에 600이 있는 것은 아닙니�
 
 ::: fw flutter
 
-- `level`이 `h1`~`h6`면 그 단계의 heading으로 알려지므로, 스크린 리더가 구획과 그 안의 하위 구획을 구분할 수 있습니다. 얼마나 커 보여야 하는지가 아니라 그 구획이 **무엇인지**로 level을 고르세요.
+- `level`이 `h1`~`h6`면 그 단계의 heading으로 알려지므로, 스크린 리더가 구획과 그 안의 하위 구획을 구분할 수 있습니다. 얼마나 커 보여야 하는지가 아니라 그 구획이 **무엇인지**로 level을 고르고, 둘이 어긋날 때 `headingLevel`을 쓰세요.
 - `lines`는 시각적으로만 자르고 문자열 전체를 semantics 트리에 남깁니다. 스크린리더는 전부를 그대로 읽습니다.
 - `gutter`는 기본적으로 꺼져 있습니다. margin을 주입하는 컴포넌트는 레이아웃이 싸워야 하는 컴포넌트이고, 간격은 페이지의 결정입니다.
 
@@ -195,7 +227,7 @@ heading은 `semibold`이고, **모든 폰트에 600이 있는 것은 아닙니�
 
 | React | Flutter | 이유 |
 | --- | --- | --- |
-| `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. `level`이 스케일과 heading 여부를 함께 정하고, 둘을 떼어놓을 수 없습니다. |
+| `render` | — | Flutter에는 요소를 바꿔 끼우는 수단이 없습니다. `headingLevel`로 줄을 다른 heading 단계로 옮기거나 어떤 level이든 heading으로 만들 수 있지만, heading 크기이면서 heading으로 알려지지 않는 줄은 Flutter에서 만들 수 없습니다. |
 | `children` | 첫 번째 위치 인자 | Flutter의 이름이자 `Text`의 모양입니다. span 형태는 `PlTypography.rich`입니다. |
 | CSS로 대문자화하는 `overline` | 문자열을 대문자화 | `text-transform`이 없으니, 다룰 수 있는 경우는 라이브러리가 글자를 직접 쥐고 있는 경우뿐입니다. `PlTypography.rich`가 span의 대소문자를 건드리지 않는 이유입니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |

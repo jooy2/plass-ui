@@ -132,6 +132,94 @@ void main() {
       });
     });
 
+    group('headingLevel', () {
+      int headingLevelOf(WidgetTester tester, String data) {
+        return tester.getSemantics(find.text(data)).getSemanticsData().headingLevel;
+      }
+
+      testWidgets('leaves a heading level at its own depth unless it is told otherwise', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(host(const PlTypography('Title', level: PlTypographyLevel.h3)));
+
+        expect(headingLevelOf(tester, 'Title'), 3);
+
+        handle.dispose();
+      });
+
+      testWidgets('moves the heading to the depth it names and keeps the style', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlTypography('Plain', level: PlTypographyLevel.h3),
+                PlTypography('Moved', level: PlTypographyLevel.h3, headingLevel: 2),
+              ],
+            ),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('Moved')),
+          matchesSemantics(label: 'Moved', isHeader: true),
+        );
+        expect(headingLevelOf(tester, 'Moved'), 2);
+        expect(styleOf(tester, 'Moved'), styleOf(tester, 'Plain'));
+
+        handle.dispose();
+      });
+
+      testWidgets('follows a changed depth on rebuild', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(const PlTypography('Title', level: PlTypographyLevel.h3, headingLevel: 2)),
+        );
+        await tester.pumpWidget(
+          host(const PlTypography('Title', level: PlTypographyLevel.h3, headingLevel: 4)),
+        );
+
+        expect(headingLevelOf(tester, 'Title'), 4);
+
+        handle.dispose();
+      });
+
+      testWidgets('makes a level that is not a heading into one, in its own style', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlTypography('Plain'),
+                PlTypography('A heading at body size', headingLevel: 2),
+              ],
+            ),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.text('A heading at body size')),
+          matchesSemantics(label: 'A heading at body size', isHeader: true),
+        );
+        expect(headingLevelOf(tester, 'A heading at body size'), 2);
+        expect(styleOf(tester, 'A heading at body size'), styleOf(tester, 'Plain'));
+
+        handle.dispose();
+      });
+
+      test('refuses a level no heading has', () {
+        expect(() => PlTypography('Title', headingLevel: 7), throwsAssertionError);
+        expect(() => PlTypography('Title', headingLevel: 0), throwsAssertionError);
+      });
+    });
+
     group('colour', () {
       testWidgets('takes the page foreground with no colour asked for', (
         WidgetTester tester,

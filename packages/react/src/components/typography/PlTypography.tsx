@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import type { PlassColor } from '../../types.js';
+import type { PlassColor, PlassHeadingLevel } from '../../types.js';
 
 /**
  * What a piece of text *is*, which decides both its type scale and the element
@@ -25,7 +25,8 @@ export interface PlTypographyProps extends Omit<
 > {
   /**
    * The type scale, and the element that carries it. `h1`–`h6` render the
-   * matching heading, `lead`/`body` a `<p>`, `caption`/`overline` a `<span>`.
+   * matching heading, `lead`/`body` a `<p>`, `caption`/`overline` a `<span>`,
+   * unless `headingLevel` or `render` names another element.
    * @default 'body'
    */
   level?: PlTypographyLevel;
@@ -50,9 +51,20 @@ export interface PlTypographyProps extends Omit<
    */
   gutter?: boolean;
   /**
-   * Renders a different element without changing the type scale — an `h2`-sized
-   * line that is semantically a `<p>`, or the other way round. Base UI's own
-   * escape hatch.
+   * The level of the heading the text is, `1` to `6`, without changing the type
+   * scale `level` picks.
+   *
+   * A heading has to sit one level under the one above it, or the page's
+   * outline skips a step, and the size that suits a heading is not always its
+   * place in the outline. An `h3`-sized title directly under the page's `<h1>`
+   * wants `2`. Any level takes one: `level="body"` with `headingLevel={2}` is an
+   * `<h2>` at body size. `render` wins when both are given.
+   */
+  headingLevel?: PlassHeadingLevel;
+  /**
+   * Renders a different element without changing the type scale — an `h3`-sized
+   * line that is semantically a `<p>`. Base UI's own escape hatch, and it wins
+   * over `headingLevel`, which is the way to change only a heading's level.
    */
   render?: useRender.RenderProp;
   children?: React.ReactNode;
@@ -99,7 +111,10 @@ const levelWeights: Record<PlTypographyLevel, PlTypographyWeight> = {
   overline: 'medium'
 };
 
-/** The element each level renders as when `render` is not given. */
+/**
+ * The element each level renders as when neither `headingLevel` nor `render`
+ * is given.
+ */
 const levelElements: Record<PlTypographyLevel, React.ElementType> = {
   h1: 'h1',
   h2: 'h2',
@@ -171,8 +186,9 @@ function clampClasses(lines: number): string {
  * its own, so a page can use it without wrapping its prose in a card.
  *
  * `level` sets the scale *and* the element, which is the common case. When they
- * have to differ — a subheading that should not enter the document outline, a
- * `<p>` that has to look like an `h3` — `render` breaks the tie.
+ * have to differ, `headingLevel` moves a heading to another level of the
+ * outline, and `render` breaks the tie for anything else — a subheading that
+ * should not enter the document outline, a `<p>` that has to look like an `h3`.
  *
  * There is no `variant` and no `elevation`, and there is no `size` either.
  * `level` is the size: a `size` prop alongside it would let a caller ask for an
@@ -187,6 +203,7 @@ export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypo
       align,
       lines,
       gutter = false,
+      headingLevel,
       render,
       className,
       style,
@@ -196,6 +213,16 @@ export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypo
     ref
   ) {
     const clamp = lines && lines >= 1 ? Math.floor(lines) : undefined;
+    // The type keeps a TypeScript caller inside the six; this keeps a
+    // JavaScript one there too, where a `7` would have written an `<h7>`, which
+    // is no heading at all.
+    const element =
+      headingLevel !== undefined &&
+      Number.isInteger(headingLevel) &&
+      headingLevel >= 1 &&
+      headingLevel <= 6
+        ? (`h${headingLevel}` as const)
+        : levelElements[level];
     const classNames = [
       // A level that renders as a heading or a paragraph arrives with the UA's
       // own block margin, and the ladder above spaces text by `gutter`.
@@ -216,7 +243,7 @@ export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypo
       .join(' ');
 
     return useRender({
-      render: render ?? React.createElement(levelElements[level]),
+      render: render ?? React.createElement(element),
       ref,
       props: {
         className: classNames,

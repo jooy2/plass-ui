@@ -10,6 +10,7 @@
 
 ### Added
 
+- **`PlTypography` takes a `headingLevel`, which sets the level the text is announced at without changing the text style `level` picks.** The heading level came from `level` alone, so a line could not keep the `h3` size and be announced as a level-2 heading. `headingLevel: 2` now does that. It works on any `level`, so a `body` line with `headingLevel: 2` is a level-2 heading at the body's size. A value outside 1–6 fails an assert, as it does on `PlAccordion` and `PlDrawer`.
 - **`PlDrawer` takes `headingLevel`, so its title sits at the level the screen's outline needs.** It takes `1` to `6` and defaults to `2`, the level the web build already drew the title at, in both modes. Only the semantics change, never the type scale.
 
 ### Changed
