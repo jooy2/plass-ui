@@ -2652,7 +2652,13 @@
   animation-play-state: var(--p-anim-state, running);
 }
 
-.plass-marquee-vertical .plass-marquee-track {
+/* `:where()` keeps this as specific as `.plass-marquee-track` on its own, so
+   the reduced-motion block below switches a vertical strip off as it does a
+   horizontal one. Written more specifically, the name outranked that block's
+   `animation: none`, so the first copy ran a pass in no time under the setting
+   and went on from its own clock afterwards, while the second, not drawn until
+   then, started afresh and ran behind it. */
+:where(.plass-marquee-vertical) .plass-marquee-track {
   flex-direction: column;
   animation-name: plass-anim-marquee-y;
 }

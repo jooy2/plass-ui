@@ -621,27 +621,43 @@ describe('a light or a strip when movement is given back', () => {
     expect(Number(running(target())[0].currentTime)).toBeLessThan(long);
   });
 
-  it('sets an endless PlAnimateMarquee going again from its start', async () => {
-    const ended = vi.fn();
+  for (const orientation of ['horizontal', 'vertical'] as const) {
+    it(`sets an endless ${orientation} PlAnimateMarquee going again from its start, its copies in step`, async () => {
+      const ended = vi.fn();
 
-    await render(
-      <PlAnimateMarquee
-        className="effect-under-test"
-        duration={long}
-        style={{ width: 200 }}
-        onAnimationEnd={ended}
-      >
-        <span style={{ display: 'block', width: 300 }}>Headline</span>
-      </PlAnimateMarquee>
-    );
+      await render(
+        <PlAnimateMarquee
+          className="effect-under-test"
+          orientation={orientation}
+          duration={long}
+          style={{ width: 200, height: 40 }}
+          onAnimationEnd={ended}
+        >
+          <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+        </PlAnimateMarquee>
+      );
 
-    await frame();
+      await frame();
 
-    expect(target().getAnimations({ subtree: true })).toEqual([]);
-    expect(ended).not.toHaveBeenCalled();
+      expect(target().getAnimations({ subtree: true })).toEqual([]);
+      expect(ended).not.toHaveBeenCalled();
 
-    await emulateMedia({ reducedMotion: 'no-preference' });
+      await emulateMedia({ reducedMotion: 'no-preference' });
 
-    expect(running(target())).toHaveLength(2);
-  });
+      const copies = tracks().map((track) => track.getAnimations());
+
+      expect(copies.map((animations) => animations.length)).toEqual([1, 1]);
+
+      const [first, second] = copies.map(([animation]) => animation);
+
+      await Promise.all([first.ready, second.ready]);
+
+      // Read together, so a copy that started later is behind by the gap.
+      expect((first as CSSAnimation).animationName).toBe(
+        orientation === 'vertical' ? 'plass-anim-marquee-y' : 'plass-anim-marquee-x'
+      );
+      expect(first.playState).toBe('running');
+      expect(Number(first.currentTime)).toBe(Number(second.currentTime));
+    });
+  }
 });
