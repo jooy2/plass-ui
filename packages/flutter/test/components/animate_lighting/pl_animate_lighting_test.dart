@@ -311,5 +311,37 @@ void main() {
         await expectStartAfterDelay(tester);
       });
     });
+
+    testWidgets('stays where its run ended when a light that ends landed and is given null', (
+      WidgetTester tester,
+    ) async {
+      Widget lighting({int? repeat, bool still = false}) {
+        return host(
+          PlAnimateLighting(
+            repeat: repeat,
+            curve: Curves.linear,
+            duration: const Duration(seconds: 1),
+            child: const Text('Live'),
+          ),
+          width: 200,
+          height: 80,
+          disableAnimations: still,
+        );
+      }
+
+      await tester.pumpWidget(lighting(repeat: 1, still: true));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpWidget(lighting(still: true));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpWidget(lighting());
+      await tester.pump();
+
+      // The arc where its run ended, until it runs again, as the React build
+      // takes the keyframe off a light that landed. It used to start again
+      // from the beginning and go round.
+      expect(even(tester), isFalse);
+      expect(turnOf(tester), closeTo(1, 0.001));
+      expect(await redrawsIn(tester), isFalse);
+    });
   });
 }

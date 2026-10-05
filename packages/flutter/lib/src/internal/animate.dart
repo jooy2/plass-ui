@@ -681,14 +681,14 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// Under reduced motion nothing moves in between. `t` is `1` until the moment
 /// the run would have started, its delay included, and then wherever the last
 /// pass would have left it, so an exit has gone and a turn has turned. When the
-/// platform gives movement back, a run that landed stays where it is, except an
-/// endless one, which goes on from wherever its passes would have got to by
-/// then, or with [restartsWithMotion] starts again from its first frame and
-/// waits out its delay. One that `paused` holds keeps what reduced motion
-/// showed until the pause is let go, and goes on from there: the frame it
-/// landed on, or its content when the pause held it before it would have
-/// started, which then stands on its first frame and waits out what is left of
-/// its delay.
+/// platform gives movement back, a run that landed stays where it is, except
+/// one that was endless when it landed, which goes on from wherever its passes
+/// would have got to by then, or with [restartsWithMotion] starts again from
+/// its first frame and waits out its delay. One that `paused` holds keeps what
+/// reduced motion showed until the pause is let go, and goes on from there:
+/// the frame it landed on, or its content when the pause held it before it
+/// would have started, which then stands on its first frame and waits out what
+/// is left of its delay.
 ///
 /// A new `repeat` is counted against the time the run has been going, as a
 /// keyframe counts a new `animation-iteration-count`. A run that has finished
@@ -696,7 +696,8 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// that is past the end of a lower count stands where that count ends. A pass
 /// in flight that the new count still holds goes on as it was. A run that
 /// ends and landed under reduced motion stands on the last frame of the new
-/// count instead, whether the setting is still on or not, until it runs again.
+/// count instead, or at the end of one pass when it is given `repeat: null`,
+/// whether the setting is still on or not, until it runs again.
 class PlassAnimateRun extends StatefulWidget {
   /// Creates a run.
   const PlassAnimateRun({
@@ -861,7 +862,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// it runs again, whether the setting is still on or has gone, as the React
   /// build holds a keyframe that landed on the timing it landed with. A new
   /// `repeat` stands it on the last frame of the new count and plays none of
-  /// the passes it adds.
+  /// the passes it adds, and `repeat: null` at the end of one pass, as reduced
+  /// motion shows an endless run.
   ///
   /// A run the setting stops partway lands there, as a keyframe the setting
   /// runs in no time ends. One that had already finished moving did not land
@@ -1036,13 +1038,17 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       // stopped does not tell the two apart on its own. An endless run never
       // finishes, so one standing at the end of a pass goes on. Under reduced
       // motion a run that has not landed yet lands, even where a new delay
-      // already finished it.
-      if (!_controller.isAnimating && (_still || !_finished)) {
+      // already finished it. A run that landed under reduced motion stays
+      // where it stands until it runs again, also when it has been given
+      // `repeat: null` since, which leaves it no last frame of its own.
+      final bool standing = _finished || _staysLanded;
+
+      if (!_controller.isAnimating && (_still || !standing)) {
         // A pause during the wait held the wait too, so what is let go is
         // whatever was left of it. Nothing was left of it once the pass had
         // begun, and this then starts the pass again from where it stopped.
         _startAfter(_delayLeft);
-      } else if (_finished) {
+      } else if (standing) {
         // Its clock counts on from where it stopped, past the end of the run.
         _clockFrom ??= animationNow();
       }
@@ -1241,7 +1247,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// past the end of a lower count stands where that count ends at once. A
   /// pass in flight that the new count still holds goes on as it was, and
   /// reads the count when it ends. A run that landed under reduced motion
-  /// stands where the new count ends, whatever its clock says.
+  /// stands where the new count ends, or at the end of one pass when the new
+  /// count is `null`, whatever its clock says.
   void _recount(int? before) {
     // Under reduced motion a run stands on the last frame of whatever count it
     // has, which the build reads. One that has not begun its passes, waiting
@@ -1259,17 +1266,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     // A run that landed under reduced motion stands on the last frame of the
     // new count, and plays none of the passes it adds, until it runs again.
-    // Given `null`, it has no last frame to stand on, and goes on from its
-    // clock as an endless run does.
+    // Given `null`, it stands at the end of one pass, as reduced motion shows
+    // an endless run, and turns only once it runs again.
     if (_staysLanded) {
-      if (repeat != null) {
-        _pass = repeat < 1 ? 1 : repeat;
-        _setValue(_end);
+      _pass = repeat == null || repeat < 1 ? 1 : repeat;
+      _setValue(_end);
 
-        return;
-      }
-
-      _staysLanded = false;
+      return;
     }
 
     final Duration? from = _clockFrom;
@@ -1392,7 +1395,16 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         // here only marks it for this build.
         final int? repeat = widget.settings.repeat;
 
-        if (repeat == null && widget.restartsWithMotion) {
+        if (repeat == null && _staysLanded) {
+          // A run that ends, landed and given `repeat: null` since, stands at
+          // the end of one pass, where reduced motion showed it, until it runs
+          // again, as the React build holds a keyframe that landed on the
+          // timing it landed with, one pass for an endless run. A pause holds
+          // what reduced motion drew until it is let go, as below.
+          _pass = 1;
+          _setValue(_end);
+          _keepsLanded = widget.settings.paused;
+        } else if (repeat == null && widget.restartsWithMotion) {
           // Started again from its first frame, which this build draws, and
           // moving once `_drive` has waited out its delay, as an effect the
           // React build switched off under the setting starts once it goes.
