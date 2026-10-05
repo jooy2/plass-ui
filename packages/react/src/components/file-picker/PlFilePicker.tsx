@@ -412,6 +412,42 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
     const [over, setOver] = React.useState(false);
 
     /*
+     * A drag can end without telling the box. Cancelled with Escape while it is
+     * over the box, it sends no `dragleave` there in any engine, and a file
+     * dragged in from outside the page sends no `dragend` either, so the count
+     * stayed at one and the box stayed lit until the next drag left it.
+     *
+     * So while a file is over it, the box also listens for whatever means the
+     * drag is over: a drop or a `dragend` anywhere in the page, the window
+     * losing focus, and the pointer moving, which no engine reports while a
+     * drag is under way. Not a `dragleave` with no `relatedTarget`: Chromium
+     * and WebKit send one for a pointer that moves onto the page's own root,
+     * which is still inside the window.
+     */
+    React.useEffect(() => {
+      if (!over) {
+        return undefined;
+      }
+
+      const end = () => {
+        dragDepth.current = 0;
+        setOver(false);
+      };
+
+      window.addEventListener('drop', end, true);
+      window.addEventListener('dragend', end, true);
+      window.addEventListener('pointermove', end, true);
+      window.addEventListener('blur', end);
+
+      return () => {
+        window.removeEventListener('drop', end, true);
+        window.removeEventListener('dragend', end, true);
+        window.removeEventListener('pointermove', end, true);
+        window.removeEventListener('blur', end);
+      };
+    }, [over]);
+
+    /*
      * What the last batch turned away, grouped by reason.
      *
      * Held rather than derived, because a rejection is an event and not a

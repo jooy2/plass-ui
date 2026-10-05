@@ -416,6 +416,62 @@ describe('PlFilePicker', () => {
       expect(zoneClasses('.picker-under-test')).toContain('bg-(--plass-glass)');
     });
 
+    // A drag cancelled with Escape sends no `dragleave` to the box in any of the
+    // three engines, and a file dragged in from outside the page sends no
+    // `dragend` either. The pointer moving again is the one sign every engine
+    // gives, since none of them reports it while a drag is under way.
+    for (const [ending, end] of [
+      ['the pointer moves again', () => window.dispatchEvent(new PointerEvent('pointermove'))],
+      [
+        'a file is dropped elsewhere on the page',
+        () => document.body.dispatchEvent(new DragEvent('drop', { bubbles: true }))
+      ],
+      [
+        'a drag that began on the page ends',
+        () => document.body.dispatchEvent(new DragEvent('dragend', { bubbles: true }))
+      ],
+      ['the window loses focus', () => window.dispatchEvent(new FocusEvent('blur'))]
+    ] as const) {
+      it(`goes back to resting when ${ending}, with no \`dragleave\``, async () => {
+        await render(<PlFilePicker className="picker-under-test" />);
+
+        dragEnter('.picker-under-test');
+        await vi.waitFor(() =>
+          expect(zoneClasses('.picker-under-test')).toContain('bg-(--p-soft-hover)')
+        );
+
+        end();
+
+        await vi.waitFor(() =>
+          expect(zoneClasses('.picker-under-test')).toContain('bg-(--plass-glass)')
+        );
+
+        // And the depth counter starts again from nothing, so the next file
+        // dragged over lights it and the next that leaves puts it out.
+        dragEnter('.picker-under-test');
+        await vi.waitFor(() =>
+          expect(zoneClasses('.picker-under-test')).toContain('bg-(--p-soft-hover)')
+        );
+        dragLeave('.picker-under-test');
+        await vi.waitFor(() =>
+          expect(zoneClasses('.picker-under-test')).toContain('bg-(--plass-glass)')
+        );
+      });
+    }
+
+    it('stays lit while the file crosses from one part of the box to another', async () => {
+      await render(<PlFilePicker className="picker-under-test" />);
+
+      // The part it arrives on is entered before the part it left is left.
+      dragEnter('.picker-under-test');
+      dragEnter('.picker-under-test', 'button span');
+      dragLeave('.picker-under-test');
+
+      await vi.waitFor(() =>
+        expect(zoneClasses('.picker-under-test')).toContain('bg-(--p-soft-hover)')
+      );
+    });
+
     it('marks the notched edge as well', async () => {
       await render(
         <PlFilePicker className="picker-under-test" label="Attachments" labelPlacement="notch" />
