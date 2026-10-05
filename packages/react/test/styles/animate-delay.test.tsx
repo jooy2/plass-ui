@@ -75,7 +75,9 @@ describe('a new `delay`', () => {
 
     expect(delayOf(target())).toBe(50);
     expect(keyframe(target()).playState).toBe('running');
-    expect(getComputedStyle(target()).opacity).not.toBe('0');
+    // Polled, since a run that has only just begun can still read 0 in WebKit;
+    // one sent back to waiting would read 0 for the whole of its new delay.
+    await expect.poll(() => getComputedStyle(target()).opacity).not.toBe('0');
   });
 
   it('leaves a run that is under way and paused where it is', async () => {
