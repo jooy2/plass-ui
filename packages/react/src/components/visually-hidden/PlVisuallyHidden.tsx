@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
+import type { PlassHeadingLevel } from '../../types.js';
 
 export interface PlVisuallyHiddenProps extends React.ComponentPropsWithoutRef<'span'> {
   /**
@@ -24,8 +25,16 @@ export interface PlVisuallyHiddenProps extends React.ComponentPropsWithoutRef<'s
    */
   focusable?: boolean;
   /**
-   * Renders something other than a `<span>`: `render={<div />}`,
-   * `render={<h2 />}`. Base UI's own escape hatch.
+   * Renders a heading at this level, `1` to `6`, in place of the `<span>`: a
+   * heading that structures the page for a screen reader without appearing in
+   * the design. It is clipped like any other content, and `focusable` still
+   * applies. `render` wins when both are given.
+   */
+  headingLevel?: PlassHeadingLevel;
+  /**
+   * Renders something other than a `<span>`, such as the `<div>` a live region
+   * wants. Base UI's own escape hatch, and it wins over `headingLevel`, which is
+   * the way to render a heading.
    */
   render?: useRender.RenderProp;
   children?: React.ReactNode;
@@ -65,9 +74,23 @@ const revealClasses = /* @__PURE__ */ [
 export const PlVisuallyHidden = /* @__PURE__ */ React.forwardRef<
   HTMLSpanElement,
   PlVisuallyHiddenProps
->(function PlVisuallyHidden({ focusable = false, render, className, children, ...props }, ref) {
+>(function PlVisuallyHidden(
+  { focusable = false, headingLevel, render, className, children, ...props },
+  ref
+) {
+  // The type keeps a TypeScript caller inside the six; this keeps a JavaScript
+  // one there too, where a `7` would have written an `<h7>`, which is no
+  // heading at all.
+  const element =
+    headingLevel !== undefined &&
+    Number.isInteger(headingLevel) &&
+    headingLevel >= 1 &&
+    headingLevel <= 6
+      ? (`h${headingLevel}` as const)
+      : 'span';
+
   return useRender({
-    render: render ?? <span />,
+    render: render ?? React.createElement(element),
     ref,
     props: {
       className: cx(srOnlyClasses, focusable ? revealClasses : '', className),

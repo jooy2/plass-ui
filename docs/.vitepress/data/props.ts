@@ -1703,8 +1703,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'render',
       type: 'ReactElement | (props, state) => ReactElement',
       description: {
-        ko: '<span> 대신 다른 요소로 렌더링합니다 (<h2 />)',
-        en: 'Renders something other than a <span> (<h2 />)'
+        ko: '<span> 대신 다른 요소로 렌더링합니다 (<PlTypography level="h2" />)',
+        en: 'Renders something other than a <span> (<PlTypography level="h2" />)'
       }
     }
   ],
@@ -15725,11 +15725,20 @@ export const propTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'headingLevel',
+      type: HEADING_LEVEL,
+      shared: true,
+      description: {
+        ko: '<span> 대신 그 단계의 heading으로 렌더링합니다. 디자인에는 나타나지 않고 스크린 리더에게 페이지 구조를 알려 주는 heading에 씁니다. 숨기는 클래스와 focusable은 그대로이고, render와 함께 주면 render가 이깁니다',
+        en: 'Renders a heading at this level in place of the <span>, for a heading that structures the page for a screen reader without appearing in the design. The hiding classes and focusable still apply; render wins when both are given'
+      }
+    },
+    {
       name: 'render',
       type: 'RenderProp',
       description: {
-        ko: '<span> 대신 다른 요소로 렌더링합니다 (<div />, <h2 />)',
-        en: 'Renders something other than a <span> (<div />, <h2 />)'
+        ko: '<span> 대신 다른 요소로 렌더링합니다 (<div />). headingLevel보다 우선합니다',
+        en: 'Renders something other than a <span> (<div />). Wins over headingLevel'
       }
     },
     {

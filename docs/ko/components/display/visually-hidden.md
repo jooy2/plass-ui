@@ -95,12 +95,22 @@ Semantics(
 
 </Demo>
 
-### render
+### headingLevel
 
-`<span>` 대신 다른 것을 렌더링합니다. 디자인에는 나타나지 않으면서 스크린 리더에게 페이지 구조를 만들어 주는 heading이나, live region이 원하는 `<div>` 같은 것입니다.
+`<span>` 대신 그 단계의 heading(`<h1>`~`<h6>`)을 렌더링합니다. 디자인에는 나타나지 않으면서 스크린 리더에게 페이지 구조를 만들어 주는 heading입니다. 다른 내용과 똑같이 clip되고, `focusable`도 그대로 적용됩니다.
 
 ```tsx
-<PlVisuallyHidden render={<h2 />}>Search results</PlVisuallyHidden>
+<PlVisuallyHidden headingLevel={2}>Search results</PlVisuallyHidden>
+```
+
+### render
+
+`<span>` 대신 다른 요소를 렌더링합니다. live region이 원하는 `<div>` 같은 것입니다. `headingLevel`과 함께 주면 `render`가 이깁니다.
+
+```tsx
+<PlVisuallyHidden render={<div />} aria-live="polite">
+  3 items in the basket
+</PlVisuallyHidden>
 ```
 
 ## Accessibility

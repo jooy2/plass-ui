@@ -95,12 +95,22 @@ An announcement with nothing to draw. `aria-live` on a hidden element is how a c
 
 </Demo>
 
-### render
+### headingLevel
 
-Renders something other than a `<span>`. A heading that structures the page for a screen reader without appearing in the design, or the `<div>` a live region wants.
+Renders the heading it names, `<h1>`–`<h6>`, in place of the `<span>`: a heading that structures the page for a screen reader without appearing in the design. It is clipped like any other content, and `focusable` still applies.
 
 ```tsx
-<PlVisuallyHidden render={<h2 />}>Search results</PlVisuallyHidden>
+<PlVisuallyHidden headingLevel={2}>Search results</PlVisuallyHidden>
+```
+
+### render
+
+Renders any other element in place of the `<span>`, such as the `<div>` a live region wants. `render` wins when both it and `headingLevel` are given.
+
+```tsx
+<PlVisuallyHidden render={<div />} aria-live="polite">
+  3 items in the basket
+</PlVisuallyHidden>
 ```
 
 ## Accessibility

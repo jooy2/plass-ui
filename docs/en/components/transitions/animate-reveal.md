@@ -12,9 +12,9 @@ order: 8
 ::: fw react
 
 ```tsx
-import { PlAnimateReveal } from 'plass-ui';
+import { PlAnimateReveal, PlTypography } from 'plass-ui';
 
-<PlAnimateReveal render={<h2 />}>Everything is where it was.</PlAnimateReveal>;
+<PlAnimateReveal render={<PlTypography level="h3" />}>Everything is where it was.</PlAnimateReveal>;
 
 <PlAnimateReveal from="top" trigger="visible" duration={700}>
   <PlDivider />
