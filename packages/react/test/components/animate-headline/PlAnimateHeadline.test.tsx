@@ -510,6 +510,38 @@ describe('PlAnimateHeadline', () => {
       }
     );
 
+    it.each([
+      ['the line it was on', [0], 'faster'],
+      ['another line', [2], 'cheaper'],
+      ['every line it was moved to', [1, 2], 'cheaper']
+    ])(
+      'waits a whole `interval` once `index` is taken away after it showed %s',
+      async (_, indexes, held) => {
+        const screen = await render(reel());
+
+        await advance(600);
+
+        for (const index of indexes) {
+          await screen.rerender(reel({ index }));
+          await advance(5000);
+        }
+
+        expect(showing()).toBe(held);
+
+        await screen.rerender(reel());
+        await advance(999);
+
+        // Let go, it counts from that moment, on the line it was on before it
+        // was controlled. It used to go on with the wait it had then, and
+        // turned 400ms later.
+        expect(showing()).toBe('faster');
+
+        await advance(1);
+
+        expect(showing()).toBe('simpler');
+      }
+    );
+
     it('waits a whole `interval` again once it is started again after it was stopped', async () => {
       const screen = await render(reel({ trigger: 'manual', play: true }));
 

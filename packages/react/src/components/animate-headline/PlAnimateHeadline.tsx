@@ -215,7 +215,17 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
       return;
     }
 
-    if (index !== undefined || run.state !== 'running') {
+    // A controlled reel has no wait under way either: its `index` is somebody
+    // else's clock. Let go, it counts the wait from the beginning on the line
+    // that is up, rather than going on with the one it had before it was
+    // controlled, which could turn it at once.
+    if (index !== undefined) {
+      waited.current = { line: active, gone: 0 };
+
+      return;
+    }
+
+    if (run.state !== 'running') {
       return;
     }
 
