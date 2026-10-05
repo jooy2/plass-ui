@@ -339,6 +339,14 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   const elapsed = React.useRef(0);
 
   /**
+   * Whether the figure on screen is the answer reduced motion put up for a run
+   * that had not begun counting yet. A reader who gives movement back then sees
+   * where the count starts for the rest of its wait, as a keyframe still
+   * waiting shows its first frame.
+   */
+  const early = React.useRef(false);
+
+  /**
    * The `easing` of the latest render, read by the loop rather than listed in
    * its dependencies. An inline `easing={(t) => t}` is a new function every
    * time the parent renders, and restarting the loop for each one would stall
@@ -359,12 +367,55 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   }, [course.count]);
 
   React.useEffect(() => {
+    const span = Math.max(1, duration);
+    let frame = 0;
+    let start: number | undefined;
+
     // A reader who asked for less movement gets the figure and nothing else,
     // which is the only thing the count was carrying.
+    //
+    // The run still lands, as a keyframe here lands in no time, once its
+    // `delay` is over. Its clock then stands at the end of the count, so a
+    // reader who gives movement back keeps the answer: counted from `from`
+    // again, the figure dropped to nothing and climbed back. Given movement
+    // back while it is still waiting, a run shows `from` until the rest of the
+    // wait is over and then counts, and one never let go waits for its
+    // trigger on `from`.
     if (still) {
       setShown(value);
 
-      return undefined;
+      if (!run.started) {
+        return undefined;
+      }
+
+      if (elapsed.current >= delay) {
+        early.current = false;
+        elapsed.current = Math.max(elapsed.current, delay + span);
+
+        return undefined;
+      }
+
+      early.current = true;
+
+      if (paused) {
+        return undefined;
+      }
+
+      const wait = (now: number) => {
+        start ??= now - elapsed.current;
+        elapsed.current = now - start;
+
+        if (elapsed.current < delay) {
+          frame = requestAnimationFrame(wait);
+        } else {
+          early.current = false;
+          elapsed.current = delay + span;
+        }
+      };
+
+      frame = requestAnimationFrame(wait);
+
+      return () => cancelAnimationFrame(frame);
     }
 
     // Not started is the *first frame*, exactly as it is for every keyframe
@@ -372,6 +423,7 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     // count from, not the one it is about to reach.
     if (!run.started) {
       elapsed.current = 0;
+      early.current = false;
       setShown(from);
 
       return undefined;
@@ -381,9 +433,13 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
       return undefined;
     }
 
-    const span = Math.max(1, duration);
-    let frame = 0;
-    let start: number | undefined;
+    if (early.current) {
+      early.current = false;
+
+      if (elapsed.current < delay) {
+        setShown(origin);
+      }
+    }
 
     const step = (now: number) => {
       // A count that was held goes on from where it stopped, whether it was

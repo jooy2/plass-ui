@@ -3,7 +3,7 @@ import { render } from 'vitest-browser-react';
 import { useState } from 'react';
 import { PlAnimateCounter } from 'plass-ui';
 import { frameClock } from '../../support/timing';
-import { emulateMedia } from '../../support/media';
+import { emulateMedia, emulateReducedMotion } from '../../support/media';
 import { scrollAndReport } from '../../support/visible';
 
 /**
@@ -886,6 +886,147 @@ describe('PlAnimateCounter', () => {
       );
 
       await expect.poll(() => drawn()).toBe('4,812');
+    });
+  });
+
+  describe('when the reader gives movement back', () => {
+    const linear = (t: number) => t;
+
+    it('keeps the answer a count landed on under reduced motion', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const frames = frameClock();
+
+      try {
+        await render(
+          <PlAnimateCounter
+            className="counter-under-test"
+            trigger="mount"
+            value={1000}
+            duration={1000}
+            easing={linear}
+          />
+        );
+
+        await frames.draw(1000);
+
+        expect(drawn()).toBe('1,000');
+
+        await emulateReducedMotion('no-preference');
+        await frames.draw(2000);
+        await frames.draw(2300);
+
+        // A count run again from `from` would be 300ms in.
+        expect(drawn()).toBe('1,000');
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('counts from `from` once the rest of a wait it was still in is over', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const frames = frameClock();
+
+      try {
+        await render(
+          <PlAnimateCounter
+            className="counter-under-test"
+            trigger="mount"
+            value={1000}
+            delay={600}
+            duration={100}
+            easing={linear}
+          />
+        );
+
+        // The wait's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1300);
+
+        expect(drawn()).toBe('1,000');
+
+        await emulateReducedMotion('no-preference');
+        // However late the page draws again, 300ms of the wait was left.
+        await frames.draw(5000);
+
+        expect(figure()).toBe(0);
+
+        await frames.draw(5299);
+
+        expect(figure()).toBe(0);
+
+        await frames.draw(5350);
+
+        // Halfway through the 100ms of counting after it. A run that waited out
+        // the whole `delay` again would still be on `from`.
+        expect(figure()).toBe(500);
+
+        await frames.draw(5400);
+
+        expect(figure()).toBe(1000);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('counts the next run from `from` as usual', async () => {
+      const counter = (play: boolean) => (
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          play={play}
+          value={1000}
+          duration={1000}
+          easing={linear}
+        />
+      );
+
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const frames = frameClock();
+
+      try {
+        const screen = await render(counter(true));
+
+        expect(drawn()).toBe('1,000');
+
+        await emulateReducedMotion('no-preference');
+        await frames.draw(2000);
+
+        expect(drawn()).toBe('1,000');
+
+        await screen.rerender(counter(false));
+
+        expect(figure()).toBe(0);
+
+        await screen.rerender(counter(true));
+        await frames.draw(3000);
+        await frames.draw(3300);
+
+        expect(figure()).toBe(300);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('waits for its trigger on `from` if it was never let go', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      await render(
+        <PlAnimateCounter
+          className="counter-under-test"
+          trigger="manual"
+          value={1000}
+          duration={1000}
+        />
+      );
+
+      await expect.poll(() => drawn()).toBe('1,000');
+
+      await emulateReducedMotion('no-preference');
+
+      expect(figure()).toBe(0);
     });
   });
 

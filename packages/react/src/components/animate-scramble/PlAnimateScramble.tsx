@@ -140,10 +140,46 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
   }, [run.runs, children]);
 
   React.useEffect(() => {
+    const span = Math.max(1, duration);
+    let started: number | undefined;
+    let frame = 0;
+
+    // The line, settled, for a reader who asked for less movement. The run
+    // still lands once its `delay` is over, and keeps the line when the reader
+    // gives movement back, for `PlAnimateCounter`'s reason: settled from the
+    // start again, the line went back to noise. Given movement back while it
+    // is still waiting, a run is noise until the rest of the wait is over.
     if (still) {
       setShown(children);
 
-      return undefined;
+      if (!run.started) {
+        return undefined;
+      }
+
+      if (elapsed.current >= delay) {
+        elapsed.current = Math.max(elapsed.current, delay + span);
+
+        return undefined;
+      }
+
+      if (paused) {
+        return undefined;
+      }
+
+      const wait = (now: number) => {
+        started ??= now - elapsed.current;
+        elapsed.current = now - started;
+
+        if (elapsed.current < delay) {
+          frame = requestAnimationFrame(wait);
+        } else {
+          elapsed.current = delay + span;
+        }
+      };
+
+      frame = requestAnimationFrame(wait);
+
+      return () => cancelAnimationFrame(frame);
     }
 
     // Not started is the first frame: a line waiting to be scrolled to is
@@ -159,9 +195,6 @@ export const PlAnimateScramble = /* @__PURE__ */ React.forwardRef<
       return undefined;
     }
 
-    const span = Math.max(1, duration);
-    let started: number | undefined;
-    let frame = 0;
     let seed = 0;
     let painted = -1;
 

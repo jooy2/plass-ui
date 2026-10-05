@@ -18,6 +18,7 @@
  * frame clock.
  */
 import { cdp, commands } from 'vitest/browser';
+import { committed } from './timing';
 
 type Features = Parameters<typeof commands.emulateMedia>[0];
 
@@ -47,6 +48,35 @@ export async function emulateMedia(features: Features): Promise<void> {
 
     await new Promise((resolve) => setTimeout(resolve, 10));
   }
+}
+
+/**
+ * Emulates `prefers-reduced-motion`, and resolves once the page has heard it
+ * change: the change event has reached the lists the library listens to, and
+ * the render React makes of it is committed with its effects.
+ *
+ * For a component that answers the setting in JavaScript. It reads the setting
+ * on the render after the change event, which the browser sends on its next
+ * frame rather than when `emulateMedia` resolves.
+ */
+export async function emulateReducedMotion(value: 'reduce' | 'no-preference'): Promise<void> {
+  const list = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Nothing changes, so nothing is sent.
+  if (list.matches === (value === 'reduce')) {
+    await emulateMedia({ reducedMotion: value });
+
+    return;
+  }
+
+  await committed(async () => {
+    const heard = new Promise<void>((resolve) => {
+      list.addEventListener('change', () => resolve(), { once: true });
+    });
+
+    await emulateMedia({ reducedMotion: value });
+    await heard;
+  });
 }
 
 /**

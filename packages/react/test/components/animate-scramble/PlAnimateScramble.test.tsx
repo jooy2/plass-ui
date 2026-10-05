@@ -3,7 +3,7 @@ import { render } from 'vitest-browser-react';
 import { useState } from 'react';
 import { PlAnimateScramble } from 'plass-ui';
 import { frameClock } from '../../support/timing';
-import { emulateMedia } from '../../support/media';
+import { emulateMedia, emulateReducedMotion } from '../../support/media';
 
 /**
  * Runs the next animation frame the page asks for as soon as the work that
@@ -428,6 +428,134 @@ describe('PlAnimateScramble', () => {
       );
 
       await expect.poll(() => drawn()).toBe(LINE);
+    });
+  });
+
+  describe('when the reader gives movement back', () => {
+    it('keeps the line it settled on under reduced motion', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const frames = frameClock();
+
+      try {
+        await render(
+          <PlAnimateScramble
+            className="scramble-under-test"
+            trigger="mount"
+            duration={1000}
+            tick={10}
+            characters="01"
+          >
+            {LINE}
+          </PlAnimateScramble>
+        );
+
+        await frames.draw(1000);
+
+        expect(drawn()).toBe(LINE);
+
+        await emulateReducedMotion('no-preference');
+        await frames.draw(2000);
+        await frames.draw(2300);
+
+        // A line settled again from the start would be noise past its fifth
+        // character.
+        expect(drawn()).toBe(LINE);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('is noise for the rest of a wait it was still in, and settles once it is over', async () => {
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const frames = frameClock();
+
+      try {
+        await render(
+          <PlAnimateScramble
+            className="scramble-under-test"
+            trigger="mount"
+            delay={600}
+            duration={100}
+            tick={10}
+            characters="01"
+          >
+            {LINE}
+          </PlAnimateScramble>
+        );
+
+        // The wait's clock starts at its first frame, whatever time that is.
+        await frames.draw(1000);
+        await frames.draw(1300);
+
+        expect(drawn()).toBe(LINE);
+
+        await emulateReducedMotion('no-preference');
+        // However late the page draws again, 300ms of the wait was left.
+        await frames.draw(5000);
+
+        expect(settled()).toBe(0);
+
+        await frames.draw(5299);
+
+        expect(settled()).toBe(0);
+
+        await frames.draw(5350);
+
+        // Halfway through the 100ms of settling after it: eight of the line's
+        // seventeen characters. A run that waited out the whole `delay` again
+        // would still be noise.
+        expect(settled()).toBe(8);
+
+        await frames.draw(5400);
+
+        expect(drawn()).toBe(LINE);
+      } finally {
+        frames.restore();
+      }
+    });
+
+    it('settles the next run from noise as usual', async () => {
+      const line = (play: boolean) => (
+        <PlAnimateScramble
+          className="scramble-under-test"
+          trigger="manual"
+          play={play}
+          duration={1000}
+          tick={10}
+          characters="01"
+        >
+          {LINE}
+        </PlAnimateScramble>
+      );
+
+      await emulateMedia({ reducedMotion: 'reduce' });
+
+      const frames = frameClock();
+
+      try {
+        const screen = await render(line(true));
+
+        expect(drawn()).toBe(LINE);
+
+        await emulateReducedMotion('no-preference');
+        await frames.draw(2000);
+
+        expect(drawn()).toBe(LINE);
+
+        await screen.rerender(line(false));
+
+        expect(settled()).toBe(0);
+
+        await screen.rerender(line(true));
+        await frames.draw(3000);
+        await frames.draw(3500);
+
+        expect(settled()).toBe(8);
+      } finally {
+        frames.restore();
+      }
     });
   });
 });
