@@ -17,6 +17,7 @@
 
 ### Changed
 
+- **A `PlCard` `headerAction` is centred on the first line of the title.** The header row lined the action up with the top of the title, so a `PlIconButton` beside a one-line title sat with its middle 10px below the title's at `md`, and further below at the larger sizes. The action's middle now lands on the middle of the title's first line, or of the subtitle's when there is no title, at any text scale, and stays there while the title wraps. The header grows to hold whichever of the two is taller, so all of the action stays inside the card and takes a press. A header with only an action keeps it at the top.
 - **A new `value` makes `PlAnimateCounter` count on from the figure on screen.** It counted from `from` every time, and the frame the new value arrived in drew it at the old count's progress, so a counter that had landed showed the new figure for a frame, dropped to `from` and counted up again. It now counts from the figure the last count landed on, or from the frame a count still running had got to, over the same `duration` with the same `curve`. The first count and a replay, such as a new `play`, still start at `from`, and reduced motion, `paused` and `trigger` work as before.
 
 ### Fixed

@@ -1,5 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/gestures.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +21,39 @@ class _Probe extends StatefulWidget {
 class _ProbeState extends State<_Probe> {
   @override
   Widget build(BuildContext context) => const Text('Body');
+}
+
+/// The vertical middle of the first line of [text]: the middle of its first
+/// glyph's box, taken as tall as the line it sits on.
+///
+/// The paragraph rounds a line to whole pixels and leaves the glyph's box as it
+/// is, so where the line is not a whole number of pixels the two middles are a
+/// fraction of a pixel apart, which [expectNear] allows for.
+double firstLineMiddleOf(WidgetTester tester, Finder text) {
+  final RenderParagraph paragraph = tester.renderObject<RenderParagraph>(text);
+  final TextBox glyph = paragraph
+      .getBoxesForSelection(
+        const TextSelection(baseOffset: 0, extentOffset: 1),
+        boxHeightStyle: ui.BoxHeightStyle.max,
+      )
+      .first;
+
+  return tester.getRect(text).top + (glyph.top + glyph.bottom) / 2;
+}
+
+/// Within a pixel either way.
+void expectNear(double actual, double expected) {
+  expect((actual - expected).abs(), lessThanOrEqualTo(1));
+}
+
+/// The action sits wholly inside the header row, so every part of it takes a
+/// press.
+void expectInside(WidgetTester tester, Finder action) {
+  final Rect box = tester.getRect(action);
+  final Rect row = tester.getRect(find.ancestor(of: action, matching: find.byType(Row)).first);
+
+  expect(box.top, greaterThanOrEqualTo(row.top - 1));
+  expect(box.bottom, lessThanOrEqualTo(row.bottom + 1));
 }
 
 void main() {
@@ -79,6 +114,240 @@ void main() {
         );
 
         expect(styleOf(tester, 'Visa').color, PlassTokens.light().mutedFg);
+      });
+    });
+
+    group('the header action', () {
+      final more = find.byType(PlIconButton);
+
+      for (final size in PlassSize.values) {
+        testWidgets('centres on a one-line title, and the header holds it, at ${size.name}', (
+          WidgetTester tester,
+        ) async {
+          var pressed = 0;
+
+          await tester.pumpWidget(
+            host(
+              PlCard(
+                size: size,
+                title: const Text('Billing'),
+                headerAction: PlIconButton(
+                  size: size,
+                  icon: const Text('•'),
+                  label: 'More',
+                  onPressed: () => pressed += 1,
+                ),
+                child: const Text('Body'),
+              ),
+              width: 320,
+            ),
+          );
+
+          expectNear(tester.getCenter(more).dy, firstLineMiddleOf(tester, find.text('Billing')));
+          expectInside(tester, more);
+          expect(
+            tester.getRect(find.text('Body')).top,
+            greaterThanOrEqualTo(tester.getRect(more).bottom),
+          );
+
+          // Pressed just inside its top edge and just inside its bottom one.
+          await tester.tapAt(tester.getRect(more).topCenter + const Offset(0, 1));
+          await tester.tapAt(tester.getRect(more).bottomCenter - const Offset(0, 1));
+
+          expect(pressed, 2);
+        });
+
+        testWidgets('moves itself rather than the title when it is shorter, at ${size.name}', (
+          WidgetTester tester,
+        ) async {
+          const dot = Key('dot');
+
+          await tester.pumpWidget(
+            host(
+              PlCard(
+                size: size,
+                title: const Text('Billing'),
+                headerAction: const SizedBox.square(key: dot, dimension: 8),
+              ),
+              width: 320,
+            ),
+          );
+
+          final title = find.text('Billing');
+          final Rect row = tester.getRect(
+            find.ancestor(of: title, matching: find.byType(Row)).first,
+          );
+
+          expectNear(tester.getCenter(find.byKey(dot)).dy, firstLineMiddleOf(tester, title));
+          expectNear(tester.getRect(title).top, row.top);
+          expectInside(tester, find.byKey(dot));
+        });
+
+        testWidgets('centres on the subtitle when there is no title, at ${size.name}', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(
+            host(
+              PlCard(
+                size: size,
+                subtitle: const Text('Visa ending 4242'),
+                headerAction: PlIconButton(
+                  size: size,
+                  icon: const Text('•'),
+                  label: 'More',
+                  onPressed: () {},
+                ),
+              ),
+              width: 320,
+            ),
+          );
+
+          expectNear(
+            tester.getCenter(more).dy,
+            firstLineMiddleOf(tester, find.text('Visa ending 4242')),
+          );
+          expectInside(tester, more);
+        });
+
+        testWidgets('centres on a title that is a heading, at ${size.name}', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(
+            host(
+              PlCard(
+                size: size,
+                title: const Text('Billing'),
+                headingLevel: 2,
+                headerAction: PlIconButton(
+                  size: size,
+                  icon: const Text('•'),
+                  label: 'More',
+                  onPressed: () {},
+                ),
+              ),
+              width: 320,
+            ),
+          );
+
+          expectNear(tester.getCenter(more).dy, firstLineMiddleOf(tester, find.text('Billing')));
+          expectInside(tester, more);
+        });
+      }
+
+      testWidgets('stays on the first line of a title that wraps', (WidgetTester tester) async {
+        const words = 'Quarterly billing summary for the whole team';
+
+        await tester.pumpWidget(
+          host(
+            PlCard(
+              title: const Text(words),
+              headerAction: PlIconButton(icon: const Text('•'), label: 'More', onPressed: () {}),
+            ),
+            width: 200,
+          ),
+        );
+
+        final title = find.text(words);
+
+        // Wrapped, or the test is not about a wrapping title.
+        expect(
+          tester.getSize(title).height,
+          greaterThan((firstLineMiddleOf(tester, title) - tester.getRect(title).top) * 3),
+        );
+        expectNear(tester.getCenter(more).dy, firstLineMiddleOf(tester, title));
+      });
+
+      testWidgets('centres a labelled button on the title rather than lining up its label', (
+        WidgetTester tester,
+      ) async {
+        final edit = find.byType(PlButton);
+
+        await tester.pumpWidget(
+          host(
+            PlCard(
+              title: const Text('Billing'),
+              headerAction: PlButton(
+                size: PlassSize.sm,
+                onPressed: () {},
+                child: const Text('Edit'),
+              ),
+            ),
+            width: 320,
+          ),
+        );
+
+        expectNear(tester.getCenter(edit).dy, firstLineMiddleOf(tester, find.text('Billing')));
+        expectInside(tester, edit);
+      });
+
+      testWidgets('centres on the title when a subtitle is under it', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            PlCard(
+              title: const Text('Billing'),
+              subtitle: const Text('Visa ending 4242'),
+              headerAction: PlIconButton(icon: const Text('•'), label: 'More', onPressed: () {}),
+            ),
+            width: 320,
+          ),
+        );
+
+        expectNear(tester.getCenter(more).dy, firstLineMiddleOf(tester, find.text('Billing')));
+        expectInside(tester, more);
+      });
+
+      testWidgets('follows the title when the text is scaled', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(
+            Builder(
+              builder: (BuildContext context) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.5)),
+                child: PlCard(
+                  title: const Text('Billing'),
+                  headerAction: PlIconButton(
+                    icon: const Text('•'),
+                    label: 'More',
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+            ),
+            width: 320,
+          ),
+        );
+
+        expectNear(tester.getCenter(more).dy, firstLineMiddleOf(tester, find.text('Billing')));
+        expectInside(tester, more);
+      });
+
+      testWidgets('sits at the top of a header that holds nothing else', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            PlCard(
+              headerAction: PlIconButton(icon: const Text('•'), label: 'More', onPressed: () {}),
+            ),
+            width: 320,
+          ),
+        );
+
+        final Rect row = tester.getRect(find.ancestor(of: more, matching: find.byType(Row)).first);
+
+        expectNear(tester.getRect(more).top, row.top);
+        expectInside(tester, more);
+      });
+
+      testWidgets('keeps its own state when a title comes or goes', (WidgetTester tester) async {
+        await tester.pumpWidget(host(const PlCard(headerAction: _Probe()), width: 320));
+
+        final State<_Probe> before = tester.state(find.byType(_Probe));
+
+        await tester.pumpWidget(
+          host(const PlCard(title: Text('Billing'), headerAction: _Probe()), width: 320),
+        );
+
+        expect(tester.state(find.byType(_Probe)), same(before));
       });
     });
 

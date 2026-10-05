@@ -1095,6 +1095,25 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * Struts
+ *
+ * An empty line in the type of the element that carries the class, for lining
+ * something up by a line of text it does not hold: a card's `headerAction` is
+ * centred with one so that its middle meets the middle of the title's first
+ * line. A zero-width space is the least a line box needs, and as generated
+ * content it never reaches the element's `textContent`.
+ *
+ * In CSS rather than in Tailwind because the character is an escape: a
+ * `content-[…]` utility holding it matches its rule only while every tool
+ * between the source and the `dist/` a project's Tailwind scans keeps the
+ * backslash as written.
+ * ------------------------------------------------------------------------- */
+
+.plass-strut::before {
+  content: '\200b';
+}
+
+/* ---------------------------------------------------------------------------
  * Links
  *
  * `<a>` is, with `<td>`, one of the two tags a host stylesheet still styles by

@@ -32,6 +32,25 @@ describe('PlCard', () => {
       await expect.element(screen.getByRole('button', { name: 'Change' })).toBeInTheDocument();
     });
 
+    it('adds no text of its own to the header', async () => {
+      await render(
+        <PlCard
+          className="card-under-test"
+          title="Billing"
+          subtitle="Visa ending 4242"
+          headerAction={<button type="button">Change</button>}
+        >
+          Body
+        </PlCard>
+      );
+      const card = document.querySelector('.card-under-test') as HTMLElement;
+
+      // The strut the action is centred with is drawn by the stylesheet, so
+      // its zero-width space is not in the card's text.
+      expect(card.textContent).not.toContain('\u200b');
+      expect(card.textContent).toBe('BillingVisa ending 4242ChangeBody');
+    });
+
     it('keeps a heading passed as `title` a heading', async () => {
       const screen = await render(<PlCard title={<h2>Billing</h2>}>Body</PlCard>);
 

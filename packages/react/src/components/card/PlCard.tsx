@@ -40,7 +40,8 @@ export interface PlCardProps
   subtitle?: React.ReactNode;
   /**
    * Content pinned to the end of the header row — a menu button, a status
-   * chip. Stays on the title's line while the title wraps beside it.
+   * chip. Centred on the title's first line, and stays there while the title
+   * wraps beside it. The header grows to hold whichever of the two is taller.
    */
   headerAction?: React.ReactNode;
   /**
@@ -179,24 +180,43 @@ export const PlCard = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCardPro
 
   const hasHeader = hasContent(title) || hasContent(subtitle) || hasContent(headerAction);
 
+  const titleText = `font-semibold ${sheetTitleClasses[size]}`;
+  const subtitleText = metaTextClasses[size];
+  // The line the action is centred on: the title's first, or the subtitle's
+  // when there is no title.
+  const firstLine = hasContent(title) ? titleText : hasContent(subtitle) ? subtitleText : null;
+
   const header = (
     <>
       {hasContent(title) || hasContent(subtitle) ? (
         <div className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
-          {hasContent(title) ? (
-            <div className={`plass-title font-semibold ${sheetTitleClasses[size]}`}>{title}</div>
-          ) : null}
+          {hasContent(title) ? <div className={`plass-title ${titleText}`}>{title}</div> : null}
           {hasContent(subtitle) ? (
-            <div className={`text-(--plass-muted-fg) ${metaTextClasses[size]}`}>{subtitle}</div>
+            <div className={`text-(--plass-muted-fg) ${subtitleText}`}>{subtitle}</div>
           ) : null}
         </div>
       ) : null}
-      {hasContent(headerAction) ? <div className="ms-auto shrink-0">{headerAction}</div> : null}
+      {hasContent(headerAction) ? (
+        // The row lines its two sides up on their first baselines. Nothing in
+        // here takes part in that, so this side's baseline is the strut's: an
+        // empty line set in the same type as the first line beside it, centred
+        // with the action. The action's middle therefore lands on the middle
+        // of that line, and the row grows to hold whichever side is taller
+        // rather than letting the action hang out of it. `.plass-strut` draws
+        // the line's one character as generated content, so the card's text
+        // stays what the caller wrote.
+        <div className="ms-auto flex shrink-0 items-center">
+          {firstLine ? (
+            <span aria-hidden="true" className={`plass-strut w-0 ${firstLine}`} />
+          ) : null}
+          {headerAction}
+        </div>
+      ) : null}
     </>
   );
 
   const sections = [
-    hasHeader ? { key: 'header', className: 'flex items-start gap-3', content: header } : null,
+    hasHeader ? { key: 'header', className: 'flex items-baseline gap-3', content: header } : null,
     hasContent(children)
       ? { key: 'content', className: sheetBodyClasses[size], content: children }
       : null,

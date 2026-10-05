@@ -2904,8 +2904,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'headerAction',
       type: 'ReactNode',
       description: {
-        ko: '헤더 줄 끝에 고정되는 내용 — 메뉴 버튼, 상태 칩. 제목이 줄바꿈되어도 첫 줄에 남습니다',
-        en: 'Content pinned to the end of the header row — a menu button, a status chip. Stays on the title line while the title wraps'
+        ko: '헤더 줄 끝에 고정되는 내용 — 메뉴 버튼, 상태 칩. 제목 첫 줄과 세로 가운데를 맞추고, 제목이 줄바꿈되어도 그 자리에 남습니다. 헤더는 둘 중 높은 쪽만큼 늘어납니다',
+        en: 'Content pinned to the end of the header row — a menu button, a status chip. Centred on the first line of the title, and stays there while the title wraps. The header grows to hold whichever of the two is taller'
       }
     },
     {
