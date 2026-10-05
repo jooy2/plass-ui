@@ -381,7 +381,7 @@ class PlassTokens {
     brightness: Brightness.dark,
     surface: const Color(0xFF141B30),
     fg: const Color(0xFFE7EAF3),
-    mutedFg: const Color(0xFF99A2BA),
+    mutedFg: const Color(0xFFA0A9BF),
     border: const Color(0x1FFFFFFF),
     bgFrom: const Color(0xFF111731),
     bgTo: const Color(0xFF0A0E1C),
@@ -445,7 +445,7 @@ class PlassTokens {
     // stays the faintest thing on the plot.
     chartGrid: const Color(0x15FFFFFF),
     chartAxis: const Color(0x1FFFFFFF),
-    chartBaseline: const Color(0x5999A2BA),
+    chartBaseline: const Color(0x59A0A9BF),
     families: _familiesFor(accents: _darkAccents, tintStrength: 55),
   );
 

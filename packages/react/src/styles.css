@@ -683,7 +683,10 @@
 
     --plass-surface: #141b30;
     --plass-fg: #e7eaf3;
-    --plass-muted-fg: #99a2ba;
+    /* Light enough to clear 4.5:1 on the densest step of the glass, which is
+       lighter than the sheet: a modal or a select's list over an opaque sheet
+       is the hardest place muted text is read. */
+    --plass-muted-fg: #a0a9bf;
     --plass-border: rgb(255 255 255 / 0.12);
 
     --plass-bg-from: #111731;
@@ -762,7 +765,7 @@
 
   --plass-surface: #141b30;
   --plass-fg: #e7eaf3;
-  --plass-muted-fg: #99a2ba;
+  --plass-muted-fg: #a0a9bf;
   --plass-border: rgb(255 255 255 / 0.12);
 
   --plass-bg-from: #111731;

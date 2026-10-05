@@ -589,6 +589,54 @@ describe('plass-ui/styles.css', () => {
 
       expect(failures).toEqual([]);
     });
+
+    it('set muted text that clears 4.5:1 on every step of the glass, in both themes', () => {
+      // WCAG 1.4.3 asks 4.5:1 of body text, and `--plass-muted-fg` is the
+      // labels, the descriptions and the hints. It is read on the page, on a
+      // sheet of glass laid over the page or over an opaque sheet, and on the
+      // densest step most of all: a modal, a select's list and a tooltip are
+      // `--plass-glass-press`. Over an opaque sheet is also what a reader who
+      // asked for less transparency gets everywhere. A floor rather than a
+      // shade, as above.
+      const probe = document.createElement('span');
+      const failures: string[] = [];
+
+      const paint = (value: string, ground?: number[]) => {
+        probe.style.color = value;
+        return rgb(getComputedStyle(probe).color, ground);
+      };
+
+      document.body.append(probe);
+
+      try {
+        for (const theme of ['light', 'dark']) {
+          document.documentElement.setAttribute('data-theme', theme);
+
+          for (const ground of ['--plass-surface', '--plass-bg-from', '--plass-bg-to']) {
+            const page = paint(`var(${ground})`);
+
+            for (const step of [
+              null,
+              '--plass-glass',
+              '--plass-glass-hover',
+              '--plass-glass-press'
+            ]) {
+              const back = step ? paint(`var(${step})`, page) : page;
+              const ratio = contrast(paint('var(--plass-muted-fg)', back), back);
+
+              if (ratio < 4.5) {
+                failures.push(`${theme} ${step ?? 'bare'} on ${ground}: ${ratio.toFixed(2)}`);
+              }
+            }
+          }
+        }
+      } finally {
+        probe.remove();
+        document.documentElement.removeAttribute('data-theme');
+      }
+
+      expect(failures).toEqual([]);
+    });
   });
 
   describe('an overlapping pile measures what it draws', () => {
