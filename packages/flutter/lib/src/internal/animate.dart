@@ -878,8 +878,24 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// under the setting, and a new `repeat` is counted against its clock. A
   /// strip or a light that landed endless and was given a count while the
   /// setting was on lands again where that count ends once the setting goes,
-  /// and stays there too.
+  /// and stays there too, unless a pause held it as it was given the count,
+  /// as [_countHeld] says.
   bool _staysLanded = false;
+
+  /// Whether a strip or a light that landed endless under reduced motion was
+  /// given a count while `paused` held it there, and has not been let go
+  /// since. It has not landed that count: the React build gives it back a
+  /// keyframe for the count, which the pause holds inside its delay, through
+  /// any count it is given after, until it is given `null` again.
+  ///
+  /// So once the setting goes, it starts again from its first frame, as an
+  /// endless one does, and plays the count from there after its delay once
+  /// the pause is let go, as a run a pause held before it landed does. Let go
+  /// while the setting is on, it lands as that keyframe does. And when the
+  /// setting comes back first, it is what the setting finds, as any run is:
+  /// standing where it begins, with no delay left, it lands there, as the
+  /// keyframe that had reached the start of its run does.
+  bool _countHeld = false;
 
   /// With [_still], whether the run had finished moving before the setting
   /// arrived, and so did not land under it. Its clock goes on counting from
@@ -997,6 +1013,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     if (!started || !widget.settings.paused) {
       _keepsStill = false;
       _keepsLanded = false;
+      _countHeld = false;
     }
 
     if (!started || widget.settings.paused || widget.held || resting) {
@@ -1232,6 +1249,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _keepsLanding = false;
     _keepsStill = false;
     _keepsLanded = false;
+    _countHeld = false;
   }
 
   /// Where the controller stops at the end of the run, as [_endOf] says it
@@ -1277,6 +1295,21 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// stands where the new count ends, or at the end of one pass when the new
   /// count is `null`, whatever its clock says.
   void _recount(int? before) {
+    final int? repeat = widget.settings.repeat;
+
+    // A strip or a light that landed endless and is given a count while a
+    // pause holds it under reduced motion has not landed that count.
+    if (repeat == null) {
+      _countHeld = false;
+    } else if (_still &&
+        before == null &&
+        widget.restartsWithMotion &&
+        widget.settings.paused &&
+        _landed &&
+        !_staysLanded) {
+      _countHeld = true;
+    }
+
     // Under reduced motion a run stands on the last frame of whatever count it
     // has, which the build reads. One that has not begun its passes, waiting
     // for its trigger or out its delay, reads the new count when it does, and
@@ -1288,8 +1321,6 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _delayLeft > Duration.zero) {
       return;
     }
-
-    final int? repeat = widget.settings.repeat;
 
     // A run that landed under reduced motion stands on the last frame of the
     // new count, and plays none of the passes it adds, until it runs again.
@@ -1421,6 +1452,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _keepsLanding = false;
         _keepsStill = false;
         _keepsLanded = false;
+        _countHeld = false;
       } else if (_landed) {
         // And given back after a run had landed. The builder listening to the
         // controller is below this one, so putting the controller somewhere
@@ -1436,13 +1468,15 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           _pass = 1;
           _setValue(_end);
           _keepsLanded = widget.settings.paused;
-        } else if (repeat == null && widget.restartsWithMotion) {
+        } else if ((repeat == null || _countHeld) && widget.restartsWithMotion) {
           // Started again from its first frame, which this build draws, and
           // moving once `_drive` has waited out its delay, as an effect the
           // React build switched off under the setting starts once it goes.
           // A pause keeps what reduced motion drew until it is let go, drawn
           // whatever frame the run stands on, so the frame that lets it go
-          // draws the first one as well.
+          // draws the first one as well. So does one given a count while the
+          // pause held it, which then plays the count, as the keyframe the
+          // count gave it back plays once the pause lets it go.
           _place(Duration.zero);
           _clockAt = Duration.zero;
           _clockFrom = null;
@@ -1458,7 +1492,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           // clock: it stands where the count ends only once that time is past
           // it. A strip or a light that did so is left to the last branch,
           // since the React build switched its keyframe off under the setting
-          // and the count gives it one again, which lands.
+          // and the count gives it one again, which lands, unless a pause held
+          // it then, which is the branch above.
           final Duration? from = _clockFrom;
           final Duration since = from == null ? Duration.zero : animationNow() - from;
 
@@ -1499,7 +1534,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           // given next. A strip or a light that landed endless and was given
           // a count while the setting was on lands here, as the keyframe the
           // count gives it back lands under the setting, and the React build
-          // keeps that one marked landed as it does any other.
+          // keeps that one marked landed as it does any other. One a pause
+          // held as it was given the count has not landed, and starts again.
           _staysLanded = true;
 
           // A pause holds what is on the screen, which is what reduced motion

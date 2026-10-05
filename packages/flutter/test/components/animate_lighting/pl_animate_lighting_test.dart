@@ -426,5 +426,100 @@ void main() {
         expect(tester.binding.hasScheduledFrame, isTrue);
       });
     }
+
+    group('endless, given a finite repeat while a pause held it under the setting', () {
+      /// Once round a second at an even pace, after [delay].
+      Widget lighting({required int delay, int? repeat, bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateLighting(
+            repeat: repeat,
+            paused: paused,
+            curve: Curves.linear,
+            delay: Duration(milliseconds: delay),
+            duration: const Duration(seconds: 1),
+            child: const Text('Live'),
+          ),
+          width: 200,
+          height: 80,
+          disableAnimations: still,
+        );
+      }
+
+      /// Lands the light endless, pauses it, gives it two turns and takes the
+      /// setting away, and brings the setting back and takes it away again
+      /// when [again] says so.
+      Future<void> holdThrough(
+        WidgetTester tester, {
+        required int delay,
+        bool again = false,
+      }) async {
+        await tester.pumpWidget(lighting(delay: delay, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(delay: delay, paused: true, still: true));
+        await tester.pumpWidget(lighting(delay: delay, repeat: 2, paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(delay: delay, repeat: 2, paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        if (again) {
+          await tester.pumpWidget(lighting(delay: delay, repeat: 2, paused: true, still: true));
+          await tester.pump(const Duration(milliseconds: 500));
+          await tester.pumpWidget(lighting(delay: delay, repeat: 2, paused: true));
+          await tester.pump(const Duration(milliseconds: 500));
+        }
+
+        // A pause holds the even glow reduced motion drew.
+        expect(even(tester), isTrue);
+        expect(await redrawsIn(tester), isFalse);
+      }
+
+      for (final (int delay, bool again) in <(int, bool)>[(0, false), (300, false), (300, true)]) {
+        final String setting = again ? 'comes and goes again' : 'goes';
+
+        testWidgets('plays it from the beginning, after a delay of ${delay}ms, once the pause is '
+            'let go after the setting $setting', (WidgetTester tester) async {
+          await holdThrough(tester, delay: delay, again: again);
+          await tester.pumpWidget(lighting(delay: delay, repeat: 2));
+
+          // The React build gives the light back a keyframe for the count, which
+          // the pause holds before its run, so it plays once it is let go. It
+          // used to stand where the count ends.
+          expect(even(tester), isFalse);
+          expect(turnOf(tester), closeTo(0, 0.001));
+
+          await tester.pump();
+
+          if (delay > 0) {
+            await tester.pump(Duration(milliseconds: delay - 1));
+
+            expect(turnOf(tester), closeTo(0, 0.001));
+
+            await tester.pump(const Duration(milliseconds: 1));
+          }
+
+          await tester.pump(const Duration(milliseconds: 250));
+
+          expect(turnOf(tester), closeTo(0.25, 0.001));
+
+          // Two turns, and it stands where the second ends.
+          await tester.pumpAndSettle();
+
+          expect(turnOf(tester), closeTo(1, 0.001));
+        });
+      }
+
+      testWidgets('stands where it ends once the pause is let go, when the setting comes back '
+          'with no delay left and goes again', (WidgetTester tester) async {
+        await holdThrough(tester, delay: 0, again: true);
+        await tester.pumpWidget(lighting(delay: 0, repeat: 2));
+
+        // The setting came back to a run standing where it begins and landed
+        // it there, as it lands the keyframe in the React build, which had
+        // reached the start of its run once the setting went.
+        expect(even(tester), isFalse);
+        expect(turnOf(tester), closeTo(1, 0.001));
+        expect(await redrawsIn(tester), isFalse);
+      });
+    });
   });
 }

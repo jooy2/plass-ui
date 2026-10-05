@@ -1061,6 +1061,102 @@ describe('a light or a strip when movement is given back', () => {
     expect(even()).toBe(true);
   });
 
+  for (const [delay, again] of [
+    [0, false],
+    [300, false],
+    [300, true]
+  ] as const) {
+    const setting = again ? 'comes and goes again' : 'goes';
+
+    it(`plays an endless PlAnimateLighting given a finite count while \`paused\` held it under the setting from its start once it is let go after the setting ${setting}, with a delay of ${delay}ms`, async () => {
+      const lighting = (repeat: number | 'infinite', paused: boolean) => (
+        <PlAnimateLighting
+          className="effect-under-test"
+          duration={long}
+          delay={delay}
+          repeat={repeat}
+          paused={paused}
+        >
+          <div style={{ height: '80px' }}>Glowing</div>
+        </PlAnimateLighting>
+      );
+      const screen = await render(lighting('infinite', false));
+
+      await screen.rerender(lighting('infinite', true));
+      await expect.poll(() => target().hasAttribute('data-plass-held')).toBe(true);
+      await screen.rerender(lighting(5, true));
+
+      // The keyframe the count gives it back is held before its run, so it
+      // does not land.
+      expect(
+        target()
+          .getAnimations({ subtree: true })
+          .map(({ playState }) => playState)
+      ).toEqual(['paused']);
+
+      await emulateMedia({ reducedMotion: 'no-preference' });
+
+      if (again) {
+        await emulateMedia({ reducedMotion: 'reduce' });
+        await emulateMedia({ reducedMotion: 'no-preference' });
+      }
+
+      expect(running(target())).toEqual([]);
+      expect(target()).not.toHaveAttribute('data-plass-landed');
+      expect(even()).toBe(true);
+
+      await screen.rerender(lighting(5, false));
+
+      // Let go, it plays the whole count from its start.
+      expect(even()).toBe(false);
+      await expect.poll(() => running(target()).length).toBe(1);
+
+      const [arc] = running(target());
+
+      expect(arc.effect!.getComputedTiming()).toMatchObject({ duration: long, iterations: 5 });
+      expect(Number(arc.currentTime)).toBeLessThan(long);
+    });
+  }
+
+  it('leaves an endless PlAnimateLighting given a finite count while `paused` held it under the setting where it lands when the setting comes back to the start of its run', async () => {
+    const lighting = (repeat: number | 'infinite', paused: boolean) => (
+      <PlAnimateLighting
+        className="effect-under-test"
+        duration={long}
+        repeat={repeat}
+        paused={paused}
+      >
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+    const screen = await render(lighting('infinite', false));
+
+    await screen.rerender(lighting('infinite', true));
+    await expect.poll(() => target().hasAttribute('data-plass-held')).toBe(true);
+    await screen.rerender(lighting(5, true));
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    // With no delay, the paused keyframe stands at the start of its run, which
+    // keeps the delay it started with.
+    await expect.poll(() => target().style.getPropertyValue('--p-anim-run-delay')).not.toBe('');
+    await emulateMedia({ reducedMotion: 'reduce' });
+
+    // The setting runs it in no time, which lands it.
+    await expect
+      .poll(() => target().hasAttribute('data-plass-landed'), { timeout: landing })
+      .toBe(true);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(even()).toBe(true);
+
+    await screen.rerender(lighting(5, false));
+
+    // Let go, it stands where a turn ends, which is where it begins.
+    expect(running(target())).toEqual([]);
+    expect(even()).toBe(false);
+    expect(['0deg', '360deg']).toContain(angle());
+  });
+
   for (const orientation of ['horizontal', 'vertical'] as const) {
     it(`sets an endless ${orientation} PlAnimateMarquee going again from its start, its copies in step`, async () => {
       const ended = vi.fn();
@@ -1232,6 +1328,111 @@ describe('a light or a strip when movement is given back', () => {
 
       expect(scrolling(orientation)).toBe(true);
       expect(unmoved(tracks()[0])).toBe(true);
+    });
+
+    for (const [delay, again] of [
+      [0, false],
+      [300, false],
+      [300, true]
+    ] as const) {
+      const setting = again ? 'comes and goes again' : 'goes';
+
+      it(`plays an endless ${orientation} PlAnimateMarquee given a finite count while \`paused\` held it under the setting from its start once it is let go after the setting ${setting}, with a delay of ${delay}ms`, async () => {
+        const marquee = (repeat: number | 'infinite', paused: boolean) => (
+          <PlAnimateMarquee
+            className="effect-under-test"
+            orientation={orientation}
+            duration={long}
+            delay={delay}
+            repeat={repeat}
+            paused={paused}
+            style={{ width: 200, height: 40 }}
+          >
+            <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+          </PlAnimateMarquee>
+        );
+        const screen = await render(marquee('infinite', false));
+
+        await screen.rerender(marquee('infinite', true));
+        await expect.poll(() => target().hasAttribute('data-plass-held')).toBe(true);
+        await screen.rerender(marquee(5, true));
+
+        // The keyframe the count gives it back is held before its run, so it
+        // does not land.
+        expect(
+          target()
+            .getAnimations({ subtree: true })
+            .map(({ playState }) => playState)
+        ).toEqual(['paused']);
+
+        await emulateReducedMotion('no-preference');
+
+        if (again) {
+          await emulateReducedMotion('reduce');
+          await emulateReducedMotion('no-preference');
+        }
+
+        expect(running(target())).toEqual([]);
+        expect(target()).not.toHaveAttribute('data-plass-landed');
+        expect(scrolling(orientation)).toBe(true);
+        expect(unmoved(tracks()[0])).toBe(true);
+
+        await screen.rerender(marquee(5, false));
+
+        // Let go, both copies play the whole count from their start.
+        expect(scrolling(orientation)).toBe(false);
+        await expect.poll(() => running(target()).length).toBe(2);
+
+        for (const strip of running(target())) {
+          expect(strip.effect!.getComputedTiming().iterations).toBe(5);
+          expect(Number(strip.currentTime)).toBeLessThan(
+            Number(strip.effect!.getComputedTiming().duration)
+          );
+        }
+      });
+    }
+
+    it(`leaves an endless ${orientation} PlAnimateMarquee given a finite count while \`paused\` held it under the setting where it lands when the setting comes back to the start of its run`, async () => {
+      const marquee = (repeat: number | 'infinite', paused: boolean) => (
+        <PlAnimateMarquee
+          className="effect-under-test"
+          orientation={orientation}
+          duration={long}
+          repeat={repeat}
+          paused={paused}
+          style={{ width: 200, height: 40 }}
+        >
+          <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+        </PlAnimateMarquee>
+      );
+      const screen = await render(marquee('infinite', false));
+
+      await screen.rerender(marquee('infinite', true));
+      await expect.poll(() => target().hasAttribute('data-plass-held')).toBe(true);
+      await screen.rerender(marquee(5, true));
+      await emulateReducedMotion('no-preference');
+
+      // With no delay, the paused keyframe stands at the start of its run,
+      // which keeps the delay it started with.
+      await expect
+        .poll(() => tracks()[0].style.getPropertyValue('--p-anim-run-delay'))
+        .not.toBe('');
+      await emulateReducedMotion('reduce');
+
+      // The setting runs it in no time, which lands it.
+      await expect
+        .poll(() => target().hasAttribute('data-plass-landed'), { timeout: landing })
+        .toBe(true);
+      await emulateReducedMotion('no-preference');
+
+      expect(scrolling(orientation)).toBe(true);
+
+      await screen.rerender(marquee(5, false));
+
+      // Let go, both copies stand where the strip started.
+      expect(running(target())).toEqual([]);
+      expect(scrolling(orientation)).toBe(false);
+      expect(tracks().map(unmoved)).toEqual([true, true]);
     });
   }
 });

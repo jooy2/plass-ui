@@ -776,6 +776,109 @@ void main() {
       );
     }
 
+    group('endless, given a finite repeat while a pause held it under the setting', () {
+      /// Two items of sixty and no gap, a pass of 120 pixels a second, after
+      /// [delay].
+      Widget strip({required int delay, int? repeat, bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateMarquee(
+            repeat: repeat,
+            paused: paused,
+            gap: 0,
+            delay: Duration(milliseconds: delay),
+            duration: const Duration(seconds: 1),
+            children: _three,
+          ),
+          width: 200,
+          height: 40,
+          disableAnimations: still,
+        );
+      }
+
+      final Finder scrollBox = find.descendant(
+        of: find.byType(PlAnimateMarquee),
+        matching: find.byType(Scrollable),
+      );
+
+      /// Lands the strip endless, pauses it, gives it two passes and takes the
+      /// setting away, and brings the setting back and takes it away again
+      /// when [again] says so.
+      Future<void> holdThrough(
+        WidgetTester tester, {
+        required int delay,
+        bool again = false,
+      }) async {
+        await tester.pumpWidget(strip(delay: delay, still: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(strip(delay: delay, paused: true, still: true));
+        await tester.pumpWidget(strip(delay: delay, repeat: 2, paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(strip(delay: delay, repeat: 2, paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        if (again) {
+          await tester.pumpWidget(strip(delay: delay, repeat: 2, paused: true, still: true));
+          await tester.pump(const Duration(milliseconds: 500));
+          await tester.pumpWidget(strip(delay: delay, repeat: 2, paused: true));
+          await tester.pump(const Duration(milliseconds: 500));
+        }
+
+        // A pause holds the one copy the box scrolls along.
+        expect(scrollBox, findsOneWidget);
+        expect(await redrawsIn(tester), isFalse);
+      }
+
+      for (final (int delay, bool again) in <(int, bool)>[(0, false), (300, false), (300, true)]) {
+        final String setting = again ? 'comes and goes again' : 'goes';
+
+        testWidgets('plays it from the beginning, after a delay of ${delay}ms, once the pause is '
+            'let go after the setting $setting', (WidgetTester tester) async {
+          await holdThrough(tester, delay: delay, again: again);
+          await tester.pumpWidget(strip(delay: delay, repeat: 2));
+
+          // The React build gives the strip back a keyframe for the count,
+          // which the pause holds before its run, so it plays once it is let
+          // go. It used to stand where the count ends.
+          expect(scrollBox, findsNothing);
+          expect(shiftOf(tester), Offset.zero);
+
+          await tester.pump();
+
+          if (delay > 0) {
+            await tester.pump(Duration(milliseconds: delay - 1));
+
+            expect(shiftOf(tester), Offset.zero);
+
+            await tester.pump(const Duration(milliseconds: 1));
+          }
+
+          await tester.pump(const Duration(milliseconds: 100));
+
+          expect(shiftOf(tester).dx, closeTo(-12, 0.01));
+
+          // Two passes, and it stands where the second ends.
+          await tester.pumpAndSettle();
+
+          expect(shiftOf(tester).dx, closeTo(-120, 0.01));
+        });
+      }
+
+      testWidgets('stands where it ends once the pause is let go, when the setting comes back '
+          'with no delay left and goes again', (WidgetTester tester) async {
+        await holdThrough(tester, delay: 0, again: true);
+        await tester.pumpWidget(strip(delay: 0, repeat: 2));
+        await tester.pump();
+
+        // The setting came back to a run standing where it begins and landed
+        // it there, as it lands the keyframe in the React build, which had
+        // reached the start of its run once the setting went.
+        expect(scrollBox, findsNothing);
+        expect(shiftOf(tester).dx, closeTo(-120, 0.01));
+        expect(await redrawsIn(tester), isFalse);
+      });
+    });
+
     testWidgets('keeps what it holds, and a strip that landed, as the setting comes and goes', (
       WidgetTester tester,
     ) async {
