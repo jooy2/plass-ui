@@ -1635,6 +1635,172 @@ void main() {
       });
     });
 
+    group('a run paused before its delay is over when the setting is taken away', () {
+      /// A fade in at an even pace over 200ms, after a delay of 400ms.
+      Widget fadeIn({int? repeat = 1, bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateFade(
+            repeat: repeat,
+            paused: paused,
+            delay: const Duration(milliseconds: 400),
+            curve: Curves.linear,
+            duration: const Duration(milliseconds: 200),
+            child: const SizedBox.square(dimension: 100),
+          ),
+          disableAnimations: still,
+        );
+      }
+
+      /// A quarter turn at an even pace over a second, after a delay of 400ms.
+      Widget turn({bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateRotate(
+            from: 0,
+            to: 90,
+            fade: false,
+            paused: paused,
+            delay: const Duration(milliseconds: 400),
+            curve: Curves.linear,
+            duration: const Duration(seconds: 1),
+            child: const SizedBox.square(dimension: 100),
+          ),
+          disableAnimations: still,
+        );
+      }
+
+      // What reduced motion shows before the run would have started, its first
+      // frame, and where it stands 100ms into the run.
+      for (final (
+            String name,
+            Widget Function({bool paused, bool still}) effect,
+            double Function(WidgetTester) read,
+            double shown,
+            double first,
+            double into,
+          )
+          in <
+            (
+              String,
+              Widget Function({bool paused, bool still}),
+              double Function(WidgetTester),
+              double,
+              double,
+              double,
+            )
+          >[
+            ('a fade', fadeIn, opacityOf, 1, 0, 0.5),
+            ('a turn', turn, turnOf, 90, 0, 9),
+            (
+              'an endless fade',
+              ({bool paused = false, bool still = false}) =>
+                  fadeIn(repeat: null, paused: paused, still: still),
+              opacityOf,
+              1,
+              0,
+              0.5,
+            ),
+          ]) {
+        testWidgets('keeps what it showed until it is let go, paused from the mount, with $name', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(effect(paused: true, still: true));
+          await tester.pump(const Duration(milliseconds: 500));
+
+          expect(read(tester), closeTo(shown, 0.01));
+
+          await tester.pumpWidget(effect(paused: true));
+
+          // A pause holds what is on the screen. It used to show its first
+          // frame at once, while it was still paused.
+          expect(read(tester), closeTo(shown, 0.01));
+
+          await tester.pump(const Duration(milliseconds: 500));
+
+          expect(read(tester), closeTo(shown, 0.01));
+          expect(tester.binding.hasScheduledFrame, isFalse);
+
+          await tester.pumpWidget(effect());
+
+          // Let go, it goes on as before: its first frame, the whole of its
+          // delay, since a pause from the mount held all of it, and the run.
+          expect(read(tester), closeTo(first, 0.01));
+
+          await tester.pump(const Duration(milliseconds: 399));
+
+          expect(read(tester), closeTo(first, 0.01));
+
+          await tester.pump(const Duration(milliseconds: 1));
+          await tester.pump(const Duration(milliseconds: 100));
+
+          expect(read(tester), closeTo(into, 0.01));
+        });
+
+        testWidgets('keeps what it showed until it is let go, paused during its delay, with '
+            '$name', (WidgetTester tester) async {
+          await tester.pumpWidget(effect(still: true));
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(effect(paused: true, still: true));
+          await tester.pump(const Duration(milliseconds: 500));
+
+          expect(read(tester), closeTo(shown, 0.01));
+
+          await tester.pumpWidget(effect(paused: true));
+
+          expect(read(tester), closeTo(shown, 0.01));
+
+          await tester.pump(const Duration(milliseconds: 500));
+
+          expect(read(tester), closeTo(shown, 0.01));
+          expect(tester.binding.hasScheduledFrame, isFalse);
+
+          await tester.pumpWidget(effect());
+
+          // The rest of the wait, 300ms, and then the run.
+          expect(read(tester), closeTo(first, 0.01));
+
+          await tester.pump(const Duration(milliseconds: 299));
+
+          expect(read(tester), closeTo(first, 0.01));
+
+          await tester.pump(const Duration(milliseconds: 1));
+          await tester.pump(const Duration(milliseconds: 100));
+
+          expect(read(tester), closeTo(into, 0.01));
+        });
+      }
+
+      testWidgets('waits on its first frame for a trigger that has not let it go', (
+        WidgetTester tester,
+      ) async {
+        Widget played({required bool play, bool still = false}) {
+          return host(
+            PlAnimateFade(
+              trigger: PlassAnimateTrigger.manual,
+              play: play,
+              paused: true,
+              delay: const Duration(milliseconds: 400),
+              child: const SizedBox.square(dimension: 100),
+            ),
+            disableAnimations: still,
+          );
+        }
+
+        await tester.pumpWidget(played(play: false, still: true));
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pumpWidget(played(play: false));
+
+        // Not held by the pause, since its trigger has not let it go.
+        expect(opacityOf(tester), 0);
+
+        await tester.pumpWidget(played(play: true));
+
+        // Started while paused, it stands on its first frame.
+        expect(opacityOf(tester), 0);
+      });
+    });
+
     testWidgets('plays a run still waiting out its delay when the setting is taken away', (
       WidgetTester tester,
     ) async {

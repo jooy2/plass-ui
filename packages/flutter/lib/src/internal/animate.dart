@@ -637,8 +637,10 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// pass would have left it, so an exit has gone and a turn has turned. When the
 /// platform gives movement back, a run that landed stays where it is, except an
 /// endless one, which goes on from wherever its passes would have got to by
-/// then. One that `paused` holds keeps the frame it landed on until the pause
-/// is let go, and goes on from there.
+/// then. One that `paused` holds keeps what reduced motion showed until the
+/// pause is let go, and goes on from there: the frame it landed on, or its
+/// content when the pause held it before it would have started, which then
+/// stands on its first frame and waits out what is left of its delay.
 ///
 /// A new `repeat` is counted against the time the run has been going, as a
 /// keyframe counts a new `animation-iteration-count`. A run that has finished
@@ -759,6 +761,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// where its clock says only once the pause is let go.
   bool _keepsLanding = false;
 
+  /// Without [_still], whether a run that had not landed still shows what
+  /// reduced motion drew before it would have started, its content, because
+  /// `paused` held it when the platform gave movement back. A pause holds what
+  /// is on the screen, so the run stands on its first frame, and waits out
+  /// what is left of its delay, only once the pause is let go.
+  bool _keepsStill = false;
+
   /// How far into its passes the run stood at [_clockFrom], as time: the clock
   /// a keyframe keeps, which the browser goes on counting from when the run
   /// began, through every pass and past the end of the last, for as long as
@@ -863,6 +872,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     if (_keepsLanding && !widget.settings.paused) {
       _keepsLanding = false;
       _place(_clockAt);
+    }
+
+    // Let go of the pause that kept what reduced motion drew before the run
+    // would have started, or taken back by its trigger, a run draws its own
+    // frames again, from the first.
+    if (_keepsStill && (!started || !widget.settings.paused)) {
+      _keepsStill = false;
     }
 
     if (!started || widget.settings.paused || resting) {
@@ -1081,6 +1097,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _setValue(0);
     _landed = false;
     _keepsLanding = false;
+    _keepsStill = false;
   }
 
   /// Where the controller stops at the end of the run, as [_endOf] says it
@@ -1243,6 +1260,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         }
 
         _keepsLanding = false;
+        _keepsStill = false;
       } else if (_landed) {
         // And given back after a run had landed. Nothing is listening to the
         // controller yet — the builder that does is only in the tree while the
@@ -1281,6 +1299,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
           _setValue(_end);
         }
+      } else if (widget.settings.paused) {
+        // And given back to a run held by a pause before it would have
+        // started, from the mount or during its delay, which shows its content
+        // as reduced motion drew it. The pause holds that on the screen until
+        // it is let go, whatever the run's `repeat`, as a pause that held a run
+        // after it landed does.
+        _keepsStill = true;
       }
 
       _still = still;
@@ -1337,10 +1362,20 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           );
         }
 
+        // Kept by a pause on what reduced motion drew before the run would
+        // have started, which is the content, `1` again, until the pause is
+        // let go. A run its trigger has not let go is not held by the pause,
+        // and waits on its first frame.
+        final bool keepsStill = _keepsStill && started && widget.settings.paused;
+
         return AnimatedBuilder(
           animation: _controller,
           child: child,
           builder: (BuildContext context, Widget? inner) {
+            if (keepsStill) {
+              return widget.builder(context, 1, inner);
+            }
+
             final double eased = curve.transform(_controller.value.clamp(0, 1));
 
             return widget.builder(

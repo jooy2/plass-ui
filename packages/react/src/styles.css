@@ -3692,13 +3692,16 @@
  * run is never marked: it has no last frame to stay on, and goes on from where
  * its passes would have got to.
  *
- * Unless `paused` is holding it. A paused keyframe stands where its clock
- * stopped, the start of a pass as a rule, so an endless fade held while the
- * reader gave movement back went from fully drawn to nearly gone. The script
- * marks such a run while reduced motion shows it, and takes the mark off when
- * it is let go, which plays it on from where its clock stands. Held before its
- * delay was over, it stood where the block above stands a waiting effect,
- * which is where a turn stands too.
+ * Unless `paused` is holding it, finite or endless. A paused keyframe stands
+ * where its clock stopped: the start of a pass for an endless run that landed,
+ * so an endless fade held while the reader gave movement back went from fully
+ * drawn to nearly gone, and ahead of its start for a run held before its delay
+ * was over, so a fade held there went from fully drawn to nothing and a turn
+ * from its `to` angle back to its `from`. The script marks such a run while
+ * reduced motion shows it, and takes the mark off when it is let go, which
+ * plays it on from where its clock stands. Held before its delay was over, it
+ * stands where the block above stands a waiting effect, which is where a turn
+ * stands too.
  */
 .plass-anim[data-plass-landed],
 .plass-anim[data-plass-held] {

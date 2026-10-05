@@ -706,9 +706,9 @@ const REWIND_ATTRIBUTE = 'data-plass-rewind';
 const LANDED_ATTRIBUTE = 'data-plass-landed';
 
 /**
- * Marks a part of an endless run that `paused` held while reduced motion was
- * showing it, until the run is let go. `src/styles.css` reads it to keep the
- * frame reduced motion showed once the reader gives movement back.
+ * Marks a part of a run that `paused` held while reduced motion was showing it,
+ * until the run is let go. `src/styles.css` reads it to keep the frame reduced
+ * motion showed once the reader gives movement back.
  */
 const HELD_ATTRIBUTE = 'data-plass-held';
 
@@ -878,19 +878,21 @@ export function useAnimationRun({
     };
   }, []);
 
-  // An endless run held by `paused` keeps the frame reduced motion showed when
-  // the reader gives movement back, until it is let go. A paused keyframe
-  // stands where its clock stopped, which for a run that landed in no time is
-  // where it landed, the start of a pass, and for one paused before it moved
-  // is its start: given its duration back, an endless fade held there went
-  // from fully drawn to nearly gone. Let go, it goes on from where its clock
-  // stands, as it did.
+  // A run held by `paused` keeps the frame reduced motion showed when the
+  // reader gives movement back, until it is let go. A paused keyframe stands
+  // where its clock stopped, which for an endless run that landed in no time
+  // is where it landed, the start of a pass, and for a run paused before its
+  // delay was over is ahead of its start, which with movement draws its first
+  // frame: given its timing back, an endless fade held there went from fully
+  // drawn to nearly gone, and a finite one from fully drawn to nothing. Let
+  // go, it goes on from where its clock stands, as it did.
   //
   // Only while it is held, so a run that is not asks nothing of the media
   // query. A run waiting for its trigger is not held: it waits on its first
-  // frame, as one that is not paused does. A finite run that landed is marked
-  // as landed already, and keeps its last frame whether it is paused or not.
-  const holding = endless && started && Boolean(paused);
+  // frame, as one that is not paused does. Nor is a scroll-linked one, which
+  // goes back to following the scroll. A finite run that landed is marked as
+  // landed as well, and keeps its last frame once it is let go.
+  const holding = started && Boolean(paused);
   const reduced = useMediaQuery(holding ? reducedMotionQuery : null);
   const held = React.useRef(false);
 
@@ -905,7 +907,10 @@ export function useAnimationRun({
       held.current = true;
 
       for (const part of ownParts(element)) {
-        if (part.matches(animSelector)) {
+        if (
+          part.matches(animSelector) &&
+          getComputedStyle(part).getPropertyValue('--p-anim-timeline').trim() === ''
+        ) {
           part.setAttribute(HELD_ATTRIBUTE, '');
         }
       }

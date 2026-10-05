@@ -485,6 +485,69 @@ describe('an effect when movement is given back', () => {
     expect(parts.map(opacity)).toEqual(['1', '1']);
   });
 
+  for (const [name, effect, angle] of [
+    [
+      'PlAnimateFade',
+      (props: { delay?: number; paused: boolean }) => (
+        <PlAnimateFade className="effect-under-test" duration={long} {...props}>
+          Arriving
+        </PlAnimateFade>
+      ),
+      'none'
+    ],
+    [
+      'PlAnimateRotate',
+      (props: { delay?: number; paused: boolean }) => (
+        <PlAnimateRotate className="effect-under-test" from={0} to={90} duration={long} {...props}>
+          Turning
+        </PlAnimateRotate>
+      ),
+      '90deg'
+    ]
+  ] as const) {
+    /** What reduced motion shows before the run: the content, at the angle a turn ends at. */
+    const still = () => [opacity(target()), getComputedStyle(target()).rotate];
+
+    it(`leaves a finite ${name} held by \`paused\` from the mount on the frame it showed until it is let go`, async () => {
+      const screen = await render(effect({ paused: true }));
+
+      await frame();
+      expect(still()).toEqual(['1', angle]);
+
+      await emulateMedia({ reducedMotion: 'no-preference' });
+
+      expect(keyframe(target()).playState).toBe('paused');
+      expect(still()).toEqual(['1', angle]);
+
+      // Let go, it goes on from where its clock stands, which is its start.
+      await screen.rerender(effect({ paused: false }));
+
+      await expect.poll(() => keyframe(target()).playState).toBe('running');
+      expect(keyframe(target()).effect!.getComputedTiming().duration).toBe(long);
+      expect(Number(opacity(target()))).toBeLessThan(1);
+    });
+
+    it(`leaves a finite ${name} held by \`paused\` during its delay on the frame it showed until it is let go`, async () => {
+      const screen = await render(effect({ delay: long, paused: false }));
+
+      await frame();
+      await screen.rerender(effect({ delay: long, paused: true }));
+      expect(still()).toEqual(['1', angle]);
+
+      await emulateMedia({ reducedMotion: 'no-preference' });
+
+      expect(keyframe(target()).playState).toBe('paused');
+      expect(still()).toEqual(['1', angle]);
+
+      // Let go, it waits out the rest of its delay on its first frame.
+      await screen.rerender(effect({ delay: long, paused: false }));
+
+      await expect.poll(() => keyframe(target()).playState).toBe('running');
+      expect(keyframe(target()).effect!.getComputedTiming().duration).toBe(long);
+      expect(opacity(target())).toBe('0');
+    });
+  }
+
   it('leaves a run that was never let go waiting for its trigger', async () => {
     const fade = (play: boolean) => (
       <PlAnimateFade className="effect-under-test" duration={long} trigger="manual" play={play}>
