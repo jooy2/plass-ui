@@ -145,7 +145,7 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 
 ::: fw flutter
 
-- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 띠는 시작한 자리에 서 있고 첫 번째 사본만 깔립니다. 상자는 띠를 잘라 내지 않고 띠를 따라 스크롤되므로, 띠의 높이도 레이아웃도 그대로입니다. 상자 밖에 있던 것은 스크롤하거나, 항목이 focus를 받으면 Tab으로, 또는 상자에서 화살표 키로 닿습니다. 상자는 스크롤할 것이 있는 동안 Tab 정지점이 됩니다. 그 정지점의 이름은 `label`로 주고, 띠가 흐르는 동안에도 상자는 그 이름을 지닙니다.
+- 플랫폼에서 애니메이션이 꺼져 있으면(`MediaQuery.disableAnimations`) 띠는 시작한 자리에 서 있고 첫 번째 사본만 보입니다. 상자는 띠를 잘라 내지 않고 띠를 따라 스크롤되므로, 띠의 높이도 레이아웃도 그대로입니다. 나머지 사본은 빼지 않고 숨겨 두므로, 설정이 바뀌어도 그 안의 내용이 상태를 잃지 않습니다. 상자 밖에 있던 것은 스크롤하거나, 항목이 focus를 받으면 Tab으로, 또는 상자에서 화살표 키로 닿습니다. 상자는 스크롤할 것이 있는 동안 Tab 정지점이 됩니다. 그 정지점의 이름은 `label`로 주고, 띠가 흐르는 동안에도 상자는 그 이름을 지닙니다.
 - **첫 번째 사본만 읽히고 Tab으로 닿습니다.** 나머지는 `ExcludeSemantics` 뒤에 있습니다. 아니면 스크린리더가 띠 위의 모든 것을 깔린 횟수만큼 읽습니다. `ExcludeFocus` 뒤에도 있습니다. 시맨틱스에서 빠져도 focus 순서에서는 빠지지 않기 때문입니다.
 - `pauseOnHover`는 기본으로 켜져 있고 장식이 아닙니다. 포인터 앞을 지나가는 내용은 안정적으로 누를 수 없습니다. focus에서는 멈추지 **않으므로**, focus를 받아야 하는 내용이 띠 위에 있다면 정적인 목록을 쓰는 편이 낫습니다.
 - **멈출 방법을 주세요.** 기본값대로라면 띠는 끝없이 흐릅니다. 다른 내용 옆에서 5초 넘게 흐른다면 화면에 그것을 멈추는 컨트롤이 있어야 하고, [위의 예제](#paused)처럼 `paused`에 연결한 버튼이면 됩니다. [WCAG 2.2.2](https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html)가 이것을 요구합니다. `pauseOnHover`는 포인터가 있어야 동작하므로 이 컨트롤이 되지 못합니다. `MediaQuery.disableAnimations`도 대신하지 못하는데, 읽는 사람이 직접 찾아서 켜야 하는 시스템 설정에서 오는 값이기 때문입니다.
@@ -164,7 +164,7 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 | `-100% - gap`의 translate, 아무것도 재지 않음 | 띠를 재어 그만큼의 픽셀로 이동 | CSS의 백분율 translate는 요소 자기 상자를 기준으로 풀립니다. 여기서는 측정이 거리와 duration을 둘 다 정하고, 띠 크기가 바뀔 때마다 다시 잽니다. |
 | `gap`이 CSS 길이 | `double` | 논리 픽셀입니다. |
 | reduced motion에서 `animation: none`, 끝이 있는 띠는 앞뒤 어느 쪽도 채우지 않고 0초에 도는 run | `t`를 `0`에 붙들어 둠 | 같은 결과를 두 가지로 말한 것입니다. marquee의 완료 상태는 내용이 시작한 자리에 서 있는 것이고, 등장의 완료 상태와는 반대입니다. |
-| reduced motion에서 상자의 `overflow: auto`와 첫 사본 이후의 `display: none` | `SingleChildScrollView` 안의 사본 하나 | 스타일시트는 스크립트가 돌기 전 첫 프레임에 설정을 반영합니다. 위젯은 필요한 트리 하나만 만듭니다. |
+| reduced motion에서 상자의 `overflow: auto`와 첫 사본 이후의 `display: none` | `SingleChildScrollView` 안의 띠, 첫 사본 이후는 `Visibility` 뒤에 둠 | 위젯을 그리지도 자리를 주지도 않고 남겨 두는 프레임워크의 방법입니다. `display: none`이 요소를 페이지에 남겨 두는 것과 같습니다. |
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |
 | `repeat: number \| 'infinite'` | `int?`, `null`이 멈추지 않음 | 적을 `'infinite'`가 없고, `-1`은 caller가 찾아봐야 하는 sentinel입니다. |

@@ -670,6 +670,59 @@ void main() {
       expect(await redrawsIn(tester), isFalse);
     });
 
+    testWidgets(
+      'keeps the copies after the first, and what they hold, as the setting comes and goes',
+      (WidgetTester tester) async {
+        /// Ten items, one copy 690 long with its gaps, in a box 200 wide.
+        Widget strip({bool still = false}) {
+          return host(
+            PlAnimateMarquee(
+              gap: 10,
+              children: <Widget>[
+                const _Held(),
+                for (int i = 0; i < 9; i += 1) const SizedBox(width: 60, height: 20),
+              ],
+            ),
+            width: 200,
+            height: 40,
+            disableAnimations: still,
+          );
+        }
+
+        await tester.pumpWidget(strip());
+        await tester.pump();
+
+        tester.state<_HeldState>(find.byType(_Held).at(1)).note = 'typed';
+
+        await tester.pumpWidget(strip(still: true));
+        await tester.pump();
+
+        // Hidden rather than taken out, as the React build hides them, so the
+        // box scrolls along the one copy that shows, with no gap after it. They
+        // used to be dropped, and built again from scratch when the setting
+        // went, losing what they held.
+        expect(find.byType(_Held), findsOneWidget);
+        expect(find.byType(_Held, skipOffstage: false), findsNWidgets(2));
+        expect(
+          tester
+              .state<ScrollableState>(
+                find.descendant(
+                  of: find.byType(PlAnimateMarquee),
+                  matching: find.byType(Scrollable),
+                ),
+              )
+              .position
+              .maxScrollExtent,
+          490,
+        );
+
+        await tester.pumpWidget(strip());
+        await tester.pump();
+
+        expect(tester.state<_HeldState>(find.byType(_Held).at(1)).note, 'typed');
+      },
+    );
+
     testWidgets('rests while it is scrolled out of view, and goes on from where the strip was', (
       WidgetTester tester,
     ) async {

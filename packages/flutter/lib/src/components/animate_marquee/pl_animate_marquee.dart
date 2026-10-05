@@ -39,9 +39,10 @@ const Duration _unmeasured = Duration(seconds: 12);
 ///
 /// When the platform has animations turned off, the strip stands still, and
 /// what was past the edge of the box would be out of sight for good. So only
-/// the first copy is laid down, the box scrolls along it instead of clipping
-/// it, and the box is a tab stop while there is anything to scroll. [label] is
-/// that stop's name.
+/// the first copy is shown, the box scrolls along it instead of clipping it,
+/// and the box is a tab stop while there is anything to scroll. [label] is
+/// that stop's name. The other copies are hidden rather than taken out, so
+/// what they hold keeps its state when the setting changes.
 ///
 /// Only the first copy is read out or reached with Tab. The rest are behind
 /// [ExcludeSemantics], or a screen reader would announce everything on the
@@ -95,7 +96,7 @@ class PlAnimateMarquee extends StatefulWidget {
   ///
   /// Two is enough for anything at least as long as its box; raise it when the
   /// content is short enough to leave a hole behind itself. Only the first is
-  /// laid down when the platform has animations turned off.
+  /// shown when the platform has animations turned off.
   final int copies;
 
   /// Stops while the pointer is on it, so something scrolling past can actually
@@ -147,6 +148,11 @@ class PlAnimateMarquee extends StatefulWidget {
 
 class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
   final GlobalKey _track = GlobalKey();
+
+  /// The copies together, moved between the clip and the scroll box rather
+  /// than built again when the setting changes, so each keeps what it holds.
+  final GlobalKey _strip = GlobalKey();
+
   final ScrollController _scroll = ScrollController();
 
   /// How far one copy has to go: its own length plus the gap after it.
@@ -267,7 +273,7 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
       // has delivered is the content standing where it started. A strip that
       // stands still is scrolled rather than clipped, so what is past the edge
       // of the box can still be reached, by the keyboard as well, and it has no
-      // seam to close, so one copy is laid down. The box keeps the height the
+      // seam to close, so one copy is shown. The box keeps the height the
       // clipped strip had.
       stillBuilder: (BuildContext context, double t, Widget? _) {
         return PlassKeyboardScroll(
@@ -298,22 +304,34 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
     return strip;
   }
 
-  /// The copies, laid end to end with a gap between them. One when [still],
-  /// because a strip that does not move has no seam to close.
+  /// The copies, laid end to end with a gap between them. Only the first
+  /// shows when [still], because a strip that does not move has no seam to
+  /// close.
+  ///
+  /// The rest are hidden rather than left out, as the React build hides them,
+  /// and the tree keeps its shape either way, so they keep what they hold
+  /// when the setting changes. Hidden, they take no room, draw nothing, are
+  /// left out of the semantics and hit testing, and their tickers stop, and
+  /// there is no gap after the first, which would be scrolled to for nothing.
   Widget _copies({required bool still}) {
     final Axis axis = _vertical ? Axis.vertical : Axis.horizontal;
-    final int count = still || widget.copies < 1 ? 1 : widget.copies;
+    final int count = widget.copies < 1 ? 1 : widget.copies;
 
     return Flex(
+      key: _strip,
       direction: axis,
       mainAxisSize: MainAxisSize.min,
-      spacing: widget.gap,
+      spacing: still ? 0 : widget.gap,
       children: <Widget>[
         for (int index = 0; index < count; index += 1)
           if (index == 0)
             KeyedSubtree(key: _track, child: _copy(axis))
           else
-            ExcludeSemantics(child: ExcludeFocus(child: _copy(axis))),
+            Visibility(
+              visible: !still,
+              maintainState: true,
+              child: ExcludeSemantics(child: ExcludeFocus(child: _copy(axis))),
+            ),
       ],
     );
   }
