@@ -394,6 +394,73 @@ describe('an effect when movement is given back', () => {
     expect(keyframe(target()).playState).toBe('running');
   });
 
+  /** An endless fade that is given a finite count while it stands landed. */
+  const pulse = (repeat: number | 'infinite', props: { duration: number; paused?: boolean }) => (
+    <PlAnimateFade className="effect-under-test" repeat={repeat} {...props}>
+      Pulsing
+    </PlAnimateFade>
+  );
+
+  it('plays an endless run given a finite count while the setting was on from where its clock is', async () => {
+    const screen = await render(pulse('infinite', { duration: long }));
+
+    await expect.poll(() => keyframe(target()).playState, { timeout: landing }).toBe('finished');
+    await screen.rerender(pulse(5, { duration: long }));
+
+    // On the last frame of the new count, as the setting shows it, and never
+    // marked as landed, since it was endless when it landed.
+    expect(keyframe(target()).playState).toBe('finished');
+    expect(opacity(target())).toBe('1');
+    expect(target()).not.toHaveAttribute('data-plass-landed');
+
+    // Time for its clock to count, which goes on from when the run began.
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    const animation = keyframe(target());
+    const timing = animation.effect!.getComputedTiming();
+
+    expect(animation.playState).toBe('running');
+    expect(timing.iterations).toBe(5);
+    expect(timing.duration).toBe(long);
+    expect(Number(animation.currentTime)).toBeGreaterThanOrEqual(250);
+    expect(Number(opacity(target()))).toBeLessThan(1);
+  });
+
+  it('leaves an endless run given a finite count while the setting was on at its end once its clock is past it', async () => {
+    const screen = await render(pulse('infinite', { duration: 40 }));
+
+    await expect.poll(() => keyframe(target()).playState, { timeout: landing }).toBe('finished');
+    await screen.rerender(pulse(5, { duration: 40 }));
+
+    // Past five passes of 40ms by the time the setting goes.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('finished');
+    expect(opacity(target())).toBe('1');
+  });
+
+  it('leaves an endless run given a finite count while `paused` held it on its frame until it is let go', async () => {
+    const screen = await render(pulse('infinite', { duration: long }));
+
+    await expect.poll(() => keyframe(target()).playState, { timeout: landing }).toBe('finished');
+    await screen.rerender(pulse('infinite', { duration: long, paused: true }));
+    await screen.rerender(pulse(5, { duration: long, paused: true }));
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('paused');
+    expect(opacity(target())).toBe('1');
+
+    // Let go, it goes on from where its clock stopped, which is where it
+    // landed, the start of a pass.
+    await screen.rerender(pulse(5, { duration: long }));
+
+    await expect.poll(() => keyframe(target()).playState).toBe('running');
+    expect(keyframe(target()).effect!.getComputedTiming().iterations).toBe(5);
+    expect(Number(opacity(target()))).toBeLessThan(1);
+  });
+
   it('plays a run that is still waiting out its delay when the wait is over', async () => {
     await render(
       <PlAnimateFade className="effect-under-test" duration={long} delay={long}>
@@ -878,6 +945,57 @@ describe('a light or a strip when movement is given back', () => {
 
     expect(running(target())).toHaveLength(1);
     expect(Number(running(target())[0].currentTime)).toBeLessThan(long);
+  });
+
+  it('leaves an endless PlAnimateLighting given a finite count while the setting was on where it lands', async () => {
+    const ended = vi.fn();
+    const lighting = (repeat: number | 'infinite') => (
+      <PlAnimateLighting
+        className="effect-under-test"
+        duration={long}
+        repeat={repeat}
+        onAnimationEnd={ended}
+      >
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+    const screen = await render(lighting('infinite'));
+
+    await frame();
+    await screen.rerender(lighting(5));
+
+    // Switched off under the setting, it has a keyframe again that ends, which
+    // lands in no time.
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(running(target())).toEqual([]);
+    expect(['0deg', '360deg']).toContain(angle());
+  });
+
+  it('leaves an endless PlAnimateMarquee given a finite count while the setting was on where it lands', async () => {
+    const ended = vi.fn();
+    const marquee = (repeat: number | 'infinite') => (
+      <PlAnimateMarquee
+        className="effect-under-test"
+        duration={long}
+        repeat={repeat}
+        style={{ width: 200, height: 40 }}
+        onAnimationEnd={ended}
+      >
+        <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+      </PlAnimateMarquee>
+    );
+    const screen = await render(marquee('infinite'));
+
+    await frame();
+    await screen.rerender(marquee(5));
+
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
+    await emulateReducedMotion('no-preference');
+
+    expect(running(target())).toEqual([]);
+    expect(tracks().map((track) => getComputedStyle(track).translate)).toEqual(['none', 'none']);
   });
 
   /** Whether the light is the even glow reduced motion draws rather than an arc. */

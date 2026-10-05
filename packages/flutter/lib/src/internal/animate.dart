@@ -683,12 +683,13 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// pass would have left it, so an exit has gone and a turn has turned. When the
 /// platform gives movement back, a run that landed stays where it is, except
 /// one that was endless when it landed, which goes on from wherever its passes
-/// would have got to by then, or with [restartsWithMotion] starts again from
-/// its first frame and waits out its delay. One that `paused` holds keeps what
-/// reduced motion showed until the pause is let go, and goes on from there:
-/// the frame it landed on, or its content when the pause held it before it
-/// would have started, which then stands on its first frame and waits out what
-/// is left of its delay.
+/// would have got to by then under whatever `repeat` it has now, or with
+/// [restartsWithMotion] starts again from its first frame and waits out its
+/// delay, unless it has been given a `repeat` since. One that `paused` holds
+/// keeps what reduced motion showed until the pause is let go, and goes on
+/// from there: the frame it landed on, or its content when the pause held it
+/// before it would have started, which then stands on its first frame and
+/// waits out what is left of its delay.
 ///
 /// A new `repeat` is counted against the time the run has been going, as a
 /// keyframe counts a new `animation-iteration-count`. A run that has finished
@@ -772,7 +773,10 @@ class PlassAnimateRun extends StatefulWidget {
   ///
   /// For an effect the React build switches off under the setting, as it does
   /// a strip and a light: its keyframe is not there under reduced motion, so
-  /// it starts from the beginning, after its delay, once the setting goes.
+  /// it starts from the beginning, after its delay, once the setting goes. One
+  /// given a finite `repeat` while the setting is on stays where that count
+  /// ends instead, as the keyframe a count gives it back lands under the
+  /// setting.
   final bool restartsWithMotion;
 
   /// Holds the run where it is, its delay as well, as `paused` does, without
@@ -896,8 +900,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// that had finished before the setting arrived is not put anywhere then,
   /// and its clock goes on as it was.
   ///
-  /// Read when the run has no frame of its own to go on from: an endless run
-  /// that landed, when the platform gives movement back or the pause that
+  /// Read when the run has no frame of its own to go on from: a run that
+  /// landed endless, when the platform gives movement back or the pause that
   /// kept it on its landing is let go, and a run that has finished, when it is
   /// given a new `repeat` or the setting it finished before goes. Each stands
   /// wherever the count has got to.
@@ -1440,18 +1444,25 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           _clockFrom = null;
           _delayLeft = widget.settings.delay;
           _keepsLanded = widget.settings.paused;
-        } else if (repeat == null) {
+        } else if (repeat == null || (!_staysLanded && !_countsOn && !widget.restartsWithMotion)) {
           // An endless run has no last frame to stay on. It goes on from
           // where its passes would have got to by now, as a keyframe that is
           // given its passes back does, rather than standing at the end of
-          // the one it landed on and never moving again.
+          // the one it landed on and never moving again. So does one that
+          // landed endless and was given a count while the setting was on,
+          // which the React build never marked landed and counts against its
+          // clock: it stands where the count ends only once that time is past
+          // it. A strip or a light that did so is left to the last branch,
+          // since the React build switched its keyframe off under the setting
+          // and the count gives it one again, which lands.
           final Duration? from = _clockFrom;
           final Duration since = from == null ? Duration.zero : animationNow() - from;
 
           if (widget.settings.paused) {
             // Unless a pause holds it: a pause holds what is on the screen,
-            // which is the last frame of the pass it landed on, and the build
-            // that lets the pause go puts it where its clock says.
+            // which is the last frame of the pass it landed on, or of the
+            // count it was given, and the build that lets the pause go puts it
+            // where its clock says.
             _clockAt += since;
             _clockFrom = null;
             _keepsLanding = true;

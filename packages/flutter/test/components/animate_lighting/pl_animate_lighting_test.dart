@@ -343,5 +343,36 @@ void main() {
       expect(turnOf(tester), closeTo(1, 0.001));
       expect(await redrawsIn(tester), isFalse);
     });
+
+    testWidgets('stays where a turn ends when an endless light is given a finite repeat under the '
+        'setting', (WidgetTester tester) async {
+      Widget lighting({int? repeat, bool still = false}) {
+        return host(
+          PlAnimateLighting(
+            repeat: repeat,
+            curve: Curves.linear,
+            duration: const Duration(seconds: 1),
+            child: const Text('Live'),
+          ),
+          width: 200,
+          height: 80,
+          disableAnimations: still,
+        );
+      }
+
+      await tester.pumpWidget(lighting(still: true));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpWidget(lighting(repeat: 5, still: true));
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpWidget(lighting(repeat: 5));
+      await tester.pump();
+
+      // The React build has a keyframe again for a light that ends, which
+      // lands under the setting and is taken off once it goes, so the light
+      // does not go on from its clock as an endless run given a count does.
+      expect(even(tester), isFalse);
+      expect(turnOf(tester), closeTo(1, 0.001));
+      expect(await redrawsIn(tester), isFalse);
+    });
   });
 }

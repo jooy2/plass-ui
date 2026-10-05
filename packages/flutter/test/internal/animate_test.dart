@@ -2030,6 +2030,87 @@ void main() {
         expect(turnOf(tester), closeTo(76.5, 0.01));
       });
 
+      testWidgets('plays on its clock when it was given a finite repeat while the setting was on', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(host(spin(), disableAnimations: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 600));
+        await tester.pumpWidget(host(spin(repeat: 5), disableAnimations: true));
+
+        // On the last frame of the new count, as reduced motion shows it.
+        expect(turnOf(tester), closeTo(90, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 650));
+        await tester.pumpWidget(host(spin(repeat: 5)));
+
+        // A quarter of the way through its second pass, 1250ms after it
+        // landed, as the React build counts the new count against the clock of
+        // a keyframe it never marked landed. It used to stand at the end of the
+        // new count and play none of it.
+        expect(turnOf(tester), closeTo(22.5, 0.01));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(turnOf(tester), closeTo(31.5, 0.01));
+
+        await tester.pumpAndSettle();
+
+        expect(turnOf(tester), closeTo(90, 0.01));
+      });
+
+      testWidgets('stands where a finite repeat given while the setting was on ends once its clock '
+          'is past it', (WidgetTester tester) async {
+        await tester.pumpWidget(host(spin(alternate: true), disableAnimations: true));
+        await tester.pump();
+        await tester.pumpWidget(host(spin(repeat: 2, alternate: true), disableAnimations: true));
+
+        // Out and back, on its first frame.
+        expect(turnOf(tester), closeTo(0, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 2500));
+        await tester.pumpWidget(host(spin(repeat: 2, alternate: true)));
+        await tester.pump();
+
+        expect(turnOf(tester), closeTo(0, 0.01));
+        expect(await redrawsIn(tester), isFalse);
+      });
+
+      testWidgets('keeps the frame it landed on while it is paused when it was given a finite '
+          'repeat, and turns on once let go', (WidgetTester tester) async {
+        await tester.pumpWidget(host(spin()));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+
+        await tester.pumpWidget(host(spin(), disableAnimations: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpWidget(host(spin(paused: true), disableAnimations: true));
+        await tester.pumpWidget(host(spin(repeat: 5, paused: true), disableAnimations: true));
+        await tester.pump(const Duration(milliseconds: 300));
+        await tester.pumpWidget(host(spin(repeat: 5, paused: true)));
+
+        expect(turnOf(tester), closeTo(90, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(turnOf(tester), closeTo(90, 0.01));
+        expect(tester.binding.hasScheduledFrame, isFalse);
+
+        await tester.pumpWidget(host(spin(repeat: 5)));
+
+        // From the turn it had made when the setting arrived, as an endless
+        // run that is not given a count goes on. It used to stay at the end of
+        // the new count once it was let go.
+        expect(turnOf(tester), closeTo(22.5, 0.01));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(turnOf(tester), closeTo(31.5, 0.01));
+      });
+
       testWidgets('keeps the frame it landed on while it is paused, and turns on once let go', (
         WidgetTester tester,
       ) async {
