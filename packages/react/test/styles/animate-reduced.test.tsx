@@ -11,6 +11,7 @@
  */
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
+import { commands } from 'vitest/browser';
 import {
   PlAnimateFade,
   PlAnimateGrow,
@@ -38,6 +39,9 @@ afterAll(() => {
 });
 
 beforeEach(async () => {
+  // A marquee pauses under the pointer, and the pointer stays wherever the last
+  // file left it, so a strip drawn under it would never run or land.
+  await commands.parkPointer();
   await emulateMedia({ reducedMotion: 'reduce' });
 });
 
