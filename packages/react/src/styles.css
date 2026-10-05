@@ -2294,6 +2294,35 @@
 }
 
 /*
+ * Every effect's slots are its own.
+ *
+ * An effect writes inline only the slots it has a value for, and a custom
+ * property is inherited, so a slot it left out was whatever an effect around
+ * it had written: a fade inside an endless linear turn eased linearly, took
+ * the turn's one pass under reduced motion, and inside a `timeline="view"`
+ * effect followed the scroll. Each element an effect writes its slots on
+ * starts them over here, and what it writes inline outranks this. The strips
+ * of a marquee and the lines of a headline read their root's, which is why
+ * they are not on the list.
+ */
+.plass-anim,
+.plass-anim-lighting,
+.plass-marquee,
+.plass-headline {
+  --p-anim-still-repeat: initial;
+  --p-anim-ease: initial;
+  --p-anim-timeline: initial;
+  --p-anim-range: initial;
+  --p-anim-opacity: initial;
+  --p-anim-scale: initial;
+  --p-anim-x: initial;
+  --p-anim-y: initial;
+  --p-anim-angle: initial;
+  --p-anim-angle-to: initial;
+  --p-anim-clip: initial;
+}
+
+/*
  * `timeline="view"`, and the whole of it.
  *
  * Two declarations give **every** keyframe in this file a scroll-linked mode:
