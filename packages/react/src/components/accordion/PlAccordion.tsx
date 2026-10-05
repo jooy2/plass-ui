@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { headingLevelOf } from '../../internal/heading.js';
 import { Accordion as BaseUIAccordion } from '@base-ui/react/accordion';
 import { ChevronIcon } from '../../internal/icons.js';
 import {
@@ -255,13 +256,7 @@ export const PlAccordion = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlAc
     const size = sizeProp ?? defaults.size ?? 'md';
     const color = colorProp ?? defaults.color ?? 'primary';
     const density = densityProp ?? defaults.density ?? 'default';
-    // The type keeps a TypeScript caller inside the six; this keeps a
-    // JavaScript one there too, where a `7` would have written an `<h7>`, which
-    // is no heading at all.
-    const headingLevel: PlassHeadingLevel =
-      Number.isInteger(headingLevelProp) && headingLevelProp >= 1 && headingLevelProp <= 6
-        ? headingLevelProp
-        : 3;
+    const headingLevel: PlassHeadingLevel = headingLevelOf(headingLevelProp) ?? 3;
 
     const context = React.useMemo(
       () => ({ size, density, dividers, headingLevel }),

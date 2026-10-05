@@ -213,16 +213,17 @@ export const PlTypography = /* @__PURE__ */ React.forwardRef<HTMLElement, PlTypo
     ref
   ) {
     const clamp = lines && lines >= 1 ? Math.floor(lines) : undefined;
-    // The type keeps a TypeScript caller inside the six; this keeps a
-    // JavaScript one there too, where a `7` would have written an `<h7>`, which
-    // is no heading at all.
-    const element =
-      headingLevel !== undefined &&
+    // The check `headingLevelOf` in `internal/heading.ts` makes for the other
+    // components, written out here: `PlTypography` reaches nothing in
+    // `internal/`, which keeps its own scan manifest to its own folder.
+    const heading =
+      typeof headingLevel === 'number' &&
       Number.isInteger(headingLevel) &&
       headingLevel >= 1 &&
       headingLevel <= 6
-        ? (`h${headingLevel}` as const)
-        : levelElements[level];
+        ? headingLevel
+        : undefined;
+    const element = heading ? (`h${heading}` as const) : levelElements[level];
     const classNames = [
       // A level that renders as a heading or a paragraph arrives with the UA's
       // own block margin, and the ladder above spaces text by `gutter`.

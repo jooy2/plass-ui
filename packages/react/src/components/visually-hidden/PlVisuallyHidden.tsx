@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRender } from '@base-ui/react/use-render';
+import { headingLevelOf } from '../../internal/heading.js';
 import { cx, srOnlyClasses } from '../../internal/styles.js';
 import type { PlassHeadingLevel } from '../../types.js';
 
@@ -78,16 +79,8 @@ export const PlVisuallyHidden = /* @__PURE__ */ React.forwardRef<
   { focusable = false, headingLevel, render, className, children, ...props },
   ref
 ) {
-  // The type keeps a TypeScript caller inside the six; this keeps a JavaScript
-  // one there too, where a `7` would have written an `<h7>`, which is no
-  // heading at all.
-  const element =
-    headingLevel !== undefined &&
-    Number.isInteger(headingLevel) &&
-    headingLevel >= 1 &&
-    headingLevel <= 6
-      ? (`h${headingLevel}` as const)
-      : 'span';
+  const heading = headingLevelOf(headingLevel);
+  const element = heading ? (`h${heading}` as const) : 'span';
 
   return useRender({
     render: render ?? React.createElement(element),

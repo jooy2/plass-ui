@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults } from '../../internal/defaults.js';
+import { headingLevelOf } from '../../internal/heading.js';
 import { useLabels } from '../../internal/labels.js';
 import { Dialog as BaseUIDialog } from '@base-ui/react/dialog';
 import { CloseIcon } from '../../internal/icons.js';
@@ -405,14 +406,7 @@ export function PlDrawer({
     className
   );
 
-  // The type keeps a TypeScript caller inside the six; this keeps a JavaScript
-  // one there too, where a `7` would have written an `<h7>`, which is no
-  // heading at all.
-  const Heading = `h${
-    Number.isInteger(headingLevelProp) && headingLevelProp >= 1 && headingLevelProp <= 6
-      ? headingLevelProp
-      : 2
-  }` as const;
+  const Heading = `h${headingLevelOf(headingLevelProp) ?? 2}` as const;
 
   // Base UI's parts carry the `aria-labelledby` / `aria-describedby` wiring an
   // overlay drawer needs. An inline one is not a dialog and needs none, so it
