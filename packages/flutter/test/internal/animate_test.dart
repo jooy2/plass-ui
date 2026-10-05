@@ -1623,13 +1623,15 @@ void main() {
         expect(tester.binding.hasScheduledFrame, isFalse);
 
         await tester.pumpWidget(host(spin()));
-        await tester.pump();
 
         // As a keyframe goes on once a pause has held it where it landed: from
         // the turn it had made when the setting arrived, and none of the time
-        // it was let go after that.
+        // it was let go after that, drawn on the frame that lets it go. That
+        // frame used to draw the end of the pass it landed on, 90°, and the
+        // turn only on the frame after it.
         expect(turnOf(tester), closeTo(22.5, 0.01));
 
+        await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
 
         expect(turnOf(tester), closeTo(31.5, 0.01));

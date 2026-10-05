@@ -952,14 +952,6 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// whether an endless run is resting off screen, which holds it as a pause
   /// does. [PlassAnimateRun.held] holds it the same way.
   void _drive(bool started, int runs, {required bool resting}) {
-    // Let go of the pause that kept it on the frame it landed on, an endless
-    // run is put where its clock says, and goes on from there once nothing
-    // else holds it.
-    if (_keepsLanding && !widget.settings.paused) {
-      _keepsLanding = false;
-      _place(_clockAt);
-    }
-
     // Let go of the pause that kept what reduced motion drew before the run
     // would have started, or after it landed where it now goes on from, or
     // taken back by its trigger, a run draws its own frames again.
@@ -1378,8 +1370,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
           if (widget.settings.paused) {
             // Unless a pause holds it: a pause holds what is on the screen,
-            // which is the last frame of the pass it landed on, and `_drive`
-            // puts it where its clock says once the pause is let go.
+            // which is the last frame of the pass it landed on, and the build
+            // that lets the pause go puts it where its clock says.
             _clockAt += since;
             _clockFrom = null;
             _keepsLanding = true;
@@ -1415,6 +1407,17 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       }
 
       _still = still;
+    }
+
+    // Let go of the pause that kept it on the frame it landed on, an endless
+    // run is put where its clock says by the build that lets it go, so that
+    // frame draws it there, as a run started again is drawn on its first
+    // frame, and `_drive` sets it going from there once nothing else holds
+    // it. Put there after the frame, it was drawn on the frame it landed on
+    // once more first.
+    if (_keepsLanding && !widget.settings.paused) {
+      _keepsLanding = false;
+      _place(_clockAt);
     }
 
     return PlassAnimateGate(
