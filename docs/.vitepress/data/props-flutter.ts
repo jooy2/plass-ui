@@ -3085,8 +3085,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFilePicker', 'icon', {
       type: 'Widget?',
       description: {
-        ko: '제목 위의 글리프. 생략하면 업로드 표식이 쓰입니다',
-        en: 'The glyph above the title. The upload mark if it is left out'
+        ko: '제목 위의 글리프. 제목 크기에 맞춰 그려지므로 size를 따릅니다. 생략하면 업로드 표식이 쓰입니다',
+        en: "The glyph above the title. Drawn against the title's size, so it follows size. The upload mark if it is left out"
       }
     }),
     {

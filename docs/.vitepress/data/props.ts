@@ -5388,8 +5388,8 @@ export const propTables: Record<string, PropRow[]> = {
       name: 'icon',
       type: 'ReactNode',
       description: {
-        ko: '제목 위의 글리프. null을 주면 그림 없는 상자가 됩니다',
-        en: 'The glyph above the title. Pass null for a box with no picture in it'
+        ko: '제목 위의 글리프. 제목 크기에 맞춰 그려지므로 size를 따릅니다. 색은 currentColor로 계열의 accent를 받으며, 글리프에 직접 준 색 클래스가 이깁니다. null을 주면 그림 없는 상자가 됩니다',
+        en: "The glyph above the title. Drawn against the title's size, so it follows size. It takes the family's accent through currentColor, which a colour class on the glyph itself overrides. Pass null for a box with no picture in it"
       }
     },
     {

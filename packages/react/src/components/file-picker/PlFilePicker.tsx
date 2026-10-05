@@ -693,6 +693,12 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
       .filter(Boolean)
       .join(' ');
 
+    // The glyph is sized against the title under it, which is what the title's
+    // own type scale on its slot does to the `em`: the box sets no font size
+    // of its own, so against the inherited one the glyph was the same at every
+    // `size` and changed with whatever the page around the picker set.
+    const glyphClassName = `flex items-center text-(--p-accent) [&_svg]:size-[1.8em] ${sheetTitleClasses[size]}`;
+
     // One element for both placements: the zone is a button named by
     // `aria-labelledby`, so this is the span that `labelId` points at wherever
     // it is drawn.
@@ -823,13 +829,9 @@ export const PlFilePicker = /* @__PURE__ */ React.forwardRef<HTMLInputElement, P
                     onClick={browse}
                     onBlur={() => leaveFormControl(controlRef.current)}
                   >
-                    {icon === undefined ? (
-                      <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
-                        <UploadIcon />
-                      </span>
-                    ) : hasContent(icon) ? (
-                      <span className="flex items-center text-(--p-accent) [&_svg]:size-[1.8em]">
-                        {icon}
+                    {hasContent(icon) || icon === undefined ? (
+                      <span className={glyphClassName}>
+                        {icon === undefined ? <UploadIcon /> : icon}
                       </span>
                     ) : null}
 
