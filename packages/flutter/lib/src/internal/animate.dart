@@ -706,6 +706,7 @@ class PlassAnimateRun extends StatefulWidget {
     this.rewindsWhenWaiting = false,
     this.onWait,
     this.restartsWithMotion = false,
+    this.held = false,
     this.child,
     super.key,
   });
@@ -767,6 +768,17 @@ class PlassAnimateRun extends StatefulWidget {
   /// a strip and a light: its keyframe is not there under reduced motion, so
   /// it starts from the beginning, after its delay, once the setting goes.
   final bool restartsWithMotion;
+
+  /// Holds the run where it is, its delay as well, as `paused` does, without
+  /// being a pause: what reduced motion showed is not kept on the screen for
+  /// it when the platform gives movement back, and an endless run still rests
+  /// off screen through it.
+  ///
+  /// For a hold the React build makes in the stylesheet rather than through
+  /// its gate, as a strip under the pointer: `animation-play-state: paused`
+  /// stops the keyframe where it is, and the stylesheet goes on drawing
+  /// whatever the setting says.
+  final bool held;
 
   /// Passed through to [builder] untouched, so a subtree that does not depend
   /// on `t` is built once rather than on every frame.
@@ -938,7 +950,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// Starts, holds or rewinds, from whatever the gate is currently saying:
   /// whether the trigger has let the run go, how many times it has, and
   /// whether an endless run is resting off screen, which holds it as a pause
-  /// does.
+  /// does. [PlassAnimateRun.held] holds it the same way.
   void _drive(bool started, int runs, {required bool resting}) {
     // Let go of the pause that kept it on the frame it landed on, an endless
     // run is put where its clock says, and goes on from there once nothing
@@ -956,7 +968,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       _keepsLanded = false;
     }
 
-    if (!started || widget.settings.paused || resting) {
+    if (!started || widget.settings.paused || widget.held || resting) {
       _holdDelay();
       _clockFrom = null;
 
@@ -1425,7 +1437,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
         // And one that begins after this frame is announced before that frame
         // is drawn, whether it was let go now or a pause that held it is.
-        if (running && !widget.settings.paused && runs != _startedRuns) {
+        if (running && !widget.settings.paused && !widget.held && runs != _startedRuns) {
           _announce(runs);
         }
 

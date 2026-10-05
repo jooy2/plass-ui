@@ -223,12 +223,18 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         curve: widget.curve ?? Curves.linear,
         repeat: widget.repeat,
         alternate: widget.alternate,
-        paused: widget.paused || stopped || (widget.pauseOnHover && _hovered),
+        paused: widget.paused || stopped,
         trigger: widget.trigger,
         play: widget.play,
         once: widget.once,
         threshold: widget.threshold,
       ),
+      // The pointer stops the strip where it is, as the React build pauses
+      // the keyframe in its stylesheet, and is not a pause: with the pointer
+      // on it when the platform gives movement back, the box turns into the
+      // strip at once, standing where it starts, rather than keeping the one
+      // copy reduced motion showed until the pointer leaves.
+      held: widget.pauseOnHover && _hovered,
       // An endless strip that stood still under reduced motion starts from
       // where it started once the platform gives movement back, after its
       // delay, as the React build starts the keyframe it switched off, rather

@@ -1,3 +1,5 @@
+import 'dart:ui' show PointerDeviceKind;
+
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -199,6 +201,48 @@ void main() {
 
         await tester.pumpWidget(host(const SizedBox.shrink()));
       }
+    });
+
+    testWidgets('stops under the pointer, and goes on from where it stopped once it leaves', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          PlAnimateMarquee(
+            gap: 0,
+            duration: const Duration(seconds: 1),
+            curve: Curves.linear,
+            children: _three,
+          ),
+          width: 200,
+          height: 40,
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+
+      expect(shiftOf(tester).dx, closeTo(-30, 0.01));
+
+      final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+      addTearDown(mouse.removePointer);
+
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.byType(PlAnimateMarquee)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(shiftOf(tester).dx, closeTo(-30, 0.01));
+      expect(await redrawsIn(tester), isFalse);
+
+      // The frame the pointer leaves on lets it go, and the one after it is
+      // the ticker's first.
+      await mouse.moveTo(Offset.zero);
+      await tester.pump();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(shiftOf(tester).dx, closeTo(-42, 0.01));
     });
 
     testWidgets('scrolls along one copy where the platform has asked for less movement', (
@@ -627,6 +671,46 @@ void main() {
         // straight away.
         expect(shiftOf(tester), Offset.zero);
 
+        await expectStartAfterDelay(tester);
+      });
+
+      testWidgets('turns into the strip at once under the pointer, and starts from the beginning '
+          'after its delay once the pointer leaves', (WidgetTester tester) async {
+        await tester.pumpWidget(strip(still: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1250));
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.byType(PlAnimateMarquee)));
+        await tester.pump();
+        await tester.pumpWidget(strip());
+
+        // The pointer stops the strip and keeps nothing reduced motion showed,
+        // as a hover pauses the keyframe in the React build: the clipped strip
+        // of copies, standing where it starts. It used to stay the one copy in
+        // the box that scrolls until the pointer left.
+        expect(
+          find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+          findsNothing,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(PlAnimateMarquee),
+            matching: find.byType(ExcludeSemantics),
+          ),
+          findsOneWidget,
+        );
+        expect(shiftOf(tester), Offset.zero);
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(shiftOf(tester), Offset.zero);
+
+        await mouse.moveTo(Offset.zero);
         await expectStartAfterDelay(tester);
       });
     });
