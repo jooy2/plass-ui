@@ -116,9 +116,12 @@ class _PlAnimateCounterState extends State<PlAnimateCounter> {
 
   /// The figure a new value counts on from, held until its run begins.
   ///
-  /// The run starts after the frame the value arrives in, and until it does the
-  /// builder is handed the progress the last run left: a count that had landed
-  /// would draw the new value at once and then drop back to where it starts.
+  /// A run held by `paused`, or by a trigger that has not let it go, begins
+  /// after the frame the value arrives in, and until it does the builder is
+  /// handed a frame that is not the new count's: the first frame of the run,
+  /// counted from where the last one started, or the progress the last run
+  /// left, which for a count that had landed would draw the new value at once
+  /// and then drop back to where it starts.
   double? _waiting;
 
   @override

@@ -802,6 +802,117 @@ void main() {
     }
   });
 
+  group('a run started again', () {
+    /// A fade at an even pace over 200ms, after [delay], played by `play`.
+    Widget fading({
+      required bool play,
+      bool paused = false,
+      bool still = false,
+      PlassAnimateMode mode = PlassAnimateMode.enter,
+      Duration delay = Duration.zero,
+    }) {
+      return host(
+        PlAnimateFade(
+          mode: mode,
+          trigger: PlassAnimateTrigger.manual,
+          play: play,
+          paused: paused,
+          delay: delay,
+          curve: Curves.linear,
+          duration: const Duration(milliseconds: 200),
+          child: const SizedBox.square(dimension: 100),
+        ),
+        disableAnimations: still,
+      );
+    }
+
+    testWidgets('draws its first frame on the build that starts it', (WidgetTester tester) async {
+      await tester.pumpWidget(fading(play: true));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(fading(play: false));
+
+      expect(opacityOf(tester), 1);
+
+      await tester.pumpWidget(fading(play: true));
+
+      // As a keyframe rewound before the paint. It used to draw the frame the
+      // run before it ended on, and its own first frame on the next.
+      expect(opacityOf(tester), 0);
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+    });
+
+    testWidgets('draws its first frame on the build that starts it while it is paused', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fading(play: true));
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(fading(play: true, paused: true));
+      await tester.pumpWidget(fading(play: false, paused: true));
+      await tester.pumpWidget(fading(play: true, paused: true));
+
+      expect(opacityOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(opacityOf(tester), 0);
+    });
+
+    group('under reduced motion', () {
+      /// An exit after a delay of 400ms.
+      Widget leaving({required bool play, bool paused = false}) {
+        return fading(
+          play: play,
+          paused: paused,
+          still: true,
+          mode: PlassAnimateMode.exit,
+          delay: const Duration(milliseconds: 400),
+        );
+      }
+
+      testWidgets('draws an exit that landed as it is on the build that starts it', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(leaving(play: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(leaving(play: false));
+
+        expect(opacityOf(tester), 0);
+
+        await tester.pumpWidget(leaving(play: true));
+
+        // The run has not reached the end of its delay. It used to stay gone,
+        // where the run before it landed, for this frame.
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 399));
+
+        expect(opacityOf(tester), 1);
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(opacityOf(tester), 0);
+      });
+
+      testWidgets('draws an exit that landed as it is on the build that starts it while it is '
+          'paused', (WidgetTester tester) async {
+        await tester.pumpWidget(leaving(play: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(leaving(play: true, paused: true));
+        await tester.pumpWidget(leaving(play: false, paused: true));
+
+        expect(opacityOf(tester), 0);
+
+        await tester.pumpWidget(leaving(play: true, paused: true));
+
+        expect(opacityOf(tester), 1);
+      });
+    });
+  });
+
   group('a run waiting out its delay', () {
     /// A fade at an even pace over 200ms, after [delay], built anew on every
     /// call so that pumping it builds the run again.

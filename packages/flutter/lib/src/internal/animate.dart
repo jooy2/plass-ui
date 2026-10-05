@@ -671,9 +671,12 @@ class PlassAnimateRun extends StatefulWidget {
   /// the first run, and every one a restart, a new `play`, a new `nonce` or a
   /// new `target` starts after it.
   ///
-  /// Until then [builder] is still handed the progress the last run left, so an
-  /// effect whose start depends on why it is starting again, as a counter's
-  /// does on whether its target moved, can tell the frames apart with this.
+  /// Called during the build that begins the run, so it may change what
+  /// [builder] reads and nothing else. A run held by `paused`, or resting off
+  /// screen, as it is started begins once it is let go, and [builder] is
+  /// handed its first frame until then, so an effect whose start depends on
+  /// why it is starting again, as a counter's does on whether its target
+  /// moved, can tell the frames apart with this.
   final VoidCallback? onRun;
 
   /// Whether the run goes back to its first frame when its trigger takes it
@@ -711,6 +714,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// Which pass is running, counting from one.
   int _pass = 1;
   int _startedRuns = -1;
+
+  /// The last run whose first frame the build has drawn, on the build the
+  /// trigger let it go in.
+  int _drawnRuns = -1;
+
+  /// The last run [PlassAnimateRun.onRun] was called for.
+  int _announcedRuns = -1;
 
   /// The wait before the first pass, held so it can be called off.
   ///
@@ -932,7 +942,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     _startedRuns = runs;
     _pass = 1;
-    widget.onRun?.call();
+    _announce(runs);
     _setValue(0);
     _clockAt = Duration.zero;
     _clockFrom = null;
@@ -1046,6 +1056,31 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     if (_landed != value && mounted) {
       setState(() => _landed = value);
     }
+  }
+
+  /// Calls [PlassAnimateRun.onRun] for [runs], once.
+  void _announce(int runs) {
+    if (_announcedRuns != runs) {
+      _announcedRuns = runs;
+      widget.onRun?.call();
+    }
+  }
+
+  /// Puts a run the trigger has just let go on its first frame, during the
+  /// build that lets it go, so that build draws it, as a keyframe rewound
+  /// before the paint is drawn: an exit that landed under reduced motion is
+  /// there again, and a run stopped anywhere stands where it begins. [_drive]
+  /// starts it after the frame, or holds it there while it is held, and a run
+  /// with no `delay` lands under reduced motion on the next frame, as one does
+  /// on its first build.
+  ///
+  /// Only what the build reads is set here, and without `setState`, which
+  /// would mark this widget, above the gate whose build calls it.
+  void _drawFirstFrame(int runs) {
+    _drawnRuns = runs;
+    _setValue(0);
+    _landed = false;
+    _keepsLanding = false;
   }
 
   /// Where the controller stops at the end of the run, as [_endOf] says it
@@ -1262,6 +1297,18 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         // Resting off screen, it is not running and its trigger has still let
         // it go.
         final bool started = running || resting;
+
+        // A run the trigger has just let go, or started again, is drawn on its
+        // first frame by this build rather than the next, held or not.
+        if (started && runs != _drawnRuns) {
+          _drawFirstFrame(runs);
+        }
+
+        // And one that begins after this frame is announced before that frame
+        // is drawn, whether it was let go now or a pause that held it is.
+        if (running && !widget.settings.paused && runs != _startedRuns) {
+          _announce(runs);
+        }
 
         // After the frame rather than during it, because starting a controller
         // inside a build is a build that schedules a build.

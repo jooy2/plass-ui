@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -282,6 +283,44 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(_drawn(tester), '200');
+      });
+
+      testWidgets('draws `from` on the frame a hover counts again', (WidgetTester tester) async {
+        Widget hovered(double value) {
+          return PlAnimateCounter(
+            value: value,
+            trigger: PlassAnimateTrigger.hover,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.linear,
+          );
+        }
+
+        final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+
+        addTearDown(mouse.removePointer);
+
+        await _pump(tester, hovered(100));
+        await mouse.addPointer(location: Offset.zero);
+        await mouse.moveTo(tester.getCenter(find.byType(PlAnimateCounter)));
+        await tester.pumpAndSettle();
+        await _pump(tester, hovered(200));
+        await tester.pumpAndSettle();
+
+        expect(_drawn(tester), '200');
+
+        await mouse.moveTo(Offset.zero);
+        await tester.pump();
+        await mouse.moveTo(tester.getCenter(find.byType(PlAnimateCounter)));
+        await tester.pump();
+
+        // The first frame of the replay, which counts from `from`. It used to
+        // draw the figure the last count landed on for this frame.
+        expect(_drawn(tester), '0');
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(_drawn(tester), '100');
       });
     });
 
