@@ -3727,6 +3727,29 @@
 }
 
 /*
+ * A strip held the same way keeps the one copy the setting draws, in the box
+ * that scrolls along it, so what the reader scrolled to stays where it is.
+ * Unmarked, the copies came back and the box clipped them while the strip was
+ * still paused. Its keyframe is left as it is underneath, which already stands
+ * where the setting showed it, so once it is let go the strip goes on as it
+ * would have without the hold. The child combinator leaves a strip nested
+ * inside it alone.
+ */
+.plass-marquee[data-plass-held] {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.plass-marquee-vertical[data-plass-held] {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.plass-marquee[data-plass-held] > .plass-marquee-track + .plass-marquee-track {
+  display: none;
+}
+
+/*
  * A strip or a light that landed under reduced motion, marked on its root, has
  * its keyframe taken off until it runs again: the strip, every copy of it,
  * stands where it started, where the setting showed it, and the arc where a

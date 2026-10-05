@@ -23,7 +23,7 @@ import {
   PlAnimateZoom
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
-import { emulateMedia } from '../support/media';
+import { emulateMedia, emulateReducedMotion } from '../support/media';
 
 let sheet: HTMLStyleElement;
 
@@ -782,6 +782,140 @@ describe('a light or a strip when movement is given back', () => {
       );
       expect(first.playState).toBe('running');
       expect(Number(first.currentTime)).toBe(Number(second.currentTime));
+    });
+  }
+
+  /** Whether the strip stands where it starts, where the setting shows it. */
+  const unmoved = (track: HTMLElement) => {
+    const translate = getComputedStyle(track).translate;
+
+    return translate === 'none' || translate.split(' ').every((part) => parseFloat(part) === 0);
+  };
+
+  /** Whether the box is the one scrolling copy the setting draws. */
+  const scrolling = (orientation: 'horizontal' | 'vertical') => {
+    const box = getComputedStyle(target());
+    const along = orientation === 'vertical' ? box.overflowY : box.overflowX;
+    const across = orientation === 'vertical' ? box.overflowX : box.overflowY;
+
+    return (
+      along === 'auto' && across === 'hidden' && getComputedStyle(tracks()[1]).display === 'none'
+    );
+  };
+
+  /** Scrolls the box along the strip, and says how far it is scrolled. */
+  const scrolled = (orientation: 'horizontal' | 'vertical', to?: number) => {
+    const box = target();
+
+    if (to !== undefined) {
+      box[orientation === 'vertical' ? 'scrollTop' : 'scrollLeft'] = to;
+    }
+
+    return orientation === 'vertical' ? box.scrollTop : box.scrollLeft;
+  };
+
+  for (const orientation of ['horizontal', 'vertical'] as const) {
+    for (const [name, repeat] of [
+      ['an endless', 'infinite'],
+      ['a finite', 1]
+    ] as const) {
+      it(`leaves ${name} ${orientation} PlAnimateMarquee held by \`paused\` on the one copy it scrolls until it is let go`, async () => {
+        const marquee = (paused: boolean) => (
+          <PlAnimateMarquee
+            className="effect-under-test"
+            orientation={orientation}
+            duration={long}
+            repeat={repeat}
+            paused={paused}
+            style={{ width: 200, height: 40 }}
+          >
+            <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+          </PlAnimateMarquee>
+        );
+        const screen = await render(marquee(true));
+
+        await frame();
+
+        expect(scrolling(orientation)).toBe(true);
+        expect(scrolled(orientation, 30)).toBe(30);
+
+        await emulateReducedMotion('no-preference');
+
+        // Where the reader left it, and still a tab stop to scroll it from.
+        expect(scrolling(orientation)).toBe(true);
+        expect(scrolled(orientation)).toBe(30);
+        expect(unmoved(tracks()[0])).toBe(true);
+        expect(target()).toHaveAttribute('tabindex', '0');
+
+        // Let go, it is the moving strip.
+        await screen.rerender(marquee(false));
+
+        expect(scrolling(orientation)).toBe(false);
+        expect(getComputedStyle(tracks()[1]).display).toBe('flex');
+        expect(target()).not.toHaveAttribute('tabindex');
+        await expect.poll(() => running(target()).length).toBe(2);
+      });
+    }
+
+    it(`leaves a finite ${orientation} PlAnimateMarquee paused with movement during its run on the one copy reduced motion showed`, async () => {
+      const marquee = (paused: boolean) => (
+        <PlAnimateMarquee
+          className="effect-under-test"
+          orientation={orientation}
+          duration={long}
+          repeat={1}
+          paused={paused}
+          style={{ width: 200, height: 40 }}
+        >
+          <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+        </PlAnimateMarquee>
+      );
+
+      await emulateReducedMotion('no-preference');
+
+      const screen = await render(marquee(false));
+
+      await expect.poll(() => unmoved(tracks()[0])).toBe(false);
+      await screen.rerender(marquee(true));
+      await emulateReducedMotion('reduce');
+      await frame();
+
+      expect(scrolling(orientation)).toBe(true);
+      expect(unmoved(tracks()[0])).toBe(true);
+
+      await emulateReducedMotion('no-preference');
+
+      expect(scrolling(orientation)).toBe(true);
+      expect(unmoved(tracks()[0])).toBe(true);
+    });
+
+    it(`leaves an endless ${orientation} PlAnimateMarquee paused with movement on the one copy reduced motion showed`, async () => {
+      const marquee = (paused: boolean) => (
+        <PlAnimateMarquee
+          className="effect-under-test"
+          orientation={orientation}
+          duration={long}
+          paused={paused}
+          style={{ width: 200, height: 40 }}
+        >
+          <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+        </PlAnimateMarquee>
+      );
+
+      await emulateReducedMotion('no-preference');
+
+      const screen = await render(marquee(false));
+
+      await expect.poll(() => running(target()).length).toBe(2);
+      await screen.rerender(marquee(true));
+      await emulateReducedMotion('reduce');
+
+      expect(scrolling(orientation)).toBe(true);
+
+      await emulateReducedMotion('no-preference');
+
+      expect(scrolling(orientation)).toBe(true);
+      expect(unmoved(tracks()[0])).toBe(true);
     });
   }
 });

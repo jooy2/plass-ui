@@ -150,7 +150,26 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
   const [overflows, setOverflows] = React.useState(false);
 
   const vertical = orientation === 'vertical';
-  const still = usePrefersReducedMotion();
+  const reduced = usePrefersReducedMotion();
+
+  /**
+   * Whether `paused` holds the strip reduced motion showed. It begins on a
+   * render where the setting is on during the hold, and lasts until the hold
+   * ends, through the reader giving movement back. `useAnimationRun` marks the
+   * box for the stylesheet, which keeps the one copy in the box that scrolls
+   * along it; this keeps the box a tab stop while it does. It belongs to the
+   * run it began on, as the mark does, which the rewind of a new run takes off.
+   */
+  const holding = run.started && Boolean(paused || stopped);
+  const [heldRun, setHeldRun] = React.useState<number | null>(null);
+  const keepsStill = holding && (reduced || heldRun === run.runs);
+  const keptRun = keepsStill ? run.runs : null;
+
+  if (keptRun !== heldRun) {
+    setHeldRun(keptRun);
+  }
+
+  const still = reduced || keepsStill;
 
   /**
    * How far one copy has to go, in pixels: its own length plus the gap after
@@ -159,10 +178,10 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
    * resolved — and the one on the page is the one that matters.
    *
    * Whether the box has anything to scroll is read in the same pass. It only
-   * decides something under reduced motion, where the stylesheet has put the
-   * copies after the first away, so the preference is a dependency: turning it
-   * on changes what the box holds without changing the size of either element
-   * being observed.
+   * decides something under reduced motion, or while `paused` holds what that
+   * showed, where the stylesheet has put the copies after the first away, so
+   * whether the strip is still is a dependency: that changes what the box
+   * holds without changing the size of either element being observed.
    *
    * `children` is not a dependency. It is a new reference on every render a
    * parent does, so listing it read the layout back and built a new observer
@@ -255,7 +274,8 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
       data-state={run.state}
       data-pause-on-hover={pauseOnHover ? '' : undefined}
       // A tab stop only where the box scrolls, which is only under reduced
-      // motion: a moving strip has nothing a reader could scroll to.
+      // motion or while `paused` holds what it showed: a moving strip has
+      // nothing a reader could scroll to.
       tabIndex={still && overflows ? 0 : undefined}
       role={label ? 'group' : undefined}
       aria-label={label}

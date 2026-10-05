@@ -83,11 +83,12 @@ export const animationClasses: Record<PlassAnimation, string> = {
 export const animBaseClass = 'plass-anim';
 
 /**
- * What `paused` marks as held: a keyframe's element or part, and the root of a
+ * What `paused` marks as held: a keyframe's element or part, the root of a
  * `PlAnimateLighting`, whose arc is a pseudo-element that only the root can
- * answer for.
+ * answer for, and the root of a `PlAnimateMarquee`, whose box is what scrolls
+ * the one copy reduced motion draws.
  */
-const heldSelector = `.${animBaseClass}, .plass-anim-lighting`;
+const heldSelector = `.${animBaseClass}, .plass-anim-lighting, .plass-marquee`;
 
 /**
  * The keyframes that move, turn or scale the element they run on, rather than
