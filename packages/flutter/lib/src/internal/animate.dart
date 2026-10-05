@@ -764,6 +764,10 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// [_clockAt]. `null` while it is held, which counts nothing.
   Duration? _clockFrom;
 
+  /// Whether the run is putting the controller somewhere itself, through
+  /// [_setValue], which [_onStatus] leaves alone.
+  bool _placing = false;
+
   @override
   void initState() {
     super.initState();
@@ -811,8 +815,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     final int? repeat = widget.settings.repeat;
 
     // Nothing is run pass by pass under reduced motion; the run lands on its
-    // last frame in one step.
-    if (_still || (repeat != null && _pass >= repeat)) {
+    // last frame in one step. A bound the run put the controller on itself is
+    // not the end of a pass either: only one a pass ran into is.
+    if (_placing || _still || (repeat != null && _pass >= repeat)) {
       return;
     }
 
@@ -846,13 +851,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       // A run that was never triggered sits on its own first frame; one that
       // was merely paused, or is resting, stays exactly where it is.
       if (_startedRuns != runs) {
-        _controller.value = 0;
+        _setValue(0);
         _delayLeft = Duration.zero;
       } else if (!started && widget.rewindsWhenWaiting) {
         // Taken back by its trigger, it waits for the next run as one that
         // was never triggered does, and that run starts it again.
         _startedRuns = -1;
-        _controller.value = 0;
+        _setValue(0);
         _delayLeft = Duration.zero;
         widget.onWait?.call();
       }
@@ -904,7 +909,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _startedRuns = runs;
     _pass = 1;
     widget.onRun?.call();
-    _controller.value = 0;
+    _setValue(0);
     _clockAt = Duration.zero;
     _clockFrom = null;
     _setLanded(false);
@@ -980,14 +985,14 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     if (length <= 0) {
       _pass = 1;
-      _controller.value = 0;
+      _setValue(0);
 
       return;
     }
 
     if (repeat != null && into >= length * (repeat < 1 ? 1 : repeat)) {
       _pass = repeat < 1 ? 1 : repeat;
-      _controller.value = _end;
+      _setValue(_end);
 
       return;
     }
@@ -995,7 +1000,21 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     final double through = into.remainder(length) / length;
 
     _pass = into ~/ length + 1;
-    _controller.value = widget.settings.alternate && _pass.isEven ? 1 - through : through;
+    _setValue(widget.settings.alternate && _pass.isEven ? 1 - through : through);
+  }
+
+  /// Puts the controller on [value] without counting a pass or starting one.
+  ///
+  /// A controller tells its status listeners when its value is set on one of
+  /// its bounds, as it does when a pass runs into one, and [_onStatus] takes
+  /// either for the end of a pass. A run that a restart held by a pause puts
+  /// on its first frame, or one that [_place] puts where a pass begins, would
+  /// count a pass it has not played and set off, while it is paused, or end
+  /// its passes early.
+  void _setValue(double value) {
+    _placing = true;
+    _controller.value = value;
+    _placing = false;
   }
 
   void _setLanded(bool value) {
@@ -1181,7 +1200,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
             _pass = repeat;
           }
 
-          _controller.value = _end;
+          _setValue(_end);
         }
       }
 

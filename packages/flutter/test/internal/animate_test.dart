@@ -98,6 +98,7 @@ Widget spin({
   bool alternate = false,
   bool paused = false,
   PlassAnimateTrigger trigger = PlassAnimateTrigger.mount,
+  bool play = false,
   bool once = true,
   Duration duration = const Duration(seconds: 1),
 }) {
@@ -111,6 +112,7 @@ Widget spin({
     alternate: alternate,
     paused: paused,
     trigger: trigger,
+    play: play,
     once: once,
     child: const SizedBox.square(dimension: 100),
   );
@@ -688,6 +690,39 @@ void main() {
       // Back at the start, the next pass goes out again, at the new pace.
       expect(turnOf(tester), closeTo(22.5, 0.01));
     });
+
+    testWidgets('holds its first frame when it is started again while it is paused', (
+      WidgetTester tester,
+    ) async {
+      Widget spinning({required bool play, bool paused = false}) {
+        return host(
+          spin(alternate: true, paused: paused, trigger: PlassAnimateTrigger.manual, play: play),
+        );
+      }
+
+      await tester.pumpWidget(spinning(play: true));
+      await turnBack(tester);
+
+      await tester.pumpWidget(spinning(play: true, paused: true));
+      await tester.pumpWidget(spinning(play: false, paused: true));
+      await tester.pumpWidget(spinning(play: true, paused: true));
+      await tester.pump();
+
+      expect(turnOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // As a new keyframe held by a pause stands. Put on its first frame, it
+      // used to count a pass and turn out again while it was paused.
+      expect(turnOf(tester), 0);
+      expect(tester.binding.hasScheduledFrame, isFalse);
+
+      await tester.pumpWidget(spinning(play: true));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 250));
+
+      expect(turnOf(tester), closeTo(22.5, 0.01));
+    });
   });
 
   group('a run built again', () {
@@ -1072,6 +1107,61 @@ void main() {
       await tester.pumpWidget(fade(repeat: 1, alternate: true));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), 1);
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('plays every pass a higher repeat adds from where one begins', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(repeat: 1, alternate: true));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpWidget(fade(repeat: 5, alternate: true));
+
+      // 400ms after it began, exactly where its third pass begins.
+      expect(opacityOf(tester), 0);
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+
+      await tester.pumpAndSettle();
+
+      // Out on the fifth pass. Put at the start of the third, it counted the
+      // fourth there and stopped a pass early, faded out.
+      expect(opacityOf(tester), 1);
+    });
+
+    testWidgets('plays every pass a higher repeat adds from the end of the one it was paused on', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(repeat: 3, alternate: true));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpWidget(fade(repeat: 3, alternate: true, paused: true));
+      await tester.pumpWidget(fade(repeat: 5, alternate: true, paused: true));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Held where its first pass ends and its second, on the way back, begins.
+      expect(opacityOf(tester), 1);
+      expect(tester.binding.hasScheduledFrame, isFalse);
+
+      await tester.pumpWidget(fade(repeat: 5, alternate: true));
+
+      // Back, out, back and out again: the four passes left of five. It used
+      // to count the third where it was paused, and played two of them.
+      for (final double quarter in <double>[0.75, 0.25, 0.75, 0.25]) {
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        expect(opacityOf(tester), closeTo(quarter, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 151));
+      }
 
       expect(opacityOf(tester), 1);
       expect(tester.binding.hasScheduledFrame, isFalse);
