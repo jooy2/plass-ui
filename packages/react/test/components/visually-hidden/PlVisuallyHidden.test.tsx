@@ -6,6 +6,7 @@
  * accessibility tree, and the classes that take it off the screen are on the
  * element.
  */
+import * as React from 'react';
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { PlVisuallyHidden, type PlassHeadingLevel, type PlVisuallyHiddenProps } from 'plass-ui';
@@ -210,6 +211,18 @@ describe('PlVisuallyHidden', () => {
       expectTypeOf<PlVisuallyHiddenProps['headingLevel']>().toEqualTypeOf<
         PlassHeadingLevel | undefined
       >();
+    });
+
+    it('hands its ref the element it renders, which is not always a span', async () => {
+      const ref = React.createRef<HTMLElement>();
+
+      await render(
+        <PlVisuallyHidden ref={ref} headingLevel={2}>
+          Search results
+        </PlVisuallyHidden>
+      );
+
+      expect(ref.current?.tagName).toBe('H2');
     });
   });
 });

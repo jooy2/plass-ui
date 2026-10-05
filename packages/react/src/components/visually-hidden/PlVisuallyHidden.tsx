@@ -72,8 +72,10 @@ const revealClasses = /* @__PURE__ */ [
  * inside a dozen components; this is the same rule, spelled once, for the
  * caller's own markup.
  */
+// `HTMLElement` rather than a span's: `headingLevel` and `render` hand the ref
+// a heading or any other element.
 export const PlVisuallyHidden = /* @__PURE__ */ React.forwardRef<
-  HTMLSpanElement,
+  HTMLElement,
   PlVisuallyHiddenProps
 >(function PlVisuallyHidden(
   { focusable = false, headingLevel, render, className, children, ...props },
