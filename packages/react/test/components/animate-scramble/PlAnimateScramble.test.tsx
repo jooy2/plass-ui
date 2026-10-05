@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { useState } from 'react';
 import { PlAnimateScramble } from 'plass-ui';
-import { frameClock } from '../../support/timing';
+import { committed, frameClock } from '../../support/timing';
 import { emulateMedia, emulateReducedMotion } from '../../support/media';
 
 /**
@@ -503,6 +503,51 @@ describe('PlAnimateScramble', () => {
       // of the new line has not settled its first character. Given the old
       // progress, that frame would draw the new line settled but for its end.
       expect(Array.from(seen[0])[0]).not.toBe('S');
+    });
+
+    it('is noise while a replay waits out its `delay`', async () => {
+      const hover = (over: boolean) =>
+        committed(() => {
+          root().dispatchEvent(
+            new PointerEvent(over ? 'pointerover' : 'pointerout', { bubbles: true })
+          );
+        });
+      // Taken before the render, so every frame the line asks for is one this
+      // test draws.
+      const frames = frameClock();
+
+      try {
+        await render(
+          <PlAnimateScramble
+            className="scramble-under-test"
+            trigger="hover"
+            delay={500}
+            duration={300}
+            characters="01"
+          >
+            {LINE}
+          </PlAnimateScramble>
+        );
+
+        await hover(true);
+        await frames.draw(1000);
+        await frames.draw(1800);
+
+        expect(drawn()).toBe(LINE);
+
+        await hover(false);
+        await hover(true);
+        await frames.draw(2000);
+
+        // Its first frame, which is noise, from the first frame of the wait.
+        expect(settled()).toBe(0);
+
+        await frames.draw(2499);
+
+        expect(settled()).toBe(0);
+      } finally {
+        frames.restore();
+      }
     });
   });
 

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { useState } from 'react';
 import { PlAnimateCounter } from 'plass-ui';
-import { frameClock } from '../../support/timing';
+import { committed, frameClock } from '../../support/timing';
 import { emulateMedia, emulateReducedMotion } from '../../support/media';
 import { scrollAndReport } from '../../support/visible';
 
@@ -953,6 +953,96 @@ describe('PlAnimateCounter', () => {
       // A second hover is the first count again, from `from`, rather than the
       // last one, from 100.
       expect(seen[0]).toBeLessThan(100);
+    });
+
+    describe('with a `delay`', () => {
+      const linear = (t: number) => t;
+
+      it('shows `from` while a replay waits it out', async () => {
+        const hover = (over: boolean) =>
+          committed(() => {
+            root().dispatchEvent(
+              new PointerEvent(over ? 'pointerover' : 'pointerout', { bubbles: true })
+            );
+          });
+        // Taken before the render, so every frame the count asks for is one
+        // this test draws.
+        const frames = frameClock();
+
+        try {
+          await render(
+            <PlAnimateCounter
+              className="counter-under-test"
+              trigger="hover"
+              value={1000}
+              delay={500}
+              duration={300}
+              easing={linear}
+            />
+          );
+
+          await hover(true);
+          await frames.draw(1000);
+          await frames.draw(1800);
+
+          expect(figure()).toBe(1000);
+
+          await hover(false);
+          await hover(true);
+
+          // Where the replay starts, as a keyframe waiting out its delay shows
+          // its first frame. It used to stand on 1,000 and then jump to 0.
+          expect(figure()).toBe(0);
+
+          await frames.draw(2000);
+          await frames.draw(2499);
+
+          expect(figure()).toBe(0);
+
+          await frames.draw(2650);
+
+          expect(figure()).toBe(500);
+        } finally {
+          frames.restore();
+        }
+      });
+
+      it('shows the figure on screen while a new `value` waits it out', async () => {
+        const counter = (value: number) => (
+          <PlAnimateCounter
+            className="counter-under-test"
+            trigger="mount"
+            value={value}
+            delay={500}
+            duration={300}
+            easing={linear}
+          />
+        );
+        const frames = frameClock();
+
+        try {
+          const screen = await render(counter(1000));
+
+          await frames.draw(1000);
+          await frames.draw(1800);
+
+          expect(figure()).toBe(1000);
+
+          await screen.rerender(counter(2000));
+          await frames.draw(2000);
+          await frames.draw(2499);
+
+          // A new `value` counts on from the figure on screen, so that is
+          // what it waits on.
+          expect(figure()).toBe(1000);
+
+          await frames.draw(2650);
+
+          expect(figure()).toBe(1500);
+        } finally {
+          frames.restore();
+        }
+      });
     });
   });
 

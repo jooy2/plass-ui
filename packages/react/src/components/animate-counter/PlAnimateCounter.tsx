@@ -339,14 +339,6 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
   const elapsed = React.useRef(0);
 
   /**
-   * Whether the figure on screen is the answer reduced motion put up for a run
-   * that had not begun counting yet. A reader who gives movement back then sees
-   * where the count starts for the rest of its wait, as a keyframe still
-   * waiting shows its first frame.
-   */
-  const early = React.useRef(false);
-
-  /**
    * The delay the run began counting with, or `null` while it is still
    * waiting, kept until the next run.
    *
@@ -412,7 +404,6 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
 
       const land = () => {
         begun.current ??= delayed.current;
-        early.current = false;
         elapsed.current = Math.max(elapsed.current, begun.current + span);
       };
 
@@ -421,8 +412,6 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
 
         return undefined;
       }
-
-      early.current = true;
 
       if (paused) {
         return undefined;
@@ -450,7 +439,6 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
     if (!run.started) {
       elapsed.current = 0;
       begun.current = null;
-      early.current = false;
       setShown(from);
 
       return undefined;
@@ -460,12 +448,14 @@ export const PlAnimateCounter = /* @__PURE__ */ React.forwardRef<
       return undefined;
     }
 
-    if (early.current) {
-      early.current = false;
-
-      if (begun.current === null && elapsed.current < delayed.current) {
-        setShown(origin);
-      }
+    // A count still waiting out its `delay` shows where it starts, as a
+    // keyframe waiting out its delay shows its first frame: a replay stood on
+    // the figure the last count landed on until its wait was over and then
+    // jumped to `from`, and a run given movement back while it waited stood on
+    // the answer reduced motion put up. A new `value` starts from the figure on
+    // screen, so it waits on that.
+    if (begun.current === null && elapsed.current < delayed.current) {
+      setShown(origin);
     }
 
     const step = (now: number) => {
