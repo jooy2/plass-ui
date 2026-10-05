@@ -589,6 +589,93 @@ describe('PlAnimateTyping', () => {
     });
   });
 
+  describe('a new `delay` during its first wait', () => {
+    // The typing runs on timeouts and measures its wait with
+    // `performance.now()`, so both run on a clock the test holds.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    function advance(ms: number): Promise<void> {
+      return committed(() => {
+        vi.advanceTimersByTime(ms);
+      });
+    }
+
+    const typing = (delay: number) => (
+      <PlAnimateTyping
+        className="typing-under-test"
+        text="Hi"
+        delay={delay}
+        speed={10}
+        caret={false}
+      />
+    );
+
+    it.each([
+      ['longer', 1000, 1600],
+      ['shorter', 1000, 800]
+    ])('is measured from when the wait began when it is %s', async (_, from, to) => {
+      const screen = await render(typing(from));
+      const root = document.querySelector('.typing-under-test');
+
+      await advance(600);
+      await screen.rerender(typing(to));
+      await advance(to - 600 - 1);
+
+      // It used to go on with the 400ms left of the old one.
+      expect(visible(root)).toBe('');
+
+      await advance(1);
+
+      expect(visible(root)).toBe('H');
+    });
+
+    it('types at once when the wait has already gone past it', async () => {
+      const screen = await render(typing(1000));
+      const root = document.querySelector('.typing-under-test');
+
+      await advance(600);
+      await screen.rerender(typing(300));
+      await advance(0);
+
+      expect(visible(root)).toBe('H');
+    });
+
+    it('is measured from when the wait began after a pause', async () => {
+      const held = (delay: number, paused: boolean) => (
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Hi"
+          delay={delay}
+          speed={10}
+          paused={paused}
+          caret={false}
+        />
+      );
+      const screen = await render(held(1000, false));
+      const root = document.querySelector('.typing-under-test');
+
+      await advance(600);
+      await screen.rerender(held(1000, true));
+      await advance(5000);
+      await screen.rerender(held(800, true));
+      await screen.rerender(held(800, false));
+      await advance(199);
+
+      // 600ms of the 800 had gone by before the pause.
+      expect(visible(root)).toBe('');
+
+      await advance(1);
+
+      expect(visible(root)).toBe('H');
+    });
+  });
+
   describe('paused through a new run', () => {
     beforeEach(() => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });

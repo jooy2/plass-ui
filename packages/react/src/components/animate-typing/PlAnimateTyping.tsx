@@ -158,13 +158,23 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
   /**
    * What is left of the wait the chain is in, in milliseconds, or `null` when
-   * it is in none: the `delay` before the first character, the wait before the
-   * next one, the hold, or the wait before the first character of the next
-   * pass. A chain built again goes on with what was left of it: let go during
-   * the `delay` or between two passes, it used to wait the whole `delay` again,
-   * and between two characters a whole character's time.
+   * it is in none: the wait before the next character, the hold, or the wait
+   * before the first character of the next pass. A chain built again goes on
+   * with what was left of it: let go between two passes, it used to wait the
+   * whole `delay` again, and between two characters a whole character's time.
    */
   const waitLeft = React.useRef<number | null>(null);
+
+  /**
+   * How much of the `delay` before the first character has gone by, in
+   * milliseconds. That wait is measured from when it began rather than by what
+   * is left of it, so a chain built again during it, let go or given a new
+   * `delay`, waits out what is left of the `delay` it has now, as a keyframe
+   * measures a new `animation-delay`. Kept as what was left, a new `delay` went
+   * unread for the rest of the wait: one of 1000 given 1600 600ms in typed at
+   * 1000, and one given 300 waited 400ms more.
+   */
+  const delayGone = React.useRef(0);
 
   /**
    * `duration` is honoured as the time for the whole string, because a caller
@@ -187,6 +197,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     pass.current = 1;
     holding.current = false;
     waitLeft.current = null;
+    delayGone.current = 0;
   }, [source, run.runs]);
 
   React.useEffect(() => {
@@ -229,17 +240,11 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       }
 
       const waitFrom = performance.now();
-
-      waitLeft.current ??= delay;
-
-      const timer = setTimeout(land, waitLeft.current);
+      const timer = setTimeout(land, Math.max(0, delay - delayGone.current));
 
       return () => {
         clearTimeout(timer);
-
-        if (waitLeft.current !== null) {
-          waitLeft.current = Math.max(0, waitLeft.current - (performance.now() - waitFrom));
-        }
+        delayGone.current += performance.now() - waitFrom;
       };
     }
 
@@ -252,6 +257,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       pass.current = 1;
       holding.current = false;
       waitLeft.current = null;
+      delayGone.current = 0;
       show(0);
 
       return;
@@ -287,8 +293,10 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
     let timer: ReturnType<typeof setTimeout>;
     let count = progress.current;
     let deleting = erasing.current;
-    // When the wait the chain is in, or what was left of it, started.
+    // When the wait the chain is in, or what was left of it, started, and
+    // whether it is the `delay`.
     let waitFrom = 0;
+    let delaying = false;
 
     if (count >= total && !deleting && pass.current >= passes) {
       return;
@@ -305,6 +313,7 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
         }
 
         waitLeft.current = null;
+        delaying = false;
         next();
       }, ms);
     };
@@ -373,11 +382,15 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
 
     show(count);
 
-    // What was left of the wait it was let go in, if it was in one. Otherwise
-    // it is starting, and waits out the `delay`.
+    // What was left of the wait it was let go in, if it was in one.
     const left = waitLeft.current;
 
-    if (holding.current) {
+    if (count === 0 && pass.current === 1 && !deleting) {
+      // Starting, or let go before its first character: what is left of the
+      // `delay`, measured from when the wait began.
+      delaying = true;
+      wait(Math.max(0, delay - delayGone.current), step);
+    } else if (holding.current) {
       // Resumed during the hold between two passes.
       wait(left ?? hold, release);
     } else if (count >= total && !deleting) {
@@ -393,8 +406,14 @@ export const PlAnimateTyping = /* @__PURE__ */ React.forwardRef<
       cancelled = true;
       clearTimeout(timer);
 
+      const gone = performance.now() - waitFrom;
+
+      if (delaying) {
+        delayGone.current += gone;
+      }
+
       if (waitLeft.current !== null) {
-        waitLeft.current = Math.max(0, waitLeft.current - (performance.now() - waitFrom));
+        waitLeft.current = Math.max(0, waitLeft.current - gone);
       }
     };
     // `run.runs` is listed although nothing above reads it: a second hover
