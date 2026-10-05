@@ -205,8 +205,9 @@ describe('a new `delay`', () => {
     await screen.rerender(fade(1000));
 
     expect(delayOf(first)).toBe(0);
-    expect(getComputedStyle(first).opacity).not.toBe('0');
     expect(delayOf(second)).toBe(long + 1000);
+    // Polled, for the reason the first test polls.
+    await expect.poll(() => getComputedStyle(first).opacity).not.toBe('0');
   });
 
   it('leaves the arc of a PlAnimateLighting that is under way going', async () => {

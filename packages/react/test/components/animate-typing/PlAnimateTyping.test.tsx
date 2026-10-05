@@ -411,58 +411,6 @@ describe('PlAnimateTyping', () => {
     expect(visible(root)).toBe('Hello');
   });
 
-  it('holds for what was left of the hold before it deletes when it is paused and let go during it', async () => {
-    const typing = (paused: boolean) => (
-      <PlAnimateTyping
-        className="typing-under-test"
-        text="Hi"
-        speed={100}
-        eraseSpeed={100}
-        hold={1200}
-        erase
-        repeat={2}
-        paused={paused}
-        caret={false}
-      />
-    );
-    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-    const screen = await render(typing(false));
-    const root = document.querySelector('.typing-under-test');
-
-    // Typed out, which is where the hold starts.
-    await expect.poll(() => visible(root)).toBe('Hi');
-    await wait(600);
-    await screen.rerender(typing(true));
-    await wait(300);
-    await screen.rerender(typing(false));
-
-    const resumed = performance.now();
-    const drawn = root!.querySelector('[aria-hidden="true"]')!;
-    // The first thing drawn after it was let go, and how long after.
-    const first: { after?: number; text?: string } = {};
-    const observer = new MutationObserver(() => {
-      if (first.after === undefined) {
-        first.after = performance.now() - resumed;
-        first.text = visible(root);
-      }
-    });
-
-    observer.observe(drawn, { attributes: true, attributeFilter: ['data-text'] });
-
-    try {
-      await expect.poll(() => first.after, { timeout: 3000 }).toBeDefined();
-    } finally {
-      observer.disconnect();
-    }
-
-    // About 600ms of the hold was left. Let go, it used to delete the next
-    // character at once; it holds for what was left, rather than the whole
-    // 1200ms of it again, and not shortened by the time it was held.
-    expect(first.text).toBe('H');
-    expect(first.after).toBeGreaterThan(400);
-    expect(first.after).toBeLessThan(1000);
-  });
-
   describe('paused and let go during a wait', () => {
     // The typing runs on timeouts and measures what was left of a wait with
     // `performance.now()`, so both run on a clock the test holds.
@@ -490,6 +438,45 @@ describe('PlAnimateTyping', () => {
       await advance(5000);
       await screen.rerender(typing(false));
     }
+
+    it('holds for what was left of the hold before it deletes', async () => {
+      const typing = (paused: boolean) => (
+        <PlAnimateTyping
+          className="typing-under-test"
+          text="Hi"
+          speed={100}
+          eraseSpeed={100}
+          hold={1200}
+          erase
+          repeat={2}
+          paused={paused}
+          caret={false}
+        />
+      );
+      const screen = await render(typing(false));
+      const root = document.querySelector('.typing-under-test');
+
+      // Typed out at 10ms, which is where the hold starts, and 600ms into it.
+      await advance(20);
+      await advance(600);
+
+      expect(visible(root)).toBe('Hi');
+
+      await pauseAndLetGo(screen, typing);
+
+      // About 590ms of the hold was left. Let go, it used to delete the next
+      // character at once; it holds for what was left, rather than the whole
+      // 1200ms of it again, and not shortened by the time it was held.
+      await advance(585);
+
+      expect(visible(root)).toBe('Hi');
+
+      // The hold is over 590ms after it was let go, and the next character is
+      // deleted 10ms after that.
+      await advance(10);
+
+      expect(visible(root)).toBe('H');
+    });
 
     it('waits out only what was left of `delay`', async () => {
       const typing = (paused: boolean) => (
