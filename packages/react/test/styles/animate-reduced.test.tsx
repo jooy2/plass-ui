@@ -998,6 +998,73 @@ describe('a light or a strip when movement is given back', () => {
     expect(tracks().map((track) => getComputedStyle(track).translate)).toEqual(['none', 'none']);
   });
 
+  it('plays the count an endless PlAnimateLighting was given while the setting was on when the setting goes before its delay is over', async () => {
+    const ended = vi.fn();
+    const lighting = (repeat: number | 'infinite') => (
+      <PlAnimateLighting
+        className="effect-under-test"
+        duration={long}
+        delay={long}
+        repeat={repeat}
+        onAnimationEnd={ended}
+      >
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+    const screen = await render(lighting('infinite'));
+
+    await screen.rerender(lighting(5));
+
+    // The keyframe the count gives it back waits out its delay before it can
+    // land, and the setting goes long before that.
+    expect(target().getAnimations({ subtree: true })).toHaveLength(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(ended).not.toHaveBeenCalled();
+    expect(target()).not.toHaveAttribute('data-plass-landed');
+
+    const [arc] = running(target());
+
+    // Still waiting out its delay, and then the whole count.
+    expect(arc.effect!.getComputedTiming()).toMatchObject({
+      delay: long,
+      duration: long,
+      iterations: 5
+    });
+    expect(Number(arc.currentTime)).toBeLessThan(long);
+  });
+
+  it('plays the count an endless PlAnimateMarquee was given while the setting was on when the setting goes before its delay is over', async () => {
+    const ended = vi.fn();
+    const marquee = (repeat: number | 'infinite') => (
+      <PlAnimateMarquee
+        className="effect-under-test"
+        duration={long}
+        delay={long}
+        repeat={repeat}
+        style={{ width: 200, height: 40 }}
+        onAnimationEnd={ended}
+      >
+        <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+      </PlAnimateMarquee>
+    );
+    const screen = await render(marquee('infinite'));
+
+    await screen.rerender(marquee(5));
+
+    expect(target().getAnimations({ subtree: true })).toHaveLength(1);
+    await emulateReducedMotion('no-preference');
+
+    expect(ended).not.toHaveBeenCalled();
+    expect(target()).not.toHaveAttribute('data-plass-landed');
+    expect(running(target())).toHaveLength(2);
+
+    for (const strip of running(target())) {
+      expect(strip.effect!.getComputedTiming()).toMatchObject({ delay: long, iterations: 5 });
+      expect(Number(strip.currentTime)).toBeLessThan(long);
+    }
+  });
+
   /** Whether the light is the even glow reduced motion draws rather than an arc. */
   const even = () => getComputedStyle(target(), '::before').backgroundImage === 'none';
 

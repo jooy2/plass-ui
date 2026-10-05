@@ -879,6 +879,94 @@ void main() {
       });
     });
 
+    group('endless, given a finite repeat under the setting with a delay', () {
+      /// Two items of sixty and no gap, a pass of 120 pixels a second, after a
+      /// delay of 300ms.
+      Widget strip({int? repeat, bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateMarquee(
+            repeat: repeat,
+            paused: paused,
+            gap: 0,
+            delay: const Duration(milliseconds: 300),
+            duration: const Duration(seconds: 1),
+            children: _three,
+          ),
+          width: 200,
+          height: 40,
+          disableAnimations: still,
+        );
+      }
+
+      /// Lands the strip endless and gives it two passes under the setting.
+      Future<void> giveCount(WidgetTester tester) async {
+        await tester.pumpWidget(strip(still: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(strip(repeat: 2, still: true));
+      }
+
+      /// Waits out [left] of the delay from the frame the strip was let go on,
+      /// and a tenth of a pass after it.
+      Future<void> expectStartAfter(WidgetTester tester, Duration left) async {
+        await tester.pump();
+        await tester.pump(left - const Duration(milliseconds: 1));
+
+        expect(shiftOf(tester), Offset.zero);
+
+        await tester.pump(const Duration(milliseconds: 1));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(shiftOf(tester).dx, closeTo(-12, 0.01));
+      }
+
+      testWidgets('plays it from the beginning after what is left of its delay, when the setting '
+          'goes before the delay is over', (WidgetTester tester) async {
+        await giveCount(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(strip(repeat: 2));
+
+        // The keyframe the React build gives back for the count is still
+        // waiting out its delay, counted from when the count was given, and
+        // plays once it is over. It used to stand where the count ends.
+        expect(shiftOf(tester), Offset.zero);
+
+        await expectStartAfter(tester, const Duration(milliseconds: 200));
+      });
+
+      testWidgets('counts the delay only while it is let go, when a pause holds it partway', (
+        WidgetTester tester,
+      ) async {
+        await giveCount(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(strip(repeat: 2, paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(strip(repeat: 2, paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(
+          find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+          findsOneWidget,
+        );
+
+        await tester.pumpWidget(strip(repeat: 2));
+
+        await expectStartAfter(tester, const Duration(milliseconds: 200));
+      });
+
+      testWidgets('stands where it ends when the setting goes once the delay is over', (
+        WidgetTester tester,
+      ) async {
+        await giveCount(tester);
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpWidget(strip(repeat: 2));
+        await tester.pump();
+
+        expect(shiftOf(tester).dx, closeTo(-120, 0.01));
+        expect(await redrawsIn(tester), isFalse);
+      });
+    });
+
     testWidgets('keeps what it holds, and a strip that landed, as the setting comes and goes', (
       WidgetTester tester,
     ) async {

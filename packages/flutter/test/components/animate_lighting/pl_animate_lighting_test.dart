@@ -521,5 +521,129 @@ void main() {
         expect(await redrawsIn(tester), isFalse);
       });
     });
+
+    group('endless, given a finite repeat under the setting with a delay', () {
+      /// Once round a second at an even pace, after a delay of 300ms.
+      Widget lighting({int? repeat, bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateLighting(
+            repeat: repeat,
+            paused: paused,
+            curve: Curves.linear,
+            delay: const Duration(milliseconds: 300),
+            duration: const Duration(seconds: 1),
+            child: const Text('Live'),
+          ),
+          width: 200,
+          height: 80,
+          disableAnimations: still,
+        );
+      }
+
+      /// Lands the light endless and gives it two turns under the setting.
+      Future<void> giveCount(WidgetTester tester) async {
+        await tester.pumpWidget(lighting(still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(repeat: 2, still: true));
+      }
+
+      /// Waits out [left] of the delay from the frame the light was let go on,
+      /// and a quarter of a turn after it.
+      Future<void> expectStartAfter(WidgetTester tester, Duration left) async {
+        await tester.pump();
+        await tester.pump(left - const Duration(milliseconds: 1));
+
+        expect(turnOf(tester), closeTo(0, 0.001));
+
+        await tester.pump(const Duration(milliseconds: 1));
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(turnOf(tester), closeTo(0.25, 0.001));
+      }
+
+      testWidgets('plays it from the beginning after what is left of its delay, when the setting '
+          'goes before the delay is over', (WidgetTester tester) async {
+        await giveCount(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(lighting(repeat: 2));
+
+        // The keyframe the React build gives back for the count is still
+        // waiting out its delay, counted from when the count was given, and
+        // plays once it is over. It used to stand where the count ends.
+        expect(even(tester), isFalse);
+        expect(turnOf(tester), closeTo(0, 0.001));
+
+        await expectStartAfter(tester, const Duration(milliseconds: 200));
+      });
+
+      testWidgets('counts the delay only while it is let go, when a pause holds it partway', (
+        WidgetTester tester,
+      ) async {
+        await giveCount(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(lighting(repeat: 2, paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(repeat: 2, paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(even(tester), isTrue);
+
+        await tester.pumpWidget(lighting(repeat: 2));
+
+        await expectStartAfter(tester, const Duration(milliseconds: 200));
+      });
+
+      testWidgets('measures a new delay from when the count was given', (
+        WidgetTester tester,
+      ) async {
+        await giveCount(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pumpWidget(
+          host(
+            const PlAnimateLighting(
+              repeat: 2,
+              curve: Curves.linear,
+              delay: Duration(milliseconds: 500),
+              duration: Duration(seconds: 1),
+              child: Text('Live'),
+            ),
+            width: 200,
+            height: 80,
+            disableAnimations: true,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pumpWidget(
+          host(
+            const PlAnimateLighting(
+              repeat: 2,
+              curve: Curves.linear,
+              delay: Duration(milliseconds: 500),
+              duration: Duration(seconds: 1),
+              child: Text('Live'),
+            ),
+            width: 200,
+            height: 80,
+          ),
+        );
+
+        // 500ms from when the count was given, 150ms ago.
+        await expectStartAfter(tester, const Duration(milliseconds: 350));
+      });
+
+      testWidgets('stands where it ends when the setting goes once the delay is over', (
+        WidgetTester tester,
+      ) async {
+        await giveCount(tester);
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpWidget(lighting(repeat: 2));
+        await tester.pump();
+
+        // The keyframe landed under the setting at the end of its delay.
+        expect(even(tester), isFalse);
+        expect(turnOf(tester), closeTo(1, 0.001));
+        expect(await redrawsIn(tester), isFalse);
+      });
+    });
   });
 }

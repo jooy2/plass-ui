@@ -878,24 +878,32 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// under the setting, and a new `repeat` is counted against its clock. A
   /// strip or a light that landed endless and was given a count while the
   /// setting was on lands again where that count ends once the setting goes,
-  /// and stays there too, unless a pause held it as it was given the count,
-  /// as [_countHeld] says.
+  /// and stays there too, unless the count has not landed by then, as
+  /// [_countPending] says.
   bool _staysLanded = false;
 
   /// Whether a strip or a light that landed endless under reduced motion was
-  /// given a count while `paused` held it there, and has not been let go
-  /// since. It has not landed that count: the React build gives it back a
-  /// keyframe for the count, which the pause holds inside its delay, through
-  /// any count it is given after, until it is given `null` again.
+  /// given a count there that it has not landed yet. The React build gives it
+  /// back a keyframe for the count, which the setting runs in no time once its
+  /// delay is over, counted from when the count was given, and only while it
+  /// is let go: a pause holds it inside its delay. It stays the same keyframe
+  /// through any count it is given after, until it is given `null` again.
   ///
-  /// So once the setting goes, it starts again from its first frame, as an
-  /// endless one does, and plays the count from there after its delay once
-  /// the pause is let go, as a run a pause held before it landed does. Let go
-  /// while the setting is on, it lands as that keyframe does. And when the
-  /// setting comes back first, it is what the setting finds, as any run is:
-  /// standing where it begins, with no delay left, it lands there, as the
-  /// keyframe that had reached the start of its run does.
-  bool _countHeld = false;
+  /// So once the setting goes before that delay is over, the run starts again
+  /// from its first frame, as an endless one does, and plays the count after
+  /// what is left of the delay, as a run whose wait the setting interrupted
+  /// does. Once the delay is over under the setting, the count has landed. And
+  /// when the setting comes back to a run it had started again, it is what the
+  /// setting finds, as any run is.
+  bool _countPending = false;
+
+  /// What was left of [_countPending]'s delay at [_countWaitFrom], or for as
+  /// long as a pause has held it.
+  Duration _countWaitLeft = Duration.zero;
+
+  /// The frame from which [_countPending]'s delay has been counted down, or
+  /// `null` while a pause holds it.
+  Duration? _countWaitFrom;
 
   /// With [_still], whether the run had finished moving before the setting
   /// arrived, and so did not land under it. Its clock goes on counting from
@@ -964,6 +972,12 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     if (oldWidget.settings.delay != widget.settings.delay) {
       _redate(oldWidget.settings.delay);
+
+      // A count waiting to land has not begun its run, so the new delay is
+      // measured from when the count was given, as a keyframe's is.
+      if (_countPending) {
+        _countWaitLeft += widget.settings.delay - oldWidget.settings.delay;
+      }
     }
 
     if (oldWidget.settings.repeat != widget.settings.repeat) {
@@ -1013,7 +1027,23 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     if (!started || !widget.settings.paused) {
       _keepsStill = false;
       _keepsLanded = false;
-      _countHeld = false;
+    }
+
+    // A count waiting to land under the setting counts its delay down only
+    // while it is let go, as the keyframe's delay does, and one its trigger
+    // has taken back is a run that has not begun.
+    if (!started) {
+      _countPending = false;
+    } else if (_countPending) {
+      final bool holding = widget.settings.paused || widget.held;
+      final Duration? from = _countWaitFrom;
+
+      if (holding && from != null) {
+        _countWaitLeft = _countLeft;
+        _countWaitFrom = null;
+      } else if (!holding && from == null) {
+        _countWaitFrom = animationNow();
+      }
     }
 
     if (!started || widget.settings.paused || widget.held || resting) {
@@ -1249,7 +1279,17 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _keepsLanding = false;
     _keepsStill = false;
     _keepsLanded = false;
-    _countHeld = false;
+    _countPending = false;
+  }
+
+  /// What is left of [_countPending]'s delay on this frame.
+  Duration get _countLeft {
+    final Duration? from = _countWaitFrom;
+    final Duration remaining = from == null
+        ? _countWaitLeft
+        : _countWaitLeft - (animationNow() - from);
+
+    return remaining > Duration.zero ? remaining : Duration.zero;
   }
 
   /// Where the controller stops at the end of the run, as [_endOf] says it
@@ -1297,17 +1337,14 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   void _recount(int? before) {
     final int? repeat = widget.settings.repeat;
 
-    // A strip or a light that landed endless and is given a count while a
-    // pause holds it under reduced motion has not landed that count.
+    // A strip or a light that landed endless and is given a count under
+    // reduced motion has not landed that count until its delay is over.
     if (repeat == null) {
-      _countHeld = false;
-    } else if (_still &&
-        before == null &&
-        widget.restartsWithMotion &&
-        widget.settings.paused &&
-        _landed &&
-        !_staysLanded) {
-      _countHeld = true;
+      _countPending = false;
+    } else if (_still && before == null && widget.restartsWithMotion && _landed && !_staysLanded) {
+      _countPending = true;
+      _countWaitLeft = widget.settings.delay;
+      _countWaitFrom = widget.settings.paused || widget.held ? null : animationNow();
     }
 
     // Under reduced motion a run stands on the last frame of whatever count it
@@ -1452,12 +1489,18 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _keepsLanding = false;
         _keepsStill = false;
         _keepsLanded = false;
-        _countHeld = false;
+        _countPending = false;
       } else if (_landed) {
         // And given back after a run had landed. The builder listening to the
         // controller is below this one, so putting the controller somewhere
         // here only marks it for this build.
         final int? repeat = widget.settings.repeat;
+
+        // A count still inside its delay has not landed. One a pause holds
+        // there never does under the setting, which lengthens even no delay
+        // to a moment; one let go has landed once the delay is over.
+        final bool countWaits =
+            _countPending && (_countWaitFrom == null || _countLeft > Duration.zero);
 
         if (repeat == null && _staysLanded) {
           // A run that ends, landed and given `repeat: null` since, stands at
@@ -1468,19 +1511,19 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           _pass = 1;
           _setValue(_end);
           _keepsLanded = widget.settings.paused;
-        } else if ((repeat == null || _countHeld) && widget.restartsWithMotion) {
+        } else if ((repeat == null || countWaits) && widget.restartsWithMotion) {
           // Started again from its first frame, which this build draws, and
           // moving once `_drive` has waited out its delay, as an effect the
           // React build switched off under the setting starts once it goes.
           // A pause keeps what reduced motion drew until it is let go, drawn
           // whatever frame the run stands on, so the frame that lets it go
-          // draws the first one as well. So does one given a count while the
-          // pause held it, which then plays the count, as the keyframe the
-          // count gave it back plays once the pause lets it go.
+          // draws the first one as well. So does one given a count it has not
+          // landed yet, which then plays the count after what is left of the
+          // count's delay, as the keyframe the count gave it back does.
           _place(Duration.zero);
           _clockAt = Duration.zero;
           _clockFrom = null;
-          _delayLeft = widget.settings.delay;
+          _delayLeft = countWaits ? _countLeft : widget.settings.delay;
           _keepsLanded = widget.settings.paused;
         } else if (repeat == null || (!_staysLanded && !_countsOn && !widget.restartsWithMotion)) {
           // An endless run has no last frame to stay on. It goes on from
@@ -1492,8 +1535,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           // clock: it stands where the count ends only once that time is past
           // it. A strip or a light that did so is left to the last branch,
           // since the React build switched its keyframe off under the setting
-          // and the count gives it one again, which lands, unless a pause held
-          // it then, which is the branch above.
+          // and the count gives it one again, which lands once its delay is
+          // over, or starts again in the branch above until it is.
           final Duration? from = _clockFrom;
           final Duration since = from == null ? Duration.zero : animationNow() - from;
 
@@ -1534,8 +1577,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           // given next. A strip or a light that landed endless and was given
           // a count while the setting was on lands here, as the keyframe the
           // count gives it back lands under the setting, and the React build
-          // keeps that one marked landed as it does any other. One a pause
-          // held as it was given the count has not landed, and starts again.
+          // keeps that one marked landed as it does any other. One whose count
+          // has not landed yet starts again, above.
           _staysLanded = true;
 
           // A pause holds what is on the screen, which is what reduced motion
@@ -1547,6 +1590,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         }
 
         _countsOn = false;
+        _countPending = false;
       } else if (widget.settings.paused) {
         // And given back to a run held by a pause before it would have
         // started, from the mount or during its delay, which shows its content
