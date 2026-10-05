@@ -163,7 +163,7 @@ Vertical needs a height on the box — there is nothing else to clip against. `r
 | `overflow: hidden` on the box | `UnconstrainedBox` with `clipBehavior: Clip.hardEdge` | The strip is longer than its box by design, so it has to be laid out against an unbounded main axis. A clip alone would clip the paint and leave the flex asserting that it overflowed. |
 | a `translate` of `-100% - gap`, so nothing is measured | the strip is measured and moved by that many pixels | A percentage translate resolves against the element's own box in CSS; here the measurement decides both the distance and the duration, and it is taken again whenever the strip changes size. |
 | `gap` as a CSS length | `double` | Logical pixels. |
-| a reduced-motion `animation: none` | `t` held at `0` | The same outcome said two ways: a marquee's finished state is the content standing where it started, which is the opposite of what an entrance's is. |
+| under reduced motion, `animation: none`, or for a strip that ends a run in no time that fills neither side of it | `t` held at `0` | The same outcome said two ways: a marquee's finished state is the content standing where it started, which is the opposite of what an entrance's is. |
 | under reduced motion, `overflow: auto` on the box and `display: none` on the copies after the first | one copy in a `SingleChildScrollView` | The stylesheet answers the preference on the first frame, before any script has run; a widget builds the one tree it needs. |
 | `duration`, `delay` in milliseconds | `Duration` | The framework already has the type. |
 | `easing` as a CSS string | `curve`, a `Curve` | Dart's own name for the same thing. |

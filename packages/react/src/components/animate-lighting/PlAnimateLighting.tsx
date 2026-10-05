@@ -141,6 +141,10 @@ export const PlAnimateLighting = /* @__PURE__ */ React.forwardRef<
         ...style
       } as React.CSSProperties,
       'data-plass-animation': 'lighting',
+      // Under reduced motion a light that ends is run in no time, so that it
+      // lands, and one that does not is switched off. The stylesheet tells the
+      // two apart by this.
+      'data-plass-finite': isInfinite(repeat) ? undefined : '',
       children
     }
   });

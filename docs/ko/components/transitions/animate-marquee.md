@@ -163,7 +163,7 @@ duration이 아니라 speed입니다. 그래서 로고 넷짜리 띠와 마흔�
 | 상자의 `overflow: hidden` | `clipBehavior: Clip.hardEdge`인 `UnconstrainedBox` | 띠는 의도적으로 상자보다 깁니다. 그래서 주축을 무제한으로 두고 레이아웃해야 합니다. 자르기만 해서는 페인트만 잘리고 flex가 넘쳤다고 단언합니다. |
 | `-100% - gap`의 translate, 아무것도 재지 않음 | 띠를 재어 그만큼의 픽셀로 이동 | CSS의 백분율 translate는 요소 자기 상자를 기준으로 풀립니다. 여기서는 측정이 거리와 duration을 둘 다 정하고, 띠 크기가 바뀔 때마다 다시 잽니다. |
 | `gap`이 CSS 길이 | `double` | 논리 픽셀입니다. |
-| reduced motion에서 `animation: none` | `t`를 `0`에 붙들어 둠 | 같은 결과를 두 가지로 말한 것입니다. marquee의 완료 상태는 내용이 시작한 자리에 서 있는 것이고, 등장의 완료 상태와는 반대입니다. |
+| reduced motion에서 `animation: none`, 끝이 있는 띠는 앞뒤 어느 쪽도 채우지 않고 0초에 도는 run | `t`를 `0`에 붙들어 둠 | 같은 결과를 두 가지로 말한 것입니다. marquee의 완료 상태는 내용이 시작한 자리에 서 있는 것이고, 등장의 완료 상태와는 반대입니다. |
 | reduced motion에서 상자의 `overflow: auto`와 첫 사본 이후의 `display: none` | `SingleChildScrollView` 안의 사본 하나 | 스타일시트는 스크립트가 돌기 전 첫 프레임에 설정을 반영합니다. 위젯은 필요한 트리 하나만 만듭니다. |
 | `duration`, `delay`가 밀리초 | `Duration` | 프레임워크에 이미 타입이 있습니다. |
 | `easing`이 CSS 문자열 | `curve`, `Curve` | 같은 것에 대한 Dart 자신의 이름입니다. |

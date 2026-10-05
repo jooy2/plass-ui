@@ -248,6 +248,10 @@ export const PlAnimateMarquee = /* @__PURE__ */ React.forwardRef<
         } as React.CSSProperties
       }
       data-plass-animation="marquee"
+      // Under reduced motion a strip that ends is run in no time, so that it
+      // lands, and one that does not is switched off. The stylesheet tells the
+      // two apart by this.
+      data-plass-finite={isInfinite(repeat) ? undefined : ''}
       data-state={run.state}
       data-pause-on-hover={pauseOnHover ? '' : undefined}
       // A tab stop only where the box scrolls, which is only under reduced

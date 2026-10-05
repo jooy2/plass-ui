@@ -14,6 +14,8 @@ import { render } from 'vitest-browser-react';
 import {
   PlAnimateFade,
   PlAnimateGrow,
+  PlAnimateLighting,
+  PlAnimateMarquee,
   PlAnimateReveal,
   PlAnimateRotate,
   PlAnimateSlide,
@@ -501,5 +503,145 @@ describe('an effect when movement is given back', () => {
 
     await expect.poll(() => keyframe(target()).playState).toBe('running');
     expect(keyframe(target()).effect!.getComputedTiming().duration).toBe(long);
+  });
+});
+
+/** Whatever is running on the element or inside it, its arc included. */
+function running(element: HTMLElement): Animation[] {
+  return element
+    .getAnimations({ subtree: true })
+    .filter((animation) => animation.playState === 'running');
+}
+
+describe('a light or a strip when movement is given back', () => {
+  /** How far round the arc of the light under test has travelled. */
+  const angle = () =>
+    getComputedStyle(target(), '::before').getPropertyValue('--plass-glow-angle').trim();
+
+  const tracks = () => Array.from(target().querySelectorAll<HTMLElement>('.plass-marquee-track'));
+
+  it('leaves a finite PlAnimateLighting that landed where it landed', async () => {
+    const ended = vi.fn();
+
+    await render(
+      <PlAnimateLighting
+        className="effect-under-test"
+        duration={long}
+        repeat={1}
+        onAnimationEnd={ended}
+      >
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    // Standing where a turn ends, which is where it begins.
+    expect(running(target())).toEqual([]);
+    expect(['0deg', '360deg']).toContain(angle());
+  });
+
+  for (const orientation of ['horizontal', 'vertical'] as const) {
+    it(`leaves a finite ${orientation} PlAnimateMarquee that landed where it landed`, async () => {
+      const ended = vi.fn();
+
+      await render(
+        <PlAnimateMarquee
+          className="effect-under-test"
+          orientation={orientation}
+          duration={long}
+          repeat={1}
+          style={{ width: 200, height: 40 }}
+          onAnimationEnd={ended}
+        >
+          <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+        </PlAnimateMarquee>
+      );
+
+      await expect.poll(() => ended.mock.calls.length).toBe(1);
+
+      // Under the setting, nothing it draws has moved.
+      expect(getComputedStyle(tracks()[0]).translate).toBe('none');
+      expect(getComputedStyle(tracks()[1]).display).toBe('none');
+
+      await emulateMedia({ reducedMotion: 'no-preference' });
+
+      // Both copies stand where the strip started, the one that was not drawn
+      // under the setting as well.
+      expect(running(target())).toEqual([]);
+      expect(getComputedStyle(tracks()[1]).display).toBe('flex');
+      expect(tracks().map((track) => getComputedStyle(track).translate)).toEqual(['none', 'none']);
+    });
+  }
+
+  it('plays the next run of a finite PlAnimateLighting with movement', async () => {
+    const ended = vi.fn();
+    const lighting = (play: boolean) => (
+      <PlAnimateLighting
+        className="effect-under-test"
+        duration={long}
+        repeat={1}
+        trigger="manual"
+        play={play}
+        onAnimationEnd={ended}
+      >
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+    const screen = await render(lighting(true));
+
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+    await screen.rerender(lighting(false));
+    await screen.rerender(lighting(true));
+
+    await expect.poll(() => running(target()).length).toBe(1);
+    expect(running(target())[0].effect!.getComputedTiming().duration).toBe(long);
+  });
+
+  it('turns an endless PlAnimateLighting on again from its start', async () => {
+    const ended = vi.fn();
+
+    await render(
+      <PlAnimateLighting className="effect-under-test" duration={long} onAnimationEnd={ended}>
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+
+    await frame();
+
+    // An even glow with nothing running and nothing to end.
+    expect(target().getAnimations({ subtree: true })).toEqual([]);
+    expect(ended).not.toHaveBeenCalled();
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(running(target())).toHaveLength(1);
+    expect(Number(running(target())[0].currentTime)).toBeLessThan(long);
+  });
+
+  it('sets an endless PlAnimateMarquee going again from its start', async () => {
+    const ended = vi.fn();
+
+    await render(
+      <PlAnimateMarquee
+        className="effect-under-test"
+        duration={long}
+        style={{ width: 200 }}
+        onAnimationEnd={ended}
+      >
+        <span style={{ display: 'block', width: 300 }}>Headline</span>
+      </PlAnimateMarquee>
+    );
+
+    await frame();
+
+    expect(target().getAnimations({ subtree: true })).toEqual([]);
+    expect(ended).not.toHaveBeenCalled();
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(running(target())).toHaveLength(2);
   });
 });

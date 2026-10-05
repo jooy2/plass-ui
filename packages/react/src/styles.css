@@ -3589,7 +3589,9 @@
     rotate: var(--p-anim-angle-to, 0deg);
   }
 
-  .plass-marquee-track,
+  /* A strip that ends is the exception, below. `:where()` keeps the selector
+     as specific as `.plass-marquee-track` on its own. */
+  :where(.plass-marquee:not([data-plass-finite])) > .plass-marquee-track,
   .plass-headline-item,
   .plass-caret {
     animation: none;
@@ -3620,7 +3622,25 @@
      skeleton makes: the decoration survives, the motion does not. */
   .plass-anim-lighting::before {
     background: var(--p-anim-glow-to);
+  }
+
+  .plass-anim-lighting:not([data-plass-finite])::before {
     animation: none;
+  }
+
+  /*
+   * A strip or a light that ends is run in no time instead, as an effect
+   * above is, so that it lands and `animationend` arrives. Neither fills
+   * either side of its run, so nothing it draws moves: the strip stands where
+   * it started and the arc is the even glow. `src/internal/animate.ts` marks
+   * one that has landed, which is what keeps it there when the reader gives
+   * movement back; an endless one is switched off and goes on from its start.
+   */
+  .plass-marquee[data-plass-finite] > .plass-marquee-track,
+  .plass-anim-lighting[data-plass-finite]::before {
+    animation-duration: 0s;
+    animation-delay: max(1ms, var(--p-anim-run-delay, var(--p-anim-delay, 0ms)));
+    animation-fill-mode: none;
   }
 }
 
@@ -3654,4 +3674,16 @@
 
 .plass-anim-rotate[data-plass-held] {
   rotate: var(--p-anim-angle-to, 0deg);
+}
+
+/*
+ * A strip or a light that landed under reduced motion, marked on its root, has
+ * its keyframe taken off until it runs again: the strip, every copy of it,
+ * stands where it started, where the setting showed it, and the arc where a
+ * turn ends, which is where it begins. Played again from the start, a finite
+ * marquee or light set off on its whole run once more.
+ */
+.plass-marquee[data-plass-landed] > .plass-marquee-track,
+.plass-anim-lighting[data-plass-landed]::before {
+  animation-name: none;
 }

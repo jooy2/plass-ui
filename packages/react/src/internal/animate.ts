@@ -479,6 +479,9 @@ function holds(element: HTMLElement | null, related: EventTarget | null): boolea
  */
 const partSelector = '.plass-anim, .plass-marquee-track';
 
+/** A strip of a marquee, one of the parts above. */
+const trackSelector = '.plass-marquee-track';
+
 /**
  * Whether `part` carries `element`'s effect rather than the effect of another
  * `PlAnimate*` nested inside it.
@@ -840,10 +843,15 @@ export function useAnimationRun({
     // An endless run is left to the stylesheet, which goes on from where its
     // passes would have got to by then: it has no last frame to stay on. So is
     // a scroll-linked one, which goes back to following the scroll.
+    //
+    // The arc of a `PlAnimateLighting` and the strips of a `PlAnimateMarquee`
+    // are marked on their root, which is what the stylesheet holds them by:
+    // the arc is a pseudo-element, and the strips after the first are not
+    // drawn under reduced motion, so they never land.
     const land = (event: AnimationEvent) => {
       const part = ownTarget(element, event);
 
-      if (!part || event.pseudoElement || !prefersReducedMotion()) {
+      if (!part || !prefersReducedMotion()) {
         return;
       }
 
@@ -856,7 +864,9 @@ export function useAnimationRun({
         return;
       }
 
-      part.setAttribute(LANDED_ATTRIBUTE, '');
+      const marked = event.pseudoElement || part.matches(trackSelector) ? element : part;
+
+      marked.setAttribute(LANDED_ATTRIBUTE, '');
     };
 
     element.addEventListener('animationstart', hold);
