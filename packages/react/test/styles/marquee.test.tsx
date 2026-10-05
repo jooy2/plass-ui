@@ -54,6 +54,28 @@ describe('the marquee stylesheet', () => {
     expect(getComputedStyle(tracks()[1]).display).toBe('flex');
   });
 
+  it('runs a strip across inside a strip that runs down', async () => {
+    await render(
+      <PlAnimateMarquee
+        orientation="vertical"
+        className="marquee-under-test"
+        style={{ height: 200 }}
+      >
+        <PlAnimateMarquee className="inner-under-test" style={{ width: 300 }}>
+          {headlines.map((headline) => (
+            <span key={headline}>{headline}</span>
+          ))}
+        </PlAnimateMarquee>
+      </PlAnimateMarquee>
+    );
+
+    const inner = document.querySelector('.inner-under-test > .plass-marquee-track')!;
+
+    expect(getComputedStyle(tracks()[0]).animationName).toBe('plass-anim-marquee-y');
+    expect(getComputedStyle(inner).animationName).toBe('plass-anim-marquee-x');
+    expect(getComputedStyle(inner).flexDirection).toBe('row');
+  });
+
   describe('under reduced motion', () => {
     it('draws one copy and scrolls the box along it', async () => {
       await emulateMedia({ reducedMotion: 'reduce' });

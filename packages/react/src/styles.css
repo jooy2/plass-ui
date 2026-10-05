@@ -2657,8 +2657,9 @@
    horizontal one. Written more specifically, the name outranked that block's
    `animation: none`, so the first copy ran a pass in no time under the setting
    and went on from its own clock afterwards, while the second, not drawn until
-   then, started afresh and ran behind it. */
-:where(.plass-marquee-vertical) .plass-marquee-track {
+   then, started afresh and ran behind it. The track is the strip's own child,
+   so a strip running across inside one running down keeps its own way. */
+:where(.plass-marquee-vertical) > .plass-marquee-track {
   flex-direction: column;
   animation-name: plass-anim-marquee-y;
 }
