@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**1 item is open, and the last number used is 169.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 168; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
+**1 item is open, and the last number used is 170.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 169; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
 
 ## Working through a batch
 
@@ -48,4 +48,4 @@ Line numbers are from `79cad2ec0` and drift as the code changes; when one no lon
 
 ### Low
 
-- **169.** **An endless Flutter run standing under reduced motion and given a finite `repeat` while the setting is on stands on the new count's last frame once the setting goes** (`animate.dart` ~1473–1487, the finite branch), where React plays on its clock, since it never marks an endless run landed (`animate.ts` ~867, `land()` returns while `--p-anim-repeat` is `infinite`; read from the code). Decided: Flutter plays on its clock, as React does and as items 129 and 168 set; React gets tests that pin this and item 167's case.
+- **170.** **An endless Flutter `PlAnimateMarquee` or `PlAnimateLighting` given a finite `repeat` under reduced motion lands again, and given `repeat: null` after the setting has gone it turns from its clock** (`animate.dart` ~1488: the last branch does not set `_staysLanded` for a `restartsWithMotion` run; only `_go` ~1135 does); React keeps `data-plass-landed` and stands it (`styles.css` ~3759–3762). Item 167's rule covers it: a run that landed stands until it runs again.
