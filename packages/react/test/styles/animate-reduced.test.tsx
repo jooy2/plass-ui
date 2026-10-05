@@ -395,16 +395,33 @@ describe('an effect when movement is given back', () => {
   });
 
   /** An endless fade that is given a finite count while it stands landed. */
-  const pulse = (repeat: number | 'infinite', props: { duration: number; paused?: boolean }) => (
+  const pulse = (
+    repeat: number | 'infinite',
+    props: { duration: number; paused?: boolean; onAnimationEnd?: () => void }
+  ) => (
     <PlAnimateFade className="effect-under-test" repeat={repeat} {...props}>
       Pulsing
     </PlAnimateFade>
   );
 
-  it('plays an endless run given a finite count while the setting was on from where its clock is', async () => {
-    const screen = await render(pulse('infinite', { duration: long }));
+  /**
+   * Draws the endless fade and waits for its run in no time to report that it
+   * ended. Seeing the keyframe finished is not enough: `animationend` comes a
+   * frame later, and a `repeat` given in between is what `land` reads then,
+   * which marked an endless run as landed and held it there.
+   */
+  async function landedPulse(props: { duration: number }) {
+    const ended = vi.fn();
+    const screen = await render(pulse('infinite', { ...props, onAnimationEnd: ended }));
 
-    await expect.poll(() => keyframe(target()).playState, { timeout: landing }).toBe('finished');
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
+    expect(keyframe(target()).playState).toBe('finished');
+
+    return screen;
+  }
+
+  it('plays an endless run given a finite count while the setting was on from where its clock is', async () => {
+    const screen = await landedPulse({ duration: long });
     await screen.rerender(pulse(5, { duration: long }));
 
     // On the last frame of the new count, as the setting shows it, and never
@@ -428,9 +445,7 @@ describe('an effect when movement is given back', () => {
   });
 
   it('leaves an endless run given a finite count while the setting was on at its end once its clock is past it', async () => {
-    const screen = await render(pulse('infinite', { duration: 40 }));
-
-    await expect.poll(() => keyframe(target()).playState, { timeout: landing }).toBe('finished');
+    const screen = await landedPulse({ duration: 40 });
     await screen.rerender(pulse(5, { duration: 40 }));
 
     // Past five passes of 40ms by the time the setting goes.
@@ -442,9 +457,7 @@ describe('an effect when movement is given back', () => {
   });
 
   it('leaves an endless run given a finite count while `paused` held it on its frame until it is let go', async () => {
-    const screen = await render(pulse('infinite', { duration: long }));
-
-    await expect.poll(() => keyframe(target()).playState, { timeout: landing }).toBe('finished');
+    const screen = await landedPulse({ duration: long });
     await screen.rerender(pulse('infinite', { duration: long, paused: true }));
     await screen.rerender(pulse(5, { duration: long, paused: true }));
     await emulateMedia({ reducedMotion: 'no-preference' });
