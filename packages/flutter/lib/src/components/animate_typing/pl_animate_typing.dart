@@ -235,9 +235,8 @@ class _TypewriterState extends State<_Typewriter> {
   Duration? _waitLeft;
 
   /// The frame the wait, or what was left of it, started on, which is what the
-  /// part already gone by is measured against. The frame clock, for the reason
-  /// `PlassAnimateRun` measures its wait on it: a widget test moves time
-  /// forward on a clock of its own, and a stopwatch would measure nothing.
+  /// part already gone by is measured against, on [animationNow] as
+  /// `PlassAnimateRun` measures its wait.
   Duration? _waitFrom;
 
   Timer? _next;
@@ -347,7 +346,7 @@ class _TypewriterState extends State<_Typewriter> {
       return;
     }
 
-    final Duration now = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+    final Duration now = animationNow();
 
     if (_stillRun != widget.runs) {
       final bool begun =
@@ -461,9 +460,7 @@ class _TypewriterState extends State<_Typewriter> {
       final Duration? left = _waitLeft;
 
       if (left != null && _next != null) {
-        final Duration gone = _waitFrom == null
-            ? Duration.zero
-            : SchedulerBinding.instance.currentSystemFrameTimeStamp - _waitFrom!;
+        final Duration gone = _waitFrom == null ? Duration.zero : animationNow() - _waitFrom!;
 
         _waitLeft = left > gone ? left - gone : Duration.zero;
       }
@@ -559,7 +556,7 @@ class _TypewriterState extends State<_Typewriter> {
 
     if (scheduler.schedulerPhase != SchedulerPhase.idle) {
       // Started inside a frame, whose time is the time it started.
-      _waitFrom = scheduler.currentSystemFrameTimeStamp;
+      _waitFrom = animationNow();
 
       return;
     }
@@ -568,7 +565,7 @@ class _TypewriterState extends State<_Typewriter> {
     // already behind it: measured from the frame that draws what it waits on.
     _waitFrom = null;
     scheduler.addPostFrameCallback((_) {
-      _waitFrom ??= scheduler.currentSystemFrameTimeStamp;
+      _waitFrom ??= animationNow();
     });
     scheduler.scheduleFrame();
   }

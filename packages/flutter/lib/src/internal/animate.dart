@@ -50,6 +50,7 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/gestures.dart' show GestureBinding;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
@@ -164,6 +165,51 @@ class PlassAnimateSettings {
 bool prefersReducedMotion(BuildContext context) {
   return MediaQuery.maybeDisableAnimationsOf(context) ?? false;
 }
+
+/// The time a wait or a run is measured on. Read inside a frame.
+///
+/// The frame clock, [SchedulerBinding.currentSystemFrameTimeStamp], rather
+/// than a [Stopwatch]: a widget test moves time forward on a clock of its own,
+/// which the frame clock follows and a stopwatch does not. The frame clock
+/// reads zero until the engine has stamped a frame, though, and an app's first
+/// build is drawn on a warm-up frame that has no stamp. A wait begun there and
+/// measured on a later frame counted all the time the engine's clock had run
+/// before the app did, so a `delay` held by a pause partway through was
+/// already over when it was let go.
+///
+/// Until the first stamp, the time is counted from the first read on the
+/// binding's sampling clock, which a widget test moves forward as well. Once a
+/// stamp arrives, the frame clock is moved onto that count, so a time read
+/// before it and one read after it are measured against each other.
+Duration animationNow() {
+  final Duration stamp = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+
+  Stopwatch? unstamped = _unstamped;
+
+  if (stamp == Duration.zero) {
+    if (unstamped == null) {
+      unstamped = GestureBinding.instance.samplingClock.stopwatch()..start();
+      _unstamped = unstamped;
+    }
+
+    return unstamped.elapsed;
+  }
+
+  if (unstamped != null) {
+    _unstamped = null;
+    _stampShift = unstamped.elapsed - stamp;
+  }
+
+  return stamp + _stampShift;
+}
+
+/// What [animationNow] has counted since its first read before the frame
+/// clock had a stamp, or `null` when no such read is waiting for one.
+Stopwatch? _unstamped;
+
+/// How far [animationNow] moves the frame clock to line it up with what was
+/// counted before it had a stamp.
+Duration _stampShift = Duration.zero;
 
 /// What [PlassAnimateGate] hands its child: whether the effect is running, how
 /// many times it has been let go, and whether it is resting off screen.
@@ -749,11 +795,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   Duration _delayLeft = Duration.zero;
 
   /// The frame [_waiting] was started on, which is what the part already gone
-  /// by is measured against.
-  ///
-  /// The frame clock rather than a [Stopwatch], which reads the wall clock: a
-  /// widget test moves time forward on a clock of its own, and a stopwatch
-  /// would measure nothing while it did.
+  /// by is measured against, on [animationNow].
   Duration _waitingFrom = Duration.zero;
 
   /// Whether the platform has asked for less movement, as of the last build.
@@ -934,7 +976,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     if (_startedRuns == runs) {
       if (_still && _landed) {
-        _clockFrom ??= SchedulerBinding.instance.currentSystemFrameTimeStamp;
+        _clockFrom ??= animationNow();
 
         return;
       }
@@ -960,7 +1002,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         _startAfter(_delayLeft);
       } else if (_finished) {
         // Its clock counts on from where it stopped, past the end of the run.
-        _clockFrom ??= SchedulerBinding.instance.currentSystemFrameTimeStamp;
+        _clockFrom ??= animationNow();
       }
 
       return;
@@ -991,7 +1033,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       return;
     }
 
-    final Duration from = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+    final Duration from = animationNow();
 
     _waitingFrom = from;
     _waiting = Timer(_delayLeft, () {
@@ -1015,7 +1057,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// and turns at the end of it as it would have.
   void _go({Duration? at}) {
     _clockAt = _runTime;
-    _clockFrom = at ?? SchedulerBinding.instance.currentSystemFrameTimeStamp;
+    _clockFrom = at ?? animationNow();
 
     if (_still) {
       _setLanded(true);
@@ -1171,7 +1213,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     } else if (_finishedAfter(before)) {
       // Let go after it finished, so its clock has gone on counting past the
       // end of the run, which is where a pass it is given now begins.
-      time = _clockAt + (SchedulerBinding.instance.currentSystemFrameTimeStamp - from);
+      time = _clockAt + (animationNow() - from);
     } else {
       time = _runTime;
     }
@@ -1226,7 +1268,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
       // Already past the end of the run, its clock counts on from as far past
       // the new delay as the wait had got.
       _clockAt = -left;
-      _clockFrom = SchedulerBinding.instance.currentSystemFrameTimeStamp;
+      _clockFrom = animationNow();
     }
   }
 
@@ -1239,7 +1281,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _waiting!.cancel();
     _waiting = null;
 
-    final Duration gone = SchedulerBinding.instance.currentSystemFrameTimeStamp - _waitingFrom;
+    final Duration gone = animationNow() - _waitingFrom;
 
     _delayLeft = _delayLeft > gone ? _delayLeft - gone : Duration.zero;
   }
@@ -1283,9 +1325,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           // given its passes back does, rather than standing at the end of
           // the one it landed on and never moving again.
           final Duration? from = _clockFrom;
-          final Duration since = from == null
-              ? Duration.zero
-              : SchedulerBinding.instance.currentSystemFrameTimeStamp - from;
+          final Duration since = from == null ? Duration.zero : animationNow() - from;
 
           if (widget.settings.paused) {
             // Unless a pause holds it: a pause holds what is on the screen,

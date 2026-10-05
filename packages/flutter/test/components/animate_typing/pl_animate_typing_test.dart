@@ -811,6 +811,37 @@ void main() {
         expect(visibleOf(tester), 'H');
       });
 
+      testWidgets('waits out only what was left of a delay begun on the app\'s first frame', (
+        WidgetTester tester,
+      ) async {
+        Widget typing({required bool paused}) {
+          return host(
+            PlAnimateTyping(
+              'Hi',
+              speed: 10,
+              delay: const Duration(milliseconds: 1000),
+              paused: paused,
+              caret: false,
+            ),
+            width: 400,
+          );
+        }
+
+        pumpFirstFrame(tester, typing(paused: false));
+        await tester.pump(const Duration(milliseconds: 600));
+        await pauseAndLetGo(tester, typing);
+        await tester.pump(const Duration(milliseconds: 399));
+
+        // 400ms of the wait was left. The frame clock read zero on the first
+        // frame, so the wait counted all the time the clock had counted before
+        // the app began, and the line was typed as soon as it was let go.
+        expect(visibleOf(tester), '');
+
+        await tester.pump(const Duration(milliseconds: 1));
+
+        expect(visibleOf(tester), 'H');
+      });
+
       testWidgets('waits out only what was left of the wait for the next character', (
         WidgetTester tester,
       ) async {
@@ -1173,6 +1204,28 @@ void main() {
           // Not landed: its first frame, and the rest of the wait, as a
           // keyframe still waiting goes on with it. It used to wait the whole
           // delay again.
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 99));
+
+          expect(visibleOf(tester), '');
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(visibleOf(tester), 'H');
+        });
+
+        testWidgets('waits only what is left of a delay begun on the app\'s first frame when the '
+            'setting is taken back during it', (WidgetTester tester) async {
+          const Duration delay = Duration(milliseconds: 200);
+
+          pumpFirstFrame(tester, once(still: true, delay: delay));
+          await tester.pump(const Duration(milliseconds: 100));
+          await tester.pumpWidget(once(still: false, delay: delay));
+
+          // The frame clock read zero on the first frame, so the wait counted
+          // all the time the clock had counted before the app began, and the
+          // typing had landed on its whole line.
           expect(visibleOf(tester), '');
 
           await tester.pump(const Duration(milliseconds: 99));

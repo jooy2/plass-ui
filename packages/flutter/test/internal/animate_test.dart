@@ -980,6 +980,30 @@ void main() {
       expect(opacityOf(tester), closeTo(0.5, 0.01));
     });
 
+    testWidgets('waits only what a pause left of a wait begun on the app\'s first frame', (
+      WidgetTester tester,
+    ) async {
+      const Duration delay = Duration(milliseconds: 1000);
+
+      pumpFirstFrame(tester, fade(delay: delay));
+      await tester.pump(const Duration(milliseconds: 600));
+      await tester.pumpWidget(fade(delay: delay, paused: true));
+      await tester.pump(const Duration(milliseconds: 5000));
+      await tester.pumpWidget(fade(delay: delay));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // 400ms of the wait was left. The frame clock read zero on the first
+      // frame, so the wait counted all the time the clock had counted before
+      // the app began, and the fade began as soon as it was let go.
+      expect(opacityOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+    });
+
     testWidgets('measures a shorter delay from when the wait began', (WidgetTester tester) async {
       await tester.pumpWidget(fade(delay: const Duration(milliseconds: 600)));
       await tester.pump(const Duration(milliseconds: 200));
@@ -1514,6 +1538,24 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
 
         expect(turnOf(tester), closeTo(31.5, 0.01));
+      });
+
+      testWidgets('turns on from where its passes would have got to when it landed on the app\'s '
+          'first frame', (WidgetTester tester) async {
+        const Duration pass = Duration(milliseconds: 1100);
+
+        pumpFirstFrame(tester, host(spin(duration: pass), disableAnimations: true));
+        await tester.pump();
+
+        expect(turnOf(tester), closeTo(90, 0.01));
+
+        await tester.pump(const Duration(milliseconds: 1375));
+        await tester.pumpWidget(host(spin(duration: pass)));
+
+        // A quarter of the way through its second pass. Its clock began on a
+        // frame clock that read zero, and used to count all the time that
+        // clock had counted before the app began.
+        expect(turnOf(tester), closeTo(22.5, 0.01));
       });
 
       testWidgets('goes back on every other pass, with alternate', (WidgetTester tester) async {

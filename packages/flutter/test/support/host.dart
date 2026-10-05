@@ -78,6 +78,18 @@ Future<bool> redrawsIn(WidgetTester tester) async {
   return tester.binding.hasScheduledFrame;
 }
 
+/// Builds [widget] on the frame an app builds first: a warm-up frame, drawn
+/// before the engine has stamped any, on which the frame clock still reads
+/// zero.
+///
+/// `pumpWidget` stamps every frame it draws with the test's clock, so the
+/// first frame it draws is not the one an app's first build is drawn on.
+void pumpFirstFrame(WidgetTester tester, Widget widget) {
+  tester.binding.attachRootWidget(tester.binding.wrapWithDefaultView(widget));
+  tester.binding.handleBeginFrame(Duration.zero);
+  tester.binding.handleDrawFrame();
+}
+
 /// Every [BoxDecoration] under [finder], outermost first.
 ///
 /// A Plass surface is two boxes — the one carrying the drop shadows and the one
