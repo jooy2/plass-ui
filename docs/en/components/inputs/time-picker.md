@@ -42,7 +42,7 @@ The columns lift themselves out of the tree, so a picker needs an `Overlay` abov
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the columns are the component.
+Every native `<div>` attribute passes straight through to the field wrapper, except `aria-label` and `aria-labelledby`, which name the trigger. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the columns are the component.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
@@ -215,6 +215,7 @@ Because the popup stays up while the columns are being read, there has to be som
 | `format: Intl.DateTimeFormatOptions` | `formatValue: String Function(DateTime)` | The same trade [`PlDatePicker`](./date-picker) explains. |
 | `role="listbox"` and `option` | a named semantics container and rows that say what they mean | Flutter names the state on the node itself. |
 | the hidden input, `name` | — | There is no native form submission to be part of. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

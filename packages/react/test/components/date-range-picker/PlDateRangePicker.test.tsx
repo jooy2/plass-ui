@@ -91,6 +91,29 @@ describe('PlDateRangePicker', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the trigger with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlDateRangePicker aria-label="Stay" />);
+
+      await expect.element(screen.getByRole('button', { name: /^Stay/ })).toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="range-heading">Hotel nights</span>
+          <PlDateRangePicker label="Stay" aria-labelledby="range-heading" />
+        </>
+      );
+
+      const trigger = screen.getByRole('button', { name: /^Hotel nights/ });
+
+      expect(trigger.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe(
+        'range-heading'
+      );
+    });
+  });
+
   describe('the two panels', () => {
     it('shows two months, a month apart', async () => {
       await render(<PlDateRangePicker locale="en-GB" defaultValue={JULY} defaultOpen />);

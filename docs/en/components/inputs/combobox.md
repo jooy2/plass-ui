@@ -53,7 +53,7 @@ The list lifts itself out of the tree, so a combobox needs an `Overlay` above it
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the combobox spells it as a value rather than a DOM attribute, and `children` because the options are `items`.
+Every native `<div>` attribute passes straight through to the field wrapper, except `aria-label` and `aria-labelledby`, which name the input. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the combobox spells it as a value rather than a DOM attribute, and `children` because the options are `items`.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control`, the field's shell, chips and all, `description` and `error`.
 
@@ -190,7 +190,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 ::: fw react
 
 - Base UI renders the `combobox`/`listbox` pair, keeps `aria-expanded` and `aria-activedescendant` in step, and owns the filtering and its collator.
-- `label`, `description` and `error` are wired to the input by Base UI's Field, so no `htmlFor` is needed.
+- `label`, `description` and `error` are wired to the input by Base UI's Field, so no `htmlFor` is needed. Without a visible `label`, give the combobox an `aria-label`.
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> move through the list, <kbd>Enter</kbd> takes the highlighted row and <kbd>Esc</kbd> closes. With `multiple`, <kbd>←</kbd> <kbd>→</kbd> walk the chips and <kbd>Backspace</kbd> removes one.
 - With the list closed, <kbd>Esc</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.
 - The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is.
@@ -232,4 +232,5 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 | `label` of `ReactNode`, filtering by Base UI's collator | a `Widget`, filtering by a case-folded `contains` | The label is still a `String`, for the same reason: the filter reads it and it is written into a field. |
 | the hidden input, `name`, `required` | — | There is no native form submission to be part of. |
 | the start adornment read before the input | adornments read after the field | The field is one node, holding its name, its text and the shell the adornments sit in, so a screen reader reaches the field in one step. An adornment inside it is a child of that node, and Flutter reads a node before its children. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |

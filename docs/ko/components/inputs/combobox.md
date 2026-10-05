@@ -53,7 +53,7 @@ PlCombobox<String>(
 
 ::: fw react
 
-나머지 `<div>` 속성은 field 래퍼로 그대로 통과합니다. `color`는 위 표의 `color`와 겹쳐서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 옵션이 `items`이기 때문에 제외했습니다.
+나머지 `<div>` 속성은 field 래퍼로 그대로 통과하지만, `aria-label`과 `aria-labelledby`는 입력창에 붙어 이름이 됩니다. `color`는 위 표의 `color`와 겹쳐서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 옵션이 `items`이기 때문에 제외했습니다.
 
 `className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(chip까지 포함한 field의 껍데기), `description`, `error`.
 
@@ -190,7 +190,7 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 ::: fw react
 
 - Base UI가 `combobox`/`listbox` 쌍을 렌더링하고 `aria-expanded`와 `aria-activedescendant`를 맞춰 두며, 필터링과 collator도 소유합니다.
-- `label` `description` `error`는 Base UI의 Field가 입력창과 엮어 주므로 `htmlFor`가 필요 없습니다.
+- `label` `description` `error`는 Base UI의 Field가 입력창과 엮어 주므로 `htmlFor`가 필요 없습니다. 보이는 `label`이 없다면 `aria-label`을 주세요.
 - 키보드는 primitive의 것입니다. <kbd>↑</kbd> <kbd>↓</kbd>로 목록을 움직이고, <kbd>Enter</kbd>로 강조된 행을 취하고, <kbd>Esc</kbd>로 닫습니다. `multiple`에서는 <kbd>←</kbd> <kbd>→</kbd>가 chip 사이를 걷고 <kbd>Backspace</kbd>가 하나를 지웁니다.
 - 목록이 닫혀 있을 때 <kbd>Esc</kbd>는 값이 있는 field를 비우고, 값이 없으면 field를 담은 modal 같은 곳으로 넘어갑니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
 - 입력하는 동안 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. "이걸 추가" 행이 키보드로 닿을 수 있는 이유도 이것입니다. 목록에 없는 값은 유일한 일치 항목이기 때문입니다.
@@ -232,4 +232,5 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 | `ReactNode` label, Base UI collator 기반 필터 | `Widget`, 대소문자 접은 `contains` 필터 | label이 여전히 `String`인 것은 같은 이유입니다. 필터가 그것을 읽고, field에 써 넣습니다. |
 | hidden input, `name`, `required` | — | 참여할 네이티브 form 제출이 없습니다. |
 | 앞쪽 장식이 입력보다 먼저 읽힘 | 장식이 field 다음에 읽힘 | field는 이름과 글자, 그리고 장식이 놓인 껍데기까지 담은 노드 하나라서 스크린 리더가 한 번에 field에 닿습니다. 그 안의 장식은 이 노드의 자식이고, Flutter는 노드를 자식보다 먼저 읽습니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |

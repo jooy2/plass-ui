@@ -53,7 +53,7 @@ PlSelect<String>(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 field wrapper로 그대로 전달됩니다. `color`는 위 표의 `color`와 충돌해서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 옵션이 `items`이기 때문에 제외됩니다.
+네이티브 `<div>` 속성은 field wrapper로 그대로 전달되지만, `aria-label`과 `aria-labelledby`는 trigger에 붙어 이름이 됩니다. `color`는 위 표의 `color`와 충돌해서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 옵션이 `items`이기 때문에 제외됩니다.
 
 `className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(트리거), `description`, `error`.
 
@@ -194,7 +194,7 @@ select는 값 타입에 대해 제네릭입니다(`PlSelect<String>`, `PlSelect<
 ::: fw react
 
 - Base UI가 `role="combobox"` trigger와 진짜 `option` 행이 붙은 `listbox` 팝업을 렌더링하고, `aria-expanded`와 `aria-activedescendant`를 맞춰 주며, 목록이 열려 있는 동안 focus를 가둡니다.
-- `label`, `description`, `error`는 Base UI의 Field가 trigger에 엮어 주므로 `htmlFor`가 필요 없습니다.
+- `label`, `description`, `error`는 Base UI의 Field가 trigger에 엮어 주므로 `htmlFor`가 필요 없습니다. 툴바 안의 select처럼 보이는 `label`이 없다면 `aria-label`을 주세요.
 - 키보드는 primitive의 것입니다. <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Home</kbd> <kbd>End</kbd>로 이동하고, 글자를 치면 prefix로 건너뛰며, <kbd>Enter</kbd>로 고르고 <kbd>Esc</kbd>로 닫습니다.
 - 행은 `:hover`가 아니라 `data-highlighted`에서 밝아집니다. 포인터와 방향키가 같은 행을 비춥니다.
 - `name`을 주면 Base UI가 hidden input을 렌더링해서 값이 네이티브 form 제출에 포함됩니다.
@@ -229,6 +229,7 @@ select는 값 타입에 대해 제네릭입니다(`PlSelect<String>`, `PlSelect<
 | hidden input, `name`, `required` | — | 함께 제출될 네이티브 form이 없습니다. |
 | `id` | — | 여기서는 무엇도 id로 다른 것을 가리키지 않습니다. 라벨과 메시지는 컴포넌트의 일부입니다. |
 | `role="combobox"`, `aria-activedescendant` | 펼쳐짐이 표시된 버튼과, 배타적 묶음의 행들 | Flutter는 상태를 노드 자체에 적습니다. 가리킬 id가 없습니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 
 :::

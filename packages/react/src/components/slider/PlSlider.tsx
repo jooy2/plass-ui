@@ -226,6 +226,8 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
       locale: localeProp,
       className,
       style,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
@@ -261,6 +263,10 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
         // `solid`, always: the run and the thumb are the coloured thing, so the
         // interaction light on them is white rather than the family's own tint.
         style={{ ...controlSlots(color, elevation, 'solid'), ...style }}
+        // Both name the group, as `label` does, and Base UI hands an
+        // `aria-labelledby` on to every thumb.
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
         {...props}
       >
         {label || showValue ? (
@@ -300,7 +306,11 @@ export const PlSlider = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSlide
                 key={index}
                 index={index}
                 // Each goes onto the thumb's own `<input type="range">`, which is
-                // the element a screen reader lands on.
+                // the element a screen reader lands on. An `aria-label` does not
+                // reach it through the group, so it is handed down here, and
+                // only where nothing outranks it: Base UI lets a thumb's own
+                // `aria-label` push a visible label out.
+                aria-label={label || ariaLabelledBy ? undefined : ariaLabel}
                 getAriaLabel={getAriaLabel}
                 getAriaValueText={getAriaValueText}
                 aria-describedby={description ? descriptionId : undefined}

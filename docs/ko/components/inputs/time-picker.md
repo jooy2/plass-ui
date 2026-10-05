@@ -42,7 +42,7 @@ PlTimePicker(
 
 ::: fw react
 
-나머지 `<div>` 속성은 field 래퍼로 그대로 통과합니다. `color`는 위 표의 `color`와 겹쳐서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 열들이 곧 컴포넌트이기 때문에 제외했습니다.
+나머지 `<div>` 속성은 field 래퍼로 그대로 통과하지만, `aria-label`과 `aria-labelledby`는 trigger에 붙어 이름이 됩니다. `color`는 위 표의 `color`와 겹쳐서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 열들이 곧 컴포넌트이기 때문에 제외했습니다.
 
 `className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(트리거), `description`, `error`.
 
@@ -215,6 +215,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 | `format: Intl.DateTimeFormatOptions` | `formatValue: String Function(DateTime)` | [`PlDatePicker`](./date-picker)가 설명하는 그 거래입니다. |
 | `role="listbox"`와 `option` | 이름 붙은 semantics container와 뜻을 말하는 행 | Flutter는 상태를 노드 자체에 적습니다. |
 | hidden input, `name` | — | 참여할 네이티브 form 제출이 없습니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::

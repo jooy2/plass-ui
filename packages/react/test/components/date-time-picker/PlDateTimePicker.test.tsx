@@ -69,6 +69,31 @@ describe('PlDateTimePicker', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the trigger with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlDateTimePicker aria-label="Starts" />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Starts', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="moment-heading">Kick-off</span>
+          <PlDateTimePicker label="Starts" aria-labelledby="moment-heading" />
+        </>
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Kick-off', exact: true });
+
+      expect(trigger.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe(
+        'moment-heading'
+      );
+    });
+  });
+
   describe('the popup', () => {
     it('holds a calendar and a clock side by side', async () => {
       const screen = await render(

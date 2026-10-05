@@ -243,6 +243,8 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
       hotKeys,
       classNames,
       style,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
@@ -289,6 +291,14 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
 
     const separatorEvery = groupSize && groupSize > 0 ? Math.round(groupSize) : 0;
 
+    // What each slot's name starts with: the caller's `aria-labelledby`, else
+    // the visible label, else the caller's `aria-label`. That last one is
+    // written into a hidden span below rather than onto the slots, where Base
+    // UI drops it from the first slot and lets it push the place in the row
+    // out of the others. The row itself carries both attributes as they came.
+    const named = hasContent(label) || Boolean(ariaLabel);
+    const nameFrom = ariaLabelledBy ?? (named ? `${nameId}-label` : undefined);
+
     return (
       <Field.Root
         disabled={disabled}
@@ -329,6 +339,8 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
           onValueComplete={(next) => onComplete?.(next)}
           onValueInvalid={(next) => onValueInvalid?.(next)}
           className={cx('flex items-center', slotGapClasses[density][size], classNames?.control)}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
           {...props}
         >
           {Array.from({ length: slots }, (_, index) => (
@@ -353,25 +365,29 @@ export const PlOtpField = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlOtp
               <OTPField.Input
                 className={slotClassNames}
                 autoFocus={autoFocus && index === 0}
-                // The field's label and then the slot's place in the row. Base
+                // The field's name and then the slot's place in the row. Base
                 // UI names every slot by the label alone, so six of them read
                 // "Verification code" six times and never say which box the
                 // caret is in.
-                aria-labelledby={
-                  hasContent(label) ? `${nameId}-label ${nameId}-${index}` : `${nameId}-${index}`
-                }
+                aria-labelledby={nameFrom ? `${nameFrom} ${nameId}-${index}` : `${nameId}-${index}`}
               />
             </React.Fragment>
           ))}
         </OTPField.Root>
 
-        {/* The words each slot's name ends with. `hidden`, so they are read as
-            part of that name and never as text of their own. */}
+        {/* The words each slot's name ends with, and those it starts with when
+            the field is named by an `aria-label`. `hidden`, so they are read
+            as part of that name and never as text of their own. */}
         {Array.from({ length: slots }, (_, index) => (
           <span key={index} id={`${nameId}-${index}`} hidden>
             {slotLabel(index + 1, slots)}
           </span>
         ))}
+        {!hasContent(label) && ariaLabel ? (
+          <span id={`${nameId}-label`} hidden>
+            {ariaLabel}
+          </span>
+        ) : null}
 
         {hasContent(description) ? (
           <Field.Description className={cx(fieldDescriptionClasses(size), classNames?.description)}>

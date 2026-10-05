@@ -123,6 +123,29 @@ describe('PlTreeSelect', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the trigger with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlTreeSelect items={items} aria-label="Region" />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Region', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="tree-heading">Sales region</span>
+          <PlTreeSelect items={items} label="Region" aria-labelledby="tree-heading" />
+        </>
+      );
+
+      const button = screen.getByRole('button', { name: 'Sales region', exact: true });
+
+      expect(button.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe('tree-heading');
+    });
+  });
+
   describe('the popup', () => {
     it('opens the tree when the trigger is pressed', async () => {
       const screen = await render(<PlTreeSelect items={items} />);

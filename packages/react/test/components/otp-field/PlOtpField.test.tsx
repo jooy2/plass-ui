@@ -169,6 +169,35 @@ describe('PlOtpField', () => {
         .toBeInTheDocument();
     });
 
+    it('names every slot by an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlOtpField aria-label="Verification code" length={4} />);
+
+      await expect
+        .element(
+          screen.getByRole('textbox', { name: 'Verification code Character 1 of 4', exact: true })
+        )
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('group', { name: 'Verification code', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points every slot at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="otp-heading">Sign-in code</span>
+          <PlOtpField label="Code" aria-labelledby="otp-heading" length={4} />
+        </>
+      );
+
+      const slot = screen.getByRole('textbox', {
+        name: 'Sign-in code Character 2 of 4',
+        exact: true
+      });
+
+      expect(slot.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe('otp-heading');
+    });
+
     it('shows a description under it', async () => {
       const screen = await render(<PlOtpField description="We texted it to you." />);
 

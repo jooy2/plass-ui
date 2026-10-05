@@ -120,6 +120,49 @@ describe('PlDatePicker', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the trigger with an `aria-label`, then reads the date', async () => {
+      const screen = await render(
+        <PlDatePicker aria-label="Departure" locale="en-GB" defaultValue={JULY_27} />
+      );
+
+      await expect
+        .element(
+          screen.getByRole('button', { name: `Departure ${mediumDate(JULY_27)}`, exact: true })
+        )
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="date-heading">Outbound</span>
+          <PlDatePicker
+            label="Departure"
+            aria-labelledby="date-heading"
+            locale="en-GB"
+            defaultValue={JULY_27}
+          />
+        </>
+      );
+
+      const trigger = screen.getByRole('button', {
+        name: `Outbound ${mediumDate(JULY_27)}`,
+        exact: true
+      });
+
+      expect(trigger.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe('date-heading');
+    });
+
+    it('is still named by a visible label when it is given an `aria-label` too', async () => {
+      const screen = await render(<PlDatePicker label="Departure" aria-label="Outbound" />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Departure', exact: true }))
+        .toBeInTheDocument();
+    });
+  });
+
   describe('the calendar', () => {
     it('opens on the chosen month', async () => {
       await render(<PlDatePicker locale="en-GB" defaultValue={JULY_27} defaultOpen />);

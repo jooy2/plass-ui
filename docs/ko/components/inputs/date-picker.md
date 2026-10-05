@@ -43,7 +43,7 @@ PlDatePicker(
 
 ::: fw react
 
-나머지 `<div>` 속성은 field 래퍼로 그대로 통과합니다. `color`는 위 표의 `color`와 겹쳐서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 달력이 곧 컴포넌트이기 때문에 제외했습니다.
+나머지 `<div>` 속성은 field 래퍼로 그대로 통과하지만, `aria-label`과 `aria-labelledby`는 trigger에 붙어 이름이 됩니다. `color`는 위 표의 `color`와 겹쳐서, `defaultValue`는 DOM 속성이 아니라 값으로 쓰기 때문에, `children`은 달력이 곧 컴포넌트이기 때문에 제외했습니다.
 
 `className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(트리거), `description`, `error`.
 
@@ -263,7 +263,7 @@ trigger의 기본 format도 따라가고, 푸터의 지름길도 마찬가지입
 - 그리드는 `gridcell`들로 이루어진 `role="grid"`이고, 이름은 위의 머리글에서 옵니다. 날짜 위에서는 `2026년 7월`, 월 위에서는 `2026`, 연도 위에서는 그 쪽의 연도 범위입니다.
 - 월과 연도 버튼의 이름은 버튼에 보이는 글자이고, 하는 일은 설명으로 붙습니다. 그래서 스크린 리더는 "월 선택"보다 `7월`을 먼저 읽고, `7월`이라고 말하는 음성 명령도 버튼을 찾습니다.
 - 막힌 날은 `disabled` 속성이 아니라 `aria-disabled`를 답니다. 그래서 화살표 경로에 남고, 사용할 수 없다고 읽힙니다.
-- trigger의 이름은 label과 그 뒤의 값입니다(`Departure 27 Jul 2026`). 네이티브 select와 같은 방식으로 읽힙니다.
+- trigger의 이름은 label과 그 뒤의 값입니다(`Departure 27 Jul 2026`). 네이티브 select와 같은 방식으로 읽힙니다. 보이는 `label`이 없으면 `aria-label`이 그 자리를 대신합니다.
 
 :::
 
@@ -299,6 +299,7 @@ trigger의 기본 format도 따라가고, 푸터의 지름길도 마찬가지입
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter의 컨트롤은 controlled이고, 콜백 이름도 그쪽 것입니다. |
 | hidden input, `name`, `required` | — | 참여할 네이티브 form 제출이 없습니다. |
 | 헤더의 컨트롤이 picker의 `size` | 사다리 한 단 아래 | 월 이름은 어떤 언어에서는 `July`이고 다음 언어에서는 `септември`인데, 그 줄은 칸 일곱 개 안에 들어가야 합니다. 두 버튼 다 넘치는 대신 잘립니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::

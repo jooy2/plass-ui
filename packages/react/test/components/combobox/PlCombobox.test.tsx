@@ -142,6 +142,29 @@ describe('PlCombobox', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the input with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlCombobox items={items} aria-label="City" />);
+
+      await expect
+        .element(screen.getByRole('combobox', { name: 'City', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the input at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="combobox-heading">Office city</span>
+          <PlCombobox items={items} label="City" aria-labelledby="combobox-heading" />
+        </>
+      );
+
+      const input = screen.getByRole('combobox', { name: 'Office city', exact: true });
+
+      await expect.element(input).toHaveAttribute('aria-labelledby', 'combobox-heading');
+    });
+  });
+
   describe('choosing', () => {
     it('opens the list and picks an option', async () => {
       const onValueChange = vi.fn();

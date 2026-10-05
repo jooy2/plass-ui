@@ -64,7 +64,7 @@ The popup lifts itself out of the tree, so a tree select needs an `Overlay` abov
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a list of ids rather than as a DOM attribute, and `children` because the tree is `items`.
+Every native `<div>` attribute passes straight through to the field wrapper, except `aria-label` and `aria-labelledby`, which name the trigger. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a list of ids rather than as a DOM attribute, and `children` because the tree is `items`.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control`, `description` and `error`.
 
@@ -190,7 +190,7 @@ Opening a folder is not choosing it, which is why the second pair exists at all.
 
 ## Accessibility
 
-- The trigger is a button, exactly as every other picker's is, and it carries the label, the description, the error and `aria-invalid`.
+- The trigger is a button, exactly as every other picker's is, and it carries the label, the description, the error and `aria-invalid`. Without a visible `label`, give the picker an <Fw react="aria-label" flutter="semanticLabel" code />.
 - What is inside the popup is a real [`PlTree`](../display/tree), `role="tree"` of `role="treeitem"`s, `aria-level`, `aria-expanded`, `aria-selected`, and **one tab stop** for the whole thing.
 - <kbd>↓</kbd> and <kbd>↑</kbd> walk the rows that are visible, <kbd>→</kbd> opens a branch and steps into it, <kbd>←</kbd> closes it or steps out, and <kbd>Enter</kbd> or <kbd>Space</kbd> chooses.
 - A node that cannot be chosen is not marked `aria-disabled` when it is only a branch: it is still an operable row, because pressing it opens what is under it. A `disabled` node is marked, and is not a stop for the arrow keys.

@@ -37,6 +37,41 @@ describe('PlColorPicker', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the trigger with an `aria-label`, then reads the colour', async () => {
+      const screen = await render(
+        <PlColorPicker aria-label="Brand colour" defaultValue="#ff0000" />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Brand colour #ff0000', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="colour-heading">Accent</span>
+          <PlColorPicker label="Colour" aria-labelledby="colour-heading" defaultValue="#ff0000" />
+        </>
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Accent #ff0000', exact: true });
+
+      expect(trigger.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe(
+        'colour-heading'
+      );
+    });
+
+    it('names an inline panel with an `aria-label`', async () => {
+      const screen = await render(<PlColorPicker inline aria-label="Brand colour" />);
+
+      await expect
+        .element(screen.getByRole('group', { name: 'Brand colour', exact: true }))
+        .toBeInTheDocument();
+    });
+  });
+
   describe('the panel', () => {
     it('is drawn in the page when it is inline, with no trigger', async () => {
       const screen = await render(<PlColorPicker inline defaultValue="#ff0000" />);

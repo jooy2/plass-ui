@@ -42,7 +42,7 @@ The panels lift themselves out of the tree, so a picker needs an `Overlay` above
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the panels are the component.
+Every native `<div>` attribute passes straight through to the field wrapper, except `aria-label` and `aria-labelledby`, which name the trigger. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the panels are the component.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
@@ -175,6 +175,7 @@ One `names` object carries the month and weekday names, the order of the header'
 | `locale` / `format` / a locale-decided `hour12` | `names` / `formatValue` / `hour12: false` | The same trade [`PlDatePicker`](./date-picker) and [`PlTimePicker`](./time-picker) explain: there is no `Intl` in the framework. |
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled. |
 | the hidden input, `name` | — | There is no native form submission to be part of. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

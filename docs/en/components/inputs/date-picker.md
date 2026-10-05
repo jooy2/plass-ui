@@ -43,7 +43,7 @@ The calendar lifts itself out of the tree, so a picker needs an `Overlay` above 
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the calendar is the component.
+Every native `<div>` attribute passes straight through to the field wrapper, except `aria-label` and `aria-labelledby`, which name the trigger. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the calendar is the component.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
@@ -263,7 +263,7 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 - The grid is a `role="grid"` of `gridcell`s, named by the header above it: `July 2026`, `2026` over the months, or the page of years.
 - The month and year buttons are named by the words they show and described by what they do, so a screen reader hears `July` before "Choose a month", and a voice command that says `July` finds the button.
 - A blocked day carries `aria-disabled` rather than the `disabled` attribute, so it stays in the arrow-key path and is still announced, as unavailable.
-- The trigger is named by the label and then by what it holds, `Departure 27 Jul 2026`, as a native select is read.
+- The trigger is named by the label and then by what it holds, `Departure 27 Jul 2026`, as a native select is read. Without a visible `label`, an `aria-label` takes its place.
 
 :::
 
@@ -299,6 +299,7 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 | `value` / `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | the hidden input, `name`, `required` | — | There is no native form submission to be part of. |
 | the header's controls are the picker's `size` | one step down the ladder | A month name is `July` in one language and `септември` in the next, and the row has seven cells to fit inside. Both buttons truncate rather than overflow. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

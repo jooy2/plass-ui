@@ -42,7 +42,7 @@ PlSlider(
 
 ::: fw react
 
-Base UI `Slider.Root`의 나머지 prop은 그대로 전달됩니다: `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`.
+Base UI `Slider.Root`의 나머지 prop은 그대로 전달됩니다: `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`. `aria-label`과 `aria-labelledby`는 `label`처럼 group과 그 안의 모든 thumb에 이름을 붙입니다.
 
 :::
 

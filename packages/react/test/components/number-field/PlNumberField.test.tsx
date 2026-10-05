@@ -41,6 +41,29 @@ describe('PlNumberField', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the input with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlNumberField aria-label="Quantity" />);
+
+      await expect
+        .element(screen.getByRole('textbox', { name: 'Quantity', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the input at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="number-heading">Tickets</span>
+          <PlNumberField label="Quantity" aria-labelledby="number-heading" />
+        </>
+      );
+
+      const input = screen.getByRole('textbox', { name: 'Tickets', exact: true });
+
+      await expect.element(input).toHaveAttribute('aria-labelledby', 'number-heading');
+    });
+  });
+
   describe('the steppers', () => {
     it('draws both at the end by default', async () => {
       const screen = await render(<PlNumberField label="Quantity" />);

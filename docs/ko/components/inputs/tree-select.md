@@ -64,7 +64,7 @@ PlTreeSelect(
 
 ::: fw react
 
-native `<div>` 속성은 field 래퍼로 그대로 전달됩니다. `color`는 위 표의 `color`와 충돌해서, `defaultValue`는 picker가 DOM 속성이 아니라 id 목록으로 쓰기 때문에, `children`은 트리가 `items`이기 때문에 제외됩니다.
+native `<div>` 속성은 field 래퍼로 그대로 전달되지만, `aria-label`과 `aria-labelledby`는 trigger에 붙어 이름이 됩니다. `color`는 위 표의 `color`와 충돌해서, `defaultValue`는 picker가 DOM 속성이 아니라 id 목록으로 쓰기 때문에, `children`은 트리가 `items`이기 때문에 제외됩니다.
 
 `className`은 label과 control, 그 아래 두 줄을 담은 스택에 붙습니다. `classNames`는 그 안의 네 부분(`label`, `control`, `description`, `error`)에 닿습니다.
 
@@ -190,7 +190,7 @@ node 자신의 `selectable`이 어느 쪽으로든 덮어쓰므로, 진짜 카�
 
 ## Accessibility
 
-- trigger는 다른 모든 picker와 똑같이 button이고, label과 description, error, `aria-invalid`를 함께 답니다.
+- trigger는 다른 모든 picker와 똑같이 button이고, label과 description, error, `aria-invalid`를 함께 답니다. 보이는 `label`이 없다면 <Fw react="aria-label" flutter="semanticLabel" code />을 주세요.
 - 팝업 안은 진짜 [`PlTree`](../display/tree)입니다: `role="tree"`와 `role="treeitem"`, `aria-level`, `aria-expanded`, `aria-selected`, 그리고 트리 전체에 **tab 정거장 하나**.
 - <kbd>↓</kbd>와 <kbd>↑</kbd>는 실제로 보이는 행을 걷고, <kbd>→</kbd>는 가지를 연 뒤 안으로 들어가고, <kbd>←</kbd>는 닫거나 부모로 나가고, <kbd>Enter</kbd>나 <kbd>Space</kbd>가 고릅니다.
 - 가지라서 고를 수 없을 뿐인 node에는 `aria-disabled`를 붙이지 않습니다. 아래 있는 것을 여는 조작 가능한 행이기 때문입니다. `disabled` node는 표시되고, 화살표 키의 정거장도 아닙니다.

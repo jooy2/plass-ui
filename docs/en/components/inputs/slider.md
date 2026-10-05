@@ -42,7 +42,7 @@ PlSlider(
 
 ::: fw react
 
-Every other prop on Base UI's `Slider.Root` passes straight through, `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`.
+Every other prop on Base UI's `Slider.Root` passes straight through, `minStepsBetweenValues`, `largeStep`, `format`, `onValueCommitted`, `name`, `disabled`. `aria-label` and `aria-labelledby` name the group and every thumb in it, as `label` does.
 
 :::
 

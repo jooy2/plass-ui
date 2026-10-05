@@ -39,7 +39,7 @@ PlColorPicker(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 모두 wrapper로 그대로 전달됩니다. `color`는 여기서 Plass의 prop이라 제외됩니다(컨트롤이 켜지는 *계열*이지, 담고 있는 색이 아닙니다). 그리고 `defaultValue`와 `onChange`는 value와 `onValueChange`로 표기하기 때문입니다.
+네이티브 `<div>` 속성은 wrapper로 그대로 전달되지만, `aria-label`과 `aria-labelledby`는 trigger에, `inline`이면 패널을 묶은 group에 붙어 이름이 됩니다. `color`는 여기서 Plass의 prop이라 제외됩니다(컨트롤이 켜지는 *계열*이지, 담고 있는 색이 아닙니다). 그리고 `defaultValue`와 `onChange`는 value와 `onValueChange`로 표기하기 때문입니다.
 
 :::
 

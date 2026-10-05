@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { FadedContext, useDisabled } from '../../internal/form.js';
+import { FadedContext, controlNaming, useDisabled } from '../../internal/form.js';
 import { useDefaults, useRuntimeLocale } from '../../internal/defaults.js';
 import { useLabels } from '../../internal/labels.js';
 import { Combobox as BaseUICombobox } from '@base-ui/react/combobox';
@@ -396,6 +396,8 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   hotKeys,
   classNames,
   style,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   ...props
 }: PlComboboxProps<Multiple>) {
   const defaults = useDefaults();
@@ -563,6 +565,10 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
       // `:placeholder-shown` is how a resting label knows the field is empty,
       // and it never matches an input that has no placeholder.
       placeholder={float ? placeholder || ' ' : placeholder}
+      // The thing being named, rather than the stack: a field with no room for
+      // a `label` is named here or nowhere. A visible label still outranks an
+      // `aria-label`, and a caller's `aria-labelledby` outranks the label.
+      {...controlNaming(ariaLabel, ariaLabelledBy)}
       // On the input rather than on the stack `...props` lands on: a chord is
       // answered by the thing that has the focus.
       onKeyDown={hotKeyHandler(hotKeys, undefined)}

@@ -49,7 +49,7 @@ PlNumberField(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 field를 감싸는 요소에 그대로 전달됩니다. `color`, `defaultValue`, `children`은 셋 다 여기서는 Plass의 prop이라 전달 대상에서 제외됩니다.
+네이티브 `<div>` 속성은 field를 감싸는 요소에 그대로 전달되지만, `aria-label`과 `aria-labelledby`는 입력창에 붙어 이름이 됩니다. `color`, `defaultValue`, `children`은 셋 다 여기서는 Plass의 prop이라 전달 대상에서 제외됩니다.
 
 `className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(stepper까지 포함한 껍데기), `description`, `error`.
 
@@ -210,7 +210,7 @@ PlNumberField(
 ::: fw react
 
 - 어려운 부분은 Base UI의 NumberField가 가집니다. locale에 맞춰 입력을 해석하는 것, `min`/`max`로 고정하는 것, 스테퍼를 누르고 있을 때의 반복, form과 함께 제출되는 숨은 input.
-- 라벨과 설명, 오류는 Base UI의 Field가 컨트롤에 연결하므로 어느 것도 호출하는 쪽의 `id`를 필요로 하지 않습니다.
+- 라벨과 설명, 오류는 Base UI의 Field가 컨트롤에 연결하므로 어느 것도 호출하는 쪽의 `id`를 필요로 하지 않습니다. 보이는 `label`이 없다면 `aria-label`을 주세요.
 - 두 스테퍼에는 이미 접근 가능한 이름이 있습니다. `incrementLabel`과 `decrementLabel`이 그것을 바꿉니다.
 - 범위 끝에 닿은 스테퍼는 흐려지기만 하는 것이 아니라 진짜로 `disabled`입니다.
 - `allowWheelScrub`은 기본적으로 꺼져 있습니다. 포인터 아래에서 스크롤되는 페이지와 값이 바뀌는 field는 같은 동작이고, 의도된 것은 둘 중 하나뿐입니다.
@@ -243,6 +243,7 @@ PlNumberField(
 | 숨은 input, `name`, `required` | — | 함께 제출될 네이티브 form이 없습니다. |
 | `id` | — | 여기서는 무엇도 id로 다른 것을 가리키지 않습니다. 라벨과 메시지는 컴포넌트의 일부입니다. |
 | 앞쪽 장식이 입력보다 먼저 읽힘 | 장식이 field 다음에 읽힘 | field는 이름과 글자, 그리고 장식이 놓인 껍데기까지 담은 노드 하나라서 스크린 리더가 한 번에 field에 닿습니다. 그 안의 장식은 이 노드의 자식이고, Flutter는 노드를 자식보다 먼저 읽습니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 
 :::

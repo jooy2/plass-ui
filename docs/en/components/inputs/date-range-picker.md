@@ -43,7 +43,7 @@ The calendars lift themselves out of the tree, so a picker needs an `Overlay` ab
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the calendars are the component.
+Every native `<div>` attribute passes straight through to the field wrapper, except `aria-label` and `aria-labelledby`, which name the trigger. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the picker spells it as a value rather than a DOM attribute, and `children` because the calendars are the component.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
@@ -197,6 +197,7 @@ Pass `value` with `onValueChange`. The callback is always given an object, so th
 | `value: PlDateRange \| null` | `value: PlDateRange`, never null | `PlDateRange.empty` says it, and a non-nullable value is one fewer thing for a caller to guard. |
 | a preset's `value` may be a range **or** a function | `build` is always a function | A preset almost always depends on today, and the one shape that is always right is cheaper than two. |
 | the hidden inputs, `name` | — | There is no native form submission to be part of. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

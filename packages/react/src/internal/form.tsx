@@ -87,6 +87,33 @@ export function useDisabled(disabled: boolean | undefined): boolean {
   return React.useContext(FieldsetDisabledContext) || disabled === true;
 }
 
+/** The two attributes a caller names a control with. */
+export interface ControlNaming {
+  'aria-label'?: string;
+  'aria-labelledby'?: string;
+}
+
+/**
+ * A caller's `aria-label` and `aria-labelledby`, for the control a field's
+ * other props are carried past.
+ *
+ * A labelled field spreads what it does not know onto the stack around it, and
+ * a `<div>` with no role is named by neither: a select in a toolbar, with no
+ * room for a `label`, had no way to name its trigger. Only the attributes the
+ * caller gave are kept, because Base UI merges a caller's props over its own,
+ * and a key holding `undefined` would take away the `aria-labelledby` it points
+ * at the visible label.
+ */
+export function controlNaming(
+  label: string | undefined,
+  labelledBy: string | undefined
+): ControlNaming {
+  return {
+    ...(label === undefined ? null : { 'aria-label': label }),
+    ...(labelledBy === undefined ? null : { 'aria-labelledby': labelledBy })
+  };
+}
+
 /** Every `<fieldset>` around `element`, nearest first. */
 function fieldsetsAround(element: Element): HTMLFieldSetElement[] {
   const fieldsets: HTMLFieldSetElement[] = [];

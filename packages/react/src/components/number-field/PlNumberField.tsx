@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { controlNaming, useDisabled } from '../../internal/form.js';
 import { useDefaults, useLocale } from '../../internal/defaults.js';
 import { ownsPress } from '../../internal/focusable.js';
 import { useLabels } from '../../internal/labels.js';
@@ -295,6 +295,8 @@ export function PlNumberField({
   hotKeys,
   classNames,
   style,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   ...props
 }: PlNumberFieldProps) {
   const defaults = useDefaults();
@@ -464,6 +466,11 @@ export function PlNumberField({
               // `:placeholder-shown` is how a resting label knows the field is
               // empty, and it never matches an input that has no placeholder.
               placeholder={float ? placeholder || ' ' : placeholder}
+              // The thing being named, rather than the stack: a field with no
+              // room for a `label` is named here or nowhere. A visible label
+              // still outranks an `aria-label`, and a caller's `aria-labelledby`
+              // outranks the label.
+              {...controlNaming(ariaLabel, ariaLabelledBy)}
               // On the input rather than on the stack `...props` lands on: a chord
               // is answered by the thing that has the focus.
               onKeyDown={hotKeyHandler(hotKeys, undefined)}

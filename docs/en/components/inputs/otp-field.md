@@ -39,7 +39,7 @@ PlOtpField(
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through, onto the row of slots rather than onto the field around it. `color` is excluded because it is a Plass prop here, `onChange` because the component spells it `onValueChange`, and `children` because the slots are the children.
+Every native `<div>` attribute passes straight through, onto the row of slots rather than onto the field around it, and `aria-label` and `aria-labelledby` also start every slot's name, as `label` does. `color` is excluded because it is a Plass prop here, `onChange` because the component spells it `onValueChange`, and `children` because the slots are the children.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the row of slots) `description` and `error`.
 
@@ -192,7 +192,7 @@ Rejected characters go through a formatter of the component's own rather than Fl
 - Built on Base UI's OTP Field, which owns everything that makes this harder than it looks: one hidden value behind however many inputs, paste spread across the slots from wherever the caret was, backspace stepping back a box, and a click landing on the first empty slot rather than on the one under the pointer.
 - The first slot carries `autocomplete="one-time-code"` and the others carry `off`, so a phone offers the code straight from the message, once, in the box the code starts in.
 - The label, the description and the error are wired to the row by Base UI's `Field`, one `for`, one `aria-describedby`, and no ids for a caller to keep in step.
-- Every slot is named by the label and then by its place in the row, "Verification code Character 2 of 6". Base UI names each slot by the label alone, which reads one name six times and never says which box the caret is in. The position comes from the label pack's `otpSlot`, and `slotLabel` changes it for one field.
+- Every slot is named by the label and then by its place in the row, "Verification code Character 2 of 6". Base UI names each slot by the label alone, which reads one name six times and never says which box the caret is in. The position comes from the label pack's `otpSlot`, and `slotLabel` changes it for one field. Without a visible `label`, an `aria-label` takes its place.
 - The separator is an `aria-hidden` `<span>` rather than a `role="separator"`. It is punctuation inside one value, not a break between two things.
 - The focus ring on a slot is `:focus` rather than `:focus-visible`, which is the one place in the library that distinction is deliberately dropped: a slot is put in focus by clicking it as often as by typing into it, and the ring is the only thing saying which character the next keystroke lands on.
 
@@ -214,6 +214,7 @@ Rejected characters go through a formatter of the component's own rather than Fl
 | `onValueInvalid` | `onRejected` | It is handed the characters that were refused rather than the value that survived, which is the more useful half. |
 | `name`, `required`, `autoSubmit` | — | All three are about an HTML form submission, which Flutter has no equivalent of. |
 | `autoFocus` | `autofocus` | Flutter's spelling. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 
 :::

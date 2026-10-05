@@ -317,6 +317,8 @@ export function PickerShell({
   formValue,
   children,
   triggerRef,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   ...props
 }: InternalShellProps) {
   const generatedId = React.useId();
@@ -325,6 +327,12 @@ export function PickerShell({
   const valueId = `${generatedId}-value`;
   const descriptionId = `${generatedId}-description`;
   const errorId = `${generatedId}-error`;
+  // What the trigger's name starts with: a caller's `aria-labelledby`, else
+  // the visible label, else the trigger itself, which a reference resolves to
+  // its own `aria-label`. The name goes on the trigger rather than on the
+  // stack the other props land on, because a picker with no room for a
+  // `label` is named there or nowhere.
+  const nameFrom = ariaLabelledBy ?? (label ? labelId : ariaLabel ? triggerId : undefined);
 
   // Read here rather than in each of the six pickers that draw this shell: they
   // all hand their shell props straight through, and one resolution cannot
@@ -440,7 +448,8 @@ export function PickerShell({
                     disabled={disabled}
                     // The label and then the value, as a native select is read: the name
                     // alone would leave the chosen date or colour to be found by opening it.
-                    aria-labelledby={label ? `${labelId} ${valueId}` : undefined}
+                    aria-label={ariaLabel}
+                    aria-labelledby={nameFrom ? `${nameFrom} ${valueId}` : undefined}
                     aria-describedby={describedBy}
                     aria-required={required || undefined}
                     aria-invalid={isInvalid || failed || undefined}

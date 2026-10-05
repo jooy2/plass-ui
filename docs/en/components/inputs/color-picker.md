@@ -39,7 +39,7 @@ PlColorPicker(
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the wrapper. `color` is excluded because it is a Plass prop here (the _family_ the control lights up in, not the colour it is holding), and `defaultValue` / `onChange` because the picker spells them as a value and an `onValueChange`.
+Every native `<div>` attribute passes straight through to the wrapper, except `aria-label` and `aria-labelledby`, which name the trigger, or the group an `inline` panel sits in. `color` is excluded because it is a Plass prop here (the _family_ the control lights up in, not the colour it is holding), and `defaultValue` / `onChange` because the picker spells them as a value and an `onValueChange`.
 
 :::
 

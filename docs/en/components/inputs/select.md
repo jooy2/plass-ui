@@ -53,7 +53,7 @@ The list lifts itself out of the tree, so a select needs an `Overlay` above it, 
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through to the field wrapper. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the select spells it as a value rather than a DOM attribute, and `children` because the options are `items`.
+Every native `<div>` attribute passes straight through to the field wrapper, except `aria-label` and `aria-labelledby`, which name the trigger. `color` is excluded because it collides with the `color` in the table above, `defaultValue` because the select spells it as a value rather than a DOM attribute, and `children` because the options are `items`.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the trigger) `description` and `error`.
 
@@ -194,7 +194,7 @@ Drawn at 1.2× the value beside it, so it tracks the text. There is no `endIcon`
 ::: fw react
 
 - Base UI renders a `role="combobox"` trigger and a `listbox` popup with real `option` rows, keeps `aria-expanded` and `aria-activedescendant` in step, and traps focus while the list is open.
-- `label`, `description` and `error` are wired to the trigger by Base UI's Field, so no `htmlFor` is needed.
+- `label`, `description` and `error` are wired to the trigger by Base UI's Field, so no `htmlFor` is needed. Without a visible `label`, a select in a toolbar, give it an `aria-label`.
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> <kbd>Home</kbd> <kbd>End</kbd> move, typing jumps by prefix, <kbd>Enter</kbd> chooses and <kbd>Esc</kbd> closes.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
 - With `name`, Base UI renders the hidden input that makes the value part of a native form submission.
@@ -229,6 +229,7 @@ Drawn at 1.2× the value beside it, so it tracks the text. There is no `endIcon`
 | the hidden input, `name`, `required` | — | There is no native form submission to be part of. |
 | `id` | — | Nothing points at anything by id here; the label and the messages are part of the component. |
 | `role="combobox"`, `aria-activedescendant` | an expanded button, and rows in a mutually exclusive set | Flutter names the state on the node itself; there is no id to point at. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

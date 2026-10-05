@@ -692,6 +692,8 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       className,
       classNames,
       style,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
@@ -834,7 +836,8 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
         <div
           ref={setRootRef}
           role="group"
-          aria-labelledby={label ? `${fieldId}-label` : undefined}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy ?? (label ? `${fieldId}-label` : undefined)}
           aria-describedby={describedBy}
           className={cx('flex flex-col', stackGapClasses[size], className)}
           style={{ ...surfaceSlots(family, elevation), ...style }}
@@ -879,9 +882,13 @@ export const PlColorPicker = /* @__PURE__ */ React.forwardRef<HTMLDivElement, Pl
       );
     }
 
+    // The name goes to the trigger, which the shell draws, rather than to the
+    // wrapper the other props land on: a `<div>` with no role names nothing.
     return (
       <div ref={setRootRef} className={fullWidth ? 'w-full' : 'inline-block'} {...props}>
         <PickerShell
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
           variant={variant}
           size={size}
           color={color}

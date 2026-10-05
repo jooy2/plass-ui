@@ -131,6 +131,48 @@ describe('PlSlider', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the thumb with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlSlider aria-label="Volume" defaultValue={40} />);
+
+      await expect
+        .element(screen.getByRole('slider', { name: 'Volume', exact: true }))
+        .toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('group', { name: 'Volume', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('names both ends of a range with it', async () => {
+      const screen = await render(<PlSlider aria-label="Price" defaultValue={[20, 80]} />);
+
+      expect(screen.getByRole('slider', { name: 'Price', exact: true }).elements()).toHaveLength(2);
+    });
+
+    it("points the thumb at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="slider-heading">Channel 3</span>
+          <PlSlider label="Gain" aria-labelledby="slider-heading" defaultValue={40} />
+        </>
+      );
+
+      const thumb = screen.getByRole('slider', { name: 'Channel 3', exact: true });
+
+      await expect.element(thumb).toHaveAttribute('aria-labelledby', 'slider-heading');
+    });
+
+    it('is still named by a visible label when it is given an `aria-label` too', async () => {
+      const screen = await render(
+        <PlSlider label="Volume" aria-label="Master volume" defaultValue={40} />
+      );
+
+      await expect
+        .element(screen.getByRole('slider', { name: 'Volume', exact: true }))
+        .toBeInTheDocument();
+    });
+  });
+
   describe('range', () => {
     it('draws one thumb per value in the array', async () => {
       const screen = await render(<PlSlider defaultValue={[20, 60]} />);

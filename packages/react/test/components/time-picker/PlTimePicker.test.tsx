@@ -68,6 +68,29 @@ describe('PlTimePicker', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the trigger with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlTimePicker aria-label="Doors" />);
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Doors', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="time-heading">Opening</span>
+          <PlTimePicker label="Doors" aria-labelledby="time-heading" />
+        </>
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Opening', exact: true });
+
+      expect(trigger.element().getAttribute('aria-labelledby')?.split(' ')[0]).toBe('time-heading');
+    });
+  });
+
   describe('the columns', () => {
     it('draws an hour column and a minute column', async () => {
       const screen = await render(

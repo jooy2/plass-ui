@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useDisabled } from '../../internal/form.js';
+import { controlNaming, useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Select as BaseUISelect } from '@base-ui/react/select';
 import { Field } from '@base-ui/react/field';
@@ -241,6 +241,8 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
       hotKeys,
       classNames,
       style,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
@@ -384,6 +386,11 @@ export const PlSelect = /* @__PURE__ */ React.forwardRef<HTMLButtonElement, PlSe
           >
             <BaseUISelect.Trigger
               ref={ref}
+              // The thing being named, rather than the stack: a select with no
+              // room for a `label` is named here or nowhere. Base UI's own
+              // `aria-labelledby` still points at a visible label, which outranks
+              // an `aria-label`, and a caller's `aria-labelledby` outranks it.
+              {...controlNaming(ariaLabel, ariaLabelledBy)}
               // On the trigger rather than on the stack `...props` lands on: a chord
               // is answered by the thing that has the focus, and a wrapper would
               // fire for a key pressed on the label beside it.

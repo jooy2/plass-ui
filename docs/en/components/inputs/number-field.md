@@ -49,7 +49,7 @@ PlNumberField(
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through, onto the field's wrapper. `color`, `defaultValue` and `children` are excluded from the pass-through because all three are Plass props here.
+Every native `<div>` attribute passes straight through, onto the field's wrapper, except `aria-label` and `aria-labelledby`, which name the input. `color`, `defaultValue` and `children` are excluded from the pass-through because all three are Plass props here.
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control` (the shell, steppers included) `description` and `error`.
 
@@ -210,7 +210,7 @@ The shell is a `PlTextField`'s, to the pixel. A form where the quantity box is a
 ::: fw react
 
 - Base UI's NumberField owns the hard parts: parsing what was typed against the locale, clamping to `min`/`max`, the press-and-hold repeat on the steppers, and the hidden input that submits with a form.
-- The label, the description and the error are wired to the control by Base UI's Field, so none of them needs an `id` from the caller.
+- The label, the description and the error are wired to the control by Base UI's Field, so none of them needs an `id` from the caller. Without a visible `label`, give the field an `aria-label`.
 - Both steppers carry an accessible name already; `incrementLabel` and `decrementLabel` are what change them.
 - A stepper that has run into the end of the range is genuinely `disabled`, not just dimmed.
 - `allowWheelScrub` is off by default. A page that scrolls under the pointer and a field that changes under it are the same gesture, and only one of them was meant.
@@ -243,6 +243,7 @@ The shell is a `PlTextField`'s, to the pixel. A form where the quantity box is a
 | the hidden input, `name`, `required` | — | There is no native form submission to be part of. |
 | `id` | — | Nothing points at anything by id here; the label and the messages are part of the component. |
 | the start adornment read before the input | adornments read after the field | The field is one node, holding its name, its text and the shell the adornments sit in, so a screen reader reaches the field in one step. An adornment inside it is a child of that node, and Flutter reads a node before its children. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

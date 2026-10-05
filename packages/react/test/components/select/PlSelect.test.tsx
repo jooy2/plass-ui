@@ -118,6 +118,37 @@ describe('PlSelect', () => {
     });
   });
 
+  describe('naming', () => {
+    it('names the trigger with an `aria-label` when there is no visible label', async () => {
+      const screen = await render(<PlSelect items={items} aria-label="City" />);
+
+      await expect
+        .element(screen.getByRole('combobox', { name: 'City', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points the trigger at the caller's element with an `aria-labelledby`", async () => {
+      const screen = await render(
+        <>
+          <span id="select-heading">Office city</span>
+          <PlSelect items={items} label="City" aria-labelledby="select-heading" />
+        </>
+      );
+
+      const trigger = screen.getByRole('combobox', { name: 'Office city', exact: true });
+
+      await expect.element(trigger).toHaveAttribute('aria-labelledby', 'select-heading');
+    });
+
+    it('is still named by a visible label when it is given an `aria-label` too', async () => {
+      const screen = await render(<PlSelect items={items} label="City" aria-label="Office" />);
+
+      await expect
+        .element(screen.getByRole('combobox', { name: 'City', exact: true }))
+        .toBeInTheDocument();
+    });
+  });
+
   describe('choosing', () => {
     it('opens the list and picks an option', async () => {
       const onValueChange = vi.fn();
