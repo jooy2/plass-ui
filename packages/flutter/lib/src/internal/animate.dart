@@ -638,6 +638,12 @@ class PlassAnimateGateState extends State<PlassAnimateGate> {
 /// platform gives movement back, a run that landed stays where it is, except an
 /// endless one, which goes on from wherever its passes would have got to by
 /// then.
+///
+/// A new `repeat` is counted against the time the run has been going, as a
+/// keyframe counts a new `animation-iteration-count`. A run that has finished
+/// and is given more passes goes on from wherever that time puts it, and a run
+/// that is past the end of a lower count stands where that count ends. A pass
+/// in flight that the new count still holds goes on as it was.
 class PlassAnimateRun extends StatefulWidget {
   /// Creates a run.
   const PlassAnimateRun({
@@ -736,21 +742,27 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// started and so stands on its last frame. Until then nothing has changed.
   bool _landed = false;
 
-  /// How far into its passes the run had got when it landed: nowhere yet when
-  /// it landed at the end of its delay, and as far as it had moved when the
-  /// setting arrived while it was moving.
+  /// How far into its passes the run stood at [_clockFrom], as time: the clock
+  /// a keyframe keeps, which the browser goes on counting from when the run
+  /// began, through every pass and past the end of the last, for as long as
+  /// the run is let go.
   ///
-  /// With [_landedFrom], the clock an endless run goes on from when the
-  /// platform gives movement back, which is the clock a keyframe keeps. The
-  /// browser goes on counting a finished animation's time from when it began,
-  /// so an endless one given its passes back stands wherever that count has
-  /// got to. A pause takes the count back to where the run finished, which is
-  /// where it landed, and it counts on from there once it is let go.
-  Duration _landedAt = Duration.zero;
+  /// Put where the run stands whenever it starts or goes on, and whenever it
+  /// is held, since a pause stops the count where the keyframe stands: at the
+  /// end of a run that has finished, however long ago that was, and where it
+  /// landed under reduced motion, which is nowhere yet when it landed at the
+  /// end of its delay and as far as it had moved when the setting arrived
+  /// while it was moving. It counts on from there once it is let go.
+  ///
+  /// Read when the run has no frame of its own to go on from: an endless run
+  /// that landed, when the platform gives movement back, and a run that has
+  /// finished, when it is given a new `repeat`. Each stands wherever the count
+  /// has got to.
+  Duration _clockAt = Duration.zero;
 
-  /// The frame from which a landed run has been let go, and so counting on
-  /// from [_landedAt]. `null` while it is held, which counts nothing.
-  Duration? _landedFrom;
+  /// The frame from which the run has been let go, and so counting on from
+  /// [_clockAt]. `null` while it is held, which counts nothing.
+  Duration? _clockFrom;
 
   @override
   void initState() {
@@ -781,6 +793,10 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
 
     if (oldWidget.settings.delay != widget.settings.delay) {
       _redate(oldWidget.settings.delay);
+    }
+
+    if (oldWidget.settings.repeat != widget.settings.repeat) {
+      _recount(oldWidget.settings.repeat);
     }
   }
 
@@ -821,7 +837,7 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   void _drive(bool started, int runs, {required bool resting}) {
     if (!started || widget.settings.paused || resting) {
       _holdDelay();
-      _landedFrom = null;
+      _clockFrom = null;
 
       if (_controller.isAnimating) {
         _controller.stop();
@@ -841,12 +857,19 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         widget.onWait?.call();
       }
 
+      // The clock stops where the run stands, which for one that has not
+      // begun is its start. A run that landed under reduced motion already
+      // stands where its clock stopped.
+      if (!_still) {
+        _clockAt = _startedRuns == runs ? _runTime : Duration.zero;
+      }
+
       return;
     }
 
     if (_startedRuns == runs) {
       if (_still && _landed) {
-        _landedFrom ??= SchedulerBinding.instance.currentSystemFrameTimeStamp;
+        _clockFrom ??= SchedulerBinding.instance.currentSystemFrameTimeStamp;
 
         return;
       }
@@ -870,6 +893,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         // whatever was left of it. Nothing was left of it once the pass had
         // begun, and this then starts the pass again from where it stopped.
         _startAfter(_delayLeft);
+      } else if (_finished) {
+        // Its clock counts on from where it stopped, past the end of the run.
+        _clockFrom ??= SchedulerBinding.instance.currentSystemFrameTimeStamp;
       }
 
       return;
@@ -879,6 +905,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     _pass = 1;
     widget.onRun?.call();
     _controller.value = 0;
+    _clockAt = Duration.zero;
+    _clockFrom = null;
     _setLanded(false);
     _startAfter(widget.settings.delay);
   }
@@ -920,9 +948,10 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// way back goes on back, as a paused keyframe goes on the way it was going,
   /// and turns at the end of it as it would have.
   void _go({Duration? at}) {
+    _clockAt = _runTime;
+    _clockFrom = at ?? SchedulerBinding.instance.currentSystemFrameTimeStamp;
+
     if (_still) {
-      _landedAt = _runTime;
-      _landedFrom = at ?? SchedulerBinding.instance.currentSystemFrameTimeStamp;
       _setLanded(true);
     } else if (widget.settings.alternate && _pass.isEven) {
       _controller.reverse();
@@ -975,28 +1004,75 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     }
   }
 
-  /// Where the controller stops at the end of the run: a forward pass ends at
-  /// `1`, and an alternating run with an even number of passes ends on one that
-  /// ran back to `0`. An endless run is one pass, which has a last frame where
-  /// the run itself has none.
-  double get _end {
-    final int passes = widget.settings.repeat ?? 1;
+  /// Where the controller stops at the end of the run, as [_endOf] says it
+  /// for the run's own `repeat`.
+  double get _end => _endOf(widget.settings.repeat);
+
+  /// Where the controller stops at the end of a run of [repeat] passes: a
+  /// forward pass ends at `1`, and an alternating run with an even number of
+  /// passes ends on one that ran back to `0`. An endless run is one pass,
+  /// which has a last frame where the run itself has none.
+  double _endOf(int? repeat) {
+    final int passes = repeat ?? 1;
 
     return widget.settings.alternate && passes > 1 && passes.isEven ? 0 : 1;
   }
 
-  /// Whether the run has played every pass it was given: it is on the last one,
-  /// and stopped where that one ends.
+  /// Whether the run has played every pass its own `repeat` gives it, as
+  /// [_finishedAfter] says it.
+  bool get _finished => _finishedAfter(widget.settings.repeat);
+
+  /// Whether the run has played every one of [repeat] passes: it is on the
+  /// last one, and stopped where that one ends.
   ///
   /// A run that has not begun is on its first pass, so it is never finished,
   /// even at `0`. An endless run never is.
-  bool get _finished {
-    final int? repeat = widget.settings.repeat;
-
+  bool _finishedAfter(int? repeat) {
     return repeat != null &&
         _pass >= repeat &&
         !_controller.isAnimating &&
-        _controller.value == _end;
+        _controller.value == _endOf(repeat);
+  }
+
+  /// Counts the time the run has been going against a new `repeat`, which was
+  /// [before], as a keyframe counts a new `animation-iteration-count` against
+  /// its clock.
+  ///
+  /// A run that has finished is put wherever its clock has got to under the
+  /// new count, which `_drive` then plays on from while the run is let go, or
+  /// where the new count ends once the clock is past it. A run playing or held
+  /// past the end of a lower count stands where that count ends at once. A
+  /// pass in flight that the new count still holds goes on as it was, and
+  /// reads the count when it ends.
+  void _recount(int? before) {
+    // Under reduced motion a run stands on the last frame of whatever count it
+    // has, which the build reads. One that has not begun its passes, waiting
+    // for its trigger or out its delay, reads the new count when it does.
+    if (_still || _startedRuns < 0 || _waiting != null || _delayLeft > Duration.zero) {
+      return;
+    }
+
+    final Duration? from = _clockFrom;
+    final Duration time;
+
+    if (from == null) {
+      time = _clockAt;
+    } else if (_finishedAfter(before)) {
+      // Let go after it finished, so its clock has gone on counting past the
+      // end of the run, which is where a pass it is given now begins.
+      time = _clockAt + (SchedulerBinding.instance.currentSystemFrameTimeStamp - from);
+    } else {
+      time = _runTime;
+    }
+
+    final int? repeat = widget.settings.repeat;
+
+    if (_controller.isAnimating &&
+        (repeat == null || time < widget.settings.duration * (repeat < 1 ? 1 : repeat))) {
+      return;
+    }
+
+    _place(time);
   }
 
   /// Measures a wait that is under way, running or held, against a new
@@ -1035,6 +1111,11 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
     // Under reduced motion it lands, wherever that puts it.
     if (running && (_still || !_finished)) {
       _go();
+    } else if (running) {
+      // Already past the end of the run, its clock counts on from as far past
+      // the new delay as the wait had got.
+      _clockAt = -left;
+      _clockFrom = SchedulerBinding.instance.currentSystemFrameTimeStamp;
     }
   }
 
@@ -1071,8 +1152,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         // As far as it has moved, counting on from this frame if it is let
         // go, which `_drive` says once the frame is over.
         if (_landed) {
-          _landedAt = _runTime;
-          _landedFrom = null;
+          _clockAt = _runTime;
+          _clockFrom = null;
         }
       } else if (_landed) {
         // And given back after a run had landed. Nothing is listening to the
@@ -1085,12 +1166,12 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           // where its passes would have got to by now, as a keyframe that is
           // given its passes back does, rather than standing at the end of
           // the one it landed on and never moving again.
-          final Duration? from = _landedFrom;
+          final Duration? from = _clockFrom;
           final Duration since = from == null
               ? Duration.zero
               : SchedulerBinding.instance.currentSystemFrameTimeStamp - from;
 
-          _place(_landedAt + since);
+          _place(_clockAt + since);
         } else {
           // A run that ends is put where it left the screen, so nothing jumps
           // back to where it began. On its last pass as well, since a landed

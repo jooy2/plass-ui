@@ -901,6 +901,195 @@ void main() {
     });
   });
 
+  group('a run given a new repeat', () {
+    /// A fade at an even pace, a pass every 200ms, built anew on every call.
+    Widget fade({
+      required int? repeat,
+      bool alternate = false,
+      bool paused = false,
+      Duration delay = Duration.zero,
+    }) {
+      return host(
+        PlAnimateFade(
+          repeat: repeat,
+          alternate: alternate,
+          paused: paused,
+          delay: delay,
+          curve: Curves.linear,
+          duration: const Duration(milliseconds: 200),
+          child: const SizedBox.square(dimension: 100),
+        ),
+      );
+    }
+
+    /// Plays an alternating run of three passes out to the middle of its
+    /// second, on its way back.
+    ///
+    /// A pass ends on the first frame after its last moment rather than on it,
+    /// and the next one starts on the frame after that.
+    Future<void> halfwayBack(WidgetTester tester) async {
+      await tester.pumpWidget(fade(repeat: 3, alternate: true));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 201));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+    }
+
+    testWidgets('turns on once it has finished when it is given null, from where its clock is', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(repeat: 1));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(opacityOf(tester), 1);
+
+      await tester.pump(const Duration(milliseconds: 250));
+      await tester.pumpWidget(fade(repeat: null));
+
+      // 450ms after it began, a quarter of the way through its third pass,
+      // where a keyframe given `animation-iteration-count: infinite` stands. It
+      // used to stay at 1 and ask for no frame.
+      expect(opacityOf(tester), closeTo(0.25, 0.01));
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), closeTo(0.75, 0.01));
+    });
+
+    testWidgets('waits at the start of its next pass while it is paused', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(repeat: 1));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpWidget(fade(repeat: 1, paused: true));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pumpWidget(fade(repeat: null, paused: true));
+
+      // A paused keyframe's clock stopped at the end of the run, however long
+      // ago it finished, and that is where the next pass begins.
+      expect(opacityOf(tester), 0);
+
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), 0);
+
+      await tester.pumpWidget(fade(repeat: null));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(opacityOf(tester), closeTo(0.25, 0.01));
+    });
+
+    testWidgets('counts from where a shorter delay finished it when it is given null', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(repeat: 1, delay: const Duration(milliseconds: 600)));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpWidget(fade(repeat: 1, delay: const Duration(milliseconds: 100)));
+
+      // 300ms past the new delay, and so past the end of its one pass.
+      expect(opacityOf(tester), 1);
+
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpWidget(fade(repeat: null, delay: const Duration(milliseconds: 100)));
+
+      // 350ms past the delay, three quarters of the way through the second pass.
+      expect(opacityOf(tester), closeTo(0.75, 0.01));
+    });
+
+    testWidgets('plays the passes a higher repeat adds once it has finished', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(repeat: 1));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 450));
+      await tester.pumpWidget(fade(repeat: 5));
+
+      expect(opacityOf(tester), closeTo(0.25, 0.01));
+
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 151));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // Halfway through the fourth.
+      expect(opacityOf(tester), closeTo(0.5, 0.01));
+
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 1);
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('stands where a lower repeat ends once it has finished', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(fade(repeat: 3, alternate: true));
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 1);
+
+      await tester.pumpWidget(fade(repeat: 2, alternate: true));
+
+      // Out and back, as a keyframe given a lower count stands. It used to stay
+      // where three passes end.
+      expect(opacityOf(tester), 0);
+
+      await tester.pump();
+
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('stands where a lower repeat ends at once while it plays a pass past it', (
+      WidgetTester tester,
+    ) async {
+      await halfwayBack(tester);
+      await tester.pumpWidget(fade(repeat: 1, alternate: true));
+
+      // The end of one pass, out. It used to go on back to 0 and stay there.
+      expect(opacityOf(tester), 1);
+
+      await tester.pump();
+
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('stands where a lower repeat ends while it is paused on a pass past it', (
+      WidgetTester tester,
+    ) async {
+      await halfwayBack(tester);
+      await tester.pumpWidget(fade(repeat: 3, alternate: true, paused: true));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pumpWidget(fade(repeat: 1, alternate: true, paused: true));
+
+      expect(opacityOf(tester), 1);
+
+      await tester.pumpWidget(fade(repeat: 1, alternate: true));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(opacityOf(tester), 1);
+      expect(tester.binding.hasScheduledFrame, isFalse);
+    });
+
+    testWidgets('goes on through a pass the new repeat still holds', (WidgetTester tester) async {
+      await halfwayBack(tester);
+      await tester.pumpWidget(fade(repeat: 2, alternate: true));
+      await tester.pump(const Duration(milliseconds: 50));
+
+      expect(opacityOf(tester), closeTo(0.25, 0.01));
+
+      await tester.pumpAndSettle();
+
+      expect(opacityOf(tester), 0);
+    });
+  });
+
   group('under reduced motion', () {
     /// The turn the rotation under test is carrying, in degrees.
     double degreesOf(WidgetTester tester) {
