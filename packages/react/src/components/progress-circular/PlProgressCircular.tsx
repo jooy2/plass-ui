@@ -9,15 +9,24 @@ import {
   progressSlots,
   progressText,
   progressValue,
-  ringDiameters,
-  ringStrokes,
+  ringMetrics,
   type PlassProgressProps
 } from '../../internal/progress.js';
 import { cx, gapClasses, metaTextClasses } from '../../internal/styles.js';
 
 export interface PlProgressCircularProps extends PlassProgressProps {
-  /** Diameter of the ring. Sits just under the control ladder at every step. */
+  /**
+   * Diameter of the ring, and the size of the text beside it. Sits just under
+   * the control ladder at every step. `diameter` overrides the ring's part.
+   */
   size?: PlassProgressProps['size'];
+  /**
+   * The ring's diameter in pixels, for a ring larger than the ladder goes: a
+   * loading screen rather than a row. It takes the place of `size`'s diameter
+   * and the stroke follows it; `size` still sets the gap and the text beside
+   * the ring. Anything but a finite number above zero is ignored.
+   */
+  diameter?: number;
 }
 
 /**
@@ -41,6 +50,7 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
 >(function PlProgressCircular(
   {
     size: sizeProp,
+    diameter: diameterProp,
     color: colorProp,
     value = null,
     min = 0,
@@ -64,8 +74,7 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
   const hasFormat = format !== undefined;
   const gradientId = `${React.useId()}-fill`;
 
-  const diameter = ringDiameters[size];
-  const stroke = ringStrokes[size];
+  const { diameter, stroke } = ringMetrics(size, diameterProp);
   const centre = diameter / 2;
   // The stroke straddles the path, so the radius has to come in by half of it
   // or the ring is clipped by its own viewBox.

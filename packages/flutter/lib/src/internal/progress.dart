@@ -59,6 +59,52 @@ const Map<PlassSize, double> ringStroke = <PlassSize, double>{
   PlassSize.xl: 3,
 };
 
+/// The stroke of a ring [diameter] across, read off the ladder rather than
+/// given a proportion of its own.
+///
+/// Between two rungs it is the straight line between their strokes, so a
+/// diameter that lands on a rung draws exactly that rung's ring. Past either end
+/// it keeps that end's proportion: `xl`'s, a little under a tenth of the
+/// diameter, which keeps the hole in proportion on a ring the size of a loading
+/// screen, and `xs`'s below it. So the stroke is always a fraction of the
+/// diameter, and the radius it leaves stays above zero however small the ring.
+double ringStrokeFor(double diameter) {
+  final double smallest = ringDiameter[PlassSize.xs]!;
+  final double largest = ringDiameter[PlassSize.xl]!;
+
+  if (diameter <= smallest) {
+    return diameter * ringStroke[PlassSize.xs]! / smallest;
+  }
+
+  if (diameter >= largest) {
+    return diameter * ringStroke[PlassSize.xl]! / largest;
+  }
+
+  final int upper = PlassSize.values.indexWhere(
+    (PlassSize rung) => ringDiameter[rung]! >= diameter,
+  );
+  final PlassSize low = PlassSize.values[upper - 1];
+  final PlassSize high = PlassSize.values[upper];
+  final double along = (diameter - ringDiameter[low]!) / (ringDiameter[high]! - ringDiameter[low]!);
+
+  return ringStroke[low]! + (ringStroke[high]! - ringStroke[low]!) * along;
+}
+
+/// The diameter and the stroke a ring is drawn at: [size]'s rung, or
+/// [diameter] when it is a length a ring can be drawn at.
+///
+/// `PlProgressCircular`'s constructor asserts on anything but a finite number
+/// above zero, and a release build ignores one rather than drawing it, the way
+/// the React build does: a `NaN` that arrived from a division somewhere draws
+/// the rung.
+({double diameter, double stroke}) ringMetrics(PlassSize size, double? diameter) {
+  if (diameter == null || !diameter.isFinite || diameter <= 0) {
+    return (diameter: ringDiameter[size]!, stroke: ringStroke[size]!);
+  }
+
+  return (diameter: diameter, stroke: ringStrokeFor(diameter));
+}
+
 /// How much of the circle an indeterminate ring draws while it turns.
 const double ringArcSweep = 0.28;
 

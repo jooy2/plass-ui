@@ -429,6 +429,7 @@ import 'package:plass_ui_example/demos/progress_box/hero.dart';
 import 'package:plass_ui_example/demos/progress_box/indeterminate.dart';
 import 'package:plass_ui_example/demos/progress_box/sizes.dart';
 import 'package:plass_ui_example/demos/progress_circular/colors.dart';
+import 'package:plass_ui_example/demos/progress_circular/diameter.dart';
 import 'package:plass_ui_example/demos/progress_circular/hero.dart';
 import 'package:plass_ui_example/demos/progress_circular/indeterminate.dart';
 import 'package:plass_ui_example/demos/progress_circular/inline.dart';
@@ -693,6 +694,7 @@ const Map<String, WidgetBuilder> demos = <String, WidgetBuilder>{
   'progress-circular/hero': _progressCircularHero,
   'progress-circular/indeterminate': _progressCircularIndeterminate,
   'progress-circular/sizes': _progressCircularSizes,
+  'progress-circular/diameter': _progressCircularDiameter,
   'progress-circular/colors': _progressCircularColors,
   'progress-circular/inline': _progressCircularInline,
   'progress-linear/hero': _progressLinearHero,
@@ -1364,6 +1366,7 @@ Widget _progressCircularHero(BuildContext context) => const ProgressCircularHero
 Widget _progressCircularIndeterminate(BuildContext context) =>
     const ProgressCircularIndeterminate();
 Widget _progressCircularSizes(BuildContext context) => const ProgressCircularSizes();
+Widget _progressCircularDiameter(BuildContext context) => const ProgressCircularDiameter();
 Widget _progressCircularColors(BuildContext context) => const ProgressCircularColors();
 Widget _progressCircularInline(BuildContext context) => const ProgressCircularInline();
 Widget _progressLinearHero(BuildContext context) => const ProgressLinearHero();

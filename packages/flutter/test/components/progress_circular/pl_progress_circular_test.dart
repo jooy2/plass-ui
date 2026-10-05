@@ -28,6 +28,22 @@ Size _ringSize(WidgetTester tester) {
   );
 }
 
+/// The render object the ring is painted by, for the `paints` matcher.
+RenderObject _ring(WidgetTester tester) {
+  return tester.renderObject(
+    find.descendant(of: find.byType(PlProgressCircular), matching: find.byType(CustomPaint)).first,
+  );
+}
+
+/// The size of the text a label is drawn at.
+double? _fontSize(WidgetTester tester, String label) {
+  return tester
+      .widget<RichText>(find.descendant(of: find.text(label), matching: find.byType(RichText)))
+      .text
+      .style
+      ?.fontSize;
+}
+
 void main() {
   group('PlProgressCircular', () {
     group('the ring', () {
@@ -62,6 +78,129 @@ void main() {
           await tester.pumpWidget(host(PlProgressCircular(value: 40, size: size), width: 320));
 
           expect(_ringSize(tester).height, lessThan(control[size]!));
+        }
+      });
+
+      testWidgets('keeps the ladder’s diameter and stroke at every size', (
+        WidgetTester tester,
+      ) async {
+        const Map<PlassSize, (double, double)> ladder = <PlassSize, (double, double)>{
+          PlassSize.xs: (14, 1.5),
+          PlassSize.sm: (16, 1.75),
+          PlassSize.md: (20, 2),
+          PlassSize.lg: (26, 2.5),
+          PlassSize.xl: (32, 3),
+        };
+
+        for (final MapEntry<PlassSize, (double, double)> rung in ladder.entries) {
+          final (double diameter, double stroke) = rung.value;
+
+          await tester.pumpWidget(host(PlProgressCircular(value: 40, size: rung.key), width: 320));
+
+          expect(_ringSize(tester), equals(Size(diameter, diameter)));
+          expect(
+            _ring(tester),
+            paints
+              ..circle(strokeWidth: stroke)
+              ..arc(strokeWidth: stroke),
+          );
+        }
+      });
+
+      testWidgets('draws the ring at diameter instead of the rung, and the stroke follows', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          host(const PlProgressCircular(value: 40, size: PlassSize.sm, diameter: 96), width: 320),
+        );
+
+        expect(_ringSize(tester), equals(const Size(96, 96)));
+        // `xl`'s proportion, 3 in 32, carried on past the end of the ladder;
+        // and the stroke straddles the path, so the radius is in by half of it.
+        // The same numbers the React build draws.
+        expect(
+          _ring(tester),
+          paints
+            ..circle(x: 48, y: 48, radius: 43.5, strokeWidth: 9)
+            ..arc(
+              rect: Rect.fromCircle(center: const Offset(48, 48), radius: 43.5),
+              strokeWidth: 9,
+            ),
+        );
+      });
+
+      testWidgets('draws a diameter of 14 exactly as the xs ring', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          host(const PlProgressCircular(value: 40, size: PlassSize.xl, diameter: 14), width: 320),
+        );
+
+        expect(_ringSize(tester), equals(const Size(14, 14)));
+        expect(
+          _ring(tester),
+          paints
+            ..circle(x: 7, y: 7, radius: 6.25, strokeWidth: 1.5)
+            ..arc(strokeWidth: 1.5),
+        );
+      });
+
+      testWidgets('keeps the radius above zero on a ring smaller than the ladder', (
+        WidgetTester tester,
+      ) async {
+        const double stroke = 0.5 * 1.5 / 14;
+        const double radius = (0.5 - stroke) / 2;
+
+        await tester.pumpWidget(
+          host(const PlProgressCircular(value: 40, diameter: 0.5), width: 320),
+        );
+
+        expect(radius, greaterThan(0));
+        expect(_ringSize(tester), equals(const Size(0.5, 0.5)));
+        // The radius rather than the stroke: a `Paint` keeps its width in single
+        // precision, while the radius is worked out from the stroke in double.
+        expect(
+          _ring(tester),
+          paints
+            ..circle(x: 0.25, y: 0.25, radius: radius)
+            ..arc(
+              rect: Rect.fromCircle(center: const Offset(0.25, 0.25), radius: radius),
+            ),
+        );
+      });
+
+      testWidgets('still takes the gap and the text size from size beside a diameter', (
+        WidgetTester tester,
+      ) async {
+        for (final (PlassSize size, double text, double gap) in <(PlassSize, double, double)>[
+          (PlassSize.xs, 10, 4),
+          (PlassSize.xl, 14, 12),
+        ]) {
+          await tester.pumpWidget(
+            host(
+              PlProgressCircular(value: 40, size: size, diameter: 96, label: const Text('Loading')),
+              width: 320,
+            ),
+          );
+
+          final double ringEnd = tester
+              .getTopRight(
+                find
+                    .descendant(
+                      of: find.byType(PlProgressCircular),
+                      matching: find.byType(CustomPaint),
+                    )
+                    .first,
+              )
+              .dx;
+
+          expect(_ringSize(tester), equals(const Size(96, 96)));
+          expect(_fontSize(tester, 'Loading'), equals(text));
+          expect(tester.getTopLeft(find.text('Loading')).dx - ringEnd, equals(gap));
+        }
+      });
+
+      test('asserts on a diameter that is not a finite number above zero', () {
+        for (final double diameter in <double>[0, -24, double.nan, double.infinity]) {
+          expect(() => PlProgressCircular(diameter: diameter), throwsAssertionError);
         }
       });
 

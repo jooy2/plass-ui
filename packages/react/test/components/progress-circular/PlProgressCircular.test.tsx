@@ -107,6 +107,102 @@ describe('PlProgressCircular', () => {
       );
     });
 
+    it('keeps the ladder’s diameter and stroke at every size', async () => {
+      const ladder = [
+        ['xs', 14, 1.5],
+        ['sm', 16, 1.75],
+        ['md', 20, 2],
+        ['lg', 26, 2.5],
+        ['xl', 32, 3]
+      ] as const;
+      const screen = await render(<PlProgressCircular value={40} />);
+
+      for (const [size, diameter, stroke] of ladder) {
+        await screen.rerender(<PlProgressCircular value={40} size={size} />);
+
+        const ring = screen.getByRole('progressbar').element();
+
+        expect(ring.querySelector('svg')).toHaveAttribute('width', String(diameter));
+        expect(ring.querySelector('svg')).toHaveAttribute('height', String(diameter));
+        expect(arcOf(ring)).toHaveAttribute('stroke-width', String(stroke));
+      }
+    });
+
+    it('draws the ring at diameter instead of the rung, and the stroke follows', async () => {
+      const screen = await render(<PlProgressCircular value={40} size="sm" diameter={96} />);
+      const ring = screen.getByRole('progressbar').element();
+      const svg = ring.querySelector('svg');
+
+      expect(svg).toHaveAttribute('width', '96');
+      expect(svg).toHaveAttribute('height', '96');
+      expect(svg).toHaveAttribute('viewBox', '0 0 96 96');
+
+      // `xl`'s proportion, 3 in 32, carried on past the end of the ladder; and
+      // the stroke straddles the path, so the radius is in by half of it.
+      for (const circle of ring.querySelectorAll('circle')) {
+        expect(circle).toHaveAttribute('stroke-width', '9');
+        expect(circle).toHaveAttribute('r', '43.5');
+      }
+
+      expect(arcOf(ring)).toHaveAttribute('transform', 'rotate(-90 48 48)');
+    });
+
+    it('still takes the gap and the text size from size beside a diameter', async () => {
+      const screen = await render(
+        <PlProgressCircular value={40} size="xl" diameter={96} label="Loading" />
+      );
+
+      expect(screen.getByRole('progressbar').element()).toHaveClass('gap-3', 'text-[0.875rem]');
+
+      await screen.rerender(
+        <PlProgressCircular value={40} size="xs" diameter={96} label="Loading" />
+      );
+
+      expect(screen.getByRole('progressbar').element()).toHaveClass('gap-1', 'text-[0.625rem]');
+      expect(screen.getByRole('progressbar').element().querySelector('svg')).toHaveAttribute(
+        'width',
+        '96'
+      );
+    });
+
+    it('draws a diameter of 14 exactly as the xs ring', async () => {
+      const screen = await render(<PlProgressCircular value={40} size="xs" />);
+      const rung = arcOf(screen.getByRole('progressbar').element());
+      const expected = [rung.getAttribute('r'), rung.getAttribute('stroke-width')];
+
+      await screen.rerender(<PlProgressCircular value={40} size="xl" diameter={14} />);
+
+      const arc = arcOf(screen.getByRole('progressbar').element());
+
+      expect(expected).toEqual(['6.25', '1.5']);
+      expect([arc.getAttribute('r'), arc.getAttribute('stroke-width')]).toEqual(expected);
+    });
+
+    it('keeps the radius above zero on a ring smaller than the ladder', async () => {
+      const screen = await render(<PlProgressCircular value={40} diameter={0.5} />);
+      const ring = screen.getByRole('progressbar').element();
+
+      expect(ring.querySelector('svg')).toHaveAttribute('width', '0.5');
+
+      for (const circle of ring.querySelectorAll('circle')) {
+        expect(circle).toHaveAttribute('stroke-width', String((0.5 * 1.5) / 14));
+        expect(Number(circle.getAttribute('r'))).toBeGreaterThan(0);
+      }
+    });
+
+    it('ignores a diameter that is not a finite number above zero', async () => {
+      const screen = await render(<PlProgressCircular value={40} size="lg" diameter={0} />);
+
+      for (const diameter of [0, -24, Number.NaN, Infinity]) {
+        await screen.rerender(<PlProgressCircular value={40} size="lg" diameter={diameter} />);
+
+        const ring = screen.getByRole('progressbar').element();
+
+        expect(ring.querySelector('svg')).toHaveAttribute('width', '26');
+        expect(arcOf(ring)).toHaveAttribute('stroke-width', '2.5');
+      }
+    });
+
     it('closes the gap as the value climbs', async () => {
       const screen = await render(<PlProgressCircular value={25} />);
       const quarter = Number(

@@ -33,7 +33,7 @@ PlProgressCircular(label: const Text('Syncing'), value: 68, showValue: true);
 
 <PropsTable name="PlProgressCircular" />
 
-The table is [`PlProgressLinear`](./progress-linear)'s, and only `size` means something different: on a bar it is thickness, on a ring it is diameter. That is the claim the indicators make, one component in three shapes, and it is why they share a props table rather than three that would drift.
+The table is [`PlProgressLinear`](./progress-linear)'s with `diameter` added, and only `size` means something different: on a bar it is thickness, on a ring it is diameter. That is the claim the indicators make, one component in three shapes, and it is why they share a props table rather than three that would drift.
 
 ::: fw react
 
@@ -108,6 +108,38 @@ Diameter, on a ladder that sits just under the control ladder at every step, a `
 ::: fw flutter
 
 <<< @/../packages/flutter/example/lib/demos/progress_circular/sizes.dart
+
+:::
+
+</Demo>
+
+### diameter
+
+`diameter` sets the ring's diameter in pixels, for a ring larger than the ladder goes: a loading screen rather than a table row. The stroke thickens with it in the ladder's own proportion, about a tenth of the diameter, and `size` still sets the gap and the text beside the ring.
+
+::: fw react
+
+A value that is not a finite number above zero is ignored, and the ring is drawn at `size`'s diameter.
+
+:::
+
+::: fw flutter
+
+The constructor asserts that it is a finite number above zero, so a mistake shows up at the call while debugging. A release build draws a ring at `size`'s diameter for one that is not, as the React build does.
+
+:::
+
+<Demo src="progress-circular/diameter" :min-height="160">
+
+::: fw react
+
+<<< @/.vitepress/demos/progress-circular/diameter.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/progress_circular/diameter.dart
 
 :::
 

@@ -33,7 +33,7 @@ PlProgressCircular(label: const Text('Syncing'), value: 68, showValue: true);
 
 <PropsTable name="PlProgressCircular" />
 
-표는 [`PlProgressLinear`](./progress-linear)의 것 그대로이고, 뜻이 달라지는 것은 `size` 하나뿐입니다. 바에서는 두께, 링에서는 지름입니다. indicator들이 하는 주장이 바로 이것(하나의 컴포넌트, 세 개의 모양)이고, 그래서 각자 어긋날 표 셋 대신 표 하나를 나눠 씁니다.
+표는 [`PlProgressLinear`](./progress-linear)의 표에 `diameter` 한 줄을 더한 것이고, 뜻이 달라지는 것은 `size` 하나뿐입니다. 바에서는 두께, 링에서는 지름입니다. indicator들이 하는 주장이 바로 이것(하나의 컴포넌트, 세 개의 모양)이고, 그래서 각자 어긋날 표 셋 대신 표 하나를 나눠 씁니다.
 
 ::: fw react
 
@@ -108,6 +108,38 @@ stroke는 decoration이 아니라 `Shader`를 받으므로, 패키지의 나머�
 ::: fw flutter
 
 <<< @/../packages/flutter/example/lib/demos/progress_circular/sizes.dart
+
+:::
+
+</Demo>
+
+### diameter
+
+`diameter`는 링의 지름을 픽셀 단위로 정합니다. 사다리보다 큰 링이 필요할 때, 이를테면 테이블 행이 아니라 로딩 화면에 놓을 링에 씁니다. stroke도 사다리와 같은 비율로 함께 굵어지며, 굵기는 지름의 약 10분의 1입니다. 링 옆의 간격과 글자 크기는 여전히 `size`가 정합니다.
+
+::: fw react
+
+0보다 큰 유한한 수가 아니면 무시하고, 링은 `size`의 지름으로 그립니다.
+
+:::
+
+::: fw flutter
+
+생성자가 0보다 큰 유한한 수인지 assert로 확인하므로, 디버그 중에는 잘못 준 값이 호출한 자리에서 바로 드러납니다. release 빌드는 그런 값을 받으면 React 빌드처럼 `size`의 지름으로 그립니다.
+
+:::
+
+<Demo src="progress-circular/diameter" :min-height="160">
+
+::: fw react
+
+<<< @/.vitepress/demos/progress-circular/diameter.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/progress_circular/diameter.dart
 
 :::
 

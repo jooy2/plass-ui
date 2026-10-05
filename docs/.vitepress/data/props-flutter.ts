@@ -4398,7 +4398,6 @@ export const flutterPropTables: Record<string, PropRow[]> = {
    * decision on its consumer's behalf. So the Dart side takes the function
    * instead of the options.
    */
-  /** The ring takes the bar's table unchanged except for what `size` means. */
   PlProgressBox: [
     from('PlProgressBox', 'value', { type: 'double?', default: 'null' }),
     from('PlProgressBox', 'min', { type: 'double', default: '0' }),
@@ -4411,6 +4410,10 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressBox', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 
+  /**
+   * The ring takes the bar's table with `size` meaning diameter rather than
+   * thickness, and `diameter` for a ring past the end of the ladder.
+   */
   PlProgressCircular: [
     from('PlProgressCircular', 'value', { type: 'double?', default: 'null' }),
     from('PlProgressCircular', 'min', { type: 'double', default: '0' }),
@@ -4419,6 +4422,13 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressCircular', 'showValue', { type: 'bool', default: 'false' }),
     formatValueProp,
     from('PlProgressCircular', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
+    from('PlProgressCircular', 'diameter', {
+      type: 'double?',
+      description: {
+        ko: '링의 지름(논리 픽셀). 사다리보다 큰 링에 씁니다. size의 지름 대신 쓰이고 stroke도 따라 굵어지며, 간격과 글자 크기는 여전히 size가 정합니다. 0보다 큰 유한한 수여야 하고, 생성자가 assert로 확인합니다',
+        en: "The ring's diameter in logical pixels, for a ring larger than the ladder goes. It takes the place of size's diameter and the stroke follows it; the gap and the text still follow size. It has to be a finite number above zero, which the constructor asserts"
+      }
+    }),
     from('PlProgressCircular', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
   ],
 

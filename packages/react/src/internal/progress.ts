@@ -141,6 +141,56 @@ export const ringStrokes: Record<PlassSize, number> = {
   xl: 3
 };
 
+/** The ladder's rungs in order, for the arithmetic that reads between them. */
+const ringRungs: readonly PlassSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
+
+/**
+ * The stroke of a ring `diameter` pixels across, read off the ladder rather
+ * than given a proportion of its own.
+ *
+ * Between two rungs it is the straight line between their strokes, so a
+ * diameter that lands on a rung draws exactly that rung's ring. Past either end
+ * it keeps that end's proportion: `xl`'s, a little under a tenth of the
+ * diameter, which keeps the hole in proportion on a ring the size of a loading
+ * screen, and `xs`'s below it. So the stroke is always a fraction of the
+ * diameter, and the radius it leaves stays above zero however small the ring.
+ */
+export function ringStrokeFor(diameter: number): number {
+  if (diameter <= ringDiameters.xs) {
+    return (diameter * ringStrokes.xs) / ringDiameters.xs;
+  }
+
+  if (diameter >= ringDiameters.xl) {
+    return (diameter * ringStrokes.xl) / ringDiameters.xl;
+  }
+
+  const upper = ringRungs.findIndex((rung) => ringDiameters[rung] >= diameter);
+  const low = ringRungs[upper - 1];
+  const high = ringRungs[upper];
+  const along = (diameter - ringDiameters[low]) / (ringDiameters[high] - ringDiameters[low]);
+
+  return ringStrokes[low] + (ringStrokes[high] - ringStrokes[low]) * along;
+}
+
+/**
+ * The diameter and the stroke a ring is drawn at: `size`'s rung, or `diameter`
+ * when it is a length a ring can be drawn at.
+ *
+ * Anything but a finite number above zero is ignored rather than drawn, so a
+ * `NaN` that arrived from a division somewhere draws the rung. The Dart build
+ * resolves the two numbers with the same arithmetic.
+ */
+export function ringMetrics(
+  size: PlassSize,
+  diameter: number | undefined
+): { diameter: number; stroke: number } {
+  if (diameter === undefined || !Number.isFinite(diameter) || diameter <= 0) {
+    return { diameter: ringDiameters[size], stroke: ringStrokes[size] };
+  }
+
+  return { diameter, stroke: ringStrokeFor(diameter) };
+}
+
 /**
  * One plate of a `PlProgressBox`, on the tick ladder — an indicator beside a
  * label, not a control you can put one inside.

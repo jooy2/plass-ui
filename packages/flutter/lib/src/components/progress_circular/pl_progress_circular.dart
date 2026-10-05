@@ -43,9 +43,13 @@ class PlProgressCircular extends StatefulWidget {
     this.showValue = false,
     this.formatValue,
     this.size,
+    this.diameter,
     this.color,
     super.key,
-  });
+  }) : assert(
+         diameter == null || (diameter > 0 && diameter < double.infinity),
+         'diameter must be a finite number above zero',
+       );
 
   /// How far along, between [min] and [max]. `null` — the default — is the
   /// indeterminate case, and a value outside the range is clamped.
@@ -67,8 +71,17 @@ class PlProgressCircular extends StatefulWidget {
   /// `PlProgressLinear.formatValue` gives.
   final String Function(double value)? formatValue;
 
-  /// Diameter of the ring.
+  /// Diameter of the ring, and the size of the text beside it. [diameter]
+  /// overrides the ring's part.
   final PlassSize? size;
+
+  /// The ring's diameter in logical pixels, for a ring larger than the ladder
+  /// goes: a loading screen rather than a row.
+  ///
+  /// It takes the place of [size]'s diameter and the stroke follows it; [size]
+  /// still sets the gap and the text beside the ring. It has to be a finite
+  /// number above zero.
+  final double? diameter;
 
   /// Semantic colour role. It becomes the gradient of the arc.
   final PlassColor? color;
@@ -135,7 +148,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
 
     final fraction = _fraction;
     final value = progressValue(widget.value, widget.min, widget.max);
-    final diameter = ringDiameter[_size]!;
+    final ({double diameter, double stroke}) metrics = ringMetrics(_size, widget.diameter);
     final meta = metaText[_size]!;
 
     final text = fraction == null
@@ -146,7 +159,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
 
     final ring = RepaintBoundary(
       child: SizedBox.square(
-        dimension: diameter,
+        dimension: metrics.diameter,
         child: fraction == null
             ? AnimatedBuilder(
                 animation: _spin,
@@ -155,7 +168,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
                     track: tokens.track,
                     from: family.solid,
                     to: family.solidTo,
-                    stroke: ringStroke[_size]!,
+                    stroke: metrics.stroke,
                     // A fixed quarter-arc, turned. Determinate holds still and
                     // lets the gap close instead; both are one arc on one
                     // circle.
@@ -173,7 +186,7 @@ class _PlProgressCircularState extends State<PlProgressCircular>
                     track: tokens.track,
                     from: family.solid,
                     to: family.solidTo,
-                    stroke: ringStroke[_size]!,
+                    stroke: metrics.stroke,
                     sweep: value,
                     turn: 0,
                   ),

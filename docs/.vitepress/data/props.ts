@@ -9242,10 +9242,6 @@ export const propTables: Record<string, PropRow[]> = {
     })
   ],
 
-  /**
-   * The ring takes the bar's table unchanged except for what `size` means. Two
-   * shapes, one set of props: that is the claim the three indicators make.
-   */
   PlPortal: [
     {
       name: 'container',
@@ -9304,11 +9300,25 @@ export const propTables: Record<string, PropRow[]> = {
     }
   ],
 
+  /**
+   * The ring takes the bar's table with `size` meaning diameter rather than
+   * thickness, and one row of its own: `diameter`, for a ring past the end of
+   * the ladder. Two shapes, one set of props: that is the claim the three
+   * indicators make.
+   */
   PlProgressCircular: [
     ...progressProps({
-      ko: '링의 지름. 모든 단계에서 컨트롤 사다리 바로 아래에 앉습니다',
-      en: 'Diameter of the ring. Sits just under the control ladder at every step'
-    })
+      ko: '링의 지름과 옆 글자의 크기. 지름은 모든 단계에서 컨트롤 사다리 바로 아래에 앉고, diameter를 주면 그쪽을 따릅니다',
+      en: 'Diameter of the ring, and the size of the text beside it. The diameter sits just under the control ladder at every step, and diameter overrides it'
+    }),
+    {
+      name: 'diameter',
+      type: 'number',
+      description: {
+        ko: '링의 지름(px). 사다리보다 큰 링에 씁니다. size의 지름 대신 쓰이고 stroke도 따라 굵어지며, 간격과 글자 크기는 여전히 size가 정합니다. 0보다 큰 유한한 수가 아니면 무시합니다',
+        en: "The ring's diameter in pixels, for a ring larger than the ladder goes. It takes the place of size's diameter and the stroke follows it; the gap and the text still follow size. Anything but a finite number above zero is ignored"
+      }
+    }
   ],
 
   PlRadioGroup: [
