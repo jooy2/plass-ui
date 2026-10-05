@@ -94,6 +94,40 @@ Measured, against the label on the fill:
 
 Each `accent` clears 4.5:1 on the page it is read against, the light wash in the light theme, the dark sheet in the dark one.
 
+## Glass over images and video
+
+The sheets that float over a page are the densest step of the glass ladder, `--plass-glass-press`: a modal, the list a select opens, a tooltip, a popover, a menu, a toast. They still let the page through. Over a photo, a video or a canvas, what comes through can be bright, and text on the sheet can drop far below 4.5:1. In the dark theme, where that step is 15% white, `--plass-muted-fg` measures about 2.5:1 on a sheet over a white frame and about 1.1:1 over a saturated orange one; the light theme's step is 88% white and keeps about 4.6:1 even over black. A reader who has asked for less transparency already gets opaque sheets.
+
+The page that puts the media there is the place to fix it, and it takes one token. Lay the step down as 88% of the theme's own surface: muted text then holds 4.5:1 over a white or a black backdrop in both themes, about 4.7:1 in the dark one and 4.6:1 in the light one. The figures leave out the blur's saturation boost, which moves colours but not white or black, the two backdrops that are worst for each theme.
+
+::: fw react
+
+The floating sheets are rendered into the page's own `<body>`, each in an element with the `plass-portal` class, so the override is scoped there rather than to the component that opened them:
+
+```css
+/* While the media stage is on screen, the floating sheets are nearly opaque. */
+body:has(.media-stage) .plass-portal {
+  --plass-glass-press: color-mix(in srgb, var(--plass-surface) 88%, transparent);
+}
+```
+
+:::
+
+::: fw flutter
+
+A floating sheet is built where the widget that opens it is, so a set of tokens around the screen that shows the media reaches its popups too:
+
+```dart
+final PlassTokens tokens = PlassTheme.of(context);
+
+PlassTheme.tokens(
+  tokens: tokens.copyWith(glassPress: tokens.surface.withValues(alpha: 0.88)),
+  child: const VideoScreen(),
+)
+```
+
+:::
+
 ## Overriding a family
 
 ::: fw react

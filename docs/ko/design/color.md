@@ -94,6 +94,40 @@ order: 2
 
 각 `accent`는 자신이 읽히는 배경에 대해 4.5:1을 넘깁니다. 라이트 테마에서는 밝은 wash, 다크 테마에서는 어두운 시트입니다.
 
+## 이미지와 영상 위의 유리
+
+페이지 위에 떠 있는 시트는 유리 단계에서 가장 짙은 `--plass-glass-press`입니다. modal, select가 여는 목록, tooltip, popover, menu, toast가 여기에 듭니다. 그래도 뒤의 페이지가 비칩니다. 사진이나 영상, canvas 위라면 비쳐 드는 것이 밝을 수 있고, 시트 위 글자의 대비가 4.5:1보다 한참 낮아집니다. 이 단계가 흰색 15%인 다크 테마에서 `--plass-muted-fg`는 흰 화면 위의 시트에서 약 2.5:1, 채도 높은 주황 화면 위에서는 약 1.1:1입니다. 라이트 테마의 단계는 흰색 88%라서 검은 배경 위에서도 약 4.6:1을 지킵니다. 투명도를 줄여 달라고 설정한 독자에게는 이미 불투명한 시트가 그려집니다.
+
+고칠 곳은 미디어를 놓는 페이지이고, 토큰 하나면 됩니다. 이 단계를 테마의 surface 88%로 깔면, 흐린 글자가 두 테마 모두 흰 배경과 검은 배경 위에서 4.5:1을 지킵니다. 다크 테마에서 약 4.7:1, 라이트 테마에서 약 4.6:1입니다. 이 수치는 블러의 채도 강조를 빼고 잰 것인데, 채도 강조는 색을 바꿀 뿐 각 테마에서 가장 나쁜 배경인 흰색과 검은색은 바꾸지 않습니다.
+
+::: fw react
+
+떠 있는 시트는 페이지의 `<body>`에 그려지고 각각 `plass-portal` 클래스가 붙은 요소 안에 있으므로, 연 컴포넌트가 아니라 거기에 범위를 둡니다.
+
+```css
+/* While the media stage is on screen, the floating sheets are nearly opaque. */
+body:has(.media-stage) .plass-portal {
+  --plass-glass-press: color-mix(in srgb, var(--plass-surface) 88%, transparent);
+}
+```
+
+:::
+
+::: fw flutter
+
+떠 있는 시트는 그것을 여는 위젯의 자리에서 만들어지므로, 미디어를 보여 주는 화면을 감싼 토큰 묶음이 그 팝업에도 닿습니다.
+
+```dart
+final PlassTokens tokens = PlassTheme.of(context);
+
+PlassTheme.tokens(
+  tokens: tokens.copyWith(glassPress: tokens.surface.withValues(alpha: 0.88)),
+  child: const VideoScreen(),
+)
+```
+
+:::
+
 ## 계열 덮어쓰기
 
 ::: fw react
