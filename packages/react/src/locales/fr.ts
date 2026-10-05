@@ -112,9 +112,9 @@ export const fr: PlassLabels = {
   transferMoved: (count, list) =>
     `${count} ${count === 1 ? 'élément déplacé' : 'éléments déplacés'} vers « ${list} »`,
   filesRejectedType: (count) =>
-    `${count} ${count === 1 ? "fichier n'a pas" : "fichiers n'ont pas"} un type accepté`,
+    `${count} ${count === 1 ? 'fichier n’a pas' : 'fichiers n’ont pas'} un type accepté`,
   filesRejectedSize: (count) =>
     `${count} ${count === 1 ? 'fichier est trop volumineux' : 'fichiers sont trop volumineux'}`,
   filesRejectedCount: (count) =>
-    `Il n'y avait plus de place pour ${count} ${count === 1 ? 'fichier' : 'fichiers'}`
+    `Il n’y avait plus de place pour ${count} ${count === 1 ? 'fichier' : 'fichiers'}`
 };

@@ -69,7 +69,7 @@ export const zhHans: PlassLabels = {
   messageFailed: '未送达',
   spoilerWarning: '可能包含剧透',
   filePickerTitle: '将文件拖到此处，或点击浏览',
-  newTab: '(在新标签页中打开)',
+  newTab: '（在新标签页中打开）',
   transferAvailable: '可选',
   transferSelected: '已选',
   transferToSelected: '移到已选',

@@ -68,7 +68,7 @@ const PlassLabels zhHans = PlassLabels(
   messageFailed: '未送达',
   spoilerWarning: '可能包含剧透',
   filePickerTitle: '选择文件',
-  newTab: '(在别处打开)',
+  newTab: '（在别处打开）',
   transferAvailable: '可选',
   transferSelected: '已选',
   transferToSelected: '移到已选',

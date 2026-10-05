@@ -69,7 +69,7 @@ export const ja: PlassLabels = {
   messageFailed: '未配信',
   spoilerWarning: 'ネタバレを含む可能性があります',
   filePickerTitle: 'ここにファイルをドロップするか、クリックして選択',
-  newTab: '(新しいタブで開きます)',
+  newTab: '（新しいタブで開きます）',
   transferAvailable: '未選択',
   transferSelected: '選択済み',
   transferToSelected: '選択済みへ移動',

@@ -210,6 +210,23 @@ void main() {
         );
       });
     }
+
+    // One way of writing a mark per pack, the way that language sets type: the
+    // French pack's apostrophe is the typographic one, and the Japanese and
+    // Chinese packs bracket with the full-width pair. Two entries of the French
+    // pack used to carry the typewriter apostrophe the rest of it does not.
+    for (final (String name, RegExp stray) in <(String, RegExp)>[
+      ('fr', RegExp("'")),
+      ('ja', RegExp('[()]')),
+      ('zhHans', RegExp('[()]')),
+    ]) {
+      test('$name writes its punctuation one way throughout', () {
+        expect(<String>[
+          for (final MapEntry<String, String> word in words(packs[name]!).entries)
+            if (stray.hasMatch(word.value)) word.key,
+        ], isEmpty);
+      });
+    }
   });
 
   group('copyWith', () {

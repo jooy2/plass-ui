@@ -114,6 +114,22 @@ describe('the label set', () => {
     // A whole score is written with no separator at all.
     expect(pack.ratingValue(3, 5)).not.toMatch(/[.,]/);
   });
+
+  // One way of writing a mark per pack, the way that language sets type: the
+  // French pack's apostrophe is the typographic one, and the Japanese and
+  // Chinese packs bracket with the full-width pair. Two entries of the French
+  // pack used to carry the typewriter apostrophe the rest of it does not.
+  it.each([
+    ['fr', /'/],
+    ['ja', /[()]/],
+    ['zhHans', /[()]/]
+  ] as const)('%s writes its punctuation one way throughout', (name, stray) => {
+    const strays = Object.entries(locales[name]).filter(([, entry]) =>
+      stray.test(String(said(entry)))
+    );
+
+    expect(strays.map(([key]) => key)).toEqual([]);
+  });
 });
 
 describe('a translated provider', () => {

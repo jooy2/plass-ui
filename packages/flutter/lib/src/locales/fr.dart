@@ -136,8 +136,8 @@ String _transferMoved(int count, String list) {
 
 String _filesRejectedType(int count) {
   return count == 1
-      ? "1 fichier n'a pas un type accepté"
-      : "$count fichiers n'ont pas un type accepté";
+      ? '1 fichier n’a pas un type accepté'
+      : '$count fichiers n’ont pas un type accepté';
 }
 
 String _filesRejectedSize(int count) {
@@ -145,7 +145,7 @@ String _filesRejectedSize(int count) {
 }
 
 String _filesRejectedCount(int count) {
-  return "Il n'y avait plus de place pour $count ${count == 1 ? 'fichier' : 'fichiers'}";
+  return 'Il n’y avait plus de place pour $count ${count == 1 ? 'fichier' : 'fichiers'}';
 }
 
 String _chartMore(int count) => '$count de plus';

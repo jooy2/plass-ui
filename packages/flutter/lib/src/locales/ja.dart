@@ -68,7 +68,7 @@ const PlassLabels ja = PlassLabels(
   messageFailed: '未配信',
   spoilerWarning: 'ネタバレを含む可能性があります',
   filePickerTitle: 'ファイルを選択',
-  newTab: '(別の場所で開きます)',
+  newTab: '（別の場所で開きます）',
   transferAvailable: '未選択',
   transferSelected: '選択済み',
   transferToSelected: '選択済みへ移動',
