@@ -70,6 +70,12 @@ function drawn(element: HTMLElement): boolean {
 /** Long enough for a frame, which is all a run in no time takes. */
 const frame = () => new Promise((resolve) => setTimeout(resolve, 50));
 
+/**
+ * How long a run in no time may take to report that it landed. Ubuntu WebKit on
+ * CI has taken longer than the poll's default second to send `animationend`.
+ */
+const landing = 5000;
+
 describe('an effect under reduced motion', () => {
   it('turns to the angle it was asked to end at', async () => {
     await render(
@@ -168,7 +174,7 @@ describe('an effect under reduced motion', () => {
       </PlAnimateFade>
     );
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
   });
 
   it('leaves an exit in place until it is let go', async () => {
@@ -237,7 +243,7 @@ describe('an effect when movement is given back', () => {
       </PlAnimateFade>
     );
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await emulateMedia({ reducedMotion: 'no-preference' });
 
     expect(keyframe(target()).playState).toBe('finished');
@@ -256,7 +262,7 @@ describe('an effect when movement is given back', () => {
 
     await expect.poll(() => keyframe(target()).playState).toBe('running');
     await emulateMedia({ reducedMotion: 'reduce' });
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await emulateMedia({ reducedMotion: 'no-preference' });
 
     expect(keyframe(target()).playState).toBe('finished');
@@ -280,7 +286,7 @@ describe('an effect when movement is given back', () => {
 
     const [first, second] = Array.from(target().children) as HTMLElement[];
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await emulateMedia({ reducedMotion: 'no-preference' });
 
     expect(keyframe(first).playState).toBe('finished');
@@ -304,7 +310,7 @@ describe('an effect when movement is given back', () => {
       </PlAnimateRotate>
     );
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await emulateMedia({ reducedMotion: 'no-preference' });
 
     expect(keyframe(target()).playState).toBe('running');
@@ -343,7 +349,7 @@ describe('an effect when movement is given back', () => {
     );
     const screen = await render(fade(true));
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await emulateMedia({ reducedMotion: 'no-preference' });
     await screen.rerender(fade(false));
     await screen.rerender(fade(true));
@@ -400,7 +406,7 @@ describe('an effect when movement is given back', () => {
     );
     const screen = await render(rotate(false));
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await screen.rerender(rotate(true));
     await emulateMedia({ reducedMotion: 'no-preference' });
 
@@ -456,8 +462,9 @@ describe('an effect when movement is given back', () => {
     await expect.poll(() => keyframe(target()).playState).toBe('running');
     await screen.rerender(fade(true));
     await emulateMedia({ reducedMotion: 'reduce' });
-    // A page hears that the setting changed on the frame after it did.
-    await frame();
+    // The page hears that the setting changed a frame or more after it did,
+    // so it is the pause's mark that is waited for rather than a fixed time.
+    await expect.poll(() => target().hasAttribute('data-plass-held')).toBe(true);
 
     expect(opacity(target())).toBe('1');
 
@@ -601,7 +608,7 @@ describe('a light or a strip when movement is given back', () => {
       </PlAnimateLighting>
     );
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await emulateMedia({ reducedMotion: 'no-preference' });
 
     // Standing where a turn ends, which is where it begins.
@@ -626,7 +633,7 @@ describe('a light or a strip when movement is given back', () => {
         </PlAnimateMarquee>
       );
 
-      await expect.poll(() => ended.mock.calls.length).toBe(1);
+      await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
 
       // Under the setting, nothing it draws has moved.
       expect(getComputedStyle(tracks()[0]).translate).toBe('none');
@@ -658,7 +665,7 @@ describe('a light or a strip when movement is given back', () => {
     );
     const screen = await render(lighting(true));
 
-    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
     await emulateMedia({ reducedMotion: 'no-preference' });
     await screen.rerender(lighting(false));
     await screen.rerender(lighting(true));
@@ -739,9 +746,11 @@ describe('a light or a strip when movement is given back', () => {
     await expect.poll(() => running(target()).length).toBe(1);
     await screen.rerender(lighting(true));
     await emulateMedia({ reducedMotion: 'reduce' });
-    // A page hears that the setting changed on the frame after it did.
-    await frame();
 
+    // The page hears that the setting changed a frame or more after it did,
+    // and the light is even under the setting before the pause marks it held,
+    // so it is the mark that is waited for rather than a fixed time.
+    await expect.poll(() => target().hasAttribute('data-plass-held')).toBe(true);
     expect(even()).toBe(true);
 
     await emulateMedia({ reducedMotion: 'no-preference' });
