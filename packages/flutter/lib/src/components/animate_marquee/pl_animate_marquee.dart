@@ -147,12 +147,6 @@ class PlAnimateMarquee extends StatefulWidget {
 
 class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
   final GlobalKey _track = GlobalKey();
-
-  /// The run, which moves between the clip and the scroll box as the platform
-  /// asks for less movement or gives it back. Keyed, it is moved rather than
-  /// built again from scratch, and keeps where the strip has got to, what its
-  /// trigger has let go and what it holds.
-  final GlobalKey _run = GlobalKey();
   final ScrollController _scroll = ScrollController();
 
   /// How far one copy has to go: its own length plus the gap after it.
@@ -215,7 +209,6 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
             : _unmeasured);
 
     Widget strip = PlassAnimateRun(
-      key: _run,
       mode: widget.reverse ? PlassAnimateMode.exit : PlassAnimateMode.enter,
       settings: PlassAnimateSettings(
         duration: duration,
@@ -232,6 +225,13 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         threshold: widget.threshold,
       ),
       child: _copies(still: still),
+      // The box is drawn under the run rather than around it, so what the run
+      // measures to know whether the marquee is in view, for a `visible`
+      // trigger and for resting off screen, is the box a reader sees. The
+      // strip inside it is longer than the box by design, and measured, a
+      // strip several screens long was never far enough in view for its
+      // `threshold` while the box was wholly on screen, and one whose box had
+      // been scrolled away still reached into view.
       builder: (BuildContext context, double t, Widget? inner) {
         // A marquee's reduced-motion answer is the *opposite* of an entrance's:
         // what an entrance has delivered is its finished frame, and what a
@@ -242,39 +242,38 @@ class _PlAnimateMarqueeState extends State<PlAnimateMarquee> {
         // the right and leaves on the left, and in Arabic it does the opposite,
         // because otherwise the words arrive backwards.
         final double away = _rtl ? shift : -shift;
-
-        return Transform.translate(
+        final Widget moved = Transform.translate(
           offset: _vertical ? Offset(0, -shift) : Offset(away, 0),
           child: inner,
         );
+
+        if (still) {
+          // A strip that stands still is scrolled rather than clipped, so what
+          // is past the edge of the box can still be reached, by the keyboard
+          // as well. The box keeps the height the clipped strip had.
+          return PlassKeyboardScroll(
+            vertical: _vertical ? _scroll : null,
+            horizontal: _vertical ? null : _scroll,
+            borderRadius: BorderRadius.zero,
+            child: SingleChildScrollView(
+              controller: _scroll,
+              scrollDirection: _vertical ? Axis.vertical : Axis.horizontal,
+              child: moved,
+            ),
+          );
+        }
+
+        // The strip is longer than its box by design, so it has to be laid out
+        // against an unbounded main axis and clipped — a `ClipRect` alone would
+        // clip the paint and leave a `RenderFlex` asserting that it overflowed.
+        return UnconstrainedBox(
+          constrainedAxis: _vertical ? Axis.horizontal : Axis.vertical,
+          alignment: _vertical ? Alignment.topCenter : AlignmentDirectional.centerStart,
+          clipBehavior: Clip.hardEdge,
+          child: moved,
+        );
       },
     );
-
-    if (still) {
-      // A strip that stands still is scrolled rather than clipped, so what is
-      // past the edge of the box can still be reached, by the keyboard as well.
-      // The box keeps the height the clipped strip had.
-      strip = PlassKeyboardScroll(
-        vertical: _vertical ? _scroll : null,
-        horizontal: _vertical ? null : _scroll,
-        borderRadius: BorderRadius.zero,
-        child: SingleChildScrollView(
-          controller: _scroll,
-          scrollDirection: _vertical ? Axis.vertical : Axis.horizontal,
-          child: strip,
-        ),
-      );
-    } else {
-      // The strip is longer than its box by design, so it has to be laid out
-      // against an unbounded main axis and clipped — a `ClipRect` alone would
-      // clip the paint and leave a `RenderFlex` asserting that it overflowed.
-      strip = UnconstrainedBox(
-        constrainedAxis: _vertical ? Axis.horizontal : Axis.vertical,
-        alignment: _vertical ? Alignment.topCenter : AlignmentDirectional.centerStart,
-        clipBehavior: Clip.hardEdge,
-        child: strip,
-      );
-    }
 
     if (widget.pauseOnHover) {
       strip = MouseRegion(

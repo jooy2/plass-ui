@@ -329,6 +329,122 @@ void main() {
       expect(shiftOf(tester), Offset.zero);
     });
 
+    group('measured on screen', () {
+      /// Ten items of sixty, so one copy is 600 long and the strip of two is
+      /// four times a box 300 wide.
+      List<Widget> long() =>
+          List<Widget>.generate(10, (_) => const SizedBox(width: 60, height: 20));
+
+      testWidgets('starts once its box is in view, however much longer than the box the strip is', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        await tester.pumpWidget(
+          scrollingPage(
+            page,
+            SizedBox(
+              width: 300,
+              height: 40,
+              child: PlAnimateMarquee(
+                trigger: PlassAnimateTrigger.visible,
+                threshold: 0.5,
+                gap: 0,
+                children: long(),
+              ),
+            ),
+          ),
+        );
+        await pumpScrolled(tester);
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // The whole box is on screen. A quarter of the strip is, which is all
+        // that was measured, so it waited for a half that could never come.
+        expect(shiftOf(tester).dx, lessThan(0));
+      });
+
+      testWidgets('waits until its box is scrolled into view', (WidgetTester tester) async {
+        final ScrollController page = ScrollController();
+
+        addTearDown(page.dispose);
+
+        await tester.pumpWidget(
+          host(
+            SingleChildScrollView(
+              controller: page,
+              child: Column(
+                children: <Widget>[
+                  const SizedBox(height: 600),
+                  SizedBox(
+                    width: 300,
+                    height: 40,
+                    child: PlAnimateMarquee(
+                      trigger: PlassAnimateTrigger.visible,
+                      gap: 0,
+                      children: _three,
+                    ),
+                  ),
+                  const SizedBox(height: 600),
+                ],
+              ),
+            ),
+            width: 300,
+            height: 400,
+          ),
+        );
+        await pumpScrolled(tester);
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(shiftOf(tester), Offset.zero);
+
+        page.jumpTo(400);
+        await pumpScrolled(tester);
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(shiftOf(tester).dx, lessThan(0));
+      });
+
+      testWidgets('rests once its box is scrolled out of view, where the strip still reaches', (
+        WidgetTester tester,
+      ) async {
+        final ScrollController row = ScrollController();
+
+        addTearDown(row.dispose);
+
+        await tester.pumpWidget(
+          host(
+            SingleChildScrollView(
+              controller: row,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: 300,
+                    height: 40,
+                    child: PlAnimateMarquee(gap: 0, children: long()),
+                  ),
+                  const SizedBox(width: 1000, height: 40),
+                ],
+              ),
+            ),
+            width: 300,
+            height: 40,
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+
+        row.jumpTo(400);
+        await pumpScrolled(tester);
+
+        // None of the box is left on screen. The strip past its end still
+        // was, so it went on drawing a frame for a strip nobody could see.
+        expect(await redrawsIn(tester), isFalse);
+      });
+    });
+
     testWidgets('keeps what it holds, and a strip that landed, as the setting comes and goes', (
       WidgetTester tester,
     ) async {
