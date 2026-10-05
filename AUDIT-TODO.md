@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**5 items are open, and the last number used is 157.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 152; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
+**4 items are open, and the last number used is 161.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 157; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
 
 ## Working through a batch
 
@@ -44,12 +44,11 @@ None.
 
 ## Items
 
-Line numbers are from `b44ec93b7` and drift as the code changes; when one no longer matches, search for the symbol.
+Line numbers are from `5ba93a90d` and drift as the code changes; when one no longer matches, search for the symbol.
 
 ### Low
 
-- **153.** **A `paused` Flutter `PlAnimateMarquee` turns from the one scrollable copy reduced motion showed into the clipped strip of copies when the setting is turned off** (`pl_animate_marquee.dart` ~198, ~227, ~246, ~264: it reads reduced motion itself, and the scroll box is outside the run). Decided: after items 154 and 155, move the scroll box and the clip into the run's `builder` and `stillBuilder`, so a pause keeps the scrollable copy; a prototype of that passed the 17 marquee tests.
-- **154.** **Turning reduced motion on or off remounts the content of every Flutter `PlAnimate*` effect** (`animate.dart` ~1407 returns `stillBuilder(...)` directly under the setting and ~1427 wraps the rest in an `AnimatedBuilder`), so a stateful child loses its state, an input its text and a list its scroll; a `PlAnimateFade`'s child mounted three times over two changes of the setting. React changes only CSS.
-- **155.** **A Flutter `PlAnimateMarquee`'s `visible` trigger and off-screen rest measure the strip rather than the box** (`pl_animate_marquee.dart` ~211–270, `animate.dart` ~535, ~569): a strip longer than the screen can fail its `threshold` while the box is wholly in view (a `threshold: 0.5` marquee fully visible on a 300-wide page never starts). React measures the box.
-- **156.** **`PlAnimateHeadline` waits a whole `interval` again after a pause, an off-screen rest or a change of `delay` or `interval`, and the whole `delay` too if it has not turned yet**, in both builds (`pl_animate_headline.dart` ~281–292 `_schedule`, `PlAnimateHeadline.tsx` ~183–201). Decided: it waits what was left, as the typewriter's hold does since item 67, and a new `interval` or `delay` is measured from when the wait began.
-- **157.** **A `paused` React `PlAnimateMarquee` loses what reduced motion showed when the setting is turned off**: `styles.css` has no `.plass-marquee[data-plass-held]` rule, and the rules that hide the copies and let the box scroll (~3643–3655) sit only inside the reduced-motion query (read from the CSS, not run). Item 131's rule covers it: `paused` keeps what is on screen.
+- **158.** **An endless Flutter `PlAnimateMarquee` or `PlAnimateLighting` goes on from where its clock stands when reduced motion is turned off** (since item 154 keeps the run; `animate.dart` ~1322–1340), so the strip jumps from 0 to where its passes would be; React switches both off under the setting (`styles.css` ~3630, ~3663) and starts them from the beginning after their `delay`. Decided: Flutter starts these two from the beginning, as React does; the other endless effects keep item 129's rule.
+- **159.** **A finite Flutter `PlAnimateMarquee` or `PlAnimateLighting` that landed under reduced motion and is held by `paused` turns into the strip or the arc when the setting is turned off** (`animate.dart` ~1322–1340 keeps the reduced-motion view only for an endless run and one paused before it started); React keeps it for every held run since item 157. Item 131's rule covers it.
+- **160.** **A Flutter `PlAnimateMarquee` drops every copy but the first under reduced motion** (`pl_animate_marquee.dart` ~300), so the copies are built again, and lose any state, when the setting changes; React keeps them on the page and hides them.
+- **161.** **Adding lines to a `PlAnimateHeadline` or changing its `loop` starts the whole `interval` again**, in both builds (`pl_animate_headline.dart` ~293, `PlAnimateHeadline.tsx` ~203); item 156 measures a new `interval` from when the wait began.
