@@ -132,11 +132,13 @@ void main() {
     });
 
     group('paused when the setting is taken away', () {
-      /// An endless light, once round a second at an even pace.
-      Widget lighting({bool paused = false, bool still = false}) {
+      /// A light once round a second at an even pace, endless unless [repeat]
+      /// says otherwise.
+      Widget lighting({bool paused = false, bool still = false, int? repeat}) {
         return host(
           PlAnimateLighting(
             paused: paused,
+            repeat: repeat,
             curve: Curves.linear,
             duration: const Duration(seconds: 1),
             child: const Text('Live'),
@@ -207,6 +209,34 @@ void main() {
         await tester.pump(const Duration(milliseconds: 250));
 
         expect(turnOf(tester), closeTo(0.25, 0.001));
+      });
+
+      testWidgets('keeps the even glow until it is let go, once a light that ends landed', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(lighting(repeat: 1, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpWidget(lighting(repeat: 1, paused: true, still: true));
+        await tester.pumpWidget(lighting(repeat: 1, paused: true));
+
+        // A pause holds what is on the screen, whether the light ends or not.
+        // One that ends used to draw the arc at once, while it was still
+        // paused.
+        expect(even(tester), isTrue);
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(even(tester), isTrue);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+
+        await tester.pumpWidget(lighting(repeat: 1));
+        await tester.pump();
+
+        // Let go, it is the arc where its run ended, and it stays there, as a
+        // light that ends does.
+        expect(even(tester), isFalse);
+        expect(turnOf(tester), closeTo(1, 0.001));
+        expect(await redrawsIn(tester), isFalse);
       });
     });
 

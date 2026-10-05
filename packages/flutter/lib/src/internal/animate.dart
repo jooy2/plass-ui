@@ -837,9 +837,9 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
   /// Without [_still], whether a run that landed still shows what reduced
   /// motion drew, because `paused` held it when the platform gave movement
   /// back, while it already stands where it goes on from once the pause is
-  /// let go: the first frame of an endless run that
-  /// [PlassAnimateRun.restartsWithMotion] starts again, which then waits out
-  /// its delay.
+  /// let go: the end of a run that ends, where it stays, or the first frame of
+  /// an endless run that [PlassAnimateRun.restartsWithMotion] starts again,
+  /// which then waits out its delay.
   bool _keepsLanded = false;
 
   /// How far into its passes the run stood at [_clockFrom], as time: the clock
@@ -1385,6 +1385,13 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           }
 
           _setValue(_end);
+
+          // A pause holds what is on the screen, which is what reduced motion
+          // drew there, until it is let go, as it does for an endless run. It
+          // is the same frame unless the effect draws something else under
+          // the setting, as a strip draws its scroll box and a light its even
+          // glow, which turned into the strip and the arc at once.
+          _keepsLanded = widget.settings.paused;
         }
       } else if (widget.settings.paused) {
         // And given back to a run held by a pause before it would have

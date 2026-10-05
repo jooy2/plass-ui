@@ -446,11 +446,13 @@ void main() {
     });
 
     group('paused when the platform gives movement back', () {
-      /// Six hundred pixels of strip in a box two hundred wide.
-      Widget strip({bool paused = false, bool still = false}) {
+      /// Six hundred pixels of strip in a box two hundred wide, endless unless
+      /// [repeat] says otherwise.
+      Widget strip({bool paused = false, bool still = false, int? repeat}) {
         return host(
           PlAnimateMarquee(
             paused: paused,
+            repeat: repeat,
             gap: 0,
             children: List<Widget>.generate(10, (_) => const SizedBox(width: 60, height: 20)),
           ),
@@ -521,6 +523,42 @@ void main() {
           expect(shiftOf(tester), isNot(before));
         });
       }
+
+      testWidgets('keeps the copy it scrolls until it is let go, once a strip that ends landed', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(strip(repeat: 1, still: true));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+
+        positionOf(tester).jumpTo(250);
+
+        await tester.pumpWidget(strip(repeat: 1, paused: true, still: true));
+        await tester.pump();
+        await tester.pumpWidget(strip(repeat: 1, paused: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        // A pause holds what is on the screen, whether the strip ends or not.
+        // One that ends used to become the clipped strip of copies at once,
+        // while it was still paused.
+        expect(
+          find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+          findsOneWidget,
+        );
+        expect(positionOf(tester).pixels, 250);
+        expect(await redrawsIn(tester), isFalse);
+
+        await tester.pumpWidget(strip(repeat: 1));
+        await tester.pump();
+
+        // Let go, it is the strip, clipped rather than scrolled, and it stays
+        // where it landed, as a strip that ends does.
+        expect(
+          find.descendant(of: find.byType(PlAnimateMarquee), matching: find.byType(Scrollable)),
+          findsNothing,
+        );
+        expect(await redrawsIn(tester), isFalse);
+      });
     });
 
     group('endless when the platform gives movement back', () {
