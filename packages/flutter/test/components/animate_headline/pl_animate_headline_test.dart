@@ -286,6 +286,8 @@ void main() {
           PlassAnimateTrigger trigger = PlassAnimateTrigger.mount,
           Duration interval = const Duration(milliseconds: 1000),
           Duration delay = Duration.zero,
+          bool loop = true,
+          int lines = 3,
         }) {
           return host(
             PlAnimateHeadline(
@@ -294,9 +296,10 @@ void main() {
               play: play,
               interval: interval,
               delay: delay,
+              loop: loop,
               duration: const Duration(milliseconds: 50),
               onIndexChange: seen.add,
-              children: _lines,
+              children: _lines.sublist(0, lines),
             ),
             width: 200,
           );
@@ -443,6 +446,115 @@ void main() {
           await tester.pump(const Duration(milliseconds: 1));
 
           expect(seen, <int>[1]);
+        });
+
+        testWidgets('goes on with the wait of the last line once a line is added after it', (
+          WidgetTester tester,
+        ) async {
+          final List<int> seen = <int>[];
+
+          await tester.pumpWidget(reel(seen, loop: false, lines: 2));
+          await tester.pump(const Duration(milliseconds: 1000));
+
+          expect(seen, <int>[1]);
+
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.pumpWidget(reel(seen, loop: false));
+          await tester.pump(const Duration(milliseconds: 599));
+
+          // The line has been up for its interval once 600ms more have gone
+          // by. It used to wait a whole interval again from the change.
+          expect(seen, <int>[1]);
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(seen, <int>[1, 2]);
+        });
+
+        testWidgets('goes on with the wait of a line it holds alone once a second is added', (
+          WidgetTester tester,
+        ) async {
+          final List<int> seen = <int>[];
+
+          await tester.pumpWidget(reel(seen, lines: 1));
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.pumpWidget(reel(seen, lines: 2));
+          await tester.pump(const Duration(milliseconds: 599));
+
+          expect(seen, isEmpty);
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(seen, <int>[1]);
+        });
+
+        testWidgets('goes on with the wait of the last line once loop is turned on', (
+          WidgetTester tester,
+        ) async {
+          final List<int> seen = <int>[];
+
+          await tester.pumpWidget(reel(seen, loop: false));
+          await tester.pump(const Duration(milliseconds: 1000));
+          await tester.pump(const Duration(milliseconds: 1000));
+
+          expect(seen, <int>[1, 2]);
+
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.pumpWidget(reel(seen));
+          await tester.pump(const Duration(milliseconds: 599));
+
+          // It used to wait a whole interval again from the change.
+          expect(seen, <int>[1, 2]);
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(seen, <int>[1, 2, 0]);
+        });
+
+        for (final (String name, int lines, bool loop) in <(String, int, bool)>[
+          ('a line is added', 2, true),
+          ('loop is turned off', 3, false),
+        ]) {
+          testWidgets('goes on with the wait under way when $name', (WidgetTester tester) async {
+            final List<int> seen = <int>[];
+
+            await tester.pumpWidget(reel(seen, lines: lines));
+            await tester.pump(const Duration(milliseconds: 400));
+            await tester.pumpWidget(reel(seen, loop: loop));
+            await tester.pump(const Duration(milliseconds: 599));
+
+            // It used to wait a whole interval again from the change.
+            expect(seen, isEmpty);
+
+            await tester.pump(const Duration(milliseconds: 1));
+
+            expect(seen, <int>[1]);
+          });
+        }
+
+        testWidgets('holds the line that comes up a whole interval when the one up is removed', (
+          WidgetTester tester,
+        ) async {
+          final List<int> seen = <int>[];
+
+          await tester.pumpWidget(reel(seen));
+          await tester.pump(const Duration(milliseconds: 1000));
+          await tester.pump(const Duration(milliseconds: 1000));
+
+          expect(seen, <int>[1, 2]);
+
+          await tester.pump(const Duration(milliseconds: 400));
+          await tester.pumpWidget(reel(seen, lines: 2));
+          await tester.pump(const Duration(milliseconds: 999));
+
+          // The line before it comes up, and is held for a whole interval, as
+          // it was.
+          expect(seen, <int>[1, 2]);
+          expect(opacitiesOf(tester).last, 1);
+
+          await tester.pump(const Duration(milliseconds: 1));
+
+          expect(seen, <int>[1, 2, 0]);
         });
 
         testWidgets('waits a whole interval again once its trigger takes it back and lets it go', (

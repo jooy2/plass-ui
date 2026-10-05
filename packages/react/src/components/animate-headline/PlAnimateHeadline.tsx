@@ -189,6 +189,11 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
    * with the whole wait, the reel held a line for a whole `interval` once more
    * every time it was let go, and a reel paused more often than that never
    * turned.
+   *
+   * It goes on counting while there is no line to turn to, on the last line of
+   * a reel that does not loop or the only line of one, so a line added after
+   * it, or `loop` turned on, brings the next line up once the line that is up
+   * has had its wait, rather than a whole `interval` after the change.
    */
   const waited = React.useRef({ line: active, gone: 0 });
 
@@ -201,11 +206,7 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
       return;
     }
 
-    if (index !== undefined || count < 2 || run.state !== 'running') {
-      return;
-    }
-
-    if (!loop && active === count - 1) {
+    if (index !== undefined || count < 1 || run.state !== 'running') {
       return;
     }
 
@@ -218,13 +219,16 @@ export const PlAnimateHeadline = /* @__PURE__ */ React.forwardRef<
 
     // `delay` is what happens before the reel starts turning at all, so it is
     // added once rather than to every line — which is what an `interval` is.
-    const timer = setTimeout(
-      () => {
-        turned.current = true;
-        advanceRef.current();
-      },
-      Math.max(0, interval + (turned.current ? 0 : delay) - wait.gone)
-    );
+    const timer =
+      count < 2 || (!loop && active === count - 1)
+        ? undefined
+        : setTimeout(
+            () => {
+              turned.current = true;
+              advanceRef.current();
+            },
+            Math.max(0, interval + (turned.current ? 0 : delay) - wait.gone)
+          );
 
     return () => {
       clearTimeout(timer);

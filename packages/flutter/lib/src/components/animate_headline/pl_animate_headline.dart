@@ -218,11 +218,19 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   /// The line on its way out. Cleared once its animation has had its time.
   int? _leaving;
 
-  /// The timer that turns the reel, while the wait for the next line runs.
+  /// The timer that turns the reel, while the wait for the next line runs
+  /// and there is a line to turn to.
   Timer? _turn;
 
   /// Whether a wait for the next line is under way, running or held.
   bool _waiting = false;
+
+  /// Whether the wait under way is running rather than held. It runs while
+  /// there is no line to turn to as well, on the last line of a reel that does
+  /// not loop or the only line of one, so the line that is up is held only
+  /// for what is left of it once a line is added after it or `loop` is
+  /// turned on.
+  bool _counting = false;
 
   /// How much of the wait for the next line went by before it last stopped,
   /// leaving out the time a pause or a rest held it.
@@ -249,6 +257,9 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   Duration get _length => widget.interval + (_turned ? Duration.zero : widget.delay);
 
   int get _count => widget.children.length;
+
+  /// Whether there is a line to turn to once the wait is over.
+  bool get _turns => _count >= 2 && (widget.loop || _active < _count - 1);
 
   int get _active {
     final int wanted = widget.index ?? _uncontrolled;
@@ -285,18 +296,23 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
     // A line that has just come up, a run the trigger has just let go and a
     // reel that has started or stopped turning on its own wait from the
     // beginning. A pause or a rest holds the wait under way, and letting go
-    // goes on with it.
+    // goes on with it. A new `interval` or `delay`, lines added or taken
+    // away, and `loop` turned on or off measure the wait under way from when
+    // it began, so the line that is up keeps the time it has had. The line
+    // that comes up when the one that was up is taken away has just come up.
     final bool fresh =
         (widget.started && !oldWidget.started) ||
         widget.index != oldWidget.index ||
-        widget.loop != oldWidget.loop ||
-        widget.children.length != oldWidget.children.length ||
         before != _active;
 
-    if (fresh || widget.started != oldWidget.started || widget.held != oldWidget.held) {
+    if (fresh ||
+        widget.started != oldWidget.started ||
+        widget.held != oldWidget.held ||
+        widget.interval != oldWidget.interval ||
+        widget.delay != oldWidget.delay ||
+        widget.loop != oldWidget.loop ||
+        widget.children.length != oldWidget.children.length) {
       _schedule(fresh: fresh);
-    } else if (widget.interval != oldWidget.interval || widget.delay != oldWidget.delay) {
-      _remeasure();
     }
   }
 
@@ -319,49 +335,48 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
       });
   }
 
-  /// Arms the timer that turns the reel, holds it, or takes it away, starting
-  /// the wait for the next line from its beginning when [fresh] says so or
-  /// none is under way.
+  /// Runs the wait for the next line, holds it, or takes it away, starting it
+  /// from its beginning when [fresh] says so or none is under way, and
+  /// otherwise measuring what is left of it from when it began, against the
+  /// `interval`, the `delay` and the lines there are now. One the wait has
+  /// already gone past turns the reel at once.
   ///
   /// The reel only turns on its own when it was not handed an index: a
   /// controlled headline is somebody else's timer. One its trigger takes back
   /// ends the wait, and waits from the beginning once it is let go again.
   void _schedule({bool fresh = false}) {
-    final bool turns =
-        widget.index == null &&
-        _count >= 2 &&
-        (widget.loop || _active < _count - 1) &&
-        widget.started;
+    final bool waits = widget.index == null && _count >= 1 && widget.started;
 
-    if (fresh || !turns || !_waiting) {
+    if (fresh || !waits || !_waiting) {
       _turn?.cancel();
       _turn = null;
+      _counting = false;
       _waitFrom = null;
       _gone = Duration.zero;
-      _waiting = turns;
+      _waiting = waits;
     }
 
-    if (!turns) {
+    if (!waits) {
       return;
     }
 
-    if (widget.held) {
-      _hold();
-    } else if (_turn == null) {
+    _hold();
+
+    if (!widget.held) {
       _run();
     }
   }
 
   /// Stops the wait that is running, keeping how much of it has gone by.
   void _hold() {
-    final Timer? turn = _turn;
+    _turn?.cancel();
+    _turn = null;
 
-    if (turn == null) {
+    if (!_counting) {
       return;
     }
 
-    turn.cancel();
-    _turn = null;
+    _counting = false;
 
     final Duration? from = _waitFrom;
 
@@ -373,11 +388,15 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
   }
 
   /// Runs what is left of the wait, and turns the reel at the end of it, or
-  /// at once when nothing is left.
+  /// at once when nothing is left, if there is a line to turn to.
   void _run() {
     final Duration remaining = _length - _gone;
 
-    _turn = Timer(remaining > Duration.zero ? remaining : Duration.zero, _onTurn);
+    _counting = true;
+
+    if (_turns) {
+      _turn = Timer(remaining > Duration.zero ? remaining : Duration.zero, _onTurn);
+    }
 
     final SchedulerBinding scheduler = SchedulerBinding.instance;
 
@@ -393,30 +412,18 @@ class _ReelState extends State<_Reel> with SingleTickerProviderStateMixin {
     // that draws the line, which is when it arrives.
     _waitFrom = null;
     scheduler.addPostFrameCallback((_) {
-      if (_turn != null) {
+      if (_counting) {
         _waitFrom ??= animationNow();
       }
     });
     scheduler.scheduleFrame();
   }
 
-  /// Measures the wait under way against a new `interval` or `delay`: from
-  /// when it began, leaving out the time a pause or a rest held it. One the
-  /// wait has already gone past turns the reel at once. A held wait reads the
-  /// new one when it is let go.
-  void _remeasure() {
-    if (_turn == null) {
-      return;
-    }
-
-    _hold();
-    _run();
-  }
-
   void _onTurn() {
     _turn = null;
     _waitFrom = null;
     _waiting = false;
+    _counting = false;
 
     if (!mounted) {
       return;

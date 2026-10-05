@@ -239,11 +239,13 @@ describe('PlAnimateHeadline', () => {
       return document.querySelector('.headline-under-test [data-state="active"]')?.textContent;
     }
 
-    const reel = (props: Partial<PlAnimateHeadlineProps> = {}) => (
+    const words = ['faster', 'simpler', 'cheaper'];
+
+    const reel = (props: Partial<PlAnimateHeadlineProps> = {}, lines = 3) => (
       <PlAnimateHeadline className="headline-under-test" interval={1000} duration={10} {...props}>
-        <span>faster</span>
-        <span>simpler</span>
-        <span>cheaper</span>
+        {words.slice(0, lines).map((word) => (
+          <span key={word}>{word}</span>
+        ))}
       </PlAnimateHeadline>
     );
 
@@ -386,6 +388,98 @@ describe('PlAnimateHeadline', () => {
       await advance(0);
 
       expect(showing()).toBe('simpler');
+    });
+
+    it('goes on with the wait of the last line once a line is added after it', async () => {
+      const screen = await render(reel({ loop: false }, 2));
+
+      await advance(1000);
+
+      expect(showing()).toBe('simpler');
+
+      await advance(400);
+      await screen.rerender(reel({ loop: false }));
+      await advance(599);
+
+      // The line has been up for its `interval` once 600ms more have gone by.
+      // It used to wait a whole `interval` again from the change.
+      expect(showing()).toBe('simpler');
+
+      await advance(1);
+
+      expect(showing()).toBe('cheaper');
+    });
+
+    it('goes on with the wait of a line it holds alone once a second is added', async () => {
+      const screen = await render(reel({}, 1));
+
+      await advance(400);
+      await screen.rerender(reel({}, 2));
+      await advance(599);
+
+      expect(showing()).toBe('faster');
+
+      await advance(1);
+
+      expect(showing()).toBe('simpler');
+    });
+
+    it('goes on with the wait of the last line once `loop` is turned on', async () => {
+      const screen = await render(reel({ loop: false }));
+
+      await advance(1000);
+      await advance(1000);
+
+      expect(showing()).toBe('cheaper');
+
+      await advance(400);
+      await screen.rerender(reel({ loop: true }));
+      await advance(599);
+
+      // It used to wait a whole `interval` again from the change.
+      expect(showing()).toBe('cheaper');
+
+      await advance(1);
+
+      expect(showing()).toBe('faster');
+    });
+
+    it.each([
+      ['a line is added', 2, true],
+      ['`loop` is turned off', 3, false]
+    ])('goes on with the wait under way when %s', async (_, lines, loop) => {
+      const screen = await render(reel({}, lines));
+
+      await advance(400);
+      await screen.rerender(reel({ loop }));
+      await advance(599);
+
+      expect(showing()).toBe('faster');
+
+      await advance(1);
+
+      expect(showing()).toBe('simpler');
+    });
+
+    it('holds the line that comes up a whole `interval` when the one up is removed', async () => {
+      const screen = await render(reel());
+
+      await advance(1000);
+      await advance(1000);
+
+      expect(showing()).toBe('cheaper');
+
+      await advance(400);
+      await screen.rerender(reel({}, 2));
+      await advance(999);
+
+      // The line before it comes up, and is held for a whole `interval`, as it
+      // was.
+      expect(showing()).toBe('simpler');
+
+      await advance(1);
+
+      expect(showing()).toBe('faster');
     });
 
     it('waits a whole `interval` again once it is started again after it was stopped', async () => {
