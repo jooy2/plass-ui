@@ -102,3 +102,12 @@ export function useMediaQuery(query: string | null): boolean {
 export function usePrefersReducedMotion(): boolean {
   return useMediaQuery(reducedMotionQuery);
 }
+
+/**
+ * The same answer, read at the moment it is asked rather than on the render
+ * after it changes: for an event handler that has to act before the next frame
+ * is drawn.
+ */
+export function prefersReducedMotion(): boolean {
+  return listFor(reducedMotionQuery)?.matches ?? false;
+}

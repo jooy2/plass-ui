@@ -54,6 +54,7 @@ import type {
   PlassAnimation,
   PlassSide
 } from '../types.js';
+import { prefersReducedMotion } from './media.js';
 import { cx } from './styles.js';
 
 /* ---------------------------------------------------------------------------
@@ -469,6 +470,45 @@ function holds(element: HTMLElement | null, related: EventTarget | null): boolea
   return element !== null && related instanceof Node && element.contains(related);
 }
 
+/**
+ * What an effect writes its keyframe onto inside its own root, when the root is
+ * not what moves: the children of a stagger, the parts of a split line, the
+ * strips of a marquee.
+ */
+const partSelector = '.plass-anim, .plass-marquee-track';
+
+/**
+ * Whether `part` carries `element`'s effect rather than the effect of another
+ * `PlAnimate*` nested inside it.
+ *
+ * Every root names itself with `data-plass-animation`, so whose a part is is
+ * already written in the DOM: it is this element's when the nearest named root
+ * at or above it is this element. A nested root is its own nearest, and
+ * everything inside it answers to that one.
+ */
+function ownsPart(element: HTMLElement, part: Element): boolean {
+  return part.closest('[data-plass-animation]') === element;
+}
+
+/**
+ * The element an animation event is about, when the keyframe is the effect's
+ * own: one of the library's keyframes, on the root or on a part the root owns,
+ * which is what a rewind takes back. `null` for the rest, which reaches the
+ * root as well because animation events bubble: a nested `PlAnimate*`, a
+ * headline's lines, a keyframe of the caller's own.
+ */
+function ownTarget(element: HTMLElement, event: AnimationEvent): Element | null {
+  const target = event.target;
+
+  if (!event.animationName.startsWith('plass-anim-') || !(target instanceof Element)) {
+    return null;
+  }
+
+  return target === element || (target.matches(partSelector) && ownsPart(element, target))
+    ? target
+    : null;
+}
+
 /* ---------------------------------------------------------------------------
  * Resting off screen
  * ------------------------------------------------------------------------- */
@@ -637,6 +677,13 @@ export interface AnimationRun {
  */
 const REWIND_ATTRIBUTE = 'data-plass-rewind';
 
+/**
+ * Marks a part whose run landed under reduced motion, until the next run.
+ * `src/styles.css` reads it to keep the timing the run landed with once the
+ * reader gives movement back.
+ */
+const LANDED_ATTRIBUTE = 'data-plass-landed';
+
 export function useAnimationRun({
   trigger,
   play,
@@ -685,14 +732,11 @@ export function useAnimationRun({
     // Only the descendants that are *this* animation's, though. Another
     // PlAnimate* nested inside is an animation with a trigger of its own, and
     // rewinding it too would fade an error message in again on every shake of
-    // the form around it. Every root names itself with `data-plass-animation`,
-    // so whose a part is is already written in the DOM: it is this element's
-    // when the nearest named root at or above it is this element. A nested root
-    // is its own nearest, and everything inside it answers to that one.
+    // the form around it.
     const targets: HTMLElement[] = [element];
 
-    for (const part of element.querySelectorAll<HTMLElement>('.plass-anim, .plass-marquee-track')) {
-      if (part.closest('[data-plass-animation]') === element) {
+    for (const part of element.querySelectorAll<HTMLElement>(partSelector)) {
+      if (ownsPart(element, part)) {
         targets.push(part);
       }
     }
@@ -703,6 +747,7 @@ export function useAnimationRun({
     element.setAttribute(REWIND_ATTRIBUTE, '');
 
     for (const target of targets) {
+      target.removeAttribute(LANDED_ATTRIBUTE);
       target.style.animationName = 'none';
     }
 
@@ -714,6 +759,53 @@ export function useAnimationRun({
 
     element.removeAttribute(REWIND_ATTRIBUTE);
   }, [run]);
+
+  // A finite run that has landed under reduced motion stays where it landed
+  // when the reader gives movement back. The stylesheet lands it by running it
+  // in no time, and a keyframe goes on counting its time from when it began, so
+  // handed its duration back before the run would have ended, it stood that far
+  // into it and played on from there. The attribute has the stylesheet keep the
+  // timing it landed with until the next run, whose rewind takes it off.
+  //
+  // In the stylesheet rather than through `updateTiming()`, which would hold the
+  // same timing on the animation itself. When the stylesheet's timing changes,
+  // Chromium draws a keyframe whose timing a script has set with the
+  // stylesheet's timing instead, and does not draw a finished one again, so the
+  // fade stood at the opacity of a run a few hundred milliseconds in.
+  //
+  // An endless run is left to the stylesheet, which goes on from where its
+  // passes would have got to by then: it has no last frame to stay on. So is a
+  // scroll-linked one, which goes back to following the scroll.
+  React.useLayoutEffect(() => {
+    const element = node.current;
+
+    if (!element) {
+      return undefined;
+    }
+
+    const land = (event: AnimationEvent) => {
+      const part = ownTarget(element, event);
+
+      if (!part || event.pseudoElement || !prefersReducedMotion()) {
+        return;
+      }
+
+      const style = getComputedStyle(part);
+
+      if (
+        style.getPropertyValue('--p-anim-repeat').trim() === 'infinite' ||
+        style.getPropertyValue('--p-anim-timeline').trim() !== ''
+      ) {
+        return;
+      }
+
+      part.setAttribute(LANDED_ATTRIBUTE, '');
+    };
+
+    element.addEventListener('animationend', land);
+
+    return () => element.removeEventListener('animationend', land);
+  }, []);
 
   // Whether the element is still being held on its own first frame, which is
   // what the measurement below has to undo before it reads a box. A ref rather

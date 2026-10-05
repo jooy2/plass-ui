@@ -209,3 +209,161 @@ describe('an effect under reduced motion', () => {
     await expect.poll(() => opacity(target())).toBe('0');
   });
 });
+
+/** The keyframe running on `element` itself. */
+function keyframe(element: HTMLElement): Animation {
+  return element.getAnimations()[0];
+}
+
+/**
+ * Long enough that no run started in a test is anywhere near its end when the
+ * setting is taken back, however slow the runner is.
+ */
+const long = 60_000;
+
+describe('an effect when movement is given back', () => {
+  it('leaves a finite run that landed where it landed', async () => {
+    const ended = vi.fn();
+
+    await render(
+      <PlAnimateFade className="effect-under-test" duration={long} onAnimationEnd={ended}>
+        Arriving
+      </PlAnimateFade>
+    );
+
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('finished');
+    expect(opacity(target())).toBe('1');
+  });
+
+  it('leaves a finite run that landed when the setting arrived during it where it landed', async () => {
+    const ended = vi.fn();
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+    await render(
+      <PlAnimateFade className="effect-under-test" duration={long} onAnimationEnd={ended}>
+        Arriving
+      </PlAnimateFade>
+    );
+
+    await expect.poll(() => keyframe(target()).playState).toBe('running');
+    await emulateMedia({ reducedMotion: 'reduce' });
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('finished');
+    expect(opacity(target())).toBe('1');
+  });
+
+  it('leaves every part of a staggered run that landed where it landed, and waits on with the rest', async () => {
+    const ended = vi.fn();
+
+    await render(
+      <PlAnimateFade
+        className="effect-under-test"
+        duration={long}
+        stagger={long}
+        onAnimationEnd={ended}
+      >
+        <span>Here</span>
+        <span>Later</span>
+      </PlAnimateFade>
+    );
+
+    const [first, second] = Array.from(target().children) as HTMLElement[];
+
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(first).playState).toBe('finished');
+    expect(opacity(first)).toBe('1');
+    // Still waiting out its delay, on its first frame.
+    expect(keyframe(second).playState).toBe('running');
+    expect(opacity(second)).toBe('0');
+  });
+
+  it('turns an endless run on again', async () => {
+    const ended = vi.fn();
+
+    await render(
+      <PlAnimateRotate
+        className="effect-under-test"
+        duration={long}
+        repeat="infinite"
+        onAnimationEnd={ended}
+      >
+        Turning
+      </PlAnimateRotate>
+    );
+
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('running');
+  });
+
+  it('plays a run that is still waiting out its delay when the wait is over', async () => {
+    await render(
+      <PlAnimateFade className="effect-under-test" duration={long} delay={long}>
+        Arriving
+      </PlAnimateFade>
+    );
+
+    await frame();
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    const timing = keyframe(target()).effect!.getComputedTiming();
+
+    expect(keyframe(target()).playState).toBe('running');
+    expect(timing.duration).toBe(long);
+    expect(Number(timing.localTime)).toBeLessThan(long);
+    expect(opacity(target())).toBe('0');
+  });
+
+  it('plays the next run with movement', async () => {
+    const ended = vi.fn();
+    const fade = (play: boolean) => (
+      <PlAnimateFade
+        className="effect-under-test"
+        duration={long}
+        trigger="manual"
+        play={play}
+        onAnimationEnd={ended}
+      >
+        Arriving
+      </PlAnimateFade>
+    );
+    const screen = await render(fade(true));
+
+    await expect.poll(() => ended.mock.calls.length).toBe(1);
+    await emulateMedia({ reducedMotion: 'no-preference' });
+    await screen.rerender(fade(false));
+    await screen.rerender(fade(true));
+
+    await expect.poll(() => keyframe(target()).playState).toBe('running');
+    expect(keyframe(target()).effect!.getComputedTiming().duration).toBe(long);
+    expect(Number(opacity(target()))).toBeLessThan(1);
+  });
+
+  it('leaves a run that was never let go waiting for its trigger', async () => {
+    const fade = (play: boolean) => (
+      <PlAnimateFade className="effect-under-test" duration={long} trigger="manual" play={play}>
+        Arriving
+      </PlAnimateFade>
+    );
+    const screen = await render(fade(false));
+
+    await frame();
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(keyframe(target()).playState).toBe('paused');
+    expect(opacity(target())).toBe('0');
+
+    await screen.rerender(fade(true));
+
+    await expect.poll(() => keyframe(target()).playState).toBe('running');
+    expect(keyframe(target()).effect!.getComputedTiming().duration).toBe(long);
+  });
+});
