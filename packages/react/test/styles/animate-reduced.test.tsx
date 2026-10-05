@@ -302,6 +302,51 @@ describe('an effect when movement is given back', () => {
     expect(opacity(target())).toBe('1');
   });
 
+  for (const [repeat, alternate, landed] of [
+    [1, false, '1'],
+    [2, true, '0']
+  ] as const) {
+    it(`leaves a finite run that landed at the end of one pass when it is given an endless count${alternate ? ', with alternate' : ''}`, async () => {
+      const ended = vi.fn();
+      const fade = (count: number | 'infinite', play = true) => (
+        <PlAnimateFade
+          className="effect-under-test"
+          duration={long}
+          repeat={count}
+          alternate={alternate}
+          trigger="manual"
+          play={play}
+          onAnimationEnd={ended}
+        >
+          Arriving
+        </PlAnimateFade>
+      );
+      const screen = await render(fade(repeat));
+
+      await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
+      expect(opacity(target())).toBe(landed);
+
+      // Given it while the setting is still on, and kept once it has gone: one
+      // pass is what the setting shows of an endless run.
+      await screen.rerender(fade('infinite'));
+
+      expect(keyframe(target()).playState).toBe('finished');
+      expect(opacity(target())).toBe('1');
+
+      await emulateMedia({ reducedMotion: 'no-preference' });
+
+      expect(keyframe(target()).playState).toBe('finished');
+      expect(opacity(target())).toBe('1');
+
+      // Until it runs again, which is endless.
+      await screen.rerender(fade('infinite', false));
+      await screen.rerender(fade('infinite'));
+
+      await expect.poll(() => keyframe(target()).playState).toBe('running');
+      expect(keyframe(target()).effect!.getComputedTiming().iterations).toBe(Infinity);
+    });
+  }
+
   it('leaves every part of a staggered run that landed where it landed, and waits on with the rest', async () => {
     const ended = vi.fn();
 
@@ -734,6 +779,58 @@ describe('a light or a strip when movement is given back', () => {
     await screen.rerender(marquee(3));
 
     expect(running(target())).toEqual([]);
+    expect(tracks().map((track) => getComputedStyle(track).translate)).toEqual(['none', 'none']);
+  });
+
+  it('leaves a finite PlAnimateLighting that landed where it landed when it is given an endless count', async () => {
+    const ended = vi.fn();
+    const lighting = (repeat: number | 'infinite') => (
+      <PlAnimateLighting
+        className="effect-under-test"
+        duration={long}
+        repeat={repeat}
+        onAnimationEnd={ended}
+      >
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+    const screen = await render(lighting(1));
+
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
+    await screen.rerender(lighting('infinite'));
+
+    expect(running(target())).toEqual([]);
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(running(target())).toEqual([]);
+    expect(['0deg', '360deg']).toContain(angle());
+  });
+
+  it('leaves a finite PlAnimateMarquee that landed where it landed when it is given an endless count', async () => {
+    const ended = vi.fn();
+    const marquee = (repeat: number | 'infinite') => (
+      <PlAnimateMarquee
+        className="effect-under-test"
+        duration={long}
+        repeat={repeat}
+        style={{ width: 200, height: 40 }}
+        onAnimationEnd={ended}
+      >
+        <span style={{ display: 'block', width: 300, height: 80 }}>Headline</span>
+      </PlAnimateMarquee>
+    );
+    const screen = await render(marquee(1));
+
+    await expect.poll(() => ended.mock.calls.length, { timeout: landing }).toBe(1);
+    await screen.rerender(marquee('infinite'));
+
+    expect(running(target())).toEqual([]);
+
+    await emulateReducedMotion('no-preference');
+
+    expect(running(target())).toEqual([]);
+    expect(getComputedStyle(tracks()[1]).display).toBe('flex');
     expect(tracks().map((track) => getComputedStyle(track).translate)).toEqual(['none', 'none']);
   });
 
