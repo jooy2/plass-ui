@@ -17,7 +17,12 @@ import { withI18n } from 'vitepress-i18n';
 import ReactPlugin from '@vitejs/plugin-react';
 import type { VitePressI18nOptions } from 'vitepress-i18n/types';
 import type { VitePressSidebarOptions } from 'vitepress-sidebar/types';
-import { FRAMEWORK_HEAD_SCRIPT, FRAMEWORK_IDS, FRAMEWORKS } from './data/frameworks';
+import {
+  DEFAULT_FRAMEWORK,
+  FRAMEWORK_HEAD_SCRIPT,
+  FRAMEWORK_IDS,
+  FRAMEWORKS
+} from './data/frameworks';
 import { localeOf, t, tf, type Locale, type StringKey } from './data/i18n';
 import { propTables, type PropRow } from './data/props';
 import { flutterPropTables } from './data/props-flutter';
@@ -164,6 +169,31 @@ function slugify(text: string): string {
     .replace(/^(\d)/, '_$1')
     .toLowerCase()
     .normalize('NFC');
+}
+
+/**
+ * The words a heading's `id` is made from.
+ *
+ * `markdown-it-anchor` reads the plain text and the inline code of a heading
+ * and nothing else, so a heading written as an `<Fw>` phrase, which is inline
+ * HTML, had no words at all: every one got `id=""`, its `#` link pointed at the
+ * top of the page, and the outline, which lists only headings with an id, left
+ * it out. The phrase's default-framework variant is read in its place, so
+ * `### <Fw react="onAdd" flutter="onAdded" />` is `#onadd` whichever framework
+ * the reader has chosen, and a link to it stays put when they switch.
+ */
+const fwVariant = new RegExp(`<Fw\\b[^>]*\\b${DEFAULT_FRAMEWORK}="([^"]*)"`);
+
+function headingText(tokens: { type: string; content: string }[]): string {
+  return tokens
+    .map((token) => {
+      if (token.type === 'text' || token.type === 'code_inline') {
+        return token.content;
+      }
+
+      return token.type === 'html_inline' ? (fwVariant.exec(token.content)?.[1] ?? '') : '';
+    })
+    .join('');
 }
 
 /** `/` for whichever locale is the default, `/{lang}/` for every other one. */
@@ -730,7 +760,7 @@ const vitePressConfig: UserConfig = {
    * framework they had selected.
    */
   markdown: {
-    anchor: { slugify },
+    anchor: { slugify, getTokensText: headingText },
     config(md: MarkdownRenderer) {
       md.use(container, 'fw', {
         validate: (params: string) => /^fw(\s+\S+)+$/.test(params.trim()),

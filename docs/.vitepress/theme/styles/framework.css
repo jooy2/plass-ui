@@ -217,3 +217,9 @@ html[data-fw='flutter'] .plass-framework-option[data-fw='flutter'] .plass-framew
 .plass-fw-hidden {
   display: none;
 }
+
+/* What sits between the variants of an `<Fw>` phrase for the outline and the
+   search index to read, and for nobody to see. */
+.plass-fw-sep {
+  display: none;
+}

@@ -70,7 +70,12 @@ const variants = computed(() =>
 </script>
 
 <template>
-  <template v-for="variant in variants" :key="variant.id">
+  <template v-for="(variant, at) in variants" :key="variant.id">
+    <!-- Never displayed, and only there for whatever reads the text rather
+         than the page: the outline, which names a heading by its text, and
+         the search index. Without it the variants ran together, so a heading
+         was listed as `onAddonAdded` and neither word could be found. -->
+    <span v-if="at > 0" class="plass-fw-sep" aria-hidden="true"> / </span>
     <code v-if="code" class="plass-fw" :data-fw="variant.id">{{ variant.text }}</code>
     <span v-else class="plass-fw" :data-fw="variant.id">
       <template v-for="(part, index) in variant.parts" :key="index">
