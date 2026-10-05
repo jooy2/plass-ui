@@ -336,6 +336,44 @@ describe('PlCalendar', () => {
     });
   });
 
+  describe('naming the calendar', () => {
+    it('is a group named by an aria-label, around a grid named by its month', async () => {
+      const screen = await render(
+        <PlCalendar locale="en-GB" defaultMonth={JULY_27} aria-label="Departure" />
+      );
+
+      const group = screen.getByRole('group', { name: 'Departure', exact: true });
+
+      await expect.element(group).toBeInTheDocument();
+      // The grid's own name is the heading it draws, which the group's does not
+      // replace.
+      await expect
+        .element(group.getByRole('grid', { name: 'July 2026', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('is a group named by aria-labelledby', async () => {
+      const screen = await render(
+        <>
+          <h2 id="calendar-title">Return</h2>
+          <PlCalendar locale="en-GB" defaultMonth={JULY_27} aria-labelledby="calendar-title" />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('group', { name: 'Return', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('takes no role when nothing names it', async () => {
+      const screen = await render(
+        <PlCalendar locale="en-GB" defaultMonth={JULY_27} data-testid="cal" />
+      );
+
+      expect(screen.getByTestId('cal').element()).not.toHaveAttribute('role');
+    });
+  });
+
   describe('caller styling', () => {
     it('keeps a caller-supplied class alongside its own', async () => {
       await render(<PlCalendar locale="en-GB" className="my-own-class" />);

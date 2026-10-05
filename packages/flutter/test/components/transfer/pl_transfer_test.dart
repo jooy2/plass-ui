@@ -660,6 +660,121 @@ void main() {
       });
     });
 
+    group('naming the pair', () {
+      /// Every label under [node], in tree order.
+      List<String> labelsUnder(SemanticsNode node) {
+        final List<String> labels = <String>[];
+
+        bool visit(SemanticsNode child) {
+          if (child.label.isNotEmpty) {
+            labels.add(child.label);
+          }
+
+          child.visitChildren(visit);
+
+          return true;
+        }
+
+        node.visitChildren(visit);
+
+        return labels;
+      }
+
+      testWidgets('is a group called by semanticLabel, so two pairs tell their lists apart', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            const Column(
+              children: <Widget>[
+                PlTransfer(items: items, height: 120, semanticLabel: 'Columns'),
+                PlTransfer(items: items, height: 120, semanticLabel: 'Filters'),
+              ],
+            ),
+            width: 700,
+            height: 700,
+          ),
+        );
+
+        for (final String name in <String>['Columns', 'Filters']) {
+          final SemanticsNode pair = semanticsNodeLabelled(tester, name)!;
+
+          // The name alone: the headings and the counts keep nodes of their
+          // own rather than being merged into it.
+          expect(pair.label, name);
+          expect(
+            labelsUnder(pair),
+            containsAll(<String>[
+              'Available',
+              'Selected',
+              'Name',
+              'Move to selected',
+              'Move to available',
+            ]),
+          );
+        }
+
+        handle.dispose();
+      });
+
+      testWidgets('forms no node of its own when nothing names it', (WidgetTester tester) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            Column(
+              children: <Widget>[
+                Semantics(
+                  container: true,
+                  label: 'Beside',
+                  child: const SizedBox.square(dimension: 10),
+                ),
+                const PlTransfer(items: items, height: 120),
+              ],
+            ),
+            width: 700,
+            height: 400,
+          ),
+        );
+
+        final SemanticsNode beside = semanticsNodeLabelled(tester, 'Beside')!;
+        final SemanticsNode arrow = semanticsNodeLabelled(tester, 'Move to selected')!;
+
+        // The arrow sits in the same node as a widget beside the pair, with
+        // nothing of the pair's own in between.
+        expect(arrow.parent, same(beside.parent));
+
+        handle.dispose();
+      });
+
+      testWidgets('keeps the focus on a row while its name comes and goes', (
+        WidgetTester tester,
+      ) async {
+        Widget build(String? name) => host(
+          PlTransfer(items: items, height: 160, semanticLabel: name),
+          width: 700,
+          height: 400,
+        );
+
+        await tester.pumpWidget(build(null));
+
+        final FocusNode row = tester
+            .widget<PlCheckbox>(find.widgetWithText(PlCheckbox, 'Name'))
+            .focusNode!;
+
+        row.requestFocus();
+        await tester.pump();
+
+        await tester.pumpWidget(build('Columns'));
+        expect(row.hasPrimaryFocus, isTrue);
+
+        await tester.pumpWidget(build(null));
+        expect(row.hasPrimaryFocus, isTrue);
+      });
+    });
+
     group('the shell', () {
       testWidgets('is never dyed, whatever colour it is given', (WidgetTester tester) async {
         await tester.pumpWidget(

@@ -6245,7 +6245,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlTransfer', 'toSourceLabel', { type: 'String?', default: "'Move to available'" }),
     from('PlTransfer', 'movedLabel', { type: 'String Function(int count, String list)?' }),
     from('PlTransfer', 'height', { type: 'double', default: '220' }),
-    from('PlTransfer', 'disabled', { type: 'bool', default: 'false' })
+    from('PlTransfer', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 쌍 전체에 주는 이름. 주면 쌍이 그 이름의 그룹이 되고, 목록과 체크와 화살표는 그 안에서 각자의 노드를 가집니다',
+        en: 'The name a screen reader gives the pair as a whole. Given one, the pair is a group of that name, and the lists, the ticks and the arrows keep nodes of their own inside it'
+      }
+    }
   ],
 
   PlTransferItem: [

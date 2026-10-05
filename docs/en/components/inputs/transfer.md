@@ -47,7 +47,7 @@ PlTransfer(
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through. `color` is excluded because it is a Plass prop here, `defaultValue` because the pair spells it as a list of values, and `onChange` because the pair reports through `onValueChange`.
+Every native `<div>` attribute passes straight through. An `aria-label` or `aria-labelledby` also gives the root `role="group"`, so the name lands on something; with neither, the root has no role. `color` is excluded because it is a Plass prop here, `defaultValue` because the pair spells it as a list of values, and `onChange` because the pair reports through `onValueChange`.
 
 :::
 
@@ -158,6 +158,7 @@ Pass `value` with `onValueChange`. The value is the list of `value`s on the trai
 | `height` as a number or a CSS length | `height` as a `double` | There is no second unit to name. |
 | `onValueChange` | `onValueChanged` | Flutter's name. |
 | a polite live region for the count | `SemanticsService.sendAnnouncement` | Flutter has no live region with a politeness of its own, so the count is sent as an announcement. |
+| `aria-label` or `aria-labelledby`, which make the root a group | `semanticLabel` | Flutter names a node with a string and has no attributes to pass through, so the name is a parameter of its own. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::
@@ -165,6 +166,7 @@ Pass `value` with `onValueChange`. The value is the list of `value`s on the trai
 ## Accessibility
 
 - Every row is a real [`PlCheckbox`](./checkbox) with the row's label as its name, so a screen reader reads the list as the list of checkboxes it is.
+- A pair given an <Fw react="aria-label" flutter="semanticLabel" code /> is a group of that name around both lists and the arrows, so two pairs on one screen are told apart instead of reading as the same "Available" and "Selected" twice. <Fw react="An `aria-labelledby` names it the same way, and with neither the root takes no role." flutter="The lists, the ticks and the arrows keep nodes of their own inside it." />
 - The tick in each heading is a checkbox too, named by one sentence with its list's heading in it, "Select all in Available", so the two ticks are told apart by ear. The sentence is the label pack's `transferSelectAll`, which puts the heading where each language puts it, and a `selectAllLabel` given to the component is put before the heading instead. It reports `indeterminate` when only some of its list is ticked.
 - The two arrows are [`PlIconButton`](./icon-button)s with real names, and they are disabled until a press would actually move something. The state a reader can see, made available to one who cannot.
 - Each list has its own count (`ticked/total`) beside its heading, which is the answer to "how much did I just select" without counting rows.

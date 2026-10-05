@@ -266,6 +266,11 @@ export const PlCalendar = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlCal
         // A picker's popup without the popup: an undyed sheet, and the family's
         // fill for the one cell that wears it, the chosen day.
         style={{ ...popupSlots(color, elevation), ...style }}
+        // A `<div>` with no role is named by neither attribute, so a caller's
+        // name makes the calendar a group around its header and its grid. The
+        // grid keeps the month heading as its own name. Unnamed, it stays a
+        // plain box.
+        role={props['aria-label'] || props['aria-labelledby'] ? 'group' : undefined}
         {...props}
       >
         {/* The sheet is drawn disabled once, above, and a fieldset around it

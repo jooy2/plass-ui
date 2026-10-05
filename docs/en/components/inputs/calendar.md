@@ -38,7 +38,7 @@ PlCalendar(
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through. There is no `label`, `description` or `error`: this is not a field, so it has no text around it. Put it in a [`PlFieldset`](./fieldset) if it needs a caption.
+Every native `<div>` attribute passes straight through. An `aria-label` or `aria-labelledby` also gives the root `role="group"`, so the name lands on something; with neither, the root has no role. There is no `label`, `description` or `error`: this is not a field, so it has no text around it. Put it in a [`PlFieldset`](./fieldset) if it needs a caption.
 
 :::
 
@@ -180,6 +180,7 @@ There is no `readOnly` beside it, and that is not an omission: a read-only field
 - The grid is a real `role="grid"`. A blocked day is `aria-disabled` rather than a `disabled` button, so it is still reachable and a keyboard reader can find out that it is blocked.
 - Each cell's accessible name is the full date in the calendar's `locale`, so a screen reader reads "Monday 27 July 2026" rather than "27".
 - `autoFocus` is **off** by default, the opposite of the picker's: a popup has just been opened by somebody who wants to be in it, and a calendar in a page has not.
+- An `aria-label` or `aria-labelledby` names the calendar as a whole: the root becomes a `role="group"` around the header and the grid, and the grid keeps the month heading as its own name. With neither, the root has no role.
 
 :::
 
@@ -188,6 +189,7 @@ There is no `readOnly` beside it, and that is not an omission: a read-only field
 - Each cell is a button, because Flutter's semantics has no grid role. A blocked day keeps its focus node and is announced as unavailable, so a keyboard reader can find out that it is blocked.
 - Each cell's accessible name is the full date spelled by the calendar's `names`, so a screen reader reads "Monday, July 27, 2026" rather than "27".
 - `autofocus` is **off** by default, the opposite of the picker's: a popup has just been opened by somebody who wants to be in it, and a calendar in a page has not.
+- `semanticLabel` names the calendar as a whole, and the header, the weekdays and the days keep nodes of their own inside it.
 - Under `NavigationMode.directional`, a remote's D-pad, the arrows are also how a reader moves on to the next control, so they stop at the edge of what is shown rather than stepping the calendar: the month in the day grid, the year in the month grid and the page of years in the year grid. An arrow past that edge moves the focus to the next control that way. The header's buttons and <kbd>PageUp</kbd>/<kbd>PageDown</kbd> still step it.
 
 :::

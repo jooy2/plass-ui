@@ -47,7 +47,7 @@ PlTransfer(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 모두 그대로 전달됩니다. `color`는 여기서 Plass의 prop이라, `defaultValue`는 값의 목록으로 표기하기 때문에, `onChange`는 `onValueChange`로 보고하기 때문에 제외됩니다.
+네이티브 `<div>` 속성은 모두 그대로 전달됩니다. `aria-label`이나 `aria-labelledby`를 주면 루트가 `role="group"`도 받아서 그 이름이 실제로 무언가에 붙습니다. 둘 다 없으면 루트에는 role이 없습니다. `color`는 여기서 Plass의 prop이라, `defaultValue`는 값의 목록으로 표기하기 때문에, `onChange`는 `onValueChange`로 보고하기 때문에 제외됩니다.
 
 :::
 
@@ -158,6 +158,7 @@ PlTransfer(
 | 숫자나 CSS 길이인 `height` | `double`인 `height` | 이름 붙일 두 번째 단위가 없습니다. |
 | `onValueChange` | `onValueChanged` | Flutter의 이름입니다. |
 | 개수를 알리는 polite live region | `SemanticsService.sendAnnouncement` | Flutter에는 우선순위를 따로 정하는 live region이 없어서, 개수를 안내 이벤트로 보냅니다. |
+| 루트를 group으로 만드는 `aria-label`이나 `aria-labelledby` | `semanticLabel` | Flutter는 노드에 문자열로 이름을 붙이고 전달할 속성이 없어서, 이름이 따로 받는 매개변수입니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 class 목록도 style 속성도 없습니다. |
 
 :::
@@ -165,6 +166,7 @@ PlTransfer(
 ## Accessibility
 
 - 모든 행은 행의 라벨을 이름으로 갖는 진짜 [`PlCheckbox`](./checkbox)입니다. 스크린 리더가 목록을 실제 모습대로, 체크박스의 목록으로 읽습니다.
+- <Fw react="aria-label" flutter="semanticLabel" code />을 준 쌍은 두 목록과 화살표를 감싸는, 그 이름의 그룹입니다. 그래서 한 화면에 쌍이 둘 있어도 같은 "Available"과 "Selected"가 두 번 읽히지 않고 서로 구별됩니다. <Fw react="`aria-labelledby`도 같은 방식으로 이름을 붙이고, 둘 다 없으면 루트는 role을 받지 않습니다." flutter="목록과 체크와 화살표는 그 안에서 각자의 노드를 그대로 가집니다." />
 - 각 제목의 체크도 체크박스이고, 자기 목록의 제목이 들어간 한 문장 "Select all in Available"이 이름입니다. 그래서 두 체크를 귀로도 구별할 수 있습니다. 문장은 라벨 묶음의 `transferSelectAll`에서 오며, 제목을 각 언어가 두는 자리에 둡니다. 컴포넌트에 `selectAllLabel`을 주면 그 말이 대신 제목 앞에 붙습니다. 목록의 일부만 체크된 상태에서는 `indeterminate`를 보고합니다.
 - 두 화살표는 진짜 이름이 붙은 [`PlIconButton`](./icon-button)이고, 누름이 실제로 무언가를 옮길 수 있을 때까지 disabled입니다. 보이는 사람이 보는 상태를, 보지 못하는 사람도 알 수 있게.
 - 각 목록에는 제목 옆에 자기 개수(`체크/전체`)가 있습니다. 행을 세지 않고 "방금 얼마나 골랐나"에 답하는 것이 그것입니다.

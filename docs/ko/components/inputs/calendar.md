@@ -38,7 +38,7 @@ PlCalendar(
 
 ::: fw react
 
-네이티브 `<div>` 속성은 그대로 통과합니다. `label`도 `description`도 `error`도 없습니다. 이것은 field가 아니라서 둘러싼 텍스트가 없습니다. 설명이 필요하면 [`PlFieldset`](./fieldset) 안에 넣으세요.
+네이티브 `<div>` 속성은 그대로 통과합니다. `aria-label`이나 `aria-labelledby`를 주면 루트가 `role="group"`도 받아서 그 이름이 실제로 무언가에 붙습니다. 둘 다 없으면 루트에는 role이 없습니다. `label`도 `description`도 `error`도 없습니다. 이것은 field가 아니라서 둘러싼 텍스트가 없습니다. 설명이 필요하면 [`PlFieldset`](./fieldset) 안에 넣으세요.
 
 :::
 
@@ -180,6 +180,7 @@ calendar를 흐리게 하고 focus 순서에서 빼며, 포인터도 닿지 않�
 - 진짜 `role="grid"`입니다. 막힌 날은 `disabled` 버튼이 아니라 `aria-disabled`여서 여전히 닿을 수 있고, 키보드 사용자가 그 날이 막혔다는 사실을 알 수 있습니다.
 - 각 셀의 accessible name은 calendar의 `locale`로 쓴 전체 날짜입니다. 그래서 스크린 리더가 "27"이 아니라 "2026년 7월 27일 월요일"을 읽습니다.
 - `autoFocus`는 picker와 반대로 기본이 **꺼짐**입니다. popup은 그 안으로 들어가려는 사람이 방금 연 것이고, 페이지 안의 calendar는 그렇지 않습니다.
+- `aria-label`이나 `aria-labelledby`는 calendar 전체의 이름입니다. 루트가 머리글과 grid를 감싸는 `role="group"`이 되고, grid는 달 제목을 자기 이름으로 그대로 씁니다. 둘 다 없으면 루트에는 role이 없습니다.
 
 :::
 
@@ -188,6 +189,7 @@ calendar를 흐리게 하고 focus 순서에서 빼며, 포인터도 닿지 않�
 - Flutter의 semantics에는 grid 역할이 없어서 각 셀은 버튼입니다. 막힌 날도 자기 focus node를 지키고 사용할 수 없다고 읽히므로, 키보드 사용자가 그 날이 막혔다는 사실을 알 수 있습니다.
 - 각 셀의 accessible name은 calendar의 `names`로 쓴 전체 날짜입니다. 그래서 스크린 리더가 "27"이 아니라, 기본인 영어 이름으로는 "Monday, July 27, 2026"을 읽습니다.
 - `autofocus`는 picker와 반대로 기본이 **꺼짐**입니다. popup은 그 안으로 들어가려는 사람이 방금 연 것이고, 페이지 안의 calendar는 그렇지 않습니다.
+- `semanticLabel`은 calendar 전체의 이름이고, 머리글과 요일과 날짜는 그 안에서 각자의 노드를 그대로 가집니다.
 - 리모컨 D-pad인 `NavigationMode.directional`에서는 화살표가 다음 컨트롤로 넘어가는 길이기도 해서, calendar를 넘기지 않고 보이는 범위의 가장자리에서 멈춥니다. 날짜 격자에서는 그 달, 월 격자에서는 그 해, 연도 격자에서는 그 연도 페이지입니다. 가장자리를 넘는 화살표는 그쪽의 다음 컨트롤로 포커스를 옮깁니다. 머리글의 버튼과 <kbd>PageUp</kbd>/<kbd>PageDown</kbd>은 여전히 calendar를 넘깁니다.
 
 :::

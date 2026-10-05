@@ -465,6 +465,53 @@ describe('PlTransfer', () => {
     });
   });
 
+  describe('naming the pair', () => {
+    it('is a group named by an aria-label, so two pairs tell their lists apart', async () => {
+      const screen = await render(
+        <>
+          <PlTransfer items={items} aria-label="Columns" />
+          <PlTransfer items={items} aria-label="Filters" />
+        </>
+      );
+
+      const columns = screen.getByRole('group', { name: 'Columns', exact: true });
+      const filters = screen.getByRole('group', { name: 'Filters', exact: true });
+
+      await expect.element(columns).toBeInTheDocument();
+      await expect.element(filters).toBeInTheDocument();
+      // Each pair's own lists, inside the name that tells them apart.
+      expect(columns.getByRole('group', { name: 'Available', exact: true }).query()).not.toBeNull();
+      expect(filters.getByRole('group', { name: 'Selected', exact: true }).query()).not.toBeNull();
+    });
+
+    it('is a group named by aria-labelledby', async () => {
+      const screen = await render(
+        <>
+          <h2 id="pair-title">Report columns</h2>
+          <PlTransfer items={items} aria-labelledby="pair-title" />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('group', { name: 'Report columns', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it('takes no role when nothing names it', async () => {
+      const screen = await render(<PlTransfer data-testid="pair" items={items} />);
+
+      expect(screen.getByTestId('pair').element()).not.toHaveAttribute('role');
+    });
+
+    it('keeps a role the caller gave it', async () => {
+      const screen = await render(
+        <PlTransfer data-testid="pair" items={items} role="region" aria-label="Columns" />
+      );
+
+      expect(screen.getByTestId('pair').element()).toHaveAttribute('role', 'region');
+    });
+  });
+
   describe('the shell', () => {
     it('is never dyed, whatever colour it is given', async () => {
       const screen = await render(<PlTransfer data-testid="pair" items={items} color="danger" />);

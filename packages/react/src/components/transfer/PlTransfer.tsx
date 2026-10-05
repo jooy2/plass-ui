@@ -548,6 +548,11 @@ export const PlTransfer = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlTra
           '[grid-template-columns:minmax(0,1fr)_auto_minmax(0,1fr)]',
           className
         )}
+        // A `<div>` with no role is named by neither attribute, so a caller's
+        // name makes the pair a group: two on one page would otherwise read
+        // their lists as the same "Available" and "Selected". Unnamed, it
+        // stays a plain box.
+        role={props['aria-label'] || props['aria-labelledby'] ? 'group' : undefined}
         {...props}
       >
         <Panel

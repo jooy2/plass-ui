@@ -101,6 +101,7 @@ class PlTransfer extends StatefulWidget {
     this.size,
     this.color,
     this.density,
+    this.semanticLabel,
     super.key,
   });
 
@@ -167,6 +168,14 @@ class PlTransfer extends StatefulWidget {
 
   /// Changes the padding and nothing else.
   final PlassDensity? density;
+
+  /// The name a screen reader gives the pair as a whole.
+  ///
+  /// Given one, the pair is a group of that name, and the lists, the ticks and
+  /// the arrows keep nodes of their own inside it rather than being read as
+  /// part of the name. Worth writing when a screen has two pairs, whose lists
+  /// are otherwise the same "Available" and "Selected" twice.
+  final String? semanticLabel;
 
   @override
   State<PlTransfer> createState() => _PlTransferState();
@@ -475,59 +484,71 @@ class _PlTransferState extends State<PlTransfer> {
         ? PlassVariant.ghost
         : PlassVariant.glass;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 12,
-      children: <Widget>[
-        Expanded(
-          child: _panel(
-            title: _heading(widget.sourceLabel, PlassTheme.labelsOf(context).transferAvailable),
-            fallback: PlassTheme.labelsOf(context).transferAvailable,
-            rows: sourceRows,
-            controller: _sourceSearch,
-            scroll: _sourceScroll,
-            listFocus: _sourceListFocus,
-            onTickAll: (bool on) => _tickAll(sourceRows, on),
-          ),
-        ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 8,
-          children: <Widget>[
-            PlIconButton(
-              size: _size,
-              color: _color,
-              variant: arrows,
-              label: widget.toTargetLabel ?? PlassTheme.labelsOf(context).transferToSelected,
-              onPressed: _disabled || !canSend ? null : () => _move(sourceRows, toTarget: true),
-              // The glyph points right, and the selected list is at the end of
-              // the row, which is the left under RTL, so both arrows turn there.
-              icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 2 : 0),
+    final bool named = widget.semanticLabel != null;
+
+    // In the tree whether or not it is named, with only its flags switched, so
+    // a name that comes or goes does not build the lists again from nothing
+    // and take the focus out of a row. Unnamed, it forms no node at all.
+    return Semantics(
+      container: named,
+      explicitChildNodes: named,
+      label: widget.semanticLabel,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        spacing: 12,
+        children: <Widget>[
+          Expanded(
+            child: _panel(
+              title: _heading(widget.sourceLabel, PlassTheme.labelsOf(context).transferAvailable),
+              fallback: PlassTheme.labelsOf(context).transferAvailable,
+              rows: sourceRows,
+              controller: _sourceSearch,
+              scroll: _sourceScroll,
+              listFocus: _sourceListFocus,
+              onTickAll: (bool on) => _tickAll(sourceRows, on),
             ),
-            PlIconButton(
-              size: _size,
-              color: _color,
-              variant: arrows,
-              label: widget.toSourceLabel ?? PlassTheme.labelsOf(context).transferToAvailable,
-              onPressed: _disabled || !canReturn ? null : () => _move(targetRows, toTarget: false),
-              // The same glyph turned, which is the one allowance the
-              // no-transform rule makes: a wedge has no text in it to resample.
-              icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 0 : 2),
-            ),
-          ],
-        ),
-        Expanded(
-          child: _panel(
-            title: _heading(widget.targetLabel, PlassTheme.labelsOf(context).transferSelected),
-            fallback: PlassTheme.labelsOf(context).transferSelected,
-            rows: targetRows,
-            controller: _targetSearch,
-            scroll: _targetScroll,
-            listFocus: _targetListFocus,
-            onTickAll: (bool on) => _tickAll(targetRows, on),
           ),
-        ),
-      ],
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 8,
+            children: <Widget>[
+              PlIconButton(
+                size: _size,
+                color: _color,
+                variant: arrows,
+                label: widget.toTargetLabel ?? PlassTheme.labelsOf(context).transferToSelected,
+                onPressed: _disabled || !canSend ? null : () => _move(sourceRows, toTarget: true),
+                // The glyph points right, and the selected list is at the end of
+                // the row, which is the left under RTL, so both arrows turn there.
+                icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 2 : 0),
+              ),
+              PlIconButton(
+                size: _size,
+                color: _color,
+                variant: arrows,
+                label: widget.toSourceLabel ?? PlassTheme.labelsOf(context).transferToAvailable,
+                onPressed: _disabled || !canReturn
+                    ? null
+                    : () => _move(targetRows, toTarget: false),
+                // The same glyph turned, which is the one allowance the
+                // no-transform rule makes: a wedge has no text in it to resample.
+                icon: PlassGlyph(PlassGlyphShape.arrowRight, quarterTurns: rtl ? 0 : 2),
+              ),
+            ],
+          ),
+          Expanded(
+            child: _panel(
+              title: _heading(widget.targetLabel, PlassTheme.labelsOf(context).transferSelected),
+              fallback: PlassTheme.labelsOf(context).transferSelected,
+              rows: targetRows,
+              controller: _targetSearch,
+              scroll: _targetScroll,
+              listFocus: _targetListFocus,
+              onTickAll: (bool on) => _tickAll(targetRows, on),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
