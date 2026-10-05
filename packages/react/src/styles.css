@@ -2263,12 +2263,34 @@
 
 .plass-anim {
   animation-duration: var(--p-anim-duration, 300ms);
-  animation-delay: var(--p-anim-delay, 0ms);
+  animation-delay: var(--p-anim-run-delay, var(--p-anim-delay, 0ms));
   animation-timing-function: var(--p-anim-ease, var(--plass-ease));
   animation-iteration-count: var(--p-anim-repeat, 1);
   animation-direction: var(--p-anim-direction, normal);
   animation-fill-mode: both;
   animation-play-state: var(--p-anim-state, running);
+}
+
+/*
+ * The delay a run started with, kept until the next run.
+ *
+ * A new `animation-delay` applies to an animation that is already running, so
+ * a `delay` changed while a run was under way sent it back to waiting: a fade
+ * with a delay of 300ms given 1000ms at 400ms went back to nothing and waited
+ * again. `src/internal/animate.ts` writes the delay into `--p-anim-run-delay`
+ * as the run starts and takes it off when the next one does, so a new delay is
+ * waited out from the next run on. A run still waiting has nothing written, and
+ * a new delay is measured from when its wait began.
+ *
+ * Every element that reads it is reset here, because a custom property is
+ * inherited and an effect nested inside a running one has a delay of its own.
+ * The value written inline on an element outranks the reset. The arc of a
+ * `PlAnimateLighting` is a pseudo-element, and takes its root's.
+ */
+.plass-anim,
+.plass-marquee-track,
+.plass-anim-lighting {
+  --p-anim-run-delay: initial;
 }
 
 /*
@@ -2518,7 +2540,7 @@
   filter: blur(var(--p-anim-glow-blur, 5px));
   animation-name: plass-anim-lighting;
   animation-duration: var(--p-anim-duration, 3s);
-  animation-delay: var(--p-anim-delay, 0ms);
+  animation-delay: var(--p-anim-run-delay, var(--p-anim-delay, 0ms));
   /* Linear unless a caller says otherwise, which is what `curve` does in the
      Flutter build: an arc that eases at both ends of a turn that has no ends
      reads as a stutter, and that is a default rather than a rule. */
@@ -2591,7 +2613,7 @@
   gap: var(--p-anim-gap, 0px);
   animation-name: plass-anim-marquee-x;
   animation-duration: var(--p-anim-duration, 12s);
-  animation-delay: var(--p-anim-delay, 0ms);
+  animation-delay: var(--p-anim-run-delay, var(--p-anim-delay, 0ms));
   /* Linear unless a caller insists otherwise. An eased marquee slows at both
      ends of a loop that has no ends, which reads as the page stuttering. */
   animation-timing-function: var(--p-anim-ease, linear);
@@ -3554,7 +3576,7 @@
    */
   .plass-anim {
     animation-duration: 0s;
-    animation-delay: max(1ms, var(--p-anim-delay, 0ms));
+    animation-delay: max(1ms, var(--p-anim-run-delay, var(--p-anim-delay, 0ms)));
     animation-iteration-count: var(--p-anim-still-repeat, var(--p-anim-repeat, 1));
     animation-fill-mode: forwards;
     animation-timeline: auto;
@@ -3616,7 +3638,7 @@
  */
 .plass-anim[data-plass-landed] {
   animation-duration: 0s;
-  animation-delay: max(1ms, var(--p-anim-delay, 0ms));
+  animation-delay: max(1ms, var(--p-anim-run-delay, var(--p-anim-delay, 0ms)));
   animation-iteration-count: var(--p-anim-still-repeat, var(--p-anim-repeat, 1));
   animation-fill-mode: forwards;
 }

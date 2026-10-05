@@ -497,10 +497,13 @@ function ownsPart(element: HTMLElement, part: Element): boolean {
  * root as well because animation events bubble: a nested `PlAnimate*`, a
  * headline's lines, a keyframe of the caller's own.
  */
-function ownTarget(element: HTMLElement, event: AnimationEvent): Element | null {
+function ownTarget(element: HTMLElement, event: AnimationEvent): HTMLElement | SVGElement | null {
   const target = event.target;
 
-  if (!event.animationName.startsWith('plass-anim-') || !(target instanceof Element)) {
+  if (
+    !event.animationName.startsWith('plass-anim-') ||
+    !(target instanceof HTMLElement || target instanceof SVGElement)
+  ) {
     return null;
   }
 
@@ -684,6 +687,12 @@ const REWIND_ATTRIBUTE = 'data-plass-rewind';
  */
 const LANDED_ATTRIBUTE = 'data-plass-landed';
 
+/**
+ * The delay a run started with, written onto the element or part it runs on
+ * until the next run. `src/styles.css` reads it ahead of `--p-anim-delay`.
+ */
+const RUN_DELAY = '--p-anim-run-delay';
+
 export function useAnimationRun({
   trigger,
   play,
@@ -748,6 +757,7 @@ export function useAnimationRun({
 
     for (const target of targets) {
       target.removeAttribute(LANDED_ATTRIBUTE);
+      target.style.removeProperty(RUN_DELAY);
       target.style.animationName = 'none';
     }
 
@@ -760,22 +770,15 @@ export function useAnimationRun({
     element.removeAttribute(REWIND_ATTRIBUTE);
   }, [run]);
 
-  // A finite run that has landed under reduced motion stays where it landed
-  // when the reader gives movement back. The stylesheet lands it by running it
-  // in no time, and a keyframe goes on counting its time from when it began, so
-  // handed its duration back before the run would have ended, it stood that far
-  // into it and played on from there. The attribute has the stylesheet keep the
-  // timing it landed with until the next run, whose rewind takes it off.
+  // What a keyframe's timing must not change once its run has begun: the delay
+  // it started with, and the timing it landed with under reduced motion. Both
+  // are held in the stylesheet until the next run, whose rewind takes them off.
   //
   // In the stylesheet rather than through `updateTiming()`, which would hold the
   // same timing on the animation itself. When the stylesheet's timing changes,
   // Chromium draws a keyframe whose timing a script has set with the
-  // stylesheet's timing instead, and does not draw a finished one again, so the
-  // fade stood at the opacity of a run a few hundred milliseconds in.
-  //
-  // An endless run is left to the stylesheet, which goes on from where its
-  // passes would have got to by then: it has no last frame to stay on. So is a
-  // scroll-linked one, which goes back to following the scroll.
+  // stylesheet's timing instead, and does not draw a finished one again, so a
+  // landed fade stood at the opacity of a run a few hundred milliseconds in.
   React.useLayoutEffect(() => {
     const element = node.current;
 
@@ -783,6 +786,43 @@ export function useAnimationRun({
       return undefined;
     }
 
+    // A run under way keeps the delay it started with. A new `animation-delay`
+    // applies to a keyframe that is already running, so a `delay` changed
+    // during the run sent it back to waiting. The new one is waited out from
+    // the next run, as in the Flutter build. A run still waiting has not
+    // started and goes on reading the slot itself, so a new delay is measured
+    // from when its wait began, as a keyframe measures one.
+    //
+    // Written on the root even for the arc of a `PlAnimateLighting`, which its
+    // pseudo-element inherits. The slot is read inline where it is written,
+    // which is everywhere but a marquee's strips, so a line split into a
+    // hundred parts does not work out its style a hundred times as it starts.
+    const hold = (event: AnimationEvent) => {
+      const part = ownTarget(element, event);
+
+      if (!part || part.style.getPropertyValue(RUN_DELAY) !== '') {
+        return;
+      }
+
+      const delay = (
+        part.style.getPropertyValue('--p-anim-delay') ||
+        getComputedStyle(part).getPropertyValue('--p-anim-delay')
+      ).trim();
+
+      if (delay !== '') {
+        part.style.setProperty(RUN_DELAY, delay);
+      }
+    };
+
+    // A finite run that has landed under reduced motion stays where it landed
+    // when the reader gives movement back. The stylesheet lands it by running
+    // it in no time, and a keyframe goes on counting its time from when it
+    // began, so handed its duration back before the run would have ended, it
+    // stood that far into it and played on from there.
+    //
+    // An endless run is left to the stylesheet, which goes on from where its
+    // passes would have got to by then: it has no last frame to stay on. So is
+    // a scroll-linked one, which goes back to following the scroll.
     const land = (event: AnimationEvent) => {
       const part = ownTarget(element, event);
 
@@ -802,9 +842,13 @@ export function useAnimationRun({
       part.setAttribute(LANDED_ATTRIBUTE, '');
     };
 
+    element.addEventListener('animationstart', hold);
     element.addEventListener('animationend', land);
 
-    return () => element.removeEventListener('animationend', land);
+    return () => {
+      element.removeEventListener('animationstart', hold);
+      element.removeEventListener('animationend', land);
+    };
   }, []);
 
   // Whether the element is still being held on its own first frame, which is
