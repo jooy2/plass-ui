@@ -4,7 +4,7 @@ The open findings of an audit of what `plass-ui` can do to the loading speed, th
 
 A closed item is deleted from this file, not ticked, and its number is not used again.
 
-**3 items are open, and the last number used is 168.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 165; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
+**1 item is open, and the last number used is 169.** Batches 1 to 3 (2026-10-04 and 2026-10-05) closed items 1 to 168; what they fixed is in the changelogs, and what they decided to keep is in this file's history.
 
 ## Working through a batch
 
@@ -48,6 +48,4 @@ Line numbers are from `79cad2ec0` and drift as the code changes; when one no lon
 
 ### Low
 
-- **166.** **A `PlAnimateHeadline` let go of its `index` goes on in React with the wait it had before it was controlled** (`PlAnimateHeadline.tsx` ~218 leaves `waited` alone while `index` is set), so it can turn at once; Flutter counts from the beginning (`pl_animate_headline.dart` ~305, a new `index` is `fresh`). Decided: React counts from the beginning too.
-- **167.** **A finite Flutter run that landed under reduced motion and is given `repeat: null` turns again** (`animate.dart` ~1262 `_recount`, and ~1395, ~1407 when the setting goes); React stands it at the end of one pass (`data-plass-landed` and `--p-anim-still-repeat: 1`, `styles.css` ~3706, `animate.ts` ~182; read from the code). Decided: Flutter stays, as items 132 and 164 set; it runs when it runs again.
-- **168.** **A Flutter run that finished moving before reduced motion arrived has its clock put back to the run's end when the setting comes** (`animate.dart` ~1382 `_clockAt = _runTime`), where a React keyframe's clock runs on from its start, so a higher `repeat` given after the setting has gone starts from another point, and one given while the setting is on stands at the end once it goes (~1431 `_pass = repeat`) where React plays on its clock (read from the code). Decided: Flutter keeps the clock running from the start, as React does.
+- **169.** **An endless Flutter run standing under reduced motion and given a finite `repeat` while the setting is on stands on the new count's last frame once the setting goes** (`animate.dart` ~1473–1487, the finite branch), where React plays on its clock, since it never marks an endless run landed (`animate.ts` ~867, `land()` returns while `--p-anim-repeat` is `infinite`; read from the code). Decided: Flutter plays on its clock, as React does and as items 129 and 168 set; React gets tests that pin this and item 167's case.
