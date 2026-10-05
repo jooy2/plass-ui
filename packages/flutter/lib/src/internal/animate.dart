@@ -653,6 +653,7 @@ class PlassAnimateRun extends StatefulWidget {
     required this.settings,
     required this.builder,
     this.mode = PlassAnimateMode.enter,
+    this.stillBuilder,
     this.onRun,
     this.rewindsWhenWaiting = false,
     this.onWait,
@@ -668,6 +669,15 @@ class PlassAnimateRun extends StatefulWidget {
 
   /// Called with the eased progress of the current pass, `0` to `1`.
   final ValueWidgetBuilder<double> builder;
+
+  /// Draws what reduced motion shows, for an effect that shows something
+  /// other than a frame of its run there, as a light shows an even glow rather
+  /// than its arc. Handed the `t` [builder] would be.
+  ///
+  /// Called under reduced motion, and while `paused` keeps what it showed on
+  /// the screen once the platform gives movement back. [builder] draws it when
+  /// this is not given.
+  final ValueWidgetBuilder<double>? stillBuilder;
 
   /// Called as each run begins, before [builder] is handed its first frame:
   /// the first run, and every one a restart, a new `play`, a new `nonce` or a
@@ -1343,6 +1353,8 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
           }
         });
 
+        final ValueWidgetBuilder<double> stillBuilder = widget.stillBuilder ?? widget.builder;
+
         // The reduced-motion answer is the *opposite* of the loading
         // indicators': a spinner that stops is lying about whether anything is
         // happening, while an effect that does not move has still delivered
@@ -1355,34 +1367,31 @@ class _PlassAnimateRunState extends State<PlassAnimateRun> with SingleTickerProv
         if (still) {
           final double end = _landed ? _end : 1;
 
-          return widget.builder(
+          return stillBuilder(
             context,
             _landed && widget.mode == PlassAnimateMode.exit ? 1 - end : end,
             child,
           );
         }
 
-        // Kept by a pause on what reduced motion drew before the run would
-        // have started, which is the content, `1` again, until the pause is
-        // let go. A run its trigger has not let go is not held by the pause,
-        // and waits on its first frame.
-        final bool keepsStill = _keepsStill && started && widget.settings.paused;
+        // Kept by a pause on what reduced motion drew, until the pause is let
+        // go: the frame the run landed on, where the controller already
+        // stands, or before the run would have started, its content, which is
+        // `1` again. Either is drawn as reduced motion drew it. A run its
+        // trigger has not let go is not held by the pause, and waits on its
+        // first frame.
+        final bool held = started && widget.settings.paused;
+        final bool keepsStill = held && _keepsStill;
+        final bool kept = keepsStill || (held && _keepsLanding);
 
         return AnimatedBuilder(
           animation: _controller,
           child: child,
           builder: (BuildContext context, Widget? inner) {
-            if (keepsStill) {
-              return widget.builder(context, 1, inner);
-            }
-
             final double eased = curve.transform(_controller.value.clamp(0, 1));
+            final double t = widget.mode == PlassAnimateMode.exit ? 1 - eased : eased;
 
-            return widget.builder(
-              context,
-              widget.mode == PlassAnimateMode.exit ? 1 - eased : eased,
-              inner,
-            );
+            return (kept ? stillBuilder : widget.builder)(context, keepsStill ? 1 : t, inner);
           },
         );
       },

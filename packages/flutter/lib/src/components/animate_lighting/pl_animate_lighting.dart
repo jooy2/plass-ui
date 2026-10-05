@@ -139,7 +139,6 @@ class PlAnimateLighting extends StatelessWidget {
     final PlassColorFamily family = tokens.family(color);
     final Color start = glow ?? family.solid;
     final Color end = glow ?? family.solidTo;
-    final bool still = prefersReducedMotion(context);
     final BorderRadius radius = BorderRadius.circular(tokens.radii[size]! + spread);
 
     return Stack(
@@ -169,7 +168,12 @@ class PlAnimateLighting extends StatelessWidget {
               threshold: threshold,
             ),
             builder: (BuildContext context, double t, Widget? _) {
-              return _light(t: t, start: start, end: end, radius: radius, still: still);
+              return _light(t: t, start: start, end: end, radius: radius, still: false);
+            },
+            // Under reduced motion, and while a pause keeps that on the screen
+            // once the platform gives movement back.
+            stillBuilder: (BuildContext context, double t, Widget? _) {
+              return _light(t: t, start: start, end: end, radius: radius, still: true);
             },
           ),
         ),

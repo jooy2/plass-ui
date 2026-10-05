@@ -684,6 +684,67 @@ describe('a light or a strip when movement is given back', () => {
     expect(Number(running(target())[0].currentTime)).toBeLessThan(long);
   });
 
+  /** Whether the light is the even glow reduced motion draws rather than an arc. */
+  const even = () => getComputedStyle(target(), '::before').backgroundImage === 'none';
+
+  for (const [name, repeat] of [
+    ['an endless', 'infinite'],
+    ['a finite', 1]
+  ] as const) {
+    it(`leaves ${name} PlAnimateLighting held by \`paused\` on the even glow until it is let go`, async () => {
+      const lighting = (paused: boolean) => (
+        <PlAnimateLighting
+          className="effect-under-test"
+          duration={long}
+          repeat={repeat}
+          paused={paused}
+        >
+          <div style={{ height: '80px' }}>Glowing</div>
+        </PlAnimateLighting>
+      );
+      const screen = await render(lighting(true));
+
+      await frame();
+      expect(even()).toBe(true);
+
+      await emulateMedia({ reducedMotion: 'no-preference' });
+
+      expect(running(target())).toEqual([]);
+      expect(even()).toBe(true);
+
+      // Let go, it turns from its start.
+      await screen.rerender(lighting(false));
+
+      expect(even()).toBe(false);
+      await expect.poll(() => running(target()).length).toBe(1);
+      expect(Number(running(target())[0].currentTime)).toBeLessThan(long);
+    });
+  }
+
+  it('leaves an endless PlAnimateLighting paused with movement on the even glow reduced motion showed', async () => {
+    const lighting = (paused: boolean) => (
+      <PlAnimateLighting className="effect-under-test" duration={long} paused={paused}>
+        <div style={{ height: '80px' }}>Glowing</div>
+      </PlAnimateLighting>
+    );
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    const screen = await render(lighting(false));
+
+    await expect.poll(() => running(target()).length).toBe(1);
+    await screen.rerender(lighting(true));
+    await emulateMedia({ reducedMotion: 'reduce' });
+    // A page hears that the setting changed on the frame after it did.
+    await frame();
+
+    expect(even()).toBe(true);
+
+    await emulateMedia({ reducedMotion: 'no-preference' });
+
+    expect(even()).toBe(true);
+  });
+
   for (const orientation of ['horizontal', 'vertical'] as const) {
     it(`sets an endless ${orientation} PlAnimateMarquee going again from its start, its copies in step`, async () => {
       const ended = vi.fn();

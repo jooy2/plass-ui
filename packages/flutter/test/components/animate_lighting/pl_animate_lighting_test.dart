@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
@@ -113,6 +115,99 @@ void main() {
 
       expect(light.gradient, isNull);
       expect(light.color, isNotNull);
+    });
+
+    group('paused when the setting is taken away', () {
+      /// An endless light, once round a second at an even pace.
+      Widget lighting({bool paused = false, bool still = false}) {
+        return host(
+          PlAnimateLighting(
+            paused: paused,
+            curve: Curves.linear,
+            duration: const Duration(seconds: 1),
+            child: const Text('Live'),
+          ),
+          width: 200,
+          height: 80,
+          disableAnimations: still,
+        );
+      }
+
+      /// Whether the light is the even glow reduced motion draws.
+      bool even(WidgetTester tester) {
+        final BoxDecoration light = lightOf(tester);
+
+        return light.gradient == null && light.color != null;
+      }
+
+      /// How far round the arc has turned, in turns.
+      double turnOf(WidgetTester tester) {
+        final SweepGradient arc = lightOf(tester).gradient! as SweepGradient;
+
+        return (arc.transform! as GradientRotation).radians / (2 * math.pi);
+      }
+
+      testWidgets('keeps the even glow until it is let go, paused from the mount', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(lighting(paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(even(tester), isTrue);
+
+        await tester.pumpWidget(lighting(paused: true));
+
+        // A pause holds what is on the screen. It used to draw the arc at
+        // once, while it was still paused.
+        expect(even(tester), isTrue);
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(even(tester), isTrue);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+
+        await tester.pumpWidget(lighting());
+
+        expect(even(tester), isFalse);
+        expect(turnOf(tester), closeTo(0, 0.001));
+
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(turnOf(tester), closeTo(0.25, 0.001));
+      });
+
+      testWidgets('keeps the even glow until it is let go, paused after it landed', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(lighting(still: true));
+        await tester.pump(const Duration(milliseconds: 1250));
+        await tester.pumpWidget(lighting(paused: true, still: true));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(even(tester), isTrue);
+
+        await tester.pumpWidget(lighting(paused: true));
+
+        expect(even(tester), isTrue);
+
+        await tester.pump(const Duration(milliseconds: 500));
+
+        expect(even(tester), isTrue);
+        expect(tester.binding.hasScheduledFrame, isFalse);
+
+        await tester.pumpWidget(lighting());
+        await tester.pump();
+
+        // On from where its run stood when it landed, at the end of a delay of
+        // nothing, which is where it began, as before.
+        expect(even(tester), isFalse);
+        expect(turnOf(tester), closeTo(0, 0.001));
+
+        await tester.pump(const Duration(milliseconds: 250));
+
+        expect(turnOf(tester), closeTo(0.25, 0.001));
+      });
     });
   });
 }

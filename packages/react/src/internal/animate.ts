@@ -82,7 +82,12 @@ export const animationClasses: Record<PlassAnimation, string> = {
 /** The class that reads the slots. Always paired with one of the above. */
 export const animBaseClass = 'plass-anim';
 
-const animSelector = `.${animBaseClass}`;
+/**
+ * What `paused` marks as held: a keyframe's element or part, and the root of a
+ * `PlAnimateLighting`, whose arc is a pseudo-element that only the root can
+ * answer for.
+ */
+const heldSelector = `.${animBaseClass}, .plass-anim-lighting`;
 
 /**
  * The keyframes that move, turn or scale the element they run on, rather than
@@ -884,8 +889,10 @@ export function useAnimationRun({
   // is where it landed, the start of a pass, and for a run paused before its
   // delay was over is ahead of its start, which with movement draws its first
   // frame: given its timing back, an endless fade held there went from fully
-  // drawn to nearly gone, and a finite one from fully drawn to nothing. Let
-  // go, it goes on from where its clock stands, as it did.
+  // drawn to nearly gone, and a finite one from fully drawn to nothing. A
+  // light held there keeps the even glow the setting draws, where the arc
+  // came back at the angle its clock stood at. Let go, it goes on from where
+  // its clock stands, as it did.
   //
   // Only while it is held, so a run that is not asks nothing of the media
   // query. A run waiting for its trigger is not held: it waits on its first
@@ -908,7 +915,7 @@ export function useAnimationRun({
 
       for (const part of ownParts(element)) {
         if (
-          part.matches(animSelector) &&
+          part.matches(heldSelector) &&
           getComputedStyle(part).getPropertyValue('--p-anim-timeline').trim() === ''
         ) {
           part.setAttribute(HELD_ATTRIBUTE, '');

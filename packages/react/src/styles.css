@@ -3716,6 +3716,17 @@
 }
 
 /*
+ * A light held the same way keeps the even glow the setting draws. Its arc is
+ * left as it is underneath, an endless one made paused at its start when the
+ * setting goes and a finite one paused where its clock stopped, so once it is
+ * let go it turns from there, as it did. Unmarked, the arc came back at the
+ * angle its clock stood at, which is `0deg` for an endless light.
+ */
+.plass-anim-lighting[data-plass-held]::before {
+  background: var(--p-anim-glow-to);
+}
+
+/*
  * A strip or a light that landed under reduced motion, marked on its root, has
  * its keyframe taken off until it runs again: the strip, every copy of it,
  * stands where it started, where the setting showed it, and the arc where a
