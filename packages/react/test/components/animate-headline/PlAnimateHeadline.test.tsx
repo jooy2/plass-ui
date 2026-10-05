@@ -310,14 +310,18 @@ describe('PlAnimateHeadline', () => {
 
       await advance(600);
 
+      // The state is drawn a render before the effect that takes the timer
+      // away, so an empty `act` lets that effect run before the clock moves.
       panel.scrollTop = 800;
       await reports('paused');
+      await committed(() => {});
       await advance(5000);
 
       expect(showing()).toBe('faster');
 
       panel.scrollTop = 0;
       await reports('running');
+      await committed(() => {});
       await advance(399);
 
       expect(showing()).toBe('faster');
