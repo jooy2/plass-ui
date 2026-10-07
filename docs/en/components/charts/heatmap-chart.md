@@ -47,6 +47,8 @@ Each series is a row of the grid or a group of the treemap, and each datum a cel
 
 One ladder covers the whole chart rather than one per row. The colour of a cell has to mean the same number wherever it is, which is the entire promise a heatmap makes.
 
+What the shared props mean across the library is in [prop conventions](../../design/prop-conventions).
+
 ## Examples
 
 ### shape

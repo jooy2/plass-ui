@@ -47,6 +47,8 @@ series 하나가 격자의 한 행이거나 treemap의 한 묶음이고, datum �
 
 사다리는 행마다가 아니라 차트 전체에 하나입니다. 칸의 색은 어디에 있든 같은 숫자를 뜻해야 하고, 그것이 heatmap이 하는 약속의 전부입니다.
 
+라이브러리 전체에서 공유 prop이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.
+
 ## Examples
 
 ### shape

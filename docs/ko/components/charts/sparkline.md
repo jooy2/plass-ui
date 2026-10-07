@@ -45,6 +45,8 @@ PlSparkline(data: signups, endDot: true);
 
 `tooltip`도 `legend`도 없습니다. 둘 중 하나라도 붙이면 차트가 됩니다. `null`은 여기서도 빈 곳이고, 선은 거기서 끊깁니다.
 
+라이브러리 전체에서 공유 prop이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.
+
 ## Examples
 
 ### shape

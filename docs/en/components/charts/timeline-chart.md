@@ -47,6 +47,8 @@ A row is a series (one entity, one name, one colour), but its data are spans rat
 
 The time axis ticks where a calendar ticks. The 1-2-5 family that rounds a value axis is the wrong one for an instant, run on milliseconds it produces a tick every 200,000,000 ms, which lands at 14:53:20 on an arbitrary Tuesday.
 
+What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+
 ## Examples
 
 ### Overlapping spans

@@ -45,6 +45,8 @@ Unlike the full charts this one takes its colour directly. A sparkline has exact
 
 There is no `tooltip` and no `legend`, and adding either would make it a chart. A `null` is a gap here as everywhere, and the line breaks at it.
 
+What the shared props mean across the library is in [prop conventions](../../design/prop-conventions).
+
 ## Examples
 
 ### shape
