@@ -357,7 +357,12 @@ export function PlPieChart({
               'aria-labelledby': ariaLabelledBy
             })}
             categories={slices.map((slice) => slice.name ?? '')}
-            series={[{ name: label, data }]}
+            // The value column is headed by the words the chart is named by,
+            // an `aria-label` in `label`'s place, and by nothing for a chart
+            // named by reference or not at all: the table's one series is the
+            // chart itself, and "1", a series' place, would be a name nobody
+            // gave it.
+            series={[{ name: ariaLabel ?? label ?? '', data }]}
             values={[values]}
             format={formatValue}
             locale={locale}

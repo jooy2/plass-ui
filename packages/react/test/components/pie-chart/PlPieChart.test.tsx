@@ -72,6 +72,42 @@ describe('PlPieChart', () => {
       await expect.element(screen.getByRole('rowheader', { name: 'Social' })).toBeInTheDocument();
     });
 
+    it('heads the value column with the words the chart is named by', async () => {
+      const screen = await render(
+        <PlPieChart label="Traffic" categories={SOURCES} data={[40, 25, 20, 15]} />
+      );
+
+      await expect
+        .element(screen.getByRole('columnheader', { name: 'Traffic' }))
+        .toBeInTheDocument();
+
+      // An `aria-label` stands in `label`'s place here too, rather than leaving
+      // the column a number nobody wrote.
+      await screen.rerender(
+        <PlPieChart aria-label="Visits" categories={SOURCES} data={[40, 25, 20, 15]} />
+      );
+
+      await expect
+        .element(screen.getByRole('columnheader', { name: 'Visits' }))
+        .toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: '1' }).query()).toBeNull();
+    });
+
+    it('leaves the value column unheaded when the chart is named by reference alone', async () => {
+      const screen = await render(
+        <>
+          <h2 id="pie-title">Traffic</h2>
+          <PlPieChart aria-labelledby="pie-title" categories={SOURCES} data={[40, 25, 20, 15]} />
+        </>
+      );
+      const table = screen.getByRole('table', { name: 'Traffic' });
+
+      await expect.element(table).toBeInTheDocument();
+      expect(
+        [...table.element().querySelectorAll('thead th')].map((cell) => cell.textContent)
+      ).toEqual(['', '']);
+    });
+
     it('reflects a changed shape on re-render', async () => {
       const chart = (shape: 'pie' | 'donut') => (
         <PlPieChart label="Traffic" shape={shape} categories={SOURCES} data={[40, 25, 20, 15]} />
