@@ -226,8 +226,8 @@ There is only the controlled form: `value` with `onChanged`. Options are compare
 ::: fw flutter
 
 - Each option is announced as one of a mutually exclusive set, checked or not.
-- The set is one semantics node over its `label`, `description` and `error`, with each option a node of its own inside it. A `semanticLabel` names the set in the `label`'s place, and the drawn label is then not read a second time.
-- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the set.
+- The set is one semantics node over its `label`, `description` and `error`, with each option a node of its own inside it. A `semanticLabel` names the set in the `label`'s place, and a `PlRadioOption`'s `semanticLabel` names its option in the option's `label`'s place. Either way the drawn label is then not read a second time.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the set or the option.
 - The set takes **one** focus stop: exactly one option is in the tab order and the rest are wrapped in an `ExcludeFocus`, which is the roving tab index in one widget. <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> move the choice, wrapping at both ends and skipping an option that cannot be chosen. In a `readOnly` set they move the focus and leave the choice where it is.
 - Wrapping is what an arrow key does in a radio group and what it does not do in a list: the set is a ring of alternatives with no beginning. Under `NavigationMode.directional`, a remote's D-pad, the arrows are also the only way out of the set, so there they stop at either end, and an arrow that moves nothing, past an end or in a set that cannot be changed, moves the focus to the next control that way. Only the arrows along the options change the choice there, <kbd>↑</kbd> <kbd>↓</kbd> in a column and <kbd>←</kbd> <kbd>→</kbd> in a row; the others move the focus on at once.
 - Pressing a label chooses its option: the whole row is the target.
@@ -245,7 +245,7 @@ There is only the controlled form: `value` with `onChanged`. Options are compare
 | `<PlRadio>` children | `options`, as descriptions | The group owns the roving focus and the arrow keys, so it has to know which option is chosen and what comes after it. A `Widget` is opaque. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter's own controls are controlled, and its name for the callback. |
 | a value of `unknown`, compared by identity | a generic `T`, compared with `==` | Dart has generics, so the type is checked rather than hoped for, and a value with sensible equality does not have to stay identical between builds. |
-| `aria-label` | `semanticLabel` | Flutter's name. |
+| `aria-label`, on the group or a `PlRadio` | `semanticLabel`, on the group or a `PlRadioOption` | Flutter's name. |
 | `name`, and a hidden input | — | There is no native form submission to be part of. |
 | `className`, `style` | — | There is no class list and no style attribute to pass through. |
 

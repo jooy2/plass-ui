@@ -226,8 +226,8 @@ controlled 형태 하나뿐입니다. `value`와 `onChanged`. 옵션은 `==`로 
 ::: fw flutter
 
 - 각 옵션은 서로 배타적인 묶음의 하나로, 선택 여부와 함께 알려집니다.
-- 묶음은 `label`, `description`, `error`를 묶는 semantics 노드 하나이고, 각 옵션은 그 안에서 자기 노드를 가집니다. `semanticLabel`은 `label` 대신 묶음의 이름이 되고, 그려진 label은 그때 한 번 더 읽히지 않습니다.
-- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 묶음을 찾을 수 있습니다.
+- 묶음은 `label`, `description`, `error`를 묶는 semantics 노드 하나이고, 각 옵션은 그 안에서 자기 노드를 가집니다. `semanticLabel`은 `label` 대신 묶음의 이름이 되고, `PlRadioOption`의 `semanticLabel`은 그 옵션의 `label` 대신 옵션의 이름이 됩니다. 어느 쪽이든 그려진 label은 그때 한 번 더 읽히지 않습니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 묶음이나 옵션을 찾을 수 있습니다.
 - 묶음은 focus stop **하나**를 차지합니다. 정확히 한 옵션만 tab 순서에 있고 나머지는 `ExcludeFocus`로 감싸여 있는데, 그것이 위젯 하나로 쓴 roving tab index입니다. <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd>가 선택을 옮기고, 양 끝에서 순환하며, 고를 수 없는 옵션은 건너뜁니다. `readOnly`인 묶음에서는 선택은 그대로 두고 focus만 옮깁니다.
 - 순환은 radio group에서 화살표 키가 하는 일이고 목록에서는 하지 않는 일입니다. 묶음은 시작이 없는 대안들의 고리입니다. 다만 리모컨의 방향 버튼으로 움직이는 `NavigationMode.directional`에서는 화살표가 묶음을 벗어나는 유일한 길이기도 해서, 양 끝에서 멈춥니다. 끝을 넘어서거나 바꿀 수 없는 묶음이어서 아무것도 옮기지 못한 화살표는 그쪽의 다음 컨트롤로 focus를 넘깁니다. 거기서 선택을 바꾸는 것은 선택지가 놓인 방향의 화살표뿐입니다. 세로 묶음에서는 <kbd>↑</kbd> <kbd>↓</kbd>, 가로 묶음에서는 <kbd>←</kbd> <kbd>→</kbd>이고, 나머지 화살표는 곧바로 focus를 넘깁니다.
 - 라벨을 누르면 그 옵션이 선택됩니다. 대상은 행 전체입니다.
@@ -245,7 +245,7 @@ controlled 형태 하나뿐입니다. `value`와 `onChanged`. 옵션은 `==`로 
 | `<PlRadio>` children | 설명으로서의 `options` | 그룹이 roving focus와 화살표 키를 소유하므로, 어느 옵션이 선택되었고 그다음이 무엇인지 알아야 합니다. `Widget`은 불투명합니다. |
 | `defaultValue` / `onValueChange` | `value` / `onChanged` | Flutter 자신의 컨트롤이 controlled이고, 콜백 이름도 Flutter의 것입니다. |
 | identity로 비교하는 `unknown` 값 | `==`로 비교하는 제네릭 `T` | Dart에는 제네릭이 있어 타입이 검사됩니다. 그리고 합리적인 동등성이 붙은 값은 빌드 사이에 같은 인스턴스일 필요가 없습니다. |
-| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
+| 그룹이나 `PlRadio`의 `aria-label` | 그룹이나 `PlRadioOption`의 `semanticLabel` | Flutter의 이름입니다. |
 | `name`과 hidden input | — | 포함될 네이티브 form 제출이 없습니다. |
 | `className`, `style` | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 

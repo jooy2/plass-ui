@@ -4536,7 +4536,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlRadio', 'value', { type: 'T', required: true }),
     from('PlRadio', 'label', { type: 'Widget?' }),
     from('PlRadio', 'description', { type: 'Widget?' }),
-    from('PlRadio', 'disabled', { type: 'bool', default: 'false' })
+    from('PlRadio', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 옵션을 부를 이름. 보이는 label의 자리를 대신합니다',
+        en: "The name a screen reader gives the option, in the visible label's place"
+      }
+    }
   ],
 
   PlSegment: [

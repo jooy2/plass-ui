@@ -864,6 +864,58 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('an option is named by its semanticLabel in its label\'s place, and by its '
+          'label without one', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            PlRadioGroup<String>(
+              options: const <PlRadioOption<String>>[
+                PlRadioOption<String>(value: 'starter', semanticLabel: 'Starter plan'),
+                PlRadioOption<String>(
+                  value: 'team',
+                  label: Text('Team'),
+                  description: Text('Up to ten seats'),
+                  semanticLabel: 'Team plan',
+                ),
+                PlRadioOption<String>(value: 'enterprise', label: Text('Enterprise')),
+              ],
+              value: 'team',
+              onChanged: (String _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        // With no visible label, the option has no other name.
+        expect(
+          semanticsNodeLabelled(tester, 'Starter plan'),
+          isSemantics(
+            label: 'Starter plan',
+            isInMutuallyExclusiveGroup: true,
+            isChecked: false,
+            hasTapAction: true,
+          ),
+        );
+        // The label's words are not read a second time after the name that took
+        // their place, and the description still follows it.
+        expect(
+          tester.getSemantics(find.text('Up to ten seats')),
+          isSemantics(
+            label: 'Team plan\nUp to ten seats',
+            isInMutuallyExclusiveGroup: true,
+            isChecked: true,
+          ),
+        );
+        expect(semanticsNodeLabelled(tester, 'Team'), isNull);
+        expect(
+          tester.getSemantics(find.text('Enterprise')),
+          isSemantics(label: 'Enterprise', isInMutuallyExclusiveGroup: true, isChecked: false),
+        );
+
+        handle.dispose();
+      });
     });
   });
 }

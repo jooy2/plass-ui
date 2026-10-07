@@ -28,7 +28,13 @@ import 'package:plass_ui/src/types.dart';
 @immutable
 class PlRadioOption<T> {
   /// Creates an option.
-  const PlRadioOption({required this.value, this.label, this.description, this.disabled = false});
+  const PlRadioOption({
+    required this.value,
+    this.label,
+    this.description,
+    this.disabled = false,
+    this.semanticLabel,
+  });
 
   /// What choosing this option means.
   final T value;
@@ -42,6 +48,12 @@ class PlRadioOption<T> {
   /// Unavailable. Keeps its place in the set and cannot be reached by an arrow
   /// key.
   final bool disabled;
+
+  /// The name a screen reader announces, for an option with no visible [label].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it.
+  final String? semanticLabel;
 }
 
 /// A set of options where exactly one is chosen.
@@ -492,6 +504,9 @@ class _Radio<T> extends StatelessWidget {
         // and only the tap action goes.
         enabled: !disabled,
         readOnly: readOnly,
+        // An option's `semanticLabel` names it in its label's place, as an
+        // `aria-label` names the React `PlRadio`.
+        label: option.semanticLabel,
         onTap: onPressed,
         // The roving tab index, in one widget: every option answers the
         // pointer, and exactly one of them is in the tab order.
@@ -537,9 +552,14 @@ class _Radio<T> extends StatelessWidget {
                           spacing: 2,
                           children: <Widget>[
                             if (option.label != null)
-                              DefaultTextStyle.merge(
-                                style: TextStyle(color: disabled ? tokens.mutedFg : tokens.fg),
-                                child: option.label!,
+                              // A `semanticLabel` is the name in its place, so
+                              // the drawn words are then not read after it.
+                              ExcludeSemantics(
+                                excluding: option.semanticLabel != null,
+                                child: DefaultTextStyle.merge(
+                                  style: TextStyle(color: disabled ? tokens.mutedFg : tokens.fg),
+                                  child: option.label!,
+                                ),
                               ),
                             if (option.description != null)
                               DefaultTextStyle.merge(
