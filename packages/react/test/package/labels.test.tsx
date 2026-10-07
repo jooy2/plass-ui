@@ -47,9 +47,9 @@ function said(entry: unknown): unknown {
  * room for the next component's untranslated key to hide.
  */
 const sharedWithEnglish: Record<string, readonly (keyof typeof defaultLabels)[]> = {
-  // `OK`, `Optional`, `Overlay`, `Code`, `Minute` and `AM/PM` are written the
-  // same way in German.
-  de: ['acknowledge', 'optional', 'overlay', 'code', 'minute', 'meridiem'],
+  // `OK`, `Optional`, `Overlay`, `Code`, `Minute`, `AM/PM` and `Name` are
+  // written the same way in German.
+  de: ['acknowledge', 'optional', 'overlay', 'code', 'minute', 'meridiem', 'name'],
   es: [],
   // `OK`, `Notifications`, `Pagination`, `Code`, `Minute`, `AM/PM`, and
   // `Page 3`, which French writes in English's order.

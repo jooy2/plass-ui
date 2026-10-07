@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { PlTimelineChart, PlassProvider } from 'plass-ui';
 import { render } from 'vitest-browser-react';
+import { ko } from '../../../src/locales/ko.js';
 
 const at = (day: number) => new Date(2026, 0, day);
 
@@ -322,7 +323,7 @@ describe('PlTimelineChart', () => {
       );
 
       await expect.poll(() => table.element().querySelectorAll('tbody tr').length).toBe(1);
-      expect(screen.getByRole('columnheader', { name: 'label' }).query()).toBeNull();
+      expect(screen.getByRole('columnheader', { name: 'Name' }).query()).toBeNull();
     });
   });
 
@@ -537,10 +538,22 @@ describe('PlTimelineChart', () => {
       await expect.element(screen.getByRole('columnheader', { name: '종료' })).toBeInTheDocument();
     });
 
+    it('heads the label column with the label pack s word', async () => {
+      // Not with the English word "label", which no pack translated.
+      const screen = await render(
+        <PlassProvider labels={ko}>
+          <PlTimelineChart label="Plan" series={PLAN} />
+        </PlassProvider>
+      );
+
+      await expect.element(screen.getByRole('columnheader', { name: '이름' })).toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: 'label' }).query()).toBeNull();
+    });
+
     it('adds a label column only when a span carries one', async () => {
       const screen = await render(<PlTimelineChart label="Plan" series={PLAN} />);
 
-      await expect.element(screen.getByRole('columnheader', { name: 'label' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('columnheader', { name: 'Name' })).toBeInTheDocument();
 
       await screen.rerender(
         <PlTimelineChart
@@ -550,7 +563,7 @@ describe('PlTimelineChart', () => {
       );
 
       await expect.element(screen.getByRole('table', { name: 'Plan' })).toBeInTheDocument();
-      expect(screen.getByRole('columnheader', { name: 'label' }).query()).toBeNull();
+      expect(screen.getByRole('columnheader', { name: 'Name' }).query()).toBeNull();
     });
 
     it('leaves out a span whose start or end is not a time', async () => {
@@ -577,7 +590,7 @@ describe('PlTimelineChart', () => {
 
       expect(rows.length).toBe(1);
       expect([...rows[0].querySelectorAll('td')].map((cell) => cell.textContent)).not.toContain('');
-      expect(screen.getByRole('columnheader', { name: 'label' }).query()).toBeNull();
+      expect(screen.getByRole('columnheader', { name: 'Name' }).query()).toBeNull();
     });
   });
 });

@@ -41,6 +41,7 @@ export const ko: PlassLabels = {
   chartOther: '기타',
   chartMore: (count) => `${count}개 더`,
   chartFewer: '접기',
+  name: '이름',
   minimize: '최소화',
   maximize: '최대화',
   restore: '이전 크기로',

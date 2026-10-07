@@ -504,7 +504,7 @@ function TimelineTable({
       <thead>
         <tr>
           <th scope="col">{corner ?? ''}</th>
-          {titled ? <th scope="col">label</th> : null}
+          {titled ? <th scope="col">{words.name}</th> : null}
           <th scope="col">{words.start}</th>
           <th scope="col">{words.end}</th>
         </tr>

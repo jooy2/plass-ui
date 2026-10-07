@@ -41,6 +41,7 @@ export const de: PlassLabels = {
   chartOther: 'Sonstige',
   chartMore: (count) => `${count} weitere`,
   chartFewer: 'Weniger anzeigen',
+  name: 'Name',
   minimize: 'Minimieren',
   maximize: 'Maximieren',
   restore: 'Wiederherstellen',

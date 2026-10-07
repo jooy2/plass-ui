@@ -41,6 +41,7 @@ export const zhHans: PlassLabels = {
   chartOther: '其他',
   chartMore: (count) => `另外 ${count} 项`,
   chartFewer: '收起',
+  name: '名称',
   minimize: '最小化',
   maximize: '最大化',
   restore: '还原',

@@ -117,6 +117,11 @@ export interface PlassLabels {
   chartMore: (count: number) => string;
   /** And the way back, once they are all showing. */
   chartFewer: string;
+  /**
+   * The head of the column a chart's table names each mark in, for marks that
+   * carry a name of their own: a timeline's spans.
+   */
+  name: string;
   minimize: string;
   maximize: string;
   restore: string;
@@ -310,6 +315,7 @@ export const defaultLabels: PlassLabels = {
   chartOther: 'Other',
   chartMore: (count) => `${count} more`,
   chartFewer: 'Show fewer',
+  name: 'Name',
   minimize: 'Minimize',
   maximize: 'Maximize',
   restore: 'Restore',

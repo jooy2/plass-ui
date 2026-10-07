@@ -41,6 +41,7 @@ export const ja: PlassLabels = {
   chartOther: 'その他',
   chartMore: (count) => `他${count}件`,
   chartFewer: '表示を減らす',
+  name: '名前',
   minimize: '最小化',
   maximize: '最大化',
   restore: '元に戻す',
