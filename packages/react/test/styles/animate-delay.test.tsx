@@ -169,8 +169,10 @@ describe('a new `delay`', () => {
     );
     const screen = await render(fade(long));
 
-    await expect.poll(() => keyframe(target()).playState).toBe('running');
-    await wait(200);
+    // On the keyframe's own clock rather than the wall's: a keyframe reads
+    // `running` while its start is still pending, and on a slow runner 200ms
+    // on the wall had moved it less than 100ms, short of the new delay.
+    await expect.poll(() => Number(keyframe(target()).currentTime)).toBeGreaterThanOrEqual(200);
     await screen.rerender(fade(100));
 
     // The wait has already gone past the new delay, so the run is as far into
