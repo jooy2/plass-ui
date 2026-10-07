@@ -420,6 +420,24 @@ describe('an effect when movement is given back', () => {
     return screen;
   }
 
+  it('leaves an endless run unmarked when its run in no time reports ending after it was given a finite count', async () => {
+    const screen = await landedPulse({ duration: long });
+
+    await screen.rerender(pulse(5, { duration: long }));
+
+    // `animationend` is sent a frame or more after the keyframe finished, and
+    // a count given in between is what the page reads when it arrives. Sent
+    // again here, after the count, it stands for that late one: the run it
+    // reports ended while the effect was still endless, so it did not land.
+    const name = (keyframe(target()) as CSSAnimation).animationName;
+
+    target().dispatchEvent(
+      new AnimationEvent('animationend', { animationName: name, bubbles: true })
+    );
+
+    expect(target()).not.toHaveAttribute('data-plass-landed');
+  });
+
   it('plays an endless run given a finite count while the setting was on from where its clock is', async () => {
     const screen = await landedPulse({ duration: long });
     await screen.rerender(pulse(5, { duration: long }));

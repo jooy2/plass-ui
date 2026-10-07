@@ -718,6 +718,47 @@ const LANDED_ATTRIBUTE = 'data-plass-landed';
  */
 const HELD_ATTRIBUTE = 'data-plass-held';
 
+/** Where the document timeline stands now, in milliseconds. */
+function timelineNow(): number {
+  return Number(document.timeline.currentTime ?? performance.now());
+}
+
+/**
+ * Whether the keyframe `event` reports the end of had ended by `endlessUntil`,
+ * the moment its effect stopped being endless, and so ended a run that was
+ * endless then, whatever count the stylesheet says now.
+ *
+ * Read off the keyframe's own start and end on the timeline. A keyframe given
+ * back for the count, as a strip's or a light's is, starts after that moment,
+ * so its end is the count's.
+ */
+function endedEndless(
+  part: HTMLElement | SVGElement,
+  event: AnimationEvent,
+  endlessUntil: number | null
+): boolean {
+  if (endlessUntil === null) {
+    return false;
+  }
+
+  const keyframe = part
+    .getAnimations()
+    .find(
+      (animation) =>
+        animation instanceof CSSAnimation &&
+        animation.animationName === event.animationName &&
+        ((animation.effect as KeyframeEffect | null)?.pseudoElement ?? '') ===
+          (event.pseudoElement || '')
+    );
+  const start = keyframe?.startTime;
+
+  if (!keyframe?.effect || start === null || start === undefined) {
+    return false;
+  }
+
+  return Number(start) + Number(keyframe.effect.getComputedTiming().endTime ?? 0) <= endlessUntil;
+}
+
 /**
  * The delay a run started with, written onto the element or part it runs on
  * until the next run. `src/styles.css` reads it ahead of `--p-anim-delay`.
@@ -805,6 +846,22 @@ export function useAnimationRun({
   // Chromium draws a keyframe whose timing a script has set with the
   // stylesheet's timing instead, and does not draw a finished one again, so a
   // landed fade stood at the opacity of a run a few hundred milliseconds in.
+  //
+  // When the run last stopped being endless, on the document timeline, which
+  // is what `land` measures a run's end against: `animationend` arrives a
+  // frame or more after the keyframe finished, and a count given in between
+  // is what the stylesheet says by then.
+  const endlessUntil = React.useRef<number | null>(null);
+  const wasInfinite = React.useRef(infinite);
+
+  React.useLayoutEffect(() => {
+    if (wasInfinite.current && !infinite) {
+      endlessUntil.current = timelineNow();
+    }
+
+    wasInfinite.current = infinite;
+  }, [infinite]);
+
   React.useLayoutEffect(() => {
     const element = node.current;
 
@@ -865,7 +922,8 @@ export function useAnimationRun({
 
       if (
         style.getPropertyValue('--p-anim-repeat').trim() === 'infinite' ||
-        style.getPropertyValue('--p-anim-timeline').trim() !== ''
+        style.getPropertyValue('--p-anim-timeline').trim() !== '' ||
+        endedEndless(part, event, endlessUntil.current)
       ) {
         return;
       }
