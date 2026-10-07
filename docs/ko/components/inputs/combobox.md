@@ -207,6 +207,7 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 ::: fw flutter
 
 - field는 목록이 열려 있는지 말해 주는 text field로 읽힙니다. 각 행은 서로 배타적인 묶음 중 하나로, 취해졌는지 여부와 함께 읽힙니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 combobox를 찾을 수 있습니다.
 - **키는 field에 머뭅니다.** 포커스도 그렇습니다. <kbd>↑</kbd> <kbd>↓</kbd>가 강조를 옮기고, <kbd>Enter</kbd>가 강조된 행을 취하거나 강조된 행이 없으면 목록을 닫고, <kbd>Escape</kbd>나 시스템 뒤로 가기가 아무것도 취하지 않고 닫습니다. 목록은 field의 목록이지 두 번째로 머물 자리가 아닙니다.
 - 리모컨 D-pad인 `NavigationMode.directional`에서는 닫힌 목록이 <kbd>↑</kbd>나 <kbd>↓</kbd>로 열리지 않습니다. 거기서 방향키는 그 방향의 다음 컨트롤로 포커스를 옮기고, 목록은 <kbd>Enter</kbd>나 리모컨의 Select로 엽니다. 열린 목록은 방향키를 그대로 씁니다.
 - 목록이 닫혀 있을 때 <kbd>Escape</kbd>는 값이 있는 field를 비우고, 값이 없으면 field를 담은 modal 같은 곳으로 넘어갑니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.

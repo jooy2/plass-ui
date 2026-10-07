@@ -274,6 +274,7 @@ Pass `value` with `onValueChange`. The value is a `Date` at local midnight, or a
 - A blocked day keeps its focus node and is announced as unavailable, for the same reason: a reader arrowing across a month must not fall into a hole at every one of them.
 - Under `NavigationMode.directional`, a remote's D-pad, the arrows stop at the edge of what the calendar shows rather than stepping it, so an arrow past the month, the year or the page of years moves the focus to the next control. The header's buttons and <kbd>PageUp</kbd> / <kbd>PageDown</kbd> still step it.
 - The trigger is a button that carries the chosen day as its **value** rather than folding it into its label, which is what a `PlSelect` already does: the label names the field and the value says what is in it.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the picker.
 - The width samples are behind `ExcludeSemantics`, so nothing extra is read out.
 
 :::

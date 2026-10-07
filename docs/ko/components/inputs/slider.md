@@ -220,6 +220,7 @@ thumb끼리 교차하지 않습니다. 값은 양옆 이웃 사이에 붙들리�
 ::: fw flutter
 
 - 슬라이더로 알려지고, 현재 값이 `step`의 소수 자릿수에 맞춰, 또는 `semanticValue`가 thumb마다 준 말("40%" 같은)로 함께 알려집니다. 보이는 `label`이 없다면(여러 개가 늘어선 페이더처럼) `semanticLabel`을 주세요.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 슬라이더를 찾을 수 있습니다.
 - 스크린 리더의 조절 동작(VoiceOver와 TalkBack에서 위아래로 쓸기)은 슬라이더를 `step` 하나만큼 움직입니다. 범위 슬라이더는 양 끝이 각각 슬라이더입니다.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd>가 `step` 하나만큼, <kbd>PageUp</kbd> / <kbd>PageDown</kbd>이 범위의 10분의 1만큼 옮기고, <kbd>Home</kbd>과 <kbd>End</kbd>가 양 끝으로 갑니다.
 - 리모컨 D-pad인 `NavigationMode.directional`에서는 Material의 슬라이더처럼 레일 방향의 화살표만 thumb을 옮기고, 나머지 화살표는 옆 컨트롤로 포커스를 옮깁니다.

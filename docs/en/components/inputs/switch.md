@@ -165,6 +165,7 @@ The thumb is inset 2px on every side, so its diameter is the track's height minu
 - The thumb's position is not the only signal. The track changes material as well, so the state survives a reader who cannot tell the two ends of a 36px pill apart.
 - The thumb is the one thing in the library that moves, and it carries no text. It travels in one house duration, the same 150ms everything else changes in.
 - A switch with no `label` needs a `semanticLabel`.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the switch.
 
 :::
 

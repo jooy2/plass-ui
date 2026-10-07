@@ -207,6 +207,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 ::: fw flutter
 
 - The field is announced as a text field that says whether its list is open. Each row is announced as one of a mutually exclusive set, taken or not.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the combobox.
 - **The keys stay on the field**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Enter</kbd> takes the highlighted row, or closes the list when no row is lit, and <kbd>Escape</kbd> or the system back closes without taking one. The list is the field's list, not a second place to be.
 - Under `NavigationMode.directional`, a remote's D-pad, a closed list does not open on <kbd>↑</kbd> or <kbd>↓</kbd>: the arrows move the focus on to the next control that way, and <kbd>Enter</kbd> or the remote's Select opens the list. An open list keeps the arrows.
 - With the list closed, <kbd>Escape</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.

@@ -184,6 +184,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `val
 ::: fw flutter
 
 - trigger는 양 끝을 label에 접어 넣는 대신 semantics **value**로 지닙니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 - 두 반쪽 사이의 화살표는 RTL에서 돌아가므로 언제나 첫 끝에서 둘째 끝을 가리킵니다.
 - 너비를 잡아 주는 샘플들은 `ExcludeSemantics` 뒤에 있습니다.
 

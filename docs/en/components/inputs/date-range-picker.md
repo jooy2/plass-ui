@@ -184,6 +184,7 @@ Pass `value` with `onValueChange`. The callback is always given an object, so th
 ::: fw flutter
 
 - The trigger carries both ends as its semantic **value** rather than folding them into its label.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the picker.
 - The arrow between the two halves turns under RTL, so it always points from the first end to the second.
 - The width samples are behind `ExcludeSemantics`.
 

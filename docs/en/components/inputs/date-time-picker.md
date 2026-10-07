@@ -170,6 +170,12 @@ One `names` object carries the month and weekday names, the order of the header'
 
 ::: fw flutter
 
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the picker.
+
+:::
+
+::: fw flutter
+
 ## Differences from the React build
 
 | React | Flutter | Why |

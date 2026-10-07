@@ -183,6 +183,7 @@ PlColorPicker(
 
 - `inline` picker는 `label`, `description`, `error`를 묶는 semantics 노드 하나이고, 사각형과 레일은 그 안에 있습니다. 그래서 한 화면의 picker 두 개가 "Hue"라는 같은 슬라이더 두 벌이 되지 않습니다. `error`는 사각형과 레일을 invalid로도 표시합니다.
 - `semanticLabel`은 `label` 대신 trigger의 이름이 되고, `inline` picker에서는 그룹의 이름이 됩니다. 보이는 label을 둘 자리가 없는 picker를 위한 것입니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 - 리모컨 D-pad인 `NavigationMode.directional`에서는 레일이 <kbd>←</kbd>와 <kbd>→</kbd>에만 반응하고, <kbd>↑</kbd>와 <kbd>↓</kbd>는 위아래 컨트롤로 포커스를 옮깁니다. 축이 둘인 사각형은 네 방향을 모두 씁니다.
 - 거기서 색상 레일은 감기지 않고 양 끝에서 멈춥니다. 그래서 빨강을 넘는 화살표는 색상환을 끝없이 돌지 않고 포커스를 다음으로 옮깁니다.
 - `NavigationMode.directional`에서는 값 field에서도 화살표 키로 떠날 수 있습니다. <kbd>↑</kbd>와 <kbd>↓</kbd>는 곧바로, <kbd>←</kbd>와 <kbd>→</kbd>는 캐럿이 글자의 처음이나 끝에 있을 때 떠납니다.

@@ -165,6 +165,7 @@ tick은 컨트롤 높이에서 한 단계 내린 값이 아니라 자기 사다�
 - `indeterminate`는 mixed로 읽히고, 색 없이도 그것을 말해 주는 것이 체크가 아닌 대시입니다.
 - <kbd>Enter</kbd>, <kbd>Space</kbd>, 넘패드 <kbd>Enter</kbd>가 체크합니다. focus ring은 CSS가 `:focus-visible`이라고 부르는 것. 키보드가 컨트롤에 닿았을 때에만 나타나고 포인터 클릭에는 절대 나타나지 않습니다.
 - `label`이 없는 checkbox에는 `semanticLabel`이 필요합니다. 옆에 아무것도 없는 박스는 아무도 이름을 붙일 수 없습니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 checkbox를 찾을 수 있습니다.
 
 :::
 

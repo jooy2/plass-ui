@@ -202,6 +202,7 @@ Both are sized against the label rather than against the row. An icon-only segme
 - Under `NavigationMode.directional`, a remote's D-pad, the arrows are also the only way out of the set, so they stop at either end, and an arrow that moves nothing, past an end or in a set that cannot be changed, moves the focus to the next control that way. Only <kbd>←</kbd> and <kbd>→</kbd> change the choice there; <kbd>↑</kbd> and <kbd>↓</kbd> move the focus to the control above or below at once.
 - A segment's focus ring turns **inward**, because a ring drawn outside one inside a groove would be painted over its neighbours.
 - Give the set a `semanticLabel`. It has no visible label of its own.
+- Inside a [`PlFieldset`](./fieldset), include the legend's words in the `semanticLabel`, so a reader who says them to a voice-control tool still reaches the set.
 
 :::
 

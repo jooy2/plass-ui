@@ -231,6 +231,7 @@ Moves the box's padding and the text inside it. The padding has its own ladder r
 
 - The box is announced as a button, so it is in the focus order and answers <kbd>Enter</kbd> and <kbd>Space</kbd>. Whatever drop handling an app adds is an addition to that, never the only way in.
 - The button is named by `label` first and by its own `title` and `hint` after, so two pickers on one screen are not read out the same. A `semanticLabel` takes the label's place in that name, visible `label` or not, and the drawn label is then not read a second time.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the picker.
 - The file list is outside the box, because a remove button inside a button is a press that fires twice.
 - Each remove button carries a name that includes the file it removes, so a screen reader hears three different buttons rather than three called "Remove".
 - Why files were turned away is a live region, so it is read after whatever the reader was already being told rather than cutting in. It does not mark the field invalid: what was rejected never reached the value.

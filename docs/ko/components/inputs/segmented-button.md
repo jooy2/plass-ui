@@ -206,6 +206,7 @@ PlSegmentedButton<String>(
 - focus ring은 **안쪽으로** 그려집니다. 홈 안의 세그먼트에 바깥쪽 ring을 그리면 이웃 위에 덧칠됩니다.
 - 타일은 측정된 사각형을 애니메이션합니다. 빈 상자라서 이동하는 동안 다시 샘플링되는 글자가 없습니다.
 - 묶음에 `semanticLabel`을 주세요. 눈에 보이는 자기 라벨이 없습니다.
+- [`PlFieldset`](./fieldset) 안에서는 `semanticLabel`에 legend의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 묶음을 찾을 수 있습니다.
 
 :::
 

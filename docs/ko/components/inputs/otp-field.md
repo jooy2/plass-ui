@@ -202,6 +202,7 @@ PlOtpField(
 ::: fw flutter
 
 - 줄 전체가 코드를 값으로 들고 있는 텍스트 필드 시맨틱 노드 하나입니다. 상자는 그 값의 그림이고 시맨틱에서 완전히 빠지므로, 스크린 리더는 빈 사각형을 세는 대신 코드를 읽습니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 필드를 찾을 수 있습니다.
 - 편집기가 `AutofillHints.oneTimeCode`를 들고 있어서, 휴대폰이 메시지에서 코드를 바로 제안합니다.
 - 링은 다음 키가 떨어질 칸에 그려지고, focus-visible이 아니라 focus를 따릅니다. 다른 패키지에서와 같은 이유입니다.
 - 리모컨 D-pad인 `NavigationMode.directional`에서는 <kbd>↑</kbd>와 <kbd>↓</kbd>가 field를 떠나고, <kbd>←</kbd>와 <kbd>→</kbd>는 캐럿이 첫 칸이나 마지막 칸을 지났을 때 떠납니다.

@@ -202,6 +202,7 @@ Rejected characters go through a formatter of the component's own rather than Fl
 ::: fw flutter
 
 - The row is one text-field semantics node carrying the code as its value. The boxes are a drawing of that value and are excluded from semantics entirely, so a screen reader reads the code rather than counting empty rectangles.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the field.
 - The editor carries `AutofillHints.oneTimeCode`, so a phone offers the code straight from the message.
 - The ring is drawn on the slot the next keystroke lands in, and it follows focus rather than focus-visible, for the reason it does in the other package.
 - Under `NavigationMode.directional`, a remote's D-pad, <kbd>↑</kbd> and <kbd>↓</kbd> leave the field, and <kbd>←</kbd> and <kbd>→</kbd> leave it once the caret is past the first or the last box.

@@ -226,6 +226,7 @@ The shell is a `PlTextField`'s, to the pixel. A form where the quantity box is a
 - The arrow keys are bound **inside** the field, closer to the editor than an app's own text-editing shortcuts, which is what keeps the up arrow moving the number rather than the caret.
 - `allowWheelScrub` is off by default, and even on it wants the field focused _and_ the pointer over it. A page that scrolls under the pointer and a field that changes under it are the same gesture, and only one of them was meant.
 - The label, the description and the error are part of the component, so there is no `id` to wire and nothing to forget to wire.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the field.
 - Under `NavigationMode.directional`, a remote's D-pad, <kbd>↑</kbd> and <kbd>↓</kbd> step the number until it reaches an end of the range, and then move the focus that way; <kbd>←</kbd> and <kbd>→</kbd> leave the field once the caret is at the start or the end of the number.
 
 :::

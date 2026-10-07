@@ -220,6 +220,7 @@ The light going out, as everywhere else: the shape and the position stay, the sa
 ::: fw flutter
 
 - Announced as a slider, with the current value as its value, written in as many decimals as `step` has, or in the words `semanticValue` gives each thumb, such as "40%". Without a visible `label`, a fader in a bank of them, give it a `semanticLabel`.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the slider.
 - A screen reader's adjust gesture, the swipe up and down in VoiceOver and TalkBack, moves the slider by one `step`. Each end of a range is a slider of its own.
 - <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> move a thumb by one `step`, <kbd>PageUp</kbd> / <kbd>PageDown</kbd> by a tenth of the range, and <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends.
 - Under `NavigationMode.directional`, a remote's D-pad, only the arrows along the rail move a thumb, as they do on Material's slider; the others move the focus to the control beside it.

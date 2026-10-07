@@ -170,6 +170,12 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 ::: fw flutter
 
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
+
+:::
+
+::: fw flutter
+
 ## React 빌드와 다른 점
 
 | React | Flutter | 이유 |

@@ -203,6 +203,7 @@ picker는 **controlled**입니다. `value`와 `onChanged`를 함께 주고, `nul
 
 - 각 열은 자기 단위의 이름을 단 semantics container이고, 각 행은 자기가 뜻하는 것 전체로 읽힙니다: `14`가 아니라 `14 Hour`.
 - trigger는 시각을 label에 접어 넣는 대신 semantics **value**로 지닙니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 picker를 찾을 수 있습니다.
 - 열들 옆의 live region이 값이 바뀔 때마다 전체 시각을 읽어 줍니다.
 
 :::

@@ -165,6 +165,7 @@ It is a display state, not a value, pressing an indeterminate box ticks it.
 - `indeterminate` is announced as mixed, and the dash rather than the check is what says so without colour.
 - <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> tick it. The focus ring only appears on what CSS calls `:focus-visible`, a keyboard reaching the control, never a pointer clicking it.
 - A checkbox with no `label` needs a `semanticLabel`. A box with nothing beside it is a box nobody can name.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the checkbox.
 
 :::
 

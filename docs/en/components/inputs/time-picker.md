@@ -203,6 +203,7 @@ Because the popup stays up while the columns are being read, there has to be som
 
 - Each column is a semantics container named after its unit, and each row is announced with the whole of what it means, `14 Hour`, not `14`.
 - The trigger carries the time as its semantic **value** rather than folding it into its label.
+- Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the picker.
 - The live region beside the columns reads the whole time back whenever it changes.
 
 :::
