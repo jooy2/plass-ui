@@ -190,6 +190,7 @@ Left out, `children` makes the toggle go square around whatever icon it was give
 - Base UI renders a real `<button>` with `aria-pressed`, which is what says "this is a state" rather than "this does something".
 - A `PlToggleGroup` is one tab stop with the arrow keys moving between its members, which is what makes a toolbar of eight toggles two key presses deep instead of eight. `loopFocus` decides whether the arrows wrap at the ends.
 - An icon-only toggle needs an `aria-label`. Nothing else can name it.
+- An `aria-label` on a toggle that has words on it is its name in their place. Include those words in it, so a reader who says them to a voice-control tool still reaches the toggle.
 - `disabled` takes the toggle out of the tab order. A group's `disabled` does it to every member at once.
 - The pointer light is off while the toggle is disabled, so a surface nobody can press does not answer the pointer.
 
@@ -199,6 +200,7 @@ Left out, `children` makes the toggle go square around whatever icon it was give
 
 - The toggle is a `Semantics(button: true, toggled: …)`, which is the same claim `aria-pressed` makes on the other side.
 - A toggle with an icon and no label needs a `semanticLabel`. Nothing else can name it.
+- A `semanticLabel` on a toggle that has words on it is its name in their place. Include those words in it, so a reader who says them to a voice-control tool still reaches the toggle.
 - `disabled` takes the toggle out of the focus order and stops it answering the pointer at all. The light goes out with it.
 - Each toggle in a group is its own focus stop. There is no roving focus here, which is the one thing the React build has that this does not.
 

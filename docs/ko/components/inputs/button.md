@@ -274,6 +274,7 @@ PlButton(onPressed: save, child: const Text('Save'));
 - 기본적으로 네이티브 `<button>`을 렌더링합니다. `type`이 그대로 전달되므로 폼 안에서 `type="submit"`이 동작합니다.
 - `render`로 요소를 바꿔도 그 요소의 semantics는 유지됩니다. `<a href>`는 `role="button"`에 덮이지 않고 링크로 남습니다.
 - 아이콘만 있는 버튼에는 `aria-label`을 주세요.
+- 글자가 있는 버튼에 `aria-label`을 주면 그 글자 대신 이름이 됩니다. 그 글자를 `aria-label`에 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 버튼을 찾을 수 있습니다.
 - focus ring은 `:focus-visible`에서만 나타나므로 마우스 클릭으로는 그려지지 않습니다.
 - `loading`과 `readOnly`는 focus를 유지합니다. tab 순서에서 빠지면 키보드 사용자는 페이지에서 자기 위치를 잃습니다.
 - `loading`인 동안 버튼은 `aria-busy`이고, [어휘 묶음](../../guide/locales)의 `loading`(영어로는 "Loading")이 설명으로 붙습니다. 이름이 아니라 설명이므로 `aria-label`을 포함한 이름은 그대로이고, 직접 준 `aria-describedby`가 먼저 읽힙니다. `loadingLabel`을 주면 그 자리에 "Saving" 같은 버튼만의 말이 들어갑니다.
@@ -286,6 +287,7 @@ PlButton(onPressed: save, child: const Text('Save'));
 
 - 활성 여부와 무관하게 버튼으로 읽히며, 이름은 `child`에서 가져옵니다.
 - 아이콘만 있는 버튼에는 `semanticLabel`을 주세요.
+- 글자가 있는 버튼에 `semanticLabel`을 주면 그 글자 대신 이름이 됩니다. 그 글자를 `semanticLabel`에 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 버튼을 찾을 수 있습니다.
 - focus ring은 CSS가 `:focus-visible`이라 부르는 경우에만 나타납니다. 키보드로 도달했을 때만이고, 포인터로 클릭했을 때는 그려지지 않습니다. Flutter에서 같은 구분을 하는 것이 `FocusableActionDetector`의 focus highlight입니다.
 - <kbd>Enter</kbd>, <kbd>Space</kbd>, 그리고 숫자패드 <kbd>Enter</kbd>로 활성화됩니다. 버튼 자신에 바인딩되어 있어서 위에 앱 위젯이 있든 없든 동작이 같습니다.
 - `loading`과 `readOnly`는 focus를 유지합니다. 포커스 순서에서 빠지면 키보드 사용자는 페이지에서 자기 위치를 잃습니다.

@@ -274,6 +274,7 @@ The surface, the sizes and the press signature are unchanged. An `<a>` has no `d
 - Renders a native `<button>` by default. `type` passes through, so `type="submit"` works inside a form.
 - Changing the element with `render` keeps that element's semantics: an `<a href>` stays a link rather than being covered by `role="button"`.
 - Give icon-only buttons an `aria-label`.
+- An `aria-label` on a button that has words on it is its name in their place. Include those words in it, so a reader who says them to a voice-control tool still reaches the button.
 - The focus ring only appears on `:focus-visible`, so a mouse click never draws one.
 - `loading` and `readOnly` keep focus: dropping out of the tab order costs keyboard users their sense of the page.
 - While `loading`, the button is `aria-busy` and is described by the `loading` word from [the label set](../../guide/locales), "Loading" in English. It is a description, so the name, including an `aria-label`, stays as it is, and an `aria-describedby` of your own is read first. `loadingLabel` puts a word of the button's own in its place, such as "Saving".
@@ -286,6 +287,7 @@ The surface, the sizes and the press signature are unchanged. An `<a>` has no `d
 
 - Announced as a button, enabled or not, with its label read off its `child`.
 - Give icon-only buttons a `semanticLabel`.
+- A `semanticLabel` on a button that has words on it is its name in their place. Include those words in it, so a reader who says them to a voice-control tool still reaches the button.
 - The focus ring only appears on what CSS calls `:focus-visible`, a keyboard reaching the control, never a pointer clicking it. Flutter's name for the same distinction is `FocusableActionDetector`'s focus highlight.
 - <kbd>Enter</kbd>, <kbd>Space</kbd> and the numpad <kbd>Enter</kbd> activate the button. They are bound on the button itself, so it behaves the same with or without an app widget above it.
 - `loading` and `readOnly` keep focus: dropping out of the focus order costs keyboard users their sense of the page.
