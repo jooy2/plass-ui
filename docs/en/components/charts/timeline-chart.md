@@ -103,7 +103,7 @@ Both ends, unlike a [bar chart](./bar-chart), where the baseline end stays squar
 
 ## Accessibility
 
-- The drawing carries the chart's name, and what is on the plot is handed over as text, row by row.
+- The drawing carries the chart's name, and what is on the plot is handed over as text, row by row. A `reference` is read after the rows, by its `label` and the time it marks.
 - The picture is a tab stop, and <kbd>↑</kbd> and <kbd>↓</kbd> walk the spans in the order the data was written. Each span is announced in a live region as it is reached.
 - On React the same data is written into a table under the chart, **a row per span** rather than the grid every other chart uses. Two rows of a Gantt have no columns in common: the third thing on one row and the third thing on another are unrelated, and filing them side by side would invent a relationship.
 - A span that names itself is named in the readout, with its row on the second line rather than repeated on the first.

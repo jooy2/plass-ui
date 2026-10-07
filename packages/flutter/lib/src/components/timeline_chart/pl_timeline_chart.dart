@@ -271,6 +271,10 @@ class PlTimelineChart extends StatelessWidget {
         thickness: yAxis.thickness,
         format: yAxis.format ?? (double value) => ticksByValue[value] ?? '',
       ),
+      // An instant, written as the readout writes one, for whatever the frame
+      // writes on the time axis itself: a `reference` in the summary, which
+      // would otherwise be read as a count of milliseconds.
+      format: (double value) => formatTimeValue(value, scale.unit, names, withDate: withDate),
       // A Gantt's rows are its axis; a legend would restate them one per line.
       legend: const PlChartLegend(hidden: true),
       tooltip: tooltip,

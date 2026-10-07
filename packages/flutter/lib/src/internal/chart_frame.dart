@@ -699,7 +699,8 @@ class PlassCartesianChart extends StatefulWidget {
   /// Room above the tallest mark, for a value written over it.
   final double headroom;
 
-  /// How a value is written in a tooltip and on the axis.
+  /// How a value is written in a tooltip, on the axis, and in the summary,
+  /// a reference line's included.
   final String Function(double value)? format;
 
   /// What the whole drawing is called.
@@ -777,7 +778,8 @@ class PlassCartesianChart extends StatefulWidget {
   final ValueScale? scale;
 
   /// What a screen reader is handed in place of the drawing, for a chart whose
-  /// summary is not "each series and where it ended up".
+  /// summary is not "each series and where it ended up". The reference lines
+  /// are still read after it.
   ///
   /// Handed which series are on: the ones that did not start `hidden`, less
   /// whatever the reader has switched off in the legend since.
@@ -1712,9 +1714,11 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
         !identical(_saidFor, widget) ||
         !listEquals(_saidVisible, visible) ||
         _saidNames != names) {
-      _said =
+      final String own =
           widget.semanticValue?.call(visible) ??
           _summary(values, visible, categories, names, named: named);
+
+      _said = <String>[if (own.isNotEmpty) own, ..._references()].join('. ');
       _saidFor = widget;
       _saidVisible = visible;
       _saidNames = names;
@@ -1762,17 +1766,22 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
       parts.add(points.isEmpty ? name : '$name: ${points.join('; ')}');
     }
 
-    // A target is a fact about the picture rather than decoration on it, so a
-    // reader given the reading instead of the drawing is given the lines too.
-    // An unlabelled one is read by its value, which is all a sighted reader
-    // gets from it either.
+    return parts.join('. ');
+  }
+
+  /// Each reference line as the summary says it, after the chart's own words
+  /// whichever wrote them.
+  ///
+  /// A target is a fact about the picture rather than decoration on it, so a
+  /// reader given the reading instead of the drawing is given the lines too.
+  /// An unlabelled one is read by its value, which is all a sighted reader gets
+  /// from it either.
+  Iterable<String> _references() sync* {
     for (final PlassChartReference one in widget.reference) {
       final String said = _write(one.value);
 
-      parts.add(one.label == null ? said : '${one.label} $said');
+      yield one.label == null ? said : '${one.label} $said';
     }
-
-    return parts.join('. ');
   }
 }
 

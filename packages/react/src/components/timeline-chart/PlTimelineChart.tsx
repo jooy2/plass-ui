@@ -141,6 +141,13 @@ export function PlTimelineChart({
   // the tooltip and the table have to say it the same way.
   const withDate = timeNeedsDate(scale.ticks, scale.unit);
 
+  // An instant, written as the table writes one, for the description: each
+  // row's stretch, and a `reference`, which the frame writes itself.
+  const writeTime = React.useCallback(
+    (value: number) => formatTimeValue(value, scale.unit, locale, withDate),
+    [scale.unit, locale, withDate]
+  );
+
   const colors = React.useMemo(() => series.map((row, index) => seriesColor(row, index)), [series]);
 
   /* One synthetic series, with an entry per row.
@@ -186,18 +193,10 @@ export function PlTimelineChart({
 
         return {
           name: names[index],
-          said:
-            from > to
-              ? null
-              : `${formatTimeValue(from, scale.unit, locale, withDate)} – ${formatTimeValue(
-                  to,
-                  scale.unit,
-                  locale,
-                  withDate
-                )}`
+          said: from > to ? null : `${writeTime(from)} – ${writeTime(to)}`
         };
       }),
-    [spans, names, scale, locale, withDate]
+    [spans, names, scale, writeTime]
   );
 
   const thickness = barSize ?? barMaxThickness[size];
@@ -313,6 +312,7 @@ export function PlTimelineChart({
       marks={marks}
       markTooltip={markTooltip}
       summary={summary}
+      writeValue={writeTime}
       table={(id, name) => (
         <TimelineTable
           id={id}

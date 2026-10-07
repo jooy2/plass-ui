@@ -76,6 +76,35 @@ void main() {
       expect(node.value, contains('Build: Implementation Jan 8'));
     });
 
+    testWidgets('reads a reference after the spans, as a time', (WidgetTester tester) async {
+      await _pump(
+        tester,
+        PlTimelineChart(
+          semanticLabel: 'Plan',
+          series: <PlassTimelineSeries>[
+            PlassTimelineSeries(
+              name: 'Design',
+              data: <PlassTimelinePoint>[PlassTimelinePoint(start: _at(2), end: _at(6))],
+            ),
+          ],
+          reference: <PlassChartReference>[
+            PlassChartReference(
+              value: DateTime(2026, 1, 4).millisecondsSinceEpoch.toDouble(),
+              label: 'Freeze',
+            ),
+          ],
+        ),
+      );
+
+      // The summary is the chart's own, and the frame's reference reading used
+      // to be part of the summary it replaced, so the line was not read at all;
+      // and a reference written as a number is a count of milliseconds.
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Plan')).value,
+        'Design: Jan 2, 2026 – Jan 6, 2026. Freeze Jan 4, 2026',
+      );
+    });
+
     testWidgets('reads out the day with each time when the hours run over more than one day', (
       WidgetTester tester,
     ) async {

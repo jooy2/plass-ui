@@ -130,6 +130,20 @@ void main() {
       expect(node.value, contains('Q2: 12, 40; 26, 35'));
     });
 
+    testWidgets('reads a reference after the points', (WidgetTester tester) async {
+      await _pump(
+        tester,
+        PlScatterChart(
+          series: <PlassChartSeries>[
+            PlassChartSeries(name: 'Q1', data: <PlassChartDatum>[_at(1, 2), _at(3, 4)]),
+          ],
+          reference: const <PlassChartReference>[PlassChartReference(value: 3, label: 'Target')],
+        ),
+      );
+
+      expect(tester.getSemantics(find.bySemanticsLabel('Chart')).value, 'Q1: 1, 2; 3, 4. Target 3');
+    });
+
     testWidgets('leaves a point with no value out of the reading', (WidgetTester tester) async {
       await _pump(
         tester,

@@ -144,6 +144,28 @@ describe('PlTimelineChart', () => {
         .element(screen.getByRole('img', { name: 'Plan' }))
         .toHaveAccessibleDescription(/^Design .+, Build .+, Launch$/);
     });
+
+    it('reads a reference in its description as a time', async () => {
+      // Not as the number of milliseconds it is given as, "1.8T".
+      const screen = await render(
+        <PlTimelineChart
+          label="Plan"
+          series={[{ name: 'Design', data: [{ start: at(15), end: at(20) }] }]}
+          reference={{ value: at(15).getTime(), label: 'Freeze' }}
+        />
+      );
+      const table = screen.getByRole('table', { name: 'Plan' });
+
+      await expect.element(table).toBeInTheDocument();
+
+      const [start, end] = [...table.element().querySelectorAll('tbody td')].map(
+        (cell) => cell.textContent
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Plan' }))
+        .toHaveAccessibleDescription(`Design ${start} – ${end}, Freeze ${start}`);
+    });
   });
 
   describe('the time axis', () => {

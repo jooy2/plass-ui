@@ -1244,6 +1244,13 @@ interface CartesianProps extends CartesianChartProps {
    * series out as a number nobody wrote. The reference lines still follow it.
    */
   summary?: readonly ChartSummaryEntry[];
+  /**
+   * How a value on the value axis is written wherever the frame writes one
+   * itself, in place of `format`: a reference line in the description, for
+   * one. A timeline's value axis is a calendar, and an instant written as a
+   * number is a count of milliseconds nobody reads.
+   */
+  writeValue?: (value: number) => string;
   /** The legend's swatch, for a chart whose marks are not all the same shape. */
   swatch?: (index: number, color: string) => React.ReactNode;
   /**
@@ -1347,6 +1354,7 @@ export function CartesianChart({
   markRadius = 24,
   table,
   summary: givenSummary,
+  writeValue,
   swatch,
   stroked = false,
   scale: givenScale,
@@ -1412,8 +1420,8 @@ export function CartesianChart({
      single time. The cache in `internal/format.ts` is keyed on what the options
      say instead, so it hits. */
   const formatValue = React.useCallback(
-    (value: number) => writeChartValue(value, format, locale),
-    [format, locale]
+    (value: number) => (writeValue ? writeValue(value) : writeChartValue(value, format, locale)),
+    [writeValue, format, locale]
   );
 
   const values = React.useMemo(() => toValues(series), [series]);
