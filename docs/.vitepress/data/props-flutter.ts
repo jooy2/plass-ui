@@ -4521,6 +4521,14 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         ko: '스크린 리더가 묶음을 부를 이름. 보이는 label의 자리를 대신합니다',
         en: "The name a screen reader gives the set, in the visible label's place"
       }
+    },
+    {
+      name: 'focusNode · autofocus',
+      type: 'FocusNode? · bool',
+      description: {
+        ko: '묶음의 focus stop 하나를 밖에서 제어하거나, 트리에 들어가면서 포커스를 가져갑니다',
+        en: "Drive the set's one focus stop from outside, or take the focus on insertion"
+      }
     }
   ],
 
