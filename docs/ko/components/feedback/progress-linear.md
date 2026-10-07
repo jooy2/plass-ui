@@ -159,6 +159,8 @@ React가 옵션 객체를 받는 자리에서 `formatValue`는 함수를 받습�
 ::: fw flutter
 
 - 바는 `SemanticsRole.progressBar`와 값을 지닌 하나의 병합된 semantics 노드입니다. 라벨과 바가 함께 읽히지, 이름 없는 indicator 옆에 이름만 떠 있지 않습니다.
+- `label`은 무엇이 진행 중인지를 말합니다. 보이는 `label`이 있든 없든 `semanticLabel`이 그 자리를 대신해 바의 이름이 되고, 그려진 label은 그때 한 번 더 읽히지 않습니다. 값은 어느 쪽이든 똑같이 읽힙니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 라벨을 보면서 이름을 듣는 사용자도 둘이 같은 바를 가리킨다는 것을 알 수 있습니다.
 - 값이 없으면 role은 `SemanticsRole.loadingSpinner`이고 값 자체가 없습니다. 그래야 플랫폼이 0이 아니라 "진행도를 알 수 없음"으로 읽어 줍니다.
 - 그려진 백분율은 `ExcludeSemantics` 뒤에 있습니다. 같은 문자열이 이미 노드의 값이고, 한 번만 들려야 합니다.
 - `MediaQuery.disableAnimations`에서는 조각이 이동을 멈추고 홈을 채운 채 숨을 쉽니다. 같은 대역, 같은 축입니다.
@@ -172,4 +174,5 @@ React가 옵션 객체를 받는 자리에서 `formatValue`는 함수를 받습�
 | `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | 프레임워크에 `Intl.NumberFormat`이 없고, 그것을 위해 `package:intl`을 끌어오는 것은 소비자 대신 의존성을 정하는 일입니다. |
 | `label: ReactNode`, `min`/`max`/`value`가 `number` | `Widget?`와 `double` | 같은 것을 Dart가 부르는 이름입니다. |
 | 조각이 `translate`로 이동하고, RTL에서는 스타일시트가 부호를 뒤집음 | 방향성 `Alignment`로 이동 | `translate`는 프레임마다 페이지 레이아웃을 다시 잡지 않고 조각을 옮기지만, CSS에는 논리 `translate`가 없어서 방향을 직접 뒤집습니다. `Alignment`는 주변 방향에 맞춰 알아서 풀립니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |

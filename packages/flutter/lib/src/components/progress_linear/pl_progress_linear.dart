@@ -45,6 +45,7 @@ class PlProgressLinear extends StatefulWidget {
     this.formatValue,
     this.size,
     this.color,
+    this.semanticLabel,
     super.key,
   });
 
@@ -91,6 +92,13 @@ class PlProgressLinear extends StatefulWidget {
 
   /// Semantic colour role. It becomes the gradient of the filled part.
   final PlassColor? color;
+
+  /// The name a screen reader announces, for a bar with no visible [label].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it. The value, or the indeterminate
+  /// state, is read as it is either way.
+  final String? semanticLabel;
 
   @override
   State<PlProgressLinear> createState() => _PlProgressLinearState();
@@ -205,12 +213,17 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
               children: <Widget>[
                 if (widget.label != null)
                   Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: TextStyle(color: tokens.fg, fontSize: meta),
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                      child: widget.label!,
+                    // A `semanticLabel` is the name in its place, so the drawn
+                    // words are then not read after it.
+                    child: ExcludeSemantics(
+                      excluding: widget.semanticLabel != null,
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(color: tokens.fg, fontSize: meta),
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        child: widget.label!,
+                      ),
                     ),
                   ),
                 if (widget.showValue && text != null) ...<Widget>[
@@ -240,6 +253,9 @@ class _PlProgressLinearState extends State<PlProgressLinear> with SingleTickerPr
         // `null` is not an omission: with no value the platform is told to
         // announce indeterminate progress rather than a number.
         role: fraction == null ? SemanticsRole.loadingSpinner : SemanticsRole.progressBar,
+        // A `semanticLabel` names the bar in its label's place, as an
+        // `aria-label` names the React one.
+        label: widget.semanticLabel,
         value: progressSemanticValue(fraction, widget.formatValue, value),
         container: true,
         child: Column(

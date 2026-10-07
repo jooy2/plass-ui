@@ -187,3 +187,10 @@ Four steps rather than a hundred, which is what `min` and `max` are for.
 - Include the visible label's words in an `aria-label`, so a reader who sees the label and hears the name can tell both belong to the same meter.
 
 :::
+
+::: fw flutter
+
+- A `semanticLabel` names the meter in the `label`'s place, visible `label` or not, and the drawn label is then not read a second time. The value is read the same either way.
+- Include the visible label's words in a `semanticLabel`, so a reader who sees the label and hears the name can tell both belong to the same meter.
+
+:::

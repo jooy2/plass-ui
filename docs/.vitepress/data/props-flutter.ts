@@ -117,6 +117,19 @@ const formatValueProp: PropRow = {
 };
 
 /**
+ * The indicators' name in the label's place, which React takes as an
+ * `aria-label` on the root and so has no prop row for.
+ */
+const indicatorSemanticLabelProp: PropRow = {
+  name: 'semanticLabel',
+  type: 'String?',
+  description: {
+    ko: '스크린 리더가 indicator를 부를 이름. 보이는 label의 자리를 대신하고, 값은 그대로 함께 읽힙니다',
+    en: "The name a screen reader gives the indicator, in the visible label's place. The value is still read with it"
+  }
+};
+
+/**
  * The picker parameters with no React counterpart at all.
  *
  * `names` and `formatValue` are the localisation trade — there is no `Intl` in
@@ -4423,7 +4436,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressBox', 'showValue', { type: 'bool', default: 'false' }),
     formatValueProp,
     from('PlProgressBox', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
-    from('PlProgressBox', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
+    from('PlProgressBox', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    indicatorSemanticLabelProp
   ],
 
   /**
@@ -4445,7 +4459,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
         en: "The ring's diameter in logical pixels, for a ring larger than the ladder goes. It takes the place of size's diameter and the stroke follows it; the gap and the text still follow size. It has to be a finite number above zero, which the constructor asserts"
       }
     }),
-    from('PlProgressCircular', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
+    from('PlProgressCircular', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    indicatorSemanticLabelProp
   ],
 
   PlMeter: [
@@ -4457,7 +4472,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     formatValueProp,
     from('PlMeter', 'thresholds', { type: 'List<PlMeterThreshold>?' }),
     from('PlMeter', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
-    from('PlMeter', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
+    from('PlMeter', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    indicatorSemanticLabelProp
   ],
 
   PlMeterThreshold: [
@@ -4473,7 +4489,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlProgressLinear', 'showValue', { type: 'bool', default: 'false' }),
     formatValueProp,
     from('PlProgressLinear', 'size', { type: `${SIZE}?`, default: 'PlassSize.md' }),
-    from('PlProgressLinear', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' })
+    from('PlProgressLinear', 'color', { type: `${COLOR}?`, default: 'PlassColor.primary' }),
+    indicatorSemanticLabelProp
   ],
 
   PlRadioGroup: [

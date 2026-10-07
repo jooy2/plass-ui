@@ -63,6 +63,7 @@ class PlMeter extends StatelessWidget {
     this.thresholds,
     this.size,
     this.color,
+    this.semanticLabel,
     super.key,
   });
 
@@ -109,6 +110,13 @@ class PlMeter extends StatelessWidget {
 
   /// The family the bar takes where no threshold applies.
   final PlassColor? color;
+
+  /// The name a screen reader announces, for a meter with no visible [label].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it. The value is read as it is
+  /// either way.
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -164,12 +172,17 @@ class PlMeter extends StatelessWidget {
               children: <Widget>[
                 if (label != null)
                   Expanded(
-                    child: DefaultTextStyle.merge(
-                      style: TextStyle(color: tokens.fg, fontSize: meta),
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                      child: label!,
+                    // A `semanticLabel` is the name in its place, so the drawn
+                    // words are then not read after it.
+                    child: ExcludeSemantics(
+                      excluding: semanticLabel != null,
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(color: tokens.fg, fontSize: meta),
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        child: label!,
+                      ),
                     ),
                   ),
                 if (showValue) ...<Widget>[
@@ -201,6 +214,9 @@ class PlMeter extends StatelessWidget {
     // platforms actually read out either way.
     return MergeSemantics(
       child: Semantics(
+        // A `semanticLabel` names the meter in its label's place, as an
+        // `aria-label` names the React one.
+        label: semanticLabel,
         value: text,
         container: true,
         child: Column(

@@ -45,6 +45,7 @@ class PlProgressCircular extends StatefulWidget {
     this.size,
     this.diameter,
     this.color,
+    this.semanticLabel,
     super.key,
   }) : assert(
          diameter == null || (diameter > 0 && diameter < double.infinity),
@@ -85,6 +86,13 @@ class PlProgressCircular extends StatefulWidget {
 
   /// Semantic colour role. It becomes the gradient of the arc.
   final PlassColor? color;
+
+  /// The name a screen reader announces, for a ring with no visible [label].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it. The value, or the indeterminate
+  /// state, is read as it is either way.
+  final String? semanticLabel;
 
   @override
   State<PlProgressCircular> createState() => _PlProgressCircularState();
@@ -198,6 +206,9 @@ class _PlProgressCircularState extends State<PlProgressCircular>
     return MergeSemantics(
       child: Semantics(
         role: fraction == null ? SemanticsRole.loadingSpinner : SemanticsRole.progressBar,
+        // A `semanticLabel` names the ring in its label's place, as an
+        // `aria-label` names the React one.
+        label: widget.semanticLabel,
         value: progressSemanticValue(fraction, widget.formatValue, value),
         container: true,
         child: Row(
@@ -208,12 +219,17 @@ class _PlProgressCircularState extends State<PlProgressCircular>
             ring,
             if (widget.label != null)
               Flexible(
-                child: DefaultTextStyle.merge(
-                  style: TextStyle(color: tokens.fg, fontSize: meta),
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  child: widget.label!,
+                // A `semanticLabel` is the name in its place, so the drawn
+                // words are then not read after it.
+                child: ExcludeSemantics(
+                  excluding: widget.semanticLabel != null,
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(color: tokens.fg, fontSize: meta),
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    child: widget.label!,
+                  ),
                 ),
               ),
             if (widget.showValue && text != null)

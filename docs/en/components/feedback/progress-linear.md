@@ -159,6 +159,8 @@ With it, the number goes straight to `Intl.NumberFormat`, so bytes, currencies a
 ::: fw flutter
 
 - The bar is one merged semantics node carrying `SemanticsRole.progressBar` and its value, so the label and the bar are read together rather than as a name floating beside an unnamed indicator.
+- `label` names what is loading. A `semanticLabel` names the bar in its place, visible `label` or not, and the drawn label is then not read a second time. The value is read the same either way.
+- Include the visible label's words in a `semanticLabel`, so a reader who sees the label and hears the name can tell both belong to the same bar.
 - With no value the role is `SemanticsRole.loadingSpinner` and there is no value at all, which is what tells the platform to announce indeterminate progress rather than zero.
 - The drawn percentage is behind `ExcludeSemantics`: the same string is already the node's value, and it should be heard once.
 - With `MediaQuery.disableAnimations` the segment stops travelling, fills the groove and breathes instead, the same stand-in, on the same axis.
@@ -172,4 +174,5 @@ With it, the number goes straight to `Intl.NumberFormat`, so bytes, currencies a
 | `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | There is no `Intl.NumberFormat` in the framework, and pulling `package:intl` in to provide one would be a dependency decision made on the consumer's behalf. |
 | `label: ReactNode`, and `min`/`max`/`value` are `number` | `Widget?` and `double` | Dart's own names for the same things. |
 | the segment travels on `translate`, and the stylesheet turns its sign round under RTL | it travels on a directional `Alignment` | A `translate` moves the segment without laying the page out again on every frame, but CSS has no logical one, so the direction is flipped by hand. An `Alignment` resolves against the ambient direction on its own. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |

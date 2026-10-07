@@ -200,6 +200,8 @@ The size ladder is what this is for: an `xs` ring in a table cell is fourteen pi
 ::: fw flutter
 
 - The ring is one merged semantics node carrying `SemanticsRole.progressBar` and its value, so the label and the ring are read together.
+- `label` names what is loading. A `semanticLabel` names the ring in its place, visible `label` or not, and the drawn label is then not read a second time. The value is read the same either way.
+- Include the visible label's words in a `semanticLabel`, so a reader who sees the label and hears the name can tell both belong to the same ring.
 - With no value the role is `SemanticsRole.loadingSpinner` and there is no value at all, which is what tells the platform to announce indeterminate progress.
 - The drawn percentage is behind `ExcludeSemantics`: the same string is already the node's value.
 - With `MediaQuery.disableAnimations` the ring is slowed rather than stopped.
@@ -212,4 +214,5 @@ The size ladder is what this is for: an `xs` ring in a table cell is fourteen pi
 | --- | --- | --- |
 | `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | There is no `Intl.NumberFormat` in the framework, and pulling `package:intl` in to provide one would be a dependency decision made on the consumer's behalf. |
 | an `<svg>` with a `<linearGradient>` | a `CustomPainter` with a `ui.Gradient` shader | Same two stops, same 135°; a stroke takes a shader rather than a decoration. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |

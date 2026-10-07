@@ -151,6 +151,8 @@ The plate's own ladder, which is the tick ladder a [`PlCheckbox`](../inputs/chec
 ::: fw flutter
 
 - The row is one merged semantics node carrying `SemanticsRole.progressBar` and its value, so the label and the plates are read together. The plates themselves add nothing: they are the drawing.
+- `label` names what is loading. A `semanticLabel` names the row in its place, visible `label` or not, and the drawn label is then not read a second time. The value is read the same either way.
+- Include the visible label's words in a `semanticLabel`, so a reader who sees the label and hears the name can tell both belong to the same row.
 - With no value the role is `SemanticsRole.loadingSpinner` and there is no value at all, which is what tells the platform to announce indeterminate progress.
 - The drawn percentage is behind `ExcludeSemantics`: the same string is already the node's value.
 - With `MediaQuery.disableAnimations` the wave is slowed rather than stopped.
@@ -164,4 +166,5 @@ The plate's own ladder, which is the tick ladder a [`PlCheckbox`](../inputs/chec
 | `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | There is no `Intl.NumberFormat` in the framework, and pulling `package:intl` in to provide one would be a dependency decision made on the consumer's behalf. |
 | a fractional `count` is floored | `count` is an `int` | Dart's type says it, so nothing has to round. Anything below one is still one. |
 | the wave is a keyframe on each plate's own delay | one controller the plates read at their own phase | Same wave, and one ticker per row rather than one per plate. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |

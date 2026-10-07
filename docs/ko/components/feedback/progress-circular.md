@@ -200,6 +200,8 @@ stroke는 decoration이 아니라 `Shader`를 받으므로, 패키지의 나머�
 ::: fw flutter
 
 - 링은 `SemanticsRole.progressBar`와 값을 지닌 하나의 병합된 semantics 노드입니다. 라벨과 링이 함께 읽힙니다.
+- `label`은 무엇이 진행 중인지를 말합니다. 보이는 `label`이 있든 없든 `semanticLabel`이 그 자리를 대신해 링의 이름이 되고, 그려진 label은 그때 한 번 더 읽히지 않습니다. 값은 어느 쪽이든 똑같이 읽힙니다.
+- `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 라벨을 보면서 이름을 듣는 사용자도 둘이 같은 링을 가리킨다는 것을 알 수 있습니다.
 - 값이 없으면 role은 `SemanticsRole.loadingSpinner`이고 값 자체가 없습니다. 그래야 플랫폼이 진행도를 알 수 없다고 읽어 줍니다.
 - 그려진 백분율은 `ExcludeSemantics` 뒤에 있습니다. 같은 문자열이 이미 노드의 값입니다.
 - `MediaQuery.disableAnimations`에서는 링을 멈추는 대신 느리게 합니다.
@@ -212,4 +214,5 @@ stroke는 decoration이 아니라 `Shader`를 받으므로, 패키지의 나머�
 | --- | --- | --- |
 | `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | 프레임워크에 `Intl.NumberFormat`이 없고, 그것을 위해 `package:intl`을 끌어오는 것은 소비자 대신 의존성을 정하는 일입니다. |
 | `<linearGradient>`가 붙은 `<svg>` | `ui.Gradient` shader를 쓰는 `CustomPainter` | 같은 두 stop, 같은 135°. stroke는 decoration이 아니라 shader를 받습니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |

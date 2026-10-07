@@ -186,6 +186,53 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('is named by semanticLabel in the label\'s place, and by its label without one', (
+        WidgetTester tester,
+      ) async {
+        final SemanticsHandle handle = tester.ensureSemantics();
+
+        await _pump(
+          tester,
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const PlMeter(value: 3, max: 4, semanticLabel: 'Disk used'),
+              PlMeter(
+                value: 18,
+                label: const Text('Documents'),
+                showValue: true,
+                formatValue: (double value) => '${value.toStringAsFixed(0)} of 100 GB',
+                semanticLabel: 'Documents on the disk',
+              ),
+              const PlMeter(value: 40, label: Text('Photos')),
+              const PlMeter(value: 60),
+            ],
+          ),
+        );
+
+        // With no visible label, the meter has no other name.
+        expect(
+          tester.getSemantics(find.byType(PlMeter).at(0)),
+          matchesSemantics(label: 'Disk used', value: '75%'),
+        );
+        // The label's words are not read a second time after the name that took
+        // their place, and the value is the one that is drawn.
+        expect(
+          tester.getSemantics(find.byType(PlMeter).at(1)),
+          matchesSemantics(label: 'Documents on the disk', value: '18 of 100 GB'),
+        );
+        expect(
+          tester.getSemantics(find.byType(PlMeter).at(2)),
+          matchesSemantics(label: 'Photos', value: '40%'),
+        );
+        expect(
+          tester.getSemantics(find.byType(PlMeter).at(3)),
+          matchesSemantics(label: '', value: '60%'),
+        );
+
+        handle.dispose();
+      });
     });
   });
 }

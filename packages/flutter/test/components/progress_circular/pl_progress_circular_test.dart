@@ -370,6 +370,75 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('is named by semanticLabel in the label\'s place, and by its label without one', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const PlProgressCircular(value: 62, semanticLabel: 'Syncing contacts'),
+                PlProgressCircular(
+                  value: 3,
+                  max: 5,
+                  label: const Text('Syncing'),
+                  showValue: true,
+                  formatValue: (double value) => '${value.toStringAsFixed(0)} of 5 folders',
+                  semanticLabel: 'Syncing contacts',
+                ),
+                const PlProgressCircular(value: 40, label: Text('Syncing')),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+
+        // With no visible label, the ring has no other name.
+        final SemanticsData alone = _merged(tester, find.byType(PlProgressCircular).at(0));
+
+        expect(alone.label, equals('Syncing contacts'));
+        expect(alone.value, equals('62%'));
+        expect(alone.role, equals(SemanticsRole.progressBar));
+
+        // The label's words are not read a second time after the name that took
+        // their place, and the value is the one that is drawn.
+        final SemanticsData beside = _merged(tester, find.byType(PlProgressCircular).at(1));
+
+        expect(beside.label, equals('Syncing contacts'));
+        expect(beside.value, equals('3 of 5 folders'));
+        expect(beside.role, equals(SemanticsRole.progressBar));
+
+        final SemanticsData unnamed = _merged(tester, find.byType(PlProgressCircular).at(2));
+
+        expect(unnamed.label, equals('Syncing'));
+        expect(unnamed.value, equals('40%'));
+
+        handle.dispose();
+      });
+
+      testWidgets('is named by semanticLabel while it is indeterminate', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const PlProgressCircular(label: Text('Loading'), semanticLabel: 'Loading the inbox'),
+            width: 320,
+          ),
+        );
+
+        final SemanticsData node = _merged(tester, find.byType(PlProgressCircular));
+
+        expect(node.label, equals('Loading the inbox'));
+        expect(node.role, equals(SemanticsRole.loadingSpinner));
+        expect(node.value, isEmpty);
+
+        handle.dispose();
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
     });
   });
 }

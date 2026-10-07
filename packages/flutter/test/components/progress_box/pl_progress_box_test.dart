@@ -280,6 +280,76 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('is named by semanticLabel in the label\'s place, and by its label without one', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const PlProgressBox(value: 62, semanticLabel: 'Deploying the site'),
+                PlProgressBox(
+                  value: 3,
+                  max: 5,
+                  count: 5,
+                  label: const Text('Deploying'),
+                  showValue: true,
+                  formatValue: (double value) => 'Step ${value.toStringAsFixed(0)} of 5',
+                  semanticLabel: 'Deploying the site',
+                ),
+                const PlProgressBox(value: 40, label: Text('Deploying')),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+
+        // With no visible label, the row has no other name.
+        final SemanticsData alone = _merged(tester, find.byType(PlProgressBox).at(0));
+
+        expect(alone.label, equals('Deploying the site'));
+        expect(alone.value, equals('62%'));
+        expect(alone.role, equals(SemanticsRole.progressBar));
+
+        // The label's words are not read a second time after the name that took
+        // their place, and the value is the one that is drawn.
+        final SemanticsData beside = _merged(tester, find.byType(PlProgressBox).at(1));
+
+        expect(beside.label, equals('Deploying the site'));
+        expect(beside.value, equals('Step 3 of 5'));
+        expect(beside.role, equals(SemanticsRole.progressBar));
+
+        final SemanticsData unnamed = _merged(tester, find.byType(PlProgressBox).at(2));
+
+        expect(unnamed.label, equals('Deploying'));
+        expect(unnamed.value, equals('40%'));
+
+        handle.dispose();
+      });
+
+      testWidgets('is named by semanticLabel while it is indeterminate', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const PlProgressBox(label: Text('Working'), semanticLabel: 'Building the bundle'),
+            width: 320,
+          ),
+        );
+
+        final SemanticsData node = _merged(tester, find.byType(PlProgressBox));
+
+        expect(node.label, equals('Building the bundle'));
+        expect(node.role, equals(SemanticsRole.loadingSpinner));
+        expect(node.value, isEmpty);
+
+        handle.dispose();
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
     });
   });
 }

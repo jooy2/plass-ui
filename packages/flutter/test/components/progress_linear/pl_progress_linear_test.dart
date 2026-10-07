@@ -326,6 +326,75 @@ void main() {
 
         handle.dispose();
       });
+
+      testWidgets('is named by semanticLabel in the label\'s place, and by its label without one', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const PlProgressLinear(value: 62, semanticLabel: 'Uploading photos'),
+                PlProgressLinear(
+                  value: 3,
+                  max: 5,
+                  label: const Text('Uploading'),
+                  showValue: true,
+                  formatValue: (double value) => '${value.toStringAsFixed(0)} of 5 files',
+                  semanticLabel: 'Uploading photos',
+                ),
+                const PlProgressLinear(value: 40, label: Text('Uploading')),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+
+        // With no visible label, the bar has no other name.
+        final SemanticsData alone = merged(tester, find.byType(PlProgressLinear).at(0));
+
+        expect(alone.label, equals('Uploading photos'));
+        expect(alone.value, equals('62%'));
+        expect(alone.role, equals(SemanticsRole.progressBar));
+
+        // The label's words are not read a second time after the name that took
+        // their place, and the value is the one that is drawn.
+        final SemanticsData beside = merged(tester, find.byType(PlProgressLinear).at(1));
+
+        expect(beside.label, equals('Uploading photos'));
+        expect(beside.value, equals('3 of 5 files'));
+        expect(beside.role, equals(SemanticsRole.progressBar));
+
+        final SemanticsData unnamed = merged(tester, find.byType(PlProgressLinear).at(2));
+
+        expect(unnamed.label, equals('Uploading'));
+        expect(unnamed.value, equals('40%'));
+
+        handle.dispose();
+      });
+
+      testWidgets('is named by semanticLabel while it is indeterminate', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            const PlProgressLinear(label: Text('Working'), semanticLabel: 'Saving the draft'),
+            width: 320,
+          ),
+        );
+
+        final SemanticsData node = merged(tester, find.byType(PlProgressLinear));
+
+        expect(node.label, equals('Saving the draft'));
+        expect(node.role, equals(SemanticsRole.loadingSpinner));
+        expect(node.value, isEmpty);
+
+        handle.dispose();
+        await tester.pumpWidget(host(const SizedBox.shrink()));
+      });
     });
   });
 }
