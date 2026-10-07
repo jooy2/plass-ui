@@ -177,7 +177,7 @@ PlassTheme.merge(
 
 ::: fw react
 
-The merge is per key, so a provider that sets four words leaves the other hundred and four English, and a provider nested inside another one replaces what it names and inherits the rest.
+The merge is per key, so a provider that sets four words leaves the other hundred and five English, and a provider nested inside another one replaces what it names and inherits the rest.
 
 Reading what is in scope, for a component of your own that has to line up with the ones around it:
 
