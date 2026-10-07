@@ -151,8 +151,8 @@ const pickerHandleProps: PropRow[] = [
     name: 'semanticLabel',
     type: 'String?',
     description: {
-      ko: '보이는 label이 없는 trigger를 스크린 리더가 부를 이름',
-      en: 'The name a screen reader gives a trigger with no visible label'
+      ko: '스크린 리더가 trigger를 부를 이름. 보이는 label의 자리를 대신하고, 보이는 label이 없는 trigger에서는 그 이름이 됩니다',
+      en: "The name a screen reader gives the trigger, in the visible label's place, or for a trigger with no visible label"
     }
   },
   {
@@ -1240,8 +1240,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '보이는 label이 없는 checkbox를 스크린 리더가 부를 이름',
-        en: 'The name a screen reader announces, for a checkbox with no visible label'
+        ko: '스크린 리더가 부를 이름. 보이는 label의 자리를 대신하고, 보이는 label이 없는 checkbox에서는 그 이름이 됩니다',
+        en: "The name a screen reader announces, in the visible label's place, or for a checkbox with no visible label"
       }
     }
   ],
@@ -1322,8 +1322,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '보이는 label이 없는 trigger를, inline이면 패널이 놓인 그룹을 스크린 리더가 부를 이름',
-        en: 'The name a screen reader gives a trigger with no visible label, or the group an inline panel sits in'
+        ko: '스크린 리더가 trigger를, inline이면 패널이 놓인 그룹을 부를 이름. 보이는 label의 자리를 대신합니다',
+        en: "The name a screen reader gives the trigger, or the group an inline panel sits in, in the visible label's place"
       }
     }
   ],
@@ -1412,8 +1412,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '보이는 label이 없는 field를 스크린 리더가 부를 이름',
-        en: 'The name a screen reader gives a field with no visible label'
+        ko: '스크린 리더가 부를 이름. 보이는 label의 자리를 대신하고, 보이는 label이 없는 field에서는 그 이름이 됩니다',
+        en: "The name a screen reader gives the field, in the visible label's place, or for a field with no visible label"
       }
     },
     {
@@ -2752,8 +2752,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '보이는 label이 없는 trigger를 스크린 리더가 부를 이름',
-        en: 'The name a screen reader gives a trigger with no visible label'
+        ko: '스크린 리더가 trigger를 부를 이름. 보이는 label의 자리를 대신하고, 보이는 label이 없는 trigger에서는 그 이름이 됩니다',
+        en: "The name a screen reader gives the trigger, in the visible label's place, or for a trigger with no visible label"
       }
     },
     {
@@ -4172,8 +4172,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: 'field를 스크린 리더가 부를 이름',
-        en: 'The name a screen reader gives the field'
+        ko: 'field를 스크린 리더가 부를 이름. 보이는 label의 자리를 대신합니다',
+        en: "The name a screen reader gives the field, in the visible label's place"
       }
     },
     {
@@ -4701,8 +4701,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: 'select를 스크린 리더가 부를 이름. 생략하면 Text인 label의 글자가 쓰입니다',
-        en: 'The name a screen reader gives the select. Left out, the words of a Text label are used'
+        ko: 'select를 스크린 리더가 부를 이름. 보이는 label의 자리를 대신하고, 생략하면 Text인 label의 글자가 쓰입니다',
+        en: "The name a screen reader gives the select, in the visible label's place. Left out, the words of a Text label are used"
       }
     },
     {
@@ -4923,8 +4923,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '보이는 label이 없는 슬라이더를 스크린 리더가 부를 이름',
-        en: 'The name a screen reader announces, for a slider with no visible label'
+        ko: '스크린 리더가 부를 이름. 보이는 label의 자리를 대신하고, 보이는 label이 없는 슬라이더에서는 그 이름이 됩니다',
+        en: "The name a screen reader announces, in the visible label's place, or for a slider with no visible label"
       }
     }
   ],
@@ -4967,8 +4967,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '보이는 label이 없는 switch를 스크린 리더가 부를 이름',
-        en: 'The name a screen reader announces, for a switch with no visible label'
+        ko: '스크린 리더가 부를 이름. 보이는 label의 자리를 대신하고, 보이는 label이 없는 switch에서는 그 이름이 됩니다',
+        en: "The name a screen reader announces, in the visible label's place, or for a switch with no visible label"
       }
     }
   ],
@@ -5678,8 +5678,8 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       name: 'semanticLabel',
       type: 'String?',
       description: {
-        ko: '보이는 label이 없는 필드를 스크린 리더가 부를 이름. placeholder는 이름이 아닙니다',
-        en: 'The name a screen reader announces, for a field with no visible label. A placeholder is not a name'
+        ko: '스크린 리더가 부를 이름. 보이는 label의 자리를 대신하고, 보이는 label이 없는 필드에서는 그 이름이 됩니다. placeholder는 이름이 아닙니다',
+        en: "The name a screen reader announces, in the visible label's place, or for a field with no visible label. A placeholder is not a name"
       }
     },
     hotKeysProp
