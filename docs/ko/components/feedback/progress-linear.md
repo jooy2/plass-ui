@@ -35,7 +35,7 @@ PlProgressLinear(label: const Text('Uploading'), value: 62, showValue: true);
 
 ::: fw react
 
-나머지 `<div>` 속성은 그대로 통과합니다. `color`는 위 표의 `color`와 겹쳐서, `children`은 바가 아무것도 담지 않아서 제외했습니다.
+나머지 `<div>` 속성은 그대로 통과하고, `aria-label`과 `aria-labelledby`는 `label` 대신 바에 이름을 붙입니다. `color`는 위 표의 `color`와 겹쳐서, `children`은 바가 아무것도 담지 않아서 제외했습니다.
 
 :::
 
@@ -150,7 +150,8 @@ React가 옵션 객체를 받는 자리에서 `formatValue`는 함수를 받습�
 - Base UI가 `role="progressbar"`를 렌더링하고 `aria-valuenow` `aria-valuemin` `aria-valuemax`를 prop과 맞춰 둡니다.
 - indeterminate인 바는 0이 아니라 **값 자체를 보고하지 않습니다.** 그래야 스크린리더가 진행도를 알 수 없다고 읽어 줍니다.
 - `aria-valuetext`는 `showValue`가 그리는 문자열과 같습니다. 들리는 것과 읽히는 것이 한 문장입니다. `format`이 없으면 그건 100에 대한 것이 아니라 범위에 대한 백분율입니다.
-- `label`은 무엇이 진행 중인지를 말합니다. 라벨 없는 바는 스크린리더가 숫자로밖에 설명할 수 없는 바입니다.
+- `label`은 무엇이 진행 중인지를 말합니다. 라벨 없는 바는 스크린리더가 숫자로밖에 설명할 수 없는 바입니다. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 바의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 라벨을 보면서 이름을 듣는 사용자도 둘이 같은 바를 가리킨다는 것을 알 수 있습니다.
 - `prefers-reduced-motion`에서는 조각이 이동을 멈추고 홈을 채운 채 숨을 쉽니다. 멈추지는 않습니다. 가만히 있는 indeterminate indicator는 자기 존재 이유와 정반대를 말합니다.
 
 :::

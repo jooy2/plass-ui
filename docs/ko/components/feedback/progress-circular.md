@@ -37,7 +37,7 @@ PlProgressCircular(label: const Text('Syncing'), value: 68, showValue: true);
 
 ::: fw react
 
-나머지 `<div>` 속성은 그대로 통과합니다. `color`는 위 표의 `color`와 겹쳐서, `children`은 링이 아무것도 담지 않아서 제외했습니다.
+나머지 `<div>` 속성은 그대로 통과하고, `aria-label`과 `aria-labelledby`는 `label` 대신 링에 이름을 붙입니다. `color`는 위 표의 `color`와 겹쳐서, `children`은 링이 아무것도 담지 않아서 제외했습니다.
 
 :::
 
@@ -191,6 +191,8 @@ stroke는 decoration이 아니라 `Shader`를 받으므로, 패키지의 나머�
 - indeterminate인 링은 0이 아니라 **값 자체를 보고하지 않습니다.** 그래야 스크린리더가 진행도를 알 수 없다고 읽어 줍니다.
 - `<svg>`는 `aria-hidden`입니다. 그건 그림이고, 그것이 말하는 것은 이미 role과 값에 다 들어 있습니다.
 - `aria-valuetext`는 `showValue`가 그리는 문자열과 같습니다. `format`이 없으면 100이 아니라 범위에 대한 백분율입니다.
+- `label`은 무엇이 진행 중인지를 말합니다. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 링의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 라벨을 보면서 이름을 듣는 사용자도 둘이 같은 링을 가리킨다는 것을 알 수 있습니다.
 - `prefers-reduced-motion`에서는 링을 멈추는 대신 움직임으로 읽히지 않을 만큼 느리게 합니다. 애초에 도는 이유와 같은 이유입니다.
 
 :::

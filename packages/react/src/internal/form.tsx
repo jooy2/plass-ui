@@ -108,6 +108,10 @@ export interface ControlNaming {
  * name in the label's place, as an `aria-label` outranks a `<label>` on a
  * native control. A caller's `aria-labelledby` outranks both. With neither,
  * neither key is there, and the label goes on naming the control.
+ *
+ * A meter and the three progress indicators take them on their root for the
+ * same reason: Base UI's `Meter.Root` and `Progress.Root` point their own
+ * `aria-labelledby` at the visible label.
  */
 export function controlNaming(
   label: string | undefined,

@@ -112,6 +112,44 @@ describe('PlProgressLinear', () => {
     });
   });
 
+  describe('naming', () => {
+    it('is named by its label', async () => {
+      const screen = await render(<PlProgressLinear value={40} label="Uploading" />);
+
+      await expect
+        .element(screen.getByRole('progressbar', { name: 'Uploading', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("is named by an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlProgressLinear value={40} label="Uploading" aria-label="Uploading report.pdf" />
+      );
+
+      await expect
+        .element(screen.getByRole('progressbar', { name: 'Uploading report.pdf', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="linear-heading">Nightly backup</span>
+          <PlProgressLinear
+            value={40}
+            label="Uploading"
+            aria-label="Uploading report.pdf"
+            aria-labelledby="linear-heading"
+          />
+        </>
+      );
+
+      const bar = screen.getByRole('progressbar', { name: 'Nightly backup', exact: true });
+
+      await expect.element(bar).toHaveAttribute('aria-labelledby', 'linear-heading');
+    });
+  });
+
   describe('the value', () => {
     it('clamps a value past the top of the range', async () => {
       const screen = await render(<PlProgressLinear value={180} showValue />);

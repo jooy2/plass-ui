@@ -35,7 +35,7 @@ PlProgressLinear(label: const Text('Uploading'), value: 62, showValue: true);
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through. `color` is excluded because it collides with the `color` in the table above, and `children` because a bar holds nothing.
+Every native `<div>` attribute passes straight through, and `aria-label` and `aria-labelledby` name the bar in `label`'s place. `color` is excluded because it collides with the `color` in the table above, and `children` because a bar holds nothing.
 
 :::
 
@@ -150,7 +150,8 @@ With it, the number goes straight to `Intl.NumberFormat`, so bytes, currencies a
 - Base UI renders a `role="progressbar"` and keeps `aria-valuenow`, `aria-valuemin` and `aria-valuemax` in step with the props.
 - An indeterminate bar reports **no value at all** rather than zero, which is what tells a screen reader to announce indeterminate progress.
 - `aria-valuetext` is the same string `showValue` draws, so what is heard and what is read are one sentence. Without `format` that is a percentage of the range, not of 100.
-- `label` names what is loading. A bar with no label is a bar a screen reader can only describe as a number.
+- `label` names what is loading. A bar with no label is a bar a screen reader can only describe as a number. Beside a visible `label`, an `aria-label` names the bar in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who sees the label and hears the name can tell both belong to the same bar.
 - Under `prefers-reduced-motion` the segment stops travelling, fills the groove and breathes instead. It is not stopped: an indeterminate indicator that holds still says the opposite of what it is for.
 
 :::

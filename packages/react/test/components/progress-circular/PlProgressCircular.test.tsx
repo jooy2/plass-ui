@@ -92,6 +92,44 @@ describe('PlProgressCircular', () => {
     });
   });
 
+  describe('naming', () => {
+    it('is named by its label', async () => {
+      const screen = await render(<PlProgressCircular value={40} label="Syncing" />);
+
+      await expect
+        .element(screen.getByRole('progressbar', { name: 'Syncing', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("is named by an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlProgressCircular value={40} label="Syncing" aria-label="Syncing your photos" />
+      );
+
+      await expect
+        .element(screen.getByRole('progressbar', { name: 'Syncing your photos', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="circular-heading">Photo library</span>
+          <PlProgressCircular
+            value={40}
+            label="Syncing"
+            aria-label="Syncing your photos"
+            aria-labelledby="circular-heading"
+          />
+        </>
+      );
+
+      const bar = screen.getByRole('progressbar', { name: 'Photo library', exact: true });
+
+      await expect.element(bar).toHaveAttribute('aria-labelledby', 'circular-heading');
+    });
+  });
+
   describe('the ring', () => {
     it('grows with the size', async () => {
       const screen = await render(<PlProgressCircular value={40} size="xs" />);

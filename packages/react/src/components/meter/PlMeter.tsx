@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Meter } from '@base-ui/react/meter';
 import { useDefaults, useLocale } from '../../internal/defaults.js';
+import { controlNaming } from '../../internal/form.js';
 import {
   barThicknessClasses,
   fillClasses,
@@ -113,6 +114,8 @@ export const PlMeter = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMeterP
       color: colorProp,
       className,
       style,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       ...props
     },
     ref
@@ -132,6 +135,10 @@ export const PlMeter = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlMeterP
         locale={locale}
         className={cx('flex w-full flex-col', stackGapClasses[size], className)}
         style={{ ...progressSlots(bandColor(value, color, thresholds)), ...style }}
+        // Base UI points the root at the visible label, so an `aria-label` has
+        // to take that reference away to name it in the label's place, as it
+        // would on a native control. A caller's `aria-labelledby` outranks both.
+        {...controlNaming(ariaLabel, ariaLabelledBy)}
         {...props}
       >
         {label || showValue ? (

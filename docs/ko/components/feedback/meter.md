@@ -53,7 +53,13 @@ PlMeter(
 
 <PropsTable name="PlMeterThreshold" />
 
-네이티브 `<div>` 속성은 그대로 통과합니다. 라이브러리 전체에서 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
+::: fw react
+
+네이티브 `<div>` 속성은 그대로 통과하고, `aria-label`과 `aria-labelledby`는 `label` 대신 meter에 이름을 붙입니다.
+
+:::
+
+라이브러리 전체에서 공유 축이 무엇을 뜻하는지는 [prop 규약](../../design/prop-conventions)에 있습니다.
 
 ## meter와 progress bar
 
@@ -174,3 +180,10 @@ PlMeter(
 - `label`이 meter의 이름이고, 눈으로 보는 사람이 읽는 것과 같은 문자열입니다. 이름이 없으면 아무것에도 붙지 않은 숫자가 됩니다.
 - `showValue`를 켜면 수치가 그려지는 **동시에** 노드에 실립니다. 그려진 쪽은 접근성 트리에서 감추므로 두 번이 아니라 한 번 읽힙니다.
 - 색이 구간을 나르는 유일한 수단이 되는 일은 없습니다. `thresholds`는 `showValue`와 함께 쓰십시오.
+
+::: fw react
+
+- 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 meter의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
+- `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 라벨을 보면서 이름을 듣는 사용자도 둘이 같은 meter를 가리킨다는 것을 알 수 있습니다.
+
+:::

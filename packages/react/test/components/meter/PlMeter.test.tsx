@@ -208,6 +208,42 @@ describe('PlMeter', () => {
       expect(meter().getAttribute('aria-labelledby')).toBeNull();
     });
 
+    it("is named by an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlMeter value={40} label="Disk used" aria-label="Disk used on this device" />
+      );
+
+      await expect
+        .element(screen.getByRole('meter', { name: 'Disk used on this device', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="meter-heading">Storage</span>
+          <PlMeter
+            value={40}
+            label="Disk used"
+            aria-label="Disk used on this device"
+            aria-labelledby="meter-heading"
+          />
+        </>
+      );
+
+      const named = screen.getByRole('meter', { name: 'Storage', exact: true });
+
+      await expect.element(named).toHaveAttribute('aria-labelledby', 'meter-heading');
+    });
+
+    it('is still named by its label with neither', async () => {
+      const screen = await render(<PlMeter value={40} label="Disk used" />);
+
+      await expect
+        .element(screen.getByRole('meter', { name: 'Disk used', exact: true }))
+        .toBeInTheDocument();
+    });
+
     it('clamps the value it announces to the range it drew', async () => {
       await render(<PlMeter className="meter-under-test" value={140} />);
 

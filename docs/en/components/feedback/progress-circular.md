@@ -37,7 +37,7 @@ The table is [`PlProgressLinear`](./progress-linear)'s with `diameter` added, an
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through. `color` is excluded because it collides with the `color` in the table above, and `children` because a ring holds nothing.
+Every native `<div>` attribute passes straight through, and `aria-label` and `aria-labelledby` name the ring in `label`'s place. `color` is excluded because it collides with the `color` in the table above, and `children` because a ring holds nothing.
 
 :::
 
@@ -191,6 +191,8 @@ The size ladder is what this is for: an `xs` ring in a table cell is fourteen pi
 - An indeterminate ring reports **no value at all** rather than zero, which is what tells a screen reader to announce indeterminate progress.
 - The `<svg>` is `aria-hidden`: it is the drawing, and everything it says is already in the role and the value.
 - `aria-valuetext` is the same string `showValue` draws. Without `format` that is a percentage of the range, not of 100.
+- `label` names what is loading. Beside a visible `label`, an `aria-label` names the ring in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who sees the label and hears the name can tell both belong to the same ring.
 - Under `prefers-reduced-motion` the ring is slowed to where it stops reading as motion rather than stopped, for the reason it turns at all.
 
 :::

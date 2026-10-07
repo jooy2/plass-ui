@@ -37,7 +37,7 @@ Everything above `count` is [`PlProgressLinear`](./progress-linear)'s table, unc
 
 ::: fw react
 
-Every native `<div>` attribute passes straight through. `color` is excluded because it collides with the `color` in the table above, and `children` because a row of plates holds nothing.
+Every native `<div>` attribute passes straight through, and `aria-label` and `aria-labelledby` name the row in `label`'s place. `color` is excluded because it collides with the `color` in the table above, and `children` because a row of plates holds nothing.
 
 :::
 
@@ -142,6 +142,8 @@ The plate's own ladder, which is the tick ladder a [`PlCheckbox`](../inputs/chec
 - Base UI renders a `role="progressbar"` and keeps `aria-valuenow`, `aria-valuemin` and `aria-valuemax` in step with the props. The plates themselves are `aria-hidden`: they are the drawing.
 - An indeterminate row reports **no value at all** rather than zero, which is what tells a screen reader to announce indeterminate progress.
 - `aria-valuetext` is the same string `showValue` draws. Without `format` that is a percentage of the range, not of 100, which matters most here, where a row of five plates usually means `max={5}`.
+- `label` names what is loading. Beside a visible `label`, an `aria-label` names the row in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who sees the label and hears the name can tell both belong to the same row.
 - Under `prefers-reduced-motion` the wave is slowed to where it stops reading as motion rather than stopped: a row of plates holding still says the work has stalled.
 
 :::

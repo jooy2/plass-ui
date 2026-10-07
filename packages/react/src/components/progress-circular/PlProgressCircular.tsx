@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useDefaults, useLocale } from '../../internal/defaults.js';
+import { controlNaming } from '../../internal/form.js';
 import { Progress } from '@base-ui/react/progress';
 import {
   progressAriaText,
@@ -60,6 +61,8 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
     format,
     className,
     style,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy,
     ...props
   },
   ref
@@ -97,6 +100,10 @@ export const PlProgressCircular = /* @__PURE__ */ React.forwardRef<
       getAriaValueText={progressAriaText(fraction, hasFormat, locale)}
       className={cx('inline-flex items-center', gapClasses[size], metaTextClasses[size], className)}
       style={{ ...progressSlots(color), ...style }}
+      // Base UI points the root at the visible label, so an `aria-label` has
+      // to take that reference away to name it in the label's place, as it
+      // would on a native control. A caller's `aria-labelledby` outranks both.
+      {...controlNaming(ariaLabel, ariaLabelledBy)}
       {...props}
     >
       <svg

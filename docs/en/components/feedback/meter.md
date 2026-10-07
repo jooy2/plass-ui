@@ -53,7 +53,13 @@ PlMeter(
 
 <PropsTable name="PlMeterThreshold" />
 
-Every native `<div>` attribute passes straight through. What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
+::: fw react
+
+Every native `<div>` attribute passes straight through, and `aria-label` and `aria-labelledby` name the meter in `label`'s place.
+
+:::
+
+What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).
 
 ## Meter or progress bar
 
@@ -174,3 +180,10 @@ Four steps rather than a hundred, which is what `min` and `max` are for.
 - `label` names the meter, and it is the same string a sighted reader sees. Without one the bar is an unnamed figure, which is a number with nothing attached to it.
 - With `showValue` the figure is drawn **and** carried on the node, and the drawn copy is hidden from the accessibility tree so it is heard once rather than twice.
 - Colour is never the only carrier of a band. Pair `thresholds` with `showValue`.
+
+::: fw react
+
+- Beside a visible `label`, an `aria-label` names the meter in its place, and an `aria-labelledby` outranks both.
+- Include the visible label's words in an `aria-label`, so a reader who sees the label and hears the name can tell both belong to the same meter.
+
+:::

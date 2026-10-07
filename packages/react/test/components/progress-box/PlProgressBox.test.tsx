@@ -79,6 +79,44 @@ describe('PlProgressBox', () => {
     });
   });
 
+  describe('naming', () => {
+    it('is named by its label', async () => {
+      const screen = await render(<PlProgressBox value={40} label="Deploying" />);
+
+      await expect
+        .element(screen.getByRole('progressbar', { name: 'Deploying', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("is named by an `aria-label` in a visible label's place", async () => {
+      const screen = await render(
+        <PlProgressBox value={40} label="Deploying" aria-label="Deploying to production" />
+      );
+
+      await expect
+        .element(screen.getByRole('progressbar', { name: 'Deploying to production', exact: true }))
+        .toBeInTheDocument();
+    });
+
+    it("points at the caller's element with an `aria-labelledby`, over a label and an `aria-label`", async () => {
+      const screen = await render(
+        <>
+          <span id="box-heading">Release 4.2</span>
+          <PlProgressBox
+            value={40}
+            label="Deploying"
+            aria-label="Deploying to production"
+            aria-labelledby="box-heading"
+          />
+        </>
+      );
+
+      const bar = screen.getByRole('progressbar', { name: 'Release 4.2', exact: true });
+
+      await expect.element(bar).toHaveAttribute('aria-labelledby', 'box-heading');
+    });
+  });
+
   describe('the plates', () => {
     it('draws four of them by default', async () => {
       const screen = await render(<PlProgressBox value={40} />);
