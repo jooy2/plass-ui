@@ -230,7 +230,7 @@ wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 �
 ::: fw flutter
 
 - 상자는 버튼으로 읽힙니다. focus 순서에 들어가고 <kbd>Enter</kbd>와 <kbd>Space</kbd>에 반응합니다. 앱이 덧붙이는 드롭 처리는 거기에 더해진 것이지 유일한 통로가 아닙니다.
-- 버튼의 이름은 `label`이 먼저이고 버튼 자신의 `title`과 `hint`가 뒤따릅니다. 그래서 한 화면의 picker 두 개가 똑같이 읽히지 않습니다.
+- 버튼의 이름은 `label`이 먼저이고 버튼 자신의 `title`과 `hint`가 뒤따릅니다. 그래서 한 화면의 picker 두 개가 똑같이 읽히지 않습니다. 보이는 `label`이 있든 없든 `semanticLabel`이 그 이름에서 label의 자리를 대신하고, 그려진 label은 그때 한 번 더 읽히지 않습니다.
 - 파일 목록은 상자 바깥에 있습니다. 버튼 안의 지우기 버튼은 한 번 누르면 두 번 발생하는 누름이기 때문입니다.
 - 각 지우기 버튼은 지우는 파일 이름을 포함한 이름을 가집니다. 스크린리더가 "Remove" 세 개가 아니라 서로 다른 버튼 셋을 읽습니다.
 - 돌려보낸 이유는 live region입니다. 읽던 것을 끊지 않고 그 뒤에 읽힙니다. 필드를 invalid로 표시하지도 않습니다. 돌려보낸 파일은 값에 닿은 적이 없습니다.
@@ -253,6 +253,7 @@ wrapper는 드롭 영역이기도 합니다. 레이블과 안내 문구까지 �
 | `value` / `defaultValue` / `onFilesChange` | `value` / `onFilesChanged` | Flutter의 컨트롤은 controlled이고, 콜백 이름도 Flutter의 것입니다. |
 | `icon={null}` | `showIcon: false` | Dart에는 `null`도 위젯도 아닌 값이 없으니, "치워라"가 자기 이름을 갖습니다. |
 | 숨은 input, `name`, `required` | — | 함께 제출될 네이티브 form이 없습니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `id`, `aria-describedby`, `aria-invalid` | — | 여기서는 무엇도 id로 다른 것을 가리키지 않습니다. 라벨과 메시지는 컴포넌트의 일부입니다. |
 | `className`, `style`, 네이티브 속성 | — | 전달할 클래스 목록도 style 속성도 없습니다. |
 

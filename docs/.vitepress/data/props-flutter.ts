@@ -3127,7 +3127,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlFilePicker', 'elevation', { type: 'int', default: '0' }),
     from('PlFilePicker', 'fullWidth', { type: 'bool', default: 'true' }),
     from('PlFilePicker', 'readOnly', { type: 'bool', default: 'false' }),
-    from('PlFilePicker', 'disabled', { type: 'bool', default: 'false' })
+    from('PlFilePicker', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 상자를 부를 이름. 보이는 label의 자리에 들어가고, 상자 자신의 title과 hint가 그 뒤에 읽힙니다',
+        en: "The name a screen reader gives the box, in the visible label's place, with the box's own title and hint read after it"
+      }
+    }
   ],
 
   PlFile: [
@@ -4505,7 +4513,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     from('PlRadioGroup', 'error', { type: 'Widget?' }),
     from('PlRadioGroup', 'invalid', { type: 'bool?' }),
     from('PlRadioGroup', 'readOnly', { type: 'bool', default: 'false' }),
-    from('PlRadioGroup', 'disabled', { type: 'bool', default: 'false' })
+    from('PlRadioGroup', 'disabled', { type: 'bool', default: 'false' }),
+    {
+      name: 'semanticLabel',
+      type: 'String?',
+      description: {
+        ko: '스크린 리더가 묶음을 부를 이름. 보이는 label의 자리를 대신합니다',
+        en: "The name a screen reader gives the set, in the visible label's place"
+      }
+    }
   ],
 
   PlRadioOption: [

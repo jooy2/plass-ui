@@ -585,6 +585,52 @@ void main() {
         handle.dispose();
       });
 
+      for (final PlassFieldLabelPlacement placement in <PlassFieldLabelPlacement>[
+        PlassFieldLabelPlacement.top,
+        PlassFieldLabelPlacement.notch,
+      ]) {
+        testWidgets('a semanticLabel names the box in the label\'s place, before its own words, '
+            '${placement.name}', (WidgetTester tester) async {
+          final handle = tester.ensureSemantics();
+          await tester.pumpWidget(
+            host(
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  PlFilePicker(
+                    value: const <PlFile>[],
+                    labelPlacement: placement,
+                    hint: const Text('PDF only'),
+                    semanticLabel: 'Resume',
+                  ),
+                  PlFilePicker(
+                    value: const <PlFile>[],
+                    labelPlacement: placement,
+                    label: const Text('Cover letter'),
+                    hint: const Text('One page'),
+                    semanticLabel: 'Cover letter, as a PDF',
+                  ),
+                ],
+              ),
+              width: 420,
+            ),
+          );
+
+          expect(
+            tester.getSemantics(find.text('PDF only')),
+            isSemantics(isButton: true, label: 'Resume\nChoose files\nPDF only'),
+          );
+          // The label's words are not read a second time after the name that
+          // took their place.
+          expect(
+            tester.getSemantics(find.text('One page')),
+            isSemantics(isButton: true, label: 'Cover letter, as a PDF\nChoose files\nOne page'),
+          );
+
+          handle.dispose();
+        });
+      }
+
       testWidgets('an error re-points the family at danger', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(const PlFilePicker(value: <PlFile>[], error: Text('Pick a file.')), width: 420),

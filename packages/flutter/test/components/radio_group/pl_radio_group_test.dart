@@ -19,6 +19,20 @@ const List<PlRadioOption<String>> tiers = <PlRadioOption<String>>[
   PlRadioOption<String>(value: 'enterprise', label: Text('Enterprise'), disabled: true),
 ];
 
+/// The node of the set at [index] in the tree.
+SemanticsNode setOf(WidgetTester tester, int index) {
+  return tester.getSemantics(
+    find
+        .descendant(
+          of: find.byType(PlRadioGroup<String>).at(index),
+          matching: find.byWidgetPredicate(
+            (Widget widget) => widget is Semantics && widget.container,
+          ),
+        )
+        .first,
+  );
+}
+
 /// The option reading [label], found only while it holds the focus.
 Finder focusedOption(String label) {
   return find.ancestor(
@@ -799,6 +813,56 @@ void main() {
             .length;
 
         expect(inOrder, 1);
+      });
+
+      testWidgets('the set is named by semanticLabel in the label\'s place, and by its label '
+          'without one', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          host(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                PlRadioGroup<String>(
+                  options: plans,
+                  value: 'team',
+                  semanticLabel: 'Billing plan',
+                  onChanged: (String _) {},
+                ),
+                PlRadioGroup<String>(
+                  options: plans,
+                  value: 'team',
+                  label: const Text('Seats'),
+                  description: const Text('Change it any time'),
+                  semanticLabel: 'Seats on the team',
+                  onChanged: (String _) {},
+                ),
+                PlRadioGroup<String>(
+                  options: plans,
+                  value: 'team',
+                  label: const Text('Support'),
+                  onChanged: (String _) {},
+                ),
+              ],
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(setOf(tester, 0), isSemantics(label: 'Billing plan'));
+        // The label's words are not read a second time after the name that took
+        // their place, and the description still follows it.
+        expect(setOf(tester, 1), isSemantics(label: 'Seats on the team\nChange it any time'));
+        expect(semanticsNodeLabelled(tester, 'Seats'), isNull);
+        expect(setOf(tester, 2), isSemantics(label: 'Support'));
+
+        // The options keep nodes of their own inside a named set.
+        expect(
+          tester.getSemantics(find.text('Team').first),
+          isSemantics(label: 'Team', isInMutuallyExclusiveGroup: true, isChecked: true),
+        );
+
+        handle.dispose();
       });
     });
   });

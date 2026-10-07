@@ -236,6 +236,7 @@ class PlFilePicker extends StatefulWidget {
     this.fullWidth = true,
     this.readOnly = false,
     this.disabled = false,
+    this.semanticLabel,
     super.key,
   }) : assert(
          elevation >= plassElevationMin && elevation <= plassElevationMax,
@@ -367,6 +368,13 @@ class PlFilePicker extends StatefulWidget {
   /// Unavailable.
   final bool disabled;
 
+  /// The name a screen reader gives the box, read before its own [title] and
+  /// [hint].
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it.
+  final String? semanticLabel;
+
   @override
   State<PlFilePicker> createState() => _PlFilePickerState();
 }
@@ -485,16 +493,21 @@ class _PlFilePickerState extends State<PlFilePicker> {
     );
 
     // One widget for both placements, so the label a reader taps and the label
-    // a screen reader reads are the same widget wherever it is drawn.
+    // a screen reader reads are the same widget wherever it is drawn. A
+    // `semanticLabel` is the name in its place, so the drawn words are then not
+    // read after it.
     final Widget? labelNode = widget.label == null
         ? null
-        : DefaultTextStyle.merge(
-            style: TextStyle(
-              color: _disabled ? tokens.mutedFg : tokens.fg,
-              fontSize: meta,
-              fontWeight: FontWeight.w600,
+        : ExcludeSemantics(
+            excluding: widget.semanticLabel != null,
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: _disabled ? tokens.mutedFg : tokens.fg,
+                fontSize: meta,
+                fontWeight: FontWeight.w600,
+              ),
+              child: widget.label!,
             ),
-            child: widget.label!,
           );
 
     Widget zone = PlassInteractive(
@@ -671,11 +684,14 @@ class _PlFilePickerState extends State<PlFilePicker> {
 
     // One node over the label and the box, so the button is named by the field
     // first and by its own words after: a résumé picker and a cover letter
-    // picker on one screen are otherwise both read as the same line. The list,
-    // the description and the error stay outside it.
+    // picker on one screen are otherwise both read as the same line. A
+    // `semanticLabel` starts the name in the label's place, and the box's own
+    // words still follow it, as they follow the React button's `aria-label`.
+    // The list, the description and the error stay outside it.
     zone = Semantics(
       container: true,
       button: true,
+      label: widget.semanticLabel,
       enabled: !_disabled,
       readOnly: widget.readOnly,
       onTap: _usable ? _browse : null,

@@ -82,6 +82,7 @@ class PlRadioGroup<T> extends StatefulWidget {
     this.invalid,
     this.readOnly = false,
     this.disabled = false,
+    this.semanticLabel,
     this.focusNode,
     this.autofocus = false,
     super.key,
@@ -134,6 +135,12 @@ class PlRadioGroup<T> extends StatefulWidget {
 
   /// Unavailable. The light goes out.
   final bool disabled;
+
+  /// The name a screen reader gives the set.
+  ///
+  /// Given beside a visible [label], it is the name in the label's place, and
+  /// the label's words are not read after it.
+  final String? semanticLabel;
 
   /// Drive the group's one focus stop from outside.
   final FocusNode? focusNode;
@@ -324,6 +331,10 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
       onKeyEvent: _onKey,
       child: Semantics(
         container: true,
+        // The label, the description and the error name the set, each option
+        // keeping a node of its own. A `semanticLabel` names it in the label's
+        // place, as an `aria-label` names the React `radiogroup`.
+        label: widget.semanticLabel,
         // Read-only is not disabled: the set keeps its focus stop, so it says it
         // is available and cannot be changed, as `aria-readonly` does.
         enabled: !_disabled,
@@ -334,13 +345,18 @@ class _PlRadioGroupState<T> extends State<PlRadioGroup<T>> with PlassRovingStop<
           spacing: 6,
           children: <Widget>[
             if (widget.label != null)
-              DefaultTextStyle.merge(
-                style: TextStyle(
-                  color: _disabled ? tokens.mutedFg : tokens.fg,
-                  fontSize: meta,
-                  fontWeight: FontWeight.w600,
+              // A `semanticLabel` is the name in its place, so the drawn words
+              // are then not read after it.
+              ExcludeSemantics(
+                excluding: widget.semanticLabel != null,
+                child: DefaultTextStyle.merge(
+                  style: TextStyle(
+                    color: _disabled ? tokens.mutedFg : tokens.fg,
+                    fontSize: meta,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  child: widget.label!,
                 ),
-                child: widget.label!,
               ),
             if (widget.description != null)
               DefaultTextStyle.merge(
