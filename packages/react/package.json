@@ -12,7 +12,7 @@
   "homepage": "https://plass.cdget.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jooy2/plass-ui",
+    "url": "git+https://github.com/jooy2/plass-ui.git",
     "directory": "packages/react"
   },
   "bugs": {
