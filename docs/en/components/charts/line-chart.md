@@ -60,6 +60,12 @@ On a page rendered on a server, a chart draws its plot once the browser has meas
 
 <PropsTable name="PlLineChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the picture, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 ### PlassChartSeries
 
 <PropsTable name="PlassChartSeries" />

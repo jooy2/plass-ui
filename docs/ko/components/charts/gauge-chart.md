@@ -37,6 +37,12 @@ PlGaugeChart(value: 68, caption: Text('of quota'));
 
 <PropsTable name="PlGaugeChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby`, `aria-describedby`는 다이얼에 붙고, 나머지 네이티브 `<div>` 속성은 다이얼을 감싼 상자로 그대로 통과합니다. `children`과 `title`은 제외했습니다.
+
+:::
+
 `value`가 `null`이면 아무것도 얹지 않은 다이얼을 그립니다. 아무 말도 듣지 못한 계기의 정직한 모습입니다. `legend`도 `tooltip`도 없습니다. 숫자 하나에는 둘 다 필요 없습니다.
 
 라이브러리 전체에서 공유 prop이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.
@@ -117,9 +123,9 @@ band는 숫자를 보여 주는 두 번째 방법일 뿐 유일한 방법이 아
 
 ## Accessibility
 
-- `label`이 있으면 다이얼은 한 가지를 알리는 이름 붙은 이미지 하나가 됩니다. `"Storage used: 1.36 / 2"`와 같은 형태입니다. 양 끝 label이 떠도는 숫자로 들리는 일을 막아 줍니다.
+- <Fw react="label" flutter="semanticLabel" code />이 있으면 다이얼은 한 가지를 알리는 이름 붙은 이미지 하나가 됩니다. `"Storage used: 1.36 / 2"`와 같은 형태입니다. 양 끝 label이 떠도는 숫자로 들리는 일을 막아 줍니다.
 - 다이얼에 적힌 글 가운데 이름이 이미 말하지 않은 것은 이름 다음에 읽힙니다. 직접 넣은 `center`, 이어서 "TB of 2 TB used" 같은 `caption`입니다. 가운데 적힌 숫자는 두 번 읽히지 않습니다.
-- `min`과 `max`가 같으면 다이얼에 값을 그리지 않으므로 이름은 `label` 하나뿐이고, 그 뒤에 빈 상태의 문구가 읽힙니다.
+- `min`과 `max`가 같으면 다이얼에 값을 그리지 않으므로 이름은 <Fw react="label" flutter="semanticLabel" code /> 하나뿐이고, 그 뒤에 빈 상태의 문구가 읽힙니다.
 - 없으면 평범한 상자로 남고, 가운데 값은 이미 텍스트이므로 그대로 읽힙니다.
 - 값이 색만으로 전달되는 일은 없습니다. threshold는 계열을 바꾸고, 가운데 숫자가 같은 말을 글로 합니다.
 - 호는 새 값으로 튀지 않고 쓸어 갑니다. 그 움직임은 transform이 아니라 길이라서, 다이얼 위에 적힌 숫자가 다시 샘플링되는 일이 없습니다.

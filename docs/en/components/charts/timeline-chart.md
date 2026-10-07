@@ -37,6 +37,12 @@ Not to be confused with [`PlTimeline`](../display/timeline), which is a list of 
 
 <PropsTable name="PlTimelineChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the picture, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 A row is a series (one entity, one name, one colour), but its data are spans rather than values, so it takes `PlassTimelineSeries` rather than the usual series type. There is no `legend` and no `hidden`: **the rows are the category axis**, already named down the side, and a twenty-entry legend restating them adds nothing.
 
 The time axis ticks where a calendar ticks. The 1-2-5 family that rounds a value axis is the wrong one for an instant, run on milliseconds it produces a tick every 200,000,000 ms, which lands at 14:53:20 on an arbitrary Tuesday.

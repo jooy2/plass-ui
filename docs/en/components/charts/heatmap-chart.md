@@ -37,6 +37,12 @@ Reach for the grid when both axes are categorical and the question is _where_, w
 
 <PropsTable name="PlHeatmapChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the picture, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 Each series is a row of the grid or a group of the treemap, and each datum a cell or a tile. A `null` leaves the cell as surface rather than drawing it as the bottom of the scale, because "nothing happened" and "the least of anything" are not the same reading.
 
 One ladder covers the whole chart rather than one per row. The colour of a cell has to mean the same number wherever it is, which is the entire promise a heatmap makes.

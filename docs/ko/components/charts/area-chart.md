@@ -39,6 +39,12 @@ PlAreaChart(
 
 <PropsTable name="PlAreaChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby`, `aria-describedby`는 그림에 붙고, 나머지 네이티브 `<div>` 속성은 그림을 감싼 상자로 그대로 통과합니다. `children`과 `title`은 제외했습니다.
+
+:::
+
 데이터는 모든 차트가 받는 같은 [`PlassChartSeries`](./line-chart#plasschartseries)이고, `xAxis`, `yAxis`, `legend`, `tooltip`이 받는 옵션은 [line chart 페이지](./line-chart#props)에 함께 있습니다. 여기서도 `null`은 빈 곳입니다. 오히려 더 눈에 띕니다. 없는 달을 가로질러 닫힌 채움은 이어 붙인 선보다 더 넓은 면적에 지어낸 숫자를 칠하기 때문입니다.
 
 라이브러리 전체에서 공유 축이 뜻하는 바는 [prop 규약](../../design/prop-conventions)에 있습니다.

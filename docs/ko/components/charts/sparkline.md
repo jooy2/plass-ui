@@ -35,6 +35,12 @@ PlSparkline(data: signups, endDot: true);
 
 <PropsTable name="PlSparkline" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby`, `aria-describedby`는 띠에 붙고, 나머지 네이티브 `<div>` 속성은 띠를 감싼 상자로 그대로 통과합니다. 예외는 `children`, 그리고 위 표에 있는 띠 자신의 prop인 `color`입니다.
+
+:::
+
 색은 다른 차트와 달리 직접 받습니다. sparkline에는 series가 하나뿐이고 legend도 없으니 팔레트가 나눠 줄 것이 없습니다.
 
 `tooltip`도 `legend`도 없습니다. 둘 중 하나라도 붙이면 차트가 됩니다. `null`은 여기서도 빈 곳이고, 선은 거기서 끊깁니다.
@@ -107,13 +113,20 @@ PlSparkline(data: signups, endDot: true);
 
 ## Accessibility
 
-- `label`이 없으면 띠는 **접근성 트리에서 통째로 빠집니다.** sparkline은 숫자를 이미 가진 글 옆의 장식이고, 이름 없는 이미지를 이미지라고 읽어 주는 것은 소음입니다.
-- `label`이 있으면 이름 붙은 `role="img"`가 되고, 값이 옆에 적힙니다. 화면에서만 잘라낼 뿐 트리에서 감추지는 않습니다. sparkline이 갚아야 할 것은 숫자이지, 그 숫자가 만든 모양에 대한 설명이 아닙니다.
-- 색이 유일한 통로가 아닌 것도 같습니다. sparkline은 자기가 속한 이름과 숫자 옆에 놓입니다.
+- <Fw react="label" flutter="semanticLabel" code />이 없으면 띠는 **접근성 트리에서 통째로 빠집니다.** sparkline은 숫자를 이미 가진 글 옆의 장식이고, 이름 없는 이미지를 이미지라고 읽어 주는 것은 소음입니다.
 
 ::: fw react
 
+- `label`이 있으면 이름 붙은 `role="img"`가 되고, 값이 옆에 적힙니다. 화면에서만 잘라낼 뿐 트리에서 감추지는 않습니다. sparkline이 갚아야 할 것은 숫자이지, 그 숫자가 만든 모양에 대한 설명이 아닙니다.
 - `aria-label`은 `label` 대신 띠의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다. 둘 중 하나만 있어도 `label`처럼 이름 붙은 `role="img"`가 되고 값이 옆에 적히므로, 셋 다 없는 띠만 트리에서 빠집니다.
 - `aria-describedby`는 이름이 있는 띠를 설명합니다. 이름이 없는 띠는 트리에서 빠지므로 설명도 붙지 않습니다.
 
 :::
+
+::: fw flutter
+
+- `semanticLabel`이 있으면 그 이름을 가진 semantics 노드 하나가 되고, 값은 그 노드의 value로 읽힙니다. sparkline이 갚아야 할 것은 숫자이지, 그 숫자가 만든 모양에 대한 설명이 아닙니다.
+
+:::
+
+- 색이 유일한 통로가 아닌 것도 같습니다. sparkline은 자기가 속한 이름과 숫자 옆에 놓입니다.

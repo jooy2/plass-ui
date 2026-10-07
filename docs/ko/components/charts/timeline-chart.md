@@ -37,6 +37,12 @@ PlTimelineChart(series: plan);
 
 <PropsTable name="PlTimelineChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby`, `aria-describedby`는 그림에 붙고, 나머지 네이티브 `<div>` 속성은 그림을 감싼 상자로 그대로 통과합니다. `children`과 `title`은 제외했습니다.
+
+:::
+
 한 행은 series입니다. 대상 하나, 이름 하나, 색 하나. 다만 데이터가 값이 아니라 구간이라서 보통의 series 타입 대신 `PlassTimelineSeries`를 받습니다. `legend`도 `hidden`도 없습니다. **행이 곧 category 축이고** 이미 옆에 이름이 적혀 있으니, 그것을 스무 줄로 되풀이하는 legend는 아무도 원하지 않는 필터입니다.
 
 시간 축은 달력이 눈금을 두는 자리에 눈금을 둡니다. 값 축을 반올림하는 1-2-5 계열은 순간에는 맞지 않습니다. 밀리초에 대고 돌리면 200,000,000ms마다 눈금이 생기고, 그것은 아무 화요일의 14:53:20에 떨어집니다.

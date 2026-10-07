@@ -37,6 +37,12 @@ PlHeatmapChart(series: week, categories: hours);
 
 <PropsTable name="PlHeatmapChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby`, `aria-describedby`는 그림에 붙고, 나머지 네이티브 `<div>` 속성은 그림을 감싼 상자로 그대로 통과합니다. `children`과 `title`은 제외했습니다.
+
+:::
+
 series 하나가 격자의 한 행이거나 treemap의 한 묶음이고, datum 하나가 칸 또는 타일입니다. `null`은 칸을 척도의 바닥으로 칠하지 않고 표면 그대로 둡니다. "아무 일도 없었다"와 "가장 적다"는 다른 이야기이기 때문입니다.
 
 사다리는 행마다가 아니라 차트 전체에 하나입니다. 칸의 색은 어디에 있든 같은 숫자를 뜻해야 하고, 그것이 heatmap이 하는 약속의 전부입니다.

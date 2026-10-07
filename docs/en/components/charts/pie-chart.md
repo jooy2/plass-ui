@@ -35,6 +35,12 @@ An angle is a poor thing to compare. Two slices within a few percent of each oth
 
 <PropsTable name="PlPieChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the picture, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 The data is one list of slices rather than a list of series, because that is what a pie is: **the slices are the entities here.** Each one takes a palette slot of its own, the legend lists them, and the colour follows the slice rather than its size, so a chart that is refiltered or resorted keeps every category the colour it had.
 
 A `null` and a zero are both left undrawn. Neither has an angle, and a slice of no width is a slice a reader cannot point at.

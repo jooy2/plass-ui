@@ -35,6 +35,12 @@ Crop the scale and a bar twice as long stops meaning twice as much, and the read
 
 <PropsTable name="PlBarChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the picture, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 The data is the same [`PlassChartSeries`](./line-chart#plasschartseries) every chart takes, and `xAxis`, `yAxis`, `legend` and `tooltip` take the options listed with it on the [line chart page](./line-chart#props). A `null` is a gap here too, and a bar is simply **not drawn** for one, which is the distinction that matters most on this chart, because a zero-length bar and a missing bar are the same picture and only one of them is honest.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).

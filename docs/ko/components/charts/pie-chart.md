@@ -35,6 +35,12 @@ PlPieChart(data: traffic, categories: sources);
 
 <PropsTable name="PlPieChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby`, `aria-describedby`는 그림에 붙고, 나머지 네이티브 `<div>` 속성은 그림을 감싼 상자로 그대로 통과합니다. `children`과 `title`은 제외했습니다.
+
+:::
+
 데이터는 series 목록이 아니라 조각 하나하나의 목록입니다. 파이란 원래 그런 것이기 때문입니다. **여기서 주체는 조각입니다.** 조각마다 팔레트 자리를 하나씩 가져가고, legend도 조각을 나열하며, 색은 크기가 아니라 조각을 따라다닙니다. 그래서 다시 거르거나 다시 정렬해도 category마다 색이 그대로입니다.
 
 `null`과 0은 둘 다 그리지 않습니다. 어느 쪽도 각도가 없고, 폭이 없는 조각은 가리킬 수 없는 조각입니다.

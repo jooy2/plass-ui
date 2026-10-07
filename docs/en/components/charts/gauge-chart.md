@@ -37,6 +37,12 @@ PlGaugeChart(value: 68, caption: Text('of quota'));
 
 <PropsTable name="PlGaugeChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the dial, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 A `null` value draws the dial with nothing on it, which is the honest picture of an instrument that has not been told anything. There is no `legend` and no `tooltip`: one number needs neither.
 
 What the shared props mean across the library is in [prop conventions](../../design/prop-conventions).
@@ -117,9 +123,9 @@ The reading is **real text, not a label painted into the drawing**, so it can be
 
 ## Accessibility
 
-- With a `label` the dial is one named image saying one thing: `"Storage used: 1.36 / 2"`. That saves a reader hearing the two end labels as loose numbers.
+- With a <Fw react="label" flutter="semanticLabel" code /> the dial is one named image saying one thing: `"Storage used: 1.36 / 2"`. That saves a reader hearing the two end labels as loose numbers.
 - The words the dial writes that its name does not already say are read after the name: a `center` of your own, then the `caption`, such as "TB of 2 TB used". The number written in the middle is not read a second time.
-- When `min` and `max` are the same, the dial draws no reading, so its name is the `label` alone, followed by the words of its empty state.
+- When `min` and `max` are the same, the dial draws no reading, so its name is the <Fw react="label" flutter="semanticLabel" code /> alone, followed by the words of its empty state.
 - Without one it stays a plain box, and the reading in the middle is read as the text it already is.
 - The value is never carried by colour alone. A threshold changes the family; the number in the middle says the same thing in words.
 - The arc sweeps to a new reading rather than jumping to it, and the sweep is a length rather than a transform. The numbers written across the dial are never resampled.

@@ -39,6 +39,12 @@ That is the whole test for using this instead of a [line chart](./line-chart): i
 
 <PropsTable name="PlAreaChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the picture, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 The data is the same [`PlassChartSeries`](./line-chart#plasschartseries) every chart takes, and `xAxis`, `yAxis`, `legend` and `tooltip` take the options listed with it on the [line chart page](./line-chart#props). A `null` is a gap here too, more visibly so, because a fill that closes across a missing month paints a made-up number over a larger part of the chart than a bridged line does.
 
 What the shared axes mean across the library is in [prop conventions](../../design/prop-conventions).

@@ -35,6 +35,12 @@ There is no column a mark belongs to and no order the points could be shuffled o
 
 <PropsTable name="PlScatterChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby` and `aria-describedby` go to the picture, and every other native `<div>` attribute passes straight through to the box around it. `children` and `title` are excluded.
+
+:::
+
 Each point's `x` must be a number or a date. Text has no place on a number line, and a chart of named things against one measure is a [bar chart](./bar-chart). `xAxis`, `yAxis`, `legend` and `tooltip` take the options listed on the [line chart page](./line-chart#props).
 
 Wherever the chart writes a point's `x`, it goes through the x axis' own <Fw react="tickFormat" flutter="format" code /> when there is one and is written compactly when there is not, so `12345` is `12.3K`. A date is written as a date. The chart's `format` belongs to the `y` and never reaches the `x`.

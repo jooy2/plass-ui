@@ -60,6 +60,12 @@ category를 섞어도 잃을 것이 없다면 막대 차트를 쓰세요. 제품
 
 <PropsTable name="PlLineChart" />
 
+::: fw react
+
+`aria-label`, `aria-labelledby`, `aria-describedby`는 그림에 붙고, 나머지 네이티브 `<div>` 속성은 그림을 감싼 상자로 그대로 통과합니다. `children`과 `title`은 제외했습니다.
+
+:::
+
 ### PlassChartSeries
 
 <PropsTable name="PlassChartSeries" />
