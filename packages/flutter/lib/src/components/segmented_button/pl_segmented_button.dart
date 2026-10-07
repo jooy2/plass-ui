@@ -1,6 +1,9 @@
 /// Two or more choices in one pill, exactly one of them taken.
 library;
 
+import 'dart:math' as math;
+
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -135,7 +138,10 @@ class PlSegmentedButton<T> extends StatefulWidget {
   /// the page, not laid on it.
   final PlassElevation elevation;
 
-  /// The segments share the full width, each taking an equal part of it.
+  /// The segments share the full width, an equal part each. A segment whose
+  /// label needs more than its part keeps the width it needs, and the others
+  /// share the rest. Labels that together need more than the row end in an
+  /// ellipsis.
   final bool fullWidth;
 
   /// Shows which one is taken but does not let it be changed.
@@ -443,13 +449,9 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
         ),
     ];
 
-    Widget row = Row(
-      mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
-      children: <Widget>[
-        for (final segment in segments)
-          if (widget.fullWidth) Expanded(child: segment) else segment,
-      ],
-    );
+    Widget row = widget.fullWidth
+        ? _SharedRow(children: segments)
+        : Row(mainAxisSize: MainAxisSize.min, children: segments);
 
     // The tile rides *behind* the labels, which is why it is a stack rather than
     // a decoration on the chosen segment: a decoration would jump between
@@ -518,6 +520,191 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
       ),
     );
   }
+}
+
+/// The segments of a full-width set, side by side across the row.
+///
+/// Each takes an equal part while every label fits in one. A segment whose
+/// label needs more keeps the width it needs, and the others share what is
+/// left, equally. That is what the React set's `flex: 1 0 0%` does with a
+/// flex item's minimum width, which is its content's, so a set of `1,000`,
+/// `10,000` and `100,000` is drawn the same way in both builds.
+///
+/// Only when the labels together are wider than the row does a segment get
+/// less than it needs: each then gets a part in proportion to what it needs,
+/// and its label ends in an ellipsis rather than running out of the groove.
+class _SharedRow extends MultiChildRenderObjectWidget {
+  const _SharedRow({required super.children});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderSharedRow(textDirection: Directionality.of(context));
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderSharedRow renderObject) {
+    renderObject.textDirection = Directionality.of(context);
+  }
+}
+
+class _SharedRowParentData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderSharedRow extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _SharedRowParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _SharedRowParentData> {
+  _RenderSharedRow({required TextDirection textDirection}) : _textDirection = textDirection;
+
+  TextDirection _textDirection;
+  set textDirection(TextDirection value) {
+    if (_textDirection == value) {
+      return;
+    }
+
+    _textDirection = value;
+    markNeedsLayout();
+  }
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _SharedRowParentData) {
+      child.parentData = _SharedRowParentData();
+    }
+  }
+
+  List<RenderBox> get _children => <RenderBox>[
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) child,
+  ];
+
+  /// How wide each segment is in a row [width] wide.
+  ///
+  /// Every segment starts from an equal part. One whose label needs more than
+  /// its part is given what it needs and set aside, and the rest share what is
+  /// left, until every part left holds its label.
+  List<double> _widthsIn(double width) {
+    final List<double> needs = <double>[
+      for (final RenderBox child in _children) child.getMaxIntrinsicWidth(double.infinity),
+    ];
+    final double needed = needs.fold(0, (double sum, double need) => sum + need);
+
+    if (!width.isFinite) {
+      return needs;
+    }
+
+    if (needed > width) {
+      return <double>[for (final double need in needs) need * width / needed];
+    }
+
+    final List<double?> given = List<double?>.filled(needs.length, null);
+    double left = width;
+    int sharing = needs.length;
+    bool settled = false;
+
+    while (!settled && sharing > 0) {
+      final double part = left / sharing;
+
+      settled = true;
+
+      for (int index = 0; index < needs.length; index += 1) {
+        if (given[index] == null && needs[index] > part) {
+          given[index] = needs[index];
+          left -= needs[index];
+          sharing -= 1;
+          settled = false;
+        }
+      }
+    }
+
+    final double part = sharing > 0 ? left / sharing : 0;
+
+    return <double>[for (final double? width in given) width ?? part];
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) =>
+      _children.fold(0, (double sum, RenderBox child) => sum + child.getMinIntrinsicWidth(height));
+
+  @override
+  double computeMaxIntrinsicWidth(double height) =>
+      _children.fold(0, (double sum, RenderBox child) => sum + child.getMaxIntrinsicWidth(height));
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    final List<double> widths = _widthsIn(width);
+    final List<RenderBox> children = _children;
+
+    return <double>[
+      0,
+      for (int index = 0; index < children.length; index += 1)
+        children[index].getMinIntrinsicHeight(widths[index]),
+    ].reduce(math.max);
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) {
+    final List<double> widths = _widthsIn(width);
+    final List<RenderBox> children = _children;
+
+    return <double>[
+      0,
+      for (int index = 0; index < children.length; index += 1)
+        children[index].getMaxIntrinsicHeight(widths[index]),
+    ].reduce(math.max);
+  }
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final List<double> widths = _widthsIn(constraints.maxWidth);
+    final List<RenderBox> children = _children;
+    double height = 0;
+
+    for (int index = 0; index < children.length; index += 1) {
+      final Size size = children[index].getDryLayout(
+        BoxConstraints.tightFor(width: widths[index]).copyWith(maxHeight: constraints.maxHeight),
+      );
+
+      height = math.max(height, size.height);
+    }
+
+    return constraints.constrain(Size(widths.fold(0, (double a, double b) => a + b), height));
+  }
+
+  @override
+  void performLayout() {
+    final List<double> widths = _widthsIn(constraints.maxWidth);
+    final List<RenderBox> children = _children;
+    double height = 0;
+
+    for (int index = 0; index < children.length; index += 1) {
+      children[index].layout(
+        BoxConstraints.tightFor(width: widths[index]).copyWith(maxHeight: constraints.maxHeight),
+        parentUsesSize: true,
+      );
+      height = math.max(height, children[index].size.height);
+    }
+
+    size = constraints.constrain(Size(widths.fold(0, (double a, double b) => a + b), height));
+
+    // From the start edge, which is the right one in a right-to-left set.
+    double start = 0;
+
+    for (final RenderBox child in children) {
+      final _SharedRowParentData data = child.parentData! as _SharedRowParentData;
+      final double top = (size.height - child.size.height) / 2;
+
+      data.offset = Offset(
+        _textDirection == TextDirection.rtl ? size.width - start - child.size.width : start,
+        top,
+      );
+      start += child.size.width;
+    }
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
+
+  @override
+  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
 }
 
 /// The tile that slides.
@@ -695,6 +882,7 @@ class _Tile<T> extends StatelessWidget {
                 ),
                 maxLines: 1,
                 softWrap: false,
+                overflow: TextOverflow.ellipsis,
                 child: IconTheme.merge(
                   data: IconThemeData(size: fontSize * iconScale),
                   // Eased as the tile slides in under the segment, so a chosen
@@ -706,7 +894,14 @@ class _Tile<T> extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       spacing: gap[size]!,
-                      children: <Widget>[?segment.startIcon, ?segment.label, ?segment.endIcon],
+                      // The label gives way, with an ellipsis, only in a
+                      // full-width set whose labels together are wider than
+                      // the row; anywhere else the segment is as wide as it.
+                      children: <Widget>[
+                        ?segment.startIcon,
+                        if (segment.label case final Widget label) Flexible(child: label),
+                        ?segment.endIcon,
+                      ],
                     ),
                   ),
                 ),

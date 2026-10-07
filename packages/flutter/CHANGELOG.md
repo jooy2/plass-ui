@@ -6,6 +6,7 @@
 
 ### Fixed
 
+- **A full-width `PlSegmentedButton` whose labels are wider than equal parts no longer overflows.** Every segment took an equal part of the row, so a label wider than its part ran out of its segment: `1,000`, `10,000` and `100,000` at `PlassSize.sm` in a 240-pixel card overflowed the last one. A segment whose label needs more than its part now keeps the width it needs and the others share what is left, as the React set already does, so those three fit. Only labels that together need more than the row are cut short, each with an ellipsis.
 - **A `PlDataTable` or `PlTable` with its header pinned no longer overflows when its rows narrow the columns.** The pinned header takes the columns' widths from the grid after the frame that laid them out, so in the frame where a filter or a page left narrower cells it still held the wider ones and its row overflowed, which a debug build drew as stripes for a frame and `flutter_test` reported as an error. The header now lays its row out at the widths it holds, and moves to the new ones a frame later as before.
 
 ## 1.8.0 (2026-10-07)

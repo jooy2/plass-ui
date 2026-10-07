@@ -184,6 +184,106 @@ void main() {
         expect(tile.width, closeTo((set - 8) / 3, 0.5));
       });
 
+      group('a full-width set', () {
+        // The box a label's segment fills, which its focus guard is the root
+        // of; the label's row is centred inside it.
+        Rect segmentOf(WidgetTester tester, String label) => tester.getRect(
+          find.ancestor(of: find.text(label), matching: find.byType(ExcludeFocus)).first,
+        );
+
+        bool cut(WidgetTester tester, String label) =>
+            tester.renderObject<RenderParagraph>(find.text(label)).didExceedMaxLines;
+
+        Widget setOf(List<String> labels, double width) => host(
+          PlSegmentedButton<String>(
+            size: PlassSize.sm,
+            fullWidth: true,
+            value: labels.first,
+            onChanged: (String _) {},
+            segments: <PlSegment<String>>[
+              for (final String label in labels)
+                PlSegment<String>(value: label, label: Text(label)),
+            ],
+          ),
+          width: width,
+        );
+
+        testWidgets('gives every segment an equal part while every label fits in one', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(setOf(<String>['A', 'B', 'C'], 300));
+          await tester.pumpAndSettle();
+
+          final List<double> widths = <double>[
+            for (final String label in <String>['A', 'B', 'C']) segmentOf(tester, label).width,
+          ];
+
+          expect(widths[0], closeTo(292 / 3, 0.5));
+          expect(widths[1], closeTo(widths[0], 0.01));
+          expect(widths[2], closeTo(widths[0], 0.01));
+        });
+
+        testWidgets(
+          'lets a label wider than its part keep its width, and the rest share what is left',
+          (WidgetTester tester) async {
+            await tester.pumpWidget(setOf(<String>['A', 'B', 'A longer label'], 300));
+            await tester.pumpAndSettle();
+
+            final Rect a = segmentOf(tester, 'A');
+            final Rect b = segmentOf(tester, 'B');
+            final Rect long = segmentOf(tester, 'A longer label');
+
+            expect(tester.takeException(), isNull);
+            expect(long.width, greaterThan(292 / 3));
+            expect(cut(tester, 'A longer label'), isFalse);
+            expect(a.width, closeTo(b.width, 0.01));
+            expect(a.width + b.width + long.width, closeTo(292, 0.5));
+            expect(a.right, closeTo(b.left, 0.01));
+            expect(b.right, closeTo(long.left, 0.01));
+          },
+        );
+
+        testWidgets(
+          'ends its labels in an ellipsis rather than overflowing when they cannot all fit',
+          (WidgetTester tester) async {
+            await tester.pumpWidget(setOf(<String>['1,000', '10,000', '100,000'], 240));
+            await tester.pumpAndSettle();
+
+            expect(tester.takeException(), isNull);
+            expect(cut(tester, '100,000'), isTrue);
+            expect(
+              <String>['1,000', '10,000', '100,000']
+                  .map((String label) => segmentOf(tester, label).width)
+                  .reduce((double a, double b) => a + b),
+              closeTo(232, 0.5),
+            );
+          },
+        );
+
+        testWidgets('lays its segments out from the right in a right-to-left set', (
+          WidgetTester tester,
+        ) async {
+          await tester.pumpWidget(
+            host(
+              PlSegmentedButton<String>(
+                fullWidth: true,
+                value: 'A',
+                onChanged: (String _) {},
+                segments: const <PlSegment<String>>[
+                  PlSegment<String>(value: 'A', label: Text('A')),
+                  PlSegment<String>(value: 'B', label: Text('B')),
+                ],
+              ),
+              width: 300,
+              textDirection: TextDirection.rtl,
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(segmentOf(tester, 'A').left, greaterThan(segmentOf(tester, 'B').left));
+        });
+      });
+
       testWidgets('draws no tile when nothing is chosen', (WidgetTester tester) async {
         await tester.pumpWidget(
           host(const PlSegmentedButton<String>(segments: views, value: null), width: 480),

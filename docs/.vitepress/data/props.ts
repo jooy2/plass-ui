@@ -9641,8 +9641,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: 'boolean',
       default: 'false',
       description: {
-        ko: '세그먼트들이 전체 너비를 균등하게 나눠 가집니다',
-        en: 'The segments share the full width, each taking an equal part of it'
+        ko: '세그먼트들이 전체 너비를 균등하게 나눠 가집니다. 라벨이 자기 몫보다 넓은 세그먼트는 필요한 너비를 갖고, 나머지가 남은 너비를 나눠 가집니다',
+        en: 'The segments share the full width, an equal part each. A segment whose label needs more than its part keeps the width it needs, and the others share the rest'
       }
     },
     {

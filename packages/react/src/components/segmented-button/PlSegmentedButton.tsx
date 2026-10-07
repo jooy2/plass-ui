@@ -99,7 +99,11 @@ export interface PlSegmentedButtonProps
   readOnly?: boolean;
   /** Identifies the value when a form is submitted. */
   name?: string;
-  /** The segments share the full width, each taking an equal part of it. */
+  /**
+   * The segments share the full width, an equal part each. A segment whose
+   * label needs more than its part keeps the width it needs, and the others
+   * share the rest.
+   */
   fullWidth?: boolean;
   children?: React.ReactNode;
 }
