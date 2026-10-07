@@ -1,9 +1,9 @@
 ---
-title: PlToast
+title: PlToastProvider
 order: 5
 ---
 
-# PlToast
+# PlToastProvider
 
 <p class="plass-lede">A message that appears on its own, says what happened, and leaves. Wrap the application in a <code>PlToastProvider</code> once, and raise one from anywhere under it.</p>
 

@@ -1646,7 +1646,7 @@ const entries: Entry[] = [
     )
   },
   {
-    name: 'PlToast',
+    name: 'PlToastProvider',
     group: 'feedback',
     href: 'components/feedback/toast',
     blurb: {

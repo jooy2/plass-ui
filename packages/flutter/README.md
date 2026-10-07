@@ -109,7 +109,7 @@ The list also names `PlToggleGroup`, which is not counted on its own because it 
 
 ### Feedback
 
-`PlAlert` · `PlConfirmProvider` · `PlDrawer` · `PlEmpty` · `PlMeter` · `PlModal` · `PlOverlay` · `PlPopconfirm` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToast` · `PlTooltip` · `PlTour`
+`PlAlert` · `PlConfirmProvider` · `PlDrawer` · `PlEmpty` · `PlMeter` · `PlModal` · `PlOverlay` · `PlPopconfirm` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToastProvider` · `PlTooltip` · `PlTour`
 
 ### Inputs
 

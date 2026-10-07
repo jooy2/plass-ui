@@ -139,7 +139,7 @@ The counts at the top of this page are one component per folder. The list also n
 
 ### Feedback
 
-`PlAlert` · `PlConfirmProvider` · `PlDrawer` · `PlEmpty` · `PlMeter` · `PlModal` · `PlOverlay` · `PlPopconfirm` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToast` · `PlTooltip` · `PlTour`
+`PlAlert` · `PlConfirmProvider` · `PlDrawer` · `PlEmpty` · `PlMeter` · `PlModal` · `PlOverlay` · `PlPopconfirm` · `PlPopover` · `PlProgressBox` · `PlProgressCircular` · `PlProgressLinear` · `PlSkeleton` · `PlToastProvider` · `PlTooltip` · `PlTour`
 
 ### Inputs
 

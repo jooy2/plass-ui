@@ -75,7 +75,7 @@ Every component page covers both frameworks. The hooks, and the three components
 - [PlProgressCircular](https://plass.cdget.com/components/feedback/progress-circular): a ring that fills, where there is no room for a bar
 - [PlProgressLinear](https://plass.cdget.com/components/feedback/progress-linear): a bar that fills as the work gets done
 - [PlSkeleton](https://plass.cdget.com/components/feedback/skeleton): the shape of something that has not loaded yet
-- [PlToast](https://plass.cdget.com/components/feedback/toast): a message that appears on its own, says what happened and leaves
+- [PlToastProvider](https://plass.cdget.com/components/feedback/toast): a message that appears on its own, says what happened and leaves
 - [PlTooltip](https://plass.cdget.com/components/feedback/tooltip): a short label shown while the pointer or the focus rests on something
 - [PlTour](https://plass.cdget.com/components/feedback/tour): a guided walk over a screen that already exists
 

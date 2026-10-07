@@ -1,9 +1,9 @@
 ---
-title: PlToast
+title: PlToastProvider
 order: 5
 ---
 
-# PlToast
+# PlToastProvider
 
 <p class="plass-lede">스스로 나타나 무슨 일이 있었는지 말하고 사라지는 메시지입니다. 앱을 <code>PlToastProvider</code>로 한 번 감싸고, 그 아래 어디서든 올립니다.</p>
 
