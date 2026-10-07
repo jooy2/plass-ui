@@ -14,6 +14,7 @@ jobs:
   run-test-flutter:
     runs-on: ${{ matrix.os }}
     name: Test Flutter ${{ matrix.flutter_version || 'stable' }} on ${{ matrix.os }}
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -58,6 +59,7 @@ jobs:
     # the Dart the docs quote verbatim — so a snippet that stopped compiling has
     # to fail here rather than on the site.
     name: Analyze the gallery
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v5

@@ -18,6 +18,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     name: Lint and typecheck
+    timeout-minutes: 15
 
     steps:
       - uses: actions/checkout@v5
@@ -50,6 +51,9 @@ jobs:
   run-test-react:
     runs-on: ${{ matrix.os }}
     name: Test Node.js ${{ matrix.node_version }} on ${{ matrix.os }} (${{ matrix.browser }})
+    # About twice the slowest job, Windows Firefox at 20 minutes. A browser that
+    # hangs prints nothing, and without a limit it runs to GitHub's 360.
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:

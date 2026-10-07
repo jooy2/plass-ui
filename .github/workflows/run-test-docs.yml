@@ -16,6 +16,7 @@ jobs:
   run-test-docs:
     runs-on: ubuntu-latest
     name: Typecheck, lint and build the documentation
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v5
