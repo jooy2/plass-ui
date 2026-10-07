@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.8.0 (2026-10-07)
+
 ### Breaking changes
 
 - **An `aria-label` given beside a visible `label` names the control in the label's place.** On a `PlTextField`, a `PlCheckbox`, a `PlSwitch`, a `PlRadio`, a `PlRadioGroup` and an `inline` `PlColorPicker`, Base UI pointed the control's `aria-labelledby` at the visible label, which outranks an `aria-label`, so the `aria-label` was ignored, where a native control, ARIA and the Flutter build's `semanticLabel` all let it win. It now names the control, and the label's words are not read after it; a `PlRadioGroup` or a `PlSegmentedButton` inside a `PlFieldset` takes it in the legend's place the same way. A caller's `aria-labelledby` still outranks both, and a control with no `aria-label` is named as before. Remove an `aria-label` that was only there beside a `label`, or make it contain the label's words, so a reader who says the visible label to a voice-control tool still reaches the control.
