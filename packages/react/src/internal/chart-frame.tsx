@@ -1202,7 +1202,10 @@ export interface CartesianContext extends CartesianLayout {
   activeMark: ChartMark | null;
 }
 
-/** One line of the summary a screen reader is handed: a series and its end. */
+/**
+ * One line of the summary a screen reader is handed: a series and its end, or
+ * a timeline's row and the stretch of time it covers.
+ */
 interface ChartSummaryEntry {
   name: string;
   /** What the series ended on, or `null` for a series that is all gaps. */
@@ -1234,6 +1237,13 @@ interface CartesianProps extends CartesianChartProps {
    * the id it is referred to by and what it is called.
    */
   table?: (id: string, name: ChartTableName) => React.ReactNode;
+  /**
+   * What a screen reader is handed in place of the drawing, for a chart whose
+   * series are not what it is about. A timeline hands the frame one stand-in
+   * series for its rows, and "each series and where it ended" would read that
+   * series out as a number nobody wrote. The reference lines still follow it.
+   */
+  summary?: readonly ChartSummaryEntry[];
   /** The legend's swatch, for a chart whose marks are not all the same shape. */
   swatch?: (index: number, color: string) => React.ReactNode;
   /**
@@ -1336,6 +1346,7 @@ export function CartesianChart({
   marks,
   markRadius = 24,
   table,
+  summary: givenSummary,
   swatch,
   stroked = false,
   scale: givenScale,
@@ -1430,6 +1441,7 @@ export function CartesianChart({
      is that it is no longer also the description. */
   const summary = React.useMemo<readonly ChartSummaryEntry[]>(
     () =>
+      givenSummary ??
       series.flatMap<ChartSummaryEntry>((one, index) => {
         if (!visibility.visible[index]) {
           return [];
@@ -1445,7 +1457,7 @@ export function CartesianChart({
 
         return [{ name, said: last.label ?? formatValue(last.value as number) }];
       }),
-    [series, values, visibility.visible, formatValue]
+    [givenSummary, series, values, visibility.visible, formatValue]
   );
 
   const plotHeight = givenHeight(height, plotHeights[size]);
@@ -2738,4 +2750,4 @@ export {
   useMeasuredSize,
   useVisibility
 };
-export type { ChartTableName, Visibility };
+export type { ChartSummaryEntry, ChartTableName, Visibility };

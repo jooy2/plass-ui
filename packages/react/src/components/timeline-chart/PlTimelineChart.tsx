@@ -9,6 +9,7 @@ import {
   type CartesianContext,
   type CartesianLayout,
   type ChartMark,
+  type ChartSummaryEntry,
   type ChartTableName,
   type ChartTooltipItem
 } from '../../internal/chart-frame.js';
@@ -165,6 +166,40 @@ export function PlTimelineChart({
      read stays on its row when a row ahead of it leaves the data. */
   const rowKeys = React.useMemo(() => entryKeys(series), [series]);
 
+  /* What a screen reader is handed in place of the drawing: each row and the
+     stretch of time its spans on the plot cover, as a series is read by where
+     it ended, with the spans one by one left to the table. Without it the
+     frame reads its stand-in series, "1 1". A row with nothing on the plot is
+     named alone, as a series of gaps is. */
+  const summary = React.useMemo<readonly ChartSummaryEntry[]>(
+    () =>
+      spans.map((row, index) => {
+        let from = Infinity;
+        let to = -Infinity;
+
+        for (const one of row) {
+          if (one && inWindow(one, scale)) {
+            from = Math.min(from, one.from);
+            to = Math.max(to, one.to);
+          }
+        }
+
+        return {
+          name: names[index],
+          said:
+            from > to
+              ? null
+              : `${formatTimeValue(from, scale.unit, locale, withDate)} – ${formatTimeValue(
+                  to,
+                  scale.unit,
+                  locale,
+                  withDate
+                )}`
+        };
+      }),
+    [spans, names, scale, locale, withDate]
+  );
+
   const thickness = barSize ?? barMaxThickness[size];
 
   const marks = React.useCallback(
@@ -277,6 +312,7 @@ export function PlTimelineChart({
       bandRatio={barBandRatio[density]}
       marks={marks}
       markTooltip={markTooltip}
+      summary={summary}
       table={(id, name) => (
         <TimelineTable
           id={id}

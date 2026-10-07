@@ -101,7 +101,7 @@ Both ends, unlike a [bar chart](./bar-chart), where the baseline end stays squar
 
 ## Accessibility
 
-- The drawing carries the chart's name, and every span on the plot is handed over as text: each row, then its spans as the two instants they run between.
+- The drawing carries the chart's name, and what is on the plot is handed over as text, row by row.
 - The picture is a tab stop, and <kbd>↑</kbd> and <kbd>↓</kbd> walk the spans in the order the data was written. Each span is announced in a live region as it is reached.
 - On React the same data is written into a table under the chart, **a row per span** rather than the grid every other chart uses. Two rows of a Gantt have no columns in common: the third thing on one row and the third thing on another are unrelated, and filing them side by side would invent a relationship.
 - A span that names itself is named in the readout, with its row on the second line rather than repeated on the first.
@@ -110,5 +110,12 @@ Both ends, unlike a [bar chart](./bar-chart), where the baseline end stays squar
 
 - `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. The table under the chart is named the same way: an `aria-labelledby` points it at the same element, and otherwise the `aria-label` or `label` is its caption.
 - An `aria-describedby` describes the picture and is read ahead of the chart's own description.
+- Focusing the picture reads its name, then each row and the stretch of time its spans on the plot cover, from the first start to the last end, such as "Design Jan 1, 2026 – Jan 18, 2026, Build Jan 8, 2026 – Jan 26, 2026". A row with nothing on the plot is read by its name alone. The spans one by one are left to the table, which a reader steps into, because the description is read on every focus.
+
+:::
+
+::: fw flutter
+
+- As its value, the drawing carries **every span on the plot**: each row, then its spans as the two instants they run between. There is no hidden table on this side the way there is on React, so the text is the only path to the spans.
 
 :::

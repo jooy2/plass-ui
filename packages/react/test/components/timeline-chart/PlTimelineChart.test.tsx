@@ -109,6 +109,41 @@ describe('PlTimelineChart', () => {
         .element(screen.getByRole('img', { name: 'Plan' }))
         .toHaveAccessibleDescription('Nothing planned');
     });
+
+    it('is described by each row and the stretch of time its spans cover', async () => {
+      // Not by the one series the frame is handed in the rows' place, which was
+      // read out as "1 1".
+      const screen = await render(<PlTimelineChart label="Plan" series={PLAN} />);
+      const table = screen.getByRole('table', { name: 'Plan' });
+
+      await expect.element(table).toBeInTheDocument();
+
+      // Each span's start and end as the table writes them, so the test leaves
+      // the date format to the locale.
+      const times = [...table.element().querySelectorAll('tbody tr')].map((row) =>
+        [...row.querySelectorAll('td')].slice(-2).map((cell) => cell.textContent)
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Plan' }))
+        .toHaveAccessibleDescription(
+          `Design ${times[0][0]} – ${times[1][1]}, Build ${times[2][0]} – ${times[2][1]}`
+        );
+    });
+
+    it('names a row with nothing on the plot alone in its description', async () => {
+      const screen = await render(
+        <PlTimelineChart
+          label="Plan"
+          series={[...PLAN, { name: 'Launch', data: [{ start: at(40), end: at(41) }] }]}
+          max={at(30)}
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Plan' }))
+        .toHaveAccessibleDescription(/^Design .+, Build .+, Launch$/);
+    });
   });
 
   describe('the time axis', () => {
