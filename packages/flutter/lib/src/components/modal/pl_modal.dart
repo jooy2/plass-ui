@@ -352,12 +352,17 @@ class PlModal extends StatelessWidget {
         ),
     ];
 
+    // No decoration, whatever the sheet is laid over. Above a `MaterialApp`'s
+    // navigator, where `PlConfirmProvider` asks its questions, the text style
+    // in scope is the one that app marks text outside a `Material` with, a
+    // yellow double underline.
     Widget sheet = DefaultTextStyle.merge(
       style: TextStyle(
         color: tokens.fg,
         fontSize: body.size,
         height: body.height,
         leadingDistribution: TextLeadingDistribution.even,
+        decoration: TextDecoration.none,
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: dividers ? 0 : insetY),

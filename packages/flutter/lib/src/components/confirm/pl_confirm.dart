@@ -104,7 +104,11 @@ abstract class PlConfirmController {
 /// `WidgetsApp` or a `MaterialApp` there is no `Directionality` yet. `builder`
 /// is the place, and what `builder` returns sits above the navigator and the
 /// navigator's [Overlay] — so the dialog needs one of its own, or `confirm`
-/// fails with "No Overlay widget found".
+/// fails with "No Overlay widget found". Under a `MaterialApp` it also sits
+/// above every page's `Material`, where the text style in scope is the one that
+/// app marks text outside a `Material` with: the question never takes its
+/// underline, but it does take its monospace font, so put a `Material` of
+/// `MaterialType.transparency` round the provider to give it the app's own.
 ///
 /// ```dart
 /// WidgetsApp(

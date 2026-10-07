@@ -141,6 +141,18 @@ Lifting is the point rather than an implementation detail: a sheet drawn where i
 
 `PlToast` needs no `Overlay`. `PlToastProvider` draws its stack as a layer over what it wraps, so it goes straight into `builder` as `PlToastProvider(child: child!)`.
 
+Under `MaterialApp`, what `builder` returns also sits above every page's `Material`, so the text style in scope there is the one `MaterialApp` marks text outside a `Material` with, a monospace font with a yellow double underline. A toast and a confirmation never take the underline, but they do take the font, so give them the app's own with a transparent `Material` around the provider:
+
+```dart
+MaterialApp(
+  // …
+  builder: (BuildContext context, Widget? child) => Material(
+    type: MaterialType.transparency,
+    child: Overlay.wrap(child: PlConfirmProvider(child: child!)),
+  ),
+)
+```
+
 :::
 
 ## The page under the components

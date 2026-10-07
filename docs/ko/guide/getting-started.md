@@ -141,6 +141,18 @@ WidgetsApp(
 
 `PlToast`에는 `Overlay`가 필요 없습니다. `PlToastProvider`는 감싼 것 위에 스택을 레이어로 그리므로, `PlToastProvider(child: child!)`로 `builder`에 바로 둡니다.
 
+`MaterialApp`에서는 `builder`가 돌려준 위젯이 모든 페이지의 `Material`보다 위에 놓입니다. 그래서 그 자리의 글자 스타일은 `MaterialApp`이 `Material` 바깥의 글자를 표시하는 스타일, 곧 노란 이중 밑줄이 붙은 monospace 글꼴입니다. 토스트와 확인창은 밑줄은 받지 않지만 글꼴은 그대로 받으므로, provider를 투명한 `Material`로 감싸 앱의 글꼴을 쓰게 하세요.
+
+```dart
+MaterialApp(
+  // …
+  builder: (BuildContext context, Widget? child) => Material(
+    type: MaterialType.transparency,
+    child: Overlay.wrap(child: PlConfirmProvider(child: child!)),
+  ),
+)
+```
+
 :::
 
 ## 컴포넌트 아래에 깔릴 페이지

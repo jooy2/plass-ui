@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart' show MaterialApp, Material, MaterialType;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -227,6 +229,61 @@ void main() {
 
         expect(find.text('One'), findsNothing);
         expect(find.text('Two'), findsOneWidget);
+      });
+    });
+
+    group('under MaterialApp', () {
+      Widget appWith(Widget Function(Widget child) wrap) => MaterialApp(
+        builder: (BuildContext context, Widget? child) => wrap(PlToastProvider(child: child!)),
+        home: Builder(
+          builder: (BuildContext context) => Center(
+            child: GestureDetector(
+              onTap: () => PlToastProvider.of(context).show(const PlToast(title: Text('Saved'))),
+              child: const Text('show'),
+            ),
+          ),
+        ),
+      );
+
+      Future<TextStyle?> raised(WidgetTester tester) async {
+        await tester.tap(find.text('show'));
+        await tester.pump(const Duration(milliseconds: 500));
+
+        final TextStyle? style = tester
+            .renderObject<RenderParagraph>(find.text('Saved'))
+            .text
+            .style;
+
+        // Out of the way again, so no timer is left running.
+        await tester.pump(const Duration(seconds: 10));
+        await tester.pumpAndSettle();
+
+        return style;
+      }
+
+      testWidgets(
+        'raises its words without the underline MaterialApp marks text outside a Material with',
+        (WidgetTester tester) async {
+          // What `builder` returns sits above every page's `Material`, where the
+          // text style in scope is MaterialApp's monospace with a yellow double
+          // underline.
+          await tester.pumpWidget(appWith((Widget child) => child));
+
+          expect((await raised(tester))?.decoration, TextDecoration.none);
+        },
+      );
+
+      testWidgets('raises its words in the app’s text style inside the Material its docs show', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          appWith((Widget child) => Material(type: MaterialType.transparency, child: child)),
+        );
+
+        final TextStyle? style = await raised(tester);
+
+        expect(style?.fontFamily, isNot('monospace'));
+        expect(style?.decoration, TextDecoration.none);
       });
     });
 

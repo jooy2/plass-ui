@@ -46,7 +46,7 @@ PlToastProvider.of(context).show(
 );
 ```
 
-The provider goes inside the app rather than around it, because around the app there is no `Directionality` yet. It needs no `Overlay`, so `builder` is a good place for it.
+The provider goes inside the app rather than around it, because around the app there is no `Directionality` yet. It needs no `Overlay`, so `builder` is a good place for it. Under `MaterialApp`, put a transparent `Material` round it so a toast's words take the app's font, as [Getting started](../../guide/getting-started#the-one-provider-you-may-need) shows.
 
 :::
 

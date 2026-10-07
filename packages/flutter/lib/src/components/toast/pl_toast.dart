@@ -211,6 +211,12 @@ abstract class PlToastController {
 /// The stack is a layer over whatever the provider wraps, so it needs no
 /// [Overlay] of its own: the provider is already above everything it has to
 /// cover, and `builder` is therefore all it asks for.
+///
+/// Under a `MaterialApp`, what `builder` returns also sits above every page's
+/// `Material`, where the text style in scope is the one that app marks text
+/// outside a `Material` with. A toast never takes its underline, but it does
+/// take its monospace font, so put a `Material` of `MaterialType.transparency`
+/// round the provider to give it the app's own.
 class PlToastProvider extends StatefulWidget {
   /// Creates a provider.
   const PlToastProvider({
@@ -803,11 +809,16 @@ class _Toast extends StatelessWidget {
                 horizontal: sheetPaddingX[density]![size]!,
                 vertical: sheetPaddingY[density]![size]!,
               ),
+              // No decoration, whatever the stack is laid over: in a
+              // `MaterialApp`'s `builder`, above the navigator, the style in
+              // scope is the one that app marks text outside a `Material`
+              // with, a yellow double underline.
               child: DefaultTextStyle.merge(
                 style: TextStyle(
                   fontSize: body.size,
                   height: body.height,
                   leadingDistribution: TextLeadingDistribution.even,
+                  decoration: TextDecoration.none,
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

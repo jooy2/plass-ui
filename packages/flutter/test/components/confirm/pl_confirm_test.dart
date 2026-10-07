@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart' show MaterialApp, Material, MaterialType;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -78,6 +80,46 @@ void main() {
 
         expect(find.text('삭제'), findsOneWidget);
         expect(find.text('취소'), findsOneWidget);
+      });
+    });
+
+    group('under MaterialApp', () {
+      Widget appWith(Widget Function(Widget child) wrap) => MaterialApp(
+        builder: (BuildContext context, Widget? child) =>
+            wrap(Overlay.wrap(child: PlConfirmProvider(child: child!))),
+        home: Center(
+          child: _Asker(
+            answer: (Object? _) {},
+            options: const PlConfirmOptions(title: Text('Delete this project?')),
+          ),
+        ),
+      );
+
+      TextStyle? titleStyle(WidgetTester tester) =>
+          tester.renderObject<RenderParagraph>(find.text('Delete this project?')).text.style;
+
+      testWidgets('asks without the underline MaterialApp marks text outside a Material with', (
+        WidgetTester tester,
+      ) async {
+        // What `builder` returns sits above every page's `Material`, where the
+        // text style in scope is MaterialApp's monospace with a yellow double
+        // underline.
+        await tester.pumpWidget(appWith((Widget child) => child));
+        await _press(tester, 'Delete');
+
+        expect(titleStyle(tester)?.decoration, TextDecoration.none);
+      });
+
+      testWidgets('asks in the app’s text style inside the Material its docs show', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          appWith((Widget child) => Material(type: MaterialType.transparency, child: child)),
+        );
+        await _press(tester, 'Delete');
+
+        expect(titleStyle(tester)?.fontFamily, isNot('monospace'));
+        expect(titleStyle(tester)?.decoration, TextDecoration.none);
       });
     });
 

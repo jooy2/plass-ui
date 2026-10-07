@@ -46,7 +46,7 @@ PlToastProvider.of(context).show(
 );
 ```
 
-provider는 앱을 감싸지 말고 앱 안에 두세요. 앱 바깥에는 아직 `Directionality`가 없습니다. `Overlay`는 필요 없으므로 `builder`에 두면 알맞습니다.
+provider는 앱을 감싸지 말고 앱 안에 두세요. 앱 바깥에는 아직 `Directionality`가 없습니다. `Overlay`는 필요 없으므로 `builder`에 두면 알맞습니다. `MaterialApp`에서는 토스트의 글자가 앱의 글꼴을 쓰도록 투명한 `Material`로 감싸세요. 방법은 [시작하기](../../guide/getting-started#위쪽에-필요한-provider-하나)에 있습니다.
 
 :::
 
