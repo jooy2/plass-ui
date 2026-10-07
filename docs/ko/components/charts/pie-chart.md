@@ -137,6 +137,12 @@ PlPieChart(data: traffic, categories: sources);
 - legend는 진짜 button입니다. 하나를 누르면 그 조각이 고리에서 빠지고 각도가 나머지에 다시 나뉩니다.
 - 색은 유일한 통로가 아닙니다. 모든 조각은 legend에도, 읽어주는 값에도, 표에도 이름으로 있습니다.
 
+::: fw react
+
+- `label`이 그림에 이름을 붙이고, `aria-label`은 `label` 대신 그 이름이 되며, `aria-labelledby`는 그 둘보다 앞섭니다. 차트 아래 표에 caption을 붙이는 것은 `label`뿐입니다.
+
+:::
+
 ::: fw flutter
 
 - 리모컨의 방향 버튼으로 움직이는 `NavigationMode.directional`에서는 화살표가 차트를 벗어나는 유일한 길이기도 해서, 첫 조각과 마지막 조각에서 돌지 않고 멈춥니다. 그 너머로 누른 화살표는 그쪽의 다음 컨트롤로 focus를 넘깁니다. 브라우저에는 이런 모드가 없습니다.

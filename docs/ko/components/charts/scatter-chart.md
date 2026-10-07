@@ -100,6 +100,7 @@ PlScatterChart(series: stores);
 ::: fw react
 
 - 그림은 `role="img"`입니다. focus가 닿으면 이름에 이어 한 줄 요약을 읽습니다. 보이는 series마다 이름과 마지막 점의 `y`를 읽고, 그 점에 `label`이 있으면 `y` 대신 `label`을 읽습니다. "Web 40, App 8" 같은 모양입니다. 모든 점은 차트 아래 표에 있습니다. 화면에서는 잘려 보이지 않지만 접근성 트리에서는 빠지지 않습니다.
+- `label`이 그림에 이름을 붙이고, `aria-label`은 `label` 대신 그 이름이 되며, `aria-labelledby`는 그 둘보다 앞섭니다. 차트 아래 표에 caption을 붙이는 것은 `label`뿐입니다.
 
 :::
 

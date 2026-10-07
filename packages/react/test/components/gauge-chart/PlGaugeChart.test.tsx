@@ -260,6 +260,51 @@ describe('PlGaugeChart', () => {
       await expect.element(plot).toHaveAccessibleDescription('No scale');
     });
 
+    it('describes a dial named by an `aria-label` by its caption, as one named by `label`', async () => {
+      const screen = await render(
+        <PlGaugeChart aria-label="Quota" value={68} caption="of quota" />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Quota: 68 / 100', exact: true }))
+        .toHaveAccessibleDescription('of quota');
+    });
+
+    it('reads the reading after the words an `aria-labelledby` points at, and describes the dial by its caption', async () => {
+      const screen = await render(
+        <>
+          <h3 id="gauge-heading">Storage</h3>
+          <PlGaugeChart aria-labelledby="gauge-heading" value={68} caption="of quota" />
+        </>
+      );
+
+      const plot = screen.getByRole('img', { name: 'Storage 68 / 100', exact: true });
+
+      await expect.element(plot).toHaveAccessibleDescription('of quota');
+      expect(plot.element().getAttribute('aria-labelledby')).toMatch(/^gauge-heading \S+$/);
+    });
+
+    it('names an empty dial by the words an `aria-labelledby` points at alone', async () => {
+      const screen = await render(
+        <>
+          <h3 id="gauge-heading">Storage</h3>
+          <PlGaugeChart
+            aria-labelledby="gauge-heading"
+            value={5}
+            min={10}
+            max={10}
+            empty={<em>No scale</em>}
+          />
+        </>
+      );
+
+      const plot = screen.getByRole('img');
+
+      await expect.element(plot).toHaveAccessibleName('Storage');
+      await expect.element(plot).toHaveAttribute('aria-labelledby', 'gauge-heading');
+      await expect.element(plot).toHaveAccessibleDescription('No scale');
+    });
+
     it('has no description when it writes nothing its name does not say', async () => {
       const screen = await render(<PlGaugeChart label="Quota" value={68} />);
 

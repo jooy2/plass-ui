@@ -300,6 +300,31 @@ describe('PlSparkline', () => {
       await expect.element(screen.getByText('1.234,5, 2,25')).toBeInTheDocument();
     });
 
+    it('reads out the numbers beside a strip named by an `aria-label`', async () => {
+      const screen = await render(
+        <PlSparkline aria-label="Signups" data={[1, null, 3]} width={200} />
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Signups', exact: true }))
+        .toBeInTheDocument();
+      await expect.element(screen.getByText('1, —, 3')).toBeInTheDocument();
+    });
+
+    it('reads out the numbers beside a strip named by an `aria-labelledby`', async () => {
+      const screen = await render(
+        <>
+          <span id="sparkline-heading">Signups</span>
+          <PlSparkline aria-labelledby="sparkline-heading" data={[1, null, 3]} width={200} />
+        </>
+      );
+
+      await expect
+        .element(screen.getByRole('img', { name: 'Signups', exact: true }))
+        .toHaveAttribute('aria-labelledby', 'sparkline-heading');
+      await expect.element(screen.getByText('1, —, 3')).toBeInTheDocument();
+    });
+
     it('is invisible to a reader when it carries no name', async () => {
       const screen = await render(<PlSparkline data={TREND} width={200} />);
 

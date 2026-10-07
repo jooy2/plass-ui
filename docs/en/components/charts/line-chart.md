@@ -245,6 +245,7 @@ The tokens are `--plass-chart-1` through `--plass-chart-8`, and a project that m
 ::: fw react
 
 - The picture is a `role="img"`. Focusing it reads its name and then a one-line summary: each visible series and where it ended up, such as "Web 40, App 8". The chart also renders a real `<table>` of every value, clipped from view but never hidden from the accessibility tree, as a sibling of the picture — so the values are one step away rather than four hundred of them read out on every focus.
+- `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. Only `label` captions the table under the chart.
 
 :::
 

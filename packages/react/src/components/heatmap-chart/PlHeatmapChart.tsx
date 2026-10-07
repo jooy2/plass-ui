@@ -124,6 +124,8 @@ export function PlHeatmapChart({
   format,
   locale: localeProp,
   label,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   legend,
   tooltip,
   empty,
@@ -478,9 +480,10 @@ export function PlHeatmapChart({
         ref={hostRef}
         role="img"
         tabIndex={nothing ? undefined : 0}
-        // Never the bare prop: `label` is optional, and a focusable `role="img"`
-        // with nothing to be called by is a tab stop that announces silence.
-        aria-label={label ?? words.chart}
+        // A caller's reference, then their words in `label`'s place, then
+        // `label`, as on every chart: see `CartesianChart`.
+        aria-labelledby={ariaLabelledBy}
+        aria-label={ariaLabel ?? label ?? words.chart}
         // An empty chart is described by the words it draws instead, which
         // are inside the picture and so read only through this reference.
         aria-describedby={nothing ? emptyId : summaryId}

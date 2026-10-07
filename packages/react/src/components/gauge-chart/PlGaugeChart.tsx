@@ -133,6 +133,8 @@ export function PlGaugeChart({
   format,
   locale: localeProp,
   label,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   empty,
   size: sizeProp,
   variant = 'ghost',
@@ -152,6 +154,7 @@ export function PlGaugeChart({
   const emptyId = React.useId();
   const centreId = React.useId();
   const captionId = React.useId();
+  const readingId = React.useId();
 
   const formatValue = React.useCallback(
     (each: number) =>
@@ -333,6 +336,19 @@ export function PlGaugeChart({
   const tickCount = ticks === false ? 0 : Math.max(2, Math.floor(ticks));
 
   /*
+   * What the dial is called: a caller's reference, then their words in
+   * `label`'s place, then `label`, as on every chart. Any of the three makes it
+   * an image, and the reading follows whichever it is. A reference names the
+   * dial with another element's words, which this cannot add to, so the
+   * reading is read after them out of a hidden copy of its own. An empty dial,
+   * or one with no value, draws no reading, so its name says none.
+   */
+  const stem = ariaLabel ?? label;
+  const named = ariaLabelledBy !== undefined || stem !== undefined;
+  const readingText =
+    value === null || nothing ? null : `${formatValue(value)} / ${formatValue(max)}`;
+
+  /*
    * What a named dial is described by: the words it writes that its name does
    * not already say. The name carries the reading, so the number written in
    * the hole is left out and a caller's own `center` is not, and the caption
@@ -369,18 +385,22 @@ export function PlGaugeChart({
         // reading in the middle is read as the text it already is. An empty
         // dial is called by its name alone: it draws no reading, so it says
         // none, and the empty state's words follow as its description.
-        role={label === undefined ? undefined : 'img'}
-        aria-label={
-          label === undefined
-            ? undefined
-            : value === null || nothing
-              ? label
-              : `${label}: ${formatValue(value)} / ${formatValue(max)}`
+        role={named ? 'img' : undefined}
+        aria-labelledby={
+          ariaLabelledBy === undefined || readingText === null
+            ? ariaLabelledBy
+            : `${ariaLabelledBy} ${readingId}`
         }
-        aria-describedby={
-          label === undefined || described.length === 0 ? undefined : described.join(' ')
-        }
+        aria-label={stem === undefined || readingText === null ? stem : `${stem}: ${readingText}`}
+        aria-describedby={!named || described.length === 0 ? undefined : described.join(' ')}
       >
+        {ariaLabelledBy !== undefined && readingText !== null ? (
+          // `hidden`, so it is read as the end of the name and never as text
+          // of its own beside the reading drawn in the middle.
+          <span id={readingId} hidden>
+            {readingText}
+          </span>
+        ) : null}
         {nothing ? (
           <div
             id={emptyId}

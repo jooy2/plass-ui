@@ -249,6 +249,10 @@ export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
   /**
    * The chart's accessible name — what it is a chart *of*. Read out in place of
    * the drawing, and used as the caption of the table underneath it.
+   *
+   * It is not text anybody sees, so an `aria-label` names the drawing in its
+   * place, as one names a control in its visible label's, and an
+   * `aria-labelledby` outranks both. Neither captions the table.
    */
   label?: string;
   /**
@@ -1308,6 +1312,8 @@ export function CartesianChart({
   format,
   locale: localeProp,
   label,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   legend,
   tooltip,
   empty,
@@ -2069,9 +2075,14 @@ export function CartesianChart({
         ref={hostRef}
         role="img"
         tabIndex={nothing ? undefined : 0}
-        // Never the bare prop: `label` is optional, and a focusable `role="img"`
-        // with nothing to be called by is a tab stop that announces silence.
-        aria-label={label ?? words.chart}
+        // A caller's reference, then their words in `label`'s place, then
+        // `label`: taken here rather than left in the props the box is handed,
+        // where a `<div>` with no role is named by neither. Never the bare
+        // prop at the end, because `label` is optional, and a focusable
+        // `role="img"` with nothing to be called by is a tab stop that
+        // announces silence.
+        aria-labelledby={ariaLabelledBy}
+        aria-label={ariaLabel ?? label ?? words.chart}
         // An empty chart is described by the words it draws instead, which
         // are inside the picture and so read only through this reference.
         aria-describedby={nothing ? emptyId : summaryId}

@@ -138,6 +138,8 @@ export function PlPieChart({
   format,
   locale: localeProp,
   label,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   legend,
   tooltip,
   empty,
@@ -364,9 +366,10 @@ export function PlPieChart({
         ref={hostRef}
         role="img"
         tabIndex={nothing ? undefined : 0}
-        // Never the bare prop: `label` is optional, and a focusable `role="img"`
-        // with nothing to be called by is a tab stop that announces silence.
-        aria-label={label ?? words.chart}
+        // A caller's reference, then their words in `label`'s place, then
+        // `label`, as on every chart: see `CartesianChart`.
+        aria-labelledby={ariaLabelledBy}
+        aria-label={ariaLabel ?? label ?? words.chart}
         // What the hole holds and the empty state's words are inside the
         // picture, so they are read only through this reference: the centre
         // ahead of the slices, as it is the figure the ring was drawn around,

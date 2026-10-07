@@ -110,3 +110,9 @@ Puts a dot on the last point that is actually a point, not on the last slot. It 
 - Without a `label` the strip is **taken off the accessibility tree entirely.** A sparkline is decoration beside text that already carries the numbers, and an unlabelled image announced as an image is noise.
 - With a `label` it becomes a named `role="img"`, and the values are written out beside it, clipped from view, never hidden from the tree. What a sparkline has to give a screen reader is the numbers, not a description of the shape they make.
 - Colour is never the only channel here either: a sparkline sits beside the name and the number it belongs to.
+
+::: fw react
+
+- An `aria-label` names the strip in `label`'s place, and an `aria-labelledby` outranks both. Either one makes it a named `role="img"` with its values written out beside it, as `label` does, so only a strip given none of the three is taken off the tree.
+
+:::

@@ -137,6 +137,12 @@ Where the first slice starts, in degrees clockwise from twelve o'clock. `semi` i
 - The legend is real buttons. Pressing one takes its slice out of the ring and shares the angle out again among the rest.
 - Colour is never the only channel: every slice is named in the legend, in the readout and in the table.
 
+::: fw react
+
+- `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. Only `label` captions the table under the chart.
+
+:::
+
 ::: fw flutter
 
 - Under `NavigationMode.directional`, a remote's D-pad, the arrows are also the only way off the chart, so the walk stops at the first and the last slice rather than going round, and an arrow past either moves the focus to the next control that way. A browser has no such mode.

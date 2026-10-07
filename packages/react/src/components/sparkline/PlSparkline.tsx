@@ -77,7 +77,13 @@ export interface PlSparklineProps
    * server's included, so `initialWidth` only matters for any other length.
    */
   width?: number | string;
-  /** A name for the strip, read out in place of it. */
+  /**
+   * A name for the strip, read out in place of it.
+   *
+   * An `aria-label` names the strip in its place and an `aria-labelledby`
+   * outranks both. With none of the three the strip is decoration, and is
+   * taken off the accessibility tree.
+   */
   label?: string;
 }
 
@@ -110,6 +116,8 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
       width: widthProp,
       initialWidth,
       label,
+      'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       className,
       style,
       ...props
@@ -123,6 +131,14 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
     const hostRef = React.useRef<HTMLDivElement>(null);
     const { width: measured, guessed } = useMeasuredSize(hostRef, initialWidth);
     const id = React.useId().replace(/:/g, '');
+
+    /* What the strip is called: a caller's reference, then their words in
+       `label`'s place, then `label`, as on every chart. Taken here rather than
+       left on the box, a `<div>` with no role, where they would name nothing.
+       Any of the three makes the strip a picture that owes its reader the
+       values; with none it is decoration. */
+    const name = ariaLabel || label;
+    const named = Boolean(ariaLabelledBy || name);
 
     const values = React.useMemo(() => data.map(toValue), [data]);
     const height = sparklineHeights[size];
@@ -201,9 +217,10 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
               width={width}
               height={height}
               viewBox={`0 0 ${width} ${height}`}
-              role={label ? 'img' : 'presentation'}
-              aria-label={label}
-              aria-hidden={label ? undefined : true}
+              role={named ? 'img' : 'presentation'}
+              aria-labelledby={ariaLabelledBy || undefined}
+              aria-label={name || undefined}
+              aria-hidden={named ? undefined : true}
               className="block overflow-visible"
             >
               <defs>
@@ -294,7 +311,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
             a picture of a trend and nothing else, so what it owes is the values
             — not a description of the shape they happen to make — written as
             every chart writes a value it was given no `format` for. */}
-        {label ? (
+        {named ? (
           <span className={srOnlyClasses}>
             {values
               .map((value) =>

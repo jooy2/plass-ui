@@ -123,3 +123,10 @@ The reading is **real text, not a label painted into the drawing**, so it can be
 - Without one it stays a plain box, and the reading in the middle is read as the text it already is.
 - The value is never carried by colour alone. A threshold changes the family; the number in the middle says the same thing in words.
 - The arc sweeps to a new reading rather than jumping to it, and the sweep is a length rather than a transform. The numbers written across the dial are never resampled.
+
+::: fw react
+
+- An `aria-label` names the dial in `label`'s place, and an `aria-labelledby` outranks both. Either one makes the dial a named image as `label` does, so only a dial given none of the three stays a plain box.
+- The reading follows whichever name the dial has. An `aria-label` is read as `label` is, and an `aria-labelledby` is read as the words of the element it points at, then `1.36 / 2`.
+
+:::

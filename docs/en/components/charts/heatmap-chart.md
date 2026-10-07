@@ -104,3 +104,9 @@ On a treemap the name comes first and the value only if there is still room unde
 - On React the picture is a `role="img"`, and focusing it reads its name and then one line per row — the span that row's cells cover, such as "Morning 1–5". The cells themselves are in a table under the chart, with both sets of names on it: rows down the side, columns across the top. The table is a sibling of the picture rather than its description, because a reader would otherwise hear every cell before anything else on every focus. On Flutter every cell is in the text handed over, each row then its cells as name-and-value pairs, because there is no table to send a reader to.
 - The label written inside a cell is the one place in the library where text does not wear an ink token. Which of the two it wears is decided **per ramp step**, where the step's lightness is known and the answer flips between the themes.
 - The scale legend names both ends, and the middle too when the scale diverges.
+
+::: fw react
+
+- `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. Only `label` captions the table under the chart.
+
+:::
