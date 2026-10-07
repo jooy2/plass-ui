@@ -146,7 +146,7 @@ The same height ladder as `PlButton`, so a segmented button in a toolbar lines u
 
 ### fullWidth
 
-The segments share the row and take an equal part of it each. A segment whose label needs more than its part keeps the width it needs, and the others share what is left. The tile is re-measured after every layout, so it stays under its segment while the container changes width.
+The segments share the row and take an equal part of it each. A segment whose label needs more than its part keeps the width it needs, and the others share what is left. Labels that together need more than the row end in an ellipsis. The tile is re-measured after every layout, so it stays under its segment while the container changes width.
 
 <Demo src="segmented-button/full-width" :min-height="120">
 

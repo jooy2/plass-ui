@@ -10,6 +10,7 @@
 
 ### Fixed
 
+- **A full-width `PlSegmentedButton` whose labels together need more than its row no longer runs out of its groove.** Each segment kept the width its label needs, so three long labels in a narrow row laid out wider than the row and ran past the end of the groove. The segments now shrink in proportion to what each needs and their labels end in an ellipsis, as the Flutter set's do; a row that has room shares its width as before. In a full-width set a label is now held in a `<span>` of its own.
 - **An editor shows each component's own `variant` default.** `PlassStyleProps` documented `variant` as `'solid'`, so that is what an editor showed on every component that takes it, while most of them default to `'glass'`, `PlTextField`, `PlSelect`, `PlCard` and `PlDataTable` among them, and `PlPagination`, `PlBlockquote`, `PlSidebarTrigger` and the charts default to `'ghost'`. Each component's props now say its own default, and the shared comment says the default is the component's.
 
 ## 1.8.0 (2026-10-07)

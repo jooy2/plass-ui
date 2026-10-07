@@ -14,6 +14,10 @@
  * Where the tile is drawn and when it travels are read the same way, from the
  * transitions that actually start: none for the first placement or for a set
  * that changes size under the tile, one for a new choice.
+ *
+ * How a full-width set shares its row is read from the boxes the segments are
+ * laid out in, and whether a label is cut short from how much of it its box
+ * hides. No width is asserted, only how the widths compare.
  */
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { commands, userEvent } from 'vitest/browser';
@@ -257,6 +261,96 @@ describe('the segmented button stylesheet', () => {
       const { rest, hovered } = await labelColours('Week');
 
       expect(hovered).toBe(rest);
+    });
+  });
+
+  describe('a full-width set', () => {
+    function amounts(labels: readonly string[], width: number) {
+      return (
+        <div style={{ width }}>
+          <PlSegmentedButton defaultValue={labels[0]} size="sm" fullWidth aria-label="Amount">
+            {labels.map((label) => (
+              <PlSegment key={label} value={label}>
+                {label}
+              </PlSegment>
+            ))}
+          </PlSegmentedButton>
+        </div>
+      );
+    }
+
+    /** Each segment's width, and whether its label is cut short. */
+    function segments() {
+      return Array.from(document.querySelectorAll<HTMLElement>('[data-segment]'), (segment) => {
+        const label = segment.querySelector<HTMLElement>('[data-segment-label]')!;
+
+        return {
+          width: segment.getBoundingClientRect().width,
+          cut: label.scrollWidth > label.clientWidth
+        };
+      });
+    }
+
+    function overruns() {
+      const group = document.querySelector<HTMLElement>('[role="radiogroup"]')!;
+
+      return group.scrollWidth > group.clientWidth;
+    }
+
+    it('gives a label wider than an equal part the width it needs, and the rest share what is left', async () => {
+      const screen = await render(amounts(['A', 'B', 'A longer label'], 300));
+
+      await expect
+        .element(screen.getByRole('radio', { name: 'A longer label' }))
+        .toBeInTheDocument();
+
+      const [a, b, long] = segments();
+
+      expect(long.width).toBeGreaterThan(a.width);
+      expect(a.width).toBeCloseTo(b.width, 1);
+      expect(segments().some((segment) => segment.cut)).toBe(false);
+      expect(overruns()).toBe(false);
+    });
+
+    it('shrinks every segment in proportion and cuts its label short when the labels together need more than the row', async () => {
+      // They ran out of the groove, 408 pixels of segments in a row of 200.
+      const screen = await render(
+        amounts(['A much longer label', 'Another long one', 'Third label here'], 200)
+      );
+
+      await expect
+        .element(screen.getByRole('radio', { name: 'A much longer label' }))
+        .toBeInTheDocument();
+      await expect.poll(overruns).toBe(false);
+
+      expect(segments().every((segment) => segment.cut)).toBe(true);
+
+      // In proportion to what each needs, so the longest label keeps the widest
+      // segment.
+      const [first, second, third] = segments();
+
+      expect(first.width).toBeGreaterThan(second.width);
+      expect(second.width).toBeGreaterThan(third.width);
+    });
+
+    it('goes back to equal parts once the row has room again', async () => {
+      const labels = ['A much longer label', 'Another long one', 'Third label here'];
+      const screen = await render(amounts(labels, 200));
+
+      await expect.poll(() => segments().every((segment) => segment.cut)).toBe(true);
+
+      await screen.rerender(amounts(labels, 900));
+
+      // Polled, since the row's new width reaches the set through its
+      // `ResizeObserver`, a frame after the render.
+      await expect
+        .poll(() => {
+          const [first, ...rest] = segments();
+
+          return rest.every((segment) => Math.abs(segment.width - first.width) < 0.5);
+        })
+        .toBe(true);
+      expect(segments().some((segment) => segment.cut)).toBe(false);
     });
   });
 

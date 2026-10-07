@@ -45,6 +45,12 @@ interface SegmentedButtonContextValue {
   density: PlassDensity;
   fullWidth: boolean;
   /**
+   * Whether the labels of a full-width set together need more than its row,
+   * which lets every segment shrink in proportion to what it needs and cut its
+   * label short. See `fit` in `PlSegmentedButton`.
+   */
+  overfull: boolean;
+  /**
    * Whether the whole set is disabled, which fades the set and takes every
    * segment's light with it.
    */
@@ -61,6 +67,7 @@ const SegmentedButtonContext = /* @__PURE__ */ React.createContext<SegmentedButt
   size: 'md',
   density: 'default',
   fullWidth: false,
+  overfull: false,
   disabled: false,
   readOnly: false
 });
@@ -102,7 +109,8 @@ export interface PlSegmentedButtonProps
   /**
    * The segments share the full width, an equal part each. A segment whose
    * label needs more than its part keeps the width it needs, and the others
-   * share the rest.
+   * share the rest. Labels that together need more than the row end in an
+   * ellipsis.
    */
   fullWidth?: boolean;
   children?: React.ReactNode;
@@ -192,6 +200,7 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
       size,
       density,
       fullWidth,
+      overfull,
       disabled: setDisabled,
       readOnly
     } = React.useContext(SegmentedButtonContext);
@@ -214,7 +223,7 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
         className={[
           // `z-10` and a stacking context of its own: the tile is painted behind
           // the segments, and without this it would cover the label it is under.
-          'relative z-10 inline-flex shrink-0 cursor-pointer items-center justify-center select-none',
+          'relative z-10 inline-flex cursor-pointer items-center justify-center select-none',
           'font-semibold whitespace-nowrap',
           '[-webkit-tap-highlight-color:transparent] [touch-action:manipulation]',
           controlHeightClasses[size],
@@ -256,7 +265,12 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
           // segments at a quarter.
           setDisabled ? '' : 'data-[disabled]:opacity-50',
           'data-[readonly]:cursor-default',
-          fullWidth ? 'flex-1' : '',
+          // A full-width segment takes an equal part, or more when its label
+          // needs it, since its minimum width is its content's. Only when the
+          // labels together need more than the row does every segment start
+          // from what it needs and shrink in proportion to it, its label cut
+          // short with an ellipsis.
+          !fullWidth ? 'shrink-0' : overfull ? 'min-w-0 flex-[1_1_auto]' : 'flex-1 shrink-0',
           className ?? ''
         ]
           .filter(Boolean)
@@ -267,7 +281,15 @@ export const PlSegment = /* @__PURE__ */ React.forwardRef<HTMLElement, PlSegment
         {hasContent(startIcon) ? (
           <span className="flex h-[1lh] shrink-0 items-center">{startIcon}</span>
         ) : null}
-        {children}
+        {fullWidth ? (
+          // The label's own box, so it can be cut short, and so the set can
+          // read how much of it a cut segment hides.
+          <span data-segment-label="" className="min-w-0 truncate">
+            {children}
+          </span>
+        ) : (
+          children
+        )}
         {hasContent(endIcon) ? (
           <span className="flex h-[1lh] shrink-0 items-center">{endIcon}</span>
         ) : null}
@@ -334,6 +356,42 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
 
   const rootRef = React.useRef<HTMLDivElement>(null);
   const tileRef = React.useRef<HTMLSpanElement>(null);
+
+  const [overfull, setOverfull] = React.useState(false);
+
+  /**
+   * Whether the labels of a full-width set together need more than its row.
+   *
+   * What each segment needs is its width now and what its label hides: the
+   * label's `scrollWidth` past its `clientWidth`, which is nothing while it
+   * fits. In a row they fit, the segments fill it exactly, and the answer is
+   * no; in one they overrun, it is yes whichever way the segments are laid
+   * out, so the answer cannot flip the layout it was read from.
+   */
+  const fit = React.useCallback(() => {
+    const root = rootRef.current;
+
+    if (!root || !fullWidth) {
+      setOverfull(false);
+
+      return;
+    }
+
+    const style = getComputedStyle(root);
+    const room = root.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    let need = 0;
+
+    root.querySelectorAll<HTMLElement>('[data-segment]').forEach((segment) => {
+      const label = segment.querySelector<HTMLElement>('[data-segment-label]');
+
+      need +=
+        segment.getBoundingClientRect().width +
+        (label ? Math.max(0, label.scrollWidth - label.clientWidth) : 0);
+    });
+
+    // A pixel of slack for the rounding in `clientWidth` and `scrollWidth`.
+    setOverfull(need > room + 1);
+  }, [fullWidth]);
 
   /**
    * Whether the set has been committed. A tile drawn with it is lit from its
@@ -446,7 +504,10 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
   useCommitChange(
     rootRef,
     [value, variant, size, density, fullWidth],
-    () => measure(true),
+    () => {
+      fit();
+      measure(true);
+    },
     tileRef
   );
 
@@ -457,16 +518,19 @@ export const PlSegmentedButton = /* @__PURE__ */ React.forwardRef<
       return;
     }
 
-    const observer = new ResizeObserver(() => measure(false));
+    const observer = new ResizeObserver(() => {
+      fit();
+      measure(false);
+    });
 
     observer.observe(root);
 
     return () => observer.disconnect();
-  }, [measure]);
+  }, [fit, measure]);
 
   const context = React.useMemo(
-    () => ({ variant, size, density, fullWidth, disabled, readOnly }),
-    [variant, size, density, fullWidth, disabled, readOnly]
+    () => ({ variant, size, density, fullWidth, overfull, disabled, readOnly }),
+    [variant, size, density, fullWidth, overfull, disabled, readOnly]
   );
 
   return (
