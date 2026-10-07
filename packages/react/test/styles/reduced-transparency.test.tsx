@@ -15,7 +15,7 @@
  */
 import type { ReactElement } from 'react';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
-import { server, userEvent } from 'vitest/browser';
+import { commands, server, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
   PlButton,
@@ -230,6 +230,11 @@ describe('glass for a reader who has asked for less transparency', () => {
   });
 
   emulated('keeps its edge, its shadow and its focus ring', async () => {
+    // Off the page first. A button drawn under a pointer an earlier test left
+    // resting there turns hovered between the two reads, which is a lifted
+    // shadow and a tinted edge rather than anything the mode did.
+    await commands.parkPointer();
+
     const screen = await render(<PlButton variant="glass">Go</PlButton>);
     const button = screen.getByRole('button').element() as HTMLElement;
 
