@@ -957,13 +957,6 @@ interface DataTableProps extends ChartTableName {
  * the pointer or a key moves the active column, which re-renders the chart
  * around it every time.
  */
-/** One line of the summary a screen reader is handed: a series and its end. */
-interface ChartSummaryEntry {
-  name: string;
-  /** What the series ended on, or `null` for a series that is all gaps. */
-  said: React.ReactNode | null;
-}
-
 const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
   id,
   caption,
@@ -1207,6 +1200,13 @@ export interface CartesianContext extends CartesianLayout {
   marks: readonly ChartMark[];
   /** The one the pointer is on, or the one the arrow keys walked to. */
   activeMark: ChartMark | null;
+}
+
+/** One line of the summary a screen reader is handed: a series and its end. */
+interface ChartSummaryEntry {
+  name: string;
+  /** What the series ended on, or `null` for a series that is all gaps. */
+  said: React.ReactNode | null;
 }
 
 interface CartesianProps extends CartesianChartProps {
@@ -2276,9 +2276,6 @@ export function CartesianChart({
         ) : null}
       </div>
 
-      {/* Only where there is a crosshair to report. A chart with its tooltip
-          turned off has nothing to announce, and a live region standing empty
-          in the tree forever is a promise it never keeps. */}
       {/* Clipped, and a sibling of the picture rather than a child of it: an
           element `aria-describedby` points at is read wherever it sits, and a
           child of a `role="img"` is not in the accessibility tree at all. */}
@@ -2309,6 +2306,9 @@ export function CartesianChart({
         </span>
       )}
 
+      {/* Only where there is a crosshair to report. A chart with its tooltip
+          turned off has nothing to announce, and a live region standing empty
+          in the tree forever is a promise it never keeps. */}
       {tooltipMode === 'none' ? null : (
         <ChartStatus
           heading={
