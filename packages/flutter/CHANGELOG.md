@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **A `PlDataTable` or `PlTable` with its header pinned no longer overflows when its rows narrow the columns.** The pinned header takes the columns' widths from the grid after the frame that laid them out, so in the frame where a filter or a page left narrower cells it still held the wider ones and its row overflowed, which a debug build drew as stripes for a frame and `flutter_test` reported as an error. The header now lays its row out at the widths it holds, and moves to the new ones a frame later as before.
+
 ## 1.8.0 (2026-10-07)
 
 ### Breaking changes

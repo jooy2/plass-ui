@@ -1159,16 +1159,29 @@ class _PinnedHeader extends StatelessWidget {
         ),
         child: PlassContentsGroup(
           paints: true,
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                for (var index = 0; index < cells.length; index += 1)
-                  SizedBox(
-                    width: index < widths.length ? widths[index] : null,
-                    child: cells[index],
-                  ),
-              ],
+          // At the widths it was handed even where they add up to more than the
+          // band, rather than failing to fit it. They are read after the frame
+          // that laid the grid out, so in the frame where the rows narrow the
+          // columns, a filter or a page, the band still holds the wider ones
+          // for that one frame. What runs past the end of the band runs past
+          // the end of the grid, where the sideways view clips it.
+          child: OverflowBox(
+            alignment: AlignmentDirectional.topStart,
+            minWidth: 0,
+            maxWidth: double.infinity,
+            fit: OverflowBoxFit.deferToChild,
+            child: IntrinsicHeight(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  for (var index = 0; index < cells.length; index += 1)
+                    SizedBox(
+                      width: index < widths.length ? widths[index] : null,
+                      child: cells[index],
+                    ),
+                ],
+              ),
             ),
           ),
         ),

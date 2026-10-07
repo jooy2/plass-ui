@@ -1273,6 +1273,64 @@ void main() {
       }
     });
 
+    group('the pinned header', () {
+      testWidgets('follows the rows when they become narrower, without overflowing', (
+        WidgetTester tester,
+      ) async {
+        Widget tableOf(List<({int id, String text})> rows) => host(
+          PlDataTable<({int id, String text})>(
+            rows: rows,
+            rowKey: (({int id, String text}) row, int _) => row.id,
+            columns: <PlDataTableColumn<({int id, String text})>>[
+              PlDataTableColumn<({int id, String text})>(
+                key: 'id',
+                header: const Text('id'),
+                width: 60,
+                cell: (({int id, String text}) row, int _) => Text('${row.id}'),
+              ),
+              for (final String key in <String>['a', 'b'])
+                PlDataTableColumn<({int id, String text})>(
+                  key: key,
+                  header: Text(key),
+                  cell: (({int id, String text}) row, int _) =>
+                      Text(row.text, maxLines: 1, overflow: TextOverflow.ellipsis),
+                ),
+            ],
+          ),
+          width: 600,
+          height: 400,
+        );
+
+        await tester.pumpWidget(
+          tableOf(<({int id, String text})>[
+            for (int i = 0; i < 5; i += 1) (id: i, text: 'a-long-unbreakable-value-$i-' * 4),
+          ]),
+        );
+        await tester.pump();
+
+        // A filter or a page that leaves narrower cells. The grid lays its
+        // columns out narrower in this frame, and the band learns their widths
+        // only after it, so for this one frame it still holds the wide ones.
+        await tester.pumpWidget(
+          tableOf(<({int id, String text})>[for (int i = 0; i < 5; i += 1) (id: i, text: 'x$i')]),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+
+        await tester.pumpAndSettle();
+
+        // And once they arrive, every name in the band sits over its column.
+        for (final String name in <String>['id', 'a', 'b']) {
+          expect(find.text(name), findsNWidgets(2));
+          expect(
+            tester.getRect(find.text(name).at(0)).left,
+            tester.getRect(find.text(name).at(1)).left,
+          );
+        }
+      });
+    });
+
     group('the keyboard', () {
       /// One plain column, so nothing in the grid takes the focus.
       final List<PlDataTableColumn<Invoice>> plain = <PlDataTableColumn<Invoice>>[
