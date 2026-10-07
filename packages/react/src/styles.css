@@ -3500,6 +3500,13 @@
   color: var(--plass-muted-fg);
 }
 
+/*
+ * The placeholder steps out of sight while the label rests where it is written,
+ * and only out of sight: it stays in the accessibility tree. A reader who moves
+ * to the control gives it the focus, which raises the label and brings the
+ * placeholder back, so what a screen reader says there is what the page shows.
+ * The Flutter build keeps it the same way.
+ */
 .plass-notch-float:not(:focus-within):not(:has([data-popup-open])):is(
     [data-empty],
     :has(.plass-float-control:placeholder-shown:not(:autofill)),

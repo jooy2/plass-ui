@@ -689,7 +689,10 @@ class _PlSelectState<T> extends State<PlSelect<T>> {
             ExcludeSemantics(child: _label(widget.options[chosen]))
           else if (widget.placeholder != null && float)
             // Out of the way while a floating label rests where it is written,
-            // and back over the same time as the label rises.
+            // and back over the same time as the label rises. Out of sight
+            // only: it stays in the semantics, since a reader who moves to the
+            // trigger gives it the focus, which raises the label and brings the
+            // placeholder back, as the React build keeps it.
             PlassInk(
               color: resting ? tokens.mutedFg.withValues(alpha: 0) : tokens.mutedFg,
               child: widget.placeholder!,
