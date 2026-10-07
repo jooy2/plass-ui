@@ -585,6 +585,34 @@ void main() {
         handle.dispose();
       });
 
+      for (final PlassFieldLabelPlacement placement in PlassFieldLabelPlacement.values) {
+        testWidgets('the box is named by the field label first with the label in its '
+            '${placement.name}', (WidgetTester tester) async {
+          final handle = tester.ensureSemantics();
+          await tester.pumpWidget(
+            host(
+              PlFilePicker(
+                value: const <PlFile>[],
+                label: const Text('Portfolio'),
+                labelPlacement: placement,
+                hint: const Text('Up to ten files'),
+              ),
+              width: 420,
+            ),
+          );
+
+          // Drawn in the edge, over the box, the label used to be read after
+          // the box's own words: "Choose files", "Up to ten files", then
+          // "Portfolio".
+          expect(
+            tester.getSemantics(find.text('Up to ten files')),
+            isSemantics(isButton: true, label: 'Portfolio\nChoose files\nUp to ten files'),
+          );
+
+          handle.dispose();
+        });
+      }
+
       for (final PlassFieldLabelPlacement placement in <PlassFieldLabelPlacement>[
         PlassFieldLabelPlacement.top,
         PlassFieldLabelPlacement.notch,

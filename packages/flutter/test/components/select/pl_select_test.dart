@@ -764,6 +764,72 @@ void main() {
         );
       }
 
+      for (final PlassFieldLabelPlacement placement in <PlassFieldLabelPlacement>[
+        PlassFieldLabelPlacement.notch,
+        PlassFieldLabelPlacement.float,
+      ]) {
+        testWidgets(
+          'names the trigger by a label it cannot read words from first in its ${placement.name}',
+          (WidgetTester tester) async {
+            final handle = tester.ensureSemantics();
+
+            await tester.pumpWidget(
+              host(
+                PlSelect<String>(
+                  options: _cities,
+                  value: null,
+                  label: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[_Flag(), Text('City')],
+                  ),
+                  labelPlacement: placement,
+                  placeholder: const Text('Pick one'),
+                  onChanged: (String? _) {},
+                ),
+                width: 320,
+              ),
+            );
+
+            // A label that is not a lone `Text` is read inside the trigger's
+            // node rather than given to it as its name, and used to be read
+            // after the placeholder there: "Pick one", then "City".
+            expect(
+              tester.getSemantics(_trigger()),
+              isSemantics(label: 'City\nPick one', isButton: true),
+            );
+
+            handle.dispose();
+          },
+        );
+      }
+
+      testWidgets('reads a label it cannot read words from on its own above the trigger', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await tester.pumpWidget(
+          host(
+            PlSelect<String>(
+              options: _cities,
+              value: null,
+              label: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[_Flag(), Text('City')],
+              ),
+              placeholder: const Text('Pick one'),
+              onChanged: (String? _) {},
+            ),
+            width: 320,
+          ),
+        );
+
+        expect(tester.getSemantics(find.text('City')), isSemantics(label: 'City'));
+        expect(tester.getSemantics(_trigger()), isSemantics(label: 'Pick one', isButton: true));
+
+        handle.dispose();
+      });
+
       testWidgets('rests a floating label in an empty trigger and raises it for a value', (
         WidgetTester tester,
       ) async {

@@ -917,6 +917,62 @@ void main() {
           },
         );
       }
+
+      // A label that is not a lone `Text`, which the trigger cannot read words
+      // from, beside a word at its start, which is part of the trigger's name.
+      Widget picker(PlassFieldLabelPlacement placement) {
+        return PlDatePicker(
+          value: null,
+          label: const Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 4,
+            children: <Widget>[
+              PlIcon(icon: SizedBox()),
+              Text('Departure'),
+            ],
+          ),
+          labelPlacement: placement,
+          startIcon: const Text('From'),
+          onChanged: (DateTime? _) {},
+        );
+      }
+
+      for (final PlassFieldLabelPlacement placement in <PlassFieldLabelPlacement>[
+        PlassFieldLabelPlacement.notch,
+        PlassFieldLabelPlacement.float,
+      ]) {
+        testWidgets(
+          'names the trigger by a label it cannot read words from first in its ${placement.name}',
+          (WidgetTester tester) async {
+            final handle = tester.ensureSemantics();
+
+            await _pump(tester, picker(placement));
+
+            // Every picker draws `internal/picker`'s shell. The label is read
+            // inside the trigger's node there, and used to be read after the
+            // trigger's own words: "From", then "Departure".
+            expect(
+              tester.getSemantics(find.text('From')),
+              isSemantics(label: 'Departure\nFrom', isButton: true),
+            );
+
+            handle.dispose();
+          },
+        );
+      }
+
+      testWidgets('reads a label it cannot read words from on its own above the trigger', (
+        WidgetTester tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+
+        await _pump(tester, picker(PlassFieldLabelPlacement.top));
+
+        expect(tester.getSemantics(find.text('Departure')), isSemantics(label: 'Departure'));
+        expect(tester.getSemantics(find.text('From')), isSemantics(label: 'From', isButton: true));
+
+        handle.dispose();
+      });
     });
   });
 }

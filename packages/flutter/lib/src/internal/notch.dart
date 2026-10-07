@@ -416,7 +416,10 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> with SingleTickerProv
       // The lift, kept in the layout so the label does not run into whatever is
       // above it.
       padding: EdgeInsets.only(top: rise),
-      child: Stack(
+      // Painted shell first and label last, so the label is drawn over the
+      // edge, but read label first: where the control's node takes the label
+      // in, its name starts with the label, as it does with the label above.
+      child: _LabelFirst(
         clipBehavior: Clip.none,
         children: <Widget>[
           widget.child,
@@ -483,6 +486,57 @@ class _PlassFieldNotchState extends State<PlassFieldNotch> with SingleTickerProv
         ],
       ),
     );
+  }
+}
+
+/// A [Stack] whose last child, the label, is read before the others.
+///
+/// Painting and hit testing keep the order the children are given in, so the
+/// label is still drawn over the edge and a press on it lands where it did.
+/// Only the semantics walk is changed. A node that merges what it holds joins
+/// the words in the order this walk visits them, and the stack's own order put
+/// the shell's words — a drop zone's title, a trigger's placeholder — ahead of
+/// the label that names them.
+class _LabelFirst extends Stack {
+  const _LabelFirst({super.clipBehavior, super.children});
+
+  @override
+  _RenderLabelFirst createRenderObject(BuildContext context) {
+    return _RenderLabelFirst(
+      alignment: alignment,
+      textDirection: textDirection ?? Directionality.maybeOf(context),
+      fit: fit,
+      clipBehavior: clipBehavior,
+    );
+  }
+}
+
+class _RenderLabelFirst extends RenderStack {
+  _RenderLabelFirst({super.alignment, super.textDirection, super.fit, super.clipBehavior});
+
+  /// The label, then everything before it in paint order.
+  ///
+  /// The framework asks for paint order here so that a later sibling's
+  /// [BlockSemantics] can hide an earlier one, and so that a touch on two
+  /// overlapping nodes finds the one on top. Nothing in a field blocks, and the
+  /// label merges into the control's node rather than lying over it as a node
+  /// of its own, so what changes is the order its words are read in.
+  @override
+  void visitChildrenForSemantics(RenderObjectVisitor visitor) {
+    final RenderBox? label = lastChild;
+
+    if (label == null) {
+      return;
+    }
+
+    visitor(label);
+
+    RenderBox? child = firstChild;
+
+    while (child != null && child != label) {
+      visitor(child);
+      child = childAfter(child);
+    }
   }
 }
 
