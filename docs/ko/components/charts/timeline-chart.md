@@ -102,6 +102,7 @@ PlTimelineChart(series: plan);
 
 ::: fw react
 
-- `label`이 그림에 이름을 붙이고, `aria-label`은 `label` 대신 그 이름이 되며, `aria-labelledby`는 그 둘보다 앞섭니다. 차트 아래 표에 caption을 붙이는 것은 `label`뿐입니다.
+- `label`이 그림에 이름을 붙이고, `aria-label`은 `label` 대신 그 이름이 되며, `aria-labelledby`는 그 둘보다 앞섭니다. 차트 아래 표의 이름도 같은 순서로 정해집니다. `aria-labelledby`를 주면 표도 같은 요소를 가리키고, 그렇지 않으면 `aria-label`이나 `label`이 표의 caption이 됩니다.
+- `aria-describedby`는 그림을 설명하고, 차트 자신의 설명보다 먼저 읽힙니다.
 
 :::

@@ -245,7 +245,8 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 ::: fw react
 
 - 그림은 `role="img"`입니다. 그림에 포커스가 가면 이름에 이어 한 줄 요약이 읽힙니다. 보이는 계열마다 이름과 마지막 값을 이은 것으로, "Web 40, App 8" 같은 모양입니다. 모든 값이 담긴 진짜 `<table>`도 그림의 형제로 함께 그립니다. 눈에는 보이지 않지만 접근성 트리에서는 빠지지 않으므로, 포커스할 때마다 값 사백 개를 듣는 대신 한 걸음 옆에서 꺼내 볼 수 있습니다.
-- `label`이 그림에 이름을 붙이고, `aria-label`은 `label` 대신 그 이름이 되며, `aria-labelledby`는 그 둘보다 앞섭니다. 차트 아래 표에 caption을 붙이는 것은 `label`뿐입니다.
+- `label`이 그림에 이름을 붙이고, `aria-label`은 `label` 대신 그 이름이 되며, `aria-labelledby`는 그 둘보다 앞섭니다. 차트 아래 표의 이름도 같은 순서로 정해집니다. `aria-labelledby`를 주면 표도 같은 요소를 가리키고, 그렇지 않으면 `aria-label`이나 `label`이 표의 caption이 됩니다.
+- `aria-describedby`는 그림의 이름과 요약 사이에 읽힙니다.
 
 :::
 

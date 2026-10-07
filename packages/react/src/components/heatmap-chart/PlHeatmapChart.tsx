@@ -6,6 +6,7 @@ import {
   ChartStatus,
   ChartSurface,
   ChartTooltipPanel,
+  chartTableName,
   givenHeight,
   markTransitionClasses,
   type ChartTooltipItem,
@@ -126,6 +127,7 @@ export function PlHeatmapChart({
   label,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
   legend,
   tooltip,
   empty,
@@ -388,6 +390,11 @@ export function PlHeatmapChart({
         ];
 
   const steps = Array.from({ length: rampSteps }, (_, step) => rampFill(step, scale));
+  const tableName = chartTableName({
+    label,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy
+  });
 
   return (
     <ChartSurface
@@ -416,8 +423,8 @@ export function PlHeatmapChart({
              rows per series, headed by the group, and a row per tile naming it
              and giving its value. Laid out as a grid, a tile would be read under
              the first group's name for that position. */
-          <table id={tableId} className={srOnlyClasses}>
-            {label ? <caption>{label}</caption> : null}
+          <table id={tableId} className={srOnlyClasses} aria-labelledby={tableName.labelledBy}>
+            {tableName.caption ? <caption>{tableName.caption}</caption> : null}
             {values.map((row, at) => (
               <tbody key={at}>
                 <tr>
@@ -437,8 +444,8 @@ export function PlHeatmapChart({
             ))}
           </table>
         ) : (
-          <table id={tableId} className={srOnlyClasses}>
-            {label ? <caption>{label}</caption> : null}
+          <table id={tableId} className={srOnlyClasses} aria-labelledby={tableName.labelledBy}>
+            {tableName.caption ? <caption>{tableName.caption}</caption> : null}
             <thead>
               <tr>
                 <th scope="col" />
@@ -484,9 +491,11 @@ export function PlHeatmapChart({
         // `label`, as on every chart: see `CartesianChart`.
         aria-labelledby={ariaLabelledBy}
         aria-label={ariaLabel ?? label ?? words.chart}
-        // An empty chart is described by the words it draws instead, which
-        // are inside the picture and so read only through this reference.
-        aria-describedby={nothing ? emptyId : summaryId}
+        // A caller's description first, taken off the box as the name is,
+        // then the chart's own: the summary, or for an empty chart the words
+        // it draws instead, which are inside the picture and so read only
+        // through this reference.
+        aria-describedby={cx(ariaDescribedBy, nothing ? emptyId : summaryId)}
         onPointerLeave={() => setActive(null)}
         onBlur={() => setActive(null)}
         onKeyDown={(event) => {

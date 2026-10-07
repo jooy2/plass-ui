@@ -100,7 +100,8 @@ A series that carries a `color` of its own does not count against that ceiling. 
 ::: fw react
 
 - The picture is a `role="img"`. Focusing it reads its name and then a one-line summary: each visible series and the `y` of its last point, or that point's `label`, such as "Web 40, App 8". Every point is in a table under the chart, clipped from view but never hidden from the accessibility tree.
-- `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. Only `label` captions the table under the chart.
+- `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. The table under the chart is named the same way: an `aria-labelledby` points it at the same element, and otherwise the `aria-label` or `label` is its caption.
+- An `aria-describedby` is read between the picture's name and its summary.
 
 :::
 

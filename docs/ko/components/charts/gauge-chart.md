@@ -128,5 +128,6 @@ band는 숫자를 보여 주는 두 번째 방법일 뿐 유일한 방법이 아
 
 - `aria-label`은 `label` 대신 다이얼의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다. 둘 중 하나만 있어도 `label`처럼 다이얼이 이름 붙은 이미지가 되므로, 셋 다 없을 때만 평범한 상자로 남습니다.
 - 어느 이름이든 그 뒤에 값이 읽힙니다. `aria-label`은 `label`과 같은 모양으로 읽히고, `aria-labelledby`는 가리키는 요소의 글 다음에 `1.36 / 2`가 이어집니다.
+- `aria-describedby`는 이름 다음, 직접 넣은 `center`와 `caption`보다 먼저 읽힙니다.
 
 :::

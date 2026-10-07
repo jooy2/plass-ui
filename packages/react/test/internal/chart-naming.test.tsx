@@ -1,13 +1,17 @@
 /**
- * What a chart's picture is called.
+ * What a chart's picture is called, what the table under it is called, and
+ * what describes the picture.
  *
- * A caller's `aria-label` and `aria-labelledby` were handed on to the box with
- * the rest of the props, and the box is a `<div>` with no role, so they named
- * nothing: the picture went on being called by `label`, by the default word, or
- * by nothing at all. They now name the picture, a reference first, then the
- * words, then `label`, and the box carries neither.
+ * A caller's `aria-label`, `aria-labelledby` and `aria-describedby` were
+ * handed on to the box with the rest of the props, and the box is a `<div>`
+ * with no role, so they named and described nothing: the picture went on being
+ * called by `label`, by the default word, or by nothing at all. They now reach
+ * the picture, a reference first, then the words, then `label`, and the box
+ * carries none of them. The table is named by the same three in the same
+ * order, and was captioned by `label` alone.
  *
- * Every chart is asked, because each one draws its own picture.
+ * Every chart is asked, because each one draws its own picture and its own
+ * table.
  */
 import * as React from 'react';
 import { describe, expect, it } from 'vitest';
@@ -28,11 +32,15 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr'];
 const SALES = [{ name: 'Europe', data: [42, 45, 51, 49] }];
 const at = (day: number) => new Date(2026, 0, day);
 
-/** The three ways a caller names a chart, and the class its box is found by. */
+/**
+ * The three ways a caller names a chart, the way they describe it, and the
+ * class its box is found by.
+ */
 interface Naming {
   label?: string;
   'aria-label'?: string;
   'aria-labelledby'?: string;
+  'aria-describedby'?: string;
   className: string;
 }
 
@@ -47,6 +55,10 @@ interface Case {
   called: (words: string, referenced: boolean) => string;
   /** What it is called with none of the three, or `null` when it is then no picture. */
   unnamed: string | null;
+  /** Whether it draws a table under the picture. A dial and a strip do not. */
+  tabled: boolean;
+  /** Whether the picture is described by words of its own as well. */
+  described: boolean;
 }
 
 const plain = (words: string) => words;
@@ -56,19 +68,25 @@ const cases: Case[] = [
     name: 'PlLineChart',
     chart: (naming) => <PlLineChart {...naming} categories={MONTHS} series={SALES} />,
     called: plain,
-    unnamed: 'Chart'
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
   },
   {
     name: 'PlAreaChart',
     chart: (naming) => <PlAreaChart {...naming} categories={MONTHS} series={SALES} />,
     called: plain,
-    unnamed: 'Chart'
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
   },
   {
     name: 'PlBarChart',
     chart: (naming) => <PlBarChart {...naming} categories={MONTHS} series={SALES} />,
     called: plain,
-    unnamed: 'Chart'
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
   },
   {
     name: 'PlScatterChart',
@@ -87,7 +105,9 @@ const cases: Case[] = [
       />
     ),
     called: plain,
-    unnamed: 'Chart'
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
   },
   {
     name: 'PlTimelineChart',
@@ -98,13 +118,17 @@ const cases: Case[] = [
       />
     ),
     called: plain,
-    unnamed: 'Chart'
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
   },
   {
     name: 'PlPieChart',
     chart: (naming) => <PlPieChart {...naming} categories={MONTHS} data={[40, 25, 20, 15]} />,
     called: plain,
-    unnamed: 'Chart'
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
   },
   {
     name: 'PlHeatmapChart',
@@ -119,19 +143,43 @@ const cases: Case[] = [
       />
     ),
     called: plain,
-    unnamed: 'Chart'
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
+  },
+  {
+    name: 'PlHeatmapChart as a treemap',
+    chart: (naming) => (
+      <PlHeatmapChart
+        {...naming}
+        shape="treemap"
+        categories={MONTHS}
+        series={[
+          { name: 'Mon', data: [2, 9, 6, 1] },
+          { name: 'Tue', data: [3, 11, 8, 2] }
+        ]}
+      />
+    ),
+    called: plain,
+    unnamed: 'Chart',
+    tabled: true,
+    described: true
   },
   {
     name: 'PlGaugeChart',
-    chart: (naming) => <PlGaugeChart {...naming} value={68} />,
+    chart: (naming) => <PlGaugeChart {...naming} value={68} caption="of the quota" />,
     called: (words, referenced) => (referenced ? `${words} 68 / 100` : `${words}: 68 / 100`),
-    unnamed: null
+    unnamed: null,
+    tabled: false,
+    described: true
   },
   {
     name: 'PlSparkline',
     chart: (naming) => <PlSparkline {...naming} data={[12, 19, 15, 22]} width={200} />,
     called: plain,
-    unnamed: null
+    unnamed: null,
+    tabled: false,
+    described: false
   }
 ];
 
@@ -145,7 +193,7 @@ function box(): Element {
 }
 
 describe('a chart name', () => {
-  for (const { name, chart, called, unnamed } of cases) {
+  for (const { name, chart, called, unnamed, described } of cases) {
     describe(name, () => {
       it("is an `aria-label` in `label`'s place", async () => {
         const screen = await render(
@@ -248,6 +296,88 @@ describe('a chart name', () => {
         expect(box().hasAttribute('aria-label')).toBe(false);
         expect(box().hasAttribute('aria-labelledby')).toBe(false);
         expect(screen.getByRole('img').element()).not.toBe(box());
+      });
+
+      it("is described by the caller's `aria-describedby` ahead of its own words, and the box is not", async () => {
+        const screen = await render(
+          <>
+            <span id="chart-note">Figures are provisional</span>
+            {chart({
+              label: 'Sales',
+              'aria-describedby': 'chart-note',
+              className: 'chart-under-test'
+            })}
+          </>
+        );
+
+        const picture = screen.getByRole('img', { name: called('Sales', false), exact: true });
+
+        await expect
+          .element(picture)
+          .toHaveAccessibleDescription(
+            described ? /^Figures are provisional \S/ : 'Figures are provisional'
+          );
+        expect(picture.element().getAttribute('aria-describedby')).toMatch(/^chart-note( |$)/);
+        expect(box().hasAttribute('aria-describedby')).toBe(false);
+      });
+    });
+  }
+});
+
+describe('the name of the table under a chart', () => {
+  for (const { name, chart } of cases.filter((one) => one.tabled)) {
+    describe(name, () => {
+      it("points the table at the caller's element with an `aria-labelledby`, over `label` and an `aria-label`, and leaves it no caption", async () => {
+        const screen = await render(
+          <>
+            <span id="chart-heading">Quarterly sales</span>
+            {chart({
+              label: 'Sales',
+              'aria-label': 'Sales this quarter',
+              'aria-labelledby': 'chart-heading',
+              className: 'chart-under-test'
+            })}
+          </>
+        );
+
+        const table = screen.getByRole('table', { name: 'Quarterly sales', exact: true });
+
+        await expect.element(table).toBeInTheDocument();
+        expect(table.element().getAttribute('aria-labelledby')).toBe('chart-heading');
+        expect(table.element().querySelector('caption')).toBeNull();
+      });
+
+      it("is captioned by an `aria-label` in `label`'s place", async () => {
+        const screen = await render(
+          chart({
+            label: 'Sales',
+            'aria-label': 'Sales this quarter',
+            className: 'chart-under-test'
+          })
+        );
+
+        const table = screen.getByRole('table', { name: 'Sales this quarter', exact: true });
+
+        await expect.element(table).toBeInTheDocument();
+        expect(table.element().hasAttribute('aria-labelledby')).toBe(false);
+      });
+
+      it('is still captioned by `label` with neither', async () => {
+        const screen = await render(chart({ label: 'Sales', className: 'chart-under-test' }));
+
+        await expect
+          .element(screen.getByRole('table', { name: 'Sales', exact: true }))
+          .toBeInTheDocument();
+      });
+
+      it('is still unnamed with none of the three', async () => {
+        const screen = await render(chart({ className: 'chart-under-test' }));
+
+        const table = screen.getByRole('table');
+
+        await expect.element(table).toBeInTheDocument();
+        expect(table.element().querySelector('caption')).toBeNull();
+        expect(table.element().hasAttribute('aria-labelledby')).toBe(false);
       });
     });
   }

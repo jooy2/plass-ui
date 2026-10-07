@@ -114,5 +114,6 @@ Puts a dot on the last point that is actually a point, not on the last slot. It 
 ::: fw react
 
 - An `aria-label` names the strip in `label`'s place, and an `aria-labelledby` outranks both. Either one makes it a named `role="img"` with its values written out beside it, as `label` does, so only a strip given none of the three is taken off the tree.
+- An `aria-describedby` describes a named strip. A strip with no name is off the tree, so it takes no description either.
 
 :::

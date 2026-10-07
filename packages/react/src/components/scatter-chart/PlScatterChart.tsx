@@ -8,6 +8,7 @@ import {
   type CartesianContext,
   type CartesianLayout,
   type ChartMark,
+  type ChartTableName,
   type ChartTooltipItem
 } from '../../internal/chart-frame.js';
 import {
@@ -291,12 +292,12 @@ export function PlScatterChart({
           <path d={markPath(shapeOf(index), 5, 5, 4)} fill={color} />
         </svg>
       )}
-      table={(id) => (
+      table={(id, name) => (
         <ScatterTable
           id={id}
+          {...name}
           series={series}
           categories={categories}
-          label={props.label}
           xLabel={xAxis?.label}
           yLabel={props.yAxis?.label}
           xFormat={xAxis?.tickFormat}
@@ -366,11 +367,10 @@ function ScatterMarks({ context, shapeOf }: MarksProps) {
   );
 }
 
-interface TableProps {
+interface TableProps extends ChartTableName {
   id: string;
   series: readonly PlassChartSeries[];
   categories?: readonly PlassChartCategory[];
-  label?: string;
   xLabel?: React.ReactNode;
   yLabel?: React.ReactNode;
   xFormat?: PlassChartAxis['tickFormat'];
@@ -393,9 +393,10 @@ interface TableProps {
  */
 function ScatterTable({
   id,
+  caption,
+  labelledBy,
   series,
   categories,
-  label,
   xLabel,
   yLabel,
   xFormat,
@@ -407,8 +408,8 @@ function ScatterTable({
   );
 
   return (
-    <table id={id} className={cx(srOnlyClasses)}>
-      {label ? <caption>{label}</caption> : null}
+    <table id={id} className={cx(srOnlyClasses)} aria-labelledby={labelledBy}>
+      {caption ? <caption>{caption}</caption> : null}
       <thead>
         <tr>
           <th scope="col" />

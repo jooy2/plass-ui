@@ -102,6 +102,7 @@ Both ends, unlike a [bar chart](./bar-chart), where the baseline end stays squar
 
 ::: fw react
 
-- `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. Only `label` captions the table under the chart.
+- `label` names the picture, an `aria-label` names it in `label`'s place, and an `aria-labelledby` outranks both. The table under the chart is named the same way: an `aria-labelledby` points it at the same element, and otherwise the `aria-label` or `label` is its caption.
+- An `aria-describedby` describes the picture and is read ahead of the chart's own description.
 
 :::

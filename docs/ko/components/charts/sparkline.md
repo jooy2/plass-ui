@@ -114,5 +114,6 @@ PlSparkline(data: signups, endDot: true);
 ::: fw react
 
 - `aria-label`은 `label` 대신 띠의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다. 둘 중 하나만 있어도 `label`처럼 이름 붙은 `role="img"`가 되고 값이 옆에 적히므로, 셋 다 없는 띠만 트리에서 빠집니다.
+- `aria-describedby`는 이름이 있는 띠를 설명합니다. 이름이 없는 띠는 트리에서 빠지므로 설명도 붙지 않습니다.
 
 :::

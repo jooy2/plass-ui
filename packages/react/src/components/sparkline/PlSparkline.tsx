@@ -118,6 +118,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
       label,
       'aria-label': ariaLabel,
       'aria-labelledby': ariaLabelledBy,
+      'aria-describedby': ariaDescribedBy,
       className,
       style,
       ...props
@@ -134,9 +135,10 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
 
     /* What the strip is called: a caller's reference, then their words in
        `label`'s place, then `label`, as on every chart. Taken here rather than
-       left on the box, a `<div>` with no role, where they would name nothing.
-       Any of the three makes the strip a picture that owes its reader the
-       values; with none it is decoration. */
+       left on the box, a `<div>` with no role, where they would name nothing,
+       and a caller's description with them. Any of the three makes the strip
+       a picture that owes its reader the values; with none it is decoration,
+       which nothing describes. */
     const name = ariaLabel || label;
     const named = Boolean(ariaLabelledBy || name);
 
@@ -220,6 +222,7 @@ export const PlSparkline = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlSp
               role={named ? 'img' : 'presentation'}
               aria-labelledby={ariaLabelledBy || undefined}
               aria-label={name || undefined}
+              aria-describedby={named ? ariaDescribedBy || undefined : undefined}
               aria-hidden={named ? undefined : true}
               className="block overflow-visible"
             >

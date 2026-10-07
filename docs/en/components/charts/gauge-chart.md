@@ -128,5 +128,6 @@ The reading is **real text, not a label painted into the drawing**, so it can be
 
 - An `aria-label` names the dial in `label`'s place, and an `aria-labelledby` outranks both. Either one makes the dial a named image as `label` does, so only a dial given none of the three stays a plain box.
 - The reading follows whichever name the dial has. An `aria-label` is read as `label` is, and an `aria-labelledby` is read as the words of the element it points at, then `1.36 / 2`.
+- An `aria-describedby` is read after the name, ahead of a `center` of your own and the `caption`.
 
 :::

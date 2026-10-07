@@ -23,7 +23,7 @@ import { cx, hasContent, metaTextClasses } from '../../internal/styles.js';
 import { bandColor } from '../../internal/threshold.js';
 import type { PlassColor, PlassThreshold } from '../../types.js';
 
-export interface PlGaugeChartProps extends Omit<ChartBaseProps, 'legend' | 'tooltip'> {
+export interface PlGaugeChartProps extends Omit<ChartBaseProps, 'legend' | 'tooltip' | 'label'> {
   /**
    * The reading. `null` draws the dial with nothing on it, which is the honest
    * picture of an instrument that has not been told anything.
@@ -67,6 +67,15 @@ export interface PlGaugeChartProps extends Omit<ChartBaseProps, 'legend' | 'tool
   caption?: React.ReactNode;
   /** The family the arc takes where no threshold applies. @default 'primary' */
   color?: PlassColor;
+  /**
+   * What the dial is called — what it is a reading *of*. Read out in place of
+   * the drawing, with the reading after it.
+   *
+   * An `aria-label` names the dial in its place and an `aria-labelledby`
+   * outranks both. With none of the three the dial is a plain box, and the
+   * reading in the middle is read as the text it already is.
+   */
+  label?: string;
 }
 
 /**
@@ -135,6 +144,7 @@ export function PlGaugeChart({
   label,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
   empty,
   size: sizeProp,
   variant = 'ghost',
@@ -349,12 +359,15 @@ export function PlGaugeChart({
     value === null || nothing ? null : `${formatValue(value)} / ${formatValue(max)}`;
 
   /*
-   * What a named dial is described by: the words it writes that its name does
-   * not already say. The name carries the reading, so the number written in
-   * the hole is left out and a caller's own `center` is not, and the caption
+   * What a named dial is described by: a caller's description, taken off the
+   * box as the name is, and then the words it writes that its name does not
+   * already say. The name carries the reading, so the number written in the
+   * hole is left out and a caller's own `center` is not, and the caption
    * follows it. An empty dial is described by the words it draws in place of
    * the arc. All of them are inside the image, so this reference is the one
-   * way they are read, and each is read once.
+   * way they are read, and each is read once. An unnamed dial is no image,
+   * so its words are read where they are and a caller's description is all
+   * it is handed.
    */
   const dialDrawn = !nothing && width > 0 && outer > 0;
   const described = [
@@ -392,7 +405,7 @@ export function PlGaugeChart({
             : `${ariaLabelledBy} ${readingId}`
         }
         aria-label={stem === undefined || readingText === null ? stem : `${stem}: ${readingText}`}
-        aria-describedby={!named || described.length === 0 ? undefined : described.join(' ')}
+        aria-describedby={cx(ariaDescribedBy, ...(named ? described : [])) || undefined}
       >
         {ariaLabelledBy !== undefined && readingText !== null ? (
           // `hidden`, so it is read as the end of the name and never as text

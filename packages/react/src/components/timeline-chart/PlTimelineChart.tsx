@@ -9,6 +9,7 @@ import {
   type CartesianContext,
   type CartesianLayout,
   type ChartMark,
+  type ChartTableName,
   type ChartTooltipItem
 } from '../../internal/chart-frame.js';
 import {
@@ -276,15 +277,15 @@ export function PlTimelineChart({
       bandRatio={barBandRatio[density]}
       marks={marks}
       markTooltip={markTooltip}
-      table={(id) => (
+      table={(id, name) => (
         <TimelineTable
           id={id}
+          {...name}
           names={names}
           series={series}
           spans={spans}
           scale={scale}
           withDate={withDate}
-          label={props.label}
           corner={xAxis?.label}
           locale={locale}
         />
@@ -421,14 +422,13 @@ function Spans({ context, spans, colors, rounded }: SpansProps) {
   );
 }
 
-interface TableProps {
+interface TableProps extends ChartTableName {
   id: string;
   names: readonly string[];
   series: readonly PlassTimelineSeries[];
   spans: readonly (readonly Placed[])[];
   scale: TimeScale;
   withDate: boolean;
-  label?: string;
   corner?: React.ReactNode;
   locale?: string;
 }
@@ -444,12 +444,13 @@ interface TableProps {
  */
 function TimelineTable({
   id,
+  caption,
+  labelledBy,
   names,
   series,
   spans,
   scale,
   withDate,
-  label,
   corner,
   locale
 }: TableProps) {
@@ -462,8 +463,8 @@ function TimelineTable({
   );
 
   return (
-    <table id={id} className={srOnlyClasses}>
-      {label ? <caption>{label}</caption> : null}
+    <table id={id} className={srOnlyClasses} aria-labelledby={labelledBy}>
+      {caption ? <caption>{caption}</caption> : null}
       <thead>
         <tr>
           <th scope="col">{corner ?? ''}</th>

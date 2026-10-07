@@ -252,7 +252,9 @@ export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
    *
    * It is not text anybody sees, so an `aria-label` names the drawing in its
    * place, as one names a control in its visible label's, and an
-   * `aria-labelledby` outranks both. Neither captions the table.
+   * `aria-labelledby` outranks both. The table is named by whichever of the
+   * three names the drawing: a reference points it at the same element, and
+   * words are its caption.
    */
   label?: string;
   /**
@@ -900,9 +902,36 @@ function ChartStatus({
  * The table under every chart
  * ------------------------------------------------------------------------- */
 
-interface DataTableProps {
-  id: string;
+/** What the table under a chart is called. See `chartTableName`. */
+interface ChartTableName {
+  /** The words it is captioned with: an `aria-label`, else `label`. */
   caption?: string;
+  /** A caller's `aria-labelledby`, which names it in place of a caption. */
+  labelledBy?: string;
+}
+
+/**
+ * What the table under a chart is called, by the precedence its picture is
+ * called by: a caller's `aria-labelledby`, then an `aria-label` in `label`'s
+ * place, then `label`.
+ *
+ * A reference names the table by the same element it names the picture by,
+ * and leaves it no caption, whose words would be read inside the table as a
+ * name nobody gave it. Words are its caption, as `label` always was. With
+ * none of the three the table has no name, as before.
+ */
+function chartTableName({
+  label,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy
+}: Pick<ChartBaseProps, 'label' | 'aria-label' | 'aria-labelledby'>): ChartTableName {
+  // An empty reference names nothing, so the words take its place, as they do
+  // on the picture.
+  return ariaLabelledBy ? { labelledBy: ariaLabelledBy } : { caption: ariaLabel ?? label };
+}
+
+interface DataTableProps extends ChartTableName {
+  id: string;
   corner?: React.ReactNode;
   categories: readonly PlassChartCategory[];
   series: readonly PlassChartSeries[];
@@ -938,6 +967,7 @@ interface ChartSummaryEntry {
 const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
   id,
   caption,
+  labelledBy,
   corner,
   categories,
   series,
@@ -948,7 +978,7 @@ const ChartDataTable = /* @__PURE__ */ React.memo(function ChartDataTable({
   const keys = entryKeys(series);
 
   return (
-    <table id={id} className={srOnlyClasses}>
+    <table id={id} className={srOnlyClasses} aria-labelledby={labelledBy}>
       {caption ? <caption>{caption}</caption> : null}
       <thead>
         <tr>
@@ -1199,8 +1229,11 @@ interface CartesianProps extends CartesianChartProps {
    * @default 24
    */
   markRadius?: number;
-  /** The table under the chart, for a chart whose data is not a grid. */
-  table?: (id: string) => React.ReactNode;
+  /**
+   * The table under the chart, for a chart whose data is not a grid. Handed
+   * the id it is referred to by and what it is called.
+   */
+  table?: (id: string, name: ChartTableName) => React.ReactNode;
   /** The legend's swatch, for a chart whose marks are not all the same shape. */
   swatch?: (index: number, color: string) => React.ReactNode;
   /**
@@ -1314,6 +1347,7 @@ export function CartesianChart({
   label,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
   legend,
   tooltip,
   empty,
@@ -2020,6 +2054,11 @@ export function CartesianChart({
   // line. Drawing the empty state is the honest answer — the alternative is an
   // axis of zeroes with every mark stacked on it.
   const nothing = count === 0 || extent === null || (xScale === 'value' && spread === null);
+  const tableName = chartTableName({
+    label,
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy
+  });
 
   return (
     <ChartSurface
@@ -2054,10 +2093,10 @@ export function CartesianChart({
       table={
         nothing
           ? null
-          : (table?.(tableId) ?? (
+          : (table?.(tableId, tableName) ?? (
               <ChartDataTable
                 id={tableId}
-                caption={label}
+                {...tableName}
                 corner={categoryAxis?.label}
                 categories={labels}
                 series={series}
@@ -2083,9 +2122,11 @@ export function CartesianChart({
         // announces silence.
         aria-labelledby={ariaLabelledBy}
         aria-label={ariaLabel ?? label ?? words.chart}
-        // An empty chart is described by the words it draws instead, which
-        // are inside the picture and so read only through this reference.
-        aria-describedby={nothing ? emptyId : summaryId}
+        // A caller's description, taken off the box for the same reason, and
+        // then the chart's own: the summary, or for an empty chart the words
+        // it draws instead, which are inside the picture and so read only
+        // through this reference.
+        aria-describedby={cx(ariaDescribedBy, nothing ? emptyId : summaryId)}
         onPointerMove={(event) => {
           if (tooltipMode === 'none') {
             return;
@@ -2691,9 +2732,10 @@ export {
   ChartStatus,
   ChartSurface,
   ChartTooltipPanel,
+  chartTableName,
   entryKeys,
   givenHeight,
   useMeasuredSize,
   useVisibility
 };
-export type { Visibility };
+export type { ChartTableName, Visibility };

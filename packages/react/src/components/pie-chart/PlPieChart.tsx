@@ -7,6 +7,7 @@ import {
   ChartStatus,
   ChartSurface,
   ChartTooltipPanel,
+  chartTableName,
   givenHeight,
   markTransitionClasses,
   useMeasuredSize,
@@ -140,6 +141,7 @@ export function PlPieChart({
   label,
   'aria-label': ariaLabel,
   'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
   legend,
   tooltip,
   empty,
@@ -349,7 +351,11 @@ export function PlPieChart({
         nothing ? null : (
           <ChartDataTable
             id={tableId}
-            caption={label}
+            {...chartTableName({
+              label,
+              'aria-label': ariaLabel,
+              'aria-labelledby': ariaLabelledBy
+            })}
             categories={slices.map((slice) => slice.name ?? '')}
             series={[{ name: label, data }]}
             values={[values]}
@@ -370,11 +376,15 @@ export function PlPieChart({
         // `label`, as on every chart: see `CartesianChart`.
         aria-labelledby={ariaLabelledBy}
         aria-label={ariaLabel ?? label ?? words.chart}
+        // A caller's description first, taken off the box as the name is.
         // What the hole holds and the empty state's words are inside the
         // picture, so they are read only through this reference: the centre
         // ahead of the slices, as it is the figure the ring was drawn around,
         // and the empty state's words in place of them.
-        aria-describedby={nothing ? emptyId : centred ? `${centreId} ${summaryId}` : summaryId}
+        aria-describedby={cx(
+          ariaDescribedBy,
+          nothing ? emptyId : centred ? `${centreId} ${summaryId}` : summaryId
+        )}
         onPointerLeave={() => setActive(null)}
         onBlur={() => setActive(null)}
         onKeyDown={(event) => {
