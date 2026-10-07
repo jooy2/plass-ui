@@ -177,7 +177,7 @@ Four steps rather than a hundred, which is what `min` and `max` are for.
 ## Accessibility
 
 - The value is announced as **text** rather than as a bare number, `aria-valuetext` in React, the node's value in Flutter. "3" out of a range that is not 0–100 is a percentage the platform would guess wrong.
-- `label` names the meter, and it is the same string a sighted reader sees. Without one the bar is an unnamed figure, which is a number with nothing attached to it.
+- `label` names the meter, and it is the same string a sighted reader sees. With neither it nor an <Fw react="aria-label" flutter="semanticLabel" code /> the bar is an unnamed figure, which is a number with nothing attached to it.
 - With `showValue` the figure is drawn **and** carried on the node, and the drawn copy is hidden from the accessibility tree so it is heard once rather than twice.
 - Colour is never the only carrier of a band. Pair `thresholds` with `showValue`.
 
@@ -192,5 +192,18 @@ Four steps rather than a hundred, which is what `min` and `max` are for.
 
 - A `semanticLabel` names the meter in the `label`'s place, visible `label` or not, and the drawn label is then not read a second time. The value is read the same either way.
 - Include the visible label's words in a `semanticLabel`, so a reader who sees the label and hears the name can tell both belong to the same meter.
+
+:::
+
+::: fw flutter
+
+## Differences from the React build
+
+| React | Flutter | Why |
+| --- | --- | --- |
+| `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | There is no `Intl.NumberFormat` in the framework, and pulling `package:intl` in to provide one would be a dependency decision made on the consumer's behalf. |
+| `label: ReactNode`, `thresholds` an array, and `min`/`max`/`value` are `number` | `Widget?`, a `List` and `double` | Dart's own names for the same things. |
+| `aria-label` | `semanticLabel` | Flutter's name. |
+| `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
 :::

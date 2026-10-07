@@ -177,7 +177,7 @@ PlMeter(
 ## Accessibility
 
 - 값은 맨 숫자가 아니라 **텍스트**로 알립니다. React에서는 `aria-valuetext`, Flutter에서는 노드의 값입니다. 0–100이 아닌 범위에서 "3"은 플랫폼이 잘못 짐작할 백분율입니다.
-- `label`이 meter의 이름이고, 눈으로 보는 사람이 읽는 것과 같은 문자열입니다. 이름이 없으면 아무것에도 붙지 않은 숫자가 됩니다.
+- `label`이 meter의 이름이고, 눈으로 보는 사람이 읽는 것과 같은 문자열입니다. 그것도 <Fw react="aria-label" flutter="semanticLabel" code />도 없으면 아무것에도 붙지 않은 숫자가 됩니다.
 - `showValue`를 켜면 수치가 그려지는 **동시에** 노드에 실립니다. 그려진 쪽은 접근성 트리에서 감추므로 두 번이 아니라 한 번 읽힙니다.
 - 색이 구간을 나르는 유일한 수단이 되는 일은 없습니다. `thresholds`는 `showValue`와 함께 쓰십시오.
 
@@ -192,5 +192,18 @@ PlMeter(
 
 - 보이는 `label`이 있든 없든 `semanticLabel`이 그 자리를 대신해 meter의 이름이 되고, 그려진 label은 그때 한 번 더 읽히지 않습니다. 값은 어느 쪽이든 똑같이 읽힙니다.
 - `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 라벨을 보면서 이름을 듣는 사용자도 둘이 같은 meter를 가리킨다는 것을 알 수 있습니다.
+
+:::
+
+::: fw flutter
+
+## React 빌드와 다른 점
+
+| React | Flutter | 이유 |
+| --- | --- | --- |
+| `format: Intl.NumberFormatOptions` | `formatValue: String Function(double)` | 프레임워크에 `Intl.NumberFormat`이 없고, 그것을 위해 `package:intl`을 끌어오는 것은 소비자 대신 의존성을 정하는 일입니다. |
+| `label: ReactNode`, 배열인 `thresholds`, `min`/`max`/`value`가 `number` | `Widget?`, `List`, `double` | 같은 것을 Dart가 부르는 이름입니다. |
+| `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
+| `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |
 
 :::
