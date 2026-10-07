@@ -42,7 +42,7 @@ function Asker({
  */
 async function pressInDialog(name: string): Promise<void> {
   const find = () =>
-    Array.from(document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')).find(
+    Array.from(document.querySelectorAll<HTMLButtonElement>('[role="alertdialog"] button')).find(
       (candidate) => candidate.textContent?.trim() === name
     );
 
@@ -60,7 +60,7 @@ describe('PlConfirmProvider', () => {
         </PlConfirmProvider>
       );
 
-      expect(screen.getByRole('dialog').query()).toBeNull();
+      expect(screen.getByRole('alertdialog').query()).toBeNull();
     });
 
     it('opens on the first question and takes the focus into the dialog', async () => {
@@ -75,7 +75,7 @@ describe('PlConfirmProvider', () => {
 
       await screen.getByRole('button', { name: 'Delete' }).click();
 
-      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+      await expect.element(screen.getByRole('alertdialog')).toBeInTheDocument();
       await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
     });
 
@@ -85,7 +85,7 @@ describe('PlConfirmProvider', () => {
       // `data-starting-style` is what the fade starts from. A dialog mounted
       // already open never carries it, so it would appear at full strength.
       const observer = new MutationObserver(() => {
-        started ||= document.querySelector('[role="dialog"][data-starting-style]') !== null;
+        started ||= document.querySelector('[role="alertdialog"][data-starting-style]') !== null;
       });
 
       observer.observe(document.body, {
@@ -103,7 +103,7 @@ describe('PlConfirmProvider', () => {
         );
 
         await screen.getByRole('button', { name: 'Delete' }).click();
-        await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+        await expect.element(screen.getByRole('alertdialog')).toBeInTheDocument();
 
         expect(started).toBe(true);
       } finally {
@@ -120,9 +120,27 @@ describe('PlConfirmProvider', () => {
 
       await screen.getByRole('button', { name: 'Delete' }).click();
 
-      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+      await expect.element(screen.getByRole('alertdialog')).toBeInTheDocument();
       await expect.element(screen.getByText('Delete this project?')).toBeInTheDocument();
       await expect.element(screen.getByText('Ten members lose access.')).toBeInTheDocument();
+    });
+
+    it('asks in an alert dialog named by its title and described by its description', async () => {
+      // A dialog that breaks in and waits for an answer, which a screen reader
+      // announces as an alert rather than as a plain dialog.
+      const screen = await render(
+        <PlConfirmProvider>
+          <Asker answer={() => {}} description="Ten members lose access." />
+        </PlConfirmProvider>
+      );
+
+      await screen.getByRole('button', { name: 'Delete' }).click();
+
+      const question = screen.getByRole('alertdialog', { name: 'Delete this project?' });
+
+      await expect.element(question).toBeInTheDocument();
+      await expect.element(question).toHaveAccessibleDescription('Ten members lose access.');
+      expect(screen.getByRole('dialog').query()).toBeNull();
     });
 
     it('draws two buttons, named', async () => {
@@ -150,7 +168,7 @@ describe('PlConfirmProvider', () => {
 
       expect(screen.getByRole('button', { name: 'Close' }).query()).toBeNull();
       expect(
-        Array.from(document.querySelectorAll('[role="dialog"] button'), (button) =>
+        Array.from(document.querySelectorAll('[role="alertdialog"] button'), (button) =>
           button.textContent?.trim()
         )
       ).toEqual(['Keep it', 'Delete it']);
@@ -228,7 +246,7 @@ describe('PlConfirmProvider', () => {
       );
 
       await screen.getByRole('button', { name: 'Delete' }).click();
-      await expect.element(screen.getByRole('dialog')).toBeInTheDocument();
+      await expect.element(screen.getByRole('alertdialog')).toBeInTheDocument();
 
       document.activeElement?.dispatchEvent(
         new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
@@ -247,7 +265,7 @@ describe('PlConfirmProvider', () => {
       await screen.getByRole('button', { name: 'Delete' }).click();
       await pressInDialog('Delete it');
 
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('alertdialog').query()).toBeNull();
     });
   });
 
@@ -320,7 +338,9 @@ describe('PlConfirmProvider', () => {
 
       await screen.getByRole('button', { name: 'Tell me' }).click();
 
-      await expect.element(screen.getByText('Your session expired.')).toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('alertdialog', { name: 'Your session expired.' }))
+        .toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Cancel' }).query()).toBeNull();
 
       await pressInDialog('OK');
@@ -418,7 +438,7 @@ describe('PlConfirmProvider', () => {
           }
 
           await expect.poll(() => answer.mock.calls.length).toBe(round);
-          await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+          await expect.poll(() => screen.getByRole('alertdialog').query()).toBeNull();
           await expect.poll(() => document.activeElement).toBe(asker);
         }
       }
@@ -457,7 +477,7 @@ describe('PlConfirmProvider', () => {
       await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
       (document.activeElement as HTMLButtonElement).click();
 
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('alertdialog').query()).toBeNull();
       await expect.poll(() => document.activeElement).toBe(asker);
     });
 
@@ -509,7 +529,7 @@ describe('PlConfirmProvider', () => {
       await expect.poll(() => document.activeElement?.textContent).toBe('Keep it');
       (document.activeElement as HTMLButtonElement).click();
 
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('alertdialog').query()).toBeNull();
       await expect.poll(() => document.activeElement).toBe(asker);
     });
   });

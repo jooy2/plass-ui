@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **`PlConfirmProvider` asks its questions in an alert dialog.** The layer `confirm` and `alert` open claims `SemanticsRole.alertDialog` beside its route, as the React question is a `role="alertdialog"`, so a screen reader that reads roles announces the question as an alert. A `PlModal` of its own claims nothing more than its route, as before.
+
 ### Fixed
 
 - **A toast and a confirmation in `MaterialApp`'s `builder` no longer take its yellow double underline.** What `builder` returns sits above every page's `Material`, where the text style in scope is the one `MaterialApp` marks text outside a `Material` with, so the words of a `PlToastProvider`'s toasts and of a `PlConfirmProvider`'s questions were drawn underlined in monospace. A toast and a `PlModal`'s sheet now clear any inherited decoration. The font is the app's to give, so the getting-started guide and both providers now show a `Material` of `MaterialType.transparency` round the provider under `MaterialApp`.

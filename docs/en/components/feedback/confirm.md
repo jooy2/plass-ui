@@ -191,6 +191,6 @@ await PlConfirmProvider.of(context).confirm(
 
 ## Accessibility
 
-- It is a real modal dialog: the focus is trapped inside it, the page behind is inert, and the focus returns to whatever opened it.
+- It is a real modal dialog, and a screen reader announces it as an alert dialog, a dialog that breaks in and waits for an answer. The focus is trapped inside it, the page behind is inert, and the focus returns to whatever opened it.
 - `title` is the `<h2>` that names the dialog and `description` is its accessible description, so a screen reader reads the question and the consequence before either button.
 - The two buttons are named by their labels. Name them for what they **do** ("Delete", "Discard", "Save") rather than "Yes" and "No", which are unreadable out of context and are exactly what a screen reader reads out of context.

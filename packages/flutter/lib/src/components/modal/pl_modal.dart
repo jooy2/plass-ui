@@ -219,6 +219,7 @@ class PlModal extends StatelessWidget {
       open: open,
       modal: modal,
       label: label,
+      role: PlassLayerRole.maybeOf(context),
       barrierColor: tokens.scrim,
       barrierBlur: _scrimBlur,
       onDismiss: dismissible ? close : null,

@@ -34,6 +34,18 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpAndSettle();
 }
 
+/// The route a screen reader is in while it reads [text]: the nearest node
+/// above that text's own that scopes one.
+SemanticsNode _routeAround(WidgetTester tester, String text) {
+  SemanticsNode? node = tester.getSemantics(find.text(text));
+
+  while (node != null && !node.getSemanticsData().flagsCollection.scopesRoute) {
+    node = node.parent;
+  }
+
+  return node!;
+}
+
 Future<void> _press(WidgetTester tester, String label) async {
   await tester.tap(find.text(label));
   await tester.pumpAndSettle();
@@ -65,6 +77,28 @@ void main() {
 
         expect(find.text('Delete this project?'), findsOneWidget);
         expect(find.text('Ten members lose access.'), findsOneWidget);
+      });
+
+      testWidgets('asks in an alert dialog', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await _pump(
+          tester,
+          PlConfirmProvider(
+            child: _Asker(
+              answer: (Object? _) {},
+              options: const PlConfirmOptions(title: Text('Delete this project?')),
+            ),
+          ),
+        );
+        await _press(tester, 'Delete');
+
+        // The layer is a route of its own, and what WAI-ARIA calls a dialog that
+        // breaks in and waits for an answer, as the React question is.
+        final SemanticsNode layer = _routeAround(tester, 'Delete this project?');
+
+        expect(layer.getSemanticsData().role, SemanticsRole.alertDialog);
+
+        handle.dispose();
       });
 
       testWidgets('falls back to the provider’s labels', (WidgetTester tester) async {

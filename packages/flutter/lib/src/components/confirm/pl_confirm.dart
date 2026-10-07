@@ -3,10 +3,12 @@ library;
 
 import 'dart:async';
 
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/button/pl_button.dart';
 import 'package:plass_ui/src/components/modal/pl_modal.dart';
+import 'package:plass_ui/src/internal/portal.dart';
 import 'package:plass_ui/src/theme/theme.dart';
 import 'package:plass_ui/src/types.dart';
 
@@ -308,56 +310,63 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
       child: Stack(
         children: <Widget>[
           widget.child,
-          PlModal(
-            open: _open,
-            // The only paths that reach here are Escape, the system back and a
-            // press outside — the buttons below settle and close it themselves,
-            // and a controlled `open` does not call this back for that.
-            onOpenChanged: (bool next) {
-              if (!next) {
-                _settle(false);
-              }
-            },
-            dismissible: options?.dismissible ?? true,
-            showClose: false,
-            size: size,
-            color: color,
-            width: options?.width ?? widget.width,
-            title: options?.title,
-            description: options?.description,
-            // Keyed by the question. The sheet stays open between two queued
-            // questions, so without a key the next one would reuse these
-            // buttons, `autofocus` would not run again, and the focus would stay
-            // on the button just pressed: an Enter pressed twice would confirm a
-            // second, destructive question from the first one's harmless yes.
-            actions: <Widget>[
-              if (!isAlert)
+          // An alert dialog, which is what WAI-ARIA calls a dialog that breaks
+          // into what the reader was doing and waits for an answer, as the React
+          // question's `role="alertdialog"` is.
+          PlassLayerRole(
+            role: SemanticsRole.alertDialog,
+            child: PlModal(
+              open: _open,
+              // The only paths that reach here are Escape, the system back and a
+              // press outside — the buttons below settle and close it themselves,
+              // and a controlled `open` does not call this back for that.
+              onOpenChanged: (bool next) {
+                if (!next) {
+                  _settle(false);
+                }
+              },
+              dismissible: options?.dismissible ?? true,
+              showClose: false,
+              size: size,
+              color: color,
+              width: options?.width ?? widget.width,
+              title: options?.title,
+              description: options?.description,
+              // Keyed by the question. The sheet stays open between two queued
+              // questions, so without a key the next one would reuse these
+              // buttons, `autofocus` would not run again, and the focus would stay
+              // on the button just pressed: an Enter pressed twice would confirm a
+              // second, destructive question from the first one's harmless yes.
+              actions: <Widget>[
+                if (!isAlert)
+                  PlButton(
+                    key: ValueKey<String>('cancel-$_turn'),
+                    variant: PlassVariant.ghost,
+                    color: PlassColor.secondary,
+                    size: size,
+                    autofocus: !focusConfirm,
+                    onPressed: () => _settle(false),
+                    child:
+                        options?.cancelLabel ??
+                        widget.cancelLabel ??
+                        Text(PlassTheme.labelsOf(context).cancel),
+                  ),
                 PlButton(
-                  key: ValueKey<String>('cancel-$_turn'),
-                  variant: PlassVariant.ghost,
-                  color: PlassColor.secondary,
+                  key: ValueKey<String>('confirm-$_turn'),
+                  color: color,
                   size: size,
-                  autofocus: !focusConfirm,
-                  onPressed: () => _settle(false),
+                  autofocus: focusConfirm,
+                  onPressed: () => _settle(true),
                   child:
-                      options?.cancelLabel ??
-                      widget.cancelLabel ??
-                      Text(PlassTheme.labelsOf(context).cancel),
+                      options?.confirmLabel ??
+                      (isAlert
+                          ? widget.acknowledgeLabel ??
+                                Text(PlassTheme.labelsOf(context).acknowledge)
+                          : widget.confirmLabel ?? Text(PlassTheme.labelsOf(context).confirm)),
                 ),
-              PlButton(
-                key: ValueKey<String>('confirm-$_turn'),
-                color: color,
-                size: size,
-                autofocus: focusConfirm,
-                onPressed: () => _settle(true),
-                child:
-                    options?.confirmLabel ??
-                    (isAlert
-                        ? widget.acknowledgeLabel ?? Text(PlassTheme.labelsOf(context).acknowledge)
-                        : widget.confirmLabel ?? Text(PlassTheme.labelsOf(context).confirm)),
-              ),
-            ],
-            child: options?.child,
+              ],
+              child: options?.child,
+            ),
           ),
         ],
       ),

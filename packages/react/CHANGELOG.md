@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **`PlConfirmProvider` asks its questions in an alert dialog.** `confirm` and `alert` open a `role="alertdialog"` rather than a `role="dialog"`, which is what WAI-ARIA calls a dialog that breaks into what the reader was doing and waits for an answer, so a screen reader announces the question as an alert. Its name, description, focus and dismissal are as before. A test that finds the question by its role, `getByRole('dialog')`, finds it as `getByRole('alertdialog')` now.
+
 ### Fixed
 
 - **An editor shows each component's own `variant` default.** `PlassStyleProps` documented `variant` as `'solid'`, so that is what an editor showed on every component that takes it, while most of them default to `'glass'`, `PlTextField`, `PlSelect`, `PlCard` and `PlDataTable` among them, and `PlPagination`, `PlBlockquote`, `PlSidebarTrigger` and the charts default to `'ghost'`. Each component's props now say its own default, and the shared comment says the default is the component's.

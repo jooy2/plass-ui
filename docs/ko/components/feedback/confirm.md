@@ -191,6 +191,6 @@ await PlConfirmProvider.of(context).confirm(
 
 ## Accessibility
 
-- 진짜 modal dialog입니다. focus는 안에 갇히고, 뒤의 페이지는 inert가 되고, 닫히면 focus가 열었던 것으로 돌아갑니다.
+- 진짜 modal dialog이고, 스크린 리더는 이것을 끼어들어 답을 기다리는 alert dialog로 알립니다. focus는 안에 갇히고, 뒤의 페이지는 inert가 되고, 닫히면 focus가 열었던 것으로 돌아갑니다.
 - `title`은 dialog에 이름을 주는 `<h2>`이고 `description`은 accessible description입니다. 그래서 스크린 리더가 두 버튼 어느 쪽보다 먼저 질문과 그 결과를 읽습니다.
 - 두 버튼은 각자의 label로 이름 붙습니다. "예"와 "아니오"가 아니라 **무엇을 하는지**로("삭제", "버리기", "저장") 이름 붙이세요. 앞의 둘은 맥락을 잃으면 읽을 수 없는 말이고, 맥락을 잃은 채 읽는 것이 정확히 스크린 리더가 하는 일입니다.

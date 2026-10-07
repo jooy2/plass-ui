@@ -310,6 +310,11 @@ export function PlConfirmProvider({
         // buttons, which say what each answer does; a × beside them would be a
         // third answer that means the same as Cancel without saying so.
         showClose={false}
+        // An alert dialog, which is what WAI-ARIA calls a dialog that breaks
+        // into what the reader was doing and waits for an answer, so a screen
+        // reader announces the question as an alert. `PlModal` hands the role
+        // to Base UI's popup with the rest of what it does not name.
+        role="alertdialog"
         // The dialog moves the focus onto the button rather than the button
         // taking it with `autoFocus`. The dialog notes where the focus was as it
         // opens, and an `autoFocus` has already moved it by then, so an answer

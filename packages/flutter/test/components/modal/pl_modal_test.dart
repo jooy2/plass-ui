@@ -299,6 +299,23 @@ void main() {
     });
 
     group('accessibility', () {
+      testWidgets('is a route of its own and no alert dialog', (WidgetTester tester) async {
+        final handle = tester.ensureSemantics();
+        await _pump(tester, const _Harness());
+
+        // A modal of its own claims nothing more than its route; only the
+        // question `PlConfirmProvider` asks in one is an alert dialog.
+        SemanticsNode? layer = tester.getSemantics(find.text('Delete this project?'));
+
+        while (layer != null && !layer.getSemanticsData().flagsCollection.scopesRoute) {
+          layer = layer.parent;
+        }
+
+        expect(layer!.getSemanticsData().role, SemanticsRole.none);
+
+        handle.dispose();
+      });
+
       testWidgets('the heading is announced as one', (WidgetTester tester) async {
         final handle = tester.ensureSemantics();
         await _pump(tester, const _Harness());

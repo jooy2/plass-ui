@@ -4,6 +4,7 @@ library;
 import 'dart:ui' as ui;
 
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
@@ -55,6 +56,7 @@ class PlassPortal extends StatefulWidget {
     this.modal = true,
     this.onDismiss,
     this.label,
+    this.role,
     super.key,
   });
 
@@ -89,8 +91,34 @@ class PlassPortal extends StatefulWidget {
   /// The name a screen reader gives the layer.
   final String? label;
 
+  /// What the layer is to a screen reader beyond a route of its own, such as
+  /// [SemanticsRole.alertDialog]. `null` claims nothing more.
+  final SemanticsRole? role;
+
   @override
   State<PlassPortal> createState() => _PlassPortalState();
+}
+
+/// The role the layer of a component under it is announced with, for a
+/// component that lifts its layer through another one.
+///
+/// [PlConfirmProvider] asks in a `PlModal`, and its question is an alert
+/// dialog, which a `PlModal` of its own is not. The modal reads the role from
+/// here rather than taking it as a prop, so the question's role is not a thing
+/// every modal has to offer.
+class PlassLayerRole extends InheritedWidget {
+  /// Hands [role] to the layer of the component under it.
+  const PlassLayerRole({required this.role, required super.child, super.key});
+
+  /// What that layer is to a screen reader.
+  final SemanticsRole role;
+
+  /// The role in scope, or `null` for none.
+  static SemanticsRole? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<PlassLayerRole>()?.role;
+
+  @override
+  bool updateShouldNotify(PlassLayerRole oldWidget) => role != oldWidget.role;
 }
 
 class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStateMixin {
@@ -309,6 +337,7 @@ class _PlassPortalState extends State<PlassPortal> with SingleTickerProviderStat
       scopesRoute: true,
       namesRoute: widget.label != null,
       label: widget.label,
+      role: widget.role,
       child: Shortcuts(
         shortcuts: const <ShortcutActivator, Intent>{
           SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),

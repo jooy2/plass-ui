@@ -111,7 +111,7 @@ describe('a part whose chunk cannot be fetched', () => {
       await expect.poll(() => answers).toEqual([false, undefined]);
 
       expect(onError).not.toHaveBeenCalled();
-      expect(document.querySelector('[role="dialog"]')).toBeNull();
+      expect(document.querySelector('[role="alertdialog"]')).toBeNull();
       await expect.element(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
     });
   });
