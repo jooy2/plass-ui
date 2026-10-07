@@ -37,6 +37,8 @@ export interface PlTransferProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'onChange'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /** Everything that can be on either side, in the order the lists show it. */
   items: readonly PlTransferItem[];
   /** What is on the trailing side. Use with `onValueChange` for a controlled pair. */

@@ -38,6 +38,8 @@ export interface PlPillProps
       // headline, and a `ReactNode` rather than a string.
       'color' | 'onClick' | 'title'
     > {
+  /** @default 'solid' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `2` here, against the `0` almost everything else takes.
    *

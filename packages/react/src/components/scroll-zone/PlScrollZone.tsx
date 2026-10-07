@@ -71,6 +71,8 @@ export type PlScrollZoneButtonPlacement = 'inline' | 'overlay';
 
 export interface PlScrollZoneProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Which way the children run, and therefore which way the zone scrolls.
    * @default 'horizontal'

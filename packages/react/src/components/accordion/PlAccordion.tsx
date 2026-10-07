@@ -64,6 +64,8 @@ export interface PlAccordionProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'onChange'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — an accordion is part of the page it
    * is set into, not a panel floating over it.

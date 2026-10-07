@@ -25,6 +25,8 @@ import type { PlassColor, PlassElevation, PlassStyleProps, PlassVariant } from '
 
 export interface PlAlertProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — an alert belongs to the flow of the
    * page it interrupts. The one that floats above it is a dialog.

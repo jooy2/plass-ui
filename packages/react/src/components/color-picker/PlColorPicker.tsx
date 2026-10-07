@@ -70,6 +70,8 @@ export interface PlColorPickerProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'onChange'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * The four parts of a labelled field, as every other one names them: the
    * `label`, the `control`, the `description` and the `error`. `className`

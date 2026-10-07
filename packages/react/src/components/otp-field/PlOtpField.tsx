@@ -49,6 +49,8 @@ export interface PlOtpFieldProps
       React.ComponentPropsWithoutRef<'div'>,
       'color' | 'defaultValue' | 'onChange' | 'children'
     > {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /** Classes on the parts a `className` does not reach. */
   classNames?: PlassFieldClassNames;
   /**

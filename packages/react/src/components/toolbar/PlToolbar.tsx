@@ -18,6 +18,8 @@ import type { PlassElevation, PlassPosition, PlassStyleProps } from '../../types
 
 export interface PlToolbarProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` — the default — is flat even when the bar is pinned:
    * a shadow under a header is a way of saying "there is content beneath this",

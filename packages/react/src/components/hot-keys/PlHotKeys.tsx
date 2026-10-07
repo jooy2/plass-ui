@@ -39,6 +39,8 @@ export interface PlHotKeysCluster {
 
 export interface PlHotKeysProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'span'>, 'color' | 'children'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * The keys, innermost punctuation and all.
    *
@@ -80,6 +82,8 @@ export interface PlKbdProps
   extends
     Pick<PlassStyleProps, 'variant' | 'size' | 'density'>,
     Omit<React.ComponentPropsWithoutRef<'kbd'>, 'color'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   children?: React.ReactNode;
 }
 

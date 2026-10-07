@@ -98,6 +98,8 @@ export interface PlToastProviderProps extends Pick<
   PlassStyleProps,
   'variant' | 'size' | 'density'
 > {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /** The default colour family. A single toast overrides it in `add`. */
   color?: PlassColor;
   /** @default 'bottom-end' */

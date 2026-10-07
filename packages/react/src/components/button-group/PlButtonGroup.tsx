@@ -13,6 +13,8 @@ import type { PlassElevation, PlassOrientation, PlassStyleProps } from '../../ty
 
 export interface PlButtonGroupProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
+  /** @default 'solid' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Which way the buttons run. A vertical group is a stacked menu of equal
    * actions; a horizontal one is the default because that is what a toolbar is.

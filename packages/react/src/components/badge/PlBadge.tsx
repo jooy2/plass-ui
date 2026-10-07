@@ -25,6 +25,8 @@ export type PlBadgeOverlap = 'square' | 'circle';
 
 export interface PlBadgeProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'span'>, 'color' | 'content'> {
+  /** @default 'solid' */
+  variant?: PlassStyleProps['variant'];
   /**
    * What the badge says — usually a count, sometimes a word.
    *

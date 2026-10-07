@@ -22,6 +22,8 @@ import type { PlassElevation, PlassStyleProps, PlassVariant } from '../../types.
 
 export interface PlCardProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `1` is the default: a card is a sheet lying **on** the
    * page wash rather than printed into it, and the small amount of grey under

@@ -51,6 +51,8 @@ const ListContext = /* @__PURE__ */ React.createContext<ListContextValue>({
 
 export interface PlListProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'ul'>, 'color'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — a list is a sheet lying flat, not a
    * key resting on one.

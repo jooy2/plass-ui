@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **An editor shows each component's own `variant` default.** `PlassStyleProps` documented `variant` as `'solid'`, so that is what an editor showed on every component that takes it, while most of them default to `'glass'`, `PlTextField`, `PlSelect`, `PlCard` and `PlDataTable` among them, and `PlPagination`, `PlBlockquote`, `PlSidebarTrigger` and the charts default to `'ghost'`. Each component's props now say its own default, and the shared comment says the default is the component's.
+
 ## 1.8.0 (2026-10-07)
 
 ### Breaking changes

@@ -72,6 +72,8 @@ export interface PlSelectProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'children'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /** Classes on the parts a `className` does not reach. */
   classNames?: PlassFieldClassNames;
   /**

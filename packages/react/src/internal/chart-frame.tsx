@@ -206,6 +206,8 @@ export const markTransitionClasses = /* @__PURE__ */ [
 ].join(' ');
 
 export interface ChartBaseProps extends Omit<PlBoxProps, 'children' | 'title'> {
+  /** @default 'ghost' */
+  variant?: PlBoxProps['variant'];
   /**
    * How tall the drawing is. A number is pixels; a string is any CSS length.
    * Defaults to the `size` ladder.

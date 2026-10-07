@@ -11,6 +11,8 @@ import type { PlassElevation, PlassSize, PlassStyleProps } from '../../types.js'
 
 export interface PlPaginationProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'nav'>, 'color' | 'onChange'> {
+  /** @default 'ghost' */
+  variant?: PlassStyleProps['variant'];
   /** How many pages there are. Fewer than two and the whole control renders nothing. */
   count: number;
   /** The current page, 1-based. Use with `onPageChange` for a controlled row. */

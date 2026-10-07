@@ -269,7 +269,10 @@ export interface PlassThreshold {
 
 /** Style props shared by most components; spread into their own prop types. */
 export interface PlassStyleProps {
-  /** @default 'solid' */
+  /**
+   * What the surface is made of. The default is each component's own, a control
+   * `solid` and a surface that holds content `glass`, and its props say which.
+   */
   variant?: PlassVariant;
   /** @default 'md' */
   size?: PlassSize;

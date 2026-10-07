@@ -58,6 +58,8 @@ type NativeControlProps = Omit<
 >;
 
 export interface PlTextFieldProps extends PlassStyleProps, NativeControlProps {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /** Classes on the parts a `className` does not reach. */
   classNames?: PlassFieldClassNames;
   /**

@@ -23,6 +23,8 @@ export interface PlCarouselProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'onChange'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth of the frame. `0` — the default — is flat.
    * @default 0

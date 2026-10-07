@@ -16,6 +16,8 @@ import type { PlassElevation, PlassStyleProps } from '../../types.js';
 
 export interface PlBoxProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default and it is flat — the glass edge is
    * what separates the box from the page. Raise it only for a surface that

@@ -28,6 +28,8 @@ import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '.
 
 export interface PlChipProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'span'>, 'color'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — a chip is a token sitting *on*
    * something else, so it is raised even less often than a `PlButton`.

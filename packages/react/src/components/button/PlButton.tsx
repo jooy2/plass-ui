@@ -31,6 +31,8 @@ import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '.
 
 export interface PlButtonProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'button'>, 'color'> {
+  /** @default 'solid' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `1` is the default, because a moulded key **rests on**
    * the sheet rather than lying flush with it. Hover adds a level and pressing

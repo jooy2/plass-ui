@@ -22,6 +22,8 @@ import type { PlassElevation, PlassSize, PlassStyleProps, PlassVariant } from '.
  */
 export interface PlBlockquoteProps
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'figure'>, 'color'> {
+  /** @default 'ghost' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — a quote is set *into* a page rather
    * than floating over it, so it is raised even less often than a `PlCard`.

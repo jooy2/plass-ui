@@ -63,6 +63,8 @@ export interface PlFilePickerProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'defaultValue' | 'title' | 'children'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — a dropzone is cut into the page
    * rather than floating over it.

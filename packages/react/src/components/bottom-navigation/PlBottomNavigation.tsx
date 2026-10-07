@@ -70,6 +70,8 @@ export interface PlBottomNavigationProps
   extends
     PlassStyleProps,
     Omit<React.ComponentPropsWithoutRef<'nav'>, 'color' | 'defaultValue' | 'onChange'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /** The destination the reader is on. Use with `onValueChange` for a controlled bar. */
   value?: PlBottomNavigationValue | null;
   /** Which starts current, for an uncontrolled bar. */

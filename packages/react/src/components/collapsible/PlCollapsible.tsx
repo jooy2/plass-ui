@@ -32,6 +32,8 @@ export interface PlCollapsibleProps
       // heading written on the trigger, and a `ReactNode` rather than a string.
       'color' | 'title' | 'onChange'
     > {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — a fold is part of the page it is set
    * into, not a panel floating over it.

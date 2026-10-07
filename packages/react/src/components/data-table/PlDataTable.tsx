@@ -138,6 +138,8 @@ export interface PlDataTableColumn<Row> {
 
 export interface PlDataTableProps<Row>
   extends PlassStyleProps, Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'onSelect'> {
+  /** @default 'glass' */
+  variant?: PlassStyleProps['variant'];
   /**
    * Drop shadow depth. `0` is the default — a table is a grid set into the page
    * rather than a panel floating over it.

@@ -8,6 +8,8 @@ import type { PlPageLayoutCollapse, PlassSidebarSide } from '../../internal/page
 import { cx } from '../../internal/styles.js';
 
 export interface PlSidebarTriggerProps extends Omit<PlIconButtonProps, 'icon' | 'label'> {
+  /** @default 'ghost' */
+  variant?: PlIconButtonProps['variant'];
   /** Which of the layout's two sidebars it opens. @default 'start' */
   side?: PlassSidebarSide;
   /**
