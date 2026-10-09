@@ -13,6 +13,7 @@
 
 - **`PlCombobox` takes `filter`, so a list a server has already searched is shown as it came.** Base UI filtered every row again by its label, so a row the server matched on another spelling, such as a city found by its English name and labelled in its own language, was hidden. `filter={null}` keeps every row as `items` gives it, and a function decides which rows a query keeps. The row that offers what was typed always stays.
 - **`PlCombobox` takes `autoHighlight`.** The first row lit up only as the query changed and was not a setting. `true` stays the default, and now lights the first of the rows that arrive after the query changed as well, so a list a server fills a moment later is taken from with Enter. `'always'` also lights the first row whenever the open list has rows and none is lit, as when it opens with nothing typed, and `false` lights nothing until an arrow key or the pointer does.
+- **A `multiple` `PlCombobox` takes a readonly array as `value` and `defaultValue`.** A caller holding the chosen values in a readonly array, or one written `as const`, had to copy it before handing it in, since TypeScript refused it for the mutable array the props asked for. The field never writes into it, and Base UI 1.9.0 takes one as it is.
 - **A `PlComboboxOption` takes `content`, which its row draws in place of the label.** A row could only show its label, so a thumbnail or a second line had nowhere to go. The label is still what is filtered, written into the input and put on the chip.
 
 ### Changed

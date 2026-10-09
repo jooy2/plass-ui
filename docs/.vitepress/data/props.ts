@@ -3817,7 +3817,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'value',
-      type: 'string | number | (string | number)[] | null',
+      type: 'string | number | readonly (string | number)[] | null',
       description: {
         ko: '선택된 값. onValueChange와 함께 controlled로 씁니다. multiple이면 배열입니다',
         en: 'The chosen value. Use with onValueChange for a controlled combobox; an array when multiple'
@@ -3825,7 +3825,7 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'defaultValue',
-      type: 'string | number | (string | number)[] | null',
+      type: 'string | number | readonly (string | number)[] | null',
       description: { ko: 'uncontrolled일 때 처음 선택된 값', en: 'The initially chosen value' }
     },
     {

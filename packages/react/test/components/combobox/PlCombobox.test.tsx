@@ -764,6 +764,16 @@ describe('PlCombobox', () => {
       await expect.element(screen.getByText('Lisbon')).toBeInTheDocument();
     });
 
+    it('holds a readonly array', async () => {
+      const held = ['seoul', 'lisbon'] as const;
+      const screen = await render(
+        <PlCombobox items={items} multiple value={held} onValueChange={() => {}} />
+      );
+
+      await expect.element(screen.getByText('Seoul')).toBeInTheDocument();
+      await expect.element(screen.getByText('Lisbon')).toBeInTheDocument();
+    });
+
     it('reports an array', async () => {
       const onValueChange = vi.fn();
       const screen = await render(

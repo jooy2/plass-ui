@@ -88,6 +88,14 @@ type Selection<Multiple extends boolean | undefined> = Multiple extends true
   : PlComboboxValue | null;
 
 /**
+ * What a caller hands in, which with `multiple` may be a readonly array: the
+ * field never writes into it, and Base UI takes one as it is.
+ */
+type HeldSelection<Multiple extends boolean | undefined> = Multiple extends true
+  ? readonly PlComboboxValue[]
+  : PlComboboxValue | null;
+
+/**
  * What caused a change, handed to `onValueChange`, `onInputValueChange` and
  * `onOpenChange` as their second argument. It is Base UI's own: `reason` names
  * the cause (`'item-press'`, `'chip-remove-press'`, `'clear-press'`,
@@ -127,9 +135,9 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
    */
   multiple?: Multiple;
   /** The chosen value. Use with `onValueChange` for a controlled combobox. */
-  value?: Selection<Multiple> | null;
+  value?: HeldSelection<Multiple> | null;
   /** The initially chosen value, for an uncontrolled combobox. */
-  defaultValue?: Selection<Multiple> | null;
+  defaultValue?: HeldSelection<Multiple> | null;
   /** Called with the new value, and with what caused the change. */
   onValueChange?: (value: Selection<Multiple>, eventDetails: PlComboboxChangeEventDetails) => void;
   /** Called as the text in the input changes — the filter query, not the value. */
