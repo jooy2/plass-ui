@@ -35,10 +35,14 @@ const reactDir = resolve(rootDir, 'packages/react');
 
 const defaultLocale: string = 'en';
 const supportLocales: string[] = [defaultLocale, 'ko'];
-const editLinkPattern = `${packageJson.repository.url}/edit/main/docs/:path`;
 
 const siteUrl = packageJson.homepage.replace(/\/+$/, '');
-const repoUrl = packageJson.repository.url.replace(/\.git$/, '');
+/**
+ * The repository's web page. `repository.url` is written the way npm wants a
+ * clone address, `git+https://….git`, and a browser opens neither end of that.
+ */
+const repoUrl = packageJson.repository.url.replace(/^git\+/, '').replace(/\.git$/, '');
+const editLinkPattern = `${repoUrl}/edit/main/docs/:path`;
 const npmUrl = `https://www.npmjs.com/package/${packageJson.name}`;
 
 /**
