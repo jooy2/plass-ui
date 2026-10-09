@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.8.2 (2026-10-09)
+
 ### Breaking changes
 
 - **Escape no longer empties a `PlCombobox` whose list is closed.** One stray Escape took every chip off a `multiple` field, or the chosen value off a single one, and a caller could not stop it. The value now stays, and the key goes on to whatever the field sits in, so a `PlModal` round the field closes. Escape on an open list still closes it and lets go of the query. Pass `clearOnEscape` to have Escape empty the field as before.

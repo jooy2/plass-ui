@@ -2,6 +2,18 @@
 
 > Every release of this package before the latest one, newest first. The unreleased changes and the latest release are in [`CHANGELOG.md`](CHANGELOG.md), which is the only one of the two published with the package: pub.dev refuses a changelog over 256 KiB.
 
+## 1.8.1 (2026-10-09)
+
+### Changed
+
+- **`PlConfirmProvider` asks its questions in an alert dialog.** The layer `confirm` and `alert` open claims `SemanticsRole.alertDialog` beside its route, as the React question is a `role="alertdialog"`, so a screen reader that reads roles announces the question as an alert. A `PlModal` of its own claims nothing more than its route, as before.
+
+### Fixed
+
+- **A toast and a confirmation in `MaterialApp`'s `builder` no longer take its yellow double underline.** What `builder` returns sits above every page's `Material`, where the text style in scope is the one `MaterialApp` marks text outside a `Material` with, so the words of a `PlToastProvider`'s toasts and of a `PlConfirmProvider`'s questions were drawn underlined in monospace. A toast and a `PlModal`'s sheet now clear any inherited decoration. The font is the app's to give, so the getting-started guide and both providers now show a `Material` of `MaterialType.transparency` round the provider under `MaterialApp`.
+- **A full-width `PlSegmentedButton` whose labels are wider than equal parts no longer overflows.** Every segment took an equal part of the row, so a label wider than its part ran out of its segment: `1,000`, `10,000` and `100,000` at `PlassSize.sm` in a 240-pixel card overflowed the last one. A segment whose label needs more than its part now keeps the width it needs and the others share what is left, as the React set already does, so those three fit. Only labels that together need more than the row are cut short, each with an ellipsis.
+- **A `PlDataTable` or `PlTable` with its header pinned no longer overflows when its rows narrow the columns.** The pinned header takes the columns' widths from the grid after the frame that laid them out, so in the frame where a filter or a page left narrower cells it still held the wider ones and its row overflowed, which a debug build drew as stripes for a frame and `flutter_test` reported as an error. The header now lays its row out at the widths it holds, and moves to the new ones a frame later as before.
+
 ## 1.8.0 (2026-10-07)
 
 ### Breaking changes
