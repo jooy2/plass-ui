@@ -1418,22 +1418,52 @@ void main() {
         expect(taken, <String?>['super-mario']);
       });
 
-      testWidgets('lights no row of a list filled after the query changed, by default', (
-        WidgetTester tester,
-      ) async {
+      testWidgets('lights the first row of a list filled after the query changed, by default, '
+          'and Enter takes it', (WidgetTester tester) async {
         final List<String?> taken = <String?>[];
         final answer = await searching(tester, taken, autoHighlight: PlComboboxHighlight.query);
 
         answer(_searched);
         await tester.pumpAndSettle();
+        expect(_lit(tester), '슈퍼 마리오');
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, <String?>['super-mario']);
+      });
+
+      testWidgets('lights no row of a list filled after the query changed, with `none`', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> taken = <String?>[];
+        final answer = await searching(tester, taken, autoHighlight: PlComboboxHighlight.none);
+
+        answer(_searched);
+        await tester.pumpAndSettle();
         expect(_lit(tester), isNull);
 
-        // With no row lit, Enter closes the list and takes nothing.
+        // With rows and none lit, Enter closes the list and takes nothing.
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
 
         expect(taken, isEmpty);
         expect(_inList('슈퍼 마리오'), findsNothing);
+      });
+
+      testWidgets('lights no row of options that arrive once the query is emptied, by default', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> taken = <String?>[];
+        final answer = await searching(tester, taken, autoHighlight: PlComboboxHighlight.query);
+
+        tester.testTextInput.enterText('');
+        await tester.pumpAndSettle();
+
+        answer(_searched);
+        await tester.pumpAndSettle();
+        expect(_inList('슈퍼 마리오'), findsOneWidget);
+        expect(_lit(tester), isNull);
       });
 
       testWidgets('lights the first row as the list opens, with `always`', (

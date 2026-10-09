@@ -109,12 +109,14 @@ enum PlComboboxHighlight {
   /// Nothing lights up until an arrow key or the pointer lights a row.
   none,
 
-  /// The first row lights up as the query changes.
+  /// The first row lights up as the query changes, and so does the first of
+  /// the options that arrive after it, for a list filled after the reader
+  /// stopped typing.
   query,
 
-  /// The first row lights up as the query changes, and whenever the open list
-  /// has rows and none is lit, so rows that arrive after the reader stopped
-  /// typing are lit as they arrive.
+  /// As [query], and the first row also lights up whenever the open list has
+  /// rows and none is lit: as it opens with nothing typed, and once the
+  /// pointer has left it.
   always,
 }
 
@@ -318,8 +320,8 @@ class PlCombobox<T> extends StatefulWidget {
   final bool Function(PlComboboxOption<T> option, String query)? filter;
 
   /// When a row lights up on its own, so Enter takes it without an arrow key
-  /// first. [PlComboboxHighlight.always] is what a list filled after the reader
-  /// stopped typing needs.
+  /// first. The default, [PlComboboxHighlight.query], also lights the first of
+  /// the options that arrive after the query changed.
   final PlComboboxHighlight autoHighlight;
 
   /// Whether Escape with the list closed empties the field.
@@ -606,6 +608,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// UI's are.
   bool _queryEdited = false;
 
+  /// Whether a query was typed into a list with no rows to light, so the first
+  /// of the options that arrive for it is lit as they do, as Base UI keeps its
+  /// highlight request while results are pending. Given up once the text is
+  /// emptied or the list closes.
+  bool _lightArrivals = false;
+
   /// The rows, and the query they were worked out for.
   ///
   /// Kept between the combobox's own rebuilds: every arrow key, every row the
@@ -658,6 +666,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     super.didUpdateWidget(oldWidget);
 
     _rowsCache = null;
+
+    if (_lightArrivals && _open && _rows.isNotEmpty) {
+      _highlighted = 0;
+      _lightArrivals = false;
+    }
 
     // What the field said for the value it held, read before the labels kept
     // for the chosen values move on.
@@ -1005,6 +1018,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       _queryEdited = false;
       _rowsCache = null;
       _closing = null;
+      _lightArrivals = false;
       _highlighted = _start(by: by);
     });
     _reveal.reveal(_scroll, _active, _rows.length);
@@ -1079,6 +1093,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       setState(() {
         _closing = _rows;
         _open = false;
+        _lightArrivals = false;
         _highlighted = -1;
       });
     }
@@ -1170,6 +1185,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       // does not, as Base UI's `maybeOpenOnInput` opens only on a query with
       // something in it. An open list stays open either way.
       _open = _usable && (_open || typed);
+      _lightArrivals =
+          _open && typed && widget.autoHighlight != PlComboboxHighlight.none && _rows.isEmpty;
 
       if (!_open) {
         return;
