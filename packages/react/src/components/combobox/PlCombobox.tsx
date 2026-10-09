@@ -146,11 +146,12 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   filter?: ((option: PlComboboxOption, query: string) => boolean) | null;
   /**
    * Whether a row lights up on its own, so Enter takes it without an arrow key
-   * first. `true` lights the first row as the query changes. `'always'` also
-   * lights it whenever the open list has rows and none is lit, which is what a
-   * list filled after the reader stopped typing needs: rows that arrive later
-   * are lit as they arrive. `false` lights nothing until an arrow key or the
-   * pointer does.
+   * first. `true` lights the first row as the query changes, and the first of
+   * the rows that arrive after it, for a list filled after the reader stopped
+   * typing. `'always'` also lights the first row whenever the open list has
+   * rows and none is lit: as it opens with nothing typed, and once the pointer
+   * has left it. `false` lights nothing until an arrow key or the pointer
+   * does.
    * @default true
    */
   autoHighlight?: boolean | 'always';
@@ -447,7 +448,7 @@ function toArray(value: unknown): PlComboboxValue[] {
  *
  * With `multiple` the chosen values become PlChips inside the field and the
  * input goes on filtering after each one. A row taken from a filtered list
- * closes the list and empties the text, which is how Base UI 1.8.0 behaves,
+ * closes the list and empties the text, which is how Base UI behaves,
  * and a row taken with nothing typed leaves the list open for the next one.
  *
  * Base UI owns everything hard about this: the filtering and its collator, the

@@ -3857,8 +3857,8 @@ export const propTables: Record<string, PropRow[]> = {
       type: "boolean | 'always'",
       default: 'true',
       description: {
-        ko: "행에 저절로 불이 들어오는지. true는 질의가 바뀔 때 첫 행에, 'always'는 그에 더해 열린 목록에 행이 있는데 켜진 행이 없을 때마다 첫 행에 불을 켭니다. 입력을 멈춘 뒤에 채워지는 목록에 씁니다. false는 화살표나 포인터가 켜기 전까지 아무것도 켜지 않습니다",
-        en: "Whether a row lights up on its own. true lights the first row as the query changes, and 'always' also lights it whenever the open list has rows and none is lit, for a list filled after the reader stopped typing. false lights nothing until an arrow key or the pointer does"
+        ko: "행에 저절로 불이 들어오는지. true는 질의가 바뀔 때, 그리고 그 뒤에 도착한 행 중 첫 행에 불을 켭니다. 'always'는 그에 더해 열린 목록에 행이 있는데 켜진 행이 없을 때마다 첫 행에 불을 켭니다. false는 화살표나 포인터가 켜기 전까지 아무것도 켜지 않습니다",
+        en: "Whether a row lights up on its own. true lights the first row as the query changes, and the first of the rows that arrive after it. 'always' also lights the first row whenever the open list has rows and none is lit. false lights nothing until an arrow key or the pointer does"
       }
     },
     {

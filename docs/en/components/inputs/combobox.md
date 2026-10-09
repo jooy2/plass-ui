@@ -143,7 +143,7 @@ The field then has no fixed height, the chips wrap, so its padding is `(control 
 
 A list a server has already searched can hold rows whose labels do not contain the query, such as a city found by its English name and labelled in its own language. The default filter would hide them again. <Fw react="filter={null}" flutter="filter: (_, _) => true" code /> keeps every row as given, and a function of your own decides which rows a query keeps.
 
-By default the first row lights up as the query changes, and a list that is still empty at that moment has nothing lit when its rows arrive, so <kbd>Enter</kbd> takes nothing. <Fw react='autoHighlight="always"' flutter="PlComboboxHighlight.always" code /> lights the first row whenever the open list has rows and none is lit.
+By default the first row lights up as the query changes, and in a list that is still empty at that moment, the first of the rows that arrive is lit as they do, so <kbd>Enter</kbd> takes it. <Fw react='autoHighlight="always"' flutter="PlComboboxHighlight.always" code /> also lights the first row whenever the open list has rows and none is lit, as when it opens with nothing typed.
 
 A chosen value keeps the label it was last listed with, so its chip, or the text of a single field, still reads right once a later query's rows leave it out.
 
@@ -249,7 +249,7 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> move through the list, <kbd>Enter</kbd> takes the highlighted row and <kbd>Esc</kbd> closes. With `multiple`, <kbd>←</kbd> <kbd>→</kbd> walk the chips and <kbd>Backspace</kbd> removes one.
 - With no row lit, <kbd>Enter</kbd> closes the list and lets a form round the field be sent. On a list with no rows at all, still waiting for them or matching nothing, it does nothing: the list stays open, the query stays in the input, and the form is not sent.
 - With the list closed, <kbd>Esc</kbd> leaves the value alone and goes on to whatever the field sits in, such as a modal. With `clearOnEscape` it empties a field that holds a value instead. Emptying the text of a single-value field empties its value as well.
-- The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is. `autoHighlight="always"` also lights the first of the rows that arrive later, and `autoHighlight={false}` lights none.
+- The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is. So do the first of the rows that arrive after the query changed. `autoHighlight="always"` also lights the first row whenever the list has rows and none is lit, and `autoHighlight={false}` lights none.
 - The "add this" row is a **real option**, not a special case in the key handling, so a click, <kbd>Enter</kbd> and the arrow keys all reach it the way every other row is reached.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
 - Each chip's × is named after its chip (`Remove Seoul`, not `Remove`), because a screen reader reading a row of six identical buttons has told the reader nothing. Removing a chip with its × moves the focus to the input.

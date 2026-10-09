@@ -365,7 +365,7 @@ describe('PlCombobox', () => {
       );
     });
 
-    it('lights no row of a list filled after the query changed, by default', async () => {
+    it('lights the first row of a list filled after the query changed, by default', async () => {
       const screen = await render(<PlCombobox items={[]} filter={null} allowCustom={false} />);
 
       await screen.getByRole('combobox').fill('mario');
@@ -373,10 +373,28 @@ describe('PlCombobox', () => {
 
       await screen.rerender(<PlCombobox items={searched} filter={null} allowCustom={false} />);
 
-      await expect.element(screen.getByRole('option', { name: '슈퍼 마리오' })).toBeInTheDocument();
+      await expect
+        .element(screen.getByRole('option', { name: '슈퍼 마리오' }))
+        .toHaveAttribute('data-highlighted');
+    });
+
+    it('lights the first row as the list opens with nothing typed, with `always` alone', async () => {
+      const screen = await render(<PlCombobox items={items} autoHighlight="always" />);
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+
+      await expect
+        .element(screen.getByRole('option', { name: 'Seoul' }))
+        .toHaveAttribute('data-highlighted');
+
+      await screen.rerender(<PlCombobox items={items} />);
+      await userEvent.keyboard('{Escape}');
+      await expect.element(screen.getByRole('listbox')).not.toBeInTheDocument();
+      await screen.getByRole('button', { name: 'Open' }).click();
+      await expect.element(screen.getByRole('option', { name: 'Seoul' })).toBeInTheDocument();
       await settle();
 
-      expect(screen.getByRole('option', { name: '슈퍼 마리오' }).element()).not.toHaveAttribute(
+      expect(screen.getByRole('option', { name: 'Seoul' }).element()).not.toHaveAttribute(
         'data-highlighted'
       );
     });

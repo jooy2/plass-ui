@@ -12,11 +12,12 @@
 ### Added
 
 - **`PlCombobox` takes `filter`, so a list a server has already searched is shown as it came.** Base UI filtered every row again by its label, so a row the server matched on another spelling, such as a city found by its English name and labelled in its own language, was hidden. `filter={null}` keeps every row as `items` gives it, and a function decides which rows a query keeps. The row that offers what was typed always stays.
-- **`PlCombobox` takes `autoHighlight`, and `'always'` lights the rows that arrive after the query changed.** The first row lit up only as the query changed, so rows a server sent a moment later had nothing lit, and Enter closed the list, in a `multiple` field emptying the query as well, without taking one. `autoHighlight="always"` lights the first row whenever the open list has rows and none is lit. `true` stays the default, and `false` lights nothing until an arrow key or the pointer does.
+- **`PlCombobox` takes `autoHighlight`.** The first row lit up only as the query changed and was not a setting. `true` stays the default, and now lights the first of the rows that arrive after the query changed as well, so a list a server fills a moment later is taken from with Enter. `'always'` also lights the first row whenever the open list has rows and none is lit, as when it opens with nothing typed, and `false` lights nothing until an arrow key or the pointer does.
 - **A `PlComboboxOption` takes `content`, which its row draws in place of the label.** A row could only show its label, so a thumbnail or a second line had nowhere to go. The label is still what is filtered, written into the input and put on the chip.
 
 ### Changed
 
+- **`plass-ui` depends on `@base-ui/react` `^1.9.0`.** The fixes in Base UI 1.9.0 reach these components: a `PlCombobox` lights the first of the rows that arrive after the query changed and leaves no stale focus on a chip once the input has it back, a `PlSlider` ends a drag on `pointercancel` and `touchcancel`, and a `PlToastProvider` keeps a toast's timer paused through overlapping interactions. Base UI 1.9.0 also builds the filtering it adds to its menu into every menu, so a page with a `PlMenu` or a `PlContextMenu` grows by about 9 kB gzipped whether or not anything filters.
 - **Enter on a `PlCombobox` list with no rows keeps the list open and the query in the input.** A list still waiting for its rows, or matching nothing, closed on Enter, which emptied the query in a `multiple` field and put the chosen label back in a single one, so the reader had to type the query again. Enter there now does nothing, and a form round the field is not sent with the list open. A list with rows and none lit still closes on Enter and lets the form be sent.
 
 ### Fixed

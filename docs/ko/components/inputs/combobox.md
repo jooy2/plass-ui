@@ -143,7 +143,7 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 
 서버가 이미 검색한 목록에는 label에 질의가 들어 있지 않은 행이 섞일 수 있습니다. 영어 이름으로 찾았지만 그 나라 말로 적힌 도시가 그렇습니다. 기본 필터는 이런 행을 다시 숨깁니다. 모든 행을 받은 그대로 보여 주려면 <Fw react="filter={null}" flutter="filter: (_, _) => true" code /> 형태로 넘기고, 질의가 남길 행을 직접 정하려면 함수를 넘깁니다.
 
-기본값에서는 질의가 바뀔 때 첫 행에 불이 들어옵니다. 그 순간 목록이 아직 비어 있었다면 나중에 행이 도착해도 켜진 행이 없어서 <kbd>Enter</kbd>가 아무것도 취하지 않습니다. <Fw react='autoHighlight="always"' flutter="PlComboboxHighlight.always" code />는 열린 목록에 행이 있는데 켜진 행이 없을 때마다 첫 행에 불을 켭니다.
+기본값에서는 질의가 바뀔 때 첫 행에 불이 들어옵니다. 그 순간 목록이 아직 비어 있었다면 행이 도착할 때 그중 첫 행에 불이 들어오고, <kbd>Enter</kbd>가 그 행을 취합니다. <Fw react='autoHighlight="always"' flutter="PlComboboxHighlight.always" code />는 그에 더해, 아무것도 입력하지 않고 목록을 열 때처럼 열린 목록에 행이 있는데 켜진 행이 없을 때마다 첫 행에 불을 켭니다.
 
 고른 값은 마지막으로 목록에 있었을 때의 label을 기억합니다. 그래서 다음 질의의 결과에 그 값이 없어도 chip이나 단일 field의 글자는 값이 아니라 label로 보입니다.
 
@@ -249,7 +249,7 @@ option의 `content`는 행에서 label 자리에 그려집니다. 사진이나 g
 - 키보드는 primitive의 것입니다. <kbd>↑</kbd> <kbd>↓</kbd>로 목록을 움직이고, <kbd>Enter</kbd>로 강조된 행을 취하고, <kbd>Esc</kbd>로 닫습니다. `multiple`에서는 <kbd>←</kbd> <kbd>→</kbd>가 chip 사이를 걷고 <kbd>Backspace</kbd>가 하나를 지웁니다.
 - 켜진 행이 없으면 <kbd>Enter</kbd>는 목록을 닫고, field를 담은 form이 제출되게 둡니다. 행이 하나도 없는 목록에서는, 아직 행을 기다리는 중이든 일치하는 것이 없든 아무것도 하지 않습니다. 목록은 열린 채로, 질의는 입력창에 그대로 남고, form도 제출되지 않습니다.
 - 목록이 닫혀 있을 때 <kbd>Esc</kbd>는 값을 그대로 두고 field를 담은 modal 같은 곳으로 넘어갑니다. `clearOnEscape`를 켜면 대신 값이 있는 field를 비웁니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
-- 입력하는 동안 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. "이걸 추가" 행이 키보드로 닿을 수 있는 이유도 이것입니다. 목록에 없는 값은 유일한 일치 항목이기 때문입니다. `autoHighlight="always"`는 나중에 도착한 행에도 첫 행에 불을 켜고, `autoHighlight={false}`는 어느 행에도 켜지 않습니다.
+- 입력하는 동안 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. "이걸 추가" 행이 키보드로 닿을 수 있는 이유도 이것입니다. 목록에 없는 값은 유일한 일치 항목이기 때문입니다. 질의가 바뀐 뒤에 도착한 행도 그중 첫 행에 불이 들어옵니다. `autoHighlight="always"`는 그에 더해 행이 있는데 켜진 행이 없을 때마다 첫 행에 불을 켜고, `autoHighlight={false}`는 어느 행에도 켜지 않습니다.
 - "이걸 추가" 행은 키 처리의 특수 케이스가 아니라 **진짜 option**입니다. 클릭도, <kbd>Enter</kbd>도, 화살표도 다른 모든 행과 똑같은 방식으로 닿습니다.
 - 행은 `:hover`가 아니라 `data-highlighted`로 켜집니다. 포인터와 화살표가 같은 행을 밝힙니다.
 - chip의 ×는 자기 chip의 이름을 답니다. `Remove`가 아니라 `Remove Seoul`. 똑같은 버튼 여섯 개를 읽어 주는 스크린리더는 아무것도 말해 주지 않은 것과 같습니다. ×로 chip을 지우면 포커스가 입력창으로 옮겨 갑니다.
