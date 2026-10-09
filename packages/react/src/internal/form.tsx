@@ -128,13 +128,16 @@ export function controlNaming(
  * the hidden words it points at, for a Base UI part `controlNaming` cannot
  * reach.
  *
- * A checkbox, a switch, a radio, and the group around a slider's thumbs or a
- * code's slots read `aria-labelledby` themselves and fall back to the visible
- * label for anything but a reference of the caller's, `undefined` included. So
- * an `aria-label` given without an `aria-labelledby` is written into a hidden
- * node as well, and the part is pointed at that, which leaves the `aria-label`
- * as the name in the label's place. A caller's `aria-labelledby` comes back as
- * it was, and with neither there is no reference and no node.
+ * The group around a slider's thumbs or a code's slots reads `aria-labelledby`
+ * itself and falls back to the visible label for anything but a reference of
+ * the caller's, `undefined` included. So an `aria-label` given without an
+ * `aria-labelledby` is written into a hidden node as well, and the part is
+ * pointed at that, which leaves the `aria-label` as the name in the label's
+ * place. A caller's `aria-labelledby` comes back as it was, and with neither
+ * there is no reference and no node.
+ *
+ * A checkbox, a switch and a radio do not need it: since Base UI 1.9.0 they
+ * drop the label's reference for a non-blank `aria-label` of their own.
  */
 export function useLabelReference(
   label: string | undefined,

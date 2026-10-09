@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { controlNaming, useDisabled, useLabelReference } from '../../internal/form.js';
+import { controlNaming, useDisabled } from '../../internal/form.js';
 import { useDefaults } from '../../internal/defaults.js';
 import { Radio as BaseUIRadio } from '@base-ui/react/radio';
 import { RadioGroup as BaseUIRadioGroup } from '@base-ui/react/radio-group';
@@ -185,11 +185,6 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
   ref
 ) {
   const group = React.useContext(RadioGroupContext);
-  // An `aria-label` names the dot in a visible label's place, and a caller's
-  // `aria-labelledby` outranks both. Base UI names the dot by the label unless
-  // it is given a reference, so an `aria-label` comes with one, to a hidden copy
-  // of its words.
-  const reference = useLabelReference(ariaLabel, ariaLabelledBy);
   const readOnly = props.readOnly ?? group.readOnly;
   // Base UI already stops a disabled group's options answering. This is the
   // look, which the option draws from its own flag and has to take from the
@@ -215,8 +210,11 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
               inert ? disabledDotClasses : readOnly ? readOnlyDotClasses : restDotClasses
             ].join(' ')}
             disabled={disabled}
+            // An `aria-label` names the dot in a visible label's place, and Base
+            // UI drops the label's reference for one. A caller's
+            // `aria-labelledby` outranks both.
             aria-label={ariaLabel}
-            aria-labelledby={reference.labelledBy}
+            aria-labelledby={ariaLabelledBy}
             {...props}
           >
             <BaseUIRadio.Indicator
@@ -245,8 +243,6 @@ export const PlRadio = /* @__PURE__ */ React.forwardRef<HTMLElement, PlRadioProp
           </span>
         ) : null}
       </div>
-
-      {reference.node}
     </Field.Root>
   );
 });
