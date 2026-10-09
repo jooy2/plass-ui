@@ -29,8 +29,12 @@ const watched = [
   '(forced-colors: active)'
 ];
 
-/** Long enough for a slow runner's next frame, short enough to name the failure. */
-const patience = 2000;
+/**
+ * Long enough for a slow runner's next frame, short enough to name the failure.
+ * On Ubuntu's WebKit runner, the frame after a popup has closed has taken over
+ * two seconds since Base UI 1.9.0.
+ */
+const patience = 5000;
 
 export async function emulateMedia(features: Features): Promise<void> {
   const lists = watched.map((query) => window.matchMedia(query));

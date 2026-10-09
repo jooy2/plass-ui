@@ -12,6 +12,13 @@ const items: PlCommandItem[] = [
   { value: 'gone', label: 'Unavailable', group: 'Edit', disabled: true }
 ];
 
+/**
+ * How long a closed sheet may take to leave the document. Base UI unmounts it
+ * once its exit transition has run, and on Ubuntu's WebKit runner that has
+ * taken over a second since Base UI 1.9.0, past `expect.poll`'s default.
+ */
+const leaving = { timeout: 5000 };
+
 /** A palette opened from a button, the way a page with no shortcut opens one. */
 function Opener() {
   const [open, setOpen] = useState(false);
@@ -109,7 +116,7 @@ describe('PlCommandPalette', () => {
 
       await userEvent.keyboard('{Escape}');
 
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('dialog').query(), leaving).toBeNull();
       await expect.poll(() => document.activeElement).toBe(opener);
     });
 
@@ -131,7 +138,7 @@ describe('PlCommandPalette', () => {
 
       await userEvent.keyboard('{Escape}');
 
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('dialog').query(), leaving).toBeNull();
       expect(onOpenChange).toHaveBeenCalledTimes(1);
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
@@ -337,7 +344,7 @@ describe('PlCommandPalette', () => {
 
       expect(onSelect).toHaveBeenCalledTimes(1);
       expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ label: lit }));
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('dialog').query(), leaving).toBeNull();
     });
 
     it('gives the focus back to where it was once a command has run', async () => {
@@ -349,7 +356,7 @@ describe('PlCommandPalette', () => {
         .not.toBeNull();
       await userEvent.keyboard('{Enter}');
 
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('dialog').query(), leaving).toBeNull();
       await expect.poll(() => document.activeElement).toBe(opener);
     });
 
@@ -371,7 +378,7 @@ describe('PlCommandPalette', () => {
           onOpenChange={() => undefined}
         />
       );
-      await expect.poll(() => screen.getByRole('dialog').query()).toBeNull();
+      await expect.poll(() => screen.getByRole('dialog').query(), leaving).toBeNull();
 
       await screen.rerender(
         <PlCommandPalette items={items} shortcut={false} open onOpenChange={() => undefined} />
