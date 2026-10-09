@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.8.1 (2026-10-09)
+
 ### Breaking changes
 
 - **`PlConfirmProvider` asks its questions in an alert dialog.** `confirm` and `alert` open a `role="alertdialog"` rather than a `role="dialog"`, which is what WAI-ARIA calls a dialog that breaks into what the reader was doing and waits for an answer, so a screen reader announces the question as an alert. Its name, description, focus and dismissal are as before. A test that finds the question by its role, `getByRole('dialog')`, finds it as `getByRole('alertdialog')` now.
