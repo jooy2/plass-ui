@@ -4,6 +4,25 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **Escape no longer empties a `PlCombobox` whose list is closed.** One stray Escape took every chip off a `multiple` field, or the chosen value off a single one, and a caller could not stop it. The value now stays, and the key goes on to whatever the field sits in, so a `PlModal` round the field closes. Escape on an open list still closes it and lets go of the query. Pass `clearOnEscape` to have Escape empty the field as before.
+- **`PlCombobox` calls `onValueChange`, `onInputValueChange` and `onOpenChange` with Base UI's event details as a second argument.** A caller could not tell what had changed the value, so an Escape and a press of the clear button looked the same. The second argument, typed `PlComboboxChangeEventDetails`, carries the `reason` (`'item-press'`, `'chip-remove-press'`, `'clear-press'`, `'escape-key'` and the rest) and the DOM `event`, and its `cancel()` turns the change away, so the field keeps what it held. A handler that takes one argument is unchanged. A test that checks a call with `toHaveBeenCalledWith(value)` now needs `expect.anything()` after the value.
+
+### Added
+
+- **`PlCombobox` takes `filter`, so a list a server has already searched is shown as it came.** Base UI filtered every row again by its label, so a row the server matched on another spelling, such as a city found by its English name and labelled in its own language, was hidden. `filter={null}` keeps every row as `items` gives it, and a function decides which rows a query keeps. The row that offers what was typed always stays.
+- **`PlCombobox` takes `autoHighlight`, and `'always'` lights the rows that arrive after the query changed.** The first row lit up only as the query changed, so rows a server sent a moment later had nothing lit, and Enter closed the list, in a `multiple` field emptying the query as well, without taking one. `autoHighlight="always"` lights the first row whenever the open list has rows and none is lit. `true` stays the default, and `false` lights nothing until an arrow key or the pointer does.
+- **A `PlComboboxOption` takes `content`, which its row draws in place of the label.** A row could only show its label, so a thumbnail or a second line had nowhere to go. The label is still what is filtered, written into the input and put on the chip.
+
+### Changed
+
+- **Enter on a `PlCombobox` list with no rows keeps the list open and the query in the input.** A list still waiting for its rows, or matching nothing, closed on Enter, which emptied the query in a `multiple` field and put the chosen label back in a single one, so the reader had to type the query again. Enter there now does nothing, and a form round the field is not sent with the list open. A list with rows and none lit still closes on Enter and lets the form be sent.
+
+### Fixed
+
+- **A chosen `PlCombobox` value keeps its label once `items` no longer lists it.** A chip, and the text of a single field, read the label off the current `items`, so in a list a server answers, a value the latest query did not find was shown by its value, such as `prague` for Praha. The field now keeps the label each chosen value was last listed with, including one taken from a list that the next query emptied in the same press.
+
 ## 1.8.1 (2026-10-09)
 
 ### Breaking changes

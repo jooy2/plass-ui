@@ -57,6 +57,8 @@ PlCombobox<String>(
 
 `className`은 label과 control, 그 아래 두 줄을 함께 담는 stack에 붙습니다. 그 안쪽 네 부분에 닿는 것이 `classNames`입니다: `label`, `control`(chip까지 포함한 field의 껍데기), `description`, `error`.
 
+`onValueChange`, `onInputValueChange`, `onOpenChange`는 두 번째 인자로 Base UI의 event details를 받습니다. 타입은 `PlComboboxChangeEventDetails`입니다. `reason`에는 `'item-press'`, `'chip-remove-press'`, `'clear-press'`, `'escape-key'`처럼 무엇이 바꿨는지가 들어 있고, `cancel()`을 부르면 그 변경을 물리고 field가 원래 값을 지킵니다.
+
 :::
 
 ::: fw flutter
@@ -137,6 +139,58 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 
 </Demo>
 
+### filter · autoHighlight
+
+서버가 이미 검색한 목록에는 label에 질의가 들어 있지 않은 행이 섞일 수 있습니다. 영어 이름으로 찾았지만 그 나라 말로 적힌 도시가 그렇습니다. 기본 필터는 이런 행을 다시 숨깁니다. 모든 행을 받은 그대로 보여 주려면 <Fw react="filter={null}" flutter="filter: (_, _) => true" code /> 형태로 넘기고, 질의가 남길 행을 직접 정하려면 함수를 넘깁니다.
+
+기본값에서는 질의가 바뀔 때 첫 행에 불이 들어옵니다. 그 순간 목록이 아직 비어 있었다면 나중에 행이 도착해도 켜진 행이 없어서 <kbd>Enter</kbd>가 아무것도 취하지 않습니다. <Fw react='autoHighlight="always"' flutter="PlComboboxHighlight.always" code />는 열린 목록에 행이 있는데 켜진 행이 없을 때마다 첫 행에 불을 켭니다.
+
+고른 값은 마지막으로 목록에 있었을 때의 label을 기억합니다. 그래서 다음 질의의 결과에 그 값이 없어도 chip이나 단일 field의 글자는 값이 아니라 label로 보입니다.
+
+::: fw flutter
+
+여기서 `filter`는 함수이고 따로 `null`을 받지 않습니다. Dart에서는 넘기지 않은 파라미터와 `null`을 넘긴 파라미터가 같기 때문입니다. `autoHighlight`는 `none`, `query`, `always` 중 하나인 `PlComboboxHighlight`입니다. Dart에는 `boolean | 'always'`를 담을 union 타입이 없습니다.
+
+:::
+
+<Demo src="combobox/search" :min-height="300">
+
+::: fw react
+
+<<< @/.vitepress/demos/combobox/search.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/combobox/search.dart
+
+:::
+
+</Demo>
+
+### content
+
+option의 `content`는 행에서 label 자리에 그려집니다. 사진이나 glyph, 덧붙는 글자 같은 것입니다. 필터가 읽고, 행을 취한 뒤 입력창에 들어가고, chip에 적히는 것은 여전히 label입니다.
+
+스크린 리더는 content의 글자를 행의 이름으로 읽습니다. 그러니 label의 단어를 그 안에 넣고, 그 단어를 되풀이할 뿐인 그림은 숨겨야 합니다.
+
+<Demo src="combobox/content" :min-height="300">
+
+::: fw react
+
+<<< @/.vitepress/demos/combobox/content.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/combobox/content.dart
+
+:::
+
+</Demo>
+
 ### size
 
 다른 모든 컨트롤과 같은 높이 사다리입니다. `multiple`에서는 위의 이유로 그 숫자가 높이가 아니라 최소 높이가 됩니다.
@@ -193,8 +247,9 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 - `label` `description` `error`는 Base UI의 Field가 입력창과 엮어 주므로 `htmlFor`가 필요 없습니다. 보이는 `label`이 없다면 `aria-label`을 주세요. 보이는 `label`이 있어도 `aria-label`이 그 자리를 대신해 입력창의 이름이 되고, `aria-labelledby`는 그 둘보다 앞섭니다.
 - `aria-label`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 combobox를 찾을 수 있습니다.
 - 키보드는 primitive의 것입니다. <kbd>↑</kbd> <kbd>↓</kbd>로 목록을 움직이고, <kbd>Enter</kbd>로 강조된 행을 취하고, <kbd>Esc</kbd>로 닫습니다. `multiple`에서는 <kbd>←</kbd> <kbd>→</kbd>가 chip 사이를 걷고 <kbd>Backspace</kbd>가 하나를 지웁니다.
-- 목록이 닫혀 있을 때 <kbd>Esc</kbd>는 값이 있는 field를 비우고, 값이 없으면 field를 담은 modal 같은 곳으로 넘어갑니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
-- 입력하는 동안 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. "이걸 추가" 행이 키보드로 닿을 수 있는 이유도 이것입니다. 목록에 없는 값은 유일한 일치 항목이기 때문입니다.
+- 켜진 행이 없으면 <kbd>Enter</kbd>는 목록을 닫고, field를 담은 form이 제출되게 둡니다. 행이 하나도 없는 목록에서는, 아직 행을 기다리는 중이든 일치하는 것이 없든 아무것도 하지 않습니다. 목록은 열린 채로, 질의는 입력창에 그대로 남고, form도 제출되지 않습니다.
+- 목록이 닫혀 있을 때 <kbd>Esc</kbd>는 값을 그대로 두고 field를 담은 modal 같은 곳으로 넘어갑니다. `clearOnEscape`를 켜면 대신 값이 있는 field를 비웁니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
+- 입력하는 동안 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. "이걸 추가" 행이 키보드로 닿을 수 있는 이유도 이것입니다. 목록에 없는 값은 유일한 일치 항목이기 때문입니다. `autoHighlight="always"`는 나중에 도착한 행에도 첫 행에 불을 켜고, `autoHighlight={false}`는 어느 행에도 켜지 않습니다.
 - "이걸 추가" 행은 키 처리의 특수 케이스가 아니라 **진짜 option**입니다. 클릭도, <kbd>Enter</kbd>도, 화살표도 다른 모든 행과 똑같은 방식으로 닿습니다.
 - 행은 `:hover`가 아니라 `data-highlighted`로 켜집니다. 포인터와 화살표가 같은 행을 밝힙니다.
 - chip의 ×는 자기 chip의 이름을 답니다. `Remove`가 아니라 `Remove Seoul`. 똑같은 버튼 여섯 개를 읽어 주는 스크린리더는 아무것도 말해 주지 않은 것과 같습니다. ×로 chip을 지우면 포커스가 입력창으로 옮겨 갑니다.
@@ -208,10 +263,10 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 
 - field는 목록이 열려 있는지 말해 주는 text field로 읽힙니다. 각 행은 서로 배타적인 묶음 중 하나로, 취해졌는지 여부와 함께 읽힙니다.
 - `semanticLabel`에는 보이는 라벨의 낱말을 담으세요. 그래야 그 낱말을 음성 제어 도구에 말하는 사용자도 이 combobox를 찾을 수 있습니다.
-- **키는 field에 머뭅니다.** 포커스도 그렇습니다. <kbd>↑</kbd> <kbd>↓</kbd>가 강조를 옮기고, <kbd>Enter</kbd>가 강조된 행을 취하거나 강조된 행이 없으면 목록을 닫고, <kbd>Escape</kbd>나 시스템 뒤로 가기가 아무것도 취하지 않고 닫습니다. 목록은 field의 목록이지 두 번째로 머물 자리가 아닙니다.
+- **키는 field에 머뭅니다.** 포커스도 그렇습니다. <kbd>↑</kbd> <kbd>↓</kbd>가 강조를 옮기고, <kbd>Enter</kbd>가 강조된 행을 취하거나 강조된 행이 없으면 목록을 닫되 행이 하나도 없는 목록은 질의와 함께 열어 두고, <kbd>Escape</kbd>나 시스템 뒤로 가기가 아무것도 취하지 않고 닫습니다. 목록은 field의 목록이지 두 번째로 머물 자리가 아닙니다.
 - 리모컨 D-pad인 `NavigationMode.directional`에서는 닫힌 목록이 <kbd>↑</kbd>나 <kbd>↓</kbd>로 열리지 않습니다. 거기서 방향키는 그 방향의 다음 컨트롤로 포커스를 옮기고, 목록은 <kbd>Enter</kbd>나 리모컨의 Select로 엽니다. 열린 목록은 방향키를 그대로 씁니다.
-- 목록이 닫혀 있을 때 <kbd>Escape</kbd>는 값이 있는 field를 비우고, 값이 없으면 field를 담은 modal 같은 곳으로 넘어갑니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
-- 질의가 바뀔 때마다 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. 생성 행이 키보드로 닿을 수 있는 이유도 이것입니다. 텍스트를 모두 지우면 불은 있던 자리에 그대로 남고, `multiple`에서는 목록에서 가장 위에 있는 선택된 행으로 옮겨 갑니다.
+- 목록이 닫혀 있을 때 <kbd>Escape</kbd>는 값을 그대로 두고 field를 담은 modal 같은 곳으로 넘어갑니다. `clearOnEscape`를 켜면 대신 값이 있는 field를 비웁니다. 값 하나를 담는 field는 글자를 다 지우면 값도 비워집니다.
+- 질의가 바뀔 때마다 첫 일치 항목에 불이 들어와서, 화살표 없이 <kbd>Enter</kbd>만으로 확정됩니다. 생성 행이 키보드로 닿을 수 있는 이유도 이것입니다. 텍스트를 모두 지우면 불은 있던 자리에 그대로 남고, `multiple`에서는 목록에서 가장 위에 있는 선택된 행으로 옮겨 갑니다. `PlComboboxHighlight.always`는 나중에 도착한 선택지에도 첫 행에 불을 켜고, `PlComboboxHighlight.none`은 어느 행에도 켜지 않습니다.
 - 강조는 행마다의 hover 상태가 아니라 숫자 하나입니다. 그래서 포인터와 화살표가 같은 행을 밝힙니다. 포인터는 행 위로 움직여야 그 행을 밝히므로, 화살표가 목록을 스크롤해 멈춰 있는 포인터 밑으로 다른 행이 와도 불은 화살표가 고른 행에 남습니다. 포인터가 행을 벗어나면 그 행의 불은 꺼집니다.
 - 목록은 선택된 행에, `multiple`에서는 목록에서 가장 위에 있는 선택된 행에 불이 들어온 채로 열리고, 방금 취했거나 다시 뺀 행은 계속 켜져 있습니다. 선택된 것이 없으면 <kbd>↓</kbd>로 열 때는 취할 수 있는 첫 행에, <kbd>↑</kbd>로 열 때는 취할 수 있는 마지막 행에 불이 들어오고, 눌러서 열 때는 어느 행에도 들어오지 않습니다.
 - 취할 수 없는 행도 목록에 남고, 사용할 수 없다고 읽힙니다. 강조는 다른 행처럼 그 행에서도 멈추고, 거기서 <kbd>Enter</kbd>를 눌러도 아무것도 취하지 않습니다.
@@ -231,8 +286,11 @@ combobox는 값의 타입에 대해 generic이고(`PlCombobox<String>`, `PlCombo
 | 값이 `string \| number` | generic `T` | 여기서는 제출되는 것이 없으므로 값이 그 물건 자체일 수 있고, 타입 검사기가 지켜 줍니다. |
 | prop으로서의 `multiple` | 두 번째 생성자 `PlCombobox.multiple` | 플래그 하나짜리 위젯은 두 모양의 값을 다 들고 있어야 하고 둘 다 타입이 붙지 않습니다. |
 | `allowCustom` (기본이 켜진 `boolean`) | `onCreate` (`T Function(String)`) | field는 질의로부터 `T`를 만들 수 없습니다. 허가와 만드는 법이 같은 파라미터입니다. |
+| `filter={null}` | `filter: (_, _) => true` | Dart에서는 넘기지 않은 파라미터와 `null`을 넘긴 파라미터가 같습니다. |
+| `boolean \| 'always'`인 `autoHighlight` | `PlComboboxHighlight`인 `autoHighlight` | Dart에는 union 타입이 없습니다. |
 | `ReactNode` label, Base UI collator 기반 필터 | `Widget`, 대소문자 접은 `contains` 필터 | label이 여전히 `String`인 것은 같은 이유입니다. 필터가 그것을 읽고, field에 써 넣습니다. |
 | hidden input, `name`, `required` | — | 참여할 네이티브 form 제출이 없습니다. |
 | 앞쪽 장식이 입력보다 먼저 읽힘 | 장식이 field 다음에 읽힘 | field는 이름과 글자, 그리고 장식이 놓인 껍데기까지 담은 노드 하나라서 스크린 리더가 한 번에 field에 닿습니다. 그 안의 장식은 이 노드의 자식이고, Flutter는 노드를 자식보다 먼저 읽습니다. |
 | `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
 | `className`, `style`, 네이티브 속성 | — | 통과시킬 class 목록도 style 속성도 없습니다. |
+| `onValueChange`, `onInputValueChange`, `onOpenChange`의 두 번째 인자인 event details | — | Base UI가 주는 것이고, Flutter field는 Base UI 위에 만들어지지 않았습니다. 콜백은 평범한 `ValueChanged`입니다. |

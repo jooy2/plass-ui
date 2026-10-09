@@ -2,7 +2,7 @@ import * as React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
-import { PlCombobox, PlForm, type PlComboboxOption, type PlComboboxValue } from 'plass-ui';
+import { PlCombobox, PlForm, PlModal, type PlComboboxOption, type PlComboboxValue } from 'plass-ui';
 import { press } from '../../support/keys';
 
 const items: PlComboboxOption[] = [
@@ -31,6 +31,15 @@ async function typeAtEnd(input: HTMLInputElement, text: string) {
 function settle() {
   return new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 50)));
 }
+
+/**
+ * What a server answered for `mario`: rows it matched on a spelling their
+ * labels do not have.
+ */
+const searched: PlComboboxOption[] = [
+  { value: 'super-mario', label: '슈퍼 마리오' },
+  { value: 'mario-kart', label: '마리오 카트' }
+];
 
 const heldCities: PlComboboxValue[] = ['seoul'];
 
@@ -188,7 +197,12 @@ describe('PlCombobox', () => {
       await screen.getByRole('button', { name: 'Open' }).click();
       await screen.getByRole('option', { name: 'Lisbon' }).click();
 
-      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith('lisbon'));
+      await vi.waitFor(() =>
+        expect(onValueChange).toHaveBeenCalledWith(
+          'lisbon',
+          expect.objectContaining({ reason: 'item-press' })
+        )
+      );
     });
 
     it('marks a disabled option as such', async () => {
@@ -249,7 +263,12 @@ describe('PlCombobox', () => {
 
       await screen.getByRole('combobox').fill('qui');
 
-      await vi.waitFor(() => expect(onInputValueChange).toHaveBeenCalledWith('qui'));
+      await vi.waitFor(() =>
+        expect(onInputValueChange).toHaveBeenCalledWith(
+          'qui',
+          expect.objectContaining({ reason: 'input-change' })
+        )
+      );
     });
 
     it('says so when nothing matched and nothing may be added', async () => {
@@ -269,6 +288,399 @@ describe('PlCombobox', () => {
 
       await expect.element(screen.getByText('Nothing like that')).toBeInTheDocument();
     });
+
+    it('keeps every row as given when `filter` is `null`', async () => {
+      const screen = await render(
+        <PlCombobox items={searched} filter={null} allowCustom={false} />
+      );
+
+      await screen.getByRole('combobox').fill('mario');
+
+      await vi.waitFor(() => expect(screen.getByRole('option').elements()).toHaveLength(2));
+      await expect.element(screen.getByRole('option', { name: '슈퍼 마리오' })).toBeInTheDocument();
+    });
+
+    it('keeps every row as given in a `multiple` field, with the row that offers the query after them', async () => {
+      const screen = await render(<PlCombobox items={searched} multiple filter={null} />);
+
+      await screen.getByRole('combobox').fill('mario');
+
+      await vi.waitFor(() => expect(screen.getByRole('option').elements()).toHaveLength(3));
+      await expect.element(screen.getByRole('option', { name: '마리오 카트' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('option', { name: /mario/ })).toBeInTheDocument();
+    });
+
+    it('asks a `filter` about each option with the trimmed query, and keeps the row that offers it', async () => {
+      const filter = vi.fn((option: PlComboboxOption, query: string) =>
+        String(option.value).startsWith(query)
+      );
+      const screen = await render(<PlCombobox items={items} filter={filter} />);
+
+      await screen.getByRole('combobox').fill(' se ');
+
+      await vi.waitFor(() => expect(screen.getByRole('option').elements()).toHaveLength(2));
+      await expect.element(screen.getByRole('option', { name: 'Seoul' })).toBeInTheDocument();
+      await expect.element(screen.getByRole('option', { name: /“se”/ })).toBeInTheDocument();
+      expect(filter).toHaveBeenCalledWith(items[1], 'se');
+    });
+  });
+
+  describe('autoHighlight', () => {
+    it('lights the first row of a list filled after the query changed, with `always`, and Enter takes it', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox
+          items={[]}
+          filter={null}
+          allowCustom={false}
+          autoHighlight="always"
+          onValueChange={onValueChange}
+        />
+      );
+
+      await screen.getByRole('combobox').fill('mario');
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+
+      await screen.rerender(
+        <PlCombobox
+          items={searched}
+          filter={null}
+          allowCustom={false}
+          autoHighlight="always"
+          onValueChange={onValueChange}
+        />
+      );
+
+      await expect
+        .element(screen.getByRole('option', { name: '슈퍼 마리오' }))
+        .toHaveAttribute('data-highlighted');
+
+      await userEvent.keyboard('{Enter}');
+
+      await vi.waitFor(() =>
+        expect(onValueChange).toHaveBeenCalledWith(
+          'super-mario',
+          expect.objectContaining({ reason: 'item-press' })
+        )
+      );
+    });
+
+    it('lights no row of a list filled after the query changed, by default', async () => {
+      const screen = await render(<PlCombobox items={[]} filter={null} allowCustom={false} />);
+
+      await screen.getByRole('combobox').fill('mario');
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+
+      await screen.rerender(<PlCombobox items={searched} filter={null} allowCustom={false} />);
+
+      await expect.element(screen.getByRole('option', { name: '슈퍼 마리오' })).toBeInTheDocument();
+      await settle();
+
+      expect(screen.getByRole('option', { name: '슈퍼 마리오' }).element()).not.toHaveAttribute(
+        'data-highlighted'
+      );
+    });
+
+    it('lights the first match as the query changes, by default', async () => {
+      const screen = await render(<PlCombobox items={items} allowCustom={false} />);
+
+      await screen.getByRole('combobox').fill('lis');
+
+      await expect
+        .element(screen.getByRole('option', { name: 'Lisbon' }))
+        .toHaveAttribute('data-highlighted');
+    });
+
+    it('lights nothing as the query changes when it is off', async () => {
+      const screen = await render(
+        <PlCombobox items={items} allowCustom={false} autoHighlight={false} />
+      );
+
+      await screen.getByRole('combobox').fill('lis');
+
+      await expect.element(screen.getByRole('option', { name: 'Lisbon' })).toBeInTheDocument();
+      await settle();
+
+      expect(screen.getByRole('option', { name: 'Lisbon' }).element()).not.toHaveAttribute(
+        'data-highlighted'
+      );
+    });
+  });
+
+  describe('a chosen value the list no longer holds', () => {
+    it('keeps the label on its chip', async () => {
+      const screen = await render(
+        <PlCombobox items={searched} multiple defaultValue={['super-mario']} />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Remove 슈퍼 마리오' }))
+        .toBeInTheDocument();
+
+      await screen.rerender(<PlCombobox items={[]} multiple defaultValue={['super-mario']} />);
+      await settle();
+
+      expect(screen.getByRole('button', { name: 'Remove 슈퍼 마리오' }).query()).not.toBeNull();
+    });
+
+    it('keeps the label of a row taken from a list that a new query empties', async () => {
+      function Searching() {
+        const [query, setQuery] = React.useState('');
+
+        return (
+          <PlCombobox
+            items={query === 'mario' ? searched : []}
+            multiple
+            filter={null}
+            allowCustom={false}
+            onInputValueChange={setQuery}
+          />
+        );
+      }
+
+      const screen = await render(<Searching />);
+
+      await screen.getByRole('combobox').fill('mario');
+      await screen.getByRole('option', { name: '마리오 카트' }).click();
+
+      await expect.element(screen.getByRole('combobox')).toHaveValue('');
+      await settle();
+
+      expect(document.querySelector('[aria-label="Remove 마리오 카트"]')).not.toBeNull();
+      expect(document.querySelector('[aria-label="Remove mario-kart"]')).toBeNull();
+    });
+
+    it('keeps the label in a single field', async () => {
+      const screen = await render(<PlCombobox items={searched} defaultValue="super-mario" />);
+
+      await expect.element(screen.getByRole('combobox')).toHaveValue('슈퍼 마리오');
+
+      await screen.rerender(<PlCombobox items={[]} defaultValue="super-mario" />);
+      await settle();
+
+      expect(screen.getByRole('combobox').element()).toHaveValue('슈퍼 마리오');
+    });
+
+    it('offers no row for its label typed again', async () => {
+      const screen = await render(
+        <PlCombobox items={searched} multiple defaultValue={['super-mario']} />
+      );
+
+      await screen.rerender(<PlCombobox items={[]} multiple defaultValue={['super-mario']} />);
+      await screen.getByRole('combobox').fill('슈퍼 마리오');
+      await settle();
+
+      expect(screen.getByRole('option').query()).toBeNull();
+    });
+  });
+
+  describe('Enter on a list with no rows', () => {
+    it('keeps the list open and the query in a `multiple` field, and takes the first row once rows arrive', async () => {
+      const onValueChange = vi.fn();
+      const onOpenChange = vi.fn();
+      const field = (rows: PlComboboxOption[]) => (
+        <PlCombobox
+          items={rows}
+          multiple
+          filter={null}
+          allowCustom={false}
+          autoHighlight="always"
+          onValueChange={onValueChange}
+          onOpenChange={onOpenChange}
+        />
+      );
+      const screen = await render(field([]));
+
+      await screen.getByRole('combobox').fill('mario');
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+
+      await userEvent.keyboard('{Enter}');
+      await settle();
+
+      expect(screen.getByRole('listbox').query()).not.toBeNull();
+      expect(screen.getByRole('combobox').element()).toHaveValue('mario');
+      expect(onOpenChange).not.toHaveBeenCalledWith(false, expect.anything());
+
+      await screen.rerender(field(searched));
+      await expect
+        .element(screen.getByRole('option', { name: '슈퍼 마리오' }))
+        .toHaveAttribute('data-highlighted');
+
+      await userEvent.keyboard('{Enter}');
+
+      await vi.waitFor(() =>
+        expect(onValueChange).toHaveBeenCalledWith(['super-mario'], expect.anything())
+      );
+    });
+
+    it('keeps the list open and the query in a single field', async () => {
+      const screen = await render(<PlCombobox items={items} allowCustom={false} />);
+
+      await screen.getByRole('combobox').fill('nowhere');
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+
+      await userEvent.keyboard('{Enter}');
+      await settle();
+
+      expect(screen.getByRole('listbox').query()).not.toBeNull();
+      expect(screen.getByRole('combobox').element()).toHaveValue('nowhere');
+    });
+
+    it('does not send the form round the field', async () => {
+      const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => event.preventDefault());
+      const screen = await render(
+        <form onSubmit={onSubmit}>
+          <PlCombobox items={items} allowCustom={false} />
+          <button type="submit">Save</button>
+        </form>
+      );
+
+      await screen.getByRole('combobox').fill('nowhere');
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+
+      await userEvent.keyboard('{Enter}');
+      await settle();
+
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('still closes a list that has rows and none lit, and lets the form be sent', async () => {
+      const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => event.preventDefault());
+      const screen = await render(
+        <form onSubmit={onSubmit}>
+          <PlCombobox items={items} allowCustom={false} autoHighlight={false} />
+          <button type="submit">Save</button>
+        </form>
+      );
+
+      await screen.getByRole('combobox').fill('lis');
+      await expect.element(screen.getByRole('option', { name: 'Lisbon' })).toBeInTheDocument();
+
+      await userEvent.keyboard('{Enter}');
+
+      await expect.element(screen.getByRole('listbox')).not.toBeInTheDocument();
+      expect(onSubmit).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('event details', () => {
+    it('says the clear button emptied the field', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} defaultValue="seoul" clearable onValueChange={onValueChange} />
+      );
+
+      await screen.getByRole('button', { name: 'Clear' }).click();
+
+      await vi.waitFor(() =>
+        expect(onValueChange).toHaveBeenCalledWith(
+          null,
+          expect.objectContaining({ reason: 'clear-press' })
+        )
+      );
+    });
+
+    it('says what opened the list', async () => {
+      const onOpenChange = vi.fn();
+      const screen = await render(<PlCombobox items={items} onOpenChange={onOpenChange} />);
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+
+      await vi.waitFor(() =>
+        expect(onOpenChange).toHaveBeenCalledWith(
+          true,
+          expect.objectContaining({ reason: 'trigger-press' })
+        )
+      );
+    });
+
+    it('keeps the chips when the caller cancels the change', async () => {
+      const screen = await render(
+        <PlCombobox
+          items={items}
+          multiple
+          defaultValue={['seoul']}
+          onValueChange={(_, details) => details.cancel()}
+        />
+      );
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+      await screen.getByRole('option', { name: 'Lisbon' }).click();
+      await settle();
+
+      // By the × of each chip: the chips are out of the accessibility tree
+      // while the list is open.
+      expect(document.querySelector('[aria-label="Remove Lisbon"]')).toBeNull();
+      expect(document.querySelector('[aria-label="Remove Seoul"]')).not.toBeNull();
+    });
+
+    it('offers nothing for text the caller turned away', async () => {
+      const screen = await render(
+        <PlCombobox items={items} onInputValueChange={(_, details) => details.cancel()} />
+      );
+
+      await screen.getByRole('combobox').fill('Osaka');
+      await settle();
+
+      expect(screen.getByRole('combobox').element()).toHaveValue('');
+      expect(screen.getByRole('option', { name: /Osaka/ }).query()).toBeNull();
+    });
+  });
+
+  describe('content', () => {
+    const archives: PlComboboxOption[] = [
+      {
+        value: 'mario',
+        label: 'Mario',
+        content: (
+          <span data-testid="mario-row">
+            Mario <small>v1.2</small>
+          </span>
+        )
+      },
+      { value: 'zelda', label: 'Zelda' }
+    ];
+
+    it('draws an option’s content in its row', async () => {
+      const screen = await render(<PlCombobox items={archives} />);
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+
+      const row = screen.getByRole('option', { name: 'Mario v1.2' });
+
+      await expect.element(row).toBeInTheDocument();
+      expect(row.element().querySelector('[data-testid="mario-row"]')).not.toBeNull();
+      await expect.element(screen.getByRole('option', { name: 'Zelda' })).toBeInTheDocument();
+    });
+
+    it('writes the label into the input once the row is taken', async () => {
+      const screen = await render(<PlCombobox items={archives} />);
+
+      await screen.getByRole('button', { name: 'Open' }).click();
+      await screen.getByRole('option', { name: 'Mario v1.2' }).click();
+
+      await expect.element(screen.getByRole('combobox')).toHaveValue('Mario');
+    });
+
+    it('puts the label on the chip', async () => {
+      const screen = await render(
+        <PlCombobox items={archives} multiple defaultValue={['mario']} />
+      );
+
+      await expect
+        .element(screen.getByRole('button', { name: 'Remove Mario', exact: true }))
+        .toBeInTheDocument();
+      expect(document.querySelector('[data-testid="mario-row"]')).toBeNull();
+    });
+
+    it('filters by the label rather than by the content', async () => {
+      const screen = await render(<PlCombobox items={archives} allowCustom={false} />);
+
+      await screen.getByRole('combobox').fill('v1.2');
+
+      await expect.element(screen.getByText('Nothing here')).toBeInTheDocument();
+      expect(screen.getByRole('option').query()).toBeNull();
+    });
   });
 
   describe('a value the list does not have', () => {
@@ -287,7 +699,12 @@ describe('PlCombobox', () => {
       await screen.getByRole('combobox').fill('Osaka');
       await screen.getByRole('option', { name: /Osaka/ }).click();
 
-      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith('Osaka'));
+      await vi.waitFor(() =>
+        expect(onValueChange).toHaveBeenCalledWith(
+          'Osaka',
+          expect.objectContaining({ reason: 'item-press' })
+        )
+      );
     });
 
     it('offers nothing extra once the text matches an option', async () => {
@@ -338,7 +755,12 @@ describe('PlCombobox', () => {
       await screen.getByRole('button', { name: 'Open' }).click();
       await screen.getByRole('option', { name: 'Seoul' }).click();
 
-      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith(['seoul']));
+      await vi.waitFor(() =>
+        expect(onValueChange).toHaveBeenCalledWith(
+          ['seoul'],
+          expect.objectContaining({ reason: 'item-press' })
+        )
+      );
     });
 
     it('names each chip’s remove button after the chip', async () => {
@@ -362,7 +784,12 @@ describe('PlCombobox', () => {
 
       await screen.getByRole('button', { name: 'Remove Seoul' }).click();
 
-      await vi.waitFor(() => expect(onValueChange).toHaveBeenCalledWith(['lisbon']));
+      await vi.waitFor(() =>
+        expect(onValueChange).toHaveBeenCalledWith(
+          ['lisbon'],
+          expect.objectContaining({ reason: 'chip-remove-press' })
+        )
+      );
     });
   });
 
@@ -466,19 +893,10 @@ describe('PlCombobox', () => {
   });
 
   describe('emptying', () => {
-    it('says nothing on Escape when a combobox holds nothing', async () => {
-      const onValueChange = vi.fn();
-      const screen = await render(<PlCombobox items={items} onValueChange={onValueChange} />);
-
-      press(screen.getByRole('combobox').element(), 'Escape');
-
-      expect(onValueChange).not.toHaveBeenCalled();
-    });
-
-    it('says nothing on Escape when a controlled combobox holds nothing', async () => {
+    it('says nothing on Escape with `clearOnEscape` when a combobox holds nothing', async () => {
       const onValueChange = vi.fn();
       const screen = await render(
-        <PlCombobox items={items} value={null} onValueChange={onValueChange} />
+        <PlCombobox items={items} clearOnEscape onValueChange={onValueChange} />
       );
 
       press(screen.getByRole('combobox').element(), 'Escape');
@@ -486,10 +904,10 @@ describe('PlCombobox', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
-    it('says nothing on Escape when a `multiple` combobox holds nothing', async () => {
+    it('says nothing on Escape with `clearOnEscape` when a controlled combobox holds nothing', async () => {
       const onValueChange = vi.fn();
       const screen = await render(
-        <PlCombobox items={items} multiple onValueChange={onValueChange} />
+        <PlCombobox items={items} value={null} clearOnEscape onValueChange={onValueChange} />
       );
 
       press(screen.getByRole('combobox').element(), 'Escape');
@@ -497,10 +915,10 @@ describe('PlCombobox', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
-    it('says nothing on Escape when a controlled `multiple` combobox holds nothing', async () => {
+    it('says nothing on Escape with `clearOnEscape` when a `multiple` combobox holds nothing', async () => {
       const onValueChange = vi.fn();
       const screen = await render(
-        <PlCombobox items={items} multiple value={[]} onValueChange={onValueChange} />
+        <PlCombobox items={items} multiple clearOnEscape onValueChange={onValueChange} />
       );
 
       press(screen.getByRole('combobox').element(), 'Escape');
@@ -508,32 +926,31 @@ describe('PlCombobox', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
-    it('empties a held value on Escape and says so once', async () => {
+    it('says nothing on Escape with `clearOnEscape` when a controlled `multiple` combobox holds nothing', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} multiple value={[]} clearOnEscape onValueChange={onValueChange} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('keeps a held value on Escape', async () => {
       const onValueChange = vi.fn();
       const screen = await render(
         <PlCombobox items={items} defaultValue="seoul" onValueChange={onValueChange} />
       );
 
       press(screen.getByRole('combobox').element(), 'Escape');
+      await settle();
 
-      expect(onValueChange).toHaveBeenCalledTimes(1);
-      expect(onValueChange).toHaveBeenCalledWith(null);
-      await expect.element(screen.getByRole('combobox')).toHaveValue('');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('combobox').element()).toHaveValue('Seoul');
     });
 
-    it('asks a controlled parent to empty its value on Escape, once', async () => {
-      const onValueChange = vi.fn();
-      const screen = await render(
-        <PlCombobox items={items} value="seoul" onValueChange={onValueChange} />
-      );
-
-      press(screen.getByRole('combobox').element(), 'Escape');
-
-      expect(onValueChange).toHaveBeenCalledTimes(1);
-      expect(onValueChange).toHaveBeenCalledWith(null);
-    });
-
-    it('empties a held set of chips on Escape and says so once', async () => {
+    it('keeps a held set of chips on Escape', async () => {
       const onValueChange = vi.fn();
       const screen = await render(
         <PlCombobox
@@ -545,9 +962,116 @@ describe('PlCombobox', () => {
       );
 
       press(screen.getByRole('combobox').element(), 'Escape');
+      await settle();
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByText('Seoul').query()).not.toBeNull();
+      expect(screen.getByText('Lisbon').query()).not.toBeNull();
+    });
+
+    it('lets Escape go on to what is round a field that keeps its value', async () => {
+      const onKeyDown = vi.fn();
+      const screen = await render(
+        <div onKeyDown={(event) => onKeyDown(event.key)}>
+          <PlCombobox items={items} multiple defaultValue={['seoul']} />
+        </div>
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onKeyDown).toHaveBeenCalledWith('Escape');
+    });
+
+    it('closes a modal round a field that keeps its value on Escape', async () => {
+      const onOpenChange = vi.fn();
+      const screen = await render(
+        <PlModal defaultOpen title="Tags" onOpenChange={onOpenChange}>
+          <PlCombobox items={items} label="City" multiple defaultValue={['seoul']} />
+        </PlModal>
+      );
+
+      press(screen.getByRole('combobox', { name: 'City' }).element(), 'Escape');
+
+      await vi.waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+    });
+
+    it('closes an open list on Escape and lets go of the query, keeping the chips', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} multiple defaultValue={['seoul']} onValueChange={onValueChange} />
+      );
+
+      await screen.getByRole('combobox').fill('lis');
+      await expect.element(screen.getByRole('listbox')).toBeInTheDocument();
+
+      await userEvent.keyboard('{Escape}');
+
+      await expect.element(screen.getByRole('listbox')).not.toBeInTheDocument();
+      await expect.element(screen.getByRole('combobox')).toHaveValue('');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByText('Seoul').query()).not.toBeNull();
+    });
+
+    it('empties a held value on Escape with `clearOnEscape`, and says so once', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox
+          items={items}
+          defaultValue="seoul"
+          clearOnEscape
+          onValueChange={onValueChange}
+        />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
 
       expect(onValueChange).toHaveBeenCalledTimes(1);
-      expect(onValueChange).toHaveBeenCalledWith([]);
+      expect(onValueChange).toHaveBeenCalledWith(
+        null,
+        expect.objectContaining({ reason: 'escape-key' })
+      );
+      await expect.element(screen.getByRole('combobox')).toHaveValue('');
+    });
+
+    it('asks a controlled parent to empty its value on Escape with `clearOnEscape`, once', async () => {
+      const onValueChange = vi.fn();
+      const screen = await render(
+        <PlCombobox items={items} value="seoul" clearOnEscape onValueChange={onValueChange} />
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange).toHaveBeenCalledWith(
+        null,
+        expect.objectContaining({ reason: 'escape-key' })
+      );
+    });
+
+    it('empties a held set of chips on Escape with `clearOnEscape`, and says so once', async () => {
+      const onValueChange = vi.fn();
+      const onKeyDown = vi.fn();
+      const screen = await render(
+        <div onKeyDown={(event) => onKeyDown(event.key)}>
+          <PlCombobox
+            items={items}
+            multiple
+            defaultValue={['seoul', 'lisbon']}
+            clearOnEscape
+            onValueChange={onValueChange}
+          />
+        </div>
+      );
+
+      press(screen.getByRole('combobox').element(), 'Escape');
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ reason: 'escape-key' })
+      );
+      // The press emptied something, so it ends at the field.
+      expect(onKeyDown).not.toHaveBeenCalled();
       await expect.element(screen.getByText('Seoul')).not.toBeInTheDocument();
     });
 

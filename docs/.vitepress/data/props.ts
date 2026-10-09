@@ -3830,15 +3830,44 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'onValueChange',
-      type: '(value: string | number | (string | number)[] | null) => void',
-      description: { ko: '값이 바뀔 때 호출됩니다', en: 'Called with the new value' }
+      type: '(value: string | number | (string | number)[] | null, eventDetails: PlComboboxChangeEventDetails) => void',
+      description: {
+        ko: '값이 바뀔 때 새 값과, 무엇이 바꿨는지를 담은 Base UI의 event details로 호출됩니다',
+        en: "Called with the new value, and with Base UI's event details saying what changed it"
+      }
     },
     {
       name: 'onInputValueChange',
-      type: '(inputValue: string) => void',
+      type: '(inputValue: string, eventDetails: PlComboboxChangeEventDetails) => void',
       description: {
-        ko: '입력창의 글자가 바뀔 때 — 값이 아니라 필터 질의입니다',
-        en: 'Called as the text in the input changes — the filter query, not the value'
+        ko: '입력창의 글자가 바뀔 때 — 값이 아니라 필터 질의입니다. 두 번째 인자는 무엇이 바꿨는지입니다',
+        en: 'Called as the text in the input changes — the filter query, not the value. The second argument says what changed it'
+      }
+    },
+    {
+      name: 'filter',
+      type: '((option: PlComboboxOption, query: string) => boolean) | null',
+      description: {
+        ko: '질의가 어떤 행을 남길지. 주지 않으면 label에 질의가 들어 있는 행이 남습니다. null이면 items를 받은 그대로 모두 보여 줍니다. 서버가 이미 검색한 목록에 씁니다. 입력한 글자를 제안하는 행은 묻지 않고 늘 남깁니다',
+        en: 'Which rows a query keeps. Left out, a row stays while its label contains the query. null keeps every row as items gives it, for a list a server has already searched. The row that offers what was typed is not asked about, and always stays'
+      }
+    },
+    {
+      name: 'autoHighlight',
+      type: "boolean | 'always'",
+      default: 'true',
+      description: {
+        ko: "행에 저절로 불이 들어오는지. true는 질의가 바뀔 때 첫 행에, 'always'는 그에 더해 열린 목록에 행이 있는데 켜진 행이 없을 때마다 첫 행에 불을 켭니다. 입력을 멈춘 뒤에 채워지는 목록에 씁니다. false는 화살표나 포인터가 켜기 전까지 아무것도 켜지 않습니다",
+        en: "Whether a row lights up on its own. true lights the first row as the query changes, and 'always' also lights it whenever the open list has rows and none is lit, for a list filled after the reader stopped typing. false lights nothing until an arrow key or the pointer does"
+      }
+    },
+    {
+      name: 'clearOnEscape',
+      type: 'boolean',
+      default: 'false',
+      description: {
+        ko: '목록이 닫혀 있을 때 Escape로 field를 비울지. 기본이 꺼짐이라 잘못 누른 Escape가 chip을 지우지 않고, 키는 field를 담은 modal 같은 곳으로 넘어갑니다. 열린 목록은 어느 쪽이든 Escape로 닫힙니다',
+        en: 'Whether Escape with the list closed empties the field. Off by default, so a stray Escape cannot take the chips off, and the key goes on to whatever the field sits in, such as a modal. Escape on an open list closes it either way'
       }
     },
     {
@@ -3985,10 +4014,10 @@ export const propTables: Record<string, PropRow[]> = {
     },
     {
       name: 'onOpenChange',
-      type: '(open: boolean) => void',
+      type: '(open: boolean, eventDetails: PlComboboxChangeEventDetails) => void',
       description: {
-        ko: '팝업이 열리고 닫힐 때 호출됩니다',
-        en: 'Called when the popup opens or closes'
+        ko: '팝업이 열리고 닫힐 때 호출됩니다. 두 번째 인자는 무엇이 열고 닫았는지입니다',
+        en: 'Called when the popup opens or closes. The second argument says what opened or closed it'
       }
     },
     {
@@ -4043,6 +4072,14 @@ export const propTables: Record<string, PropRow[]> = {
       description: {
         ko: '목록과 입력창과 chip에 보이는 이름. 없으면 value 자체. ReactNode가 아니라 string인 건 필터가 이걸 대상으로 검색하고 text input에 써 넣기 때문입니다',
         en: 'Shown in the list, in the input and on the chip. Defaults to the value. A string rather than a ReactNode, because the filter types against it and it is written into a text input'
+      }
+    },
+    {
+      name: 'content',
+      type: 'ReactNode',
+      description: {
+        ko: '행에 label 대신 그릴 내용. 썸네일, glyph, 두 번째 줄 같은 것입니다. 필터와 입력창과 chip은 여전히 label을 씁니다. 스크린 리더는 이 내용의 글자를 행의 이름으로 읽으니 label의 단어를 넣어 두어야 합니다',
+        en: "What the row draws in place of its label: a thumbnail, a glyph, a second line. The filter, the input and the chip still use the label. A screen reader reads the content's text for the row, so keep the label's words in it"
       }
     },
     {

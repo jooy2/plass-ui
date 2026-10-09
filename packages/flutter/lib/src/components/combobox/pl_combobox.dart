@@ -63,9 +63,10 @@ class _OpenIntent extends Intent {
   const _OpenIntent();
 }
 
-/// Escape: closes the list, or with the list closed empties a field that holds
-/// a value, and with neither to do hands the [DismissIntent] on to whatever the
-/// field sits in, a modal or a page that binds it too.
+/// Escape: closes the list, or with the list closed and
+/// [PlCombobox.clearOnEscape] on empties a field that holds a value, and with
+/// neither to do hands the [DismissIntent] on to whatever the field sits in, a
+/// modal or a page that binds it too.
 ///
 /// Handed on rather than merely disabled. The text field under the focus
 /// answers Escape with a [DismissIntent] of its own, which goes to the nearest
@@ -99,21 +100,53 @@ class _EscapeAction<T> extends Action<DismissIntent> {
   }
 }
 
+/// When a row of a [PlCombobox] lights up on its own, so Enter takes it
+/// without an arrow key first.
+///
+/// One enum rather than React's `boolean | 'always'`, because Dart has no
+/// union type.
+enum PlComboboxHighlight {
+  /// Nothing lights up until an arrow key or the pointer lights a row.
+  none,
+
+  /// The first row lights up as the query changes.
+  query,
+
+  /// The first row lights up as the query changes, and whenever the open list
+  /// has rows and none is lit, so rows that arrive after the reader stopped
+  /// typing are lit as they arrive.
+  always,
+}
+
 /// One choice.
 ///
 /// The same description a [PlSelectOption] is, with one difference: the label is
 /// a `String` rather than a widget, because the filter types against it and it
 /// is written into a text field, and neither of those can be done to a widget.
+/// [content] is where a row draws more than that.
 @immutable
 class PlComboboxOption<T> {
   /// Creates an option.
-  const PlComboboxOption({required this.value, required this.label, this.disabled = false});
+  const PlComboboxOption({
+    required this.value,
+    required this.label,
+    this.content,
+    this.disabled = false,
+  });
 
   /// What the combobox holds, and what it reports.
   final T value;
 
   /// Shown in the list, in the field and on the chip, and what the filter reads.
   final String label;
+
+  /// What the row draws in place of [label]: a thumbnail, a glyph, a second
+  /// line.
+  ///
+  /// The label is still what is filtered, written into the field and put on
+  /// the chip, and what the content says is what a screen reader reads for the
+  /// row, so keep the label's words in it.
+  final Widget? content;
 
   /// Unavailable, but still listed — the option exists, it just cannot be taken.
   final bool disabled;
@@ -155,6 +188,9 @@ class PlCombobox<T> extends StatefulWidget {
     this.onCreate,
     this.customLabel,
     this.onQueryChanged,
+    this.filter,
+    this.autoHighlight = PlComboboxHighlight.query,
+    this.clearOnEscape = false,
     this.placeholder,
     this.emptyMessage,
     this.limit,
@@ -197,6 +233,9 @@ class PlCombobox<T> extends StatefulWidget {
     this.onCreate,
     this.customLabel,
     this.onQueryChanged,
+    this.filter,
+    this.autoHighlight = PlComboboxHighlight.query,
+    this.clearOnEscape = false,
     this.placeholder,
     this.emptyMessage,
     this.limit,
@@ -266,6 +305,29 @@ class PlCombobox<T> extends StatefulWidget {
 
   /// Called as the text changes — the filter query, not the value.
   final ValueChanged<String>? onQueryChanged;
+
+  /// Which options a query keeps.
+  ///
+  /// Left out, an option stays while its label contains the query, with case
+  /// folded. For a list a server has already searched, which may have matched
+  /// an option on a spelling its label does not have, keep every option as
+  /// given with `(_, _) => true`.
+  ///
+  /// Receives the trimmed query, and is not asked about the row that offers
+  /// what was typed: that row is the query itself, and always stays.
+  final bool Function(PlComboboxOption<T> option, String query)? filter;
+
+  /// When a row lights up on its own, so Enter takes it without an arrow key
+  /// first. [PlComboboxHighlight.always] is what a list filled after the reader
+  /// stopped typing needs.
+  final PlComboboxHighlight autoHighlight;
+
+  /// Whether Escape with the list closed empties the field.
+  ///
+  /// Off by default, so a stray Escape cannot take every chip off, and the key
+  /// goes on to whatever the field sits in, such as a modal. Escape on an open
+  /// list closes it either way.
+  final bool clearOnEscape;
 
   /// Shown in the field while nothing is typed.
   ///
@@ -398,9 +460,9 @@ class _ChipKey<T> extends ValueKey<T> {
 }
 
 /// What a single-value [combobox]'s field says for the value it holds: its
-/// option's label, or the value itself when no option holds it. Nothing with
-/// `multiple`, or with nothing held.
-String _labelHeldBy<T>(PlCombobox<T> combobox) {
+/// option's label, or the label [held] kept from the options that listed it
+/// before, or the value itself. Nothing with `multiple`, or with nothing held.
+String _labelHeldBy<T>(PlCombobox<T> combobox, Map<T, String> held) {
   if (combobox.multiple || combobox.value == null) {
     return '';
   }
@@ -411,7 +473,7 @@ String _labelHeldBy<T>(PlCombobox<T> combobox) {
     }
   }
 
-  return '${combobox.value}';
+  return held[combobox.value] ?? '${combobox.value}';
 }
 
 class _PlComboboxState<T> extends State<PlCombobox<T>> {
@@ -517,6 +579,22 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// Which row the keyboard is on. `-1` is none.
   int _highlighted = -1;
 
+  /// The row that is lit, as it is drawn and as Enter takes it: [_highlighted]
+  /// while it is a row of the list, and with [PlComboboxHighlight.always] the
+  /// first row whenever the open list has rows and none is lit, as Base UI
+  /// lights it. Worked out rather than written, so rows that arrive from the
+  /// parent after the query changed are lit as they arrive.
+  int get _active {
+    if (!_open) {
+      return _highlighted;
+    }
+
+    final int count = _rows.length;
+    final int lit = _highlighted < count ? _highlighted : -1;
+
+    return lit < 0 && widget.autoHighlight == PlComboboxHighlight.always && count > 0 ? 0 : lit;
+  }
+
   /// Whether the reader has typed a query into the list since it last opened:
   /// text with something in it, as Base UI's `queryChangedAfterOpen` counts
   /// one. Deleting it again does not undo that; the list closing, and the text
@@ -546,9 +624,32 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// left to them, the list would jump to every row on its way out.
   List<_Row<T>>? _closing;
 
+  /// The label each chosen value was last listed with.
+  ///
+  /// A list a server answers holds only what the last query found, and a chip
+  /// whose option is not among them would otherwise be called by its value.
+  /// Kept for the chosen values alone.
+  final Map<T, String> _held = <T, String>{};
+
+  /// Brings [_held] up to date with the options and the values of [widget]:
+  /// the label of a chosen value an option lists now, and nothing for a value
+  /// no longer chosen.
+  void _remember() {
+    final List<T> chosen = _chosen;
+
+    for (final PlComboboxOption<T> option in widget.options) {
+      if (chosen.contains(option.value)) {
+        _held[option.value] = option.label;
+      }
+    }
+
+    _held.removeWhere((T value, String _) => !chosen.contains(value));
+  }
+
   @override
   void initState() {
     super.initState();
+    _remember();
     _focusNode.addListener(_onFocusChanged);
   }
 
@@ -557,6 +658,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     super.didUpdateWidget(oldWidget);
 
     _rowsCache = null;
+
+    // What the field said for the value it held, read before the labels kept
+    // for the chosen values move on.
+    final String before = _labelHeldBy(oldWidget, _held);
+
+    _remember();
 
     if (widget.focusNode != oldWidget.focusNode) {
       oldWidget.focusNode?.removeListener(_onFocusChanged);
@@ -586,7 +693,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // says, and on the same condition.
     final String label = _labelOfValue();
 
-    if (label != _labelHeldBy(oldWidget) && !_queryEdited) {
+    if (label != before && !_queryEdited) {
       _write(label, later: true);
     }
   }
@@ -765,7 +872,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       ? <T>[]
       : <T>[widget.value as T];
 
-  String _labelOfValue() => _labelHeldBy(widget);
+  String _labelOfValue() => _labelHeldBy(widget, _held);
 
   void _onFocusChanged() {
     final has = _focusNode.hasFocus;
@@ -854,14 +961,16 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
 
     // The chosen row's label, standing in the field as the list opens, filters
     // nothing: the list is there to be looked through until the reader types.
-    final filter =
-        !widget.multiple && !_queryEdited && folded == _labelOfValue().trim().toLowerCase()
-        ? ''
-        : folded;
+    final bool unfiltered =
+        query.isEmpty ||
+        (!widget.multiple && !_queryEdited && folded == _labelOfValue().trim().toLowerCase());
+    final bool Function(PlComboboxOption<T> option, String query) keeps =
+        widget.filter ??
+        (PlComboboxOption<T> option, String query) => option.label.toLowerCase().contains(folded);
 
     final matched = <_Row<T>>[
       for (final option in widget.options)
-        if (filter.isEmpty || option.label.toLowerCase().contains(filter)) _Row<T>.option(option),
+        if (unfiltered || keeps(option, query)) _Row<T>.option(option),
     ];
 
     final capped = widget.limit != null && widget.limit! >= 0 && matched.length > widget.limit!
@@ -876,7 +985,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // value that has already been taken.
     final known =
         widget.options.any((PlComboboxOption<T> option) => option.label.toLowerCase() == folded) ||
-        _chosen.any((T value) => '$value'.toLowerCase() == folded);
+        _chosen.any(
+          (T value) => '$value'.toLowerCase() == folded || _held[value]?.toLowerCase() == folded,
+        );
 
     return known ? capped : <_Row<T>>[...capped, _Row<T>.create(query)];
   }
@@ -896,7 +1007,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       _closing = null;
       _highlighted = _start(by: by);
     });
-    _reveal.reveal(_scroll, _highlighted, _rows.length);
+    _reveal.reveal(_scroll, _active, _rows.length);
   }
 
   /// Where the highlight starts as the list opens, as Base UI starts it: on the
@@ -1028,9 +1139,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // With no row lit, down goes to the first row and up to the last. A row
     // that cannot be taken is a stop like any other, as it is in Base UI: it
     // is listed to be seen, and taking it does nothing.
-    final int next = _highlighted < 0 ? (by > 0 ? 0 : count - 1) : (_highlighted + by) % count;
+    final int from = _active;
+    final int next = from < 0 ? (by > 0 ? 0 : count - 1) : (from + by) % count;
 
-    if (next != _highlighted) {
+    if (next != from) {
       setState(() => _highlighted = next);
       _reveal.reveal(_scroll, next, _rows.length);
     }
@@ -1068,8 +1180,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         // without an arrow key first — which is also what makes the create row
         // reachable from the keyboard at all: a value the list does not have is
         // the only match there is. The first row, whether or not it can be
-        // taken, as Base UI lights it and as the arrow keys stop on it.
-        _highlighted = _rows.isEmpty ? -1 : 0;
+        // taken, as Base UI lights it and as the arrow keys stop on it. With
+        // nothing to light on its own, typing puts the light out, as Base UI's
+        // input does.
+        _highlighted = widget.autoHighlight == PlComboboxHighlight.none || _rows.isEmpty ? -1 : 0;
       } else if (widget.multiple && widget.values.isNotEmpty) {
         // With the query gone, a set goes back to where its list opens, on the
         // first chosen row down it, as Base UI's does.
@@ -1080,7 +1194,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
         _highlighted = -1;
       }
     });
-    _reveal.reveal(_scroll, _highlighted, _rows.length);
+    _reveal.reveal(_scroll, _active, _rows.length);
   }
 
   void _take(int index) {
@@ -1099,6 +1213,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     }
 
     final value = row.isCreate ? widget.onCreate!(row.query!) : row.option!.value;
+
+    // Read off the row now, while the options list it. By the time the caller
+    // rebuilds, the options may hold only what the next query finds.
+    _held[value] = row.label;
 
     if (widget.multiple) {
       // A chosen row taken again is taken back out, as Base UI takes it, so
@@ -1121,7 +1239,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       final int taken = _indexOf(value);
 
       setState(() => _highlighted = taken >= 0 ? taken : _start());
-      _reveal.reveal(_scroll, _highlighted, _rows.length);
+      _reveal.reveal(_scroll, _active, _rows.length);
 
       return;
     }
@@ -1183,8 +1301,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   late final _EscapeAction<T> _escapeAction = _EscapeAction<T>(this);
 
   /// Whether Escape has anything to do here: close the list, or with the list
-  /// closed empty a field that holds a value, as Base UI's Escape does.
-  bool get _escapable => _open || (_usable && _chosen.isNotEmpty);
+  /// closed and [PlCombobox.clearOnEscape] on empty a field that holds a
+  /// value, as Base UI's Escape does.
+  bool get _escapable => _open || (widget.clearOnEscape && _usable && _chosen.isNotEmpty);
 
   void _escape() {
     if (_open) {
@@ -1316,7 +1435,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       onEditingComplete: () {},
       // Only while the list is open: with it closed, the row that was lit is not
       // on screen, and Enter must not commit something the reader cannot see.
-      // With no row lit it closes the list, as Base UI's does.
+      // With no row lit it closes the list, as Base UI's does, except a list
+      // with no rows at all, still waiting for its options or matching
+      // nothing: there is nothing to take, and closing would throw away what
+      // was typed.
       onSubmitted: (String _) {
         // Enter is a key press, which puts the light out whatever it does,
         // even where the label of the row it takes is written in by the field.
@@ -1332,9 +1454,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           return;
         }
 
-        if (_highlighted >= 0) {
-          _take(_highlighted);
-        } else if (_usable) {
+        final int active = _active;
+
+        if (active >= 0) {
+          _take(active);
+        } else if (_usable && _rows.isNotEmpty) {
           _close();
         }
       },
@@ -1742,9 +1866,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       }
     }
 
-    // A value the list does not have is one `onCreate` made, and its label is
-    // the query it was made from.
-    return '$value';
+    // A value the list does not have is one it listed before, or one
+    // `onCreate` made, whose label is the query it was made from.
+    return _held[value] ?? '$value';
   }
 
   Widget _list(PlassTokens tokens, PlassColorFamily family, PlassTextScale scale) {
@@ -1823,7 +1947,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     final chosen = row.option != null && _chosen.contains(row.option!.value);
     // A row that cannot be taken still lights, from the keys and the pointer
     // alike, as it does in Base UI: the highlight is where the reader is.
-    final lit = index == _highlighted;
+    final lit = index == _active;
     final ink = disabled
         ? tokens.mutedFg
         : chosen || lit || row.isCreate
@@ -1919,7 +2043,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
                           child: row.isCreate
                               ? (widget.customLabel?.call(row.query!) ??
                                     Text(PlassTheme.labelsOf(context).addCustom(row.query!)))
-                              : Text(row.label),
+                              : row.option!.content ?? Text(row.label),
                         ),
                       ),
                       if (chosen || row.isCreate)

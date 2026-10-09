@@ -67,9 +67,17 @@ export interface PlComboboxOption {
    *
    * A `string` rather than a `ReactNode`, which is the one place this differs
    * from PlSelect: the label is typed against by the filter and written into a
-   * text input, and neither of those can be done to an element.
+   * text input, and neither of those can be done to an element. `content` is
+   * where a row draws more than that.
    */
   label?: string;
+  /**
+   * What the row draws in place of its label: a thumbnail, a glyph, a second
+   * line. The label is still what is filtered, written into the input and put
+   * on the chip, and the content's text is what a screen reader reads for the
+   * row, so keep the label's words in it.
+   */
+  content?: React.ReactNode;
   /** Unavailable, but still listed — the option exists, it just cannot be picked. */
   disabled?: boolean;
 }
@@ -78,6 +86,15 @@ export interface PlComboboxOption {
 type Selection<Multiple extends boolean | undefined> = Multiple extends true
   ? PlComboboxValue[]
   : PlComboboxValue | null;
+
+/**
+ * What caused a change, handed to `onValueChange`, `onInputValueChange` and
+ * `onOpenChange` as their second argument. It is Base UI's own: `reason` names
+ * the cause (`'item-press'`, `'chip-remove-press'`, `'clear-press'`,
+ * `'escape-key'` and the rest), `event` is the DOM event behind it, and
+ * `cancel()` turns the change away, so the field keeps what it held.
+ */
+export type PlComboboxChangeEventDetails = BaseUICombobox.Root.ChangeEventDetails;
 
 export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   extends
@@ -113,9 +130,38 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   value?: Selection<Multiple> | null;
   /** The initially chosen value, for an uncontrolled combobox. */
   defaultValue?: Selection<Multiple> | null;
-  onValueChange?: (value: Selection<Multiple>) => void;
+  /** Called with the new value, and with what caused the change. */
+  onValueChange?: (value: Selection<Multiple>, eventDetails: PlComboboxChangeEventDetails) => void;
   /** Called as the text in the input changes — the filter query, not the value. */
-  onInputValueChange?: (inputValue: string) => void;
+  onInputValueChange?: (inputValue: string, eventDetails: PlComboboxChangeEventDetails) => void;
+  /**
+   * Which rows a query keeps. Left out, a row stays while its label contains
+   * the query, compared in the runtime's locale. `null` keeps every row as
+   * `items` gives it, for a list a server has already searched, which may have
+   * matched a row on a spelling its label does not have.
+   *
+   * Receives the trimmed query, and is not asked about the row that offers
+   * what was typed: that row is the query itself, and always stays.
+   */
+  filter?: ((option: PlComboboxOption, query: string) => boolean) | null;
+  /**
+   * Whether a row lights up on its own, so Enter takes it without an arrow key
+   * first. `true` lights the first row as the query changes. `'always'` also
+   * lights it whenever the open list has rows and none is lit, which is what a
+   * list filled after the reader stopped typing needs: rows that arrive later
+   * are lit as they arrive. `false` lights nothing until an arrow key or the
+   * pointer does.
+   * @default true
+   */
+  autoHighlight?: boolean | 'always';
+  /**
+   * Whether Escape with the list closed empties the field. Off by default, so
+   * a stray Escape cannot take every chip off, and the key goes on to whatever
+   * the field sits in, such as a modal. Escape on an open list closes it
+   * either way.
+   * @default false
+   */
+  clearOnEscape?: boolean;
   /**
    * Whether a value the list does not contain may be committed.
    *
@@ -187,7 +233,8 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
   open?: boolean;
   /** Whether the popup starts open. */
   defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  /** Called as the popup opens or closes, and with what caused it. */
+  onOpenChange?: (open: boolean, eventDetails: PlComboboxChangeEventDetails) => void;
   /** Accessible name of the button that opens the list. @default 'Open' */
   openLabel?: string;
   /** Accessible name of the clear button. @default 'Clear' */
@@ -206,13 +253,16 @@ export interface PlComboboxProps<Multiple extends boolean | undefined = false>
  * One row of the list. What Base UI holds as the value is the row's `value`
  * itself, a string or a number, and the object is what carries the label the
  * input and the filter need, plus the flag that says "this row is offering a
- * value the list does not have".
+ * value the list does not have". `option` is the caller's own item, which is
+ * what a caller's `filter` is handed.
  */
 interface Entry {
   value: PlComboboxValue;
   label: string;
+  content?: React.ReactNode;
   disabled?: boolean;
   custom?: boolean;
+  option?: PlComboboxOption;
 }
 
 /** The field, and it is a PlTextField's shell to the pixel. */
@@ -322,6 +372,54 @@ const clearClasses = /* @__PURE__ */ cx(targetClasses, adornmentClasses);
 
 const nothing: PlComboboxValue[] = [];
 
+/** No labels held, as one empty map, so a field with nothing chosen keeps the same one. */
+const noLabels: ReadonlyMap<PlComboboxValue, string> = new Map();
+
+/**
+ * The label of each of `values`, from the row that lists it now or, failing
+ * that, from `held`, the labels kept from the rows that listed them before.
+ * `held` itself when nothing has changed, so a caller can tell by comparing.
+ */
+function labelsOf(
+  held: ReadonlyMap<PlComboboxValue, string>,
+  values: readonly PlComboboxValue[],
+  byValue: ReadonlyMap<PlComboboxValue, Entry>
+): ReadonlyMap<PlComboboxValue, string> {
+  const next = new Map<PlComboboxValue, string>();
+
+  for (const value of values) {
+    const label = byValue.get(value)?.label ?? held.get(value);
+
+    if (label !== undefined) {
+      next.set(value, label);
+    }
+  }
+
+  const same =
+    next.size === held.size && [...next].every(([value, label]) => held.get(value) === label);
+
+  if (same) {
+    return held;
+  }
+
+  return next.size === 0 ? noLabels : next;
+}
+
+/**
+ * Keeps `countRef` at the number of rows the list is showing. Base UI holds that
+ * in a context only its own parts can read, through a hook, so this sits
+ * inside the root to read it for the handlers around it.
+ */
+function ShownRows({ countRef }: { countRef: React.RefObject<number> }) {
+  const shown = BaseUICombobox.useFilteredItems().length;
+
+  React.useEffect(() => {
+    countRef.current = shown;
+  }, [countRef, shown]);
+
+  return null;
+}
+
 /**
  * Always an array inside, however the caller spells it.
  *
@@ -369,6 +467,9 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   defaultValue,
   onValueChange,
   onInputValueChange,
+  filter,
+  autoHighlight = true,
+  clearOnEscape = false,
   allowCustom = true,
   customLabel,
   clearable = false,
@@ -432,9 +533,22 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
       items.map((item) => ({
         value: item.value,
         label: item.label ?? String(item.value),
-        disabled: item.disabled
+        content: item.content,
+        disabled: item.disabled,
+        option: item
       })),
     [items]
+  );
+
+  // The caller's filter speaks in their own items. The row offering what was
+  // typed has none, and stays whatever the filter says, as Base UI's own
+  // filter keeps it by its label being the query.
+  const keeps = React.useMemo(
+    () =>
+      filter
+        ? (entry: Entry, query: string) => entry.option === undefined || filter(entry.option, query)
+        : filter,
+    [filter]
   );
 
   // The selection is mirrored internally even when the caller controls it. The
@@ -456,10 +570,34 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
     [options]
   );
 
+  // The label each chosen value was last listed with. A list a server answers
+  // holds only what the last query found, and a chip whose row is not among
+  // them would otherwise be called by its value. Kept for the chosen values
+  // alone, and brought up to date while rendering, as React keeps a value
+  // from an earlier render: a row that lists a chosen value is read on the
+  // render that shows it.
+  const [heldLabels, setHeldLabels] = React.useState(noLabels);
+  const chosenLabels = labelsOf(heldLabels, selection, byValue);
+
+  if (chosenLabels !== heldLabels) {
+    setHeldLabels(chosenLabels);
+  }
+
   const entryFor = React.useCallback(
     (item: PlComboboxValue): Entry =>
-      byValue.get(item) ?? { value: item, label: String(item), custom: true },
-    [byValue]
+      byValue.get(item) ?? {
+        value: item,
+        label: chosenLabels.get(item) ?? String(item),
+        custom: !chosenLabels.has(item)
+      },
+    [byValue, chosenLabels]
+  );
+
+  // What Base UI writes into a single field for a value no row holds: the
+  // label it was last listed with, or for a value typed in, the value itself.
+  const labelOf = React.useCallback(
+    (item: PlComboboxValue) => chosenLabels.get(item) ?? String(item),
+    [chosenLabels]
   );
 
   // The row that offers what was typed. It is a real item rather than a special
@@ -475,7 +613,11 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         option.label.toLocaleLowerCase(matchLocale) === folded ||
         String(option.value).toLocaleLowerCase(matchLocale) === folded
     ) ||
-    selection.some((item) => String(item).toLocaleLowerCase(matchLocale) === folded);
+    selection.some(
+      (item) =>
+        String(item).toLocaleLowerCase(matchLocale) === folded ||
+        chosenLabels.get(item)?.toLocaleLowerCase(matchLocale) === folded
+    );
   const customValue = allowCustom && !readOnly && !disabled && !alreadyKnown ? trimmed : null;
 
   const listItems = React.useMemo<Entry[]>(
@@ -502,11 +644,72 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
   );
   const baseValue = isMultiple ? selection : (selection[0] ?? null);
 
-  function commit(next: PlComboboxValue[]) {
+  // The caller hears of a change before the field takes it, so a caller that
+  // cancels it leaves Base UI and the mirror holding what they held.
+  function commit(next: PlComboboxValue[], details: PlComboboxChangeEventDetails) {
+    onValueChange?.((isMultiple ? next : (next[0] ?? null)) as Selection<Multiple>, details);
+
+    if (details.isCanceled) {
+      return;
+    }
+
     if (value === undefined) {
       setOwnSelection(next);
     }
-    onValueChange?.((isMultiple ? next : (next[0] ?? null)) as Selection<Multiple>);
+
+    // Read off the rows as they are now, which list what was just taken. By
+    // the time the field renders again they may hold only what the next query
+    // finds: a `multiple` field empties its text as a row is taken, and a
+    // caller that searches as the text changes has already asked again.
+    setHeldLabels(labelsOf(chosenLabels, [...selection, ...next], byValue));
+  }
+
+  /**
+   * Turns away Base UI emptying the field on Escape with the list closed,
+   * unless `clearOnEscape` asks for it. Base UI empties the text and then the
+   * value on that one press, and those are the only changes it makes for that
+   * reason: Escape on an open list closes it and lets go of the query under
+   * reasons of their own. The key is let past the field, so a modal round it
+   * hears it, as it would from a field with nothing to empty.
+   */
+  function refusesEscape(details: PlComboboxChangeEventDetails) {
+    if (clearOnEscape || details.reason !== 'escape-key') {
+      return false;
+    }
+
+    details.cancel();
+    details.allowPropagation();
+
+    return true;
+  }
+
+  // How many rows the list is showing, which Base UI works out and keeps.
+  const shownRef = React.useRef(0);
+
+  /**
+   * Keeps the list open on Enter when it has no rows at all: still waiting for
+   * them, or matching nothing. Base UI closes a list on Enter with no row lit,
+   * and closing it throws away what was typed, in a `multiple` field and in a
+   * single one alike, when there was nothing for Enter to take. The key goes no
+   * further either, so a form round the field is not sent with its list open.
+   * A list with rows and none lit still closes, and lets the form be sent.
+   */
+  function holdsOpen(details: PlComboboxChangeEventDetails) {
+    const { event } = details;
+
+    if (
+      details.reason !== 'none' ||
+      event.type !== 'keydown' ||
+      (event as KeyboardEvent).key !== 'Enter' ||
+      shownRef.current > 0
+    ) {
+      return false;
+    }
+
+    details.cancel();
+    event.preventDefault();
+
+    return true;
   }
 
   const lit = !disabled && !readOnly;
@@ -622,7 +825,12 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         items={collection}
         multiple={isMultiple}
         value={baseValue}
-        onValueChange={(next) => {
+        filter={keeps}
+        onValueChange={(next, details) => {
+          if (refusesEscape(details)) {
+            return;
+          }
+
           const chosen = toArray(next);
 
           // Base UI empties the value whether or not it holds anything: on
@@ -633,27 +841,43 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
             return;
           }
 
-          commit(chosen);
+          commit(chosen, details);
         }}
         // The text is Base UI's to own, not ours: in single mode it is the
         // chosen option's label, which has to be there from the first paint, and
         // in multiple mode it empties itself after each pick. What is kept here
         // is a copy, and only so the "add this" row knows what was typed.
-        onInputValueChange={(next) => {
-          setQuery(next);
-          onInputValueChange?.(next);
+        onInputValueChange={(next, details) => {
+          if (refusesEscape(details)) {
+            return;
+          }
+
+          onInputValueChange?.(next, details);
+
+          if (!details.isCanceled) {
+            setQuery(next);
+          }
         }}
         open={open}
         defaultOpen={defaultOpen}
-        onOpenChange={(next) => onOpenChange?.(next)}
-        // The first match lights up as you type, so Enter commits without an
-        // arrow key first. This is what makes the "add this" row reachable from
-        // the keyboard at all: a value the list does not have is the only match
-        // there is, so it is the one Enter lands on.
-        autoHighlight
+        onOpenChange={(next, details) => {
+          if (!next && holdsOpen(details)) {
+            return;
+          }
+
+          onOpenChange?.(next, details);
+        }}
+        // On by default, so the first match lights up as you type and Enter
+        // commits without an arrow key first. This is what makes the "add this"
+        // row reachable from the keyboard at all: a value the list does not
+        // have is the only match there is, so it is the one Enter lands on.
+        // `'always'` is Base UI's own mode, the one its Autocomplete documents:
+        // `Combobox.Root` narrows the type to a boolean but hands the value on
+        // to the same machinery as it is.
+        autoHighlight={autoHighlight as boolean}
         // The collection labels a value from its row, so this labels only a
-        // value no row holds, a custom one.
-        itemToStringLabel={String}
+        // value no row holds: one listed before, or a custom one.
+        itemToStringLabel={labelOf}
         itemToStringValue={String}
         limit={limit}
         locale={matchLocale}
@@ -661,6 +885,8 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
         readOnly={readOnly}
         required={required}
       >
+        <ShownRows countRef={shownRef} />
+
         <FieldNotch
           notched={notched}
           size={size}
@@ -799,7 +1025,14 @@ export function PlCombobox<Multiple extends boolean | undefined = false>({
                         <BaseUICombobox.ItemIndicator className="absolute start-1.5 flex size-4 items-center justify-center">
                           <CheckIcon />
                         </BaseUICombobox.ItemIndicator>
-                        <span className="truncate">{entry.label}</span>
+                        {/* The rest of the row, laid out by the caller. The
+                            tick stays in the gutter, centred on however tall
+                            the content makes the row. */}
+                        {hasContent(entry.content) ? (
+                          <span className="min-w-0 flex-1">{entry.content}</span>
+                        ) : (
+                          <span className="truncate">{entry.label}</span>
+                        )}
                       </React.Fragment>
                     )}
                   </BaseUICombobox.Item>

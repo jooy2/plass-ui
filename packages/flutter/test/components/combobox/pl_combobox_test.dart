@@ -30,6 +30,13 @@ const List<PlComboboxOption<String>> _more = <PlComboboxOption<String>>[
   PlComboboxOption<String>(value: 'rome', label: 'Rome'),
 ];
 
+/// What a server answered for `mario`: options it matched on a spelling their
+/// labels do not have.
+const List<PlComboboxOption<String>> _searched = <PlComboboxOption<String>>[
+  PlComboboxOption<String>(value: 'super-mario', label: '슈퍼 마리오'),
+  PlComboboxOption<String>(value: 'mario-kart', label: '마리오 카트'),
+];
+
 /// One of the two glyphs at the end of the field, by the name a screen reader
 /// gives it.
 Finder _adornment(String label) {
@@ -1265,6 +1272,396 @@ void main() {
       });
     });
 
+    group('filter', () {
+      testWidgets('keeps every option as given when it keeps everything', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _searched,
+              value: null,
+              onChanged: (String? _) {},
+              filter: (_, _) => true,
+            ),
+          ),
+        );
+
+        await tester.enterText(find.byType(EditableText), 'mario');
+        await tester.pumpAndSettle();
+
+        expect(_listed(tester), <String>['슈퍼 마리오', '마리오 카트']);
+      });
+
+      testWidgets(
+        'keeps every option of a `multiple` field, with the row that offers the query after them',
+        (WidgetTester tester) async {
+          await tester.pumpWidget(
+            _host(
+              PlCombobox<String>.multiple(
+                options: _searched,
+                values: const <String>[],
+                onChanged: (List<String> _) {},
+                onCreate: (String query) => query,
+                filter: (_, _) => true,
+              ),
+            ),
+          );
+
+          await tester.enterText(find.byType(EditableText), 'mario');
+          await tester.pumpAndSettle();
+
+          expect(_listed(tester), <String>['슈퍼 마리오', '마리오 카트', 'Add “mario”']);
+        },
+      );
+
+      testWidgets(
+        'is asked about each option with the trimmed query, and keeps the row that offers it',
+        (WidgetTester tester) async {
+          final List<(String, String)> asked = <(String, String)>[];
+
+          await tester.pumpWidget(
+            _host(
+              PlCombobox<String>(
+                options: _cities,
+                value: null,
+                onChanged: (String? _) {},
+                onCreate: (String query) => query,
+                filter: (PlComboboxOption<String> option, String query) {
+                  asked.add((option.value, query));
+
+                  return option.value.startsWith(query);
+                },
+              ),
+            ),
+          );
+
+          await tester.enterText(find.byType(EditableText), ' se ');
+          await tester.pumpAndSettle();
+
+          expect(_listed(tester), <String>['Seoul', 'Add “se”']);
+          expect(asked, contains(('lisbon', 'se')));
+        },
+      );
+    });
+
+    group('autoHighlight', () {
+      /// A combobox whose options the test hands in after the query, as a
+      /// server answers one, reporting what it takes into [taken].
+      Future<void Function(List<PlComboboxOption<String>>)> searching(
+        WidgetTester tester,
+        List<String?> taken, {
+        required PlComboboxHighlight autoHighlight,
+      }) async {
+        List<PlComboboxOption<String>> options = const <PlComboboxOption<String>>[];
+        late StateSetter rebuild;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                return PlCombobox<String>(
+                  options: options,
+                  value: null,
+                  onChanged: taken.add,
+                  filter: (_, _) => true,
+                  autoHighlight: autoHighlight,
+                );
+              },
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.enterText(find.byType(EditableText), 'mario');
+        await tester.pumpAndSettle();
+        expect(find.text('Nothing here'), findsOneWidget);
+
+        return (List<PlComboboxOption<String>> next) => rebuild(() => options = next);
+      }
+
+      testWidgets('lights the first row of a list filled after the query changed, with `always`, '
+          'and Enter takes it', (WidgetTester tester) async {
+        final List<String?> taken = <String?>[];
+        final answer = await searching(tester, taken, autoHighlight: PlComboboxHighlight.always);
+
+        answer(_searched);
+        await tester.pumpAndSettle();
+        expect(_lit(tester), '슈퍼 마리오');
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, <String?>['super-mario']);
+      });
+
+      testWidgets('keeps the list and the query on Enter while it has no rows, with `always`, '
+          'and takes the first row once they arrive', (WidgetTester tester) async {
+        final List<String?> taken = <String?>[];
+        final answer = await searching(tester, taken, autoHighlight: PlComboboxHighlight.always);
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(find.text('Nothing here'), findsOneWidget);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'mario');
+
+        answer(_searched);
+        await tester.pumpAndSettle();
+        expect(_lit(tester), '슈퍼 마리오');
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, <String?>['super-mario']);
+      });
+
+      testWidgets('lights no row of a list filled after the query changed, by default', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> taken = <String?>[];
+        final answer = await searching(tester, taken, autoHighlight: PlComboboxHighlight.query);
+
+        answer(_searched);
+        await tester.pumpAndSettle();
+        expect(_lit(tester), isNull);
+
+        // With no row lit, Enter closes the list and takes nothing.
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(taken, isEmpty);
+        expect(_inList('슈퍼 마리오'), findsNothing);
+      });
+
+      testWidgets('lights the first row as the list opens, with `always`', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              autoHighlight: PlComboboxHighlight.always,
+            ),
+          ),
+        );
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        expect(_lit(tester), 'Seoul');
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+
+        expect(_lit(tester), 'Lisbon');
+      });
+
+      testWidgets('lights nothing as the query changes with `none`', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: null,
+              onChanged: (String? _) {},
+              autoHighlight: PlComboboxHighlight.none,
+            ),
+          ),
+        );
+
+        await tester.enterText(find.byType(EditableText), 'lis');
+        await tester.pumpAndSettle();
+
+        expect(_inList('Lisbon'), findsOneWidget);
+        expect(_lit(tester), isNull);
+      });
+    });
+
+    group('a chosen value the options no longer hold', () {
+      /// A field whose options the test swaps, holding what it is given.
+      Future<void Function(List<PlComboboxOption<String>>)> swapping(
+        WidgetTester tester,
+        Widget Function(List<PlComboboxOption<String>> options) field,
+      ) async {
+        List<PlComboboxOption<String>> options = _searched;
+        late StateSetter rebuild;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                rebuild = setState;
+
+                return field(options);
+              },
+            ),
+          ),
+        );
+
+        return (List<PlComboboxOption<String>> next) => rebuild(() => options = next);
+      }
+
+      testWidgets('keeps the label on its chip', (WidgetTester tester) async {
+        final swap = await swapping(
+          tester,
+          (List<PlComboboxOption<String>> options) => PlCombobox<String>.multiple(
+            options: options,
+            values: const <String>['super-mario'],
+            onChanged: (List<String> _) {},
+          ),
+        );
+
+        swap(const <PlComboboxOption<String>>[]);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.descendant(of: find.byType(PlChip), matching: find.text('슈퍼 마리오')),
+          findsOneWidget,
+        );
+        expect(find.text('super-mario'), findsNothing);
+      });
+
+      testWidgets('keeps the label of a row taken from options a new query empties', (
+        WidgetTester tester,
+      ) async {
+        List<String> values = <String>[];
+        String query = '';
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>.multiple(
+                options: query == 'mario' ? _searched : const <PlComboboxOption<String>>[],
+                values: values,
+                onChanged: (List<String> next) => setState(() => values = next),
+                onQueryChanged: (String next) => setState(() => query = next),
+                filter: (_, _) => true,
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.enterText(find.byType(EditableText), 'mario');
+        await tester.pumpAndSettle();
+        await tester.tap(_inList('마리오 카트'));
+        await tester.pumpAndSettle();
+
+        expect(values, <String>['mario-kart']);
+        expect(
+          find.descendant(of: find.byType(PlChip), matching: find.text('마리오 카트')),
+          findsOneWidget,
+        );
+        expect(find.text('mario-kart'), findsNothing);
+      });
+
+      testWidgets('keeps the label in a single field', (WidgetTester tester) async {
+        final swap = await swapping(
+          tester,
+          (List<PlComboboxOption<String>> options) =>
+              PlCombobox<String>(options: options, value: 'super-mario', onChanged: (String? _) {}),
+        );
+
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, '슈퍼 마리오');
+
+        swap(const <PlComboboxOption<String>>[]);
+        await tester.pumpAndSettle();
+
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, '슈퍼 마리오');
+      });
+    });
+
+    group('content', () {
+      const Key row = ValueKey<String>('mario-row');
+      const List<PlComboboxOption<String>> archives = <PlComboboxOption<String>>[
+        PlComboboxOption<String>(
+          value: 'mario',
+          label: 'Mario',
+          content: Row(
+            key: row,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[Text('Mario'), Text(' v1.2')],
+          ),
+        ),
+        PlComboboxOption<String>(value: 'zelda', label: 'Zelda'),
+      ];
+
+      testWidgets('draws an option’s content in its row', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: archives, value: null, onChanged: (String? _) {})),
+        );
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.descendant(of: find.byType(SingleChildScrollView), matching: find.byKey(row)),
+          findsOneWidget,
+        );
+        expect(_listed(tester), <String>['Mario', ' v1.2', 'Zelda']);
+      });
+
+      testWidgets('writes the label into the field once the row is taken', (
+        WidgetTester tester,
+      ) async {
+        String? value;
+
+        await tester.pumpWidget(
+          _host(
+            StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
+                options: archives,
+                value: value,
+                onChanged: (String? next) => setState(() => value = next),
+              ),
+            ),
+          ),
+        );
+
+        await tester.tap(_adornment('Open'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(row));
+        await tester.pumpAndSettle();
+
+        expect(value, 'mario');
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Mario');
+      });
+
+      testWidgets('puts the label on the chip', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              options: archives,
+              values: const <String>['mario'],
+              onChanged: (List<String> _) {},
+            ),
+          ),
+        );
+
+        expect(
+          find.descendant(of: find.byType(PlChip), matching: find.text('Mario')),
+          findsOneWidget,
+        );
+        expect(find.byKey(row), findsNothing);
+      });
+
+      testWidgets('filters by the label rather than by the content', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          _host(PlCombobox<String>(options: archives, value: null, onChanged: (String? _) {})),
+        );
+
+        await tester.enterText(find.byType(EditableText), 'v1.2');
+        await tester.pumpAndSettle();
+
+        expect(find.text('Nothing here'), findsOneWidget);
+        expect(find.byKey(row), findsNothing);
+      });
+    });
+
     group('the highlight', () {
       testWidgets('lights no row as a press opens the list with nothing chosen', (
         WidgetTester tester,
@@ -2467,7 +2864,37 @@ void main() {
         expect(taken, isEmpty);
       });
 
-      testWidgets('closes the list with no row lit, and puts the text back', (
+      testWidgets('closes a list with rows and none lit, and puts the text back', (
+        WidgetTester tester,
+      ) async {
+        final List<String?> taken = <String?>[];
+
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>(
+              options: _cities,
+              value: 'seoul',
+              onChanged: taken.add,
+              autoHighlight: PlComboboxHighlight.none,
+            ),
+          ),
+        );
+
+        await focus(tester);
+        tester.testTextInput.enterText('lis');
+        await tester.pumpAndSettle();
+        expect(_inList('Lisbon'), findsOneWidget);
+        expect(_lit(tester), isNull);
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(_inList('Lisbon'), findsNothing);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Seoul');
+        expect(taken, isEmpty);
+      });
+
+      testWidgets('keeps a list with no rows open, and the query in it', (
         WidgetTester tester,
       ) async {
         final List<String?> taken = <String?>[];
@@ -2477,15 +2904,33 @@ void main() {
         );
 
         await focus(tester);
-        tester.testTextInput.enterText('zzz');
-        await tester.pumpAndSettle();
+        await submit(tester, 'zzz');
+
         expect(find.text('Nothing here'), findsOneWidget);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'zzz');
+        expect(taken, isEmpty);
+      });
 
-        await tester.testTextInput.receiveAction(TextInputAction.done);
-        await tester.pumpAndSettle();
+      testWidgets('keeps a `multiple` list with no rows open, and the query in it', (
+        WidgetTester tester,
+      ) async {
+        final List<List<String>> taken = <List<String>>[];
 
-        expect(find.text('Nothing here'), findsNothing);
-        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Seoul');
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              options: _cities,
+              values: const <String>['seoul'],
+              onChanged: taken.add,
+            ),
+          ),
+        );
+
+        await focus(tester);
+        await submit(tester, 'zzz');
+
+        expect(find.text('Nothing here'), findsOneWidget);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'zzz');
         expect(taken, isEmpty);
       });
 
@@ -2545,7 +2990,7 @@ void main() {
         );
       }
 
-      testWidgets('closes the list, then empties the field, then goes on to what is round it', (
+      testWidgets('closes the list, then goes on to what is round it, and keeps the value', (
         WidgetTester tester,
       ) async {
         final List<int> heard = <int>[];
@@ -2572,6 +3017,118 @@ void main() {
 
         expect(await escape(tester, heard), isFalse);
         expect(_inList('Lisbon'), findsNothing);
+
+        expect(await escape(tester, heard), isTrue);
+        expect(value, 'seoul');
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, 'Seoul');
+      });
+
+      testWidgets('keeps the chips of a `multiple` field with its list closed', (
+        WidgetTester tester,
+      ) async {
+        final List<int> heard = <int>[];
+        final List<List<String>> reported = <List<String>>[];
+
+        await tester.pumpWidget(
+          _host(
+            around(
+              PlCombobox<String>.multiple(
+                options: _cities,
+                values: const <String>['seoul', 'lisbon'],
+                onChanged: reported.add,
+              ),
+              heard,
+            ),
+          ),
+        );
+
+        await focus(tester);
+
+        expect(await escape(tester, heard), isTrue);
+        expect(reported, isEmpty);
+      });
+
+      testWidgets('lets go of the query and keeps the chips as Escape closes the list', (
+        WidgetTester tester,
+      ) async {
+        final List<List<String>> reported = <List<String>>[];
+
+        await tester.pumpWidget(
+          _host(
+            PlCombobox<String>.multiple(
+              options: _cities,
+              values: const <String>['seoul'],
+              onChanged: reported.add,
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.enterText(find.byType(EditableText), 'lis');
+        await tester.pumpAndSettle();
+        expect(_inList('Lisbon'), findsOneWidget);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(_inList('Lisbon'), findsNothing);
+        expect(tester.widget<EditableText>(find.byType(EditableText)).controller.text, isEmpty);
+        expect(reported, isEmpty);
+      });
+
+      testWidgets('closes a modal round a field that keeps its value', (WidgetTester tester) async {
+        final List<bool> modal = <bool>[];
+        final List<String?> reported = <String?>[];
+
+        await tester.pumpWidget(
+          host(
+            PlModal(
+              open: true,
+              onOpenChanged: modal.add,
+              title: const Text('Settings'),
+              child: PlCombobox<String>(options: _cities, value: 'seoul', onChanged: reported.add),
+            ),
+            overlay: true,
+          ),
+        );
+        await tester.pumpAndSettle();
+        await focus(tester);
+
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+
+        expect(modal, <bool>[false]);
+        expect(reported, isEmpty);
+      });
+
+      testWidgets('closes the list, then empties the field with `clearOnEscape`, then goes on', (
+        WidgetTester tester,
+      ) async {
+        final List<int> heard = <int>[];
+        String? value = 'seoul';
+
+        await tester.pumpWidget(
+          _host(
+            around(
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
+                  options: _cities,
+                  value: value,
+                  clearOnEscape: true,
+                  onChanged: (String? next) => setState(() => value = next),
+                ),
+              ),
+              heard,
+            ),
+          ),
+        );
+
+        await tester.tap(find.byType(EditableText));
+        await tester.pumpAndSettle();
+        expect(_inList('Lisbon'), findsOneWidget);
+
+        expect(await escape(tester, heard), isFalse);
+        expect(_inList('Lisbon'), findsNothing);
         expect(value, 'seoul');
 
         expect(await escape(tester, heard), isFalse);
@@ -2581,7 +3138,9 @@ void main() {
         expect(await escape(tester, heard), isTrue);
       });
 
-      testWidgets('empties a `multiple` field with its list closed', (WidgetTester tester) async {
+      testWidgets('empties a `multiple` field with its list closed, with `clearOnEscape`', (
+        WidgetTester tester,
+      ) async {
         final List<int> heard = <int>[];
         List<String> values = <String>['seoul', 'lisbon'];
 
@@ -2593,6 +3152,7 @@ void main() {
                     PlCombobox<String>.multiple(
                       options: _cities,
                       values: values,
+                      clearOnEscape: true,
                       onChanged: (List<String> next) => setState(() => values = next),
                     ),
               ),
@@ -2609,7 +3169,7 @@ void main() {
         expect(await escape(tester, heard), isTrue);
       });
 
-      testWidgets('empties the field in a modal, and then closes the modal', (
+      testWidgets('empties the field in a modal with `clearOnEscape`, and then closes the modal', (
         WidgetTester tester,
       ) async {
         final List<bool> modal = <bool>[];
@@ -2625,6 +3185,7 @@ void main() {
                 builder: (BuildContext context, StateSetter setState) => PlCombobox<String>(
                   options: _cities,
                   value: value,
+                  clearOnEscape: true,
                   onChanged: (String? next) => setState(() => value = next),
                 ),
               ),

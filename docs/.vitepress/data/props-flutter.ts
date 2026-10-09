@@ -1395,8 +1395,28 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     },
     from('PlCombobox', 'onInputValueChange', {
       name: 'onQueryChanged',
-      type: 'ValueChanged<String>?'
+      type: 'ValueChanged<String>?',
+      description: {
+        ko: '입력창의 글자가 바뀔 때 — 값이 아니라 필터 질의입니다',
+        en: 'Called as the text in the input changes — the filter query, not the value'
+      }
     }),
+    from('PlCombobox', 'filter', {
+      type: 'bool Function(PlComboboxOption<T> option, String query)?',
+      description: {
+        ko: '질의가 어떤 선택지를 남길지. 주지 않으면 대소문자를 접은 label에 질의가 들어 있는 선택지가 남습니다. 서버가 이미 검색한 목록이라면 (_, _) => true로 모두 남깁니다. React의 null과 달리, Dart에서는 넘기지 않은 파라미터와 null을 넘긴 파라미터가 같기 때문입니다',
+        en: 'Which options a query keeps. Left out, an option stays while its case-folded label contains the query. For a list a server has already searched, keep them all with (_, _) => true, where React passes null: in Dart a parameter left out and one passed null are the same thing'
+      }
+    }),
+    from('PlCombobox', 'autoHighlight', {
+      type: 'PlComboboxHighlight',
+      default: 'PlComboboxHighlight.query',
+      description: {
+        ko: "행에 저절로 불이 들어오는지. none, query, always 세 상태이고, React의 boolean | 'always' 대신 enum입니다. Dart에는 union 타입이 없습니다",
+        en: "Whether a row lights up on its own: none, query or always. An enum rather than React's boolean | 'always', because Dart has no union type"
+      }
+    }),
+    from('PlCombobox', 'clearOnEscape', { type: 'bool', default: 'false' }),
     from('PlCombobox', 'placeholder', { type: 'String?' }),
     from('PlCombobox', 'emptyMessage', { type: 'String?', default: "'Nothing here'" }),
     from('PlCombobox', 'limit', { type: 'int?', default: 'null' }),
@@ -1452,6 +1472,7 @@ export const flutterPropTables: Record<string, PropRow[]> = {
   PlComboboxOption: [
     from('PlComboboxOption', 'value', { type: 'T', required: true }),
     from('PlComboboxOption', 'label', { type: 'String', required: true }),
+    from('PlComboboxOption', 'content', { type: 'Widget?' }),
     from('PlComboboxOption', 'disabled', { type: 'bool', default: 'false' })
   ],
 

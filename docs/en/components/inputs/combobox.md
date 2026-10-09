@@ -57,6 +57,8 @@ Every native `<div>` attribute passes straight through to the field wrapper, exc
 
 A `className` lands on the stack that holds the label, the control and the two lines under it. `classNames` reaches the four parts inside it: `label`, `control`, the field's shell, chips and all, `description` and `error`.
 
+`onValueChange`, `onInputValueChange` and `onOpenChange` each receive Base UI's event details as their second argument, typed `PlComboboxChangeEventDetails`. Its `reason` says what caused the change, such as `'item-press'`, `'chip-remove-press'`, `'clear-press'` or `'escape-key'`, and `cancel()` turns the change away, so the field keeps what it held.
+
 :::
 
 ::: fw flutter
@@ -137,6 +139,58 @@ The field then has no fixed height, the chips wrap, so its padding is `(control 
 
 </Demo>
 
+### filter · autoHighlight
+
+A list a server has already searched can hold rows whose labels do not contain the query, such as a city found by its English name and labelled in its own language. The default filter would hide them again. <Fw react="filter={null}" flutter="filter: (_, _) => true" code /> keeps every row as given, and a function of your own decides which rows a query keeps.
+
+By default the first row lights up as the query changes, and a list that is still empty at that moment has nothing lit when its rows arrive, so <kbd>Enter</kbd> takes nothing. <Fw react='autoHighlight="always"' flutter="PlComboboxHighlight.always" code /> lights the first row whenever the open list has rows and none is lit.
+
+A chosen value keeps the label it was last listed with, so its chip, or the text of a single field, still reads right once a later query's rows leave it out.
+
+::: fw flutter
+
+`filter` is a function here and has no `null` of its own, because in Dart a parameter left out and one passed `null` are the same thing. `autoHighlight` is a `PlComboboxHighlight` of `none`, `query` or `always`, since Dart has no union type for `boolean | 'always'`.
+
+:::
+
+<Demo src="combobox/search" :min-height="300">
+
+::: fw react
+
+<<< @/.vitepress/demos/combobox/search.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/combobox/search.dart
+
+:::
+
+</Demo>
+
+### content
+
+An option's `content` is drawn in its row in place of the label: a picture, a glyph, a second piece of text. The label is still what the filter reads, what the input shows once the row is taken and what the chip says.
+
+A screen reader reads the content's text for the row, so keep the label's words in it, and hide a picture that only repeats them.
+
+<Demo src="combobox/content" :min-height="300">
+
+::: fw react
+
+<<< @/.vitepress/demos/combobox/content.tsx
+
+:::
+
+::: fw flutter
+
+<<< @/../packages/flutter/example/lib/demos/combobox/content.dart
+
+:::
+
+</Demo>
+
 ### size
 
 The same height ladder as every other control. With `multiple` the number is a minimum rather than a height, for the reason above.
@@ -193,8 +247,9 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 - `label`, `description` and `error` are wired to the input by Base UI's Field, so no `htmlFor` is needed. Without a visible `label`, give the combobox an `aria-label`. Beside a visible `label`, an `aria-label` names the input in its place, and an `aria-labelledby` outranks both.
 - Include the visible label's words in an `aria-label`, so a reader who says them to a voice-control tool still reaches the combobox.
 - The keyboard is the primitive's: <kbd>↑</kbd> <kbd>↓</kbd> move through the list, <kbd>Enter</kbd> takes the highlighted row and <kbd>Esc</kbd> closes. With `multiple`, <kbd>←</kbd> <kbd>→</kbd> walk the chips and <kbd>Backspace</kbd> removes one.
-- With the list closed, <kbd>Esc</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.
-- The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is.
+- With no row lit, <kbd>Enter</kbd> closes the list and lets a form round the field be sent. On a list with no rows at all, still waiting for them or matching nothing, it does nothing: the list stays open, the query stays in the input, and the form is not sent.
+- With the list closed, <kbd>Esc</kbd> leaves the value alone and goes on to whatever the field sits in, such as a modal. With `clearOnEscape` it empties a field that holds a value instead. Emptying the text of a single-value field empties its value as well.
+- The first match lights up as you type, so <kbd>Enter</kbd> commits without an arrow key first. That is also what makes the "add this" row reachable from the keyboard at all: a value the list does not have is the only match there is. `autoHighlight="always"` also lights the first of the rows that arrive later, and `autoHighlight={false}` lights none.
 - The "add this" row is a **real option**, not a special case in the key handling, so a click, <kbd>Enter</kbd> and the arrow keys all reach it the way every other row is reached.
 - Rows light on `data-highlighted` rather than on `:hover`, so the pointer and the arrow keys illuminate the same row.
 - Each chip's × is named after its chip (`Remove Seoul`, not `Remove`), because a screen reader reading a row of six identical buttons has told the reader nothing. Removing a chip with its × moves the focus to the input.
@@ -208,10 +263,10 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 
 - The field is announced as a text field that says whether its list is open. Each row is announced as one of a mutually exclusive set, taken or not.
 - Include the visible label's words in a `semanticLabel`, so a reader who says them to a voice-control tool still reaches the combobox.
-- **The keys stay on the field**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Enter</kbd> takes the highlighted row, or closes the list when no row is lit, and <kbd>Escape</kbd> or the system back closes without taking one. The list is the field's list, not a second place to be.
+- **The keys stay on the field**, and so does focus: <kbd>↑</kbd> <kbd>↓</kbd> move the highlight, <kbd>Enter</kbd> takes the highlighted row, or closes the list when no row is lit and leaves a list with no rows open with the query in it, and <kbd>Escape</kbd> or the system back closes without taking one. The list is the field's list, not a second place to be.
 - Under `NavigationMode.directional`, a remote's D-pad, a closed list does not open on <kbd>↑</kbd> or <kbd>↓</kbd>: the arrows move the focus on to the next control that way, and <kbd>Enter</kbd> or the remote's Select opens the list. An open list keeps the arrows.
-- With the list closed, <kbd>Escape</kbd> empties a field that holds a value, and otherwise goes on to whatever the field sits in, such as a modal. Emptying the text of a single-value field empties its value as well.
-- The first match lights up as the query changes, so <kbd>Enter</kbd> commits without an arrow key first, which is also what makes the create row reachable from the keyboard at all. Emptying the text leaves the light where it was, or with `multiple` puts it on the first chosen row down the list.
+- With the list closed, <kbd>Escape</kbd> leaves the value alone and goes on to whatever the field sits in, such as a modal. With `clearOnEscape` it empties a field that holds a value instead. Emptying the text of a single-value field empties its value as well.
+- The first match lights up as the query changes, so <kbd>Enter</kbd> commits without an arrow key first, which is also what makes the create row reachable from the keyboard at all. Emptying the text leaves the light where it was, or with `multiple` puts it on the first chosen row down the list. `PlComboboxHighlight.always` also lights the first of the options that arrive later, and `PlComboboxHighlight.none` lights none.
 - The highlight is one number rather than a hover state per row, which is what makes the pointer and the arrow keys light the same row. The pointer lights a row only by moving onto it, so a row the keys scroll under a resting pointer leaves the light where the keys put it. The pointer leaving a row puts its light out.
 - The list opens with the chosen row lit, or with `multiple` the first chosen row down the list, and a row just taken, or taken back out, stays lit. With nothing chosen, <kbd>↓</kbd> opens the list on the first row that can be taken, <kbd>↑</kbd> on the last one, and a press opens it with no row lit.
 - A row that cannot be taken stays in the list and is announced as unavailable. The highlight stops on it like any other row, and <kbd>Enter</kbd> there takes nothing.
@@ -231,8 +286,11 @@ Pass `value` with `onValueChange`. The value is a `string` or a `number`, an arr
 | a value of `string \| number` | a generic `T` | Nothing is submitted here, so the value can be the thing itself and the type checker can hold you to it. |
 | `multiple` as a prop | `PlCombobox.multiple`, a second constructor | One widget with a flag would have to hold both shapes of value, and neither would be typed. |
 | `allowCustom` (a `boolean`, on by default) | `onCreate` (a `T Function(String)`) | A `T` cannot be built out of a query by the field. The permission and the recipe are the same parameter. |
+| `filter={null}` | `filter: (_, _) => true` | A Dart parameter left out and one passed `null` are the same thing. |
+| `autoHighlight` of `boolean \| 'always'` | `autoHighlight` of `PlComboboxHighlight` | Dart has no union type. |
 | `label` of `ReactNode`, filtering by Base UI's collator | a `Widget`, filtering by a case-folded `contains` | The label is still a `String`, for the same reason: the filter reads it and it is written into a field. |
 | the hidden input, `name`, `required` | — | There is no native form submission to be part of. |
 | the start adornment read before the input | adornments read after the field | The field is one node, holding its name, its text and the shell the adornments sit in, so a screen reader reaches the field in one step. An adornment inside it is a child of that node, and Flutter reads a node before its children. |
 | `aria-label` | `semanticLabel` | Flutter's name. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
+| event details as the second argument of `onValueChange`, `onInputValueChange` and `onOpenChange` | — | They are Base UI's, and the Flutter field is not built on Base UI. Its callbacks are a plain `ValueChanged`. |
