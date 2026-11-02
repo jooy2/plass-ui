@@ -1934,7 +1934,36 @@ class _FramePainter extends CustomPainter {
     }
 
     if (!yAxis.hidden) {
-      for (int i = 0; i < layout.scale.ticks.length; i += 1) {
+      final int count = layout.scale.ticks.length;
+      final double valueLength = layout.horizontal ? box.width : box.height;
+      final double widest = tickTexts.fold<double>(
+        1,
+        (double most, String text) => math.max(most, textWidth(text, fontSize)),
+      );
+      // The value axis takes a stride of its own once it is the horizontal one:
+      // five stacked labels never touch, and five laid across a phone read as
+      // one long number. The gridlines are not thinned with them, since a line
+      // with no label on it is still a line to measure against.
+      final int stride = tickStride(
+        count,
+        valueLength,
+        layout.horizontal ? widest + 16 : fontSize * 2,
+      );
+      final double step = count > 1
+          ? (layout.valuePx(layout.scale.ticks[1]) - layout.valuePx(layout.scale.ticks[0])).abs()
+          : valueLength;
+      final bool roomForLast = fitsLast(
+        count,
+        stride,
+        step,
+        layout.horizontal ? textWidth(tickTexts.last, fontSize) : fontSize * 1.6,
+      );
+
+      for (int i = 0; i < count; i += 1) {
+        if (!showsTick(i, count, stride, roomForLast: roomForLast)) {
+          continue;
+        }
+
         final double at = layout.valuePx(layout.scale.ticks[i]);
 
         _text(
@@ -1942,7 +1971,15 @@ class _FramePainter extends CustomPainter {
           tickTexts[i],
           layout.horizontal ? Offset(at, box.bottom + fontSize) : Offset(box.left - 8, at),
           tokens.mutedFg,
-          layout.horizontal ? TextAlign.center : TextAlign.right,
+          !layout.horizontal
+              ? TextAlign.right
+              // The ends are anchored inward, so half of each does not hang off
+              // the plot.
+              : i == 0
+              ? TextAlign.left
+              : i == count - 1
+              ? TextAlign.right
+              : TextAlign.center,
         );
       }
     }
@@ -2081,6 +2118,7 @@ class _FramePainter extends CustomPainter {
     canvas.save();
     // Clipped to the plot and a marker's own radius past it, so a dot on the
     // top value is whole and a line still cannot run out over the axis labels.
+
     canvas.clipRect(
       Rect.fromLTWH(
         box.left - markerRadii[layout.size]! - 2,
