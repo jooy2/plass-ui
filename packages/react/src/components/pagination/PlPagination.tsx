@@ -398,7 +398,10 @@ export const PlPagination = /* @__PURE__ */ React.forwardRef<HTMLElement, PlPagi
         className={['flex items-center', className ?? ''].filter(Boolean).join(' ')}
         {...props}
       >
-        <ul role="list" className={`m-0 flex list-none items-center p-0 ${gapClasses[size]}`}>
+        <ul
+          role="list"
+          className={`m-0 flex list-none flex-wrap items-center p-0 ${gapClasses[size]}`}
+        >
           {showEdges
             ? stepper(
                 'first',

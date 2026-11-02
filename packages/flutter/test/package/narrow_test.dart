@@ -54,6 +54,7 @@ void main() {
     ),
     'a gauge with a caption': () =>
         const PlGaugeChart(value: 72, sweep: 360, caption: Text('of the monthly target')),
+    'a pagination with every page shown': () => PlPagination(count: 40, page: 20, showEdges: true),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {
@@ -64,5 +65,15 @@ void main() {
     });
   }
 
+  group('PlPagination', () {
+    testWidgets('goes onto a second line', (WidgetTester tester) async {
+      await _lay(tester, PlPagination(count: 40, page: 20, showEdges: true));
 
+      final double height = tester.getSize(find.byType(PlPagination)).height;
+
+      await _lay(tester, PlPagination(count: 40, page: 20, showEdges: true), width: 700);
+
+      expect(height, greaterThan(tester.getSize(find.byType(PlPagination)).height));
+    });
+  });
 }

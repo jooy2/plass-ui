@@ -246,9 +246,12 @@ class PlPagination extends StatelessWidget {
       container: true,
       explicitChildNodes: true,
       label: label ?? words.pagination,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      // Onto a second line where the row does not fit, as it does not on a phone
+      // with a few pages either side of the current one.
+      child: Wrap(
         spacing: gap[size]!,
+        runSpacing: gap[size]!,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: <Widget>[
           if (showEdges)
             stepper(

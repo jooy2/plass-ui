@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **A `PlPagination` fits a phone.** The row of pages ran out of a narrow box. It now goes onto a second line.
+
 ## 1.8.2 (2026-10-09)
 
 ### Breaking changes

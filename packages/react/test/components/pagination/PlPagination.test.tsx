@@ -393,4 +393,10 @@ describe('PlPagination', () => {
       expect(onPageChange).toHaveBeenCalledWith(3);
     });
   });
+
+  it('goes onto a second line rather than running out of a narrow box', async () => {
+    const screen = await render(<PlPagination count={40} defaultPage={20} showEdges />);
+
+    expect(screen.container.querySelector('ul')).toHaveClass('flex-wrap');
+  });
 });
