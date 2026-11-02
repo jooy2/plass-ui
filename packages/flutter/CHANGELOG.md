@@ -14,6 +14,7 @@
 - **A `PlAnimateAppear` works where the cross axis has no end.** A horizontal set in a page that scrolls, and a vertical one in a `Row`, threw "BoxConstraints forces an infinite height" or "width". It still fills a cross axis that has an end.
 - **A narrow `PlGaugeChart` reports no overflow.** On a dial as narrow as a phone, a reading and a caption are taller than the hole. They now stay centred on it.
 - **A `PlPagination` fits a phone.** The row of pages overflowed a narrow screen. It now goes onto a second line.
+- **A `PlDataTable` footer fits a phone.** The count and the pager shared a row that overflowed. The pager now takes a line of its own when they do not fit.
 
 ## 1.8.2 (2026-10-09)
 

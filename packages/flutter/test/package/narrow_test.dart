@@ -55,6 +55,20 @@ void main() {
     'a gauge with a caption': () =>
         const PlGaugeChart(value: 72, sweep: 360, caption: Text('of the monthly target')),
     'a pagination with every page shown': () => PlPagination(count: 40, page: 20, showEdges: true),
+    'a table footer with a pager': () => PlDataTable<int>(
+      rows: List<int>.generate(40, (int index) => index),
+      rowKey: (int row, int _) => row,
+      paging: PlDataTablePaging.pages,
+      pageSize: 5,
+      columns: <PlDataTableColumn<int>>[
+        PlDataTableColumn<int>(
+          key: 'row',
+          header: const Text('Row'),
+          value: (int row) => row,
+          cell: (int row, int _) => Text('$row'),
+        ),
+      ],
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {

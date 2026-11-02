@@ -828,24 +828,31 @@ class _PlDataTableState<T> extends State<PlDataTable<T>> {
                 size: size,
                 density: density,
                 top: true,
-                child: Row(
-                  spacing: gap[size]!,
-                  children: <Widget>[
-                    DefaultTextStyle.merge(
-                      style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
-                      child: widget.footer ?? Text('${shown.length} / $total'),
-                    ),
-                    const Spacer(),
-                    if (widget.paging == PlDataTablePaging.pages)
-                      PlPagination(
-                        size: size,
-                        color: color,
-                        density: density,
-                        count: pageCount,
-                        page: _currentPage(ordered.length),
-                        onPageChanged: _goPage,
+                // Across the band while it all fits, and the pager on a line of
+                // its own where it does not.
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: gap[size]!,
+                    runSpacing: gap[size]!,
+                    children: <Widget>[
+                      DefaultTextStyle.merge(
+                        style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
+                        child: widget.footer ?? Text('${shown.length} / $total'),
                       ),
-                  ],
+                      if (widget.paging == PlDataTablePaging.pages)
+                        PlPagination(
+                          size: size,
+                          color: color,
+                          density: density,
+                          count: pageCount,
+                          page: _currentPage(ordered.length),
+                          onPageChanged: _goPage,
+                        ),
+                    ],
+                  ),
                 ),
               ),
           ],
