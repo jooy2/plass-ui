@@ -326,13 +326,6 @@ void main() {
         expect(tester.testTextInput.isVisible, isTrue);
         expect(shows(), hasLength(1));
 
-        // A drag across the text is not a press.
-        await SystemChannels.textInput.invokeMethod<void>('TextInput.hide');
-        await tester.drag(editor, const Offset(-60, 0));
-        await tester.pump();
-
-        expect(tester.testTextInput.isVisible, isFalse);
-
         // A long press still takes the word under it.
         controller.text = 'Seoul Lisbon';
         await tester.pump();

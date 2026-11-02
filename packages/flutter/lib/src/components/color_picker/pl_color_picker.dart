@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/color.dart';
 import 'package:plass_ui/src/internal/editor.dart';
+import 'package:plass_ui/src/internal/editor_selection.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -799,7 +800,8 @@ class _ColorPanel extends StatelessWidget {
                             // either way, so turning `disabled` off does not build
                             // the editor again.
                             child: PlassEditorPress(
-                              onPress: disabled ? null : () => plassTapEditor(editorKey),
+                              editor: editorKey,
+                              enabled: !disabled,
                               child: ExcludeFocus(
                                 excluding: disabled,
                                 child: PlassEditorArrows(
@@ -824,6 +826,12 @@ class _ColorPanel extends StatelessWidget {
                                     cursorColor: family.accent,
                                     backgroundCursorColor: tokens.mutedFg,
                                     selectionColor: family.softPress,
+                                    rendererIgnoresPointer: true,
+                                    selectionControls: plassSelectionControls(
+                                      context,
+                                      family.accent,
+                                    ),
+                                    contextMenuBuilder: plassEditorMenuBuilder(context),
                                     enableInteractiveSelection: !disabled,
                                     // A pen on an iPad and autofill both write into a
                                     // field without its focus.

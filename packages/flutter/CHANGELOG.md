@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Added
+
+- **A selection in a field has handles and a menu on a touch screen.** Those parts come from Material and Cupertino, which this package imports neither of, so a word taken with a long press could not be adjusted or copied and nothing could be pasted in. `PlTextField`, `PlNumberField` and `PlCombobox` now draw handles in the field's colour, and those three, `PlColorPicker` and `PlCommandPalette` offer the platform's menu: the system's own on iOS, and a sheet of glass elsewhere. A press, a long press, a double tap and a drag now do what they do in a `TextField` on every platform. A field with no `Overlay` above it goes on working without them.
+
 ### Changed
 
 - **`PlConfirmProvider` brings its own `Overlay` in a `builder`.** Placed there without `Overlay.wrap`, the first question threw "No Overlay widget found" and filled the screen with the error. The `Overlay.wrap` an app already has keeps working, and the provider no longer needs it.

@@ -11,6 +11,7 @@ import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
 import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/editor.dart';
+import 'package:plass_ui/src/internal/editor_selection.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -479,7 +480,7 @@ String _labelHeldBy<T>(PlCombobox<T> combobox, Map<T, String> held) {
   return held[combobox.value] ?? '${combobox.value}';
 }
 
-class _PlComboboxState<T> extends State<PlCombobox<T>> {
+class _PlComboboxState<T> extends State<PlCombobox<T>> with PlassEditorHandles {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassFieldLabelPlacement get _labelPlacement =>
@@ -556,6 +557,8 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
   /// is the reader typing: the caret the editor puts in as the focus arrives,
   /// and one a press puts somewhere, leave the light where it was.
   void _onSelectionChanged(TextSelection selection, SelectionChangedCause? cause) {
+    noteEditorSelection(selection, cause);
+
     if (cause == SelectionChangedCause.keyboard) {
       _quieten();
     }
@@ -1504,7 +1507,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
       cursorColor: family.accent,
       backgroundCursorColor: tokens.mutedFg,
       selectionColor: family.softPress,
-      showSelectionHandles: false,
+      rendererIgnoresPointer: true,
+      selectionControls: plassSelectionControls(context, family.accent),
+      contextMenuBuilder: plassEditorMenuBuilder(context),
+      showSelectionHandles: editorHandles,
       enableInteractiveSelection: !_disabled,
       // A pen on an iPad and autofill both write into a field without its
       // focus.
@@ -1570,7 +1576,9 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     // editor has put the caret down it opens the list and asks for the
     // keyboard, as a press anywhere else on the field does.
     editor = PlassEditorPress(
-      onPress: _disabled ? null : _pressField,
+      editor: _editor,
+      enabled: !_disabled,
+      onPress: _openList,
       // Left and right leave the field at either end of the text under
       // directional navigation. Up and down are the list's.
       child: PlassEditorArrows(

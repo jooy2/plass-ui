@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/hot_keys/pl_hot_keys.dart';
 import 'package:plass_ui/src/internal/editor.dart';
+import 'package:plass_ui/src/internal/editor_selection.dart';
 import 'package:plass_ui/src/internal/ink.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
 // The same vocabulary [PlHotKeys] draws, read rather than written.
@@ -439,7 +440,8 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
             // A press on the text asks for the keyboard, which the editor does
             // only when the press moves the caret.
             child: PlassEditorPress(
-              onPress: () => plassTapEditor(_editor),
+              editor: _editor,
+              enabled: true,
               child: PlassEditorArrows(
                 editor: _editor,
                 vertical: false,
@@ -455,6 +457,9 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
                   cursorColor: tokens.family(_color).accent,
                   backgroundCursorColor: tokens.mutedFg,
                   selectionColor: tokens.family(_color).softPress,
+                  rendererIgnoresPointer: true,
+                  selectionControls: plassSelectionControls(context, tokens.family(_color).accent),
+                  contextMenuBuilder: plassEditorMenuBuilder(context),
                 ),
               ),
             ),

@@ -72,18 +72,36 @@ void plassFocusEditor(GlobalKey<EditableTextState> editor, {VoidCallback? focus}
 /// keyboard only when the press moves the caret, and calls [onPress] for it
 /// once the editor has answered it.
 ///
-/// It takes no part in deciding what the press was, so the editor still puts
-/// the caret where the press landed and a long press still takes a word, and
-/// the shell round the text, whose press loses to the editor's, never hears the
-/// same press. A press counts when it is made with the primary button and ends
-/// within [kTouchSlop] of where it went down, however long it was held; a drag
-/// across the text does not.
+/// The gestures on the text are the platform's own, from a
+/// [TextSelectionGestureDetectorBuilder] as a `TextField`'s are: a tap puts the
+/// caret down, a long press or a double tap takes a word and brings up the menu,
+/// and a drag selects. So the editor's own renderer takes no pointer, which the
+/// editor is told with `rendererIgnoresPointer`.
+///
+/// It takes no part in deciding what the press was, and the shell round the
+/// text, whose press loses to the editor's, never hears the same press. A press
+/// counts when it is made with the primary button and ends within [kTouchSlop]
+/// of where it went down, however long it was held; a drag across the text does
+/// not.
 class PlassEditorPress extends StatefulWidget {
   /// Creates a listener for a press on the text of the editor in [child].
-  const PlassEditorPress({super.key, required this.onPress, required this.child});
+  const PlassEditorPress({
+    super.key,
+    required this.editor,
+    required this.enabled,
+    this.onPress,
+    required this.child,
+  });
 
-  /// What a tap on the text does, usually [plassTapEditor], or `null` for
-  /// nothing, as on a disabled field, whose editor then takes no press at all.
+  /// The editor the gestures work on.
+  final GlobalKey<EditableTextState> editor;
+
+  /// Whether the field answers a press at all. A disabled one does not, and
+  /// keeps the pointer off its editor as well.
+  final bool enabled;
+
+  /// What a tap on the text does besides what the gestures do, which puts the
+  /// caret down and asks for the keyboard.
   final VoidCallback? onPress;
 
   /// The editor, and whatever is drawn in its place, such as a placeholder.
@@ -93,7 +111,21 @@ class PlassEditorPress extends StatefulWidget {
   State<PlassEditorPress> createState() => _PlassEditorPressState();
 }
 
-class _PlassEditorPressState extends State<PlassEditorPress> {
+class _PlassEditorPressState extends State<PlassEditorPress>
+    implements TextSelectionGestureDetectorBuilderDelegate {
+  late final TextSelectionGestureDetectorBuilder _gestures = TextSelectionGestureDetectorBuilder(
+    delegate: this,
+  );
+
+  @override
+  GlobalKey<EditableTextState> get editableTextKey => widget.editor;
+
+  @override
+  bool get forcePressEnabled => false;
+
+  @override
+  bool get selectionEnabled => widget.enabled;
+
   /// Where the press went down, for as long as it can still be a tap.
   Offset? _pressedAt;
 
@@ -131,7 +163,7 @@ class _PlassEditorPressState extends State<PlassEditorPress> {
 
   @override
   Widget build(BuildContext context) {
-    final bool live = widget.onPress != null;
+    final bool live = widget.enabled;
 
     return Listener(
       onPointerDown: live ? _down : null,
@@ -142,7 +174,13 @@ class _PlassEditorPressState extends State<PlassEditorPress> {
       // off its editor as well, which would otherwise take the press itself
       // and move the selection, as a React `<input disabled>` ignores a click.
       // In the tree either way, so the editor is not built again.
-      child: IgnorePointer(ignoring: !live, child: widget.child),
+      child: IgnorePointer(
+        ignoring: !live,
+        child: _gestures.buildGestureDetector(
+          behavior: HitTestBehavior.translucent,
+          child: widget.child,
+        ),
+      ),
     );
   }
 }

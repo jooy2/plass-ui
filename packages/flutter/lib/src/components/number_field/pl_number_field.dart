@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/arrows.dart';
 import 'package:plass_ui/src/internal/editor.dart';
+import 'package:plass_ui/src/internal/editor_selection.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -352,7 +353,7 @@ class PlNumberField extends StatefulWidget {
   State<PlNumberField> createState() => _PlNumberFieldState();
 }
 
-class _PlNumberFieldState extends State<PlNumberField> {
+class _PlNumberFieldState extends State<PlNumberField> with PlassEditorHandles {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
@@ -426,6 +427,8 @@ class _PlNumberFieldState extends State<PlNumberField> {
   /// and one a press puts somewhere, leave the light where it was, as the React
   /// field is quieted by a key press alone.
   void _onSelectionChanged(TextSelection selection, SelectionChangedCause? cause) {
+    noteEditorSelection(selection, cause);
+
     if (cause == SelectionChangedCause.keyboard) {
       _quieten();
     }
@@ -945,7 +948,10 @@ class _PlNumberFieldState extends State<PlNumberField> {
       cursorColor: family.accent,
       backgroundCursorColor: tokens.mutedFg,
       selectionColor: family.softPress,
-      showSelectionHandles: false,
+      rendererIgnoresPointer: true,
+      selectionControls: plassSelectionControls(context, family.accent),
+      contextMenuBuilder: plassEditorMenuBuilder(context),
+      showSelectionHandles: editorHandles,
       enableInteractiveSelection: !_disabled,
       // A pen on an iPad and autofill both write into a field without its
       // focus.
@@ -1004,7 +1010,8 @@ class _PlNumberFieldState extends State<PlNumberField> {
     // A press on the number asks for the keyboard as a press round it does,
     // which the editor does only when the press moves the caret.
     editor = PlassEditorPress(
-      onPress: _disabled ? null : () => plassTapEditor(_editor),
+      editor: _editor,
+      enabled: !_disabled,
       // Left and right leave the field at either end of the number under
       // directional navigation. Up and down step it, and are answered below.
       child: PlassEditorArrows(

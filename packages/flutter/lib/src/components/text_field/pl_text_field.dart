@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/internal/adornment.dart';
 import 'package:plass_ui/src/internal/editor.dart';
+import 'package:plass_ui/src/internal/editor_selection.dart';
 import 'package:plass_ui/src/internal/fieldset.dart';
 import 'package:plass_ui/src/internal/focus_ring.dart';
 import 'package:plass_ui/src/internal/icons.dart';
@@ -219,7 +220,7 @@ class PlTextField extends StatefulWidget {
   State<PlTextField> createState() => _PlTextFieldState();
 }
 
-class _PlTextFieldState extends State<PlTextField> {
+class _PlTextFieldState extends State<PlTextField> with PlassEditorHandles {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
@@ -280,6 +281,8 @@ class _PlTextFieldState extends State<PlTextField> {
   /// the light where it was, as the React field is quieted by a key press
   /// alone.
   void _onSelectionChanged(TextSelection selection, SelectionChangedCause? cause) {
+    noteEditorSelection(selection, cause);
+
     if (cause == SelectionChangedCause.keyboard) {
       _quieten();
     }
@@ -411,12 +414,12 @@ class _PlTextFieldState extends State<PlTextField> {
       // `EditableText` rather than a `TextField`: the latter is Material, and
       // this package imports neither Material nor Cupertino. What Material adds
       // on top — the decoration, the counter, the ripple — is what this
-      // component is *instead of*.
-      //
-      // Which costs one thing worth naming: the drag handles a touch platform
-      // puts under a selection are Material's and Cupertino's, so a selection
-      // here is made by dragging and has no handles to adjust afterwards.
-      showSelectionHandles: false,
+      // component is *instead of*. The handles and the menu of a selection are
+      // the one part a field cannot go without, so `editor_selection` draws them.
+      rendererIgnoresPointer: true,
+      selectionControls: plassSelectionControls(context, family.accent),
+      contextMenuBuilder: plassEditorMenuBuilder(context),
+      showSelectionHandles: editorHandles,
       enableInteractiveSelection: !_disabled,
       // Handwriting with a pen on an iPad lands in a field that does not have
       // the focus, and opens a connection of its own.
@@ -478,7 +481,8 @@ class _PlTextFieldState extends State<PlTextField> {
     // editor asks only when the press moves the caret, which a press on empty
     // text or on the caret does not.
     control = PlassEditorPress(
-      onPress: _disabled ? null : () => plassTapEditor(_editor),
+      editor: _editor,
+      enabled: !_disabled,
       // The arrows leave the field under directional navigation.
       child: PlassEditorArrows(
         editor: _editor,
