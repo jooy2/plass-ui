@@ -16,6 +16,7 @@
 - **A `PlPagination` fits a phone.** The row of pages overflowed a narrow screen. It now goes onto a second line.
 - **A `PlDataTable` footer fits a phone.** The count and the pager shared a row that overflowed. The pager now takes a line of its own when they do not fit.
 - **A `PlNavigationMenu` fits a phone.** A row of items wider than the screen overflowed. It now wraps.
+- **A `PlHeader` fits a phone.** A middle wider than the room the brand and the actions left it overflowed. It now scrolls along the bar.
 
 ## 1.8.2 (2026-10-09)
 

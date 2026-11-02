@@ -76,6 +76,16 @@ void main() {
         PlNavigationMenuItem(label: 'Documents'),
       ],
     ),
+    'a header with a wide middle': () => PlHeader(
+      brand: const <Widget>[Text('Acme')],
+      actions: const <Widget>[Text('Sign in')],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (final name in <String>['One', 'Two', 'Three']) Text('$name link'),
+        ],
+      ),
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {
@@ -95,6 +105,22 @@ void main() {
       await _lay(tester, PlPagination(count: 40, page: 20, showEdges: true), width: 700);
 
       expect(height, greaterThan(tester.getSize(find.byType(PlPagination)).height));
+    });
+  });
+
+  group('PlHeader', () {
+    testWidgets('scrolls a middle wider than the room it has', (WidgetTester tester) async {
+      await _lay(
+        tester,
+        const PlHeader(
+          brand: <Widget>[SizedBox(width: 120)],
+          actions: <Widget>[SizedBox(width: 120)],
+          child: SizedBox(width: 400, height: 20),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(tester.widget<Scrollable>(find.byType(Scrollable).last).axisDirection, isNotNull);
     });
   });
 }

@@ -178,7 +178,11 @@ class PlHeader extends StatelessWidget {
 
     final bool hasBrand = brand != null && brand!.isNotEmpty;
     final bool hasActions = actions != null && actions!.isNotEmpty;
-    final Widget middle = child ?? const SizedBox.shrink();
+    // A middle wider than the room the ends leave it scrolls along the bar, as
+    // a row of links on a phone has to, rather than running out from under them.
+    final Widget middle = child == null
+        ? const SizedBox.shrink()
+        : SingleChildScrollView(scrollDirection: Axis.horizontal, child: child);
     final double gap = _barGap[size]!;
 
     // The gaps are the middle's padding rather than the row's spacing, so a
