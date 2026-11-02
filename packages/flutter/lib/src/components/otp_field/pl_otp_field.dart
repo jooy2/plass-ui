@@ -446,7 +446,17 @@ class _PlOtpFieldState extends State<PlOtpField> {
 
     Widget slots = Stack(
       children: <Widget>[
-        Row(mainAxisSize: MainAxisSize.min, spacing: _slotGap[_density]![_size]!, children: row),
+        // Smaller where a row of eight is wider than a phone, so the slots stay
+        // on one line in the order they are typed.
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: _slotGap[_density]![_size]!,
+            children: row,
+          ),
+        ),
         Positioned.fill(
           // A disabled field leaves the focus order, as a disabled button does,
           // so Tab passes it and no slot draws a ring. The `ExcludeFocus` is in

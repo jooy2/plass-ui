@@ -19,6 +19,7 @@
 - **A `PlHeader` fits a phone.** A middle wider than the room the brand and the actions left it overflowed. It now scrolls along the bar.
 - **A `PlStat` keeps its figure whole.** In a card two to a row on a phone, `£48,120` beside a change was cut to `£4…`. The change now goes under the figure when the two do not fit on one line, and a long label no longer overflows.
 - **A `PlSegmentedButton` fits a phone.** Labels wider than the room overflowed. The set now scrolls, as a bar of tabs does.
+- **A long `PlOtpField` fits a phone.** A row of eight slots overflowed. The slots now come out smaller where the row does not fit.
 
 ## 1.8.2 (2026-10-09)
 

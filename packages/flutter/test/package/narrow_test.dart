@@ -97,6 +97,7 @@ void main() {
         PlSegment<int>(value: 1, label: Text('Only the open ones')),
       ],
     ),
+    'an eight-digit code': () => const PlOtpField(length: 8, groupSize: 4),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {
