@@ -90,6 +90,13 @@ void main() {
       width: 80,
       child: PlStat(label: Text('Monthly recurring revenue'), value: Text('£48,120'), change: 12.4),
     ),
+    'a segmented button with long labels': () => PlSegmentedButton<int>(
+      value: 0,
+      segments: const <PlSegment<int>>[
+        PlSegment<int>(value: 0, label: Text('Everything at once')),
+        PlSegment<int>(value: 1, label: Text('Only the open ones')),
+      ],
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {

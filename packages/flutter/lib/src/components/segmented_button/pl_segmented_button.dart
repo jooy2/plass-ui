@@ -516,7 +516,14 @@ class _PlSegmentedButtonState<T> extends State<PlSegmentedButton<T>>
         // is available and cannot be changed, as `aria-readonly` does.
         enabled: !_disabled,
         readOnly: widget.readOnly,
-        child: widget.fullWidth ? set : IntrinsicWidth(child: set),
+        // Along the screen where its labels are wider than the room it has,
+        // as a bar of tabs does, rather than running out of it.
+        child: widget.fullWidth
+            ? set
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: IntrinsicWidth(child: set),
+              ),
       ),
     );
   }
