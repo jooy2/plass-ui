@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.9.0 (2026-11-02)
+
 ### Added
 
 - **A selection in a field has handles and a menu on a touch screen.** Those parts come from Material and Cupertino, which this package imports neither of, so a word taken with a long press could not be adjusted or copied and nothing could be pasted in. `PlTextField`, `PlNumberField` and `PlCombobox` now draw handles in the field's colour, and those three, `PlColorPicker` and `PlCommandPalette` offer the platform's menu: the system's own on iOS, and a sheet of glass elsewhere. A press, a long press, a double tap and a drag now do what they do in a `TextField` on every platform. A field with no `Overlay` above it goes on working without them.
@@ -44,23 +46,3 @@
 - **A `PlIcon` shows on a dark page.** With no `IconTheme` above it an icon took Flutter's fallback black. It now takes the colour of the text around it, as `currentColor` does.
 - **A `PlSidebar` takes the `width` it is given.** One under `minWidth` came out at `minWidth` even when it could not be resized, which left a narrow page no room for its content. The bounds now apply only to a sidebar that can be dragged, as in the React build.
 - **The example app runs on iOS and Android.** It stacked every demo in one column, so a single failed layout left the screen black, plain text came out white on a light canvas, and pictures named by a website's path threw. It now builds its demos as it scrolls, sets the colour of plain text, and names pictures by their full address, so a snippet copied from the documentation works in an app too.
-
-## 1.8.2 (2026-10-09)
-
-### Breaking changes
-
-- **Escape no longer empties a `PlCombobox` whose list is closed.** One stray Escape took every chip off a `PlCombobox.multiple`, or the chosen value off a single one. The value now stays, and the `DismissIntent` goes on to whatever the field sits in, so a `PlModal` round the field closes. Escape on an open list still closes it. Pass `clearOnEscape: true` to have Escape empty the field as before.
-
-### Added
-
-- **`PlCombobox` takes `filter`, so a list a server has already searched is shown as it came.** Options were filtered again by their labels, so an option the server matched on another spelling was hidden. `filter: (_, _) => true` keeps every option as given, and any other function decides which options a query keeps. The row that offers what was typed always stays.
-- **`PlCombobox` takes `autoHighlight`, and lights the options that arrive after the query changed.** The first row lit up only as the query changed, so options a caller handed in a moment later had nothing lit and Enter closed the list without taking one. `PlComboboxHighlight.query` stays the default and now lights the first of those options as they arrive, as Base UI 1.9.0 does for the React field. `PlComboboxHighlight.always` also lights the first row whenever the open list has rows and none is lit, as when it opens with nothing typed, and `PlComboboxHighlight.none` lights nothing until an arrow key or the pointer does.
-- **A `PlComboboxOption` takes `content`, which its row draws in place of the label.** A row could only show its label, so a picture or a second line had nowhere to go. The label is still what is filtered, written into the field and put on the chip.
-
-### Changed
-
-- **Enter on a `PlCombobox` list with no rows keeps the list open and the query in the field.** A list still waiting for its options, or matching nothing, closed on Enter and put the text back, which emptied the query, so the reader had to type it again. Enter there now does nothing. A list with rows and none lit still closes on Enter.
-
-### Fixed
-
-- **A chosen `PlCombobox` value keeps its label once `options` no longer lists it.** A chip, and the text of a single field, read the label off the current `options`, so in a list a server answers, a value the latest query did not find was shown by its value. The field now keeps the label each chosen value was last listed with, including one taken from options that the next query emptied in the same press.

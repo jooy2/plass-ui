@@ -4,6 +4,8 @@
 
 ## vNext (2026--)
 
+## 1.9.0 (2026-11-02)
+
 ### Fixed
 
 - **An invalid field has a red edge at rest.** The edge stayed neutral until the pointer or the focus reached the field, and a `solid` or a `ghost` field had none at all, so only the message said anything was wrong. This holds for `PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox`, `PlOtpField` and the date and time pickers, in all three variants, for the `invalid` prop and for a `PlForm` error alike.
