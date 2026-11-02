@@ -1,12 +1,15 @@
 name: release
 
-# A GitHub release for every package tag, and nothing else. The two packages
-# version independently, so each is tagged on its own — `react-v1.7.0` or
-# `flutter-v1.7.0` — by hand, once the commit that cut the version is on
-# `main`, and npm and pub.dev are published by hand as well. What this adds is
-# everything between the two: the check that the tag names the version that was
-# cut, the package checked the way its registry will take it, and the release
-# written from that version's changelog section.
+# A release for every package tag: the registry and the GitHub release together.
+# The two packages version independently, so each is tagged on its own —
+# `react-v1.7.0` or `flutter-v1.7.0` — by hand, once the commit that cut the
+# version is on `main`. What runs here is the check that the tag names the
+# version that was cut, the package checked the way its registry will take it,
+# the publish, and the release written from that version's changelog section.
+#
+# Neither registry holds a token for this repository. Each trusts this workflow
+# by name through OIDC, so renaming this file or moving the repository means
+# changing the trusted publisher on npm and on pub.dev as well.
 #
 # The tests are not run again here: the tag goes on a `main` commit whose CI has
 # already passed. `run-test-react` and `run-test-flutter` filter their pushes by
@@ -29,8 +32,12 @@ jobs:
   react:
     if: startsWith(github.ref_name, 'react-v')
     runs-on: ubuntu-latest
-    name: GitHub release of the React package
+    name: Release of the React package
     timeout-minutes: 15
+    permissions:
+      contents: write
+      # What npm's trusted publishing signs in with.
+      id-token: write
     defaults:
       run:
         working-directory: ./packages/react
@@ -41,6 +48,7 @@ jobs:
         name: Setup Node.js
         with:
           node-version: '26'
+          registry-url: 'https://registry.npmjs.org'
           cache: npm
           cache-dependency-path: packages/react/package-lock.json
 
@@ -66,16 +74,32 @@ jobs:
       # so installing with them would build twice.
       - run: npm ci --ignore-scripts
 
-      # `npm pack` runs `prepare` and packs what `.npmignore` lets through,
-      # which is exactly what `npm publish` will upload. The tarball goes to
-      # `$RUNNER_TEMP`, outside the checkout, so it can never end up inside the
-      # next package.
+      # `npm pack` runs `prepare` and packs what `.npmignore` lets through. That
+      # tarball is what is published and what the release carries, so the two
+      # cannot differ. It goes to `$RUNNER_TEMP`, outside the checkout, so it can
+      # never end up inside the next package.
       - name: Build and pack
         run: npm pack --pack-destination "$RUNNER_TEMP"
 
       # The same check CI runs on `dist/`, here on the build that was packed.
       - name: Bundle size budget
         run: npm run size
+
+      # Before the release, so a publish that fails leaves no release behind. A
+      # version already on npm is passed over, so a re-run after a later step
+      # failed does not stop here. Signed in through OIDC, with provenance, and
+      # a version with a pre-release part goes to `next` rather than `latest`.
+      - name: Publish to npm
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ -n "$(npm view "plass-ui@${VERSION}" version 2> /dev/null)" ]; then
+            echo "plass-ui ${VERSION} is already on npm."
+            exit 0
+          fi
+          tag=latest
+          case "$VERSION" in *-*) tag=next ;; esac
+          npm publish "$(ls "$RUNNER_TEMP"/*.tgz)" --tag "$tag"
 
       # Created, or brought up to date when the tag is pushed again after a
       # release already exists, so a re-run never fails on its own earlier
@@ -102,8 +126,12 @@ jobs:
   flutter:
     if: startsWith(github.ref_name, 'flutter-v')
     runs-on: ubuntu-latest
-    name: GitHub release of the Flutter package
+    name: Release of the Flutter package
     timeout-minutes: 15
+    permissions:
+      contents: write
+      # What pub.dev's automated publishing signs in with.
+      id-token: write
     defaults:
       run:
         working-directory: ./packages/flutter
@@ -136,15 +164,45 @@ jobs:
           channel: stable
           cache: true
 
-      # pub.dev's own checks on what `dart pub publish` would upload: the
-      # pubspec, the licence, a changelog that names this version, and the
-      # size. Pub has no command that writes that archive to a file, so the
-      # release carries no asset, and this is the check that stands in for
-      # packing. A warning fails it; a hint does not. The one limit it does not
-      # know is the server's 256 KiB on a changelog or README, which
+      # pub.dev's own checks on what the publish below will upload: the pubspec,
+      # the licence, a changelog that names this version, and the size. A warning
+      # fails it; a hint does not. The one limit it does not know is the server's
+      # 256 KiB on a changelog or README, which
       # `test/package/pub_limits_test.dart` checks on `main` instead.
       - name: Validate the package for pub.dev
         run: dart pub publish --dry-run
+
+      # This is what signs in to pub.dev: `flutter-action` does not, and a publish
+      # with no token waits for a person to sign in. Here rather than at the top
+      # because the token it adds is a short-lived one.
+      - uses: dart-lang/setup-dart@v1
+
+      # Before the release, so a publish that fails leaves no release behind. A
+      # version already on pub.dev is passed over, so a re-run after a later step
+      # failed does not stop here.
+      - name: Publish to pub.dev
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if curl -fsS -o /dev/null "https://pub.dev/api/packages/plass_ui/versions/${VERSION}"; then
+            echo "plass_ui ${VERSION} is already on pub.dev."
+            exit 0
+          fi
+          flutter pub publish --force
+
+      # Pub has no command that writes its archive to a file, so the one pub.dev
+      # took is fetched back and checked against the hash it gives for it. It can
+      # take a moment to be served.
+      - name: Fetch the archive from pub.dev
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          api="https://pub.dev/api/packages/plass_ui/versions/${VERSION}"
+          curl -fsS --retry 10 --retry-delay 6 --retry-all-errors "$api" > "$RUNNER_TEMP/version.json"
+          archive="$RUNNER_TEMP/plass_ui-${VERSION}.tar.gz"
+          curl -fsSL --retry 10 --retry-delay 6 --retry-all-errors \
+            "$(jq -r .archive_url "$RUNNER_TEMP/version.json")" -o "$archive"
+          echo "$(jq -r .archive_sha256 "$RUNNER_TEMP/version.json")  ${archive}" | sha256sum --check
 
       - name: Publish the GitHub release
         env:
@@ -152,13 +210,15 @@ jobs:
           GH_REPO: ${{ github.repository }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
+          archive="$RUNNER_TEMP/plass_ui-${VERSION}.tar.gz"
           notes="$RUNNER_TEMP/notes.md"
           title="Flutter ${VERSION}"
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             gh release edit "$GITHUB_REF_NAME" --title "$title" --notes-file "$notes"
+            gh release upload "$GITHUB_REF_NAME" "$archive" --clobber
           else
             prerelease=""
             case "$VERSION" in *-*) prerelease="--prerelease" ;; esac
-            gh release create "$GITHUB_REF_NAME" --verify-tag \
+            gh release create "$GITHUB_REF_NAME" "$archive" --verify-tag \
               --title "$title" --notes-file "$notes" $prerelease
           fi
