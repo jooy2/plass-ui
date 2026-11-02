@@ -184,7 +184,7 @@ export const PlStat = /* @__PURE__ */ React.forwardRef<HTMLDivElement, PlStatPro
         </div>
       ) : null}
 
-      <div className="flex items-baseline gap-2">
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
         {loading ? (
           <PlSkeleton shape="line" size={size} color={color} width="6ch" />
         ) : (

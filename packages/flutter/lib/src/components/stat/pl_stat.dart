@@ -1,6 +1,9 @@
 /// One figure, and what has happened to it.
 library;
 
+import 'dart:math' as math;
+
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/skeleton/pl_skeleton.dart';
@@ -168,40 +171,38 @@ class PlStat extends StatelessWidget {
                 const SizedBox(width: 6),
               ],
               if (label != null)
-                DefaultTextStyle.merge(
-                  style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
-                  child: label!,
+                Flexible(
+                  child: DefaultTextStyle.merge(
+                    style: TextStyle(color: tokens.mutedFg, fontSize: metaText[size]!),
+                    child: label!,
+                  ),
                 ),
             ],
           ),
         if (label != null || icon != null) SizedBox(height: space),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          mainAxisSize: MainAxisSize.min,
+        _ValueLine(
+          gap: 8,
+          runGap: space / 2,
+          textDirection: Directionality.of(context),
           children: <Widget>[
             if (loading)
               PlSkeleton(size: size, color: color, width: _valueSize[size]! * 3)
             else if (value != null)
-              // `Flexible`, because a figure long enough to fill its card is a
-              // figure that should truncate rather than one that should paint a
-              // yellow-and-black overflow bar across the dashboard.
-              Flexible(
-                child: DefaultTextStyle.merge(
-                  style: TextStyle(
-                    color: tokens.fg,
-                    fontWeight: FontWeight.w600,
-                    fontSize: _valueSize[size]!,
-                    height: 1.1,
-                    leadingDistribution: TextLeadingDistribution.even,
-                    fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  child: value!,
+              // Truncated only when the figure is wider than the card on a line
+              // of its own: the change gives way first, by going under it.
+              DefaultTextStyle.merge(
+                style: TextStyle(
+                  color: tokens.fg,
+                  fontWeight: FontWeight.w600,
+                  fontSize: _valueSize[size]!,
+                  height: 1.1,
+                  leadingDistribution: TextLeadingDistribution.even,
+                  fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+                  overflow: TextOverflow.ellipsis,
                 ),
+                child: value!,
               ),
-            if (hasChange && !loading) ...<Widget>[
-              const SizedBox(width: 8),
+            if (hasChange && !loading)
               DefaultTextStyle.merge(
                 style: TextStyle(
                   color: !moved
@@ -225,7 +226,6 @@ class PlStat extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
           ],
         ),
         if (description != null) ...<Widget>[
@@ -237,5 +237,230 @@ class PlStat extends StatelessWidget {
         ],
       ],
     );
+  }
+}
+
+/// The figure and the change after it, on one baseline while they fit.
+///
+/// A [Row] would give the width to the figure and truncate it, and a [Wrap]
+/// cannot line two sizes of type up on a baseline. A figure of "£48,120" beside
+/// a change is wider than a card in two columns on a phone, and what a reader
+/// came for is the figure, so the change goes on a line of its own under it.
+class _ValueLine extends MultiChildRenderObjectWidget {
+  const _ValueLine({
+    required this.gap,
+    required this.runGap,
+    required this.textDirection,
+    required super.children,
+  });
+
+  /// Between the two on one line.
+  final double gap;
+
+  /// Between the two on two lines.
+  final double runGap;
+
+  /// Which end the line starts from.
+  final TextDirection textDirection;
+
+  @override
+  _RenderValueLine createRenderObject(BuildContext context) {
+    return _RenderValueLine(gap: gap, runGap: runGap, textDirection: textDirection);
+  }
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderValueLine renderObject) {
+    renderObject
+      ..gap = gap
+      ..runGap = runGap
+      ..textDirection = textDirection;
+  }
+}
+
+class _ValueLineData extends ContainerBoxParentData<RenderBox> {}
+
+class _RenderValueLine extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderBox, _ValueLineData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, _ValueLineData> {
+  _RenderValueLine({
+    required double gap,
+    required double runGap,
+    required TextDirection textDirection,
+  }) : _gap = gap,
+       _runGap = runGap,
+       _textDirection = textDirection;
+
+  double _gap;
+  set gap(double value) {
+    if (value != _gap) {
+      _gap = value;
+      markNeedsLayout();
+    }
+  }
+
+  double _runGap;
+  set runGap(double value) {
+    if (value != _runGap) {
+      _runGap = value;
+      markNeedsLayout();
+    }
+  }
+
+  TextDirection _textDirection;
+  set textDirection(TextDirection value) {
+    if (value != _textDirection) {
+      _textDirection = value;
+      markNeedsLayout();
+    }
+  }
+
+  @override
+  void setupParentData(RenderBox child) {
+    if (child.parentData is! _ValueLineData) {
+      child.parentData = _ValueLineData();
+    }
+  }
+
+  BoxConstraints _inner(BoxConstraints constraints) {
+    return BoxConstraints(maxWidth: constraints.maxWidth);
+  }
+
+  /// Whether both fit on one line of [width].
+  bool _fits(Size first, Size second, double width) {
+    return first.width + _gap + second.width <= width;
+  }
+
+  @override
+  Size computeDryLayout(covariant BoxConstraints constraints) {
+    final RenderBox? first = firstChild;
+
+    if (first == null) {
+      return constraints.smallest;
+    }
+
+    final BoxConstraints inner = _inner(constraints);
+    final Size a = first.getDryLayout(inner);
+    final RenderBox? second = childAfter(first);
+
+    if (second == null) {
+      return constraints.constrain(a);
+    }
+
+    final Size b = second.getDryLayout(inner);
+
+    if (_fits(a, b, constraints.maxWidth)) {
+      final double aBase = first.getDryBaseline(inner, TextBaseline.alphabetic) ?? a.height;
+      final double bBase = second.getDryBaseline(inner, TextBaseline.alphabetic) ?? b.height;
+      final double above = math.max(aBase, bBase);
+      final double below = math.max(a.height - aBase, b.height - bBase);
+
+      return constraints.constrain(Size(a.width + _gap + b.width, above + below));
+    }
+
+    return constraints.constrain(Size(math.max(a.width, b.width), a.height + _runGap + b.height));
+  }
+
+  @override
+  void performLayout() {
+    final RenderBox? first = firstChild;
+
+    if (first == null) {
+      size = constraints.smallest;
+      return;
+    }
+
+    final BoxConstraints inner = _inner(constraints);
+
+    first.layout(inner, parentUsesSize: true);
+
+    final RenderBox? second = childAfter(first);
+    final _ValueLineData firstData = first.parentData! as _ValueLineData;
+
+    if (second == null) {
+      size = constraints.constrain(first.size);
+      firstData.offset = Offset(_start(first.size.width, size.width), 0);
+      return;
+    }
+
+    second.layout(inner, parentUsesSize: true);
+
+    final _ValueLineData secondData = second.parentData! as _ValueLineData;
+
+    if (_fits(first.size, second.size, constraints.maxWidth)) {
+      final double aBase =
+          first.getDistanceToBaseline(TextBaseline.alphabetic) ?? first.size.height;
+      final double bBase =
+          second.getDistanceToBaseline(TextBaseline.alphabetic) ?? second.size.height;
+      final double above = math.max(aBase, bBase);
+      final double below = math.max(first.size.height - aBase, second.size.height - bBase);
+      final double width = first.size.width + _gap + second.size.width;
+
+      size = constraints.constrain(Size(width, above + below));
+
+      final bool rtl = _textDirection == TextDirection.rtl;
+
+      firstData.offset = Offset(rtl ? size.width - first.size.width : 0, above - aBase);
+      secondData.offset = Offset(rtl ? size.width - width : first.size.width + _gap, above - bBase);
+      return;
+    }
+
+    size = constraints.constrain(
+      Size(
+        math.max(first.size.width, second.size.width),
+        first.size.height + _runGap + second.size.height,
+      ),
+    );
+    firstData.offset = Offset(_start(first.size.width, size.width), 0);
+    secondData.offset = Offset(_start(second.size.width, size.width), first.size.height + _runGap);
+  }
+
+  double _start(double width, double available) {
+    return _textDirection == TextDirection.rtl ? available - width : 0;
+  }
+
+  @override
+  double computeMinIntrinsicWidth(double height) {
+    double widest = 0;
+
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
+      widest = math.max(widest, child.getMinIntrinsicWidth(height));
+    }
+
+    return widest;
+  }
+
+  @override
+  double computeMaxIntrinsicWidth(double height) {
+    double total = 0;
+    int count = 0;
+
+    for (RenderBox? child = firstChild; child != null; child = childAfter(child)) {
+      total += child.getMaxIntrinsicWidth(height);
+      count += 1;
+    }
+
+    return total + (count > 1 ? _gap : 0);
+  }
+
+  @override
+  double computeMinIntrinsicHeight(double width) {
+    return computeDryLayout(BoxConstraints(maxWidth: width)).height;
+  }
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => computeMinIntrinsicHeight(width);
+
+  @override
+  double? computeDistanceToActualBaseline(TextBaseline baseline) {
+    return defaultComputeDistanceToFirstActualBaseline(baseline);
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) => defaultPaint(context, offset);
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
   }
 }

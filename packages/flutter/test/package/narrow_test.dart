@@ -86,6 +86,10 @@ void main() {
         ],
       ),
     ),
+    'a stat with a long label': () => const SizedBox(
+      width: 80,
+      child: PlStat(label: Text('Monthly recurring revenue'), value: Text('£48,120'), change: 12.4),
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {
@@ -121,6 +125,44 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(tester.widget<Scrollable>(find.byType(Scrollable).last).axisDirection, isNotNull);
+    });
+  });
+
+  group('PlStat', () {
+    const Key figure = Key('figure');
+    const Key change = Key('change');
+    const Widget stat = PlStat(
+      value: SizedBox(key: figure, width: 100, height: 30),
+      change: 1,
+      changeLabel: SizedBox(key: change, width: 60, height: 14),
+    );
+
+    testWidgets('keeps the figure whole and puts the change under it', (WidgetTester tester) async {
+      await _lay(tester, stat, width: 120);
+
+      expect(tester.getSize(find.byKey(figure)).width, 100);
+      expect(
+        tester.getRect(find.byKey(change)).top,
+        greaterThanOrEqualTo(tester.getRect(find.byKey(figure)).bottom),
+      );
+    });
+
+    testWidgets('leaves them on one line while they fit', (WidgetTester tester) async {
+      await _lay(tester, stat);
+
+      expect(
+        tester.getRect(find.byKey(change)).left,
+        greaterThan(tester.getRect(find.byKey(figure)).right),
+      );
+    });
+
+    testWidgets('starts from the other side under RTL', (WidgetTester tester) async {
+      await tester.pumpWidget(host(stat, width: 300, textDirection: TextDirection.rtl));
+
+      expect(
+        tester.getRect(find.byKey(change)).right,
+        lessThan(tester.getRect(find.byKey(figure)).left),
+      );
     });
   });
 }

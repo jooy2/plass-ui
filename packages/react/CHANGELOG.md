@@ -8,6 +8,7 @@
 
 - **A `PlPagination` fits a phone.** The row of pages ran out of a narrow box. It now goes onto a second line.
 - **A `PlNavigationMenu` fits a phone.** A row of items wider than its box ran out of it. It now wraps.
+- **A `PlStat` keeps its figure whole.** A figure and a change wider than the card ran out of it. The change now goes under the figure.
 
 ## 1.8.2 (2026-10-09)
 

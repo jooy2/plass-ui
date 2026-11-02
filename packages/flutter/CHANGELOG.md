@@ -17,6 +17,7 @@
 - **A `PlDataTable` footer fits a phone.** The count and the pager shared a row that overflowed. The pager now takes a line of its own when they do not fit.
 - **A `PlNavigationMenu` fits a phone.** A row of items wider than the screen overflowed. It now wraps.
 - **A `PlHeader` fits a phone.** A middle wider than the room the brand and the actions left it overflowed. It now scrolls along the bar.
+- **A `PlStat` keeps its figure whole.** In a card two to a row on a phone, `£48,120` beside a change was cut to `£4…`. The change now goes under the figure when the two do not fit on one line, and a long label no longer overflows.
 
 ## 1.8.2 (2026-10-09)
 
