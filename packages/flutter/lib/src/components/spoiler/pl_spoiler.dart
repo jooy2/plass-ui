@@ -3,6 +3,7 @@ library;
 
 import 'dart:ui' as ui;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/components/button/pl_button.dart';
@@ -286,7 +287,15 @@ class _PlSpoilerState extends State<PlSpoiler> {
           constraints: BoxConstraints(
             maxHeight: _open ? double.infinity : (widget.maxHeight ?? double.infinity),
           ),
-          child: content,
+          // The clamp cuts the box the content is seen through, and the content
+          // keeps the height it wants. Handed the clamp as its own limit, a
+          // column taller than it reports an overflow.
+          child: OverflowBox(
+            fit: OverflowBoxFit.deferToChild,
+            maxHeight: double.infinity,
+            alignment: Alignment.topCenter,
+            child: content,
+          ),
         ),
       ),
     );

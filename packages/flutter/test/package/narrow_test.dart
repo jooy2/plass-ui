@@ -36,6 +36,13 @@ void main() {
         PlTab<int>(value: 1, label: Text('Paid'), panel: Text('Four')),
       ],
     ),
+    'a spoiler clamped under what it covers': () => const PlSpoiler(
+      maxHeight: 40,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[SizedBox(height: 90), SizedBox(height: 90)],
+      ),
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {
