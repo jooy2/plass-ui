@@ -312,7 +312,12 @@ class _PlStepperState extends State<PlStepper> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         if (horizontal)
-          Row(children: <Widget>[for (final Widget step in rail) Expanded(child: step)]),
+          Row(
+            // Along the top, so a step whose label wraps does not push the
+            // others' bullets out of line.
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[for (final Widget step in rail) Expanded(child: step)],
+          ),
         if (!horizontal) ...rail,
         if (panel != null)
           Padding(
@@ -552,22 +557,34 @@ class _Step extends StatelessWidget {
     );
 
     final row = horizontal
-        ? Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Flexible(child: inner),
-              if (drawsConnector)
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: bullet / 2 + 4),
-                    child: PlassStepConnectorLine(
-                      style: step.connector,
-                      color: status == PlassStepStatus.complete ? family.lineHover : tokens.border,
-                      horizontal: true,
-                    ),
+        // The step takes the width its words want and the connector the rest.
+        // Sharing the width out instead gives each of them half, which breaks a
+        // label as short as "Account" in two on a phone.
+        ? LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                    child: inner,
                   ),
-                ),
-            ],
+                  if (drawsConnector)
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: bullet / 2 + 4),
+                        child: PlassStepConnectorLine(
+                          style: step.connector,
+                          color: status == PlassStepStatus.complete
+                              ? family.lineHover
+                              : tokens.border,
+                          horizontal: true,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,

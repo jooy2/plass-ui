@@ -20,6 +20,7 @@
 - **A `PlStat` keeps its figure whole.** In a card two to a row on a phone, `£48,120` beside a change was cut to `£4…`. The change now goes under the figure when the two do not fit on one line, and a long label no longer overflows.
 - **A `PlSegmentedButton` fits a phone.** Labels wider than the room overflowed. The set now scrolls, as a bar of tabs does.
 - **A long `PlOtpField` fits a phone.** A row of eight slots overflowed. The slots now come out smaller where the row does not fit.
+- **A horizontal `PlStepper` breaks no label in two.** The step and its connector took half the width each, which broke a label as short as `Account` on a phone, and a step whose label wrapped pushed the other bullets out of line. The connector now takes what the step leaves, and the bullets stay on one line.
 
 ## 1.8.2 (2026-10-09)
 

@@ -689,4 +689,28 @@ void main() {
       }
     });
   });
+
+  group('across a narrow screen', () {
+    const List<PlStep> steps = <PlStep>[
+      PlStep(label: Text('Account'), description: Text('Email and password')),
+      PlStep(label: Text('Verify')),
+      PlStep(label: Text('Profile')),
+    ];
+
+    testWidgets('gives a step the width of its label before the connector', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(host(const PlStepper(active: 1, steps: steps), width: 420));
+
+      final double oneLine = tester.getSize(find.text('Verify')).height;
+
+      expect(tester.getSize(find.text('Account')).height, oneLine);
+    });
+
+    testWidgets('keeps the bullets in line when one label wraps', (WidgetTester tester) async {
+      await tester.pumpWidget(host(const PlStepper(active: 1, steps: steps), width: 330));
+
+      expect(tester.getTopLeft(find.text('2')).dy, tester.getTopLeft(find.text('3')).dy);
+    });
+  });
 }
