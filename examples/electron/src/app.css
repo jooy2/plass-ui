@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+@import 'plass-ui/tailwind.css';
+
+/* The utilities the documentation's demos write in their own `className`s. */
+@source '../../../docs/.vitepress/demos';
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* A sheet of glass needs something behind it, so the page is given the wash. */
+body {
+  margin: 0;
+  overflow: hidden;
+  color: var(--plass-fg);
+  background: linear-gradient(160deg, var(--plass-bg-from), var(--plass-bg-to));
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.title-bar {
+  -webkit-app-region: drag;
+}
+
+.title-bar button,
+.title-bar input {
+  -webkit-app-region: no-drag;
+}

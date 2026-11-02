@@ -1,0 +1,33 @@
+{
+  "name": "plass-showcase-electron",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A desktop app built with Plass, used to try the library in Electron.",
+  "type": "module",
+  "main": "main/main.mjs",
+  "scripts": {
+    "postinstall": "node node_modules/electron/install.js",
+    "samples": "node scripts/copy-samples.mjs",
+    "dev": "npm run samples && node scripts/dev.mjs",
+    "build": "npm run samples && vite build",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && playwright test"
+  },
+  "dependencies": {
+    "plass-ui": "file:../../packages/react",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "electron": "^45.0.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.9.0",
+    "vite": "^8.0.0"
+  }
+}

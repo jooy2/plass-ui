@@ -1,0 +1,31 @@
+name: plass_showcase
+description: >-
+  A small app built with Plass, used to try the library on phones, tablets and
+  simulators.
+publish_to: none
+version: 0.0.1
+
+environment:
+  sdk: ^3.11.0
+  flutter: '>=3.41.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plass_ui:
+    path: ../../packages/flutter
+  # The component demos, which are the same files the documentation quotes, and
+  # the Inter font that comes with them.
+  plass_ui_example:
+    path: ../../packages/flutter/example
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/images/
