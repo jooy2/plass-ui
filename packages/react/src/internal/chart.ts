@@ -1370,6 +1370,30 @@ export function fitsLast(count: number, stride: number, step: number, labelWidth
 }
 
 /**
+ * How much room a horizontal bar chart keeps past the end of its axis, so the
+ * value written after its longest bar is not cut off at the edge of the chart.
+ */
+export function barLabelRoom(
+  series: readonly PlassChartSeries[],
+  write: (value: number) => string,
+  fontSize: number
+): number {
+  let widest = 0;
+
+  for (const line of toValues(series)) {
+    for (const one of line) {
+      if (one.value !== null) {
+        const label = typeof one.label === 'string' ? one.label : write(one.value);
+
+        widest = Math.max(widest, textWidth(label, fontSize));
+      }
+    }
+  }
+
+  return widest + 5;
+}
+
+/**
  * Roughly how wide a string renders at a given font size.
  *
  * An estimate on purpose. The alternative is a canvas measurement per label per

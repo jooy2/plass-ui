@@ -9,6 +9,7 @@
 - **A `PlPagination` fits a phone.** The row of pages ran out of a narrow box. It now goes onto a second line.
 - **A `PlNavigationMenu` fits a phone.** A row of items wider than its box ran out of it. It now wraps.
 - **A `PlStat` keeps its figure whole.** A figure and a change wider than the card ran out of it. The change now goes under the figure.
+- **A horizontal `PlBarChart` shows the whole of its longest value.** A bar that reached the end of the plot had its value cut off at the edge of the chart. The plot now keeps room for it.
 
 ## 1.8.2 (2026-10-09)
 

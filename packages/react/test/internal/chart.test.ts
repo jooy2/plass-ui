@@ -41,6 +41,8 @@ import {
   timeScale,
   toValue,
   toValues,
+  barLabelRoom,
+  textWidth,
   truncate,
   valueScale,
   zeroNulls
@@ -206,6 +208,18 @@ describe('toValue', () => {
       x: 'Feb',
       label: 'no reading'
     });
+  });
+});
+
+describe('barLabelRoom', () => {
+  it('is as wide as the widest value it will write, and the gap before it', () => {
+    const room = barLabelRoom([{ data: [1, null] }], () => 'wide label', 10);
+
+    expect(room).toBe(textWidth('wide label', 10) + 5);
+  });
+
+  it('is the gap alone with nothing to write', () => {
+    expect(barLabelRoom([], () => '', 10)).toBe(5);
   });
 });
 

@@ -1143,12 +1143,20 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
             : math.max(8, categoryTexts.isEmpty ? 8 : widestCategory / 2);
         // A mark is drawn from its centre, so half of the widest one hangs over
         // the top of the plot.
-        final double topPad = markerRadii[size]! + 4 + widget.headroom + widget.markInset;
+        final double topPad =
+            markerRadii[size]! + 4 + (widget.horizontal ? 0 : widget.headroom) + widget.markInset;
 
         final box = PlotBox(
           left + widget.markInset,
           topPad,
-          math.max(0, width - left - rightPad - widget.markInset * 2),
+          math.max(
+            0,
+            width -
+                left -
+                rightPad -
+                (widget.horizontal ? widget.headroom : 0) -
+                widget.markInset * 2,
+          ),
           math.max(0, height - topPad - bottom - widget.markInset),
         );
 
@@ -1517,6 +1525,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
                     size: Size(width, height),
                     painter: _FramePainter(
                       repaint: _ease,
+                      headroom: widget.headroom,
                       layout: layout,
                       tokens: tokens,
                       fontSize: fontSize,
@@ -1789,6 +1798,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
 class _FramePainter extends CustomPainter {
   const _FramePainter({
     required Listenable repaint,
+    required this.headroom,
     required this.layout,
     required this.tokens,
     required this.fontSize,
@@ -1804,6 +1814,10 @@ class _FramePainter extends CustomPainter {
     required this.textDirection,
     required this.paintMarks,
   }) : super(repaint: repaint);
+
+  /// Room past the end of the value axis, which a value written on a mark is
+  /// painted in.
+  final double headroom;
 
   final PlassChartLayout layout;
   final PlassTokens tokens;
@@ -2118,13 +2132,17 @@ class _FramePainter extends CustomPainter {
     canvas.save();
     // Clipped to the plot and a marker's own radius past it, so a dot on the
     // top value is whole and a line still cannot run out over the axis labels.
+    // Past the end of the value axis it reaches the room kept for a value
+    // written after a mark, which would otherwise be cut off in the middle.
+    final double above = layout.horizontal ? 0 : headroom;
+    final double after = layout.horizontal ? headroom : 0;
 
     canvas.clipRect(
       Rect.fromLTWH(
         box.left - markerRadii[layout.size]! - 2,
-        box.top - markerRadii[layout.size]! - 2,
-        box.width + markerRadii[layout.size]! * 2 + 4,
-        box.height + markerRadii[layout.size]! * 2 + 4,
+        box.top - markerRadii[layout.size]! - 2 - above,
+        box.width + markerRadii[layout.size]! * 2 + 4 + after,
+        box.height + markerRadii[layout.size]! * 2 + 4 + above,
       ),
     );
     paintMarks(canvas, layout);

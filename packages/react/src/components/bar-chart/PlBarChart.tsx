@@ -9,6 +9,7 @@ import {
 } from '../../internal/chart-frame.js';
 import {
   barBandRatio,
+  barLabelRoom,
   barMaxThickness,
   barPath,
   barRadius,
@@ -212,7 +213,17 @@ export function PlBarChart({
       // A bar's length is its value, so zero is not optional.
       includeZero
       bandRatio={barBandRatio[density]}
-      headroom={valueLabels === 'none' ? 0 : 12}
+      headroom={
+        valueLabels === 'none'
+          ? 0
+          : horizontal
+            ? barLabelRoom(
+                shown,
+                (value) => writeChartValue(value, format, resolvedLocale),
+                chartFontSizes[size]
+              )
+            : 12
+      }
     >
       {(context) => (
         <Bars

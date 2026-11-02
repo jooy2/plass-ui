@@ -12,6 +12,10 @@ import 'package:plass_ui/plass_ui.dart';
 
 import '../support/host.dart';
 
+const List<PlassChartSeries> _sessions = <PlassChartSeries>[
+  PlassChartSeries(name: 'Sessions', data: <PlassChartDatum>[PlassChartDatum(4820)]),
+];
+
 Future<void> _lay(WidgetTester tester, Widget child, {double width = 300}) async {
   await tester.pumpWidget(host(SingleChildScrollView(child: child), width: width, overlay: true));
   await tester.pump(const Duration(milliseconds: 600));
@@ -98,6 +102,12 @@ void main() {
       ],
     ),
     'an eight-digit code': () => const PlOtpField(length: 8, groupSize: 4),
+    'a horizontal bar chart with its values': () => const PlBarChart(
+      orientation: PlassOrientation.horizontal,
+      valueLabels: PlassChartValueLabels.all,
+      series: _sessions,
+      categories: <PlassChartCategory>[PlassChartCategory.text('Organic search')],
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {

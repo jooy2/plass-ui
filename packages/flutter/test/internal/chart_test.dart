@@ -20,6 +20,23 @@ import 'package:plass_ui/src/internal/chart.dart';
 const List<Color> _palette = <Color>[Color(0xFF000001), Color(0xFF000002), Color(0xFF000003)];
 
 void main() {
+  group('barLabelRoom', () {
+    test('is as wide as the widest value it will write, and the gap before it', () {
+      const series = <PlassChartSeries>[
+        PlassChartSeries(data: <PlassChartDatum>[PlassChartDatum(1), PlassChartDatum.gap()]),
+      ];
+
+      expect(
+        barLabelRoom(series, (double value) => 'wide label', 10),
+        textWidth('wide label', 10) + 5,
+      );
+    });
+
+    test('is the gap alone with nothing to write', () {
+      expect(barLabelRoom(const <PlassChartSeries>[], (double value) => '', 10), 5);
+    });
+  });
+
   group('logScale', () {
     test('steps by multiplying, so equal lengths are equal ratios', () {
       final LogScale scale = logScale(const ChartExtent(1, 1000));

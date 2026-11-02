@@ -1704,12 +1704,12 @@ export function CartesianChart({
   // A mark is drawn from its centre, so half of the widest one hangs over the
   // top of the plot. On a scatter that half is a whole bubble, which is what
   // `markInset` is reserving on the other three sides.
-  const topPad = markerRadii[size] + 4 + headroom + markInset;
+  const topPad = markerRadii[size] + 4 + (horizontal ? 0 : headroom) + markInset;
 
   const plot: PlotBox = {
     left: left + markInset,
     top: topPad,
-    width: Math.max(0, width - left - markInset - rightPad),
+    width: Math.max(0, width - left - markInset - rightPad - (horizontal ? headroom : 0)),
     height: Math.max(0, boxHeight - topPad - bottom - markInset)
   };
 

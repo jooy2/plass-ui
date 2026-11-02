@@ -516,4 +516,25 @@ describe('PlBarChart', () => {
       expect(groups[0].getAttribute('opacity')).toBe('1');
     });
   });
+
+  it('keeps room past a horizontal bar for the value written after it', async () => {
+    const chart = (valueLabels: 'none' | 'all') => (
+      <PlBarChart
+        label="Sessions"
+        orientation="horizontal"
+        valueLabels={valueLabels}
+        categories={['Organic search']}
+        series={[{ name: 'Sessions', data: [4820] }]}
+      />
+    );
+    const barWidth = (root: Element) =>
+      root.querySelector('path[fill]:not([fill="none"])')!.getBoundingClientRect().width;
+
+    const screen = await render(<div style={{ width: 320 }}>{chart('none')}</div>);
+    const plain = barWidth(screen.container);
+
+    await screen.rerender(<div style={{ width: 320 }}>{chart('all')}</div>);
+
+    await expect.poll(() => barWidth(screen.container)).toBeLessThan(plain);
+  });
 });

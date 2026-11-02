@@ -24,6 +24,7 @@
 - **A `PlPill` that fills its width keeps its end slot at the end.** Its parts were packed at the start, with the rest of the pill empty. The words now take the room left over, as the React pill's do.
 - **Code is monospaced on iOS.** `monospace` is a family only Android and the web resolve, so a `PlCodeBlock` and the value in a `PlColorPicker` came out in the proportional system font on iOS and macOS, where a three-digit line number was also too wide for its gutter and wrapped. They now fall back to `Menlo` and the other platforms' monospace faces, and a line number no longer wraps.
 - **A chart's horizontal value axis stays readable on a phone.** Every label was drawn however little room there was, so the dates under a `PlTimelineChart` and the numbers under a horizontal chart ran into each other. Labels are now skipped until they clear each other, as in the React build, and the first and last are anchored inward.
+- **A horizontal `PlBarChart` shows the whole of its longest value.** A bar that reached the end of the plot had its value cut off at the edge of the chart. The plot now keeps room for it.
 
 ## 1.8.2 (2026-10-09)
 

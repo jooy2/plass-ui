@@ -244,7 +244,15 @@ class PlBarChart extends StatelessWidget {
       horizontal: horizontal,
       // A bar's length is its value, so zero is not optional.
       includeZero: true,
-      headroom: valueLabels == PlassChartValueLabels.none ? 0 : 12,
+      headroom: valueLabels == PlassChartValueLabels.none
+          ? 0
+          : horizontal
+          ? barLabelRoom(
+              shown,
+              (double value) => format?.call(value) ?? compactNumber(value),
+              chartFontSizes[size ?? PlassTheme.sizeOf(context) ?? PlassSize.md]!,
+            )
+          : 12,
       paint: _paint,
     );
   }

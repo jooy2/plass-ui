@@ -1014,6 +1014,28 @@ bool fitsLast(int count, int stride, double step, double labelWidth) {
   return over > 0 && over * step >= labelWidth + 8;
 }
 
+/// How much room a horizontal bar chart keeps past the end of its axis, so the
+/// value written after its longest bar is not cut off at the edge of the chart.
+double barLabelRoom(
+  List<PlassChartSeries> series,
+  String Function(double value) write,
+  double fontSize,
+) {
+  double widest = 0;
+
+  for (final List<ChartValue> line in toValues(series)) {
+    for (final ChartValue one in line) {
+      final double? value = one.value;
+
+      if (value != null) {
+        widest = math.max(widest, textWidth(one.label ?? write(value), fontSize));
+      }
+    }
+  }
+
+  return widest + 5;
+}
+
 /// Roughly how wide a string renders at a given font size.
 ///
 /// An estimate on purpose. The alternative is laying every label out with a
