@@ -24,12 +24,16 @@ class _ImagePlaceholderState extends State<ImagePlaceholder> {
             // Nothing is asked for until the button is pressed, so the stand-in
             // stays up for as long as you want to look at it.
             image: _loaded
-                ? const NetworkImage('/samples/photos/misty-tea-terraces-sunrise.webp')
+                ? const NetworkImage(
+                    'https://plass.cdget.com/samples/photos/misty-tea-terraces-sunrise.webp',
+                  )
                 : const _NotAskedFor(),
             semanticLabel: 'Terraced tea fields under morning mist',
             ratio: 3 / 2,
             placeholder: const PlImagePlaceholder(
-              image: NetworkImage('/samples/photos/misty-tea-terraces-sunrise-tiny.webp'),
+              image: NetworkImage(
+                'https://plass.cdget.com/samples/photos/misty-tea-terraces-sunrise-tiny.webp',
+              ),
               blur: 20,
             ),
             rounded: true,

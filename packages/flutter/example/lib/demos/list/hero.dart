@@ -51,7 +51,9 @@ class _ListHeroState extends State<ListHero> {
                     startIcon: const PlAvatar(
                       size: PlassSize.xs,
                       name: 'Nadia Rowan',
-                      image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+                      image: NetworkImage(
+                        'https://plass.cdget.com/samples/avatars/nadia-rowan.webp',
+                      ),
                     ),
                     description: const Text('nadia@example.com'),
                     action: PlSwitch(
@@ -66,7 +68,9 @@ class _ListHeroState extends State<ListHero> {
                     startIcon: const PlAvatar(
                       size: PlassSize.xs,
                       name: 'Theo Quinn',
-                      image: NetworkImage('/samples/avatars/theo-quinn.webp'),
+                      image: NetworkImage(
+                        'https://plass.cdget.com/samples/avatars/theo-quinn.webp',
+                      ),
                     ),
                     description: const Text('theo@example.com'),
                     action: PlSwitch(

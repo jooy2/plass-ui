@@ -9,7 +9,12 @@ class TimelineOrientation extends StatelessWidget {
     return const SizedBox(
       width: 512,
       child: PlTimeline(
-        orientation: PlassResponsive<PlassOrientation>(PlassOrientation.horizontal),
+        // Down a phone, whose width would break a label in two, and across
+        // anything wider.
+        orientation: PlassResponsive<PlassOrientation>(
+          PlassOrientation.vertical,
+          sm: PlassOrientation.horizontal,
+        ),
         active: 1,
         items: <PlTimelineItem>[
           PlTimelineItem(title: Text('Account'), bullet: Text('1')),

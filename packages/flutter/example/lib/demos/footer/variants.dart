@@ -15,6 +15,7 @@ class FooterVariants extends StatelessWidget {
             PlFooter(
               size: PlassSize.sm,
               variant: variant,
+              semanticLabel: 'The ${variant.name} footer',
               child: Text('The sheet is ${variant.name}.'),
             ),
         ],

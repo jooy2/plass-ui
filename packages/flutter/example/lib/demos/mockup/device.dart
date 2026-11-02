@@ -3,14 +3,18 @@ import 'package:plass_ui/plass_ui.dart';
 
 const BoxDecoration _dawn = BoxDecoration(
   image: DecorationImage(
-    image: NetworkImage('/samples/illustrations/layered-mountains-rising-sun.webp'),
+    image: NetworkImage(
+      'https://plass.cdget.com/samples/illustrations/layered-mountains-rising-sun.webp',
+    ),
     fit: BoxFit.cover,
   ),
 );
 
 const BoxDecoration _night = BoxDecoration(
   image: DecorationImage(
-    image: NetworkImage('/samples/illustrations/night-train-floating-lanterns.webp'),
+    image: NetworkImage(
+      'https://plass.cdget.com/samples/illustrations/night-train-floating-lanterns.webp',
+    ),
     fit: BoxFit.cover,
   ),
 );

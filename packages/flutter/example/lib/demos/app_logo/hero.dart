@@ -35,7 +35,7 @@ class AppLogoHero extends StatelessWidget {
           // Finished artwork — its own colours, its own margin — so it is left bare.
           PlAppLogo(
             name: Text('Acme'),
-            child: Image(image: NetworkImage('/samples/marks/lantern.webp')),
+            child: Image(image: NetworkImage('https://plass.cdget.com/samples/marks/lantern.webp')),
           ),
         ],
       ),

@@ -30,9 +30,9 @@ class _SelectSizesState extends State<SelectSizes> {
         spacing: 12,
         children: <Widget>[
           for (final size in _steps)
-            Row(
-              mainAxisSize: MainAxisSize.min,
+            Wrap(
               spacing: 12,
+              runSpacing: 12,
               children: <Widget>[
                 PlSelect<String>(
                   size: size,

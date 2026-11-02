@@ -8,12 +8,13 @@ class AspectRatioFit extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 512,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Wrap(
         spacing: 16,
+        runSpacing: 16,
         children: <Widget>[
           for (final PlAspectFit fit in PlAspectFit.values)
-            Expanded(
+            SizedBox(
+              width: 88,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -24,7 +25,9 @@ class AspectRatioFit extends StatelessWidget {
                     fit: fit,
                     rounded: true,
                     child: const Image(
-                      image: NetworkImage('/samples/photos/lighthouse-cliff-wildflowers.webp'),
+                      image: NetworkImage(
+                        'https://plass.cdget.com/samples/photos/lighthouse-cliff-wildflowers.webp',
+                      ),
                     ),
                   ),
                   PlTypography(fit.name, level: PlTypographyLevel.caption),

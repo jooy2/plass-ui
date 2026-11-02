@@ -15,7 +15,7 @@ class AvatarFallback extends StatelessWidget {
           label: 'picture',
           child: PlAvatar(
             name: 'Nadia Rowan',
-            image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+            image: NetworkImage('https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
           ),
         ),
         _Case(

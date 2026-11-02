@@ -8,17 +8,24 @@ class TextLinkHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 448,
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 4,
-        runSpacing: 4,
-        children: <Widget>[
-          const PlTypography('Every gradient stop is measured against its own label — the'),
-          const PlTypography('numbers are in'),
-          PlTextLink(onPressed: () {}, child: const Text('the colour reference')),
-          const PlTypography(', and the reasoning is in'),
-          PlTextLink(onPressed: () {}, external: true, child: const Text('WCAG 2.2')),
-        ],
+      child: Text.rich(
+        TextSpan(
+          children: <InlineSpan>[
+            const TextSpan(
+              text: 'Every gradient stop is measured against its own label — the numbers are in ',
+            ),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: PlTextLink(onPressed: () {}, child: const Text('the colour reference')),
+            ),
+            const TextSpan(text: ', and the reasoning is in '),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: PlTextLink(onPressed: () {}, external: true, child: const Text('WCAG 2.2')),
+            ),
+            const TextSpan(text: '.'),
+          ],
+        ),
       ),
     );
   }

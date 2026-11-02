@@ -8,10 +8,12 @@ class EmptyKinds extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 620,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 16,
         children: <Widget>[
-          const Expanded(
+          const SizedBox(
+            width: 188,
             child: PlCard(
               child: PlEmpty(
                 size: PlassSize.sm,
@@ -21,8 +23,8 @@ class EmptyKinds extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
+          SizedBox(
+            width: 188,
             child: PlCard(
               child: PlEmpty(
                 size: PlassSize.sm,
@@ -42,8 +44,8 @@ class EmptyKinds extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
-          const Expanded(
+          const SizedBox(
+            width: 188,
             child: PlCard(
               child: PlEmpty(
                 size: PlassSize.sm,

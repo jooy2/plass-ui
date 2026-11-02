@@ -11,7 +11,8 @@ class ImageTreatments extends StatelessWidget {
     PlImageFilter.desaturate,
   ];
 
-  static const String _photo = '/samples/photos/rowboat-misty-pond-sunrise.webp';
+  static const String _photo =
+      'https://plass.cdget.com/samples/photos/rowboat-misty-pond-sunrise.webp';
 
   @override
   Widget build(BuildContext context) {

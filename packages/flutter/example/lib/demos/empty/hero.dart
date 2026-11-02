@@ -13,7 +13,9 @@ class EmptyHero extends StatelessWidget {
           icon: const SizedBox.square(
             dimension: 128,
             child: Image(
-              image: NetworkImage('/samples/illustrations/fox-reading-under-tree.webp'),
+              image: NetworkImage(
+                'https://plass.cdget.com/samples/illustrations/fox-reading-under-tree.webp',
+              ),
               fit: BoxFit.contain,
             ),
           ),

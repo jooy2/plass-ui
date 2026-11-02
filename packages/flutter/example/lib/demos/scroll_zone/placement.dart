@@ -20,7 +20,7 @@ class ScrollZonePlacement extends StatelessWidget {
               spacing: 4,
               children: <Widget>[
                 PlTypography(
-                  'buttonPlacement: \${placement.name}',
+                  'buttonPlacement: ${placement.name}',
                   level: PlTypographyLevel.caption,
                 ),
                 PlScrollZone(

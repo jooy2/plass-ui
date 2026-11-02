@@ -12,7 +12,11 @@ class FooterSizes extends StatelessWidget {
         spacing: 16,
         children: <Widget>[
           for (final PlassSize size in PlassSize.values)
-            PlFooter(size: size, child: Text('© 2026 Acme — ${size.name}')),
+            PlFooter(
+              size: size,
+              semanticLabel: 'The ${size.name} footer',
+              child: Text('© 2026 Acme — ${size.name}'),
+            ),
         ],
       ),
     );

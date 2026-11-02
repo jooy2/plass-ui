@@ -29,7 +29,9 @@ class ImageLetterbox extends StatelessWidget {
                 children: <Widget>[
                   // A tall photograph in a wide box, fitted whole.
                   PlImage(
-                    image: const NetworkImage('/samples/photos/greenhouse-fern-shadows.webp'),
+                    image: const NetworkImage(
+                      'https://plass.cdget.com/samples/photos/greenhouse-fern-shadows.webp',
+                    ),
                     semanticLabel: 'Ferns throwing shadows across a greenhouse wall',
                     ratio: 3 / 2,
                     fit: PlAspectFit.contain,

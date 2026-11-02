@@ -18,7 +18,9 @@ class ImageStates extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 PlImage(
-                  image: const NetworkImage('/samples/photos/rowboat-misty-pond-sunrise.webp'),
+                  image: const NetworkImage(
+                    'https://plass.cdget.com/samples/photos/rowboat-misty-pond-sunrise.webp',
+                  ),
                   semanticLabel: 'A rowboat moored on a misty pond',
                   ratio: 1,
                   rounded: true,

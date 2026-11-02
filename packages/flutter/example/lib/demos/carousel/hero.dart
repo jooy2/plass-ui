@@ -12,17 +12,17 @@ class Place {
 const List<Place> _places = <Place>[
   Place(
     'Alpine lake',
-    '/samples/photos/alpine-lake-dawn.webp',
+    'https://plass.cdget.com/samples/photos/alpine-lake-dawn.webp',
     'A still mountain lake at first light',
   ),
   Place(
     'Tea terraces',
-    '/samples/photos/misty-tea-terraces-sunrise.webp',
+    'https://plass.cdget.com/samples/photos/misty-tea-terraces-sunrise.webp',
     'Terraced tea fields under morning mist',
   ),
   Place(
     'Forest trail',
-    '/samples/photos/forest-trail-sunbeams.webp',
+    'https://plass.cdget.com/samples/photos/forest-trail-sunbeams.webp',
     'Sunbeams across a forest trail',
   ),
 ];

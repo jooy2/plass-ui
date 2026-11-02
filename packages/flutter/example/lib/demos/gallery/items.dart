@@ -6,7 +6,7 @@ import 'package:plass_ui/plass_ui.dart';
 final List<PlGalleryItem> photos = <PlGalleryItem>[
   PlGalleryItem(
     id: 'alpine-lake',
-    image: const NetworkImage('/samples/photos/alpine-lake-dawn.webp'),
+    image: const NetworkImage('https://plass.cdget.com/samples/photos/alpine-lake-dawn.webp'),
     semanticLabel: 'A still mountain lake at first light',
     title: 'Alpine lake',
     description: 'Dawn',
@@ -14,7 +14,7 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
   ),
   PlGalleryItem(
     id: 'coast-road',
-    image: const NetworkImage('/samples/photos/bicycle-coastal-path.webp'),
+    image: const NetworkImage('https://plass.cdget.com/samples/photos/bicycle-coastal-path.webp'),
     semanticLabel: 'A bicycle parked on a path above the sea',
     title: 'Coast road',
     description: 'Late summer',
@@ -22,7 +22,9 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
   ),
   PlGalleryItem(
     id: 'lighthouse',
-    image: const NetworkImage('/samples/photos/lighthouse-cliff-wildflowers.webp'),
+    image: const NetworkImage(
+      'https://plass.cdget.com/samples/photos/lighthouse-cliff-wildflowers.webp',
+    ),
     semanticLabel: 'A lighthouse on a clifftop above wildflowers',
     title: 'Lighthouse',
     description: 'Wildflowers',
@@ -30,7 +32,7 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
   ),
   PlGalleryItem(
     id: 'citrus',
-    image: const NetworkImage('/samples/photos/ceramic-bowl-citrus.webp'),
+    image: const NetworkImage('https://plass.cdget.com/samples/photos/ceramic-bowl-citrus.webp'),
     semanticLabel: 'Oranges and lemons in a ceramic bowl',
     title: 'Citrus',
     description: 'Still life',
@@ -38,7 +40,9 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
   ),
   PlGalleryItem(
     id: 'tea-terraces',
-    image: const NetworkImage('/samples/photos/misty-tea-terraces-sunrise.webp'),
+    image: const NetworkImage(
+      'https://plass.cdget.com/samples/photos/misty-tea-terraces-sunrise.webp',
+    ),
     semanticLabel: 'Terraced tea fields under morning mist',
     title: 'Tea terraces',
     description: 'Sunrise',
@@ -46,7 +50,9 @@ final List<PlGalleryItem> photos = <PlGalleryItem>[
   ),
   PlGalleryItem(
     id: 'greenhouse',
-    image: const NetworkImage('/samples/photos/greenhouse-fern-shadows.webp'),
+    image: const NetworkImage(
+      'https://plass.cdget.com/samples/photos/greenhouse-fern-shadows.webp',
+    ),
     semanticLabel: 'Ferns throwing shadows across a greenhouse wall',
     title: 'Greenhouse',
     description: 'Ferns',

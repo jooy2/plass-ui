@@ -16,7 +16,9 @@ class SpoilerMedia extends StatelessWidget {
         child: SizedBox(
           height: 160,
           child: Image(
-            image: NetworkImage('/samples/photos/desert-rocks-milky-way.webp'),
+            image: NetworkImage(
+              'https://plass.cdget.com/samples/photos/desert-rocks-milky-way.webp',
+            ),
             fit: BoxFit.cover,
             semanticLabel: 'The Milky Way over a desert rock formation',
           ),

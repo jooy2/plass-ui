@@ -18,7 +18,7 @@ class ChatBubbleHero extends StatelessWidget {
             avatar: PlAvatar(
               size: PlassSize.sm,
               name: 'Nadia Rowan',
-              image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+              image: NetworkImage('https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
             ),
             child: Text('The gradient turns rather than shades. Have a look at the new fills.'),
           ),
@@ -34,7 +34,7 @@ class ChatBubbleHero extends StatelessWidget {
             avatar: PlAvatar(
               size: PlassSize.sm,
               name: 'Nadia Rowan',
-              image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+              image: NetworkImage('https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
             ),
           ),
         ],

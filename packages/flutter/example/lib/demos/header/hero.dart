@@ -14,7 +14,9 @@ class HeaderHero extends StatelessWidget {
             size: PlassSize.sm,
             name: const Text('Acme'),
             onPressed: () {},
-            child: const Image(image: NetworkImage('/samples/marks/lantern.webp')),
+            child: const Image(
+              image: NetworkImage('https://plass.cdget.com/samples/marks/lantern.webp'),
+            ),
           ),
         ],
         actions: <Widget>[

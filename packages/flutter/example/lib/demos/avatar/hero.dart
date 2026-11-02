@@ -14,7 +14,7 @@ class AvatarHero extends StatelessWidget {
         PlAvatar(
           size: PlassSize.lg,
           name: 'Nadia Rowan',
-          image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+          image: NetworkImage('https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
         ),
         PlAvatar(size: PlassSize.lg, name: 'Jane Doe'),
         PlAvatar(

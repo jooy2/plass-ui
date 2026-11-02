@@ -22,7 +22,9 @@ class ImageFit extends StatelessWidget {
                 children: <Widget>[
                   // A lone height fixes the box, and the column decides its width.
                   PlImage(
-                    image: const NetworkImage('/samples/photos/alpine-lake-dawn.webp'),
+                    image: const NetworkImage(
+                      'https://plass.cdget.com/samples/photos/alpine-lake-dawn.webp',
+                    ),
                     semanticLabel: 'A still mountain lake at first light',
                     height: 160,
                     fit: fit,

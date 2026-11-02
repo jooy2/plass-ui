@@ -17,7 +17,9 @@ class CardPadded extends StatelessWidget {
             const SizedBox(
               height: 112,
               child: Image(
-                image: NetworkImage('/samples/photos/artisan-bread-wooden-rack.webp'),
+                image: NetworkImage(
+                  'https://plass.cdget.com/samples/photos/artisan-bread-wooden-rack.webp',
+                ),
                 fit: BoxFit.cover,
               ),
             ),

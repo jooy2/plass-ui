@@ -12,21 +12,25 @@ class HoverCardHero extends StatelessWidget {
       width: 360,
       child: DefaultTextStyle.merge(
         style: TextStyle(color: tokens.fg, fontSize: 15, height: 1.6),
-        child: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: <Widget>[
-            const Text('The notes were written by '),
-            PlHoverCard(
-              title: const Text('Ada Lovelace'),
-              description: const Text('Mathematician, 1815–1852'),
-              trigger: PlTextLink(onPressed: () {}, child: const Text('Ada Lovelace')),
-              child: const Text(
-                'Wrote the first algorithm intended to be carried out by a machine, in a set '
-                'of notes longer than the paper they annotated.',
+        child: Text.rich(
+          TextSpan(
+            children: <InlineSpan>[
+              const TextSpan(text: 'The notes were written by '),
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: PlHoverCard(
+                  title: const Text('Ada Lovelace'),
+                  description: const Text('Mathematician, 1815–1852'),
+                  trigger: PlTextLink(onPressed: () {}, child: const Text('Ada Lovelace')),
+                  child: const Text(
+                    'Wrote the first algorithm intended to be carried out by a machine, in a set '
+                    'of notes longer than the paper they annotated.',
+                  ),
+                ),
               ),
-            ),
-            const Text(', and are longer than the paper.'),
-          ],
+              const TextSpan(text: ', and are longer than the paper.'),
+            ],
+          ),
         ),
       ),
     );

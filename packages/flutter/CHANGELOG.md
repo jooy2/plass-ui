@@ -38,6 +38,7 @@
 - **The keyboard's done key closes a `PlCombobox` on a phone.** With no row lit it kept the focus, so the keyboard stayed up over the screen with nothing to put it away.
 - **A `PlIcon` shows on a dark page.** With no `IconTheme` above it an icon took Flutter's fallback black. It now takes the colour of the text around it, as `currentColor` does.
 - **A `PlSidebar` takes the `width` it is given.** One under `minWidth` came out at `minWidth` even when it could not be resized, which left a narrow page no room for its content. The bounds now apply only to a sidebar that can be dragged, as in the React build.
+- **The example app runs on iOS and Android.** It stacked every demo in one column, so a single failed layout left the screen black, plain text came out white on a light canvas, and pictures named by a website's path threw. It now builds its demos as it scrolls, sets the colour of plain text, and names pictures by their full address, so a snippet copied from the documentation works in an app too.
 
 ## 1.8.2 (2026-10-09)
 

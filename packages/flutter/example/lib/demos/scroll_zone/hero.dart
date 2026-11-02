@@ -50,7 +50,9 @@ class ScrollZoneHero extends StatelessWidget {
                       child: SizedBox(
                         height: 64,
                         child: Image(
-                          image: NetworkImage('/samples/photos/${show.still}.webp'),
+                          image: NetworkImage(
+                            'https://plass.cdget.com/samples/photos/${show.still}.webp',
+                          ),
                           fit: BoxFit.cover,
                         ),
                       ),

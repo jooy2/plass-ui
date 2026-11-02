@@ -18,7 +18,9 @@ class ChatBubbleMedia extends StatelessWidget {
               height: 128,
               width: double.infinity,
               child: Image(
-                image: NetworkImage('/samples/photos/snowy-cabin-frozen-stream.webp'),
+                image: NetworkImage(
+                  'https://plass.cdget.com/samples/photos/snowy-cabin-frozen-stream.webp',
+                ),
                 fit: BoxFit.cover,
                 semanticLabel: 'A cabin in the snow beside a frozen stream',
               ),
@@ -31,7 +33,7 @@ class ChatBubbleMedia extends StatelessWidget {
             preview: PlChatBubbleLinkPreview(
               onPressed: () {},
               image: const NetworkImage(
-                '/samples/illustrations/four-season-geometric-pattern.webp',
+                'https://plass.cdget.com/samples/illustrations/four-season-geometric-pattern.webp',
               ),
               site: const Text('plass.cdget.com'),
               title: const Text('Design language'),

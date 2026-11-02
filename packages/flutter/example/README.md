@@ -54,10 +54,17 @@ documentation site shows, in one app. It has two modes, and they are the same
 code seen from two sides.
 
 ```bash
-flutter run
+flutter run -d chrome
 ```
 
-runs it as a gallery — every demo stacked, with a theme switch. Built for the
-web it becomes the renderer behind the Flutter previews on
-[plass.cdget.com](https://plass.cdget.com), one demo per frame, which is what
-makes those previews a real Flutter build rather than a screenshot.
+runs it as a gallery — every demo in one list that builds as it scrolls, with a
+theme switch. Built for the web it becomes the renderer behind the Flutter
+previews on [plass.cdget.com](https://plass.cdget.com), one demo per frame,
+which is what makes those previews a real Flutter build rather than a
+screenshot.
+
+This directory has no `ios/` or `android/` folder, because the package has
+nothing of its own to compile there. To run these demos on a phone or a tablet,
+use [`examples/flutter`](https://github.com/jooy2/plass-ui/tree/main/examples/flutter)
+in the repository, which has both runners, a small app built with Plass, and
+this gallery one component at a time.

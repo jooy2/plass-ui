@@ -90,7 +90,12 @@ class BellGlyph extends StatelessWidget {
   static void _trace(Path path) {
     path
       ..moveTo(18, 8)
-      ..arcToPoint(const Offset(6, 8), radius: const Radius.circular(6), largeArc: true)
+      ..arcToPoint(
+        const Offset(6, 8),
+        radius: const Radius.circular(6),
+        largeArc: true,
+        clockwise: false,
+      )
       ..cubicTo(6, 14, 4, 15, 4, 15)
       ..lineTo(20, 15)
       ..cubicTo(20, 15, 18, 14, 18, 8)

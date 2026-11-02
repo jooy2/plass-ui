@@ -33,7 +33,7 @@ class _SkeletonMatchingState extends State<SkeletonMatching> {
               if (_loaded)
                 const PlAvatar(
                   name: 'Nadia Rowan',
-                  image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+                  image: NetworkImage('https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
                 )
               else
                 const PlSkeleton(shape: PlSkeletonShape.circle),

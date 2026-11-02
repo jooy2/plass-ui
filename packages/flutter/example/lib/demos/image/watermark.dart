@@ -4,7 +4,8 @@ import 'package:plass_ui/plass_ui.dart';
 class ImageWatermark extends StatelessWidget {
   const ImageWatermark({super.key});
 
-  static const String _photo = '/samples/photos/rowboat-misty-pond-sunrise.webp';
+  static const String _photo =
+      'https://plass.cdget.com/samples/photos/rowboat-misty-pond-sunrise.webp';
 
   @override
   Widget build(BuildContext context) {

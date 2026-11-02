@@ -14,7 +14,9 @@ class AspectRatioHero extends StatelessWidget {
         size: PlassSize.lg,
         fit: PlAspectFit.cover,
         child: Image(
-          image: NetworkImage('/samples/photos/lakeside-observatory-blue-hour.webp'),
+          image: NetworkImage(
+            'https://plass.cdget.com/samples/photos/lakeside-observatory-blue-hour.webp',
+          ),
           fit: BoxFit.cover,
           semanticLabel: 'An observatory beside a lake at blue hour',
         ),

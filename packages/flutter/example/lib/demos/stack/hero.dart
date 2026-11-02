@@ -15,22 +15,22 @@ class StackHero extends StatelessWidget {
         PlAvatar(
           size: PlassSize.lg,
           name: 'Nadia Rowan',
-          image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+          image: NetworkImage('https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
         ),
         PlAvatar(
           size: PlassSize.lg,
           name: 'Theo Quinn',
-          image: NetworkImage('/samples/avatars/theo-quinn.webp'),
+          image: NetworkImage('https://plass.cdget.com/samples/avatars/theo-quinn.webp'),
         ),
         PlAvatar(
           size: PlassSize.lg,
           name: 'Victor Saye',
-          image: NetworkImage('/samples/avatars/victor-saye.webp'),
+          image: NetworkImage('https://plass.cdget.com/samples/avatars/victor-saye.webp'),
         ),
         PlAvatar(
           size: PlassSize.lg,
           name: 'Noa Marin',
-          image: NetworkImage('/samples/avatars/noa-marin.webp'),
+          image: NetworkImage('https://plass.cdget.com/samples/avatars/noa-marin.webp'),
         ),
         PlAvatar(size: PlassSize.lg, name: '홍길동'),
       ],

@@ -3,7 +3,9 @@ import 'package:plass_ui/plass_ui.dart';
 
 const BoxDecoration _wallpaper = BoxDecoration(
   image: DecorationImage(
-    image: NetworkImage('/samples/illustrations/layered-mountains-rising-sun.webp'),
+    image: NetworkImage(
+      'https://plass.cdget.com/samples/illustrations/layered-mountains-rising-sun.webp',
+    ),
     fit: BoxFit.cover,
   ),
 );

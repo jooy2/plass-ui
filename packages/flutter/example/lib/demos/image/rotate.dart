@@ -22,7 +22,9 @@ class ImageRotate extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   PlImage(
-                    image: const NetworkImage('/samples/photos/bicycle-coastal-path.webp'),
+                    image: const NetworkImage(
+                      'https://plass.cdget.com/samples/photos/bicycle-coastal-path.webp',
+                    ),
                     semanticLabel: 'A bicycle parked on a path above the sea',
                     rotate: rotate,
                     rounded: true,

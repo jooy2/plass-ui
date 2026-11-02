@@ -12,7 +12,7 @@ class ImageHero extends StatelessWidget {
         children: <Widget>[
           Expanded(
             child: PlImage(
-              image: NetworkImage('/samples/photos/alpine-lake-dawn.webp'),
+              image: NetworkImage('https://plass.cdget.com/samples/photos/alpine-lake-dawn.webp'),
               semanticLabel: 'A still mountain lake at first light',
               ratio: 4 / 3,
               rounded: true,
@@ -22,7 +22,9 @@ class ImageHero extends StatelessWidget {
           SizedBox(width: 16),
           Expanded(
             child: PlImage(
-              image: NetworkImage('/samples/photos/forest-trail-sunbeams.webp'),
+              image: NetworkImage(
+                'https://plass.cdget.com/samples/photos/forest-trail-sunbeams.webp',
+              ),
               semanticLabel: 'Sunbeams across a forest trail',
               ratio: 4 / 3,
               rounded: true,

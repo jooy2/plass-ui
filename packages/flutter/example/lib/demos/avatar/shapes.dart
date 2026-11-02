@@ -14,13 +14,13 @@ class AvatarShapes extends StatelessWidget {
         PlAvatar(
           size: PlassSize.lg,
           name: 'Theo Quinn',
-          image: NetworkImage('/samples/avatars/theo-quinn.webp'),
+          image: NetworkImage('https://plass.cdget.com/samples/avatars/theo-quinn.webp'),
         ),
         PlAvatar(
           size: PlassSize.lg,
           shape: PlAvatarShape.square,
           name: 'Theo Quinn',
-          image: NetworkImage('/samples/avatars/theo-quinn.webp'),
+          image: NetworkImage('https://plass.cdget.com/samples/avatars/theo-quinn.webp'),
         ),
       ],
     );

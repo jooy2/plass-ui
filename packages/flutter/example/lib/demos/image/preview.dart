@@ -9,7 +9,9 @@ class ImagePreview extends StatelessWidget {
     return SizedBox(
       width: 260,
       child: PlImage(
-        image: const NetworkImage('/samples/photos/hand-dyed-wool-yarn.webp'),
+        image: const NetworkImage(
+          'https://plass.cdget.com/samples/photos/hand-dyed-wool-yarn.webp',
+        ),
         semanticLabel: 'Skeins of hand-dyed wool in a basket',
         ratio: 1,
         rounded: true,

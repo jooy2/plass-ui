@@ -47,6 +47,42 @@ class PlassCanvas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return PlassGround(
+      // Scrollable rather than clipped: the page sizes the frame from what
+      // this reports, and between the first paint and that message arriving
+      // the viewport is whatever height the page reserved. Overflowing it
+      // should be a scroll, not a broken preview.
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: padding + EdgeInsets.only(top: lead),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: align == Alignment.topCenter
+                ? CrossAxisAlignment.center
+                : CrossAxisAlignment.start,
+            children: <Widget>[child],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The wash, the blooms and the grid, with [child] filling them.
+///
+/// It sets the colour of plain text as well. Nothing above a demo does, and a
+/// `Text` with no colour is a different colour on each engine: black in a
+/// browser, and white on iOS and Android, where it cannot be read on a light
+/// canvas.
+class PlassGround extends StatelessWidget {
+  /// Paints the ground under [child].
+  const PlassGround({required this.child, super.key});
+
+  /// What is drawn on it.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
 
     return DecoratedBox(
@@ -62,20 +98,11 @@ class PlassCanvas extends StatelessWidget {
       ),
       child: CustomPaint(
         painter: _CanvasPainter(tokens),
-        // Scrollable rather than clipped: the page sizes the frame from what
-        // this reports, and between the first paint and that message arriving
-        // the viewport is whatever height the page reserved. Overflowing it
-        // should be a scroll, not a broken preview.
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: padding + EdgeInsets.only(top: lead),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: align == Alignment.topCenter
-                  ? CrossAxisAlignment.center
-                  : CrossAxisAlignment.start,
-              children: <Widget>[child],
-            ),
+        child: IconTheme.merge(
+          data: IconThemeData(color: tokens.fg),
+          child: DefaultTextStyle.merge(
+            style: TextStyle(color: tokens.fg),
+            child: child,
           ),
         ),
       ),

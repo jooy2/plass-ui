@@ -2,12 +2,12 @@ import 'package:flutter/widgets.dart';
 import 'package:plass_ui/plass_ui.dart';
 
 const List<(String, String)> _reviewers = <(String, String)>[
-  ('Nadia Rowan', '/samples/avatars/nadia-rowan.webp'),
-  ('Theo Quinn', '/samples/avatars/theo-quinn.webp'),
-  ('Victor Saye', '/samples/avatars/victor-saye.webp'),
-  ('Anya Sol', '/samples/avatars/anya-sol.webp'),
-  ('Helen Voss', '/samples/avatars/helen-voss.webp'),
-  ('Noa Marin', '/samples/avatars/noa-marin.webp'),
+  ('Nadia Rowan', 'https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
+  ('Theo Quinn', 'https://plass.cdget.com/samples/avatars/theo-quinn.webp'),
+  ('Victor Saye', 'https://plass.cdget.com/samples/avatars/victor-saye.webp'),
+  ('Anya Sol', 'https://plass.cdget.com/samples/avatars/anya-sol.webp'),
+  ('Helen Voss', 'https://plass.cdget.com/samples/avatars/helen-voss.webp'),
+  ('Noa Marin', 'https://plass.cdget.com/samples/avatars/noa-marin.webp'),
 ];
 
 class StackOverflow extends StatelessWidget {

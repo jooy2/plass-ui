@@ -30,7 +30,7 @@ class BadgeHero extends StatelessWidget {
           label: 'Online',
           child: PlAvatar(
             name: 'Nadia Rowan',
-            image: NetworkImage('/samples/avatars/nadia-rowan.webp'),
+            image: NetworkImage('https://plass.cdget.com/samples/avatars/nadia-rowan.webp'),
           ),
         ),
         const PlBadge(content: Text('Beta'), variant: PlassVariant.ghost, color: PlassColor.info),

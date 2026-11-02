@@ -10,9 +10,9 @@ import 'package:plass_ui_example/room.dart';
 ///
 /// It has two jobs, and they are the same code seen from two sides:
 ///
-/// - Run it (`flutter run`) and it is a gallery — every demo, stacked, with a
-///   theme switch. This is how the components are looked at while they are
-///   being built.
+/// - Run it (`flutter run`) and it is a gallery — every demo, in a list that
+///   builds as it scrolls, with a theme switch. This is how the components are
+///   looked at while they are being built.
 /// - Build it for the web and the documentation site embeds it, one demo per
 ///   `<iframe>`, named by `?demo=button/variants`. That is what makes the
 ///   Flutter previews on the site the *real* Flutter build rather than a
@@ -201,25 +201,32 @@ class _Missing extends StatelessWidget {
   }
 }
 
-/// Every demo, stacked — the mode `flutter run` gives you.
+/// Every demo, in one scrolling list — the mode `flutter run` gives you.
 class _Gallery extends StatelessWidget {
   const _Gallery({required this.brightness, required this.onFlip});
 
   final Brightness brightness;
   final VoidCallback onFlip;
 
+  static final List<String> _names = demos.keys.toList();
+
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
     final padding = MediaQuery.paddingOf(context);
 
-    return PlassCanvas(
-      child: Padding(
-        padding: EdgeInsets.only(top: padding.top, bottom: padding.bottom + 48),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
+    return PlassGround(
+      // Built as it scrolls rather than all at once: several hundred demos, a
+      // good many of them glass or animated, are more than a phone can lay out
+      // and paint in one frame, and a page of them all has to be as wide as
+      // the widest.
+      child: ListView.builder(
+        padding:
+            PlassCanvas.padding + EdgeInsets.only(top: padding.top, bottom: padding.bottom + 48),
+        itemCount: _names.length + 1,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == 0) {
+            return Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: Row(
                 children: <Widget>[
@@ -238,30 +245,32 @@ class _Gallery extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            for (final entry in demos.entries)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: Text(
-                        entry.key,
-                        style: TextStyle(
-                          color: tokens.mutedFg,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+            );
+          }
+
+          final name = _names[index - 1];
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 32),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    name,
+                    style: TextStyle(
+                      color: tokens.mutedFg,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
-                    entry.value(context),
-                  ],
+                  ),
                 ),
-              ),
-          ],
-        ),
+                demos[name]!(context),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

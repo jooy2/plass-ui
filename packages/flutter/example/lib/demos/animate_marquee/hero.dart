@@ -6,12 +6,12 @@ class AnimateMarqueeHero extends StatelessWidget {
 
   /// The row of customer logos a marquee is nearly always asked for.
   static const List<(String, String)> _brands = <(String, String)>[
-    ('Lanterna', '/samples/marks/lantern.webp'),
-    ('Northpin', '/samples/marks/compass.webp'),
-    ('Kitewind', '/samples/marks/kite.webp'),
-    ('Layerloom', '/samples/marks/layers.webp'),
-    ('Sunmeadow', '/samples/marks/solar.webp'),
-    ('Farglass', '/samples/marks/telescope.webp'),
+    ('Lanterna', 'https://plass.cdget.com/samples/marks/lantern.webp'),
+    ('Northpin', 'https://plass.cdget.com/samples/marks/compass.webp'),
+    ('Kitewind', 'https://plass.cdget.com/samples/marks/kite.webp'),
+    ('Layerloom', 'https://plass.cdget.com/samples/marks/layers.webp'),
+    ('Sunmeadow', 'https://plass.cdget.com/samples/marks/solar.webp'),
+    ('Farglass', 'https://plass.cdget.com/samples/marks/telescope.webp'),
   ];
 
   @override

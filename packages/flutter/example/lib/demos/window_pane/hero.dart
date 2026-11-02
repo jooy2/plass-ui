@@ -42,7 +42,7 @@ class _WindowPaneHeroState extends State<WindowPaneHero> {
         children: <Widget>[
           const Expanded(
             child: Image(
-              image: NetworkImage('/samples/photos/alpine-lake-dawn.webp'),
+              image: NetworkImage('https://plass.cdget.com/samples/photos/alpine-lake-dawn.webp'),
               fit: BoxFit.cover,
               semanticLabel: 'A still mountain lake at first light',
             ),

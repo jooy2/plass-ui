@@ -28,7 +28,9 @@ class ImagePosition extends StatelessWidget {
                 children: <Widget>[
                   // A tall photograph in a wide box, so the crop has to choose.
                   PlImage(
-                    image: const NetworkImage('/samples/photos/lighthouse-cliff-wildflowers.webp'),
+                    image: const NetworkImage(
+                      'https://plass.cdget.com/samples/photos/lighthouse-cliff-wildflowers.webp',
+                    ),
                     semanticLabel: 'A lighthouse on a clifftop above wildflowers',
                     ratio: 4 / 3,
                     position: entry.value,
