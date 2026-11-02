@@ -7,6 +7,7 @@
 ### Fixed
 
 - **A `PlPagination` fits a phone.** The row of pages ran out of a narrow box. It now goes onto a second line.
+- **A `PlNavigationMenu` fits a phone.** A row of items wider than its box ran out of it. It now wraps.
 
 ## 1.8.2 (2026-10-09)
 

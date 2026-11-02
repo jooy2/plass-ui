@@ -69,6 +69,13 @@ void main() {
         ),
       ],
     ),
+    'a navigation menu': () => const PlNavigationMenu(
+      items: <PlNavigationMenuItem>[
+        PlNavigationMenuItem(label: 'Products'),
+        PlNavigationMenuItem(label: 'Solutions'),
+        PlNavigationMenuItem(label: 'Documents'),
+      ],
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {

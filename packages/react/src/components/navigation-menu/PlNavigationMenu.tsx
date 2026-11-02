@@ -685,7 +685,7 @@ export const PlNavigationMenu = /* @__PURE__ */ React.forwardRef<
       >
         <BaseUINavigationMenu.List
           className={cx(
-            'm-0 flex list-none items-center p-0',
+            'm-0 flex list-none flex-wrap items-center p-0',
             orientation === 'vertical' ? 'flex-col items-stretch' : 'flex-row',
             gapClasses[size]
           )}

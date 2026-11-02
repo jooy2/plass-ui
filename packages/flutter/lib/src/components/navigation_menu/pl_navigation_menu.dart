@@ -272,7 +272,13 @@ class _PlNavigationMenuState extends State<PlNavigationMenu> {
             spacing: gap[_size]!,
             children: row,
           )
-        : Row(mainAxisSize: MainAxisSize.min, spacing: gap[_size]!, children: row);
+        // Onto a second line where the row does not fit, as a browser wraps it.
+        : Wrap(
+            spacing: gap[_size]!,
+            runSpacing: gap[_size]!,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: row,
+          );
 
     return Semantics(
       role: SemanticsRole.navigation,
