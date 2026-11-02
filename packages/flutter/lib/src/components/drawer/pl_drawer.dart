@@ -421,7 +421,9 @@ class PlDrawer extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: dividers ? 0 : insetY),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
+          // A side panel is as tall as the screen, so its header stays at the
+          // top and its actions at the bottom however little it holds.
+          mainAxisSize: _along ? MainAxisSize.max : MainAxisSize.min,
           spacing: dividers ? 0 : sheetSectionGap[size]!,
           children: <Widget>[
             for (var index = 0; index < sections.length; index += 1)
@@ -437,7 +439,9 @@ class PlDrawer extends StatelessWidget {
                     child: child,
                   );
 
-                  return flexible ? Flexible(child: band) : band;
+                  return flexible
+                      ? Flexible(fit: _along ? FlexFit.tight : FlexFit.loose, child: band)
+                      : band;
                 }(),
               },
           ],

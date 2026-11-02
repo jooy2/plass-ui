@@ -419,4 +419,27 @@ void main() {
       });
     });
   });
+
+  testWidgets('starts a side panel at the top and ends it with its actions', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      host(
+        const PlDrawer(
+          open: true,
+          side: PlassSide.right,
+          title: Text('Filters'),
+          actions: <Widget>[Text('Done')],
+          child: Text('Body'),
+        ),
+        overlay: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final double height = tester.view.physicalSize.height / tester.view.devicePixelRatio;
+
+    expect(tester.getTopLeft(find.text('Filters')).dy, lessThan(height / 4));
+    expect(tester.getTopLeft(find.text('Done')).dy, greaterThan(height * 3 / 4));
+  });
 }
