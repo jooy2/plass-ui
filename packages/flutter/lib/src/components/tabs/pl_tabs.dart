@@ -425,7 +425,10 @@ class _PlTabsState<T> extends State<PlTabs<T>> with PlassRovingStop<PlTabs<T>> {
     // to sit. Inside the trough and inside the rule, so that neither of them
     // travels with the tabs — the edge belongs to the bar rather than to what
     // is in it.
-    if (!_vertical) {
+    //
+    // A full-width bar shares out the room it is given, so it has nothing to
+    // scroll, and its tabs could not take a share of a scrollable's endless width.
+    if (!_vertical && !widget.fullWidth) {
       strip = _EdgeFade(
         wheel: widget.wheel,
         overscroll: widget.overscroll,
