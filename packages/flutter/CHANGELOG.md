@@ -33,6 +33,7 @@
 - **The system back closes a question from a provider in a `builder`.** A layer above the navigator had no route to hold, so Android's back left the question up and popped the page under it. A `PlConfirmProvider` there now closes first, as any other layer does.
 - **The keyboard's done key closes a `PlCombobox` on a phone.** With no row lit it kept the focus, so the keyboard stayed up over the screen with nothing to put it away.
 - **A `PlIcon` shows on a dark page.** With no `IconTheme` above it an icon took Flutter's fallback black. It now takes the colour of the text around it, as `currentColor` does.
+- **A `PlSidebar` takes the `width` it is given.** One under `minWidth` came out at `minWidth` even when it could not be resized, which left a narrow page no room for its content. The bounds now apply only to a sidebar that can be dragged, as in the React build.
 
 ## 1.8.2 (2026-10-09)
 

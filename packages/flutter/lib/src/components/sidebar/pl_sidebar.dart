@@ -263,7 +263,11 @@ class _PlSidebarState extends State<PlSidebar> {
     super.dispose();
   }
 
-  double _clamp(double value) => value.clamp(widget.minWidth, widget.maxWidth);
+  /// Only a sidebar that can be resized has bounds, as in the React build: they
+  /// are how far a drag may go, and not a limit on the width a caller asks for.
+  double _clamp(double value) {
+    return widget.resizable ? value.clamp(widget.minWidth, widget.maxWidth) : value;
+  }
 
   void _resize(double next, {required bool settled}) {
     final double sized = _clamp(next);

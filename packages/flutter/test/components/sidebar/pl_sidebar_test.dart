@@ -8,6 +8,26 @@ import 'package:plass_ui/plass_ui.dart';
 import '../../support/host.dart';
 
 void main() {
+  testWidgets('keeps a width under minWidth unless it can be resized', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      host(
+        const PlPageLayout(
+          collapseBelow: null,
+          sidebar: PlSidebar(
+            width: 90,
+            semanticLabel: 'Side',
+            child: SizedBox(key: Key('held')),
+          ),
+          child: SizedBox.shrink(),
+        ),
+        width: 400,
+        height: 200,
+      ),
+    );
+
+    expect(tester.getSize(find.byType(PlSidebar)).width, 90);
+  });
+
   group('PlSidebar', () {
     group('as a column', () {
       testWidgets('claims the complementary landmark, named', (WidgetTester tester) async {
