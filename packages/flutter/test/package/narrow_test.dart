@@ -52,6 +52,8 @@ void main() {
         PlAnimateAppear(children: <Widget>[Text('One'), Text('Two')]),
       ],
     ),
+    'a gauge with a caption': () =>
+        const PlGaugeChart(value: 72, sweep: 360, caption: Text('of the monthly target')),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {

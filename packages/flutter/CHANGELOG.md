@@ -12,6 +12,7 @@
 - **A `fullWidth` `PlTabs` lays out.** Its tabs share the width out and the bar scrolled them as well, which threw at every width and left nothing on the screen.
 - **A clamped `PlSpoiler` reports no overflow.** `maxHeight` was handed to the content as its own limit, so a column taller than the clamp drew the overflow stripes. The clamp now cuts the box the content is seen through.
 - **A `PlAnimateAppear` works where the cross axis has no end.** A horizontal set in a page that scrolls, and a vertical one in a `Row`, threw "BoxConstraints forces an infinite height" or "width". It still fills a cross axis that has an end.
+- **A narrow `PlGaugeChart` reports no overflow.** On a dial as narrow as a phone, a reading and a caption are taller than the hole. They now stay centred on it.
 
 ## 1.8.2 (2026-10-09)
 

@@ -214,32 +214,38 @@ class PlGaugeChart extends StatelessWidget {
                 width: box.room,
                 height: box.blockHeight,
                 child: IgnorePointer(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      DefaultTextStyle.merge(
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: box.readingSize(reading is Text ? (reading.data ?? '') : ''),
-                          fontWeight: FontWeight.w600,
-                          color: tokens.fg,
-                        ),
-                        // A named dial says its number in its name, so the
-                        // number written here is not read a second time. A
-                        // center of the caller's own is read, after the name.
-                        child: ExcludeSemantics(
-                          excluding: semanticLabel != null && center == null,
-                          child: reading,
-                        ),
-                      ),
-                      if (caption != null)
+                  // Centred on the hole however tall it comes out: on a dial as
+                  // narrow as a phone, a reading and a caption are taller than
+                  // the block, and that is no reason to report an overflow.
+                  child: OverflowBox(
+                    maxHeight: double.infinity,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
                         DefaultTextStyle.merge(
                           textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: metaText[step]!, color: tokens.mutedFg),
-                          child: caption!,
+                          style: TextStyle(
+                            fontSize: box.readingSize(reading is Text ? (reading.data ?? '') : ''),
+                            fontWeight: FontWeight.w600,
+                            color: tokens.fg,
+                          ),
+                          // A named dial says its number in its name, so the
+                          // number written here is not read a second time. A
+                          // center of the caller's own is read, after the name.
+                          child: ExcludeSemantics(
+                            excluding: semanticLabel != null && center == null,
+                            child: reading,
+                          ),
                         ),
-                    ],
+                        if (caption != null)
+                          DefaultTextStyle.merge(
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: metaText[step]!, color: tokens.mutedFg),
+                            child: caption!,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
