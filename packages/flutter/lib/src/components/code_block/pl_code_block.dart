@@ -826,7 +826,8 @@ class _PlCodeBlockState extends State<PlCodeBlock> {
     final double padY = _bodyPadY[_density]![size]!;
 
     final TextStyle codeStyle = TextStyle(
-      fontFamily: widget.fontFamily ?? 'monospace',
+      fontFamily: widget.fontFamily ?? plassMonoFamily,
+      fontFamilyFallback: plassMonoFallback,
       fontSize: fontSize,
       height: lineHeight,
       letterSpacing: widget.letterSpacing,
@@ -1001,7 +1002,14 @@ class _Line extends StatelessWidget {
               padding: EdgeInsetsDirectional.only(end: style.fontSize! * 0.9),
               child: SizedBox(
                 width: gutter,
-                child: Text('$number', style: dim, textAlign: TextAlign.end),
+                child: Text(
+                  '$number',
+                  style: dim,
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.visible,
+                ),
               ),
             ),
           if (prompt != null)
@@ -1102,7 +1110,8 @@ class _Bar extends StatelessWidget {
             Flexible(
               child: DefaultTextStyle(
                 style: TextStyle(
-                  fontFamily: 'monospace',
+                  fontFamily: plassMonoFamily,
+                  fontFamilyFallback: plassMonoFallback,
                   fontSize: meta,
                   color: palette.foreground,
                 ),
@@ -1117,7 +1126,8 @@ class _Bar extends StatelessWidget {
                 language!.toUpperCase(),
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontFamily: 'monospace',
+                  fontFamily: plassMonoFamily,
+                  fontFamilyFallback: plassMonoFallback,
                   fontSize: meta,
                   letterSpacing: 0.4,
                   color: palette.dim,

@@ -670,4 +670,25 @@ void main() {
       });
     });
   });
+
+  testWidgets('names a monospace face for a platform that resolves nothing for the generic one', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(host(const PlCodeBlock(code: 'print(1);'), width: 400));
+
+    final Iterable<RichText> texts = tester.widgetList<RichText>(find.byType(RichText));
+
+    expect(
+      texts.map((RichText one) => one.text.style?.fontFamilyFallback),
+      contains(contains('Menlo')),
+    );
+  });
+
+  testWidgets('never wraps a line number', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      host(const PlCodeBlock(code: 'one\ntwo', lineNumbers: true, startLine: 123456), width: 400),
+    );
+
+    expect(tester.widget<Text>(find.text('123456')).softWrap, isFalse);
+  });
 }

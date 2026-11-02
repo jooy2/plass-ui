@@ -17,6 +17,22 @@ import 'package:flutter/widgets.dart';
 
 import 'package:plass_ui/src/types.dart';
 
+/// The generic monospace family, which Android and the web resolve to a real
+/// face.
+const String plassMonoFamily = 'monospace';
+
+/// Where a monospace face is found on a platform that resolves nothing for
+/// [plassMonoFamily]. iOS and macOS are the ones that matter: left to the name
+/// alone, code there comes out in the proportional system font.
+const List<String> plassMonoFallback = <String>[
+  'Menlo',
+  'SF Mono',
+  'Consolas',
+  'Cascadia Mono',
+  'Liberation Mono',
+  'Courier New',
+];
+
 /// The height of a control, and the one number the whole library lines up on.
 ///
 /// The ladder is 8px per step, and it starts higher than a dense desktop

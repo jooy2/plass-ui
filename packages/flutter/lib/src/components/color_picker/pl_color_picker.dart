@@ -818,7 +818,8 @@ class _ColorPanel extends StatelessWidget {
                                     style: TextStyle(
                                       color: tokens.fg,
                                       fontSize: metaText[size]!,
-                                      fontFamily: 'monospace',
+                                      fontFamily: plassMonoFamily,
+                                      fontFamilyFallback: plassMonoFallback,
                                     ),
                                     cursorColor: family.accent,
                                     backgroundCursorColor: tokens.mutedFg,

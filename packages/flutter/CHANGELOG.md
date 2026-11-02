@@ -22,6 +22,7 @@
 - **A long `PlOtpField` fits a phone.** A row of eight slots overflowed. The slots now come out smaller where the row does not fit.
 - **A horizontal `PlStepper` breaks no label in two.** The step and its connector took half the width each, which broke a label as short as `Account` on a phone, and a step whose label wrapped pushed the other bullets out of line. The connector now takes what the step leaves, and the bullets stay on one line.
 - **A `PlPill` that fills its width keeps its end slot at the end.** Its parts were packed at the start, with the rest of the pill empty. The words now take the room left over, as the React pill's do.
+- **Code is monospaced on iOS.** `monospace` is a family only Android and the web resolve, so a `PlCodeBlock` and the value in a `PlColorPicker` came out in the proportional system font on iOS and macOS, where a three-digit line number was also too wide for its gutter and wrapped. They now fall back to `Menlo` and the other platforms' monospace faces, and a line number no longer wraps.
 
 ## 1.8.2 (2026-10-09)
 
