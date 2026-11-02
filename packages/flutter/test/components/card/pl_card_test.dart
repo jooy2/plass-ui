@@ -802,4 +802,33 @@ void main() {
       });
     });
   });
+
+  testWidgets('hands a body the height a card of a set height has left', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      host(
+        SizedBox(
+          height: 200,
+          child: PlCard(
+            title: const Text('Lines'),
+            child: ListView(children: const <Widget>[SizedBox(height: 2000)]),
+          ),
+        ),
+        width: 300,
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(ListView)).height, lessThan(200));
+  });
+
+  testWidgets('is as tall as what it holds on a page that scrolls', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      host(const SingleChildScrollView(child: PlCard(child: SizedBox(height: 100))), width: 300),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byType(PlCard)).height, greaterThan(100));
+  });
 }

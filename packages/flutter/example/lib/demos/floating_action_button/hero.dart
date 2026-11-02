@@ -22,9 +22,10 @@ class FloatingActionButtonHero extends StatelessWidget {
       height: 220,
       child: PlCard(
         child: Stack(
+          fit: StackFit.expand,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.fromLTRB(4, 4, 4, 56),
               child: Text(
                 'The one action this screen is about, in the corner it is always '
                 'in. Everything else on the screen goes on working.',

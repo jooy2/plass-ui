@@ -370,17 +370,23 @@ class PlCard extends StatelessWidget {
     // sheet keeps it and the sections are told apart by a gap.
     final rows = <Widget>[
       for (var index = 0; index < sections.length; index += 1)
-        DecoratedBox(
-          decoration: BoxDecoration(
-            border: dividers && index > 0
-                ? Border(
-                    top: BorderSide(color: tokens.divider, width: hairline),
-                  )
-                : null,
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: insetX, vertical: dividers ? insetY : 0),
-            child: sections[index],
+        // The body takes the height left over in a card that has one, so a
+        // list inside a card of a set height scrolls. Loose, which asks nothing
+        // of a card as tall as what it holds.
+        Flexible(
+          flex: identical(sections[index], child) ? 1 : 0,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              border: dividers && index > 0
+                  ? Border(
+                      top: BorderSide(color: tokens.divider, width: hairline),
+                    )
+                  : null,
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: insetX, vertical: dividers ? insetY : 0),
+              child: sections[index],
+            ),
           ),
         ),
     ];
