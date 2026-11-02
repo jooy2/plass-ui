@@ -119,6 +119,30 @@ double _markShown(WidgetTester tester, PlWindowControl control) {
 }
 
 void main() {
+  testWidgets('keeps the fill of a painted title bar under its gloss, on a dark page too', (
+    WidgetTester tester,
+  ) async {
+    for (final PlWindowOs os in <PlWindowOs>[
+      PlWindowOs.macosx,
+      PlWindowOs.windows7,
+      PlWindowOs.windowsxp,
+    ]) {
+      await tester.pumpWidget(
+        host(
+          PlWindowPane(os: os, title: const Text('Notes'), child: const SizedBox(height: 40)),
+          width: 300,
+          brightness: Brightness.dark,
+        ),
+      );
+
+      final Iterable<Color> fills = tester
+          .widgetList<ColoredBox>(find.byType(ColoredBox))
+          .map((ColoredBox box) => box.color);
+
+      expect(fills, contains(windowChrome(os).paint!.fill), reason: os.name);
+    }
+  });
+
   group('PlWindowPane', () {
     testWidgets('names the window after its title', (WidgetTester tester) async {
       await _pump(tester, const PlWindowPane(title: Text('Notes'), child: Text('Body')));
@@ -1825,7 +1849,7 @@ void main() {
             expect(face.first.color, own[control], reason: control.name);
             // One more than the box in the glyph, as the React plate is.
             expect(face.first.borderRadius, BorderRadius.circular(4), reason: control.name);
-            expect(face.last.gradient, plateGloss, reason: control.name);
+            expect(face.last.gradient, cssGradient(plateGloss), reason: control.name);
             expect(face.last.border, plateEdge, reason: control.name);
           }
 
@@ -1844,7 +1868,7 @@ void main() {
               Color.lerp(own[control], const Color(0xFFC6C9CE), 0.55),
               reason: control.name,
             );
-            expect(face.last.gradient, plateGloss, reason: control.name);
+            expect(face.last.gradient, cssGradient(plateGloss), reason: control.name);
           }
         },
       );

@@ -771,29 +771,33 @@ class _PlWindowPaneState extends State<PlWindowPane> {
       ],
     );
 
-    final Widget bar = Container(
-      height: metrics.bar,
-      padding: EdgeInsetsDirectional.only(
-        start: metrics.padX,
-        end: chrome.controlsAtEnd ? metrics.padEnd : metrics.padX,
-      ),
-      decoration: BoxDecoration(
-        color: colors.bar,
-        gradient: chrome.image,
-        border: chrome.rule ? Border(bottom: BorderSide(color: colors.line)) : null,
-      ),
-      child: PlassContentsGroup(
-        paints: true,
-        child: chrome.titleAlign == PlWindowTitleAlign.center
-            ? Stack(
-                children: <Widget>[
-                  // Centred over the whole window rather than over what is left
-                  // of it, which is where macOS and GNOME both put it.
-                  Center(child: name),
-                  Positioned.fill(child: row),
-                ],
-              )
-            : row,
+    // Two boxes, as a decoration with a gradient leaves its colour out: the
+    // bar's own fill would be gone, and the page would show through the gloss.
+    final Widget bar = ColoredBox(
+      color: colors.bar,
+      child: Container(
+        height: metrics.bar,
+        padding: EdgeInsetsDirectional.only(
+          start: metrics.padX,
+          end: chrome.controlsAtEnd ? metrics.padEnd : metrics.padX,
+        ),
+        decoration: BoxDecoration(
+          gradient: cssGradient(chrome.image),
+          border: chrome.rule ? Border(bottom: BorderSide(color: colors.line)) : null,
+        ),
+        child: PlassContentsGroup(
+          paints: true,
+          child: chrome.titleAlign == PlWindowTitleAlign.center
+              ? Stack(
+                  children: <Widget>[
+                    // Centred over the whole window rather than over what is left
+                    // of it, which is where macOS and GNOME both put it.
+                    Center(child: name),
+                    Positioned.fill(child: row),
+                  ],
+                )
+              : row,
+        ),
       ),
     );
 
@@ -1294,7 +1298,7 @@ class _WindowButton extends StatelessWidget {
 
           mark = DecoratedBox(
             decoration: BoxDecoration(
-              gradient: finish.image,
+              gradient: cssGradient(finish.image),
               borderRadius: radius,
               border: Border.all(color: finish.edge),
             ),

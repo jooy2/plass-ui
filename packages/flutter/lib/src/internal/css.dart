@@ -221,3 +221,65 @@ ColorFilter contrastFilter(double amount) {
     0, 0, 0, 1, 0, //
   ]);
 }
+
+/// How many pieces a span of a gradient is cut into by [cssGradient].
+const int _cssGradientSteps = 6;
+
+/// [gradient] as CSS would draw it.
+///
+/// CSS interpolates with the alpha multiplied in, and a [LinearGradient] takes
+/// the colour and the alpha apart, so white at 80% to black at 7% passes through
+/// a mid grey where CSS passes through white. A span that changes colour is cut
+/// into steps here, each one worked out the way CSS would. A span that only
+/// fades, which is most of them, is the same either way and is left whole.
+Gradient? cssGradient(Gradient? gradient) {
+  if (gradient is! LinearGradient) {
+    return gradient;
+  }
+
+  final List<Color> from = gradient.colors;
+
+  bool sameInk(Color first, Color second) {
+    return first.r == second.r && first.g == second.g && first.b == second.b;
+  }
+
+  if (from.every((Color color) => sameInk(color, from.first))) {
+    return gradient;
+  }
+
+  final List<double> at =
+      gradient.stops ??
+      <double>[for (int index = 0; index < from.length; index += 1) index / (from.length - 1)];
+  final colors = <Color>[from.first];
+  final stops = <double>[at.first];
+
+  for (int index = 1; index < from.length; index += 1) {
+    final Color start = from[index - 1];
+    final Color end = from[index];
+
+    for (
+      int step = sameInk(start, end) ? _cssGradientSteps : 1;
+      step <= _cssGradientSteps;
+      step += 1
+    ) {
+      final double t = step / _cssGradientSteps;
+      final double alpha = start.a + (end.a - start.a) * t;
+
+      double channel(double first, double second) {
+        return alpha == 0 ? 0 : (first * start.a * (1 - t) + second * end.a * t) / alpha;
+      }
+
+      colors.add(
+        Color.from(
+          alpha: alpha,
+          red: channel(start.r, end.r),
+          green: channel(start.g, end.g),
+          blue: channel(start.b, end.b),
+        ),
+      );
+      stops.add(at[index - 1] + (at[index] - at[index - 1]) * t);
+    }
+  }
+
+  return LinearGradient(begin: gradient.begin, end: gradient.end, colors: colors, stops: stops);
+}
