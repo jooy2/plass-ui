@@ -7,7 +7,7 @@
 ///
 /// `--keep-app-running` keeps the app, and so the screenshots it saved, for
 /// `tool/pull_screenshots.sh`. Pass `--dart-define=PLASS_THEME=dark` for the
-/// other theme and `--dart-define=PLASS_DEMOS=button,card` for some of the
+/// other theme and `--dart-define=PLASS_DEMOS=button,text-field` for some of the
 /// components.
 /// `test/demos_test.dart` runs the same check on the host at three widths; this
 /// one is what shows how the device's own renderer draws a demo.

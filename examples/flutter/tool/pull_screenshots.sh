@@ -2,6 +2,7 @@
 # Copies the screenshots of an integration test run off a device.
 #
 #   tool/pull_screenshots.sh ios <simulator id> <folder>
+#   tool/pull_screenshots.sh ios-device <device id> <folder>
 #   tool/pull_screenshots.sh android <emulator serial> <folder>
 set -eu
 
@@ -15,6 +16,11 @@ case "$platform" in
   ios)
     container=$(xcrun simctl get_app_container "$device" com.cdget.plass.plassShowcase data)
     cp -R "$container/tmp/plass-shots/." "$target/"
+    ;;
+  ios-device)
+    xcrun devicectl device copy from --device "$device" \
+      --domain-type appDataContainer --domain-identifier com.cdget.plass.plassShowcase \
+      --source tmp/plass-shots --destination "$target"
     ;;
   android)
     adb -s "$device" exec-out run-as com.cdget.plass.plass_showcase tar c code_cache/plass-shots |

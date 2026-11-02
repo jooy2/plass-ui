@@ -18,7 +18,10 @@ final Directory shotDirectory = Directory('${Directory.systemTemp.path}/plass-sh
 Future<void> saveShot(WidgetTester tester, String name) async {
   await tester.runAsync(() async {
     final view = tester.binding.renderViews.first;
-    final layer = view.debugLayer! as OffsetLayer;
+    // `debugLayer` is null outside a debug build, and a run on a real device is
+    // best made in profile mode.
+    // ignore: invalid_use_of_protected_member
+    final layer = view.layer! as OffsetLayer;
     // The layer already holds the device's pixel ratio, so its bounds are in
     // physical pixels and the ratio asked for here comes on top of that one.
     final ratio = view.flutterView.devicePixelRatio;

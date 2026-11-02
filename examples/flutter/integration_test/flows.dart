@@ -42,6 +42,24 @@ Future<void> _pressLabelled(WidgetTester tester, String label) async {
   await settle(tester);
 }
 
+/// Types [text] into [field].
+///
+/// Straight into the editor rather than through `tester.enterText`, whose
+/// message carries a client id only a debug build accepts, so a run in profile
+/// mode on a device would type nothing.
+Future<void> _type(WidgetTester tester, Finder field, String text) async {
+  await tester.showKeyboard(field);
+  tester
+      .state<EditableTextState>(field)
+      .updateEditingValue(
+        TextEditingValue(
+          text: text,
+          selection: TextSelection.collapsed(offset: text.length),
+        ),
+      );
+  await settle(tester);
+}
+
 Future<void> _back(WidgetTester tester) async {
   await tester.binding.handlePopRoute();
   await settle(tester);
@@ -69,13 +87,11 @@ void defineFlows({required Shot shot}) {
     await _open(tester);
     await _go(tester, 'Inbox');
 
-    await tester.enterText(find.byType(EditableText).first, 'invoice');
-    await settle(tester);
+    await _type(tester, find.byType(EditableText).first, 'invoice');
     expect(find.text('Theo Quinn'), findsOneWidget);
     expect(find.text('Anya Sol'), findsNothing);
 
-    await tester.enterText(find.byType(EditableText).first, 'nobody at all');
-    await settle(tester);
+    await _type(tester, find.byType(EditableText).first, 'nobody at all');
     expect(find.text('Nothing found'), findsOneWidget);
     await shot(tester, 'inbox-empty');
 
@@ -83,8 +99,10 @@ void defineFlows({required Shot shot}) {
     await _press(tester, 'Nadia Rowan');
     await shot(tester, 'thread');
 
-    await tester.enterText(find.byType(EditableText).last, 'On my way');
-    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await _type(tester, find.byType(EditableText).last, 'On my way');
+    tester
+        .state<EditableTextState>(find.byType(EditableText).last)
+        .performAction(TextInputAction.done);
     await settle(tester);
     expect(find.text('On my way'), findsOneWidget);
 
@@ -159,12 +177,40 @@ void defineFlows({required Shot shot}) {
     await _press(tester, 'Send request');
     expect(find.text('Enter your name'), findsOneWidget);
 
-    await tester.enterText(find.byType(EditableText).first, 'Ada');
-    await settle(tester);
+    await _type(tester, find.byType(EditableText).first, 'Ada');
     await _press(tester, 'Next');
     await _press(tester, 'Next');
     await _press(tester, 'Send request');
     expect(find.text('Request sent for Ada'), findsOneWidget);
+  });
+
+  testWidgets('A field takes a word on a double tap and shows its handles', (
+    WidgetTester tester,
+  ) async {
+    await _open(tester);
+    await _go(tester, 'Request');
+
+    final Finder field = find.byType(EditableText).first;
+
+    await _type(tester, field, 'Ada Lovelace');
+
+    final Offset word = tester.getTopLeft(field) + const Offset(12, 10);
+
+    await tester.tapAt(word);
+    await tester.pump(const Duration(milliseconds: 60));
+    await tester.tapAt(word);
+    await settle(tester);
+
+    final EditableTextState editor = tester.state<EditableTextState>(field);
+    final TextEditingValue value = editor.textEditingValue;
+
+    expect(value.selection.textInside(value.text), 'Ada');
+    expect(editor.selectionOverlay?.handlesAreVisible, isTrue);
+    await shot(tester, 'selection');
+
+    // Off the field again, or the keyboard's focus goes on into the next flow.
+    editor.widget.focusNode.unfocus();
+    await settle(tester);
   });
 
   testWidgets('More changes the theme and the direction of the whole app', (
@@ -225,8 +271,7 @@ void defineFlows({required Shot shot}) {
     await _press(tester, 'Components');
     await shot(tester, 'components');
 
-    await tester.enterText(find.byType(EditableText).first, 'butt');
-    await settle(tester);
+    await _type(tester, find.byType(EditableText).first, 'butt');
     await _press(tester, 'button');
     await shot(tester, 'component-button');
     await _press(tester, 'sizes');

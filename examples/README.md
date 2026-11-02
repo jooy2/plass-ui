@@ -54,7 +54,17 @@ tool/pull_screenshots.sh ios <simulator id> <folder>
 tool/pull_screenshots.sh android <emulator serial> <folder>
 ```
 
-`--dart-define=PLASS_THEME=dark` runs the demos in the dark theme, `--dart-define=PLASS_DEMOS=button,card` runs some of the components, and `--dart-define=PLASS_SETTLE_MS=2000` gives each demo longer to settle, which a picture off the network needs.
+On a real iPhone, pass your own signing team, since the project holds none, and run in profile mode, which draws what a user's phone draws. Keep the phone unlocked, and allow the Local Network prompt on the first run:
+
+```bash
+FLUTTER_XCODE_DEVELOPMENT_TEAM=<team id> flutter drive --driver test_driver/integration_test.dart --target integration_test/app_test.dart --keep-app-running --profile -d <device>
+```
+
+```bash
+tool/pull_screenshots.sh ios-device <device id> <folder>
+```
+
+`--dart-define=PLASS_THEME=dark` runs the demos in the dark theme, `--dart-define=PLASS_DEMOS=button,text-field` runs some of the components, and `--dart-define=PLASS_SETTLE_MS=2000` gives each demo longer to settle, which a picture off the network needs.
 
 ## Electron: `examples/electron`
 
