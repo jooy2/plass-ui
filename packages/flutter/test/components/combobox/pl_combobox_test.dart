@@ -4485,4 +4485,42 @@ void main() {
       });
     });
   });
+
+  group('on a touch screen', () {
+    const List<PlComboboxOption<String>> cities = <PlComboboxOption<String>>[
+      PlComboboxOption<String>(value: 'seoul', label: 'Seoul'),
+    ];
+
+    for (final TargetPlatform platform in <TargetPlatform>[
+      TargetPlatform.iOS,
+      TargetPlatform.android,
+    ]) {
+      testWidgets('lets the keyboard go on its done key on $platform', (WidgetTester tester) async {
+        debugDefaultTargetPlatformOverride = platform;
+
+        final FocusNode node = FocusNode();
+
+        addTearDown(node.dispose);
+
+        await tester.pumpWidget(
+          host(
+            PlCombobox<String>(fullWidth: true, options: cities, value: null, focusNode: node),
+            width: 300,
+            overlay: true,
+          ),
+        );
+        node.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.showKeyboard(find.byType(EditableText));
+
+        expect(node.hasFocus, isTrue);
+
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+
+        expect(node.hasFocus, isFalse);
+        debugDefaultTargetPlatformOverride = null;
+      });
+    }
+  });
 }

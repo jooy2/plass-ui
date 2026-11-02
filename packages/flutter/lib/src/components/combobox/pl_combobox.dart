@@ -1,6 +1,7 @@
 /// A field you can type into and also choose from.
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -1330,6 +1331,11 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
     }
   }
 
+  /// Whether a closed field's Enter came from an on-screen keyboard.
+  bool get _touchKeyboard =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android;
+
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
@@ -1466,6 +1472,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           // since the arrows move the focus there.
           if (plassArrowsMoveFocus(context)) {
             _openList();
+          } else if (_touchKeyboard) {
+            // On a touch screen this is the keyboard's own key, which is the
+            // one way a reader has of putting the keyboard away.
+            _focusNode.unfocus();
           }
 
           return;
@@ -1477,6 +1487,10 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> {
           _take(active);
         } else if (_usable && _rows.isNotEmpty) {
           _close();
+
+          if (_touchKeyboard) {
+            _focusNode.unfocus();
+          }
         }
       },
       style: TextStyle(
