@@ -533,4 +533,20 @@ void main() {
       });
     });
   });
+
+  testWidgets('keeps its end slot at the end of the width it fills', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      host(
+        const PlPill(
+          title: Text('Recording'),
+          endIcon: SizedBox(key: Key('end'), width: 20),
+        ),
+        width: 400,
+      ),
+    );
+
+    final double right = tester.getTopRight(find.byType(PlPill)).dx;
+
+    expect(tester.getTopRight(find.byKey(const Key('end'))).dx, closeTo(right, 8));
+  });
 }

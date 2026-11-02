@@ -277,35 +277,44 @@ class _PlPillState extends State<PlPill> with SingleTickerProviderStateMixin {
             top: _rowPaddingY,
             bottom: _rowPaddingY,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: gap[_size]!,
-            children: <Widget>[
-              if (widget.startIcon != null)
-                // A square the size of a standalone glyph, clipped round: an
-                // image fills the box and is cropped rather than letterboxed,
-                // which is what a 20px portrait wants.
-                ClipOval(
-                  child: SizedBox(
-                    width: iconSize[_size]!,
-                    height: iconSize[_size]!,
-                    // A glyph takes the ink the words are drawn in at this
-                    // moment, so it eases with them when the variant changes.
-                    child: Builder(
-                      builder: (BuildContext context) => IconTheme.merge(
-                        data: IconThemeData(
-                          color: DefaultTextStyle.of(context).style.color,
-                          size: iconSize[_size]!,
+          // The middle takes the room a pill that fills its width has over,
+          // which keeps the end slot at the end and the words centred, as the
+          // React pill's `flex-1` does. Given no width to fill, it takes its own.
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) => Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: gap[_size]!,
+              children: <Widget>[
+                if (widget.startIcon != null)
+                  // A square the size of a standalone glyph, clipped round: an
+                  // image fills the box and is cropped rather than letterboxed,
+                  // which is what a 20px portrait wants.
+                  ClipOval(
+                    child: SizedBox(
+                      width: iconSize[_size]!,
+                      height: iconSize[_size]!,
+                      // A glyph takes the ink the words are drawn in at this
+                      // moment, so it eases with them when the variant changes.
+                      child: Builder(
+                        builder: (BuildContext context) => IconTheme.merge(
+                          data: IconThemeData(
+                            color: DefaultTextStyle.of(context).style.color,
+                            size: iconSize[_size]!,
+                          ),
+                          child: Center(child: widget.startIcon!),
                         ),
-                        child: Center(child: widget.startIcon!),
                       ),
                     ),
                   ),
-                ),
-              if (widget.title != null || widget.description != null || widget.child != null)
-                Flexible(child: _middle()),
-              if (widget.endIcon != null) _outsidePress(widget.endIcon!, interactive: interactive),
-            ],
+                if (widget.title != null || widget.description != null || widget.child != null)
+                  Flexible(
+                    fit: constraints.hasBoundedWidth ? FlexFit.tight : FlexFit.loose,
+                    child: _middle(),
+                  ),
+                if (widget.endIcon != null)
+                  _outsidePress(widget.endIcon!, interactive: interactive),
+              ],
+            ),
           ),
         );
 

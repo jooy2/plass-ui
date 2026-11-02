@@ -32,14 +32,14 @@ class _Stop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final IconThemeData theme = IconTheme.of(context);
-
     return Container(
       width: 10,
       height: 10,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(2),
-        color: theme.color ?? const Color(0xFFFFFFFF),
+        // White rather than the button's ink, which is meant for a sheet and
+        // not for the pill's fill.
+        color: const Color(0xFFFFFFFF),
       ),
     );
   }

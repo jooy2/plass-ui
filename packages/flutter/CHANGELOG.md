@@ -21,6 +21,7 @@
 - **A `PlSegmentedButton` fits a phone.** Labels wider than the room overflowed. The set now scrolls, as a bar of tabs does.
 - **A long `PlOtpField` fits a phone.** A row of eight slots overflowed. The slots now come out smaller where the row does not fit.
 - **A horizontal `PlStepper` breaks no label in two.** The step and its connector took half the width each, which broke a label as short as `Account` on a phone, and a step whose label wrapped pushed the other bullets out of line. The connector now takes what the step leaves, and the bullets stay on one line.
+- **A `PlPill` that fills its width keeps its end slot at the end.** Its parts were packed at the start, with the rest of the pill empty. The words now take the room left over, as the React pill's do.
 
 ## 1.8.2 (2026-10-09)
 

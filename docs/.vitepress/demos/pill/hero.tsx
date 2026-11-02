@@ -6,7 +6,7 @@ function DotGlyph() {
 
 function StopGlyph() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="size-3.5">
+    <svg viewBox="0 0 24 24" fill="#fff" className="size-3.5">
       <rect x="7" y="7" width="10" height="10" rx="2" />
     </svg>
   );
