@@ -106,4 +106,27 @@ void main() {
       });
     });
   });
+
+  testWidgets('takes the page\'s text colour with nothing above it to say otherwise', (
+    WidgetTester tester,
+  ) async {
+    late Color? seen;
+
+    await tester.pumpWidget(
+      host(
+        PlIcon(
+          icon: Builder(
+            builder: (BuildContext context) {
+              seen = IconTheme.of(context).color;
+
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+        brightness: Brightness.dark,
+      ),
+    );
+
+    expect(seen, PlassTokens.of(Brightness.dark).fg);
+  });
 }

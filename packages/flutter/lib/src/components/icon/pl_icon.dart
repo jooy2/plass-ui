@@ -68,7 +68,16 @@ class PlIcon extends StatelessWidget {
     final size = this.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
 
     final box = iconSize[size]!;
-    final ink = color != null ? PlassTheme.of(context).family(color!).accent : null;
+    final tokens = PlassTheme.of(context);
+    // With nothing above it to say what colour its content is, an icon takes the
+    // colour of the text it sits in, as `currentColor` does. Left alone it would
+    // take [IconThemeData.fallback]'s black, which a dark page cannot show.
+    final bool inherits = context.dependOnInheritedWidgetOfExactType<IconTheme>() != null;
+    final ink = color != null
+        ? tokens.family(color!).accent
+        : inherits
+        ? null
+        : DefaultTextStyle.of(context).style.color ?? tokens.fg;
 
     Widget glyph = SizedBox.square(
       dimension: box,
