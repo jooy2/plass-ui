@@ -117,6 +117,47 @@ void main() {
       });
     });
 
+    group('in a builder, above the navigator', () {
+      Widget app() => WidgetsApp(
+        color: const Color(0xFF3F63F2),
+        pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) {
+          return PageRouteBuilder<T>(
+            settings: settings,
+            pageBuilder: (BuildContext context, _, _) => builder(context),
+          );
+        },
+        builder: (BuildContext context, Widget? child) => PlConfirmProvider(child: child!),
+        home: Center(
+          child: _Asker(
+            answer: (Object? _) {},
+            options: const PlConfirmOptions(title: Text('Delete this project?')),
+          ),
+        ),
+      );
+
+      testWidgets('brings an overlay of its own', (WidgetTester tester) async {
+        await tester.pumpWidget(app());
+        await _press(tester, 'Delete');
+
+        expect(tester.takeException(), isNull);
+        expect(find.text('Delete this project?'), findsOneWidget);
+      });
+
+      testWidgets('closes on the system back and leaves the page where it is', (
+        WidgetTester tester,
+      ) async {
+        await tester.pumpWidget(app());
+        await _press(tester, 'Delete');
+        await tester.pump();
+
+        await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+
+        expect(find.text('Delete this project?'), findsNothing);
+        expect(find.text('Delete'), findsOneWidget);
+      });
+    });
+
     group('under MaterialApp', () {
       Widget appWith(Widget Function(Widget child) wrap) => MaterialApp(
         builder: (BuildContext context, Widget? child) =>

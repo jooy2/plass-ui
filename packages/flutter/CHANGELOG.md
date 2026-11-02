@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Changed
+
+- **`PlConfirmProvider` brings its own `Overlay` in a `builder`.** Placed there without `Overlay.wrap`, the first question threw "No Overlay widget found" and filled the screen with the error. The `Overlay.wrap` an app already has keeps working, and the provider no longer needs it.
+
 ### Fixed
 
 - **A `PlAvatar` in a `PlListItem` stays round.** A slot was one line tall, so anything taller, such as an avatar beside a two-line row, was squashed into an oval. A slot is now at least a line tall, and as tall as what it holds.
@@ -26,6 +30,7 @@
 - **A chart's horizontal value axis stays readable on a phone.** Every label was drawn however little room there was, so the dates under a `PlTimelineChart` and the numbers under a horizontal chart ran into each other. Labels are now skipped until they clear each other, as in the React build, and the first and last are anchored inward.
 - **A horizontal `PlBarChart` shows the whole of its longest value.** A bar that reached the end of the plot had its value cut off at the edge of the chart. The plot now keeps room for it.
 - **A popup stays on the screen along its anchor.** A `PlMenu`, `PlPopover` or tooltip by the edge of a phone ran off it, because a popup flipped only to the other side of its anchor. It now lines up with the anchor's other end as well.
+- **The system back closes a question from a provider in a `builder`.** A layer above the navigator had no route to hold, so Android's back left the question up and popped the page under it. A `PlConfirmProvider` there now closes first, as any other layer does.
 
 ## 1.8.2 (2026-10-09)
 

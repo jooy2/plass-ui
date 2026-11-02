@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/anchored.dart';
+import 'package:plass_ui/src/internal/back.dart';
 import 'package:plass_ui/src/internal/portal.dart';
 
 import '../support/host.dart';
@@ -598,6 +599,44 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('Layer'), findsOneWidget);
       expect(calls, contains('SystemNavigator.pop'), reason: 'there was nothing to pop');
+    });
+  });
+
+  group('above the navigator', () {
+    Widget app(ValueChanged<bool> closed) => WidgetsApp(
+      color: const Color(0xFF3F63F2),
+      pageRouteBuilder: <T>(RouteSettings settings, WidgetBuilder builder) {
+        return PageRouteBuilder<T>(
+          settings: settings,
+          pageBuilder: (BuildContext context, _, _) => builder(context),
+        );
+      },
+      builder: (BuildContext context, Widget? child) {
+        return Stack(
+          children: <Widget>[
+            child!,
+            PlassBackGuard(
+              active: true,
+              onBack: () => closed(true),
+              child: const SizedBox.shrink(),
+            ),
+          ],
+        );
+      },
+      home: const SizedBox.expand(key: Key('page')),
+    );
+
+    testWidgets('holds the route on top of the navigator under it', (WidgetTester tester) async {
+      var closed = false;
+
+      await tester.pumpWidget(app((bool value) => closed = value));
+      await tester.pump();
+
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+
+      expect(closed, isTrue);
+      expect(find.byKey(const Key('page')), findsOneWidget);
     });
   });
 }

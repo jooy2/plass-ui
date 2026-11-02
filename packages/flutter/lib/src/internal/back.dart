@@ -27,9 +27,13 @@ import 'package:flutter/widgets.dart';
 /// last and is painted over the others.
 ///
 /// A layer on a page something else has been pushed over is not asked, because
-/// the back pops the page on top. With no route above it at all, an app that
-/// has an [Overlay] and no [Navigator], there is no back to take, and the guard
-/// does nothing.
+/// the back pops the page on top.
+///
+/// A layer above the navigator has no route of its own: `PlConfirmProvider` in
+/// the app's `builder` is the usual one. Left at that, the back would pop the
+/// page under the question, so the guard holds the route on top of the first
+/// navigator under the root instead. With no navigator at all there is no back
+/// to take, and the guard does nothing.
 class PlassBackGuard extends StatefulWidget {
   /// Creates a guard.
   const PlassBackGuard({required this.active, required this.child, this.onBack, super.key});
@@ -57,9 +61,15 @@ class _PlassBackGuardState extends State<PlassBackGuard> {
   /// The route the layer sits in, and `null` where there is none.
   ModalRoute<Object?>? _route;
 
-  /// The route the guard is registered with: [_route] while the layer takes
-  /// the back, and `null` while it does not.
+  /// The route on top of the navigator under a layer that sits in none.
+  ModalRoute<Object?>? _below;
+
+  /// The route the guard is registered with: the layer's while it takes the
+  /// back, and `null` while it does not.
   ModalRoute<Object?>? _holding;
+
+  /// The route the back reaches this layer through.
+  ModalRoute<Object?>? get _home => _route ?? _below;
 
   @override
   void initState() {
@@ -103,13 +113,57 @@ class _PlassBackGuardState extends State<PlassBackGuard> {
   /// Registers with the route while the layer takes the back, and with none
   /// while it does not.
   void _hold() {
-    final ModalRoute<Object?>? next = widget.active ? _route : null;
+    if (!widget.active) {
+      _below = null;
+    } else if (_route == null && _below == null) {
+      // After the frame, because the elements under a layer cannot be walked
+      // while they are being built.
+      WidgetsBinding.instance.addPostFrameCallback((Duration _) {
+        if (mounted && widget.active && _route == null && _below == null) {
+          _below = _topRoute();
+          _hold();
+        }
+      });
+    }
+
+    final ModalRoute<Object?>? next = widget.active ? _home : null;
 
     if (next != _holding) {
       _holding?.unregisterPopEntry(_entry);
       _holding = next;
       _holding?.registerPopEntry(_entry);
     }
+  }
+
+  /// The route on top of the first navigator under the root, or `null`.
+  static ModalRoute<Object?>? _topRoute() {
+    NavigatorState? navigator;
+
+    void visit(Element element) {
+      if (navigator != null) {
+        return;
+      }
+
+      if (element is StatefulElement && element.state is NavigatorState) {
+        navigator = element.state as NavigatorState;
+      } else {
+        element.visitChildren(visit);
+      }
+    }
+
+    WidgetsBinding.instance.rootElement?.visitChildren(visit);
+
+    ModalRoute<Object?>? top;
+
+    // Told about each route from the top down, and pops nothing while it
+    // answers yes to the first.
+    navigator?.popUntil((Route<dynamic> route) {
+      top = route is ModalRoute<Object?> ? route : null;
+
+      return true;
+    });
+
+    return top;
   }
 
   /// Whether no guard in the same route has taken the back since this one did.
@@ -119,7 +173,7 @@ class _PlassBackGuardState extends State<PlassBackGuard> {
         return true;
       }
 
-      if (identical(other._route, _route)) {
+      if (identical(other._home, _home)) {
         return false;
       }
     }

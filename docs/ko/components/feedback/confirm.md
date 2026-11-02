@@ -34,11 +34,10 @@ if (await confirm({ title: 'Delete this project?', color: 'danger' })) {
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-// 앱 안에서 한 번, 자기 Overlay 아래에
+// 앱 안에서 한 번
 WidgetsApp(
   // …
-  builder: (BuildContext context, Widget? child) =>
-      Overlay.wrap(child: PlConfirmProvider(child: child!)),
+  builder: (BuildContext context, Widget? child) => PlConfirmProvider(child: child!),
 );
 
 // 그 아래 어디서든
@@ -49,7 +48,7 @@ if (await PlConfirmProvider.of(context).confirm(
 }
 ```
 
-provider는 앱을 감싸지 말고 앱 안에 두세요. 앱 바깥에는 아직 `Directionality`가 없습니다. `builder` 안의 provider는 navigator와 그 `Overlay`보다 위에 있으므로 자기 `Overlay`가 따로 있어야 하고, 없으면 `confirm`이 "No Overlay widget found"로 실패합니다. `MaterialApp`에서는 투명한 `Material`로 감싸야 질문이 앱의 글꼴로 나옵니다. 자세한 내용은 [시작하기](../../guide/getting-started#위쪽에-필요한-provider-하나)에 있습니다.
+provider는 앱을 감싸지 말고 앱 안에 두세요. 앱 바깥에는 아직 `Directionality`가 없습니다. `builder` 안의 provider는 navigator와 그 `Overlay`보다 위에 있으므로 자기 `Overlay`를 따로 둡니다. `MaterialApp`에서는 투명한 `Material`로 감싸야 질문이 앱의 글꼴로 나옵니다. 자세한 내용은 [시작하기](../../guide/getting-started#위쪽에-필요한-provider-하나)에 있습니다.
 
 :::
 

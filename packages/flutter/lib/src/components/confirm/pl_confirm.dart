@@ -104,19 +104,18 @@ abstract class PlConfirmController {
 ///
 /// It goes **inside** the application rather than around it, because above a
 /// `WidgetsApp` or a `MaterialApp` there is no `Directionality` yet. `builder`
-/// is the place, and what `builder` returns sits above the navigator and the
-/// navigator's [Overlay] — so the dialog needs one of its own, or `confirm`
-/// fails with "No Overlay widget found". Under a `MaterialApp` it also sits
-/// above every page's `Material`, where the text style in scope is the one that
-/// app marks text outside a `Material` with: the question never takes its
+/// is the place. What `builder` returns sits above the navigator and the
+/// navigator's [Overlay], so the provider brings an [Overlay] of its own for the
+/// dialog when there is none above it. Under a `MaterialApp` it also sits above
+/// every page's `Material`, where the text style in scope is the one that app
+/// marks text outside a `Material` with: the question never takes its
 /// underline, but it does take its monospace font, so put a `Material` of
 /// `MaterialType.transparency` round the provider to give it the app's own.
 ///
 /// ```dart
 /// WidgetsApp(
 ///   // …
-///   builder: (BuildContext context, Widget? child) =>
-///       Overlay.wrap(child: PlConfirmProvider(child: child!)),
+///   builder: (BuildContext context, Widget? child) => PlConfirmProvider(child: child!),
 /// )
 /// ```
 ///
@@ -305,71 +304,75 @@ class _PlConfirmProviderState extends State<PlConfirmProvider> implements PlConf
     final size = options?.size ?? _size;
     final color = options?.color ?? _color;
 
+    final Widget layers = Stack(
+      children: <Widget>[
+        widget.child,
+        // An alert dialog, which is what WAI-ARIA calls a dialog that breaks
+        // into what the reader was doing and waits for an answer, as the React
+        // question's `role="alertdialog"` is.
+        PlassLayerRole(
+          role: SemanticsRole.alertDialog,
+          child: PlModal(
+            open: _open,
+            // The only paths that reach here are Escape, the system back and a
+            // press outside — the buttons below settle and close it themselves,
+            // and a controlled `open` does not call this back for that.
+            onOpenChanged: (bool next) {
+              if (!next) {
+                _settle(false);
+              }
+            },
+            dismissible: options?.dismissible ?? true,
+            showClose: false,
+            size: size,
+            color: color,
+            width: options?.width ?? widget.width,
+            title: options?.title,
+            description: options?.description,
+            // Keyed by the question. The sheet stays open between two queued
+            // questions, so without a key the next one would reuse these
+            // buttons, `autofocus` would not run again, and the focus would stay
+            // on the button just pressed: an Enter pressed twice would confirm a
+            // second, destructive question from the first one's harmless yes.
+            actions: <Widget>[
+              if (!isAlert)
+                PlButton(
+                  key: ValueKey<String>('cancel-$_turn'),
+                  variant: PlassVariant.ghost,
+                  color: PlassColor.secondary,
+                  size: size,
+                  autofocus: !focusConfirm,
+                  onPressed: () => _settle(false),
+                  child:
+                      options?.cancelLabel ??
+                      widget.cancelLabel ??
+                      Text(PlassTheme.labelsOf(context).cancel),
+                ),
+              PlButton(
+                key: ValueKey<String>('confirm-$_turn'),
+                color: color,
+                size: size,
+                autofocus: focusConfirm,
+                onPressed: () => _settle(true),
+                child:
+                    options?.confirmLabel ??
+                    (isAlert
+                        ? widget.acknowledgeLabel ?? Text(PlassTheme.labelsOf(context).acknowledge)
+                        : widget.confirmLabel ?? Text(PlassTheme.labelsOf(context).confirm)),
+              ),
+            ],
+            child: options?.child,
+          ),
+        ),
+      ],
+    );
+
     return _PlConfirmScope(
       controller: this,
-      child: Stack(
-        children: <Widget>[
-          widget.child,
-          // An alert dialog, which is what WAI-ARIA calls a dialog that breaks
-          // into what the reader was doing and waits for an answer, as the React
-          // question's `role="alertdialog"` is.
-          PlassLayerRole(
-            role: SemanticsRole.alertDialog,
-            child: PlModal(
-              open: _open,
-              // The only paths that reach here are Escape, the system back and a
-              // press outside — the buttons below settle and close it themselves,
-              // and a controlled `open` does not call this back for that.
-              onOpenChanged: (bool next) {
-                if (!next) {
-                  _settle(false);
-                }
-              },
-              dismissible: options?.dismissible ?? true,
-              showClose: false,
-              size: size,
-              color: color,
-              width: options?.width ?? widget.width,
-              title: options?.title,
-              description: options?.description,
-              // Keyed by the question. The sheet stays open between two queued
-              // questions, so without a key the next one would reuse these
-              // buttons, `autofocus` would not run again, and the focus would stay
-              // on the button just pressed: an Enter pressed twice would confirm a
-              // second, destructive question from the first one's harmless yes.
-              actions: <Widget>[
-                if (!isAlert)
-                  PlButton(
-                    key: ValueKey<String>('cancel-$_turn'),
-                    variant: PlassVariant.ghost,
-                    color: PlassColor.secondary,
-                    size: size,
-                    autofocus: !focusConfirm,
-                    onPressed: () => _settle(false),
-                    child:
-                        options?.cancelLabel ??
-                        widget.cancelLabel ??
-                        Text(PlassTheme.labelsOf(context).cancel),
-                  ),
-                PlButton(
-                  key: ValueKey<String>('confirm-$_turn'),
-                  color: color,
-                  size: size,
-                  autofocus: focusConfirm,
-                  onPressed: () => _settle(true),
-                  child:
-                      options?.confirmLabel ??
-                      (isAlert
-                          ? widget.acknowledgeLabel ??
-                                Text(PlassTheme.labelsOf(context).acknowledge)
-                          : widget.confirmLabel ?? Text(PlassTheme.labelsOf(context).confirm)),
-                ),
-              ],
-              child: options?.child,
-            ),
-          ),
-        ],
-      ),
+      // In a `builder` the provider sits above the navigator and its [Overlay],
+      // and a question that opened there would have nowhere to go. Where one is
+      // in reach already, the question goes on it.
+      child: Overlay.maybeOf(context) == null ? Overlay.wrap(child: layers) : layers,
     );
   }
 }

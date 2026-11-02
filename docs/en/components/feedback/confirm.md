@@ -34,11 +34,10 @@ if (await confirm({ title: 'Delete this project?', color: 'danger' })) {
 ```dart
 import 'package:plass_ui/plass_ui.dart';
 
-// once, inside the app, under an Overlay of its own
+// once, inside the app
 WidgetsApp(
   // …
-  builder: (BuildContext context, Widget? child) =>
-      Overlay.wrap(child: PlConfirmProvider(child: child!)),
+  builder: (BuildContext context, Widget? child) => PlConfirmProvider(child: child!),
 );
 
 // anywhere under it
@@ -49,7 +48,7 @@ if (await PlConfirmProvider.of(context).confirm(
 }
 ```
 
-The provider goes inside the app rather than around it, because around the app there is no `Directionality` yet. In `builder` it sits above the navigator and the navigator's `Overlay`, so it needs one of its own, or `confirm` fails with "No Overlay widget found". Under `MaterialApp`, a transparent `Material` round it gives the question the app's font. [Getting started](../../guide/getting-started#the-one-provider-you-may-need) has the rest.
+The provider goes inside the app rather than around it, because around the app there is no `Directionality` yet. In `builder` it sits above the navigator and the navigator's `Overlay`, so it brings one of its own. Under `MaterialApp`, a transparent `Material` round it gives the question the app's font. [Getting started](../../guide/getting-started#the-one-provider-you-may-need) has the rest.
 
 :::
 
