@@ -236,6 +236,87 @@ void main() {
       }
     });
 
+    group('along the anchor', () {
+      Future<Rect> placeAt(
+        WidgetTester tester,
+        AlignmentGeometry at,
+        PlassAlign align,
+        TextDirection direction,
+      ) async {
+        await tester.pumpWidget(
+          host(
+            Align(
+              alignment: at,
+              child: PlassAnchoredPortal(
+                open: true,
+                side: PlassSide.bottom,
+                align: align,
+                offset: 0,
+                popup: const SizedBox(key: popupKey, width: 200, height: 80),
+                child: const SizedBox(key: anchorKey, width: 40, height: 40),
+              ),
+            ),
+            overlay: true,
+            textDirection: direction,
+            width: 800,
+            height: 600,
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        return tester.getRect(find.byKey(popupKey));
+      }
+
+      testWidgets('lines up with the other end rather than running off the screen', (
+        WidgetTester tester,
+      ) async {
+        final Rect popup = await placeAt(
+          tester,
+          Alignment.topRight,
+          PlassAlign.start,
+          TextDirection.ltr,
+        );
+
+        expect(popup.right, 800);
+      });
+
+      testWidgets('does the same from the other side under RTL', (WidgetTester tester) async {
+        final Rect popup = await placeAt(
+          tester,
+          Alignment.topLeft,
+          PlassAlign.start,
+          TextDirection.rtl,
+        );
+
+        expect(popup.left, 0);
+      });
+
+      testWidgets('moves a centred popup off the edge it would run past', (
+        WidgetTester tester,
+      ) async {
+        final Rect popup = await placeAt(
+          tester,
+          Alignment.topLeft,
+          PlassAlign.center,
+          TextDirection.ltr,
+        );
+
+        expect(popup.left, 0);
+      });
+
+      testWidgets('keeps the end it was asked for while that fits', (WidgetTester tester) async {
+        final Rect popup = await placeAt(
+          tester,
+          Alignment.topLeft,
+          PlassAlign.start,
+          TextDirection.ltr,
+        );
+
+        expect(popup.left, 0);
+        expect(popup.width, 200);
+      });
+    });
+
     group('beside the anchor', () {
       testWidgets('hangs a popup from the top at the start and the bottom at the end', (
         WidgetTester tester,

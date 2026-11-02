@@ -45,6 +45,10 @@ enum PlassAnchorWidth {
 /// avoid, and a popup that creeps sideways as its anchor nears the edge is a
 /// popup whose arrow no longer points at anything.
 ///
+/// The alignment flips the same way. A menu that lines up with the start of a
+/// button at the end of a phone's screen would run off it, so it lines up with
+/// the button's end instead, and stays anchored to the button.
+///
 /// The side is decided as the popup opens, and again whenever the screen
 /// changes size, the popup's own size changes, or a relayout moves or resizes
 /// the anchor, and never on a scroll, which the layer link already follows. A
@@ -185,6 +189,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   /// for it there.
   late PlassSide _side = widget.side;
 
+  /// Which end of the anchor the popup lines up with, which is the one asked
+  /// for until the popup would run off the screen from there.
+  late PlassAlign _align = widget.align;
+
   /// How wide the anchor is, for a popup that has to match it.
   double? _anchorWidth;
 
@@ -228,6 +236,10 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
 
     if (widget.side != oldWidget.side) {
       _side = widget.side;
+    }
+
+    if (widget.align != oldWidget.align) {
+      _align = widget.align;
     }
 
     if (widget.open != oldWidget.open) {
@@ -336,6 +348,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
       // until the measure below says otherwise.
       if (!_portal.isShowing) {
         _side = widget.side;
+        _align = widget.align;
         _placed = null;
         _hidden = true;
         _fromAnchor();
@@ -525,11 +538,18 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     final size = widget.fitWidth ? Size(placed.own!, popup.size.height) : popup.size;
     final side = _fit(box, size, room.size);
     final space = widget.fitWidth ? _roomOn(side, box, room.size) : null;
+    // A popup held to its room is already as wide as it can be from there.
+    final align = widget.fitWidth ? widget.align : _fitAlong(side, box, size, room.size);
 
-    if (_hidden || side != _side || anchor.size.width != _anchorWidth || space != _room) {
+    if (_hidden ||
+        side != _side ||
+        align != _align ||
+        anchor.size.width != _anchorWidth ||
+        space != _room) {
       setState(() {
         _hidden = false;
         _side = side;
+        _align = align;
         _anchorWidth = anchor.size.width;
         _room = space;
       });
@@ -574,6 +594,39 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
     };
   }
 
+  /// The alignment that keeps a popup on [side] of [anchor] on the screen, which
+  /// is the one asked for unless it runs off it and another does not.
+  PlassAlign _fitAlong(PlassSide side, Rect anchor, Size popup, Size room) {
+    final across = side == PlassSide.top || side == PlassSide.bottom;
+    final rtl = across && Directionality.of(context) == TextDirection.rtl;
+    final length = across ? popup.width : popup.height;
+    final limit = across ? room.width : room.height;
+    final near = across ? anchor.left : anchor.top;
+    final far = across ? anchor.right : anchor.bottom;
+
+    // Where the popup's near edge would be, in the physical direction the axis
+    // runs, which is the reader's turned round under RTL.
+    double from(PlassAlign align) => switch (align) {
+      PlassAlign.center => (near + far - length) / 2,
+      PlassAlign.start => rtl ? far - length : near,
+      PlassAlign.end => rtl ? near : far - length,
+    };
+
+    bool fits(PlassAlign align) => from(align) >= 0 && from(align) + length <= limit;
+
+    if (fits(widget.align)) {
+      return widget.align;
+    }
+
+    final others = switch (widget.align) {
+      PlassAlign.start => const <PlassAlign>[PlassAlign.end, PlassAlign.center],
+      PlassAlign.end => const <PlassAlign>[PlassAlign.start, PlassAlign.center],
+      PlassAlign.center => const <PlassAlign>[PlassAlign.start, PlassAlign.end],
+    };
+
+    return others.firstWhere(fits, orElse: () => widget.align);
+  }
+
   /// How wide a popup on [side] of [anchor] can be before it runs off a screen
   /// of [room]: from where it hangs to the edge it runs towards, as
   /// [_anchors] places it.
@@ -605,7 +658,7 @@ class _PlassAnchoredPortalState extends State<PlassAnchoredPortal>
   /// here because the follower takes a resolved alignment. Along a side edge
   /// they are the top and the bottom in either direction.
   (Alignment, Alignment, Offset) _anchors(TextDirection direction) {
-    final along = switch (widget.align) {
+    final along = switch (_align) {
       PlassAlign.start => -1.0,
       PlassAlign.center => 0.0,
       PlassAlign.end => 1.0,
