@@ -498,4 +498,22 @@ void main() {
       });
     });
   });
+
+  testWidgets('leaves something taller than a line its shape', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      host(
+        const PlList(
+          children: <Widget>[
+            PlListItem(
+              startIcon: SizedBox.square(key: Key('tall'), dimension: 32),
+              child: Text('One'),
+            ),
+          ],
+        ),
+        width: 300,
+      ),
+    );
+
+    expect(tester.getSize(find.byKey(const Key('tall'))), const Size.square(32));
+  });
 }

@@ -365,9 +365,14 @@ class PlListItem extends StatelessWidget {
     );
 
     Widget slot(Widget content) {
-      return SizedBox(
-        height: body.line,
+      // A line tall, so a glyph sits on the first line of the row, and taller
+      // for something that is, such as an avatar, which a box of one line would
+      // squash into an oval.
+      return ConstrainedBox(
+        constraints: BoxConstraints(minHeight: body.line),
         child: Center(
+          widthFactor: 1,
+          heightFactor: 1,
           child: IconTheme.merge(
             data: IconThemeData(color: tokens.mutedFg, size: body.size * iconScale),
             child: DefaultTextStyle.merge(

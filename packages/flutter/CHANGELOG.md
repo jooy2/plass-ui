@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **A `PlAvatar` in a `PlListItem` stays round.** A slot was one line tall, so anything taller, such as an avatar beside a two-line row, was squashed into an oval. A slot is now at least a line tall, and as tall as what it holds.
+
 ## 1.8.2 (2026-10-09)
 
 ### Breaking changes
