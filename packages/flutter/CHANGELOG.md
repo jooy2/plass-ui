@@ -14,6 +14,8 @@
 
 ### Fixed
 
+- **`PlColorPicker` and `PlCommandPalette` have selection handles.** Their fields had the menu and no way to adjust a selection with a finger.
+- **A word selected a second time keeps its handles.** A long press on a word still selected from before the field lost the focus brought up the menu and no handles.
 - **A `PlAvatar` in a `PlListItem` stays round.** A slot was one line tall, so anything taller, such as an avatar beside a two-line row, was squashed into an oval. A slot is now at least a line tall, and as tall as what it holds.
 - **A side `PlDrawer` starts at the top of the screen.** Its title, its content and its actions were packed together and centred down the panel. The title now sits at the top and the actions at the bottom, as the React drawer's do.
 - **A list in a `PlCard` of a set height scrolls.** The body was given an endless height whatever the card had, so a `ListView` in it threw "Vertical viewport was given unbounded height" and took the screen with it. The body now takes the height the card has left. A card as tall as what it holds is unchanged.

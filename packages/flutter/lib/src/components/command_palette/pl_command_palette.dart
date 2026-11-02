@@ -201,7 +201,7 @@ class PlCommandPalette extends StatefulWidget {
   State<PlCommandPalette> createState() => _PlCommandPaletteState();
 }
 
-class _PlCommandPaletteState extends State<PlCommandPalette> {
+class _PlCommandPaletteState extends State<PlCommandPalette> with PlassEditorHandles {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
@@ -460,6 +460,8 @@ class _PlCommandPaletteState extends State<PlCommandPalette> {
                   rendererIgnoresPointer: true,
                   selectionControls: plassSelectionControls(context, tokens.family(_color).accent),
                   contextMenuBuilder: plassEditorMenuBuilder(context),
+                  showSelectionHandles: editorHandles,
+                  onSelectionChanged: noteEditorSelection,
                 ),
               ),
             ),

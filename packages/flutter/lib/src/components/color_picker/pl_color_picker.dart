@@ -263,7 +263,7 @@ class PlColorPicker extends StatefulWidget {
   State<PlColorPicker> createState() => _PlColorPickerState();
 }
 
-class _PlColorPickerState extends State<PlColorPicker> {
+class _PlColorPickerState extends State<PlColorPicker> with PlassEditorHandles {
   PlassSize get _size => widget.size ?? PlassTheme.sizeOf(context) ?? PlassSize.md;
   PlassColor get _color => widget.color ?? PlassTheme.colorOf(context) ?? PlassColor.primary;
   PlassDensity get _density =>
@@ -351,6 +351,8 @@ class _PlColorPickerState extends State<PlColorPicker> {
       controller: _text,
       focusNode: _textFocus,
       editorKey: _textEditor,
+      handles: editorHandles,
+      onSelectionChanged: noteEditorSelection,
       onTyped: (String next) {
         final PlassColorValue? parsed = parseColor(next);
 
@@ -544,6 +546,8 @@ class _ColorPanel extends StatelessWidget {
     required this.controller,
     required this.focusNode,
     required this.editorKey,
+    required this.handles,
+    required this.onSelectionChanged,
     required this.onTyped,
     required this.withAlpha,
     required this.swatches,
@@ -561,6 +565,8 @@ class _ColorPanel extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final GlobalKey<EditableTextState> editorKey;
+  final bool handles;
+  final SelectionChangedCallback onSelectionChanged;
   final ValueChanged<String> onTyped;
   final bool withAlpha;
   final List<String> swatches;
@@ -832,6 +838,8 @@ class _ColorPanel extends StatelessWidget {
                                       family.accent,
                                     ),
                                     contextMenuBuilder: plassEditorMenuBuilder(context),
+                                    showSelectionHandles: handles,
+                                    onSelectionChanged: onSelectionChanged,
                                     enableInteractiveSelection: !disabled,
                                     // A pen on an iPad and autofill both write into a
                                     // field without its focus.

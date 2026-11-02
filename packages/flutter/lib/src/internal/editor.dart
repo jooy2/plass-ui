@@ -111,11 +111,32 @@ class PlassEditorPress extends StatefulWidget {
   State<PlassEditorPress> createState() => _PlassEditorPressState();
 }
 
+/// The platform's gestures, with one case of a long press put right.
+class _EditorGestures extends TextSelectionGestureDetectorBuilder {
+  _EditorGestures({required super.delegate});
+
+  /// A long press on a field without the focus takes the word under it, and an
+  /// editor only brings its handles up for a selection that changed. So a word
+  /// still selected from the last time the field had the focus is let go of
+  /// first, or it would come back with no handles to adjust it by.
+  @override
+  void onSingleLongTapStart(LongPressStartDetails details) {
+    final TextEditingValue value = editableText.textEditingValue;
+
+    if (delegate.selectionEnabled && !renderEditable.hasFocus && !value.selection.isCollapsed) {
+      editableText.userUpdateTextEditingValue(
+        value.copyWith(selection: TextSelection.collapsed(offset: value.selection.start)),
+        SelectionChangedCause.longPress,
+      );
+    }
+
+    super.onSingleLongTapStart(details);
+  }
+}
+
 class _PlassEditorPressState extends State<PlassEditorPress>
     implements TextSelectionGestureDetectorBuilderDelegate {
-  late final TextSelectionGestureDetectorBuilder _gestures = TextSelectionGestureDetectorBuilder(
-    delegate: this,
-  );
+  late final _EditorGestures _gestures = _EditorGestures(delegate: this);
 
   @override
   GlobalKey<EditableTextState> get editableTextKey => widget.editor;

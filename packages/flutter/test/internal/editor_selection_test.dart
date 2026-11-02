@@ -50,6 +50,81 @@ void main() {
     });
   }
 
+  testWidgets('brings the handles back for a word still selected from before', (
+    WidgetTester tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+
+    await longPress(tester);
+
+    final EditableTextState editor = tester.state<EditableTextState>(find.byType(EditableText));
+
+    expect(editor.selectionOverlay?.handlesAreVisible, isTrue);
+
+    editor.widget.focusNode.unfocus();
+    await tester.pumpAndSettle();
+
+    expect(controller.selection.isCollapsed, isFalse);
+
+    await tester.longPressAt(tester.getTopLeft(find.byType(EditableText)) + const Offset(10, 8));
+    await tester.pumpAndSettle();
+
+    expect(controller.selection, const TextSelection(baseOffset: 0, extentOffset: 5));
+    expect(editor.selectionOverlay?.handlesAreVisible, isTrue);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('gives the field of a colour picker its handles', (WidgetTester tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+
+    await tester.pumpWidget(
+      host(
+        const PlColorPicker(inline: true, value: '#1a58d1'),
+        width: 400,
+        height: 560,
+        overlay: true,
+      ),
+    );
+    await tester.longPressAt(tester.getTopLeft(find.byType(EditableText)) + const Offset(16, 8));
+    await tester.pumpAndSettle();
+
+    final selection = tester.widget<EditableText>(find.byType(EditableText)).controller.selection;
+
+    expect(selection.isCollapsed, isFalse);
+    expect(handles(tester), isTrue);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('gives the field of a command palette its handles', (WidgetTester tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+
+    await tester.pumpWidget(
+      host(
+        PlCommandPalette(
+          open: true,
+          items: const <PlCommandItem>[PlCommandItem(value: 'open', label: 'Open')],
+          onOpenChanged: (bool _) {},
+        ),
+        width: 300,
+        overlay: true,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(EditableText), 'open files');
+    await tester.pump();
+
+    expect(handles(tester), isFalse);
+
+    await tester.longPressAt(tester.getTopLeft(find.byType(EditableText)) + const Offset(12, 8));
+    await tester.pumpAndSettle();
+
+    final selection = tester.widget<EditableText>(find.byType(EditableText)).controller.selection;
+
+    expect(selection.isCollapsed, isFalse);
+    expect(handles(tester), isTrue);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
   testWidgets('draws no handles for a selection the code made', (WidgetTester tester) async {
     await tester.pumpWidget(
       host(PlTextField(fullWidth: true, controller: controller), width: 300, overlay: true),
