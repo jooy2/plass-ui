@@ -108,7 +108,16 @@ test('Desktop highlights code from a lazy chunk and copies it', async () => {
   const copy = page.getByRole('button', { name: /copy/i }).first();
 
   await copy.click();
-  expect(await session.app.evaluate(({ clipboard }) => clipboard.readText())).toContain('PlButton');
+  // What the page reports needs the permission the main process grants.
+  await expect(page.getByRole('button', { name: 'Copied' }).first()).toBeVisible();
+
+  // On Linux the run is on a virtual display, where the main process reads the
+  // clipboard back empty.
+  if (process.platform !== 'linux') {
+    await expect
+      .poll(() => session.app.evaluate(({ clipboard }) => clipboard.readText()))
+      .toContain('PlButton');
+  }
 });
 
 test('Settings changes the theme natively, the direction and the density', async () => {
