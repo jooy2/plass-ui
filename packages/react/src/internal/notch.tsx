@@ -178,20 +178,29 @@ export const floatPlaceholderClassName = 'plass-float-placeholder';
  *
  * Hover and focus are read off the frame rather than off this element, because
  * the thing being hovered is the control and the edge is only drawing for it.
+ *
+ * An invalid field draws the danger colour in all three, as the shell does with
+ * `fieldInvalidClasses`. Marked important because it has to win over hover and
+ * focus, which set the same property at the same specificity.
  */
+const edgeInvalidClasses = 'in-data-invalid:[border-color:var(--plass-danger-accent)]!';
+
 const edgeRestClasses: Record<PlassVariant, string> = {
   solid: /* @__PURE__ */ [
     'border border-transparent',
-    'group-focus-within/field:[border-color:var(--p-ring)]'
+    'group-focus-within/field:[border-color:var(--p-ring)]',
+    edgeInvalidClasses
   ].join(' '),
   glass: /* @__PURE__ */ [
     'border [border-color:var(--plass-border)]',
     'group-hover/field:[border-color:var(--p-line)]',
-    'group-focus-within/field:[border-color:var(--p-ring)]'
+    'group-focus-within/field:[border-color:var(--p-ring)]',
+    edgeInvalidClasses
   ].join(' '),
   ghost: /* @__PURE__ */ [
     'border border-transparent',
-    'group-focus-within/field:[border-color:var(--p-ring)]'
+    'group-focus-within/field:[border-color:var(--p-ring)]',
+    edgeInvalidClasses
   ].join(' ')
 };
 
@@ -249,9 +258,13 @@ const edgeFocusClasses = /* @__PURE__ */ [
  * disabled, and a utility added on top of those would be one more declaration
  * of the same property at the same specificity — whichever of them Tailwind
  * happened to emit last would win. The border itself stays, transparent, so the
- * control's inside is the same size it was.
+ * control's inside is the same size it was. The outline an invalid shell draws
+ * goes as well: it would run across the label.
  */
-export const notchShellStyle: React.CSSProperties = { borderColor: 'transparent' };
+export const notchShellStyle: React.CSSProperties = {
+  borderColor: 'transparent',
+  outline: 'none'
+};
 
 /**
  * What a control's `labelPlacement` comes to once its label and its start are

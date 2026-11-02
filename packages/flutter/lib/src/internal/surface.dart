@@ -582,6 +582,10 @@ PlassSurface sheetSurface(
 /// wash behind the pane, and a field is very often *not* on the page — it is on
 /// a card, where a white hairline round a white box is a field a reader cannot
 /// see the shape of.
+///
+/// An [invalid] field has the family's own colour on that edge at rest, in every
+/// variant, as a `solid` well and a `ghost` field otherwise have no edge at all:
+/// a field that is wrong says so before the pointer reaches it.
 PlassSurface fieldSurface(
   PlassTokens tokens,
   PlassColorFamily family, {
@@ -591,6 +595,7 @@ PlassSurface fieldSurface(
   bool focused = false,
   bool readOnly = false,
   bool disabled = false,
+  bool invalid = false,
 }) {
   if (disabled) {
     switch (variant) {
@@ -635,6 +640,8 @@ PlassSurface fieldSurface(
     }
   }
 
+  final Border? alarm = invalid ? Border.all(color: family.accent, width: hairline) : null;
+
   switch (variant) {
     case PlassVariant.solid:
       return PlassSurface(
@@ -646,6 +653,7 @@ PlassSurface fieldSurface(
             : hovered
             ? tokens.glassHover
             : tokens.glassPress,
+        border: alarm,
         ink: tokens.fg,
         blur: true,
         insets: <PlassInsetShadow>[tokens.well],
@@ -654,14 +662,16 @@ PlassSurface fieldSurface(
     case PlassVariant.glass:
       return PlassSurface(
         fill: hovered || focused ? tokens.glassPress : tokens.glassHover,
-        border: Border.all(
-          color: focused
-              ? family.lineHover
-              : hovered
-              ? family.line
-              : tokens.border,
-          width: hairline,
-        ),
+        border:
+            alarm ??
+            Border.all(
+              color: focused
+                  ? family.lineHover
+                  : hovered
+                  ? family.line
+                  : tokens.border,
+              width: hairline,
+            ),
         ink: tokens.fg,
         blur: true,
         insets: <PlassInsetShadow>[tokens.glossGlass],
@@ -676,6 +686,7 @@ PlassSurface fieldSurface(
             : hovered
             ? family.soft
             : null,
+        border: alarm,
         ink: tokens.fg,
       );
   }

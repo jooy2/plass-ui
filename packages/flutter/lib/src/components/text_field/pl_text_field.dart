@@ -367,6 +367,7 @@ class _PlTextFieldState extends State<PlTextField> with PlassEditorHandles {
     final surface = fieldSurface(
       tokens,
       family,
+      invalid: isInvalid,
       variant: widget.variant,
       elevation: widget.elevation,
       hovered: _hovered,
@@ -579,6 +580,7 @@ class _PlTextFieldState extends State<PlTextField> with PlassEditorHandles {
           edge: notchEdgePainter(
             tokens,
             family,
+            invalid: isInvalid,
             variant: widget.variant,
             borderRadius: radius,
             hovered: _hovered,

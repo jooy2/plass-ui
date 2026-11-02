@@ -327,6 +327,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
         final surface = fieldSurface(
           tokens,
           family,
+          invalid: isInvalid,
           variant: widget.variant,
           elevation: widget.elevation,
           hovered: state.hovered,
@@ -410,6 +411,7 @@ class _PlassPickerShellState extends State<PlassPickerShell> {
             edge: notchEdgePainter(
               tokens,
               family,
+              invalid: isInvalid,
               variant: widget.variant,
               borderRadius: radius,
               hovered: state.hovered,

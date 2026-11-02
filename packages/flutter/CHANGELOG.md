@@ -14,6 +14,7 @@
 
 ### Fixed
 
+- **An invalid field has a red edge at rest.** The edge stayed neutral until the pointer or the focus reached the field, and a `solid` or a `ghost` field had none at all, so only the message said anything was wrong. This holds for `PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox`, `PlOtpField` and the date and time pickers, in all three variants.
 - **`PlColorPicker` and `PlCommandPalette` have selection handles.** Their fields had the menu and no way to adjust a selection with a finger.
 - **A word selected a second time keeps its handles.** A long press on a word still selected from before the field lost the focus brought up the menu and no handles.
 - **A `PlAvatar` in a `PlListItem` stays round.** A slot was one line tall, so anything taller, such as an avatar beside a two-line row, was squashed into an oval. A slot is now at least a line tall, and as tall as what it holds.

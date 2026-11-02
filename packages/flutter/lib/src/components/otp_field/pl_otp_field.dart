@@ -568,6 +568,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
       surface: fieldSurface(
         tokens,
         family,
+        invalid: widget.invalid ?? widget.error != null,
         variant: widget.variant,
         elevation: widget.elevation,
         hovered: _hovered,

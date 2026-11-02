@@ -934,6 +934,19 @@ export const markRestClasses: Record<PlassVariant, string> = {
 };
 
 /**
+ * The edge of a field that is invalid: the danger colour, at rest, whatever the
+ * variant. A field that is wrong says so before the pointer reaches it.
+ *
+ * Read off the `data-invalid` Base UI puts on `Field.Root`, which is there for
+ * the `invalid` prop and for a `PlForm` error alike. An outline rather than a
+ * border, laid over where the border is, because a `solid` well and a `ghost`
+ * field have no border to colour and gaining one would move their text. The
+ * focus ring is an outline too, at a higher specificity, so it takes over.
+ */
+const fieldInvalidClasses =
+  'in-data-invalid:[outline:1px_solid_var(--plass-danger-accent)] in-data-invalid:[outline-offset:-1px]';
+
+/**
  * The shell a field-shaped control is drawn on — a PlTextField's box and a
  * Select's trigger, which have to be indistinguishable or a form looks like two
  * different forms stacked on each other.
@@ -962,6 +975,7 @@ export const fieldRestClasses: Record<PlassVariant, string> = {
     'text-(--plass-fg) bg-(--plass-glass-press)',
     '[box-shadow:var(--p-elev),var(--plass-well)]',
     forcedFieldEdgeClasses,
+    fieldInvalidClasses,
     'hover:bg-(--plass-glass-hover)',
     'focus-within:bg-(--plass-glass-press)'
   ].join(' '),
@@ -970,6 +984,7 @@ export const fieldRestClasses: Record<PlassVariant, string> = {
     'border text-(--plass-fg) bg-(--plass-glass-hover)',
     '[border-color:var(--plass-border)]',
     '[box-shadow:var(--p-elev),var(--plass-gloss-glass)]',
+    fieldInvalidClasses,
     'hover:bg-(--plass-glass-press) hover:[border-color:var(--p-line)]',
     'focus-within:bg-(--plass-glass-press) focus-within:[border-color:var(--p-line-hover)]'
   ].join(' '),
@@ -977,6 +992,7 @@ export const fieldRestClasses: Record<PlassVariant, string> = {
   // like a field once you go near it.
   ghost: /* @__PURE__ */ [
     'text-(--plass-fg) bg-transparent',
+    fieldInvalidClasses,
     'hover:bg-(--p-soft)',
     'focus-within:bg-(--p-soft-hover)'
   ].join(' ')

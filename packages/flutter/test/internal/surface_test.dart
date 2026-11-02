@@ -16,6 +16,7 @@ import 'package:plass_ui/plass_ui.dart';
 import 'package:plass_ui/src/internal/css.dart';
 import 'package:plass_ui/src/internal/glow.dart';
 import 'package:plass_ui/src/internal/inset_shadow.dart';
+import 'package:plass_ui/src/internal/notch.dart';
 import 'package:plass_ui/src/internal/scales.dart';
 import 'package:plass_ui/src/internal/surface.dart';
 
@@ -383,6 +384,68 @@ void main() {
         brightness: Duration.zero,
         light: const Duration(milliseconds: 1),
       ));
+    });
+  });
+
+  group('the edge of an invalid field', () {
+    final PlassTokens tokens = PlassTokens.light();
+    final PlassColorFamily danger = tokens.family(PlassColor.danger);
+
+    for (final PlassVariant variant in PlassVariant.values) {
+      test('is the family\'s own colour at rest on $variant', () {
+        final PlassSurface surface = fieldSurface(
+          tokens,
+          danger,
+          invalid: true,
+          variant: variant,
+          elevation: 0,
+        );
+
+        expect((surface.border! as Border).top.color, danger.accent);
+      });
+    }
+
+    test('stays off a field that is valid', () {
+      final PlassSurface surface = fieldSurface(
+        tokens,
+        danger,
+        variant: PlassVariant.solid,
+        elevation: 0,
+      );
+
+      expect(surface.border, isNull);
+    });
+
+    test('stays off a field that is read-only', () {
+      final PlassSurface surface = fieldSurface(
+        tokens,
+        danger,
+        invalid: true,
+        readOnly: true,
+        variant: PlassVariant.solid,
+        elevation: 0,
+      );
+
+      expect(surface.border, isNull);
+    });
+
+    test('goes round the label of a notched field, and thickens with the focus', () {
+      final PlassNotchEdge rest = notchEdge(
+        tokens,
+        danger,
+        invalid: true,
+        variant: PlassVariant.ghost,
+      );
+      final PlassNotchEdge focused = notchEdge(
+        tokens,
+        danger,
+        invalid: true,
+        focused: true,
+        variant: PlassVariant.ghost,
+      );
+
+      expect(rest.color, danger.accent);
+      expect(focused.width, greaterThan(rest.width));
     });
   });
 }

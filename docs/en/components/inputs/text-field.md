@@ -148,7 +148,7 @@ Only `glass` has a hairline to cut. On `solid` and `ghost` the label sits in the
 
 ### Validation
 
-`error` carries a message **and** turns the field invalid, which re-points the whole slot family at `danger`, the hairline, the focus ring, the caret and the message all turn over together.
+`error` carries a message **and** turns the field invalid, which re-points the whole slot family at `danger`, the hairline, the focus ring, the caret and the message all turn over together. The hairline shows at rest, in all three variants.
 
 Two escape hatches, for when a form library owns the validity: `invalid` forces the state without a message, and <Fw react="invalid={false}" flutter="invalid: false" code /> shows a message without it.
 

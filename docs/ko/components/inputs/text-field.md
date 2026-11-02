@@ -148,7 +148,7 @@ PlButton과 같은 사다리입니다. `xs` 24px · `sm` 32px · `md` 40px · `l
 
 ### 유효성
 
-`error`는 메시지를 담는 **동시에** 필드를 invalid로 만들고, 그러면 slot 계열 전체가 `danger`로 넘어갑니다. hairline과 focus ring, 캐럿, 메시지가 한꺼번에 바뀝니다.
+`error`는 메시지를 담는 **동시에** 필드를 invalid로 만들고, 그러면 slot 계열 전체가 `danger`로 넘어갑니다. hairline과 focus ring, 캐럿, 메시지가 한꺼번에 바뀝니다. hairline은 세 variant 모두에서 평상시에도 보입니다.
 
 폼 라이브러리가 유효성을 가질 때를 위한 탈출구가 둘 있습니다. `invalid`는 메시지 없이 상태만 켜고, <Fw react="invalid={false}" flutter="invalid: false" code />는 상태 없이 메시지만 보여 줍니다.
 

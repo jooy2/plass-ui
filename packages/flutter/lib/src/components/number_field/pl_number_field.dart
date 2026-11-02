@@ -878,6 +878,7 @@ class _PlNumberFieldState extends State<PlNumberField> with PlassEditorHandles {
     final surface = fieldSurface(
       tokens,
       family,
+      invalid: isInvalid,
       variant: widget.variant,
       elevation: widget.elevation,
       hovered: _hovered,
@@ -1258,6 +1259,7 @@ class _PlNumberFieldState extends State<PlNumberField> with PlassEditorHandles {
           edge: notchEdgePainter(
             tokens,
             family,
+            invalid: isInvalid,
             variant: widget.variant,
             borderRadius: radius,
             hovered: _hovered,

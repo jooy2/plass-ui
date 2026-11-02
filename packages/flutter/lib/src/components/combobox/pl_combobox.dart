@@ -1339,12 +1339,12 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> with PlassEditorHandles {
       defaultTargetPlatform == TargetPlatform.iOS ||
       defaultTargetPlatform == TargetPlatform.android;
 
+  bool get _invalid => widget.invalid ?? widget.error != null;
+
   @override
   Widget build(BuildContext context) {
     final tokens = PlassTheme.of(context);
-    final hasError = widget.error != null;
-    final isInvalid = widget.invalid ?? hasError;
-    final family = tokens.family(isInvalid ? PlassColor.danger : _color);
+    final family = tokens.family(_invalid ? PlassColor.danger : _color);
 
     final size = _size;
     final scale = controlTextLeading[size]!;
@@ -1385,7 +1385,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> with PlassEditorHandles {
             style: TextStyle(color: tokens.mutedFg, fontSize: meta),
             child: widget.description!,
           ),
-        if (hasError)
+        if (widget.error != null)
           DefaultTextStyle.merge(
             style: TextStyle(color: family.accent, fontSize: meta),
             child: widget.error!,
@@ -1433,6 +1433,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> with PlassEditorHandles {
     final surface = fieldSurface(
       tokens,
       family,
+      invalid: _invalid,
       variant: widget.variant,
       elevation: widget.elevation,
       hovered: _hovered,
@@ -1796,6 +1797,7 @@ class _PlComboboxState<T> extends State<PlCombobox<T>> with PlassEditorHandles {
           edge: notchEdgePainter(
             tokens,
             family,
+            invalid: _invalid,
             variant: widget.variant,
             borderRadius: radius,
             hovered: _hovered,

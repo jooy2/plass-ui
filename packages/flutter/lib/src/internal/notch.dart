@@ -112,6 +112,9 @@ class PlassNotchEdge {
 /// **Focus is the same line, thickened.** Every variant answers focus here,
 /// including the two that are otherwise edgeless, because the ring this
 /// replaces was the one thing on the control that said where the keyboard was.
+///
+/// An [invalid] field draws the family's own colour in every variant, for the
+/// reason [fieldSurface] does.
 PlassNotchEdge notchEdge(
   PlassTokens tokens,
   PlassColorFamily family, {
@@ -120,6 +123,7 @@ PlassNotchEdge notchEdge(
   bool focused = false,
   bool readOnly = false,
   bool disabled = false,
+  bool invalid = false,
 }) {
   const Color none = Color(0x00000000);
   final Color rest = variant == PlassVariant.glass ? tokens.border : none;
@@ -139,6 +143,10 @@ PlassNotchEdge notchEdge(
 
   if (focused) {
     return PlassNotchEdge(color: family.ring, width: focusRingWidth);
+  }
+
+  if (invalid) {
+    return PlassNotchEdge(color: family.accent, width: hairline);
   }
 
   return PlassNotchEdge(
@@ -207,6 +215,7 @@ CustomPainter? notchEdgePainter(
   bool focused = false,
   bool readOnly = false,
   bool disabled = false,
+  bool invalid = false,
 }) {
   final PlassNotchEdge edge = notchEdge(
     tokens,
@@ -216,6 +225,7 @@ CustomPainter? notchEdgePainter(
     focused: focused,
     readOnly: readOnly,
     disabled: disabled,
+    invalid: invalid,
   );
 
   if (edge.color.a == 0) {
