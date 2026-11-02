@@ -1068,7 +1068,7 @@ export interface PlassChartReference {
   /** Where it sits, read on the value axis. */
   value: number;
   /**
-   * A short word set at the end of the line — "Target", "Last year". Left out,
+   * A short word set past the end of the line — "Target", "Last year". Left out,
    * the line is drawn and says nothing, which is right when the page around the
    * chart has already named it.
    */

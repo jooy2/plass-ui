@@ -42,6 +42,7 @@ import {
   seriesColor,
   autoTickAngle,
   showsTick,
+  referenceLabelRoom,
   textWidth,
   tickAngleOf,
   tickStride,
@@ -1691,7 +1692,15 @@ export function CartesianChart({
   // label a reader looks for first — and a value axis needs none of it, because
   // it anchors its two end labels inward instead. A turned one hangs off one
   // end of the axis rather than off both, so it is `overhang` that is reserved.
-  const rightPad =
+  const referenceLabels = references.flatMap((one) => (one.label ? [one.label] : []));
+  // A vertical chart's lines run off the end of the plot and a horizontal
+  // chart's off the top of it, so that is where their labels go.
+  const referenceRoom = horizontal
+    ? referenceLabels.length > 0
+      ? fontSize + 4
+      : 0
+    : referenceLabelRoom(referenceLabels, width, fontSize);
+  const rightPad = Math.max(
     (horizontal
       ? 12
       : tilted
@@ -1700,11 +1709,13 @@ export function CartesianChart({
           : 12
         : categoryScale
           ? 12
-          : Math.max(8, categoryTexts.length ? widestCategory / 2 : 8)) + markInset;
+          : Math.max(8, categoryTexts.length ? widestCategory / 2 : 8)) + markInset,
+    horizontal ? 0 : referenceRoom
+  );
   // A mark is drawn from its centre, so half of the widest one hangs over the
   // top of the plot. On a scatter that half is a whole bubble, which is what
   // `markInset` is reserving on the other three sides.
-  const topPad = markerRadii[size] + 4 + (horizontal ? 0 : headroom) + markInset;
+  const topPad = markerRadii[size] + 4 + (horizontal ? referenceRoom : headroom) + markInset;
 
   const plot: PlotBox = {
     left: left + markInset,
@@ -2221,6 +2232,7 @@ export function CartesianChart({
               valueAxis={valueAxis}
               categoryAxis={categoryAxis}
               references={references}
+              referenceRoom={referenceRoom}
               fontSize={fontSize}
               zeroPx={zeroPx}
               tickAngle={tilted ? tickAngle : 0}
@@ -2366,6 +2378,8 @@ interface AxesProps {
   categoryAxis?: PlassChartAxis;
   /** The lines drawn across the plot that are not data. */
   references: readonly PlassChartReference[];
+  /** How far past the end of the plot a reference line's label may reach. */
+  referenceRoom: number;
   fontSize: number;
   zeroPx: number;
   /** How far the category labels are turned, already clamped. `0` is upright. */
@@ -2399,6 +2413,7 @@ function ChartAxes({
   valueAxis,
   categoryAxis,
   references,
+  referenceRoom,
   fontSize,
   zeroPx,
   tickAngle,
@@ -2693,19 +2708,18 @@ function ChartAxes({
               />
             )}
 
-            {/* At the far end of its own line and just clear of it, which is the
-                one place on a plot a short word can go without landing on a
-                mark. */}
+            {/* Past the end of its own line, in a band of its own. */}
             {one.label ? (
               <text
-                x={horizontal ? along : plot.left + plot.width}
-                y={horizontal ? plot.top + fontSize : along - 4}
-                textAnchor={horizontal ? 'middle' : 'end'}
+                x={horizontal ? along : plot.left + plot.width + 4}
+                y={horizontal ? plot.top - 6 : along}
+                textAnchor={horizontal ? 'middle' : 'start'}
+                dominantBaseline={horizontal ? undefined : 'central'}
                 fontSize={fontSize}
                 fontWeight={500}
                 fill={ink}
               >
-                {one.label}
+                {horizontal ? one.label : truncate(one.label, referenceRoom - 4, fontSize)}
               </text>
             ) : null}
           </g>

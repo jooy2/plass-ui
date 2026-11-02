@@ -7,6 +7,7 @@
 ### Fixed
 
 - **An invalid field has a red edge at rest.** The edge stayed neutral until the pointer or the focus reached the field, and a `solid` or a `ghost` field had none at all, so only the message said anything was wrong. This holds for `PlTextField`, `PlNumberField`, `PlSelect`, `PlCombobox`, `PlOtpField` and the date and time pickers, in all three variants, for the `invalid` prop and for a `PlForm` error alike.
+- **A reference line's label stays clear of the data.** A label sat on the plot, where a line of data could run straight through it. It now sits past the end of the line, or above it on a horizontal chart, and the plot gives up the room. A long label is cut.
 - **A `PlPagination` fits a phone.** The row of pages ran out of a narrow box. It now goes onto a second line.
 - **A `PlNavigationMenu` fits a phone.** A row of items wider than its box ran out of it. It now wraps.
 - **A `PlStat` keeps its figure whole.** A figure and a change wider than the card ran out of it. The change now goes under the figure.

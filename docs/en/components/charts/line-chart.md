@@ -203,7 +203,7 @@ A point with a gap either side of it is drawn as a dot rather than dropped: it i
 
 ### Reference lines
 
-`reference` draws a target, an average or a limit across the plot. It is **not data**, and it is drawn as if it knows that: dashed, in the muted ink, and under the marks.
+`reference` draws a target, an average or a limit across the plot. It is **not data**, and it is drawn as if it knows that: dashed, in the muted ink, and under the marks. A `label` sits past the end of the line, in room the plot gives up for it, and a long one is cut.
 
 <Demo src="line-chart/reference" :min-height="320">
 

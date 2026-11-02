@@ -42,6 +42,7 @@ import {
   toValue,
   toValues,
   barLabelRoom,
+  referenceLabelRoom,
   textWidth,
   truncate,
   valueScale,
@@ -586,6 +587,20 @@ describe('zeroNulls', () => {
     expect(series.name).toBe('Europe');
     expect(series.color).toBe('danger');
     expect(series.dashed).toBe(true);
+  });
+});
+
+describe('referenceLabelRoom', () => {
+  it('takes nothing when no line has a label', () => {
+    expect(referenceLabelRoom([], 400, 10)).toBe(0);
+  });
+
+  it('is the widest label and the gap from the line', () => {
+    expect(referenceLabelRoom(['Budget', 'Cap'], 400, 10)).toBe(textWidth('Budget', 10) + 4);
+  });
+
+  it('stops short of taking the chart for a long label', () => {
+    expect(referenceLabelRoom(['Service level objective'], 300, 10)).toBe(300 * 0.3 + 4);
   });
 });
 

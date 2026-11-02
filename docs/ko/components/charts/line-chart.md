@@ -203,7 +203,7 @@ React의 `number | null | object` 대신 닫힌 union입니다. union 타입이 
 
 ### 기준선
 
-`reference`는 목표나 평균, 한계를 plot을 가로질러 긋습니다. **데이터가 아니고**, 그것을 아는 것처럼 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다.
+`reference`는 목표나 평균, 한계를 plot을 가로질러 긋습니다. **데이터가 아니고**, 그것을 아는 것처럼 그립니다. 점선이고, muted 잉크를 쓰며, mark 아래에 놓입니다. `label`은 선이 끝난 자리 바깥에 놓이고, plot이 그만큼 좁아지며, 긴 label은 잘립니다.
 
 <Demo src="line-chart/reference" :min-height="320">
 

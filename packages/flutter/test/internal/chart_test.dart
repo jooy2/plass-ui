@@ -501,6 +501,23 @@ void main() {
     });
   });
 
+  group('referenceLabelRoom', () {
+    test('takes nothing when no line has a label', () {
+      expect(referenceLabelRoom(const <String>[], 400, 10), 0);
+    });
+
+    test('is the widest label and the gap from the line', () {
+      expect(
+        referenceLabelRoom(const <String>['Budget', 'Cap'], 400, 10),
+        textWidth('Budget', 10) + 4,
+      );
+    });
+
+    test('stops short of taking the chart for a long label', () {
+      expect(referenceLabelRoom(const <String>['Service level objective'], 300, 10), 300 * 0.3 + 4);
+    });
+  });
+
   group('labels', () {
     test('estimates a wide script as a whole em and a narrow one as 0.6', () {
       expect(textWidth('abc', 10), closeTo(18, 0.001));

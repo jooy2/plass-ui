@@ -1415,6 +1415,27 @@ export function textWidth(text: string, fontSize: number): number {
 }
 
 /**
+ * How far past the end of the plot the labels of its reference lines reach.
+ *
+ * Past the end rather than on the plot, which is the one place a word cannot
+ * land on a mark: data can pass through any corner of a plot, and a line of
+ * data through a word leaves neither readable. The rest of the band is `gap`
+ * away from the line. A long label is cut rather than given the chart, so the
+ * band stops at `maxShare` of the width.
+ */
+export function referenceLabelRoom(
+  labels: readonly string[],
+  width: number,
+  fontSize: number,
+  gap = 4,
+  maxShare = 0.3
+): number {
+  const widest = labels.reduce((most, text) => Math.max(most, textWidth(text, fontSize)), 0);
+
+  return widest === 0 ? 0 : Math.min(widest, width * maxShare) + gap;
+}
+
+/**
  * A label cut to the room it has, with an ellipsis.
  *
  * The alternative when a category name is wider than its slot is to drop

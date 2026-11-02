@@ -234,6 +234,28 @@ describe('PlLineChart', () => {
       expect([...plot.querySelectorAll('text')].map((one) => one.textContent)).toContain('Target');
     });
 
+    it('names a line past the end of the plot, where data cannot pass through the word', async () => {
+      const screen = await render(
+        <div style={{ width: 480 }}>
+          <PlLineChart
+            label="Sessions"
+            categories={MONTHS}
+            series={[{ name: 'Web', data: [10, 20, 30, 40] }]}
+            reference={{ value: 25, label: 'Target' }}
+          />
+        </div>
+      );
+
+      const plot = screen.getByRole('img', { name: 'Sessions' }).element();
+
+      await expect.element(screen.getByRole('img', { name: 'Sessions' })).toBeInTheDocument();
+
+      const line = plot.querySelector('line[stroke-dasharray]');
+      const label = [...plot.querySelectorAll('text')].find((one) => one.textContent === 'Target');
+
+      expect(Number(label?.getAttribute('x'))).toBeGreaterThan(Number(line?.getAttribute('x2')));
+    });
+
     it('takes several, and a solid one when it is asked for', async () => {
       const screen = await render(
         <PlLineChart

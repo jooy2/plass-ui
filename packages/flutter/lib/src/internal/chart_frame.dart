@@ -1136,15 +1136,30 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
         // hangs past the plot. Reserving that half is what stops a chart
         // clipping the one label a reader looks for first — and a horizontal
         // chart needs none of it, because its category labels are in a column.
-        final double rightPad = widget.horizontal
-            ? 12
-            : tilted
-            ? (tickAngle > 0 ? overhang : 12)
-            : math.max(8, categoryTexts.isEmpty ? 8 : widestCategory / 2);
+        final List<String> referenceLabels = <String>[
+          for (final PlassChartReference one in widget.reference)
+            if (one.label != null) one.label!,
+        ];
+        // A vertical chart's lines run off the end of the plot and a horizontal
+        // chart's off the top of it, so that is where their labels go.
+        final double referenceRoom = widget.horizontal
+            ? (referenceLabels.isEmpty ? 0 : fontSize + 4)
+            : referenceLabelRoom(referenceLabels, width, fontSize);
+        final double rightPad = math.max(
+          widget.horizontal
+              ? 12
+              : tilted
+              ? (tickAngle > 0 ? overhang : 12)
+              : math.max(8, categoryTexts.isEmpty ? 8 : widestCategory / 2),
+          widget.horizontal ? 0 : referenceRoom,
+        );
         // A mark is drawn from its centre, so half of the widest one hangs over
         // the top of the plot.
         final double topPad =
-            markerRadii[size]! + 4 + (widget.horizontal ? 0 : widget.headroom) + widget.markInset;
+            markerRadii[size]! +
+            4 +
+            (widget.horizontal ? referenceRoom : widget.headroom) +
+            widget.markInset;
 
         final box = PlotBox(
           left + widget.markInset,
@@ -1537,6 +1552,7 @@ class _PlassCartesianChartState extends State<PlassCartesianChart>
                       tickAngle: tilted ? tickAngle : 0,
                       tickBand: tickBand,
                       references: widget.reference,
+                      referenceRoom: referenceRoom,
                       crosshair:
                           widget.tooltip.mode == PlassChartTooltipMode.column &&
                           widget.tooltip.crosshair,
@@ -1810,6 +1826,7 @@ class _FramePainter extends CustomPainter {
     required this.tickAngle,
     required this.tickBand,
     required this.references,
+    required this.referenceRoom,
     required this.crosshair,
     required this.textDirection,
     required this.paintMarks,
@@ -1838,6 +1855,9 @@ class _FramePainter extends CustomPainter {
 
   /// The lines drawn across the plot that are not data.
   final List<PlassChartReference> references;
+
+  /// How far past the end of the plot a reference line's label may reach.
+  final double referenceRoom;
 
   /// Whether a column being read gets its crosshair: only in the column mode,
   /// where it says which column the numbers belong to, and only while the
@@ -2072,17 +2092,14 @@ class _FramePainter extends CustomPainter {
         canvas.drawLine(from, to, stroke);
       }
 
-      // At the far end of its own line and just clear of it, which is the one
-      // place on a plot a short word can go without landing on a mark.
+      // Past the end of its own line, in a band of its own.
       if (one.label != null) {
         _text(
           canvas,
-          one.label!,
-          layout.horizontal
-              ? Offset(along, box.top + fontSize)
-              : Offset(box.right, along - fontSize),
+          layout.horizontal ? one.label! : truncateLabel(one.label!, referenceRoom - 4, fontSize),
+          layout.horizontal ? Offset(along, box.top - 10) : Offset(box.right + 4, along),
           ink,
-          layout.horizontal ? TextAlign.center : TextAlign.right,
+          layout.horizontal ? TextAlign.center : TextAlign.left,
         );
       }
     }

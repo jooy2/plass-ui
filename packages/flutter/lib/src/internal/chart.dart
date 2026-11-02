@@ -1063,6 +1063,28 @@ double textWidth(String text, double fontSize) {
   return width * fontSize;
 }
 
+/// How far past the end of the plot the labels of its reference lines reach.
+///
+/// Past the end rather than on the plot, which is the one place a word cannot
+/// land on a mark: data can pass through any corner of a plot, and a line of
+/// data through a word leaves neither readable. The rest of the band is [gap]
+/// away from the line. A long label is cut rather than given the chart, so the
+/// band stops at [maxShare] of the width.
+double referenceLabelRoom(
+  List<String> labels,
+  double width,
+  double fontSize, {
+  double gap = 4,
+  double maxShare = 0.3,
+}) {
+  final double widest = labels.fold<double>(
+    0,
+    (double most, String text) => math.max(most, textWidth(text, fontSize)),
+  );
+
+  return widest == 0 ? 0 : math.min(widest, width * maxShare) + gap;
+}
+
 /// A label cut to the room it has, with an ellipsis.
 ///
 /// The alternative when a category name is wider than its slot is to drop
