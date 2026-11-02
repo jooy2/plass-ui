@@ -43,6 +43,15 @@ void main() {
         children: <Widget>[SizedBox(height: 90), SizedBox(height: 90)],
       ),
     ),
+    'a set that appears in a row': () => const PlAnimateAppear(
+      orientation: PlassOrientation.horizontal,
+      children: <Widget>[Text('One'), Text('Two')],
+    ),
+    'a set that appears down a row': () => const Row(
+      children: <Widget>[
+        PlAnimateAppear(children: <Widget>[Text('One'), Text('Two')]),
+      ],
+    ),
   };
 
   for (final MapEntry(key: name, value: build) in components.entries) {

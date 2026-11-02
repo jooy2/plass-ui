@@ -139,54 +139,74 @@ class PlAnimateAppear extends StatelessWidget {
         endless: repeat == null && !paused,
       ),
       builder: (BuildContext context, bool running, int runs, bool resting, Widget? _) {
+        final bool vertical = orientation == PlassOrientation.vertical;
+
         return Flex(
-          direction: orientation == PlassOrientation.vertical ? Axis.vertical : Axis.horizontal,
+          direction: vertical ? Axis.vertical : Axis.horizontal,
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           spacing: spacing,
           children: <Widget>[
             for (int index = 0; index < children.length; index += 1)
-              PlassAnimateRun(
-                settings: PlassAnimateSettings(
-                  duration: duration,
-                  delay: delay + stagger * (reverse ? children.length - 1 - index : index),
-                  curve: curve,
-                  repeat: repeat,
-                  alternate: alternate,
-                  // Resting holds each child where it is, as a pause does. Told
-                  // to stop playing instead, a child would start its run again
-                  // from the beginning when the set came back.
-                  paused: paused || resting,
-                  // The set has already decided; each child only has to be told.
-                  trigger: PlassAnimateTrigger.manual,
-                  play: running || resting,
-                  // The set's gate watches the screen for all of them, so they
-                  // rest together and stay in step.
-                  endless: false,
-                ),
-                child: children[index],
-                builder: (BuildContext context, double t, Widget? inner) {
-                  final Widget moved = Transform.translate(
-                    offset: start.pixels * (1 - t),
-                    child: inner,
-                  );
+              ConstraintsTransformBox(
+                constraintsTransform: vertical ? _fillWidth : _fillHeight,
+                child: PlassAnimateRun(
+                  settings: PlassAnimateSettings(
+                    duration: duration,
+                    delay: delay + stagger * (reverse ? children.length - 1 - index : index),
+                    curve: curve,
+                    repeat: repeat,
+                    alternate: alternate,
+                    // Resting holds each child where it is, as a pause does. Told
+                    // to stop playing instead, a child would start its run again
+                    // from the beginning when the set came back.
+                    paused: paused || resting,
+                    // The set has already decided; each child only has to be told.
+                    trigger: PlassAnimateTrigger.manual,
+                    play: running || resting,
+                    // The set's gate watches the screen for all of them, so they
+                    // rest together and stay in step.
+                    endless: false,
+                  ),
+                  child: children[index],
+                  builder: (BuildContext context, double t, Widget? inner) {
+                    final Widget moved = Transform.translate(
+                      offset: start.pixels * (1 - t),
+                      child: inner,
+                    );
 
-                  // In the tree whether it fades or not, at full
-                  // strength when it does not, which is painted straight
-                  // onto the canvas. A wrapper that came and went with
-                  // `fade` changed the shape of the tree above what it
-                  // holds, and Flutter builds a changed shape again from
-                  // scratch.
-                  return PlassFiltered(
-                    colorFilter: null,
-                    opacity: fade ? t.clamp(0, 1) : 1,
-                    child: moved,
-                  );
-                },
+                    // In the tree whether it fades or not, at full
+                    // strength when it does not, which is painted straight
+                    // onto the canvas. A wrapper that came and went with
+                    // `fade` changed the shape of the tree above what it
+                    // holds, and Flutter builds a changed shape again from
+                    // scratch.
+                    return PlassFiltered(
+                      colorFilter: null,
+                      opacity: fade ? t.clamp(0, 1) : 1,
+                      child: moved,
+                    );
+                  },
+                ),
               ),
           ],
         );
       },
     );
+  }
+
+  /// The whole width a column has, and a child's own where it has none, as in a
+  /// row or a sideways scroll, which a stretch would make endless.
+  static BoxConstraints _fillWidth(BoxConstraints constraints) {
+    return constraints.hasBoundedWidth
+        ? constraints.tighten(width: constraints.maxWidth)
+        : constraints;
+  }
+
+  /// The same for a row, whose height is endless in a page that scrolls.
+  static BoxConstraints _fillHeight(BoxConstraints constraints) {
+    return constraints.hasBoundedHeight
+        ? constraints.tighten(height: constraints.maxHeight)
+        : constraints;
   }
 }
