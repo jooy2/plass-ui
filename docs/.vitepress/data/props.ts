@@ -190,8 +190,8 @@ const portalClassNames: PropRow = {
 };
 
 /**
- * The same for a sheet, which also has a body that scrolls: a `PlModal`.
- * `className` is the sheet, so the body is out of its reach as well.
+ * The same for a sheet, which also has a body that scrolls: a `PlModal` and a
+ * `PlDrawer`. `className` is the sheet, so the body is out of its reach as well.
  */
 const sheetClassNames: PropRow = {
   name: 'classNames',
@@ -5293,7 +5293,7 @@ export const propTables: Record<string, PropRow[]> = {
       shared: true,
       description: { ko: '섹션이 얼마나 촘촘히 놓이는지', en: 'How tightly the sections pack' }
     },
-    portalClassNames
+    sheetClassNames
   ],
 
   PlFieldset: [

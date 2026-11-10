@@ -421,4 +421,33 @@ describe('PlDrawer', () => {
       expect(document.querySelector('.my-own-backdrop')).toBeNull();
     });
   });
+
+  describe('the body', () => {
+    it('takes classes of its own on the part that scrolls', async () => {
+      const screen = await render(
+        <PlDrawer open title="Filters" classNames={{ body: 'my-own-body' }}>
+          <p>Body</p>
+        </PlDrawer>
+      );
+
+      const body = screen.getByText('Body').element().parentElement!;
+
+      expect(body).toHaveClass('my-own-body');
+      expect(body).toHaveClass('overflow-y-auto');
+      expect(screen.getByRole('dialog').element()).not.toHaveClass('my-own-body');
+    });
+
+    it('takes them on an inline drawer as well', async () => {
+      const screen = await render(
+        <PlDrawer mode="inline" title="Filters" classNames={{ body: 'my-own-body' }}>
+          <p>Body</p>
+        </PlDrawer>
+      );
+
+      const body = screen.getByText('Body').element().parentElement!;
+
+      expect(body).toHaveClass('my-own-body');
+      expect(body).toHaveClass('overflow-y-auto');
+    });
+  });
 });

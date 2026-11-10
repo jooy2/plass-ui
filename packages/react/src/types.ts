@@ -352,8 +352,8 @@ export interface PlassPortalClassNames {
 }
 
 /**
- * The parts of a sheet a `className` does not reach: a `PlModal`, which
- * stacks a header, a body and a row of actions.
+ * The parts of a sheet a `className` does not reach: a `PlModal` and a
+ * `PlDrawer`, which stack a header, a body and a row of actions.
  *
  * `className` is the sheet itself, and a selector written against it cannot
  * name the body without depending on the classes the library happens to build

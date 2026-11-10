@@ -24,7 +24,7 @@ import {
 } from '../../internal/styles.js';
 import type {
   PlassHeadingLevel,
-  PlassPortalClassNames,
+  PlassSheetClassNames,
   PlassSide,
   PlassSize,
   PlassStyleProps
@@ -59,8 +59,8 @@ export interface PlDrawerProps
   extends
     Pick<PlassStyleProps, 'size' | 'color' | 'density'>,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title' | 'children'> {
-  /** Classes on the parts a `className` does not reach. */
-  classNames?: PlassPortalClassNames;
+  /** Classes on the parts a `className` does not reach: the scrim and the body. */
+  classNames?: PlassSheetClassNames;
   /**
    * Which edge the panel is attached to. Physical rather than logical, the way
    * `PlassSide` is everywhere: a drawer along the top of the window is along the
@@ -481,7 +481,8 @@ export function PlDrawer({
             // bottom of an unruled body would have its ring sliced off. The
             // padding is room for the ring and the negative margin hands the
             // space straight back, so nothing on the sheet moves.
-            dividers ? '' : '-my-1 py-1'
+            dividers ? '' : '-my-1 py-1',
+            classNames?.body
           )}
         >
           {children}

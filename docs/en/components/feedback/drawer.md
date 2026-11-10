@@ -45,6 +45,8 @@ PlDrawer(
 
 Every other `<div>` attribute passes through to the panel, and so does a `className`. The scrim an overlay drawer draws behind it is a second element in the same portal. `classNames.backdrop` is the way to reach it, and an inline drawer has none for it to land on.
 
+`classNames.body` lands on the body, the part that scrolls, in both modes. It is for laying out what is in it, such as `flex flex-col gap-4`. The body pads its own sides to line up with the header, so a plain `px-0` there loses to that padding, and `px-0!` is the way to replace it. [The limits of a plain `className`](../../design/prop-conventions#the-limits-of-a-plain-classname) explains why.
+
 A closed `overlay` drawer is not in the document. `keepMounted` keeps its content there, hidden and out of reach of the keyboard and of a screen reader, for a drawer that holds a site's navigation, which a search engine should find on a phone as well.
 
 :::

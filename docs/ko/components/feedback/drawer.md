@@ -45,6 +45,8 @@ PlDrawer(
 
 나머지 `<div>` 속성은 모두 판으로 전달되고, `className`도 마찬가지입니다. overlay 모드에서 판 뒤에 깔리는 scrim은 같은 portal 안의 다른 요소이므로 `classNames.backdrop`으로 닿습니다. inline 모드에는 그 scrim이 없습니다.
 
+`classNames.body`는 두 모드 모두에서 스크롤되는 본문에 붙습니다. `flex flex-col gap-4`처럼 안에 든 내용을 배치할 때 씁니다. 본문은 header와 줄을 맞추려고 양옆에 padding을 직접 넣기 때문에, 여기에 그냥 적은 `px-0`은 그 padding에 지고 `px-0!`이라야 바뀝니다. 이유는 [그냥 붙인 `className`의 한계](../../design/prop-conventions#그냥-붙인-classname의-한계)에 있습니다.
+
 닫힌 `overlay` 서랍은 문서에 들어 있지 않습니다. `keepMounted`를 켜면 내용이 숨겨진 채 문서에 남고, 키보드와 스크린 리더는 거기에 닿지 않습니다. 사이트 내비게이션을 담은 서랍처럼 검색 엔진이 휴대폰에서도 찾아야 하는 내용에 씁니다.
 
 :::
