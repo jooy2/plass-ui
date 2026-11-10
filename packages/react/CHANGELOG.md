@@ -7,6 +7,7 @@
 ### Added
 
 - **`PlModal` and `PlDrawer` take `classNames.body`, for the part that scrolls.** The body could only be reached through a selector written against the classes the library builds it from, so laying out what is in it, such as `flex flex-col gap-4`, took a wrapper of its own. The classes join the body's own. The body pads its own sides, so a plain `px-0` there loses to that padding and `px-0!` replaces it. Both props are typed `PlassSheetClassNames`, which adds `body` to `PlassPortalClassNames`.
+- **`PlModal` takes `classNames` for its viewport, title, description, close button and actions.** The viewport is drawn into the portal outside the sheet, so no class could reach it, and the four parts inside the sheet could only be reached by a selector written against the library's own classes. The classes join each part's own. The prop is typed `PlModalClassNames`, which adds the five keys to `PlassSheetClassNames`.
 
 ## 1.9.0 (2026-11-02)
 

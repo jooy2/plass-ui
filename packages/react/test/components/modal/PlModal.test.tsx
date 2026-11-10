@@ -291,4 +291,78 @@ describe('PlModal', () => {
       expect(screen.getByText('Body').element().parentElement).toHaveClass('my-own-body');
     });
   });
+
+  describe('the other parts', () => {
+    const classNames = {
+      viewport: 'my-own-viewport',
+      title: 'my-own-title',
+      description: 'my-own-description',
+      close: 'my-own-close',
+      actions: 'my-own-actions'
+    };
+
+    it("takes classes of its own on each part, alongside the part's own", async () => {
+      const screen = await render(
+        <PlModal
+          defaultOpen
+          title="Delete project"
+          description="This cannot be undone."
+          actions={<button type="button">Delete it</button>}
+          classNames={classNames}
+        >
+          Body
+        </PlModal>
+      );
+
+      const sheet = screen.getByRole('dialog').element();
+      const title = screen.getByRole('heading', { name: 'Delete project' }).element();
+      const close = screen.getByRole('button', { name: 'Close' }).element();
+      const actions = screen.getByRole('button', { name: 'Delete it' }).element().parentElement!;
+
+      // The viewport is outside the sheet, in the same portal, and the sheet is
+      // placed in it.
+      expect(sheet.parentElement).toHaveClass('my-own-viewport');
+      expect(sheet.parentElement).toHaveClass('plass-portal');
+      expect(title).toHaveClass('my-own-title');
+      expect(title).toHaveClass('font-semibold');
+      expect(screen.getByText('This cannot be undone.').element()).toHaveClass(
+        'my-own-description'
+      );
+      expect(close).toHaveClass('my-own-close');
+      expect(close).toHaveClass('rounded-full');
+      expect(actions).toHaveClass('my-own-actions');
+      expect(actions).toHaveClass('justify-end');
+
+      for (const name of Object.values(classNames)) {
+        expect(sheet).not.toHaveClass(name);
+      }
+    });
+
+    it('keeps the viewport class on a full-screen modal', async () => {
+      const screen = await render(
+        <PlModal defaultOpen fullScreen title="Delete" classNames={classNames}>
+          Body
+        </PlModal>
+      );
+
+      const viewport = screen.getByRole('dialog').element().parentElement;
+
+      expect(viewport).toHaveClass('my-own-viewport');
+      expect(viewport).toHaveClass('items-stretch');
+    });
+
+    it('renders no part that was not asked for', async () => {
+      await render(
+        <PlModal defaultOpen showClose={false} classNames={classNames}>
+          Body
+        </PlModal>
+      );
+
+      // Without a title, a description, the × or actions, the classes have
+      // nothing to land on and go nowhere else.
+      for (const name of ['my-own-title', 'my-own-description', 'my-own-close', 'my-own-actions']) {
+        expect(document.querySelector(`.${name}`)).toBeNull();
+      }
+    });
+  });
 });

@@ -62,6 +62,8 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 `classNames.body`는 스크롤되는 본문에 붙습니다. `flex flex-col gap-4`처럼 안에 든 내용을 배치할 때 씁니다. 본문은 header와 줄을 맞추려고 양옆에 padding을 직접 넣기 때문에, 여기에 그냥 적은 `px-0`은 그 padding에 지고 `px-0!`이라야 바뀝니다. 이유는 [그냥 붙인 `className`의 한계](../../design/prop-conventions#그냥-붙인-classname의-한계)에 있습니다.
 
+모달의 나머지 부분에도 각각 키가 있습니다. `classNames.viewport`는 시트가 가운데 놓이는 층으로, portal이 시트 바깥에 그립니다. `title`, `description`, `close`, `actions`는 제목, 그 아래 줄, ×, actions 줄입니다.
+
 :::
 
 ::: fw flutter

@@ -190,8 +190,9 @@ const portalClassNames: PropRow = {
 };
 
 /**
- * The same for a sheet, which also has a body that scrolls: a `PlModal` and a
- * `PlDrawer`. `className` is the sheet, so the body is out of its reach as well.
+ * The same for a sheet, which also has a body that scrolls: a `PlDrawer`.
+ * `className` is the sheet, so the body is out of its reach as well. A
+ * `PlModal` names more of its parts, in `modalClassNames`.
  */
 const sheetClassNames: PropRow = {
   name: 'classNames',
@@ -199,6 +200,19 @@ const sheetClassNames: PropRow = {
   description: {
     ko: 'className이 닿지 않는 부분에 붙는 class. backdrop은 표면 뒤에 깔리는 scrim이고, body는 스크롤되는 본문입니다',
     en: 'Classes on the parts a className does not reach. backdrop is the scrim drawn behind the surface, and body is the part that scrolls'
+  }
+};
+
+/**
+ * A modal's, which names the rest of its parts as well: the viewport the sheet
+ * is placed in, and the heading, the line under it, the × and the actions.
+ */
+const modalClassNames: PropRow = {
+  name: 'classNames',
+  type: '{ backdrop?, viewport?, title?, description?, close?, body?, actions?: string }',
+  description: {
+    ko: 'className이 닿지 않는 부분에 붙는 class. backdrop은 scrim, viewport는 시트가 놓이는 층, body는 스크롤되는 본문이고, 나머지는 제목, 그 아래 줄, ×, actions 줄입니다',
+    en: 'Classes on the parts a className does not reach. backdrop is the scrim, viewport the layer the sheet is placed in, body the part that scrolls, and the rest are the heading, the line under it, the × and the row of actions'
   }
 };
 
@@ -7908,7 +7922,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The body — the only part that scrolls'
       }
     },
-    sheetClassNames
+    modalClassNames
   ],
 
   PlNavigationMenu: [

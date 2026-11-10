@@ -62,6 +62,8 @@ A `className` therefore lands on the sheet. The scrim behind it is a second elem
 
 `classNames.body` lands on the body, the part that scrolls. It is for laying out what is in it, such as `flex flex-col gap-4`. The body pads its own sides to line up with the header, so a plain `px-0` there loses to that padding, and `px-0!` is the way to replace it. [The limits of a plain `className`](../../design/prop-conventions#the-limits-of-a-plain-classname) explains why.
 
+The other parts of the modal have a key each. `classNames.viewport` is the layer the sheet is centred in, which the portal draws outside the sheet, and `title`, `description`, `close` and `actions` are the heading, the line under it, the × and the row of actions.
+
 :::
 
 ::: fw flutter

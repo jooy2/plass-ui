@@ -25,6 +25,32 @@ import {
 import type { PlassSheetClassNames, PlassSize, PlassStyleProps } from '../../types.js';
 
 /**
+ * The parts of a modal a `className` does not reach.
+ *
+ * `className` is the sheet, the one element a reader points at and calls the
+ * modal. Two of these are outside it: the scrim and the viewport are drawn into
+ * the same portal at the end of `<body>`, so no selector written against the
+ * sheet finds them. The rest are inside it, and are named so that a caller does
+ * not have to write a selector against the classes the library builds them from.
+ */
+export interface PlModalClassNames extends PlassSheetClassNames {
+  /**
+   * The layer over the whole window that the sheet is placed in. It centres the
+   * sheet and keeps it 1rem off the window's edges, and with `fullScreen` it
+   * stretches the sheet instead.
+   */
+  viewport?: string;
+  /** The heading. */
+  title?: string;
+  /** The line under the heading, which the modal is described by. */
+  description?: string;
+  /** The × that closes the modal, while `showClose` draws it. */
+  close?: string;
+  /** The row the actions sit in, along the foot of the sheet. */
+  actions?: string;
+}
+
+/**
  * A modal takes `size`, `color` and `density` and stops there.
  *
  * There is no `variant`: the three materials answer "how much does this surface
@@ -35,8 +61,8 @@ export interface PlModalProps
   extends
     Pick<PlassStyleProps, 'size' | 'color' | 'density'>,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title' | 'children'> {
-  /** Classes on the parts a `className` does not reach: the scrim and the body. */
-  classNames?: PlassSheetClassNames;
+  /** Classes on the parts a `className` does not reach. */
+  classNames?: PlModalClassNames;
   /** The modal is shown. Use with `onOpenChange` for a controlled modal. */
   open?: boolean;
   /** Whether it starts open, for an uncontrolled one. */
@@ -276,8 +302,11 @@ export function PlModal({
             // viewport, because a centred flex item cannot scroll past its own
             // container's start edge. The popup caps its height instead and
             // scrolls its body, so the header and the actions stay put.
-            fullScreen ? 'items-stretch' : 'items-center p-4'
-          ].join(' ')}
+            fullScreen ? 'items-stretch' : 'items-center p-4',
+            classNames?.viewport ?? ''
+          ]
+            .filter(Boolean)
+            .join(' ')}
         >
           <BaseUIDialog.Popup
             className={[
@@ -305,13 +334,23 @@ export function PlModal({
               <div className={`flex shrink-0 items-start gap-3 ${sectionClasses}`}>
                 <div className={`flex min-w-0 flex-1 flex-col ${sheetHeaderGapClasses[size]}`}>
                   {hasContent(title) ? (
-                    <BaseUIDialog.Title className={`m-0 font-semibold ${sheetTitleClasses[size]}`}>
+                    <BaseUIDialog.Title
+                      className={cx(
+                        'm-0 font-semibold',
+                        sheetTitleClasses[size],
+                        classNames?.title
+                      )}
+                    >
                       {title}
                     </BaseUIDialog.Title>
                   ) : null}
                   {hasContent(description) ? (
                     <BaseUIDialog.Description
-                      className={`m-0 text-(--plass-muted-fg) ${metaTextClasses[size]}`}
+                      className={cx(
+                        'm-0 text-(--plass-muted-fg)',
+                        metaTextClasses[size],
+                        classNames?.description
+                      )}
                     >
                       {description}
                     </BaseUIDialog.Description>
@@ -333,8 +372,11 @@ export function PlModal({
                       '[transition:background-color_var(--plass-duration)_var(--plass-ease),color_var(--plass-duration)_var(--plass-ease)]',
                       'motion-reduce:[transition-duration:0ms]',
                       'hover:bg-(--p-soft) hover:text-(--plass-fg)',
-                      focusRingClasses
-                    ].join(' ')}
+                      focusRingClasses,
+                      classNames?.close ?? ''
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
                   >
                     <CloseIcon />
                   </BaseUIDialog.Close>
@@ -374,7 +416,8 @@ export function PlModal({
                 className={[
                   'flex shrink-0 flex-wrap items-center justify-end gap-2',
                   sectionClasses,
-                  dividers ? sheetLineClasses : ''
+                  dividers ? sheetLineClasses : '',
+                  classNames?.actions ?? ''
                 ]
                   .filter(Boolean)
                   .join(' ')}
