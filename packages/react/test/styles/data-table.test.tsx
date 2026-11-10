@@ -7,6 +7,12 @@
  * while the class list read as if it eased. This file loads
  * `src/standalone.css` the way `fill-fade.test.tsx` does and records the
  * transitions that actually run. No duration is asserted.
+ *
+ * A turn is counted when it ends, not when it starts. WebKit cancels a running
+ * transition and starts it again from where it was whenever an inherited value
+ * changes under it, and the click that sorts the column is also the moment the
+ * heading's hover colour starts to fade, so one turn can start half a dozen
+ * times there. It still ends once.
  */
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import { render } from 'vitest-browser-react';
@@ -43,6 +49,19 @@ function recordRuns(element: Element): string[] {
   return runs;
 }
 
+/** Every property a transition on `element` ran to its end for, in order. */
+function recordEnds(element: Element): string[] {
+  const ends: string[] = [];
+
+  element.addEventListener('transitionend', (raw) => {
+    if (raw.target === element) {
+      ends.push((raw as TransitionEvent).propertyName);
+    }
+  });
+
+  return ends;
+}
+
 async function table() {
   const screen = await render(
     <PlDataTable
@@ -66,13 +85,13 @@ async function frames(): Promise<void> {
 describe('the sort mark', () => {
   it('turns over as the column is sorted one way and back as it is sorted the other', async () => {
     const { heading, mark } = await table();
-    const runs = recordRuns(mark);
+    const turns = recordEnds(mark);
 
     await heading.click();
-    await expect.poll(() => runs.filter((one) => one === 'rotate')).toHaveLength(1);
+    await expect.poll(() => turns.filter((one) => one === 'rotate')).toHaveLength(1);
 
     await heading.click();
-    await expect.poll(() => runs.filter((one) => one === 'rotate')).toHaveLength(2);
+    await expect.poll(() => turns.filter((one) => one === 'rotate')).toHaveLength(2);
   });
 
   it('turns at once under reduced motion', async () => {
