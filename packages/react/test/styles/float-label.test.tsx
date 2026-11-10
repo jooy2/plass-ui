@@ -15,12 +15,15 @@ import { commands, userEvent } from 'vitest/browser';
 import { render } from 'vitest-browser-react';
 import {
   PlCombobox,
+  PlDrawer,
   PlFilePicker,
+  PlModal,
   PlNumberField,
   PlSelect,
   PlTextField,
   PlTreeSelect,
-  type PlComboboxOption
+  type PlComboboxOption,
+  type PlassSize
 } from 'plass-ui';
 import standaloneCss from '../../src/standalone.css?inline';
 import { emulateMedia } from '../support/media';
@@ -369,5 +372,93 @@ describe('a floating label', () => {
     input.blur();
     expect(frame.getAnimations({ subtree: true })).toHaveLength(0);
     expect(legend.getBoundingClientRect().width).toBeLessThan(1);
+  });
+});
+
+/**
+ * Where the nearest box that scrolls stops drawing what is inside `element`:
+ * the top of its padding box, which is where a scroll container clips.
+ */
+function clipTopOf(element: Element): number {
+  let box = element.parentElement;
+
+  while (box && getComputedStyle(box).overflowY === 'visible') {
+    box = box.parentElement;
+  }
+
+  if (!box) {
+    throw new Error('Nothing around the element scrolls.');
+  }
+
+  return box.getBoundingClientRect().top + box.clientTop;
+}
+
+/**
+ * A sheet's body is a scroll container, so it clips at its padding box, and a
+ * risen label stands half its own line above the field's top edge. The field
+ * keeps that half in its own layout, and the body keeps a few pixels of room
+ * above it besides, so the words fit inside the body at any size. Measured on
+ * the words rather than on the label's box, because the words are what would
+ * lose their tops.
+ */
+describe('a floating label at the top of a sheet', () => {
+  const sizes: PlassSize[] = ['xs', 'sm', 'md', 'lg', 'xl'];
+
+  async function expectWholeLabel() {
+    await expect.poll(() => document.querySelector('[role="dialog"] legend')).not.toBeNull();
+
+    const { frame, label } = notchOf();
+    const input = frame.querySelector('input') as HTMLElement;
+
+    await settle(frame);
+
+    expect(restsIn(label, input.parentElement as HTMLElement)).toBe(false);
+    expect(glyphsOf(label).top).toBeGreaterThanOrEqual(clipTopOf(label));
+  }
+
+  it.each(sizes)('keeps the whole of it in a modal at %s', async (size) => {
+    await render(
+      <PlModal defaultOpen title="Save template" size={size}>
+        <PlTextField size={size} label="Name" labelPlacement="float" defaultValue="Draft" />
+      </PlModal>
+    );
+
+    await expectWholeLabel();
+  });
+
+  it.each(sizes)('keeps the whole of it in a drawer at %s', async (size) => {
+    await render(
+      <PlDrawer open title="Save template" size={size}>
+        <PlTextField size={size} label="Name" labelPlacement="float" defaultValue="Draft" />
+      </PlDrawer>
+    );
+
+    await expectWholeLabel();
+  });
+
+  it('keeps the whole of it on a field larger than its sheet', async () => {
+    // The room for the label comes with the field rather than with the sheet,
+    // so the largest field fits in the smallest modal as well as one that
+    // matches it.
+    await render(
+      <PlModal defaultOpen title="Save template" size="xs" density="compact">
+        <PlTextField size="xl" label="Name" labelPlacement="float" defaultValue="Draft" />
+      </PlModal>
+    );
+
+    await expectWholeLabel();
+  });
+
+  it('keeps the whole of it while an empty field has the focus', async () => {
+    await render(
+      <PlModal defaultOpen title="Save template" size="lg">
+        <PlTextField size="lg" label="Name" labelPlacement="float" />
+      </PlModal>
+    );
+
+    await expect.poll(() => document.querySelector('[role="dialog"] input')).not.toBeNull();
+    (document.querySelector('[role="dialog"] input') as HTMLElement).focus();
+
+    await expectWholeLabel();
   });
 });
