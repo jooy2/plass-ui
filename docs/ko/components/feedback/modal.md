@@ -60,6 +60,8 @@ modal은 자기를 트리 밖으로 들어 올리므로 위쪽에 `Overlay`가 �
 
 따라서 `className`은 시트에 붙습니다. 그 뒤의 scrim은 같은 portal 안의 다른 요소이고, 거기에 닿는 방법이 `classNames.backdrop`입니다.
 
+`classNames.body`는 스크롤되는 본문에 붙습니다. `flex flex-col gap-4`처럼 안에 든 내용을 배치할 때 씁니다. 본문은 header와 줄을 맞추려고 양옆에 padding을 직접 넣기 때문에, 여기에 그냥 적은 `px-0`은 그 padding에 지고 `px-0!`이라야 바뀝니다. 이유는 [그냥 붙인 `className`의 한계](../../design/prop-conventions#그냥-붙인-classname의-한계)에 있습니다.
+
 :::
 
 ::: fw flutter

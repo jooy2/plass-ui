@@ -108,7 +108,7 @@ Some components draw more than one thing. A field draws its label and the two li
 />
 ```
 
-The keys mean the same part everywhere they appear: `label`, `control`, `description` and `error` on a labelled control; `backdrop` on a portalled surface.
+The keys mean the same part everywhere they appear: `label`, `control`, `description` and `error` on a labelled control; `backdrop` on a portalled surface; `body` on a `PlModal`, for the part that scrolls.
 
 ### 3. Tokens, for anything the component already paints
 

@@ -189,6 +189,19 @@ const portalClassNames: PropRow = {
   }
 };
 
+/**
+ * The same for a sheet, which also has a body that scrolls: a `PlModal`.
+ * `className` is the sheet, so the body is out of its reach as well.
+ */
+const sheetClassNames: PropRow = {
+  name: 'classNames',
+  type: '{ backdrop?, body?: string }',
+  description: {
+    ko: 'className이 닿지 않는 부분에 붙는 class. backdrop은 표면 뒤에 깔리는 scrim이고, body는 스크롤되는 본문입니다',
+    en: 'Classes on the parts a className does not reach. backdrop is the scrim drawn behind the surface, and body is the part that scrolls'
+  }
+};
+
 function stylingProps(where: Text): PropRow[] {
   return [
     {
@@ -7895,7 +7908,7 @@ export const propTables: Record<string, PropRow[]> = {
         en: 'The body — the only part that scrolls'
       }
     },
-    portalClassNames
+    sheetClassNames
   ],
 
   PlNavigationMenu: [

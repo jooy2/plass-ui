@@ -22,7 +22,7 @@ import {
   surfaceSlots,
   targetClasses
 } from '../../internal/styles.js';
-import type { PlassPortalClassNames, PlassSize, PlassStyleProps } from '../../types.js';
+import type { PlassSheetClassNames, PlassSize, PlassStyleProps } from '../../types.js';
 
 /**
  * A modal takes `size`, `color` and `density` and stops there.
@@ -35,8 +35,8 @@ export interface PlModalProps
   extends
     Pick<PlassStyleProps, 'size' | 'color' | 'density'>,
     Omit<React.ComponentPropsWithoutRef<'div'>, 'color' | 'title' | 'children'> {
-  /** Classes on the parts a `className` does not reach. */
-  classNames?: PlassPortalClassNames;
+  /** Classes on the parts a `className` does not reach: the scrim and the body. */
+  classNames?: PlassSheetClassNames;
   /** The modal is shown. Use with `onOpenChange` for a controlled modal. */
   open?: boolean;
   /** Whether it starts open, for an uncontrolled one. */
@@ -359,7 +359,8 @@ export function PlModal({
                   // the sheet moves. Only without `dividers`: with them the body
                   // already carries `insetY`, and pulling it up would drag the
                   // rule into the section above.
-                  dividers ? '' : '-my-1 py-1'
+                  dividers ? '' : '-my-1 py-1',
+                  classNames?.body ?? ''
                 ]
                   .filter(Boolean)
                   .join(' ')}

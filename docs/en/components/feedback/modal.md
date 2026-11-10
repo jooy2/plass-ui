@@ -60,6 +60,8 @@ Every native `<div>` attribute passes straight through to the sheet. `color`, `t
 
 A `className` therefore lands on the sheet. The scrim behind it is a second element in the same portal, and `classNames.backdrop` is the way to reach it.
 
+`classNames.body` lands on the body, the part that scrolls. It is for laying out what is in it, such as `flex flex-col gap-4`. The body pads its own sides to line up with the header, so a plain `px-0` there loses to that padding, and `px-0!` is the way to replace it. [The limits of a plain `className`](../../design/prop-conventions#the-limits-of-a-plain-classname) explains why.
+
 :::
 
 ::: fw flutter

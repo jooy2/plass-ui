@@ -351,6 +351,30 @@ export interface PlassPortalClassNames {
   backdrop?: string;
 }
 
+/**
+ * The parts of a sheet a `className` does not reach: a `PlModal`, which
+ * stacks a header, a body and a row of actions.
+ *
+ * `className` is the sheet itself, and a selector written against it cannot
+ * name the body without depending on the classes the library happens to build
+ * it from. The body is the part a caller lays content out in, so it is the one
+ * named here.
+ */
+export interface PlassSheetClassNames extends PlassPortalClassNames {
+  /**
+   * The body, the one part of the sheet that scrolls. It is for laying out what
+   * is in it — a `flex flex-col gap-4`, a grid, a `max-h-*` — since those are
+   * properties the body does not set on itself.
+   *
+   * Its padding is not among them. The body pads its sides to line up with the
+   * header, and its top and bottom by the room a focus ring needs, or by the
+   * sheet's own inset under `dividers`. A padding utility here competes with
+   * those on the same property, and Tailwind sorts the two by value, so a
+   * `px-0` loses to the library's own `px-5` where a `px-0!` does not.
+   */
+  body?: string;
+}
+
 /* ---------------------------------------------------------------------------
  * The token channel
  *

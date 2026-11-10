@@ -108,7 +108,7 @@ map은 위젯 자신의 키 처리보다 focus node에 더 가깝게 묶입니�
 />
 ```
 
-키는 어디에 나오든 같은 부분을 뜻합니다. 라벨 있는 컨트롤에서는 `label`, `control`, `description`, `error`이고, portal 표면에서는 `backdrop`입니다.
+키는 어디에 나오든 같은 부분을 뜻합니다. 라벨 있는 컨트롤에서는 `label`, `control`, `description`, `error`이고, portal 표면에서는 `backdrop`이며, `PlModal`에서는 스크롤되는 부분인 `body`입니다.
 
 ### 3. 토큰, 컴포넌트가 이미 칠한 것을 바꿀 때
 

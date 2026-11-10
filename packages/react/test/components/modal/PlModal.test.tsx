@@ -264,4 +264,31 @@ describe('PlModal', () => {
       expect(screen.getByRole('dialog').element()).not.toHaveClass('my-own-backdrop');
     });
   });
+
+  describe('the body', () => {
+    it('takes classes of its own on the part that scrolls', async () => {
+      const screen = await render(
+        <PlModal defaultOpen title="Filters" classNames={{ body: 'my-own-body' }}>
+          <p>Body</p>
+        </PlModal>
+      );
+
+      const body = screen.getByText('Body').element().parentElement!;
+
+      expect(body).toHaveClass('my-own-body');
+      expect(body).toHaveClass('overflow-y-auto');
+      expect(body).toHaveClass('py-1');
+      expect(screen.getByRole('dialog').element()).not.toHaveClass('my-own-body');
+    });
+
+    it('keeps them under `dividers`', async () => {
+      const screen = await render(
+        <PlModal defaultOpen dividers title="Filters" classNames={{ body: 'my-own-body' }}>
+          <p>Body</p>
+        </PlModal>
+      );
+
+      expect(screen.getByText('Body').element().parentElement).toHaveClass('my-own-body');
+    });
+  });
 });
