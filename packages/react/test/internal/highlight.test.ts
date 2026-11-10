@@ -4,7 +4,7 @@ import { highlight } from '../../src/internal/highlight.js';
 
 /**
  * The two chunks a TypeScript block needs, each held at the door until the test
- * lets it through, and the order they were asked for in.
+ * lets it through, and which of them have been asked for.
  *
  * The core is fetched once per page, so the test that watches it being asked
  * for comes first in this file and every later one finds it loaded.
@@ -90,8 +90,12 @@ describe('highlight', () => {
     const lines = highlight('const a = 1;', 'typescript');
 
     try {
-      // Neither has arrived, and both have been asked for.
-      await expect.poll(() => chunks.asked).toEqual(['core', 'typescript']);
+      // Neither has arrived, and both have been asked for, in either order.
+      // `prepare` calls the two `import()`s one after the other, but a mock
+      // runs only once Vitest has resolved its specifier, and the two resolve
+      // concurrently, so which mock runs first is Vitest's to say: 5.0 ran the
+      // core first and 5.1 runs the grammar first.
+      await expect.poll(() => [...chunks.asked].sort()).toEqual(['core', 'typescript']);
     } finally {
       // Let through whatever happens, or every test after this one waits on it.
       chunks.core.open();
