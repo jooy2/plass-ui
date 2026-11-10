@@ -158,6 +158,12 @@ describe('the floating bottom navigation key', () => {
     document.head.append(wider);
 
     try {
+      // The observer reports in the browser's next rendering update, so the key
+      // is read after a frame and not in the same task as the change. The
+      // WebKit that Playwright 1.65 runs on Linux and Windows schedules no
+      // update at all for a style change that a read has already laid out,
+      // which left the key waiting for a frame nothing asked for.
+      await frames();
       await expect.poll(() => keyOf().getBoundingClientRect().width).toBeGreaterThan(before);
       await ready();
       await frames();
