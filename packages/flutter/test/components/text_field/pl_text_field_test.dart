@@ -1496,6 +1496,107 @@ void main() {
         expect(inNotch(tester), isFalse);
         expect(edgeWhole(tester), isTrue);
       });
+
+      /// A sheet's body is a `SingleChildScrollView`, which clips to its
+      /// viewport, and a risen label stands half its own line above the field's
+      /// top edge. The field keeps that half in its own layout, so the label's
+      /// line starts no higher than the top of the body.
+      group('at the top of a sheet', () {
+        /// [sheet] around a floating field of [size] that holds a value.
+        Future<void> pumpInSheet(
+          WidgetTester tester,
+          Widget Function(Widget field) sheet, {
+          required PlassSize size,
+        }) async {
+          final TextEditingController controller = TextEditingController(text: 'Draft');
+          addTearDown(controller.dispose);
+
+          await tester.pumpWidget(
+            host(
+              sheet(
+                PlTextField(
+                  size: size,
+                  controller: controller,
+                  label: const Text('Name'),
+                  labelPlacement: PlassFieldLabelPlacement.float,
+                ),
+              ),
+              overlay: true,
+              width: 800,
+              height: 600,
+            ),
+          );
+          await tester.pumpAndSettle();
+        }
+
+        /// Whether the whole of the line of a [size] field's label is inside the
+        /// body it scrolls in.
+        void expectWholeLabel(WidgetTester tester, PlassSize size) {
+          final Rect body = tester.getRect(
+            find
+                .ancestor(of: find.text('Name'), matching: find.byType(SingleChildScrollView))
+                .first,
+          );
+          final Rect field = tester.getRect(find.byType(PlTextField));
+          final Rect label = tester.getRect(find.text('Name'));
+
+          // On the edge rather than resting, so it is the risen label measured.
+          expect(label.center.dy, closeTo(field.top + notchRise(size), 0.5));
+          expect(label.top, greaterThanOrEqualTo(body.top - 0.01));
+        }
+
+        for (final PlassSize size in PlassSize.values) {
+          testWidgets('keeps the whole of it in a modal at ${size.name}', (
+            WidgetTester tester,
+          ) async {
+            await pumpInSheet(
+              tester,
+              (Widget field) =>
+                  PlModal(open: true, size: size, title: const Text('Save template'), child: field),
+              size: size,
+            );
+
+            expectWholeLabel(tester, size);
+          });
+
+          testWidgets('keeps the whole of it in a drawer at ${size.name}', (
+            WidgetTester tester,
+          ) async {
+            await pumpInSheet(
+              tester,
+              (Widget field) => PlDrawer(
+                open: true,
+                size: size,
+                title: const Text('Save template'),
+                child: field,
+              ),
+              size: size,
+            );
+
+            expectWholeLabel(tester, size);
+          });
+        }
+
+        testWidgets('keeps the whole of it on a field larger than its sheet', (
+          WidgetTester tester,
+        ) async {
+          // The room for the label comes with the field rather than with the
+          // sheet, so the largest field fits in the smallest modal as well.
+          await pumpInSheet(
+            tester,
+            (Widget field) => PlModal(
+              open: true,
+              size: PlassSize.xs,
+              density: PlassDensity.compact,
+              title: const Text('Save template'),
+              child: field,
+            ),
+            size: PlassSize.xl,
+          );
+
+          expectWholeLabel(tester, PlassSize.xl);
+        });
+      });
     });
   });
 }
