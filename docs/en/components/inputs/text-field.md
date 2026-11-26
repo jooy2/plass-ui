@@ -338,7 +338,7 @@ That is what the browser does with the native attribute, so there is no prop for
 - What `startIcon` and `endIcon` say is read on a node of its own, not as part of the field's name.
 - The focus ring is drawn on the shell rather than on the editor, so it traces the glass edge instead of a rectangle floating inside it. It appears only on what CSS calls `:focus-visible`.
 - Pressing the shell's padding puts the caret in the field, the way pressing inside a native input does.
-- A selection is made by dragging and has **no handles** to adjust afterwards: the drag handles a touch platform puts under one belong to Material and Cupertino, and this package imports neither.
+- On a touch screen, a selection made with a finger has handles to adjust it by, drawn in the caret's colour, and a menu to cut, copy and paste from: the system's own on iOS and a sheet of glass elsewhere. Both go into the nearest `Overlay`, so a field with none above it is still typed into, without them.
 - Under `NavigationMode.directional`, a remote's D-pad, the arrow keys also leave the field: <kbd>↑</kbd> and <kbd>↓</kbd> from a field of one line, and <kbd>←</kbd> and <kbd>→</kbd> once the caret is at the start or the end of the text, as a text box on Android TV does. A field of several lines keeps <kbd>↑</kbd> and <kbd>↓</kbd> for its lines.
 
 :::
@@ -355,7 +355,7 @@ That is what the browser does with the native attribute, so there is no prop for
 | `maxLength`, as the browser enforces it | `maxLength` and `maxLengthEnforcement` | The browser decides what happens to a composition at the limit, and Flutter leaves it to the field. The default is the browser's. |
 | a `<textarea>` under `multiline` | the same widget, taller | There is one editor either way, so switching to multiline genuinely changes nothing but the height. |
 | `aria-describedby` wiring | one merged semantics node | The same result by a different route. |
-| selection handles on touch | — | They belong to Material and Cupertino, which this package does not import. |
+| the browser's selection handles and menu on touch | handles in the caret's colour, and a menu of glass except on iOS | Material and Cupertino draw these for a `TextField`, and this package imports neither, so the field draws its own. They need an `Overlay` above the field. |
 | the start adornment read before the input | adornments read after the field | The field is one node, holding its name, its text and the shell the adornments sit in, so a screen reader reaches the field in one step. An adornment inside it is a child of that node, and Flutter reads a node before its children. |
 | `className`, `style`, native attributes | — | There is no class list and no style attribute to pass through. |
 
