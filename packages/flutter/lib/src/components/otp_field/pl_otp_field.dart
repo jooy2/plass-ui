@@ -341,7 +341,10 @@ class _PlOtpFieldState extends State<PlOtpField> {
     setState(() {});
     widget.onChanged?.call(text);
 
-    if (text.length == _slots) {
+    // Counted in characters, as the slots and the length limit count them. An
+    // emoji is two UTF-16 code units, and an accented letter can be two code
+    // points in one character.
+    if (text.characters.length == _slots) {
       widget.onCompleted?.call(text);
     }
   }

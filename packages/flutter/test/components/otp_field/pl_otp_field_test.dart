@@ -147,6 +147,37 @@ void main() {
         expect(completed, '123');
       });
 
+      // The slots are counted in characters, and a character can be more than
+      // one UTF-16 code unit.
+      for (final (String typed, List<String> completes, String why)
+          in <(String, List<String>, String)>[
+            ('1😀', <String>['1😀'], 'fires for a character outside the Basic Multilingual Plane'),
+            ('é', <String>[], 'waits for the last slot past a character of two code points'),
+          ]) {
+        testWidgets(why, (WidgetTester tester) async {
+          final TextEditingController controller = TextEditingController();
+          addTearDown(controller.dispose);
+          final List<String> completed = <String>[];
+
+          await tester.pumpWidget(
+            host(
+              PlOtpField(
+                length: 2,
+                charset: PlOtpCharset.any,
+                controller: controller,
+                onCompleted: completed.add,
+                autofocus: true,
+              ),
+            ),
+          );
+          await tester.pump();
+          await tester.enterText(find.byType(EditableText), typed);
+
+          expect(controller.text, typed);
+          expect(completed, completes);
+        });
+      }
+
       testWidgets('does not fire again when the caret is only moved', (WidgetTester tester) async {
         final TextEditingController controller = TextEditingController(text: '123');
         addTearDown(controller.dispose);

@@ -10,6 +10,10 @@
 - **A `PlOtpField` with `charset: PlOtpCharset.any` lets a composition run past its last slot on Windows and Android too, and cuts the code back to one character a slot as the composition ends.** Held to the slots, a Japanese reading or a pinyin spelling longer than the slots left could not be typed at all, even where the characters it turns into would fit, such as `zhongguo` for 中国 in the last two slots. On Windows the input method also went on composing what the row had turned away, so its next update was written over a slot already filled. Nothing past the last slot is drawn, and until the composition ends `onChanged` can report more characters than there are slots. The other charsets drop what an input method composes before it reaches a slot, and are unchanged.
 - **A key pressed in a full `PlOtpField` takes the last slot's place.** The row turned the key away while its ring stayed on the last slot, where the React field's last slot takes it. A paste there puts its first character in the last slot and drops the rest, as the React field does, and a syllable an input method starts there is composed in the last slot, with the platform told where the composition now is. `onChanged` and `onCompleted` are called with the new code, so an `onCompleted` that sends the code off to be checked can be called again for the same row, once for each key that changes the last slot. A character the charset refuses still leaves the row as it was.
 
+### Fixed
+
+- **`PlOtpField` counts the slots filled in characters before it calls `onCompleted`.** It compared the code's UTF-16 code units with the number of slots, which the slots and the length limit count in characters. With `PlOtpCharset.any`, a code holding an emoji or another character outside the Basic Multilingual Plane never completed, and one holding a character of more than one code point, such as `e` followed by a combining accent, completed before its last slot was filled.
+
 ## 1.9.0 (2026-11-02)
 
 ### Added
