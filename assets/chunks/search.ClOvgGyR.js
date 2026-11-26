@@ -1,0 +1,1 @@
+const a=/[\u0300-\u036f]/g,u="\0";function s(t){return t==null||typeof t=="object"?"":String(t).normalize("NFD").replace(a,"").toLowerCase()}function f(t){return t.map(s).join(u)}function i(t){const c=new WeakMap;return e=>{const n=t(e),r=c.get(e);if(r&&Object.is(r.value,n))return r.text;const o=s(n);return c.set(e,{value:n,text:o}),o}}export{f as a,i as c,s};

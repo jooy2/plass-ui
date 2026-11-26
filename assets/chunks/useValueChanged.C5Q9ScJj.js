@@ -1,0 +1,1 @@
+import{r as o}from"./index.CKsxLMuf.js";import{u as s,a as c}from"./useOnMount.QuUbcyzA.js";function f(e,a){const r=o.useRef(e),t=s(a);c(()=>{r.current!==e&&t(r.current),r.current=e},[e,t])}export{f as u};
