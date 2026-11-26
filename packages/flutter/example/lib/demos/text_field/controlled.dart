@@ -33,7 +33,9 @@ class _TextFieldControlledState extends State<TextFieldControlled> {
             label: const Text('Display name'),
             placeholder: 'Ada Lovelace',
             maxLength: 24,
-            onChanged: (String next) => setState(() => _length = next.length),
+            // Counted the way `maxLength` counts, so an emoji is one character
+            // rather than two or more.
+            onChanged: (String next) => setState(() => _length = next.characters.length),
           ),
           PlTypography('$_length/24', level: PlTypographyLevel.caption),
         ],
