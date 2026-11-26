@@ -160,7 +160,7 @@ packages:
       path: "../../packages/flutter"
       relative: true
     source: path
-    version: "1.10.0"
+    version: "1.10.1"
   plass_ui_example:
     dependency: "direct main"
     description:

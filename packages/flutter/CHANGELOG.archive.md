@@ -2,6 +2,18 @@
 
 > Every release of this package before the latest one, newest first. The unreleased changes and the latest release are in [`CHANGELOG.md`](CHANGELOG.md), which is the only one of the two published with the package: pub.dev refuses a changelog over 256 KiB.
 
+## 1.10.0 (2026-11-26)
+
+### Breaking changes
+
+- **A `PlTextField` with `maxLength` lets a composition run past the limit on Windows and Android too, and cuts it as the composition ends.** Flutter holds a composition to the limit on those two, which turned away keys a Korean, Japanese or Chinese input method was still composing: a Japanese reading or a pinyin spelling longer than the room left could not be typed at all, even where the characters it turns into would fit, and on Windows the input method went on composing a syllable the field had turned away, so the next one could take the place of a syllable already in the field. The field now takes what the input method writes and cuts the text back to `maxLength` once the composition ends, as Flutter already did on macOS, iOS, Linux and the web, and as a browser does with the React field's `maxLength`. Until then `onChanged` can report more than `maxLength` characters, and on Android a keyboard that composes whole words, as Gboard does, lets a Latin word run past the limit until the word is finished. `PlTextField` takes `maxLengthEnforcement` to choose: pass `MaxLengthEnforcement.enforced` to hold every composition to the limit, which suits a field of digits or Latin letters, or `LengthLimitingTextInputFormatter.getDefaultMaxLengthEnforcement()` for what each platform did before.
+- **A `PlOtpField` with `charset: PlOtpCharset.any` lets a composition run past its last slot on Windows and Android too, and cuts the code back to one character a slot as the composition ends.** Held to the slots, a Japanese reading or a pinyin spelling longer than the slots left could not be typed at all, even where the characters it turns into would fit, such as `zhongguo` for 中国 in the last two slots. On Windows the input method also went on composing what the row had turned away, so its next update was written over a slot already filled. Nothing past the last slot is drawn, and until the composition ends `onChanged` can report more characters than there are slots. The other charsets drop what an input method composes before it reaches a slot, and are unchanged.
+- **A key pressed in a full `PlOtpField` takes the last slot's place.** The row turned the key away while its ring stayed on the last slot, where the React field's last slot takes it. A paste there puts its first character in the last slot and drops the rest, as the React field does, and a syllable an input method starts there is composed in the last slot, with the platform told where the composition now is. `onChanged` and `onCompleted` are called with the new code, so an `onCompleted` that sends the code off to be checked can be called again for the same row, once for each key that changes the last slot. A character the charset refuses still leaves the row as it was.
+
+### Fixed
+
+- **`PlOtpField` counts the slots filled in characters before it calls `onCompleted`.** It compared the code's UTF-16 code units with the number of slots, which the slots and the length limit count in characters. With `PlOtpCharset.any`, a code holding an emoji or another character outside the Basic Multilingual Plane never completed, and one holding a character of more than one code point, such as `e` followed by a combining accent, completed before its last slot was filled.
+
 ## 1.9.0 (2026-11-02)
 
 ### Added
