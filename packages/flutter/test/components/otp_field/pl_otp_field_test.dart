@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -12,6 +13,59 @@ List<String> drawn(WidgetTester tester) {
       .widgetList<Text>(find.descendant(of: find.byType(PlOtpField), matching: find.byType(Text)))
       .map((Text text) => text.data ?? '')
       .toList();
+}
+
+/// What an input method has written while a composition is open: the whole
+/// code, with the caret at the end of the part still being composed.
+TextEditingValue composing(String text, int start, int end) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: end),
+    composing: TextRange(start: start, end: end),
+  );
+}
+
+/// What it has written once nothing is being composed.
+TextEditingValue committed(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+  );
+}
+
+/// What the Windows engine sends as a composition starts, before the input
+/// method has written anything into it: the code as it was, with an empty
+/// composition at the caret.
+TextEditingValue compositionStarts(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+    composing: TextRange.collapsed(text.length),
+  );
+}
+
+/// Sends [values] in turn, and checks that the row holds each one just as the
+/// input method sent it.
+Future<void> compose(
+  WidgetTester tester,
+  TextEditingController controller,
+  List<TextEditingValue> values,
+) async {
+  for (final TextEditingValue value in values) {
+    tester.testTextInput.updateEditingValue(value);
+    await tester.pump();
+
+    expect(controller.value, value, reason: 'the input method holds "${value.text}"');
+  }
+}
+
+/// The last editing state the framework sent to the platform.
+Map<String, dynamic> lastSent(WidgetTester tester) {
+  final MethodCall call = tester.testTextInput.log.lastWhere(
+    (MethodCall call) => call.method == 'TextInput.setEditingState',
+  );
+
+  return call.arguments as Map<String, dynamic>;
 }
 
 void main() {
@@ -200,6 +254,98 @@ void main() {
         await tester.enterText(find.byType(EditableText), '123456');
 
         expect(controller.text, '123');
+      });
+    });
+
+    // In the order the Windows engine sends them: an empty composition as one
+    // starts, and then the whole code with the part being composed marked.
+    group('while an input method composes', () {
+      testWidgets('with charset any, takes a reading longer than the slots left until it ends', (
+        WidgetTester tester,
+      ) async {
+        // Held to the slots, the row would turn zho away while the input method
+        // went on composing it, though 中国 fits in the two slots left.
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          final TextEditingController controller = TextEditingController();
+          addTearDown(controller.dispose);
+          final List<String> changes = <String>[];
+
+          await tester.pumpWidget(
+            host(
+              PlOtpField(
+                length: 4,
+                charset: PlOtpCharset.any,
+                controller: controller,
+                onChanged: changes.add,
+                autofocus: true,
+              ),
+            ),
+          );
+          await tester.pump();
+          await tester.enterText(find.byType(EditableText), '12');
+
+          const String reading = 'zhongguo';
+
+          await compose(tester, controller, <TextEditingValue>[
+            compositionStarts('12'),
+            for (int typed = 1; typed <= reading.length; typed++)
+              composing('12${reading.substring(0, typed)}', 2, 2 + typed),
+            composing('12中国', 2, 4),
+            committed('12中国'),
+          ]);
+
+          expect(changes.last, '12中国');
+          expect(drawn(tester), <String>['1', '2', '中', '国']);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      testWidgets('with digits, drops a syllable and leaves nothing being composed', (
+        WidgetTester tester,
+      ) async {
+        // Why the other charsets keep the platform's own limit: what an input
+        // method composes never gets past the charset, and the row is sent back
+        // with no composition for the next syllable to be written into.
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          final TextEditingController controller = TextEditingController();
+          addTearDown(controller.dispose);
+          final List<String> rejected = <String>[];
+
+          await tester.pumpWidget(
+            host(
+              PlOtpField(
+                length: 2,
+                controller: controller,
+                onRejected: rejected.add,
+                autofocus: true,
+              ),
+            ),
+          );
+          await tester.pump();
+          await tester.enterText(find.byType(EditableText), '12');
+          tester.testTextInput.log.clear();
+
+          tester.testTextInput.updateEditingValue(composing('12ㅁ', 2, 3));
+          await tester.pump();
+
+          expect(controller.value, committed('12'));
+          expect(rejected, <String>['ㅁ']);
+          expect(
+            lastSent(tester),
+            allOf(
+              containsPair('text', '12'),
+              containsPair('composingBase', -1),
+              containsPair('composingExtent', -1),
+            ),
+          );
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
       });
     });
 

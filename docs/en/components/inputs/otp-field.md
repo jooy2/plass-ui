@@ -81,6 +81,12 @@ What may be typed. Anything rejected is dropped rather than shown, and `onValueI
 
 `numeric` is the default because that is what a texted code is, and it is also what puts a number pad in front of a phone.
 
+::: fw flutter
+
+With `PlOtpCharset.any`, what a Korean, Japanese or Chinese input method is still composing can run past the last slot, and the code is cut back to one character a slot as the composition ends. Nothing past the last slot is drawn, and until then `onChanged` can report more characters than there are slots. Held to the slots instead, a Japanese reading or a pinyin spelling longer than the slots left could not be typed at all, even where what it turns into would fit. The other charsets drop those characters before they reach a slot.
+
+:::
+
 <Demo src="otp-field/charset" :min-height="280">
 
 ::: fw react

@@ -158,6 +158,11 @@ class PlOtpField extends StatefulWidget {
   final TextEditingController? controller;
 
   /// Called on every change.
+  ///
+  /// With [PlOtpCharset.any], what an input method is still composing can run
+  /// past the last slot, and the code is cut back to one character a slot as
+  /// the composition ends, so until then this can report more characters than
+  /// there are slots. Nothing past the last slot is drawn.
   final ValueChanged<String>? onChanged;
 
   /// Fires once every slot is filled — the moment to verify the code.
@@ -430,7 +435,20 @@ class _PlOtpFieldState extends State<PlOtpField> {
             enableSuggestions: false,
             inputFormatters: <TextInputFormatter>[
               _CharsetFormatter(charset: widget.charset, onRejected: widget.onRejected),
-              LengthLimitingTextInputFormatter(_slots),
+              LengthLimitingTextInputFormatter(
+                _slots,
+                // `any` is the one charset that lets what a Korean, Japanese
+                // or Chinese input method composes into the row. Held to the
+                // slots, a reading longer than the slots left is turned away
+                // while the input method goes on composing it, and on Windows
+                // its next update is written over a slot already filled. The
+                // other charsets drop those characters and leave nothing
+                // composing, so the platform's own choice stands for the
+                // digits and Latin letters they let through.
+                maxLengthEnforcement: widget.charset == PlOtpCharset.any
+                    ? MaxLengthEnforcement.truncateAfterCompositionEnds
+                    : null,
+              ),
             ],
             maxLines: 1,
             style: TextStyle(color: tokens.fg, fontSize: type),
