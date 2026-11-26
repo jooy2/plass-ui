@@ -4242,7 +4242,11 @@ export const flutterPropTables: Record<string, PropRow[]> = {
     }),
     from('PlOtpField', 'onComplete', {
       name: 'onCompleted',
-      type: 'ValueChanged<String>?'
+      type: 'ValueChanged<String>?',
+      description: {
+        ko: '모든 칸을 채운 채로 끝나는 변경마다 호출됩니다 — 코드를 확인할 때',
+        en: 'Fires whenever a change leaves every slot filled — the moment to verify the code'
+      }
     }),
     from('PlOtpField', 'onValueInvalid', {
       name: 'onRejected',

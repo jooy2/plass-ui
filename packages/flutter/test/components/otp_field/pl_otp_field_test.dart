@@ -349,6 +349,133 @@ void main() {
       });
     });
 
+    // The ring stays on the last slot once every slot is filled, and the React
+    // field's last slot takes a key then.
+    group('a full row', () {
+      Future<TextEditingController> pumpFull(
+        WidgetTester tester, {
+        ValueChanged<String>? onCompleted,
+        ValueChanged<String>? onRejected,
+      }) async {
+        final TextEditingController controller = TextEditingController();
+        addTearDown(controller.dispose);
+
+        await tester.pumpWidget(
+          host(
+            PlOtpField(
+              length: 4,
+              controller: controller,
+              onCompleted: onCompleted,
+              onRejected: onRejected,
+              autofocus: true,
+            ),
+          ),
+        );
+        await tester.pump();
+        await tester.enterText(find.byType(EditableText), '1234');
+
+        return controller;
+      }
+
+      testWidgets('puts a key pressed in it in the last slot, and completes again', (
+        WidgetTester tester,
+      ) async {
+        final List<String> completed = <String>[];
+        final TextEditingController controller = await pumpFull(tester, onCompleted: completed.add);
+
+        await tester.enterText(find.byType(EditableText), '12345');
+
+        expect(controller.value, committed('1235'));
+        expect(completed, <String>['1234', '1235']);
+      });
+
+      testWidgets('puts the first character of a paste in the last slot', (
+        WidgetTester tester,
+      ) async {
+        final TextEditingController controller = await pumpFull(tester);
+
+        await tester.enterText(find.byType(EditableText), '123456');
+
+        expect(controller.value, committed('1235'));
+      });
+
+      testWidgets('keeps its last slot when the charset refuses the key', (
+        WidgetTester tester,
+      ) async {
+        final List<String> rejected = <String>[];
+        final TextEditingController controller = await pumpFull(tester, onRejected: rejected.add);
+
+        await tester.enterText(find.byType(EditableText), '1234a');
+
+        expect(controller.value, committed('1234'));
+        expect(rejected, <String>['a']);
+      });
+
+      for (final (TargetPlatform platform, String name) in <(TargetPlatform, String)>[
+        (TargetPlatform.windows, 'Windows'),
+        (TargetPlatform.macOS, 'macOS'),
+      ]) {
+        testWidgets('on $name, composes a syllable started in it in the last slot', (
+          WidgetTester tester,
+        ) async {
+          // The platform is told the composition now covers the last slot, so
+          // the input method's next update is written there. Windows finishes
+          // 글 and starts ㅁ in one update; macOS finishes each syllable on its
+          // own first.
+          debugDefaultTargetPlatformOverride = platform;
+
+          try {
+            final bool windows = platform == TargetPlatform.windows;
+            final TextEditingController controller = TextEditingController();
+            addTearDown(controller.dispose);
+
+            await tester.pumpWidget(
+              host(
+                PlOtpField(
+                  length: 2,
+                  charset: PlOtpCharset.any,
+                  controller: controller,
+                  autofocus: true,
+                ),
+              ),
+            );
+            await tester.pump();
+
+            await compose(tester, controller, <TextEditingValue>[
+              if (windows) compositionStarts(''),
+              composing('한', 0, 1),
+              if (!windows) committed('한'),
+              composing('한글', 1, 2),
+              if (!windows) committed('한글'),
+            ]);
+
+            tester.testTextInput.log.clear();
+            tester.testTextInput.updateEditingValue(composing('한글ㅁ', 2, 3));
+            await tester.pump();
+
+            expect(controller.value, composing('한ㅁ', 1, 2));
+            expect(
+              lastSent(tester),
+              allOf(
+                containsPair('text', '한ㅁ'),
+                containsPair('composingBase', 1),
+                containsPair('composingExtent', 2),
+              ),
+            );
+
+            await compose(tester, controller, <TextEditingValue>[
+              composing('한마', 1, 2),
+              committed('한마'),
+            ]);
+
+            expect(drawn(tester), <String>['한', '마']);
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        });
+      }
+    });
+
     group('the separator', () {
       testWidgets('draws nothing unless a group size is given', (WidgetTester tester) async {
         await tester.pumpWidget(host(const PlOtpField(length: 6)));

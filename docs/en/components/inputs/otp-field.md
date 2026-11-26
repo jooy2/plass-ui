@@ -103,6 +103,22 @@ With `PlOtpCharset.any`, what a Korean, Japanese or Chinese input method is stil
 
 </Demo>
 
+### onComplete
+
+Fires the moment every slot is filled, which is the moment to verify the code. The ring then stays on the last slot, and a key pressed takes that slot's place, so a reader who mistyped the last character types over it. A paste puts its first character there and drops the rest.
+
+::: fw react
+
+`onComplete` is called again for the changed code only when it was pasted, which is Base UI's rule.
+
+:::
+
+::: fw flutter
+
+`onCompleted` is called again with the changed code, as it is for every change that leaves every slot filled.
+
+:::
+
 ### groupSize and separator
 
 `groupSize={3}` on a six-character code gives the familiar two blocks of three. The separator is punctuation inside one value rather than a break between two things, so it is hidden from a screen reader entirely: a reader that announced it once per group would be reading out the shape of the box instead of the code in it.
@@ -220,6 +236,7 @@ Rejected characters go through a formatter of the component's own rather than Fl
 | one `<input>` per slot | one editor behind the row | Flutter's text input is a single connection to the platform. Six of them would be six keyboards fighting over one code. |
 | `value` / `defaultValue` / `onValueChange` | `controller` / `onChanged` | The shape every editable widget in Flutter has, and the one `PlTextField` already uses. |
 | `onValueInvalid` | `onRejected` | It is handed the characters that were refused rather than the value that survived, which is the more useful half. |
+| `onComplete` when the code fills up, or when a paste changes a full one | `onCompleted` whenever a change leaves every slot filled | Base UI decides when the React field is complete. Here a key that changes the last slot of a full code completes it again too. |
 | `name`, `required`, `autoSubmit` | — | All three are about an HTML form submission, which Flutter has no equivalent of. |
 | `autoFocus` | `autofocus` | Flutter's spelling. |
 | `aria-label` | `semanticLabel` | Flutter's name. |

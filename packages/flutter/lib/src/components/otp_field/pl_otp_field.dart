@@ -116,7 +116,9 @@ const Map<PlassDensity, Map<PlassSize, double>> _slotGap = <PlassDensity, Map<Pl
 /// expect; Flutter's text input is a single connection to the platform, and
 /// splitting it into six would be six keyboards fighting over one code. So the
 /// value lives in a [TextEditingController], the boxes are painted from it, and
-/// pressing anywhere in the row puts the caret at the first empty slot.
+/// pressing anywhere in the row puts the caret at the first empty slot. Once
+/// every slot is filled the ring stays on the last one, and a key pressed then
+/// takes that slot's place, as it does in the React build.
 ///
 /// The shell is the one [PlTextField] and [PlSelect] draw: a slot is a
 /// field-shaped box, and a form holding both should not look like two form kits
@@ -165,7 +167,9 @@ class PlOtpField extends StatefulWidget {
   /// there are slots. Nothing past the last slot is drawn.
   final ValueChanged<String>? onChanged;
 
-  /// Fires once every slot is filled — the moment to verify the code.
+  /// Fires whenever a change leaves every slot filled — the moment to verify
+  /// the code. A key pressed in a full row changes the last slot, so this
+  /// fires again with the new code.
   final ValueChanged<String>? onCompleted;
 
   /// Fires with the characters typed or pasted text held that [charset]
@@ -435,6 +439,7 @@ class _PlOtpFieldState extends State<PlOtpField> {
             enableSuggestions: false,
             inputFormatters: <TextInputFormatter>[
               _CharsetFormatter(charset: widget.charset, onRejected: widget.onRejected),
+              _LastSlotFormatter(slots: _slots),
               LengthLimitingTextInputFormatter(
                 _slots,
                 // `any` is the one charset that lets what a Korean, Japanese
@@ -620,6 +625,67 @@ class _PlOtpFieldState extends State<PlOtpField> {
       width: box.width,
       height: box.height,
       child: ExcludeSemantics(child: slot),
+    );
+  }
+}
+
+/// Puts what is typed at the end of a full row in the last slot, as the React
+/// build's last slot takes a key while every slot is filled.
+///
+/// The ring stays on the last slot once the row is full, so that is where the
+/// reader expects the next character to land, and the length limit after this
+/// would turn it away. Only an edit that adds to the end of a full row with the
+/// caret after it is touched: a key, a paste, or a composition an input method
+/// starts there. A composition that takes in text already in the row, as a
+/// reading does while it grows, is left to the limit.
+class _LastSlotFormatter extends TextInputFormatter {
+  const _LastSlotFormatter({required this.slots});
+
+  final int slots;
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue before, TextEditingValue after) {
+    final String code = before.text;
+    final TextSelection caret = before.selection;
+    final TextRange composition = after.composing;
+    final bool composes = composition.isValid && !composition.isCollapsed;
+    final bool added = after.text.length > code.length && after.text.startsWith(code);
+
+    if (code.characters.length != slots ||
+        !caret.isCollapsed ||
+        caret.extentOffset != code.length ||
+        !added ||
+        after.selection.start < code.length ||
+        (composes && composition.start < code.length)) {
+      return after;
+    }
+
+    // The last slot's character in UTF-16 code units, which the offsets count.
+    final int last = code.characters.last.length;
+    final String text = code.substring(0, code.length - last) + after.text.substring(code.length);
+
+    if (composes) {
+      // The selection and the composition move back with the text. The
+      // framework then tells the platform where the composition is, so the
+      // input method's next update is written into the last slot.
+      return TextEditingValue(
+        text: text,
+        selection: TextSelection(
+          baseOffset: after.selection.baseOffset - last,
+          extentOffset: after.selection.extentOffset - last,
+          affinity: after.selection.affinity,
+        ),
+        composing: TextRange(start: composition.start - last, end: composition.end - last),
+      );
+    }
+
+    // A paste is cut here: the limit gives back the old code for any edit that
+    // leaves a full row too long, so the whole paste would be lost.
+    final String kept = text.characters.take(slots).toString();
+
+    return TextEditingValue(
+      text: kept,
+      selection: TextSelection.collapsed(offset: kept.length),
     );
   }
 }

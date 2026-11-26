@@ -103,6 +103,22 @@ PlOtpField(
 
 </Demo>
 
+### onComplete
+
+모든 칸이 채워지는 순간 호출됩니다. 코드를 확인할 때가 바로 그때입니다. 그 뒤로 링은 마지막 칸에 머물고, 이때 누른 키는 그 칸의 글자를 바꿉니다. 마지막 글자를 잘못 친 사용자는 그 위에 다시 치면 됩니다. 붙여넣으면 첫 글자가 그 칸에 들어가고 나머지는 버려집니다.
+
+::: fw react
+
+이렇게 바뀐 코드로 `onComplete`가 다시 호출되는 것은 붙여넣었을 때뿐입니다. Base UI의 규칙입니다.
+
+:::
+
+::: fw flutter
+
+`onCompleted`는 바뀐 코드로 다시 호출됩니다. 모든 칸을 채운 채로 끝나는 변경이면 언제나 그렇습니다.
+
+:::
+
 ### groupSize와 separator
 
 여섯 자리 코드에 `groupSize={3}`이면 익숙한 세 자리 두 덩어리가 됩니다. 구분자는 두 가지를 나누는 경계가 아니라 값 하나 안의 구두점이라서, 스크린 리더에서는 완전히 숨깁니다. 덩어리마다 그것을 읽어 주는 리더는 그 안의 코드가 아니라 상자의 생김새를 읽고 있는 셈입니다.
@@ -220,6 +236,7 @@ PlOtpField(
 | 칸마다 `<input>` 하나 | 줄 뒤에 편집기 하나 | Flutter의 텍스트 입력은 플랫폼과의 단일 연결입니다. 여섯이면 코드 하나를 두고 키보드 여섯이 다툽니다. |
 | `value` / `defaultValue` / `onValueChange` | `controller` / `onChanged` | Flutter의 편집 가능한 위젯이 모두 가진 모양이고, `PlTextField`가 이미 쓰는 것입니다. |
 | `onValueInvalid` | `onRejected` | 살아남은 값이 아니라 거부된 글자를 건네줍니다. 둘 중 쓸모 있는 쪽입니다. |
+| 코드가 다 찼을 때, 또는 꽉 찬 코드를 붙여넣어 바꿨을 때의 `onComplete` | 모든 칸을 채운 채로 끝나는 변경마다 `onCompleted` | React 필드가 언제 완성되는지는 Base UI가 정합니다. Flutter에서는 꽉 찬 코드의 마지막 칸을 바꾸는 키도 코드를 다시 완성합니다. |
 | `name`, `required`, `autoSubmit` | — | 셋 다 HTML 폼 전송에 관한 것이고, Flutter에는 대응물이 없습니다. |
 | `autoFocus` | `autofocus` | Flutter의 표기입니다. |
 | `aria-label` | `semanticLabel` | Flutter의 이름입니다. |
