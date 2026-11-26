@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Fixed
+
+- **A Flutter preview on the documentation site stops growing when a field in it is pressed.** The preview took the handles a field puts up for its caret and its selection for a popup, and asked the page for a taller frame on every frame, until the field was squeezed out of sight. Only a press outside the preview brought it back.
+
 ## 1.10.0 (2026-11-26)
 
 ### Breaking changes

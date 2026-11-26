@@ -88,6 +88,12 @@ PreviewRoom? measureRoom({
         return;
       }
 
+      // Nor is what a text selection puts up, which a field does on the first
+      // press. See [_selectionUi] for why measuring it never stops.
+      if (_selectionUi(child)) {
+        return;
+      }
+
       final popups = _popups(child, stage);
 
       if (popups.isEmpty) {
@@ -137,6 +143,49 @@ RenderObject? _entry(RenderObject content, RenderObject stage) {
   return node;
 }
 
+/// Whether [layer] is a handle or the menu of a text selection.
+///
+/// A field puts both of its handles in the root overlay on every change of the
+/// selection, a caret put down by a press included, and on a desktop too, where
+/// they are laid out and never drawn. Flutter wraps each of them, and the menu,
+/// in a `TapRegion` of the `SelectableRegion` group, and that is how they are
+/// told apart here.
+///
+/// Measured as popups, they made a preview grow without end. A handle is laid
+/// out over the whole overlay and then moved onto its end of the selection, so
+/// it reaches as far below the selection as the frame is tall, and the taller
+/// frame it asks for makes the next measurement taller still. The empty end
+/// handle of a caret has no follower at all, which counted it as a sheet.
+///
+/// Only the top of the layer is read, down to the first node with more than one
+/// child: a region further in belongs to something inside the layer.
+bool _selectionUi(RenderObject layer) {
+  RenderObject? node = layer;
+
+  while (node != null) {
+    if (node is RenderTapRegion && node.groupId == SelectableRegion) {
+      return true;
+    }
+
+    node = _onlyChild(node);
+  }
+
+  return false;
+}
+
+/// The child of [node] when it has exactly one, and `null` otherwise.
+RenderObject? _onlyChild(RenderObject node) {
+  RenderObject? only;
+  int count = 0;
+
+  node.visitChildren((RenderObject child) {
+    only = child;
+    count += 1;
+  });
+
+  return count == 1 ? only : null;
+}
+
 /// The anchored popups inside one layer, in the overlay's own coordinates.
 ///
 /// A `CompositedTransformFollower` is what sticks a Plass popup to its anchor,
@@ -144,6 +193,9 @@ RenderObject? _entry(RenderObject content, RenderObject stage) {
 /// identifies a popup, and its child is the popup itself. The walk stops there:
 /// what is *inside* a popup can be clipped, scrolled or deliberately off screen,
 /// and none of that is room the frame owes anybody.
+///
+/// Flutter's own text selection is held by a follower as well, and is not a
+/// popup. [measureRoom] leaves those layers out before they get here.
 ///
 /// A layer with no follower in it is a `PlassPortal` — a modal, a drawer, an
 /// overlay — which covers the window rather than hangs off something in it.
