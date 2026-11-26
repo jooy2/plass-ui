@@ -1,6 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/gestures.dart';
+// For the tests under `MaterialApp`, which is where an app meets the provider.
+// Flutter 3.47 deprecates this library for `package:material_ui`, and that
+// package needs Flutter 3.47, above the 3.41 this one supports and tests on.
+// ignore: deprecated_member_use
 import 'package:flutter/material.dart' show MaterialApp, Material, MaterialType;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
