@@ -33,6 +33,35 @@ class _Glyph extends StatelessWidget {
   }
 }
 
+/// What an input method has written while a composition is open: the whole
+/// text, with the caret at the end of the part still being composed.
+TextEditingValue composing(String text, int start, int end) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: end),
+    composing: TextRange(start: start, end: end),
+  );
+}
+
+/// What it has written once nothing is being composed.
+TextEditingValue committed(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+  );
+}
+
+/// What the Windows engine sends as a composition starts, before the input
+/// method has written anything into it: the text as it was, with an empty
+/// composition at the caret.
+TextEditingValue compositionStarts(String text) {
+  return TextEditingValue(
+    text: text,
+    selection: TextSelection.collapsed(offset: text.length),
+    composing: TextRange.collapsed(text.length),
+  );
+}
+
 void main() {
   group('PlTextField', () {
     group('rendering', () {
@@ -463,6 +492,340 @@ void main() {
 
         debugDefaultTargetPlatformOverride = null;
       });
+    });
+
+    // The values are sent in the order the engines send them, as their sources
+    // have it. The Windows engine sends an empty composition as one starts, and
+    // a syllable the Korean input method finishes arrives with the one it starts
+    // next. The macOS engine sends a finished syllable on its own, as text that
+    // is no longer being composed.
+    group('maxLength while an input method composes', () {
+      Future<void> pumpFocused(WidgetTester tester, Widget field) async {
+        await tester.pumpWidget(host(field, width: 300));
+        await tester.showKeyboard(find.byType(EditableText));
+        await tester.pump();
+      }
+
+      /// Sends [values] in turn, and checks that the field holds each one just
+      /// as the input method sent it.
+      Future<void> compose(
+        WidgetTester tester,
+        TextEditingController controller,
+        List<TextEditingValue> values,
+      ) async {
+        for (final TextEditingValue value in values) {
+          tester.testTextInput.updateEditingValue(value);
+          await tester.pump();
+
+          expect(controller.value, value, reason: 'the input method holds "${value.text}"');
+        }
+      }
+
+      testWidgets('on Windows, takes in a syllable typed past a full field until it is finished', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          final changes = <String>[];
+          final controller = TextEditingController();
+          addTearDown(controller.dispose);
+
+          await pumpFocused(
+            tester,
+            PlTextField(
+              fullWidth: true,
+              controller: controller,
+              maxLength: 2,
+              onChanged: changes.add,
+            ),
+          );
+
+          // 한글 and then 마. ㄱ and ㅁ cannot join the syllable before them,
+          // so each finishes that syllable and starts the next.
+          await compose(tester, controller, <TextEditingValue>[
+            compositionStarts(''),
+            composing('ㅎ', 0, 1),
+            composing('하', 0, 1),
+            composing('한', 0, 1),
+            composing('한ㄱ', 1, 2),
+            composing('한그', 1, 2),
+            composing('한글', 1, 2),
+            composing('한글ㅁ', 2, 3),
+            composing('한글마', 2, 3),
+          ]);
+
+          tester.testTextInput.updateEditingValue(committed('한글마'));
+          await tester.pump();
+
+          expect(controller.value, committed('한글'));
+          expect(changes, <String>['ㅎ', '하', '한', '한ㄱ', '한그', '한글', '한글ㅁ', '한글마', '한글']);
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      testWidgets(
+        'on Windows, shows a syllable that splits at the limit whole until it is finished',
+        (WidgetTester tester) async {
+          debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+          try {
+            final controller = TextEditingController();
+            addTearDown(controller.dispose);
+
+            await pumpFocused(
+              tester,
+              PlTextField(fullWidth: true, controller: controller, maxLength: 2),
+            );
+
+            // ㅏ after 글한 takes the ㄴ off 한 for a syllable of its own, so the
+            // input method finishes 하 and starts 나.
+            await compose(tester, controller, <TextEditingValue>[
+              compositionStarts(''),
+              composing('ㄱ', 0, 1),
+              composing('그', 0, 1),
+              composing('글', 0, 1),
+              composing('글ㅎ', 1, 2),
+              composing('글하', 1, 2),
+              composing('글한', 1, 2),
+              composing('글하', 1, 2),
+              composing('글하나', 2, 3),
+            ]);
+
+            tester.testTextInput.updateEditingValue(committed('글하나'));
+            await tester.pump();
+
+            expect(controller.value, committed('글하'));
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        },
+      );
+
+      testWidgets('on Windows, takes in a syllable started in a field already full', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          final controller = TextEditingController(text: '한글');
+          addTearDown(controller.dispose);
+
+          await pumpFocused(
+            tester,
+            PlTextField(fullWidth: true, controller: controller, maxLength: 2),
+          );
+
+          await compose(tester, controller, <TextEditingValue>[
+            compositionStarts('한글'),
+            composing('한글ㅁ', 2, 3),
+            composing('한글마', 2, 3),
+          ]);
+
+          tester.testTextInput.updateEditingValue(committed('한글마'));
+          await tester.pump();
+
+          expect(controller.value, committed('한글'));
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      testWidgets('on Windows, held to the limit, turns away a syllable the input method keeps', (
+        WidgetTester tester,
+      ) async {
+        // The field goes back to 글 being composed while the input method
+        // composes ㅁ, and Windows is never told: what the input method sends
+        // next is written over 글.
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          final controller = TextEditingController();
+          addTearDown(controller.dispose);
+
+          await pumpFocused(
+            tester,
+            PlTextField(
+              fullWidth: true,
+              controller: controller,
+              maxLength: 2,
+              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            ),
+          );
+
+          await compose(tester, controller, <TextEditingValue>[
+            compositionStarts(''),
+            composing('한', 0, 1),
+            composing('한글', 1, 2),
+          ]);
+
+          tester.testTextInput.updateEditingValue(composing('한글ㅁ', 2, 3));
+          await tester.pump();
+
+          expect(controller.value, composing('한글', 1, 2));
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      testWidgets('on macOS, turns away a syllable typed past a full field, and says so', (
+        WidgetTester tester,
+      ) async {
+        // A composition the field turns away is sent back as text with nothing
+        // being composed, and the macOS engine then discards what the input
+        // method has marked, so the two keep the same text.
+        debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
+
+        try {
+          final controller = TextEditingController();
+          addTearDown(controller.dispose);
+
+          await pumpFocused(
+            tester,
+            PlTextField(fullWidth: true, controller: controller, maxLength: 2),
+          );
+
+          await compose(tester, controller, <TextEditingValue>[
+            composing('ㅎ', 0, 1),
+            composing('하', 0, 1),
+            composing('한', 0, 1),
+            committed('한'),
+            composing('한ㄱ', 1, 2),
+            composing('한그', 1, 2),
+            composing('한글', 1, 2),
+            committed('한글'),
+          ]);
+
+          tester.testTextInput.log.clear();
+          tester.testTextInput.updateEditingValue(composing('한글ㅁ', 2, 3));
+          await tester.pump();
+
+          expect(controller.value, committed('한글'));
+
+          final MethodCall sent = tester.testTextInput.log.lastWhere(
+            (MethodCall call) => call.method == 'TextInput.setEditingState',
+          );
+
+          expect(
+            sent.arguments,
+            allOf(
+              containsPair('text', '한글'),
+              containsPair('composingBase', -1),
+              containsPair('composingExtent', -1),
+            ),
+          );
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      for (final (TargetPlatform platform, String name) in <(TargetPlatform, String)>[
+        (TargetPlatform.windows, 'Windows'),
+        (TargetPlatform.macOS, 'macOS'),
+      ]) {
+        for (final (String reading, String written) in <(String, String)>[
+          ('zhongguo', '中国'),
+          ('にほんご', '日本語'),
+        ]) {
+          testWidgets('on $name, takes $reading for $written in a field of ${written.length}', (
+            WidgetTester tester,
+          ) async {
+            // The reading is longer than the field, and what it is turned into
+            // fits.
+            debugDefaultTargetPlatformOverride = platform;
+
+            try {
+              final controller = TextEditingController();
+              addTearDown(controller.dispose);
+
+              await pumpFocused(
+                tester,
+                PlTextField(fullWidth: true, controller: controller, maxLength: written.length),
+              );
+
+              final bool windows = platform == TargetPlatform.windows;
+
+              await compose(tester, controller, <TextEditingValue>[
+                if (windows) compositionStarts(''),
+                for (int end = 1; end <= reading.length; end++)
+                  composing(reading.substring(0, end), 0, end),
+                // Windows sends the chosen characters while they are still the
+                // composition, and then ends it.
+                if (windows) composing(written, 0, written.length),
+                committed(written),
+              ]);
+            } finally {
+              debugDefaultTargetPlatformOverride = null;
+            }
+          });
+        }
+      }
+
+      testWidgets('held to the limit, cannot take a reading longer than the field', (
+        WidgetTester tester,
+      ) async {
+        debugDefaultTargetPlatformOverride = TargetPlatform.windows;
+
+        try {
+          final controller = TextEditingController();
+          addTearDown(controller.dispose);
+
+          await pumpFocused(
+            tester,
+            PlTextField(
+              fullWidth: true,
+              controller: controller,
+              maxLength: 2,
+              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+            ),
+          );
+
+          await compose(tester, controller, <TextEditingValue>[
+            compositionStarts(''),
+            composing('z', 0, 1),
+            composing('zh', 0, 2),
+          ]);
+
+          tester.testTextInput.updateEditingValue(composing('zho', 0, 3));
+          await tester.pump();
+
+          expect(controller.value, composing('zh', 0, 2));
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+      });
+
+      testWidgets(
+        'on Android, lets a word the keyboard composes run past the limit until it ends',
+        (WidgetTester tester) async {
+          // The price of the default where a keyboard composes Latin words, as
+          // Gboard does: the word is cut once it is finished.
+          debugDefaultTargetPlatformOverride = TargetPlatform.android;
+
+          try {
+            final controller = TextEditingController();
+            addTearDown(controller.dispose);
+
+            await pumpFocused(
+              tester,
+              PlTextField(fullWidth: true, controller: controller, maxLength: 4),
+            );
+
+            await compose(tester, controller, <TextEditingValue>[
+              composing('hell', 0, 4),
+              composing('hello', 0, 5),
+            ]);
+
+            tester.testTextInput.updateEditingValue(committed('hello '));
+            await tester.pump();
+
+            expect(controller.value, committed('hell'));
+          } finally {
+            debugDefaultTargetPlatformOverride = null;
+          }
+        },
+      );
     });
 
     group('a disabled field', () {

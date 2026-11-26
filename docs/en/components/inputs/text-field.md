@@ -282,7 +282,21 @@ A chord that matches is **consumed**. The handler runs and the key goes no furth
 
 ::: fw flutter
 
-The controller **is** the value, and `onChanged` is told about every change. `maxLength` is a formatter rather than a counter: it stops the twenty-fifth character from arriving, and nothing is drawn under the field unless you draw it.
+The controller **is** the value, and `onChanged` is told about every change. `maxLength` is a formatter rather than a counter: it keeps the value to 24 characters, and nothing is drawn under the field unless you draw it.
+
+:::
+
+A Korean syllable, a Japanese reading and a pinyin spelling are written over several keys, and the input method holds them as a composition until the key that ends it. `maxLength` lets a composition run past the limit while it is open and cuts the text back to the limit as it ends. A field that turned those keys away would refuse a reading longer than the room left even where the characters it turns into would fit. Until the composition ends, the value can be longer than `maxLength`.
+
+::: fw react
+
+That is what the browser does with the native attribute, so there is no prop for it.
+
+:::
+
+::: fw flutter
+
+`maxLengthEnforcement` changes it. `MaxLengthEnforcement.enforced` holds a composition to the limit, for a field that only takes digits or Latin letters: a keyboard that composes whole words, as Gboard on Android does, otherwise lets a word run past the limit until it is finished. Flutter's own `TextField` picks `enforced` on Windows and Android, and on Windows the input method goes on composing a syllable the field turned away, so the next one can take the place of a syllable already in the field.
 
 :::
 
@@ -338,6 +352,7 @@ The controller **is** the value, and `onChanged` is told about every change. `ma
 | `value` / `onChange` | `controller` / `onChanged` | A `TextEditingController` is where Flutter keeps text, and it is what a caller already has. |
 | `type="email"` | `keyboardType` | Flutter's way of saying which keyboard to raise. |
 | `resize` | — | A textarea's drag handle is the browser's, and there is no equivalent to offer. |
+| `maxLength`, as the browser enforces it | `maxLength` and `maxLengthEnforcement` | The browser decides what happens to a composition at the limit, and Flutter leaves it to the field. The default is the browser's. |
 | a `<textarea>` under `multiline` | the same widget, taller | There is one editor either way, so switching to multiline genuinely changes nothing but the height. |
 | `aria-describedby` wiring | one merged semantics node | The same result by a different route. |
 | selection handles on touch | — | They belong to Material and Cupertino, which this package does not import. |

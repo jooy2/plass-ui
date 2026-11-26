@@ -282,7 +282,21 @@ adornment는 컨트롤의 **첫 줄**을 기준으로 가운데 정렬되므로,
 
 ::: fw flutter
 
-controller가 **곧** 값이고, `onChanged`는 모든 변화를 알려줍니다. `maxLength`는 카운터가 아니라 formatter입니다. 스물다섯 번째 글자가 도착하지 못하게 막을 뿐, 직접 그리지 않는 한 필드 아래에는 아무것도 그려지지 않습니다.
+controller가 **곧** 값이고, `onChanged`는 모든 변화를 알려줍니다. `maxLength`는 카운터가 아니라 formatter입니다. 값을 24자로 맞출 뿐, 직접 그리지 않는 한 필드 아래에는 아무것도 그려지지 않습니다.
+
+:::
+
+한글 음절, 일본어 읽기, 중국어 병음은 여러 키에 걸쳐 쓰이고, 입력기는 조합을 끝내는 키가 올 때까지 이를 조합 중인 글자로 들고 있습니다. `maxLength`는 조합이 열려 있는 동안 한도를 넘게 두었다가, 조합이 끝날 때 한도까지 자릅니다. 이 키들을 막는 필드에서는 변환된 글자가 칸에 들어가더라도 남은 칸보다 긴 읽기를 입력할 수 없습니다. 조합이 끝나기 전까지 값은 `maxLength`보다 길 수 있습니다.
+
+::: fw react
+
+브라우저가 네이티브 속성으로 이렇게 처리하므로 따로 둔 prop은 없습니다.
+
+:::
+
+::: fw flutter
+
+`maxLengthEnforcement`로 바꿀 수 있습니다. `MaxLengthEnforcement.enforced`는 조합 중에도 한도를 지킵니다. 숫자나 라틴 문자만 받는 필드에 맞습니다. Android의 Gboard처럼 단어 전체를 조합하는 키보드에서는 기본값이면 단어가 끝날 때까지 한도를 넘습니다. Flutter의 `TextField`는 Windows와 Android에서 `enforced`를 고릅니다. Windows에서는 필드가 막은 음절을 입력기가 계속 조합하므로, 다음 음절이 이미 필드에 있던 음절을 밀어내고 그 자리에 들어갈 수 있습니다.
 
 :::
 
@@ -338,6 +352,7 @@ controller가 **곧** 값이고, `onChanged`는 모든 변화를 알려줍니다
 | `value` / `onChange` | `controller` / `onChanged` | `TextEditingController`가 Flutter가 텍스트를 두는 자리이고, 호출자가 이미 들고 있는 것입니다. |
 | `type="email"` | `keyboardType` | 어떤 키보드를 올릴지 말하는 Flutter의 방식입니다. |
 | `resize` | — | textarea의 크기 조절 손잡이는 브라우저의 것이고, 내놓을 대응물이 없습니다. |
+| 브라우저가 지키는 `maxLength` | `maxLength`와 `maxLengthEnforcement` | 한도에 이른 조합을 브라우저는 스스로 처리하고, Flutter는 필드에 맡깁니다. 기본값은 브라우저와 같습니다. |
 | `multiline`에서의 `<textarea>` | 같은 위젯, 더 높을 뿐 | 어느 쪽이든 편집기는 하나이므로, 여러 줄로 바꾸는 것이 정말로 높이 말고는 아무것도 바꾸지 않습니다. |
 | `aria-describedby` 연결 | 병합된 semantics 노드 하나 | 경로가 다를 뿐 결과는 같습니다. |
 | 터치에서의 선택 손잡이 | — | Material과 Cupertino의 것이고, 이 패키지는 둘을 가져오지 않습니다. |

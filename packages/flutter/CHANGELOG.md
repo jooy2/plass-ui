@@ -4,6 +4,10 @@
 
 ## vNext (2026--)
 
+### Breaking changes
+
+- **A `PlTextField` with `maxLength` lets a composition run past the limit on Windows and Android too, and cuts it as the composition ends.** Flutter holds a composition to the limit on those two, which turned away keys a Korean, Japanese or Chinese input method was still composing: a Japanese reading or a pinyin spelling longer than the room left could not be typed at all, even where the characters it turns into would fit, and on Windows the input method went on composing a syllable the field had turned away, so the next one could take the place of a syllable already in the field. The field now takes what the input method writes and cuts the text back to `maxLength` once the composition ends, as Flutter already did on macOS, iOS, Linux and the web, and as a browser does with the React field's `maxLength`. Until then `onChanged` can report more than `maxLength` characters, and on Android a keyboard that composes whole words, as Gboard does, lets a Latin word run past the limit until the word is finished. `PlTextField` takes `maxLengthEnforcement` to choose: pass `MaxLengthEnforcement.enforced` to hold every composition to the limit, which suits a field of digits or Latin letters, or `LengthLimitingTextInputFormatter.getDefaultMaxLengthEnforcement()` for what each platform did before.
+
 ## 1.9.0 (2026-11-02)
 
 ### Added

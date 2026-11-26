@@ -5721,6 +5721,15 @@ export const flutterPropTables: Record<string, PropRow[]> = {
       }
     },
     {
+      name: 'maxLengthEnforcement',
+      type: 'MaxLengthEnforcement',
+      default: 'MaxLengthEnforcement.truncateAfterCompositionEnds',
+      description: {
+        ko: '입력기가 조합하는 동안 maxLength가 하는 일. 기본값은 조합이 끝날 때까지 한도를 넘게 두었다가 끝나면 자르고, enforced는 조합 중에도 한도를 지킵니다',
+        en: 'What maxLength does while an input method is composing. The default lets a composition run past the limit and cuts it as it ends, and enforced holds it to the limit'
+      }
+    },
+    {
       name: 'semanticLabel',
       type: 'String?',
       description: {

@@ -84,6 +84,7 @@ class PlTextField extends StatefulWidget {
     this.textInputAction,
     this.inputFormatters,
     this.maxLength,
+    this.maxLengthEnforcement = MaxLengthEnforcement.truncateAfterCompositionEnds,
     this.semanticLabel,
     this.focusNode,
     this.autofocus = false,
@@ -201,7 +202,33 @@ class PlTextField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
 
   /// How many characters the field will take.
+  ///
+  /// [maxLengthEnforcement] decides what happens to a syllable an input method
+  /// is still composing when it reaches the limit.
   final int? maxLength;
+
+  /// What [maxLength] does while an input method is composing, as a Korean,
+  /// Japanese or Chinese one does from the first key of a syllable or a word to
+  /// the key that ends it.
+  ///
+  /// The default, [MaxLengthEnforcement.truncateAfterCompositionEnds], lets a
+  /// composition run past the limit while it is open and cuts the text back to
+  /// [maxLength] as it ends. The field and the input method keep the same text,
+  /// and a Japanese reading or a pinyin spelling longer than the room left can
+  /// be typed when what it turns into fits. Until the composition ends,
+  /// [onChanged] can report more than [maxLength] characters. A browser treats
+  /// the React field's `maxLength` the same way.
+  ///
+  /// [MaxLengthEnforcement.enforced] holds a composition to the limit, for a
+  /// field that only ever takes digits or Latin letters: a keyboard that
+  /// composes whole words, as Gboard on Android does, otherwise lets a word run
+  /// past the limit until it is finished. It turns away what an input method is
+  /// still composing, and on Windows the input method goes on composing it, so
+  /// the next syllable can take the place of one already in the field. It is
+  /// what Flutter picks on Windows and Android, and
+  /// [LengthLimitingTextInputFormatter.getDefaultMaxLengthEnforcement] gives
+  /// Flutter's choice for the platform.
+  final MaxLengthEnforcement maxLengthEnforcement;
 
   /// The name a screen reader announces, for a field with no visible [label].
   ///
@@ -393,7 +420,11 @@ class _PlTextFieldState extends State<PlTextField> with PlassEditorHandles {
           widget.keyboardType ?? (widget.multiline ? TextInputType.multiline : TextInputType.text),
       textInputAction: widget.textInputAction,
       inputFormatters: <TextInputFormatter>[
-        if (widget.maxLength != null) LengthLimitingTextInputFormatter(widget.maxLength),
+        if (widget.maxLength != null)
+          LengthLimitingTextInputFormatter(
+            widget.maxLength,
+            maxLengthEnforcement: widget.maxLengthEnforcement,
+          ),
         ...?widget.inputFormatters,
       ],
       maxLines: widget.multiline ? widget.rows : 1,
