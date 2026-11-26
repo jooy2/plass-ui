@@ -76,6 +76,12 @@ jobs:
         run: flutter analyze
         working-directory: ./packages/flutter/example
 
+      # The tests cover how a preview sizes its frame, which goes wrong only on
+      # the site, as a frame that grows without end.
+      - name: Run tests
+        run: flutter test
+        working-directory: ./packages/flutter/example
+
       # `--no-tree-shake-icons` for the same reason the documentation build
       # passes it: the gallery ships no icon font, so the subset the shaker
       # would compute is empty — and it refuses outright on the one font that
